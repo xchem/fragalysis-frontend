@@ -4,9 +4,9 @@
 import * as actions from '../actions/actonTypes'
 
 const INITIALSTATE = {
-    project_id: null,
-    target_id: null,
-    group_id: null,
+    project_id: undefined,
+    target_id: undefined,
+    group_id: undefined,
     group_type: "MC"
 }
 
@@ -26,8 +26,9 @@ export default function apiReducers(state = INITIALSTATE, action) {
 
         case actions.LOAD_MOL_GROUPS:
             return Object.assign({}, state, {
-                group_id: action.target_id,
-                group_type: action.group_type
+                group_id: action.group_id,
+                // Group type is default
+                group_type: action.group_type = action.group_type === undefined ? "MC" : action.group_type
             });
 
         case actions.LOAD_MOLECULES:

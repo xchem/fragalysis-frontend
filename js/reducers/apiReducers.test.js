@@ -6,12 +6,14 @@ import * as types from '../actions/actonTypes'
  
 
 function getInitialState(){
-    return  {
-        project_id: null, 
-        target_id: null, 
-        group_id: null,
-        group_type: "MC"}
+   return {
+    project_id: undefined,
+    target_id: undefined,
+    group_id: undefined,
+    group_type: "MC"
 }
+}
+
 
 describe('API Redcuer', () => {
   it('should return the initial state', () => {
@@ -27,8 +29,8 @@ describe('API Redcuer', () => {
       })
     ).toEqual({
         project_id: 1,
-        target_id: null,
-        group_id: null,
+        target_id: undefined,
+        group_id: undefined,
         group_type: "MC"
     }
     )
@@ -36,9 +38,9 @@ describe('API Redcuer', () => {
         type: types.LOAD_TARGETS
       })
     ).toEqual({
-        project_id: null,
-        target_id: null,
-        group_id: null,
+        project_id: undefined,
+        target_id: undefined,
+        group_id: undefined,
         group_type: "MC"
     }
     )
@@ -49,20 +51,20 @@ describe('API Redcuer', () => {
         group_id: 1
       })
     ).toEqual({
-        project_id: null,
-        target_id: null,
+        project_id: undefined,
+        target_id: undefined,
         group_id: 1,
         group_type: "MC"
     }
     )
       expect(apiReducers(undefined, {
-        type: types.LOAD_MOL_GROUPS,
+          type: types.LOAD_MOL_GROUPS,
           group_type: "PC",
-        group_id: 1
+          group_id: 1
       })
     ).toEqual({
-        project_id: null,
-        target_id: null,
+        project_id: undefined,
+        target_id: undefined,
         group_id: 1,
         group_type: "PC"
     }
@@ -75,7 +77,7 @@ describe('API Redcuer', () => {
         group_id: 1
       })
     ).toEqual({
-        project_id: null,
+        project_id: undefined,
         target_id: 1,
         group_id: 1,
         group_type: "MC"
@@ -86,9 +88,9 @@ describe('API Redcuer', () => {
         target_id: 1
       })
     ).toEqual({
-        project_id: null,
+        project_id: undefined,
         target_id: 1,
-        group_id: null,
+        group_id: undefined,
         group_type: "MC"
     }
     )

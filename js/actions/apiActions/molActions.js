@@ -4,7 +4,7 @@
 import {LOAD_TARGETS, LOAD_MOLECULES, LOAD_MOL_GROUPS} from '../actonTypes'
 
 
-export const loadTargets = function (project_id=null) {
+export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + group);
     return {
         type: LOAD_TARGETS,
@@ -21,7 +21,7 @@ export const loadMolGroups = function (target_id,group_type="MC") {
     };
 }
 
-export const loadMolecules = function (target_id=null,group_id=null) {
+export const loadMolecules = function (target_id=undefined,group_id=undefined) {
     console.log("ACTIONS: " + group);
     return {
         type: LOAD_MOLECULES,
