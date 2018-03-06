@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import nglReducers from  './nglReducers'
+import apiReducers from './apiReducers'
 import * as types from '../actions/actonTypes'
  
 
@@ -13,15 +13,15 @@ function getInitialState(){
         group_type: "MC"}
 }
 
-describe('NGL reducer', () => {
+describe('API Redcuer', () => {
   it('should return the initial state', () => {
-    expect(nglReducers(undefined, {})).toEqual(
+    expect(apiReducers(undefined, {})).toEqual(
         getInitialState()
     )
   })
  
   it('should handle LOAD_TARGETS', () => {
-    expect(nglReducers(undefined, {
+    expect(apiReducers(undefined, {
         type: types.LOAD_TARGETS,
         project_id: 1
       })
@@ -32,7 +32,7 @@ describe('NGL reducer', () => {
         group_type: "MC"
     }
     )
-      expect(nglReducers(undefined, {
+      expect(apiReducers(undefined, {
         type: types.LOAD_TARGETS
       })
     ).toEqual({
@@ -44,7 +44,7 @@ describe('NGL reducer', () => {
     )
   })
     it('should handle LOAD_MOL_GROUPS', () => {
-    expect(nglReducers(undefined, {
+    expect(apiReducers(undefined, {
         type: types.LOAD_MOL_GROUPS,
         group_id: 1
       })
@@ -55,7 +55,7 @@ describe('NGL reducer', () => {
         group_type: "MC"
     }
     )
-      expect(nglReducers(undefined, {
+      expect(apiReducers(undefined, {
         type: types.LOAD_MOL_GROUPS,
           group_type: "PC",
         group_id: 1
@@ -69,7 +69,7 @@ describe('NGL reducer', () => {
     )
   })
         it('should handle LOAD_MOLECULES', () => {
-    expect(nglReducers(undefined, {
+    expect(apiReducers(undefined, {
         type: types.LOAD_MOLECULES,
         target_id: 1,
         group_id: 1
@@ -81,7 +81,7 @@ describe('NGL reducer', () => {
         group_type: "MC"
     }
     )
-      expect(nglReducers(undefined, {
+      expect(apiReducers(undefined, {
         type: types.LOAD_MOLECULES,
         target_id: 1
       })
