@@ -15,3 +15,9 @@ export const SET_STYLE = 'SET_STYLE';
 export const SET_SPIN = 'SET_SPIN';
 export const SET_WATER = 'SET_WATER';
 export const SET_HYDROGEN = 'SET_HYDROGEN';
+// Target, Site, Molecule, Protein, Compound
+export const LOAD_TARGETS = 'LOAD_TARGETS';
+export const LOAD_PROTEINS = 'LOAD_PROTEINS';
+export const LOAD_MOL_GROUPS = 'LOAD_MOL_GROUPS';
+export const LOAD_MOLECULES = 'LOAD_MOLECULES';
+export const LOAD_COMPOUNDS = 'LOAD_COMPOUNDS';
