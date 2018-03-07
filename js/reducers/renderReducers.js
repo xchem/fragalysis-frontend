@@ -9,7 +9,7 @@ const INITIALSTATE = {
 }
 
 
-export default function apiReducers(state = INITIALSTATE, action) {
+export default function renderReducers(state = INITIALSTATE, action) {
     console.log('REDUCERS FIRED OFF. OLD STATE');
     console.log(state);
     console.log('action.type=' + action.type);
@@ -22,7 +22,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 children: action.children,
                 receivedAt: action.date
             });
-        
+
         // Cases like: @@redux/INIT
         default:
             return state;

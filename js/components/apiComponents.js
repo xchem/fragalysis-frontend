@@ -110,7 +110,6 @@ export class ProteinList extends GenericList {
         }
 }
 
-
 // Specific Views
 class CompoundView extends GenericView {
 
