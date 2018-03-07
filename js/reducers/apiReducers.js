@@ -77,13 +77,6 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 error: action.error
             });
 
-        case actions.RECEIVE_DATA_FROM_API:
-            return Object.assign({}, state, {
-                element_type: action.element_type,
-                children: action.children,
-                receivedAt: action.date
-            });
-
         // Cases like: @@redux/INIT
         default:
             return state;

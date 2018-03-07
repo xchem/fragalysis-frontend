@@ -29,5 +29,6 @@ export const RECEIVE_DATA_FROM_API = 'RECEIVE_DATA_FROM_API';
 export const POST_TO_API = 'POST_TO_API';
 export const POST_TO_API_SUCCESS = 'POST_TO_API_SUCESS';
 export const POST_TO_API_FAILURE = 'POST_TO_API_FAILURE';
-
+// Render the children
+export const RENDER_COMPONENT = 'GET_FROM_API';
 
