@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import nglReducers from  './nglReducers'
+import nglReducers from  '../reducers/nglReducers'
 import * as types from '../actions/actonTypes'
  
 const TEST_OBJ_ONE = {name: "TESTOBJ", loadMe: "STRING"}

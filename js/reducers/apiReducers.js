@@ -7,6 +7,7 @@ const INITIALSTATE = {
     project_id: undefined,
     target_id: undefined,
     group_id: undefined,
+    isFetching: false,
     group_type: "MC"
 }
 
@@ -21,7 +22,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
 
         case actions.LOAD_TARGETS:
             return Object.assign({}, state, {
-                project_id: action.project_id
+                project_id: action.project_id,
             });
 
         case actions.LOAD_MOL_GROUPS:
@@ -36,6 +37,53 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 target_id: action.target_id,
                 group_id: action.group_id
             });
+
+        case actions.GET_FROM_API:
+            // Here is where we put the logic for generatiing the url
+            var request_url = "/v0.1/"
+            var get_params = {}
+            switch(action.element_type) {
+                case actions.LOAD_MOLECULES:
+                    request_url += "molecules/"
+                    get_params["target_id"] = state.target_id
+                    if(state.group_id != undefined) {
+                        get_params["group_id"] = state.group_id
+                    }
+                case actions.LOAD_MOL_GROUPS:
+                    request_url += "molgroup/"
+                    get_params["group_id"] = state.group_id
+                    get_params["group_type"] = state.group_type
+                case actions.LOAD_TARGETS:
+                    request_url += "targets/"
+                    if(state.project_id != undefined) {
+                        get_params["project_id"] = state.project_id
+                    }
+            }
+            return Object.assign({}, state, {
+                get_params: get_params,
+                element_type: action.element_type,
+                url: request_url
+            });
+
+        case actions.GET_FROM_API_SUCCESS:
+            return Object.assign({}, state, {
+                element_type: action.element_type,
+                response: action.response
+            });
+
+        case actions.GET_FROM_API_FAILURE:
+            return Object.assign({}, state, {
+                element_type: action.element_type,
+                error: action.error
+            });
+
+        case actions.RECEIVE_DATA_FROM_API:
+            return Object.assign({}, state, {
+                element_type: action.element_type,
+                children: action.children,
+                receivedAt: action.date
+            });
+
         // Cases like: @@redux/INIT
         default:
             return state;

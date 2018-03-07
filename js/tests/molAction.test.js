@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import * as actions from './molActions'
-import * as types from '../actonTypes'
+import * as actions from '../actions/apiActions/molActions'
+import * as types from '../actions/actonTypes'
  
 describe('Molecular actions', () => {
     it('Should load all the targets for a project id', () => {
@@ -26,5 +26,21 @@ describe('Molecular actions', () => {
             group_id: 12,
         }
         expect(actions.loadMolecules(1,12)).toEqual(expectedAction)
+    })
+    it('Should load all the molecule groups for a target_id and group_type', () => {
+        const expectedAction = {
+            type: types.LOAD_MOL_GROUPS,
+            target_id: 1,
+            group_type: "MC",
+        }
+        expect(actions.loadMolGroups(1)).toEqual(expectedAction)
+    })
+    it('Should load all the molecule groups for a target_id and group_type', () => {
+        const expectedAction = {
+            type: types.LOAD_MOL_GROUPS,
+            target_id: 1,
+            group_type: "PC",
+        }
+        expect(actions.loadMolGroups(1,"PC")).toEqual(expectedAction)
     })
 })

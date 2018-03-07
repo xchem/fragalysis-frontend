@@ -1,16 +1,17 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import apiReducers from './apiReducers'
+import apiReducers from '../reducers/apiReducers'
 import * as types from '../actions/actonTypes'
  
 
 function getInitialState(){
    return {
-    project_id: undefined,
-    target_id: undefined,
-    group_id: undefined,
-    group_type: "MC"
+       project_id: undefined,
+       target_id: undefined,
+       group_id: undefined,
+       isFetching: false,
+       group_type: "MC"
 }
 }
 
@@ -31,6 +32,7 @@ describe('API Redcuer', () => {
         project_id: 1,
         target_id: undefined,
         group_id: undefined,
+        isFetching: false,
         group_type: "MC"
     }
     )
@@ -41,6 +43,7 @@ describe('API Redcuer', () => {
         project_id: undefined,
         target_id: undefined,
         group_id: undefined,
+          isFetching: false,
         group_type: "MC"
     }
     )
@@ -54,6 +57,7 @@ describe('API Redcuer', () => {
         project_id: undefined,
         target_id: undefined,
         group_id: 1,
+        isFetching: false,
         group_type: "MC"
     }
     )
@@ -65,6 +69,7 @@ describe('API Redcuer', () => {
     ).toEqual({
         project_id: undefined,
         target_id: undefined,
+          isFetching: false,
         group_id: 1,
         group_type: "PC"
     }
@@ -80,6 +85,7 @@ describe('API Redcuer', () => {
         project_id: undefined,
         target_id: 1,
         group_id: 1,
+        isFetching: false,
         group_type: "MC"
     }
     )
@@ -88,10 +94,11 @@ describe('API Redcuer', () => {
         target_id: 1
       })
     ).toEqual({
-        project_id: undefined,
-        target_id: 1,
-        group_id: undefined,
-        group_type: "MC"
+          project_id: undefined,
+          target_id: 1,
+          isFetching: false,
+          group_id: undefined,
+          group_type: "MC"
     }
     )
   })
