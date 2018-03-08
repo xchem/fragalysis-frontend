@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as types from '../actions/actonTypes'
-import { Col } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { MolGroupList, MoleculeList} from './apiComponents';
 import { NGLView } from './nglComponents';
 
@@ -25,7 +25,7 @@ class Tindspect extends Component {
 
  
   render() {
-        return <div>
+        return <Row>
             <Col xs={2} md={2}>
                 <MolGroupList />
             </Col>
@@ -35,7 +35,7 @@ class Tindspect extends Component {
             <Col xs={6} md={6} >
                 <NGLView />
             </Col>
-        </div>
+        </Row>
     }
 
 }

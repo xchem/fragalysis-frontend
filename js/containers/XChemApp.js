@@ -9,16 +9,7 @@ import React, { Component } from 'react'
 export default class XChemApp extends Component {
 
     render() {
-            return <div>
-                <Row>
-                    <Header/>
-                </Row>
-                <Row>
-                    <Col xs={12} md={12}>
-                        <Tindspect/>
-                    </Col>
-                </Row>
-            </div>
+            return <Tindspect />
     }
 }
 
