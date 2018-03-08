@@ -1,4 +1,7 @@
 *.idea
+bundles/
+webpack-stats.json
+package-lock.json
 build/
 node_modules/
 npm-debug.log
