@@ -6,7 +6,7 @@ import SVGInline from "react-svg-inline"
 import React from 'react';
 import { ListGroup, Col } from 'react-bootstrap';
 import Draggable from 'react-draggable'; // The default
-import * as nglActions from '../actions/nglActions/nglLoadActions'
+import * as nglActions from '../actions/nglLoadActions'
 
 function FillMe(props) {
     return <h1>FILL ME UP PLEASE</h1>;

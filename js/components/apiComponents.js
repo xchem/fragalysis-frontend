@@ -19,7 +19,7 @@ const SVG_MOL = '/viewer/img_from_mol_pk/'
 const GENERIC_INTERVAL = 100000
 
 
-import * as apiActions from '../actions/apiActions/apiActions'
+import * as apiActions from '../actions/apiActions'
 
     
 export class CompoundList extends GenericList {

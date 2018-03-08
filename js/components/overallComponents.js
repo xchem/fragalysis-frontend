@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions/apiActions'
+import * as apiActions from '../actions/apiActions'
 import * as types from '../actions/actonTypes'
 
 

@@ -7,7 +7,6 @@
  */
 import { Stage } from 'ngl';
 import React from 'react';
-import { ShowMolLigs} from '../views/ngl_views';
 
 
 export class NGLView extends React.Component {
