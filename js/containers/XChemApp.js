@@ -2,7 +2,7 @@
  * Created by abradley on 07/03/2018.
  */
 import {Row, Col} from 'react-bootstrap';
-import { Tindspect } from '../components/overallComponents';
+import Tindspect from '../components/overallComponents';
 import React, { Component } from 'react'
 
 

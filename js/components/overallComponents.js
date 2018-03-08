@@ -8,7 +8,7 @@ import { MolGroupList, MoleculeList} from './apiComponents';
 import { NGLView } from './nglComponents';
 
 
-export class Tindspect extends Component {
+class Tindspect extends Component {
 
     constructor(props) {
     super(props)
