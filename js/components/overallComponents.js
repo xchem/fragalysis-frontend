@@ -12,8 +12,6 @@ export class Tindspect extends Component {
 
     constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleRefreshClick = this.handleRefreshClick.bind(this)
   }
  
   componentDidMount() {
