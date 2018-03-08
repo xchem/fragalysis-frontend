@@ -2,7 +2,7 @@
  * Created by abradley on 03/03/2018.
  */
 import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE,
-    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS} from '../actonTypes'
+    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS} from './actonTypes'
 
 
 export const loadObject = function (group) {

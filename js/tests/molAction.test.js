@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import * as actions from '../actions/apiActions/molActions'
+import * as actions from '../actions/apiActions'
 import * as types from '../actions/actonTypes'
  
 describe('Molecular actions', () => {

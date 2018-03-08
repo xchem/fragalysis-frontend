@@ -68,7 +68,7 @@ describe('API Redcuer', () => {
       })
     ).toEqual({
         project_id: undefined,
-        target_id: undefined,
+        target_id: undefined, 
           isFetching: false,
         group_id: 1,
         group_type: "PC"

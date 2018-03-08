@@ -17,6 +17,10 @@ const PROTEIN_URL = BASE_API+"proteins/"
 const SVG_CMPD = '/viewer/img_from_cmpd_pk/'
 const SVG_MOL = '/viewer/img_from_mol_pk/'
 const GENERIC_INTERVAL = 100000
+
+
+import * as apiActions from '../actions/apiActions/apiActions'
+
     
 export class CompoundList extends GenericList {
         constructor(props) {
@@ -30,7 +34,6 @@ export class CompoundList extends GenericList {
 };
 
 export class TargetList extends GenericList {
-
 
     constructor(props) {
         super(props);
@@ -53,8 +56,9 @@ export class TargetList extends GenericList {
           targetOn: new_value
         }));
         this.props.communicateChecked(new_value);
+        this.props.dispatch(apiActions.loadMolecules(new_value));
+        this.props.dispatch(apiActions.fetchDataFillDiv());
       }
-
 };
 
 

@@ -6,33 +6,7 @@ import SVGInline from "react-svg-inline"
 import React from 'react';
 import { ListGroup, Col } from 'react-bootstrap';
 import Draggable from 'react-draggable'; // The default
-
-// Actions
-/*
- * action types
- */
-export const SELECT_MOL = 'SELECT_MOL'
-export const TOGGLE_MOL = 'TOGGLE_MOL'
-export const SET_VISIBILITY_FILTER = 'SET_VISIBILITY_FILTER'
-/*
- * other constants
- */
-export const VisibilityFilters = {
-  SHOW_ALL: 'SHOW_ALL',
-  SHOW_COMPLETED: 'SHOW_SELECTED',
-  SHOW_ACTIVE: 'SHOW_ACTIVE'
-}
-export function selectMol(index) {
-  return { type: SELECT_MOL, index }
-}
- 
-export function toggleMol(index) {
-  return { type: TOGGLE_MOL, index }
-}
- 
-export function setVisibilityFilter(filter) {
-  return { type: SET_VISIBILITY_FILTER, filter }
-}
+import * as nglActions from '../actions/nglActions/nglLoadActions'
 
 function FillMe(props) {
     return <h1>FILL ME UP PLEASE</h1>;
@@ -138,27 +112,15 @@ export class GenericView extends React.Component{
         this.setState(prevState => ({
           isToggleOn: !prevState.isToggleOn
         }));
-        this.props.communicateChecked(this.props.my_id, this.props.prot_id, new_toggle);
+        this.props.dispatch(nglActions.loadMol())
     }
 
     render() {
-        if (this.state.data) {
+        const svg_image = <SVGInline svg={this.state.data}/>;
+        this.current_style = this.state.isToggleOn ? this.selected_style : this.selected_style;
+        return <Draggable>
+                <Col xs={3} onClick={this.handleClick} style={this.current_style}>{svg_image}</Col>
+                </Draggable>
 
-            const svg_image = <SVGInline svg={this.state.data}/>;
-            console.log(this.props.message)
-            if (this.state.isToggleOn){
-                return <Draggable>
-                    <Col xs={3} onClick={this.handleClick} style={this.selected_style}>{svg_image}</Col>
-                    </Draggable>
-            }
-            else{
-                return <Draggable>
-                    <Col xs={3} onClick={this.handleClick} style={this.not_selected_style}>{svg_image}</Col>
-                    </Draggable>
-            }
-        }
-        else {
-            return (<FillMe />)
-        }
     }
 }

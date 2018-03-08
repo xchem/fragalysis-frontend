@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import {LOAD_TARGETS, LOAD_MOLECULES, LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE, GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API} from '../actonTypes'
+import {LOAD_TARGETS, LOAD_MOLECULES, LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE, GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API} from './actonTypes'
 
 
 export const loadTargets = function (project_id=undefined) {
@@ -35,31 +35,32 @@ export const getFromApi = function (request_url, get_params, element_type){
     console.log("ACTIONS: " + request_url);
     return {
         type: GET_FROM_API,
+        isFetching: true,
         get_params: get_params,
         element_type: element_type,
         url: request_url
     }
 }
 
-export const getFromApiSuccess = function (response, element_type){
+export const getFromApiSuccess = function (response){
     console.log("ACTIONS: " + response);
     return {
         type: GET_FROM_API_SUCCESS,
-        element_type: element_type,
+        isFetching: false,
         response: response
     }
 }
 
-export const getFromApiFailure = function (element_type){
-    console.log("REQUEST FAILED: " + element_type);
+export const getFromApiFailure = function (){
+    console.log("REQUEST FAILED");
     return {
         type: GET_FROM_API_FAILURE,
-        element_type: element_type,
+        isFetching: false,
         error: 'Request failed'
     }
 }
 
-export const receiveDataFromApi = function (response, json, element_type) {
+export const receiveDataFromApi = function (json, element_type) {
     console.log("ACTIONS: ");
     return {
         type: RECEIVE_DATA_FROM_API,
@@ -68,4 +69,14 @@ export const receiveDataFromApi = function (response, json, element_type) {
         children: json.data.children.map(child => child.data),
         receivedAt: Date.now()
     }
+}
+
+export function fetchDataFillDiv(url, get_params, ) {
+    return dispatch => {
+        // Set the URL and the get params
+      dispatch(getFromApi())
+      return fetch()
+          .then(response => response.json())
+          .then(json => dispatch(receiveDataFromApi(json, element_type)))
+  }
 }

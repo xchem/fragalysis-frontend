@@ -61,6 +61,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
             }
             return Object.assign({}, state, {
                 get_params: get_params,
+                isFetching: true,
                 element_type: action.element_type,
                 url: request_url
             });
@@ -68,12 +69,14 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.GET_FROM_API_SUCCESS:
             return Object.assign({}, state, {
                 element_type: action.element_type,
+                isFetching: false,
                 response: action.response
             });
 
         case actions.GET_FROM_API_FAILURE:
             return Object.assign({}, state, {
                 element_type: action.element_type,
+                isFetching: false,
                 error: action.error
             });
 
