@@ -8,14 +8,8 @@ import React, { Component } from 'react'
 
 export default class XChemApp extends Component {
 
+    // Here we can launch different apps - with the same store - without reloading the page
     render() {
             return <Tindspect />
-    }
-}
-
-class Header extends Component {
-
-    render() {
-            return <div>HEADER</div>
     }
 }

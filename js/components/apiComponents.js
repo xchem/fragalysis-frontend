@@ -88,6 +88,7 @@ export class MolGroupList extends GenericList {
 
 }
 
+
 export class MoleculeList extends GenericList {
         constructor(props) {
             super(props);
@@ -113,7 +114,6 @@ export class ProteinList extends GenericList {
         }
 }
 
-// Specific Views
 class CompoundView extends GenericView {
 
     constructor(props) {
@@ -128,4 +128,5 @@ class MoleculeView extends GenericView {
         this.url = SVG_MOL + props.my_id + '/'
     }
 }
+
 

@@ -59,11 +59,13 @@ export default function apiReducers(state = INITIALSTATE, action) {
                         get_params["project_id"] = state.project_id
                     }
             }
+            // Setup the URL
+            var url = new URL(request_url)
+            Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
             return Object.assign({}, state, {
-                get_params: get_params,
                 isFetching: true,
                 element_type: action.element_type,
-                url: request_url
+                url: url
             });
 
         case actions.GET_FROM_API_SUCCESS:

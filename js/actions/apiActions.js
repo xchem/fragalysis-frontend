@@ -74,8 +74,8 @@ export const receiveDataFromApi = function (json, element_type) {
 export function fetchDataFillDiv(input_type, element_type=null) {
     return dispatch => {
         // Set the URL and the get params
-      dispatch(getFromApi())
-      return fetch()
+      const url = getFromApi
+      return fetch(url)
           .then(response => response.json())
           .then(json => dispatch(receiveDataFromApi(json, element_type)))
   }
