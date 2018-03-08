@@ -24,18 +24,7 @@ export class Tindspect extends Component {
   componentDidUpdate(prevProps) {
       this.props.dispatch(apiActions.loadTargets())
   }
- 
-  handleChange(nextSubreddit) {
 
-  }
- 
-  handleRefreshClick(e) {
-    e.preventDefault()
- 
-    const { dispatch, selectedSubreddit } = this.props
-    dispatch(invalidateSubreddit(selectedSubreddit))
-    dispatch(fetchPostsIfNeeded(selectedSubreddit))
-  }
  
   render() {
         return <a>
@@ -52,3 +41,5 @@ export class Tindspect extends Component {
     }
 
 }
+
+export default connect()(Tindspect)
