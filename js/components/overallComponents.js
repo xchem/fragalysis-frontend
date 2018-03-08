@@ -36,27 +36,17 @@ export class Tindspect extends Component {
   }
  
   render() {
-        if (this.props.store.target_id==undefined){
-            return <a>
-            <Col xs={12} >
-                <TargetList />
+        return <a>
+            <Col xs={2}>
+                <MolGroupList />
+            </Col>
+            <Col xs={4}>
+                <MoleculeList />
+            </Col>
+            <Col xs={6} md={6} >
+                <NGLView />
             </Col>
         </a>
-
-        }
-        else{
-            return <a>
-                <Col xs={2}>
-                    <MolGroupList />
-                </Col>
-                <Col xs={4}>
-                    <MoleculeList />
-                </Col>
-                <Col xs={6} md={6} >
-                    <NGLView />
-                </Col>
-            </a>
-        }
-
     }
+
 }
