@@ -21,3 +21,10 @@ export default class XChemApp extends Component {
             </div>
     }
 }
+
+class Header extends Component {
+
+    render() {
+            return <div>HEADER</div>
+    }
+}
