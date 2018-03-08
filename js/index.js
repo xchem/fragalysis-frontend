@@ -6,5 +6,5 @@ import Root from './containers/Root'
  
 render(
   <Root />,
-  document.getElementById('root')
+  document.getElementById('app')
 ) 
