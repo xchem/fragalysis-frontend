@@ -3,8 +3,10 @@
  */
 import {Row, Col} from 'react-bootstrap';
 import { Tindspect } from '../components/overallComponents';
+import React, { Component } from 'react'
 
-export default class XChemApp extends React.Component {
+
+export default class XChemApp extends Component {
 
     render() {
             return <div>
