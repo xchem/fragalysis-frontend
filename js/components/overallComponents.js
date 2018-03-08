@@ -3,9 +3,11 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as types from '../actions/actonTypes'
+import { Col } from 'react-bootstrap';
+import { MolGroupList, MoleculeList} from './apiComponents';
+import { NGLView } from './nglComponents';
 
 
- 
 export class Tindspect extends Component {
 
     constructor(props) {
