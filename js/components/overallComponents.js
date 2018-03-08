@@ -16,7 +16,7 @@ class Tindspect extends Component {
  
   componentDidMount() {
       const getParams = {}
-      this.props.dispatch(apiActions.fetchDataFillDiv(types.LOAD_TARGETS, {}, types.LOAD_TARGETS))
+      this.props.dispatch(apiActions.fetchDataFillDiv(types.LOAD_TARGETS))
   }
  
   componentDidUpdate(prevProps) {
@@ -25,17 +25,17 @@ class Tindspect extends Component {
 
  
   render() {
-        return <a>
-            <Col xs={2}>
+        return <div>
+            <Col xs={2} md={2}>
                 <MolGroupList />
             </Col>
-            <Col xs={4}>
+            <Col xs={4} md={4}>
                 <MoleculeList />
             </Col>
             <Col xs={6} md={6} >
                 <NGLView />
             </Col>
-        </a>
+        </div>
     }
 
 }

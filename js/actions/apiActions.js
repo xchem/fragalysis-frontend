@@ -71,7 +71,7 @@ export const receiveDataFromApi = function (json, element_type) {
     }
 }
 
-export function fetchDataFillDiv(url, get_params, element_type) {
+export function fetchDataFillDiv(input_type, element_type=null) {
     return dispatch => {
         // Set the URL and the get params
       dispatch(getFromApi())
