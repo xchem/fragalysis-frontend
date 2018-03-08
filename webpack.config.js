@@ -19,7 +19,8 @@ module.exports = {
   module: {
     rules: [
       { test: /\.js$/, enforce: "pre", loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.jsx$/, enforce: "pre",  loader: 'babel-loader', exclude: /node_modules/ }
+      { test: /\.jsx$/, enforce: "pre",  loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.css$/, loader: 'style-loader!css-loader' }
     ]
   },
 
