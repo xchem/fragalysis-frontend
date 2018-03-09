@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
 import configureStore from '../configureStore'
-import XChemApp from './XChemApp'
+import Tindspect from '../components/overallComponents';
  
 const store = configureStore()
  
@@ -12,7 +12,7 @@ export default class Root extends Component {
     render() {
         return (
             <Provider store={store}>
-                <XChemApp></XChemApp>
+                <Tindspect></Tindspect>
             </Provider>
         )
     }
