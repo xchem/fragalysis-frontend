@@ -6,11 +6,15 @@ import * as actions from '../actions/actonTypes'
 const INITIALSTATE = {
     project_id: undefined,
     target_id: undefined,
+    target_id_list: [],
+    mol_group_list: [],
+    molecule_list: [],
+    mol_group_on: undefined,
+    target_on: undefined,
     group_id: undefined,
     isFetching: false,
     group_type: "MC"
 }
-
 
 export default function apiReducers(state = INITIALSTATE, action) {
     console.log('REDUCERS FIRED OFF. OLD STATE');
@@ -40,32 +44,10 @@ export default function apiReducers(state = INITIALSTATE, action) {
 
         case actions.GET_FROM_API:
             // Here is where we put the logic for generatiing the url
-            var request_url = "/v0.1/"
-            var get_params = {}
-            switch(action.element_type) {
-                case actions.LOAD_MOLECULES:
-                    request_url += "molecules/"
-                    get_params["target_id"] = state.target_id
-                    if(state.group_id != undefined) {
-                        get_params["group_id"] = state.group_id
-                    }
-                case actions.LOAD_MOL_GROUPS:
-                    request_url += "molgroup/"
-                    get_params["group_id"] = state.group_id
-                    get_params["group_type"] = state.group_type
-                case actions.LOAD_TARGETS:
-                    request_url += "targets/"
-                    if(state.project_id != undefined) {
-                        get_params["project_id"] = state.project_id
-                    }
-            }
-            // Setup the URL
-            var url = new URL(request_url)
-            Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
             return Object.assign({}, state, {
                 isFetching: true,
                 element_type: action.element_type,
-                url: url
+                url: getUrl(state, action.element_type)
             });
 
         case actions.GET_FROM_API_SUCCESS:
@@ -81,7 +63,37 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 isFetching: false,
                 error: action.error
             });
+        
+        case actions.SET_TARGET_ID_LIST:
+            return Object.assign({}, state, {
+                target_id_list: action.target_id_list
+            });
+        case actions.SET_TARGET_ON:
+            return Object.assign({}, state, {
+                target_on: action.target_on
+            });
 
+        case actions.SET_MOL_GROUP_LIST:
+            return Object.assign({}, state, {
+                mol_group_list: action.mol_group_list
+            });
+
+        case actions.SET_MOLECULE_LIST:
+            return Object.assign({}, state, {
+                molecule_list: action.molecule_list
+            });
+
+
+        case actions.SET_TO_BUY_LIST:
+            return Object.assign({}, state, {
+                to_buy_list: action.to_buy_list
+            });
+
+        
+        case actions.SET_MOL_GROUP_ON:
+            return Object.assign({}, state, {
+                mol_group_on: action.mol_group_on
+            });
         // Cases like: @@redux/INIT
         default:
             return state;

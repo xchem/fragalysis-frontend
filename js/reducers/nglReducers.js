@@ -2,17 +2,18 @@ import * as actions from '../actions/actonTypes'
 
 const INITIALSTATE = {
       // Lists storing the information of what is in the viewer
-      objectsToLoad: {},
-      objectsToDelete: {},
-      objectsInView: {},
+    objectsToLoad: {},
+    objectsToDelete: {},
+    objectsInView: {},
+    objectsLoading: {},
       // Set the basic things about NGL
-      visible: true,
-      interactions: true,
-      color: "blue",
-      style: "xstick",
-      spin: false,
-      water: true,
-      hydrogen: true,
+    visible: true,
+    interactions: true,
+    color: "blue",
+    style: "xstick",
+    spin: false,
+    water: true,
+    hydrogen: true,
 }
 
 
@@ -27,49 +28,83 @@ export default function nglReducers(state = INITIALSTATE, action) {
         case actions.LOAD_OBJECT:
             // Append the input to objectsToLoad list
             var objectsToLoad = state.objectsToLoad
-            objectsToLoad[action.loadObj.name]=action.loadObj
+            var objectsInView = state.objectsInView
+            if (action.group.name in objectsInView){
+            }
+            else{
+                objectsToLoad[action.group.name]=action.group
+            }
+
             return Object.assign({}, state, {
                 objectsToLoad: objectsToLoad
             });
-        // NEED TEST FOR EVERYTHING BELOW
+
         case actions.LOAD_OBJECT_SUCCESS:
-            // Remove from objectsToLoad List
-            var objectsToLoad = state.objectsToLoad
-            delete objectsToLoad[action.loadObj.name]
+            // Remove from objectsLoading List
+            var objectsLoading = state.objectsLoading
+            delete objectsLoading[action.group.name]
             // Add to Objects in view list
             var objectsInView = state.objectsInView
-            objectsInView[action.loadObj.name]=action.loadObj
+            objectsInView[action.group.name]=action.group
             return Object.assign({}, state, {
                 objectsInView: objectsInView,
-                objectsToLoad: objectsToLoad
+                objectsLoading: objectsLoading
             });
+        
         case actions.LOAD_OBJECT_FAILURE:
             // Don't change state - but can be used later to count number of failures
-            console.log("Failed to load - "+action.loadObj.name)
+            console.log("Failed to load - "+action.group.name)
             return Object.assign({}, state, {
             });
+        
         case actions.DELETE_OBJECT:
             // Append the input to objectsToDelete list
             var objectsToDelete = state.objectsToDelete
-            objectsToDelete[action.loadObj.name]=action.loadObj
+            // Add to the list to delete if not
+            objectsToDelete[action.group.name]=action.group
             return Object.assign({}, state, {
             objectsToDelete: objectsToDelete
         });
 
+        case actions.OBJECT_LOADING:
+            var objectsToLoad = state.objectsToLoad
+            delete objectsToLoad[action.group.name]
+            // Add to Objects in view list
+            var objectsLoading = state.objectsLoading
+            objectsLoading[action.group.name]=action.group
+            return Object.assign({}, state, {
+                objectsToLoad:objectsToLoad,
+                objectsLoading: objectsLoading
+            });
+
         case actions.DELETE_OBJECT_SUCCESS:
             // Remove from objectsToDelete list
             var objectsToDelete = state.objectsToDelete
-            delete objectsToDelete[action.loadObj.name]
+            delete objectsToDelete[action.group.name]
             // Remove from ObjecsIn view list
             var objectsInView = state.objectsInView
-            delete objectsInView[action.loadObj.name]
+            delete objectsInView[action.group.name]
             return Object.assign({}, state, {
                 objectsToDelete:objectsToDelete,
                 objectsInView: objectsInView
             });
+
+        case actions.DELETE_OBJECT_TYPE:
+            console.log("DELETING OBJECT OF TYPE - "+action.object_type)
+            var objectsToDelete = state.objectsToDelete
+            var objectsInView = state.objectsInView
+            for (var key in objectsInView){
+                if(key.split("_")[0]==action.object_type){
+                   objectsToDelete[key] = objectsInView[key]
+                }
+            }
+            return Object.assign({}, state, {
+                objectsToDelete:objectsToDelete
+            });
+
         case actions.DELETE_OBJECT_FAILURE:
             // Don't change state - but can be used later to count number of failures
-            console.log("Failed to delete - "+action.loadObj.name)
+            console.log("Failed to delete - "+action.group.name)
             return Object.assign({}, state, {
             });
 

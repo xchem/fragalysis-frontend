@@ -1,43 +1,51 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import * as types from '../actions/actonTypes'
-import { Col, Row } from 'react-bootstrap';
-import { MolGroupList, MoleculeList} from './apiComponents';
-import { NGLView } from './nglComponents';
-
+import { Row, Col, Grid, Well } from 'react-bootstrap';
+import TargetList from './targetList'
+import NGLView from './nglComponents';
+import MolGroupList from './molGroupList';
+import MoleculeList from './moleculeList';
+import SummaryView from './summaryView';
+import Header from './header'; 
+import {MyMenu} from './menuView'
 
 class Tindspect extends Component {
 
     constructor(props) {
-    super(props)
-  }
- 
-  componentDidMount() {
-      const getParams = {}
-      this.props.dispatch(apiActions.fetchDataFillDiv(types.LOAD_TARGETS))
-  }
- 
-  componentDidUpdate(prevProps) {
-      this.props.dispatch(apiActions.loadTargets())
+        super(props)
   }
 
- 
   render() {
-        return <Row>
-            <Col xs={2} md={2}>
-                <MolGroupList />
-            </Col>
-            <Col xs={4} md={4}>
-                <MoleculeList />
-            </Col>
-            <Col xs={6} md={6} >
-                <NGLView />
-            </Col>
-        </Row>
+      return  (
+      <div id="outer-container">
+          <MyMenu pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } />
+          <Grid fluid style={{paddingTop: "50px"}} id="page-wrap">
+              <Header/>
+              <Row >
+                  <Col xs={0} md={0}>
+                      <MolGroupList />
+                  </Col>
+                  <Col xs={2} md={2}>
+                      <MoleculeList />
+                  </Col>
+                  <Col xs={6} md={6} >
+                      <NGLView />
+                  </Col>
+                  <Col xs={4} md={4}>
+                      <SummaryView />
+                  </Col>
+              </Row>
+          </Grid>
+      </div>
+      )
     }
 
 }
 
-export default connect()(Tindspect)
+function mapStateToProps(state) {
+  return {  target_on: state.apiReducers.target_on
+  }
+}
+
+
+export default connect(mapStateToProps)(Tindspect)
