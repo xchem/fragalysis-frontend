@@ -19,7 +19,12 @@ export class NGLView extends React.Component {
     constructor(props) {
         super(props);
         // Create NGL Stage object
-        this.div_id = "viewport";
+        if (this.props.div_id){
+            this.div_id = this.props.div_id;
+        }
+        else{
+            this.div_id = "viewport";
+        }
         if(props.height){
             this.height = props.height;
         }

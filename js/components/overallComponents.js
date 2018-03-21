@@ -30,7 +30,7 @@ class Tindspect extends Component {
                       <MoleculeList />
                   </Col>
                   <Col xs={5} md={5} >
-                      <NGLView id="major_view" height="600px"/>
+                      <NGLView div_id="major_view" height="600px"/>
                   </Col>
                   <Col xs={4} md={4}>
                       <SummaryView />
