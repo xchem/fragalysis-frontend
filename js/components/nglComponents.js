@@ -38,6 +38,7 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.generateObject = this.generateObject.bind(this);
         this.showPick = this.showPick.bind(this);
+        this.typeCheck = this.typeCheck.bind(this);
     }
 
     showPick (stage, pickingProxy) {
@@ -164,6 +165,17 @@ export class NGLView extends React.Component {
     }
 
 
+    typeCheck(nglObject){
+        var expectedDiv
+        if(nglObject["OBJECT_TYPE"] in [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]){
+            expectedDiv = "major_view"
+        }
+        if(nglObject["OBJECT_TYPE"] in [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]){
+            expectedDiv = "summary_view"
+        }
+        return this.div_id==expectedDiv
+    }
+
 
     /**
      * Function to deal with the logic of showing molecules
@@ -171,22 +183,28 @@ export class NGLView extends React.Component {
     renderDisplay() {
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
-            this.generateObject(nglKey, nglObject);
-            this.props.objectLoading(nglObject);
-            this.props.showLoading()
+            if (this.typeCheck(nglObject)) {
+                this.generateObject(nglKey, nglObject);
+                this.props.objectLoading(nglObject);
+                this.props.showLoading()
+            }
         }
         for(var nglKey in this.props.objectsToDelete){
-            var comps = this.stage.getComponentsByName(nglKey)
-            for (var component in comps.list){
-                this.stage.removeComponent(comps.list[component]);
+            if (this.typeCheck(nglObject)) {
+                var comps = this.stage.getComponentsByName(nglKey)
+                for (var component in comps.list) {
+                    this.stage.removeComponent(comps.list[component]);
+                }
+                this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
             }
-            this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
         }
         for(var nglKey in this.props.objectsLoading){
-            if(this.stage.getComponentsByName(nglKey).list.length>0){
-                var nglObject = this.props.objectsLoading[nglKey];
-                this.props.loadObjectSuccess(nglObject);
-                this.props.hideLoading()
+            if (this.typeCheck(nglObject)) {
+                if (this.stage.getComponentsByName(nglKey).list.length > 0) {
+                    var nglObject = this.props.objectsLoading[nglKey];
+                    this.props.loadObjectSuccess(nglObject);
+                    this.props.hideLoading()
+                }
             }
         }
     }

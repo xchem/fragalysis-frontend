@@ -26,7 +26,7 @@ class Tindspect extends Component {
                       <MolGroupList />
                   </Col>
                   <Col xs={3} md={3}>
-                      <NGLView height="200px"/>
+                      <NGLView div_id="summary_view" height="200px"/>
                       <MoleculeList />
                   </Col>
                   <Col xs={5} md={5} >
