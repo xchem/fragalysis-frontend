@@ -105,7 +105,7 @@ class MoleculeView extends GenericView {
             "colour": colour
         }
     }
-    
+
     generateMolObject(){
         // Get the data
         const data = this.props.data;
@@ -133,17 +133,19 @@ class MoleculeView extends GenericView {
     handleClick(e){
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
-            //this.props.removeFromToBuyList(this.props.data);
+
+            this.props.deleteObject(this.generateMolObject())
+
             if(e.shiftKey) {
                 this.props.deleteObject(this.generateObject())
             }
         }
         else{
-            this.getVects()
-            this.getGraph()
-            // this.props.appendToBuyList(this.props.data);
+            this.props.loadObject(this.generateMolObject())
             if(e.shiftKey) {
                 this.props.loadObject(this.generateObject())
+                this.getVects()
+                this.getGraph()
             }
         }
     }
