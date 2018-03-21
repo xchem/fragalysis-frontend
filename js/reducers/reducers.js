@@ -18,7 +18,8 @@ const rootReducer = combineReducers({
     burgerMenu,
     selectionReducers,
     loadingBar: loadingBarReducer,
-    nglReducers
+    overviewNgl: nglReducers,
+    detailNgl: nglReducers,
 })
  
 export default rootReducer;
