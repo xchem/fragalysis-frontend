@@ -78,7 +78,7 @@ class MoleculeView extends GenericView {
         }
 
         var rings = out_data["ring"]
-        for (var key in ring){
+        for (var key in rings){
             outList.push(this.generateCylinderObject(ring[key][0],
                 ring[key][3],key.split("_")[0],colour))
         }
