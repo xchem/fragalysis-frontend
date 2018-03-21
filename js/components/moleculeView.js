@@ -120,18 +120,15 @@ class MoleculeView extends GenericView {
         if(this.state.isToggleOn){
 
             this.props.deleteObject(this.generateMolObject())
-
             if(e.shiftKey) {
                 this.props.deleteObject(this.generateObject())
-
-
+                this.props.vector_list.forEach(item => this.props.deleteObject(item));
             }
         }
         else{
             this.props.loadObject(this.generateMolObject())
             if(e.shiftKey) {
                 this.props.loadObject(this.generateObject())
-
                 fetch(this.getViewUrl(this.props.data.id,"get_vects_from_pk"))
                     .then(
                         response => response.json(),
@@ -159,6 +156,7 @@ function mapStateToProps(state) {
   return {
       currentList: state.apiReducers.possibleMols,
       binList: state.apiReducers.binnedMols,
+      vector_list: state.selectionReducers.vector_list,
       newListTwo: state.apiReducers.chosenMols,
   }
 }
