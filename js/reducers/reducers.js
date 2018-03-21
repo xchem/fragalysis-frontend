@@ -19,7 +19,7 @@ const rootReducer = combineReducers({
     selectionReducers,
     loadingBar: loadingBarReducer,
     overviewNgl: nglReducers,
-    detailNgl: nglReducers,
+    nglReducers,
 })
  
 export default rootReducer;
