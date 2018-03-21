@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux'
-import { Button } from 'react-bootstrap'
+import { Button, Well } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import CompoundList from './compoundList';
 
@@ -67,10 +67,12 @@ class SummaryView extends React.Component{
 
     render(){
         return <div>
-            <p>Number picked: {this.state.list_len}</p>
-            <p>Number vectors explored: {this.state.num_vectors}</p>
-            <p>Number series explored: {this.state.num_series}</p>
-            <p>Estimated cost: £{this.state.cost}</p>
+            <Well>
+                <p>Number picked: {this.state.list_len}</p>
+                <p>Number vectors explored: {this.state.num_vectors}</p>
+                <p>Number series explored: {this.state.num_series}</p>
+                <p>Estimated cost: £{this.state.cost}</p>
+            </Well>
             <Button bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
             <CompoundList/>
         </div>
