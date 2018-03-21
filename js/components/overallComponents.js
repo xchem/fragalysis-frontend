@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Grid, Well } from 'react-bootstrap';
-import TargetList from './targetList'
 import NGLView from './nglComponents';
 import MolGroupList from './molGroupList';
 import MoleculeList from './moleculeList';
