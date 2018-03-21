@@ -7,6 +7,8 @@ import MoleculeList from './moleculeList';
 import SummaryView from './summaryView';
 import Header from './header'; 
 import {MyMenu} from './menuView'
+import LoadingBar from 'react-redux-loading-bar'
+
 
 class Tindspect extends Component {
 

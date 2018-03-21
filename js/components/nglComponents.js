@@ -11,7 +11,6 @@ import * as nglObjectTypes from '../components/nglObjectTypes'
 import * as listTypes from '../components/listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
-import LoadingBar from 'react-redux-loading-bar'
 
 export class NGLView extends React.Component {
 
