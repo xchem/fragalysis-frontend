@@ -167,12 +167,19 @@ export class NGLView extends React.Component {
 
     typeCheck(nglObject){
         var expectedDiv
-        if(nglObject["OBJECT_TYPE"] in [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]){
-            expectedDiv = "major_view"
+        var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
+        var summaryList = [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]
+        for (var index in majorList) {
+            if (nglObject["OBJECT_TYPE"] == majorList[index]) {
+                expectedDiv = "major_view"
+            }
         }
-        if(nglObject["OBJECT_TYPE"] in [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]){
-            expectedDiv = "summary_view"
+        for (var index in summaryList) {
+            if (nglObject["OBJECT_TYPE"] == summaryList[index]) {
+                expectedDiv = "summary_view"
+            }
         }
+
         return this.div_id==expectedDiv
     }
 
