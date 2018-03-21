@@ -20,7 +20,6 @@ class MoleculeView extends GenericView {
         this.generateMolObject = this.generateMolObject.bind(this);
         this.getGraph = this.getGraph.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
-        this.getVects = this.getVects.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
     }
@@ -33,27 +32,6 @@ class MoleculeView extends GenericView {
     }
 
 
-    getGraph(){
-        // Set this
-        this.props.getFullGraph(this.props.data);
-        // Do the query
-        fetch(this.getViewUrl(this.props.data.id,"get_graph_from_pk"))
-                .then(
-                    response => response.text(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.props.gotFullGraph(json))
-    }
-
-    getVects(){
-
-        fetch(this.getViewUrl(this.props.data.id,"get_vects_from_pk"))
-            .then(
-            response => response.json(),
-            error => console.log('An error occurred.', error)
-            )
-            .then(json => this.generateObjectList(json).forEach(item => this.props.loadObject(item)))
-    }
 
     /**
      * Convert the JSON into a list of arrow objects
@@ -82,7 +60,6 @@ class MoleculeView extends GenericView {
             outList.push(this.generateCylinderObject(rings[key][0],
                 rings[key][2],key.split("_")[0],colour))
         }
-
         return outList;
     }
 
@@ -130,6 +107,14 @@ class MoleculeView extends GenericView {
     }
 
 
+    handleVector(json){
+
+        var objList = this.generateObjectList(json);
+        objList.forEach(item => this.props.loadObject(item));
+        this.props.setVectorList(objList)
+
+    }
+
     handleClick(e){
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
@@ -138,14 +123,33 @@ class MoleculeView extends GenericView {
 
             if(e.shiftKey) {
                 this.props.deleteObject(this.generateObject())
+
+
             }
         }
         else{
             this.props.loadObject(this.generateMolObject())
             if(e.shiftKey) {
                 this.props.loadObject(this.generateObject())
-                this.getVects()
-                this.getGraph()
+
+                fetch(this.getViewUrl(this.props.data.id,"get_vects_from_pk"))
+                    .then(
+                        response => response.json(),
+                        error => console.log('An error occurred.', error)
+                    )
+                    .then(json => this.handleVector(json))
+
+                // Set this
+                this.props.getFullGraph(this.props.data);
+                // Do the query
+                fetch(this.getViewUrl(this.props.data.id,"get_graph_from_pk"))
+                .then(
+                    response => response.text(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.props.gotFullGraph(json))
+
+
             }
         }
     }
@@ -160,6 +164,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
+    setVectorList: selectionActions.setVectorList,
     gotFullGraph: selectionActions.gotFullGraph,
     transferList: apiActions.transferList,
     deleteObject: nglLoadActions.deleteObject,

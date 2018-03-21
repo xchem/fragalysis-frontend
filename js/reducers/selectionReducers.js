@@ -9,6 +9,7 @@ import * as actions from '../actions/actonTypes'
 const INITIALSTATE = {
     to_buy_list: [],
     to_select: {},
+    vector_list: [],
     this_vector_list: {},
     querying: false,
     to_query: undefined
@@ -31,7 +32,12 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             to_buy_list.push(action.item)
             return  Object.assign({}, state, {
                 to_buy_list: to_buy_list
-            });
+            })
+        
+        case actions.SET_VECTOR_LIST:
+            return  Object.assign({}, state, {
+                vector_list: action.vector_list
+            })
 
         case actions.REMOVE_FROM_TO_BUY_LIST:
             var to_buy_list = state.to_buy_list
