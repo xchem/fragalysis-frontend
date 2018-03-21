@@ -17,7 +17,7 @@ class BaseNGLDisplay {
         var inputDict = this.getInputDict();
         NProgress.start();
         if(inputDict["toggle"]==true) {
-            this.generatePromise(inputDict)
+            this.generateObject(inputDict)
         }
         else{
             this.removeComponentByName(inputDict);

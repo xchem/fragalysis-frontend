@@ -1,58 +1,120 @@
 /**
  * Created by abradley on 01/03/2018.
  */
-import $ from 'jquery';
 import SVGInline from "react-svg-inline"
 import React from 'react';
 import { ListGroup, Col } from 'react-bootstrap';
-import Draggable from 'react-draggable'; // The default
-import * as nglActions from '../actions/nglLoadActions'
+import fetch from 'cross-fetch'
+import * as listTypes from './listTypes';
 
-function FillMe(props) {
+export function FillMe(props) {
     return <h1>FILL ME UP PLEASE</h1>;
 }
+
 
 // Generic Classes
 export class GenericList extends React.Component {
 
     constructor(props) {
     super(props);
-        this.url = ''
-        this.interval = 10000
-        this.state = {data:[]}
+        this.old_url = ''
         this.loadFromServer = this.loadFromServer.bind(this);
+        this.getUrl = this.getUrl.bind(this);
+        this.handleOptionChange = this.handleOptionChange.bind(this);
+        this.processResults = this.processResults.bind(this);
+        this.beforePush  = this.beforePush.bind(this)
+        this.afterPush = this.afterPush.bind(this)
   }
 
-  loadFromServer() {
-        $.ajax({
-            url: this.url,
-            datatype: 'json',
-            data: this.props.get_params,
-            cache: false,
-            success: function (data) {
-                this.setState({data: data["results"]})
-            }.bind(this)
-        })
+
+    beforePush(){
+
     }
+
+    afterPush(data){
+
+    }
+
+    /**
+     * Logic to generate the url - here is the logic that connects listTypes to my API
+     * @returns {URL}
+     */
+    getUrl(){
+        // This should be defined by type
+        var base_url = window.location.protocol + "//" + window.location.host
+        // Set the version
+        base_url += "/v0.1/"
+        var get_params = {}
+        if (this.list_type==listTypes.TARGET) {
+            base_url += "targets/"
+            if (this.props.project_id != undefined) {
+                get_params["project_id"] = this.props.project_id
+            }
+        }
+        else if (this.list_type==listTypes.MOLGROUPS) {
+                if(this.props.target_on != undefined) {
+                    get_params["target_id"] = this.props.target_on
+                    base_url += "molgroup/"
+                    get_params["group_type"] = this.props.group_type
+                }
+        }
+        else if (this.list_type==listTypes.MOLECULE) {
+            if (this.props.target_on != undefined && this.props.mol_group_on != undefined) {
+                // mol group choice
+                base_url += "molecules/"
+                get_params["mol_groups"] = this.props.mol_group_on
+            }
+        }
+        else{
+            console.log("DEFUALT")
+        }
+        var url = new URL(base_url)
+        Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
+        return url
+    }
+
+    /**
+     * Process the results - switched to be used for pagination
+     * @param json
+     * @returns {*}
+     */
+    processResults(json){
+        var results = json["results"];
+        this.afterPush(results)
+        return results;
+    }
+
+    loadFromServer() {
+        const url = this.getUrl();
+        if(url.toString() != this.old_url) {
+            this.beforePush();
+            fetch(url)
+                .then(
+                    response => response.json(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.props.setObjectList(this.processResults(json)))
+        }
+        this.old_url = url.toString();
+    }
+
+    handleOptionChange(changeEvent) {
+        const new_value = changeEvent.target.value;
+        this.props.setObjectOn(new_value);
+    }
+
 
     componentDidMount() {
-        this.setState(prevState => (
-        {targetOn: "",
-            data: []}
-        ));
         this.loadFromServer();
-        setInterval(this.loadFromServer,
-            this.interval)
+        setInterval(this.loadFromServer,50);
     }
 
-
     render() {
-        if (this.state.data) {
+        if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
-            //
             return <ListGroup>
                 {
-                this.state.data.map((data, index) => (this.render_method(data,index)))
+                this.props.object_list.map((data) => (this.render_method(data)))
                  }
             </ListGroup>;
         }
@@ -70,10 +132,10 @@ export class GenericView extends React.Component{
     super(props);
         this.loadFromServer = this.loadFromServer.bind(this);
         this.handleClick = this.handleClick.bind(this);
-        this.selected_style = {backgroundColor: "#faebcc"}
-        this.not_selected_style = {}
-        this.state = {isToggleOn: false,
-            data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="110px" height="110px"><g>' +
+        this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#faebcc"}
+        this.not_selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px'}
+        this.old_url = ''
+        this.state = {isToggleOn: false, img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
         '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
         '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
         '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
@@ -87,40 +149,50 @@ export class GenericView extends React.Component{
         '<circle cx="6.6987298" cy="25" r="5" transform="translate(5 5)"/> ' +
         '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
         '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
-        '</svg>'};
+        '</svg>'}
   }
 
-    loadFromServer() {
-        $.ajax({
-            url: this.url,
-            datatype: 'json',
-            cache: false,
-            data: this.props.get_params,
-            success: function (data) {
-                this.setState({data: data})
-            }.bind(this)
-        })
+    loadFromServer(width,height) {
+        var url = this.url;
+        var get_params = {
+            "width": width,
+            "height": height,
+        }
+        Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
+        if(url.toString() != this.old_url) {
+            fetch(url)
+                .then(
+                    response => response.text(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(text =>  this.setState(prevState => ({img_data: text})))
+        }
+        this.old_url = url.toString();
+    }
+
+    componentDidMount() {
+        this.loadFromServer(this.props.width,this.props.height);
+    }
+
+    clickHandle(){
+
     }
 
 
-    componentDidMount() {
-        this.loadFromServer();
+    handleStop(e,data){
+        // Move this element from list A to list B if it moves to that zone
+        const fromElement =  e.fromElement;
+        const toElement = e.toElement;
+        const eleMove = data.node;
     }
 
     handleClick() {
-        var new_toggle = !this.state.isToggleOn;
-        this.setState(prevState => ({
-          isToggleOn: !prevState.isToggleOn
-        }));
-        this.props.dispatch(nglActions.loadMol())
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
     }
 
     render() {
-        const svg_image = <SVGInline svg={this.state.data}/>;
-        this.current_style = this.state.isToggleOn ? this.selected_style : this.selected_style;
-        return <Draggable>
-                <Col xs={3} onClick={this.handleClick} style={this.current_style}>{svg_image}</Col>
-                </Draggable>
-
+        const svg_image = <SVGInline svg={this.state.img_data}/>;
+        this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
+        return <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
     }
 }

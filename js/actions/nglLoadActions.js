@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE,
-    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS} from './actonTypes'
+import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
+    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,DELETE_OBJECT_TYPE} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -13,6 +13,15 @@ export const loadObject = function (group) {
     };
 }
 
+export const objectLoading = function (group){
+    console.log("ACTIONS: " + group);
+        return {
+        type: OBJECT_LOADING,
+        group: group
+    };
+
+}
+
 export const loadObjectSuccess = function (group) {
     console.log("ACTIONS: " + group);
     return {
@@ -20,6 +29,15 @@ export const loadObjectSuccess = function (group) {
         group: group,
         success: true
     };
+}
+
+export const deleteObjectType = function (object_type) {
+    console.log("ACTIONS: " + object_type);
+    return {
+        type: DELETE_OBJECT_TYPE,
+        object_type: object_type
+    }
+
 }
 
 export const loadObjectFailure = function (group) {

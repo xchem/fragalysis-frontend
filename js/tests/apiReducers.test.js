@@ -7,11 +7,16 @@ import * as types from '../actions/actonTypes'
 
 function getInitialState(){
    return {
-       project_id: undefined,
-       target_id: undefined,
-       group_id: undefined,
-       isFetching: false,
-       group_type: "MC"
+    project_id: undefined,
+    target_id: undefined,
+    target_id_list: [],
+    mol_group_list: [],
+    molecule_list: [],
+    mol_group_on: undefined,
+    target_on: undefined,
+    group_id: undefined,
+    isFetching: false,
+    group_type: "MC"
 }
 }
 
@@ -33,18 +38,28 @@ describe('API Redcuer', () => {
         target_id: undefined,
         group_id: undefined,
         isFetching: false,
-        group_type: "MC"
+        group_type: "MC",
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
+          mol_group_on: undefined,
+          target_on: undefined,
     }
     )
       expect(apiReducers(undefined, {
         type: types.LOAD_TARGETS
       })
     ).toEqual({
-        project_id: undefined,
-        target_id: undefined,
-        group_id: undefined,
+          project_id: undefined,
+          target_id: undefined,
+          group_id: undefined,
           isFetching: false,
-        group_type: "MC"
+          group_type: "MC",
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
+          mol_group_on: undefined,
+          target_on: undefined,
     }
     )
   })
@@ -58,7 +73,12 @@ describe('API Redcuer', () => {
         target_id: undefined,
         group_id: 1,
         isFetching: false,
-        group_type: "MC"
+        group_type: "MC",
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
+          mol_group_on: undefined,
+          target_on: undefined,
     }
     )
       expect(apiReducers(undefined, {
@@ -67,11 +87,16 @@ describe('API Redcuer', () => {
           group_id: 1
       })
     ).toEqual({
-        project_id: undefined,
-        target_id: undefined, 
+          project_id: undefined,
+          target_id: undefined,
           isFetching: false,
-        group_id: 1,
-        group_type: "PC"
+          group_id: 1,
+            group_type: "PC",
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
+          mol_group_on: undefined,
+          target_on: undefined,
     }
     )
   })
@@ -86,7 +111,12 @@ describe('API Redcuer', () => {
         target_id: 1,
         group_id: 1,
         isFetching: false,
-        group_type: "MC"
+        group_type: "MC",
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
+          mol_group_on: undefined,
+          target_on: undefined,
     }
     )
       expect(apiReducers(undefined, {
@@ -98,7 +128,12 @@ describe('API Redcuer', () => {
           target_id: 1,
           isFetching: false,
           group_id: undefined,
-          group_type: "MC"
+          group_type: "MC",
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
+          mol_group_on: undefined,
+          target_on: undefined,
     }
     )
   })
