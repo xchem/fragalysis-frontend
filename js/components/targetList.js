@@ -46,6 +46,7 @@ class TargetList extends GenericList {
         var prot_to_load = targetData.protein_set[0]
         //
         var out_object = {
+            "name": "PROTEIN_"+prot_to_load.toString();
             "prot_url": this.getViewUrl(prot_to_load,"prot_from_pk"),
             "OBJECT_TYPE": nglObjectTypes.PROTEIN
         }
