@@ -20,7 +20,12 @@ export class NGLView extends React.Component {
         super(props);
         // Create NGL Stage object
         this.div_id = "viewport";
-        this.height = "600px";
+        if(props.height){
+            this.height = props.height;
+        }
+        else{
+            this.height = "600px";
+        }
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;

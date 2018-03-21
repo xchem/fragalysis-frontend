@@ -105,8 +105,7 @@ class MoleculeView extends GenericView {
             "colour": colour
         }
     }
-
-
+    
     generateMolObject(){
         // Get the data
         const data = this.props.data;
