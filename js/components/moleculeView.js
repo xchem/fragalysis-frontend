@@ -76,6 +76,13 @@ class MoleculeView extends GenericView {
             outList.push(this.generateCylinderObject(linker[key][0],
                 linker[key][1],key.split("_")[0],colour))
         }
+
+        var rings = out_data["ring"]
+        for (var key in ring){
+            outList.push(this.generateCylinderObject(ring[key][0],
+                ring[key][3],key.split("_")[0],colour))
+        }
+
         return outList;
     }
 
