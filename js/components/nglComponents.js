@@ -179,7 +179,6 @@ export class NGLView extends React.Component {
                 expectedDiv = "summary_view"
             }
         }
-
         return this.div_id==expectedDiv
     }
 
@@ -217,13 +216,8 @@ export class NGLView extends React.Component {
     }
     
     render(){
-        return <div>
-            <div style={{paddingBottom: "2px"}}>
-                <LoadingBar />
-            </div>
-            <div style={{height: this.height}} id={this.div_id}>
+        return <div style={{height: this.height}} id={this.div_id}>
            </div>
-        </div>
     }
 }
 
