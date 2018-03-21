@@ -195,6 +195,7 @@ export class NGLView extends React.Component {
             }
         }
         for(var nglKey in this.props.objectsToDelete){
+            var nglObject = this.props.objectsToDelete[nglKey]
             if (this.typeCheck(nglObject)) {
                 var comps = this.stage.getComponentsByName(nglKey)
                 for (var component in comps.list) {
@@ -204,6 +205,7 @@ export class NGLView extends React.Component {
             }
         }
         for(var nglKey in this.props.objectsLoading){
+            var nglObject = this.props.objectsLoading[nglKey]
             if (this.typeCheck(nglObject)) {
                 if (this.stage.getComponentsByName(nglKey).list.length > 0) {
                     var nglObject = this.props.objectsLoading[nglKey];
