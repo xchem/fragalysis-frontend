@@ -18,7 +18,7 @@ class MoleculeView extends GenericView {
         super(props);
         this.generateObject = this.generateObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.getGraph = this.getGraph.bind(this);
+        this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
