@@ -3,7 +3,7 @@
  */
 import SVGInline from "react-svg-inline"
 import React from 'react';
-import { ListGroup, Col, Pager, ProgressBar } from 'react-bootstrap';
+import { ListGroup, Col, Pager, ProgressBar, Well } from 'react-bootstrap';
 import fetch from 'cross-fetch'
 import * as listTypes from './listTypes';
 export function FillMe(props) {
@@ -214,14 +214,14 @@ export class Slider extends React.Component{
             return null;
         }
         else {
-            return <div>
+            return <Well>
                 <h3>{this.slider_name} SELECTION</h3>
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>
                 <ProgressBar active now={this.state.progress}/>
-            </div>;
+            </Well>;
         }
     }
 
