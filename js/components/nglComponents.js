@@ -171,15 +171,15 @@ export class NGLView extends React.Component {
         var colour = [0,0,1]
         var radius;
         if(data.mol_id.length>10){
-            radius = 6.0
+            radius = 5.0
         }
         else if(data.mol_id.length>5){
-            radius = 4.0
+            radius = 3.0
         }
         else{
             radius = 2.0
         }
-        
+
         if(selected){
             sele = "SELECT"
             colour = [0,1,0]
