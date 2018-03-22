@@ -53,6 +53,24 @@ class MolGroupSlider extends React.Component{
         this.props.setObjectOn(this.props.object_list[selected].id)
     }
 
+    checkForUpdate(){
+
+        var selected;
+        for(var index in this.props.object_list) {
+            if(this.props.object_list[index].id==this.props.object_on){
+                selected=index;
+            }
+        }
+        handleChange(selected);
+    }
+
+    componentDidMoint(){
+
+        this.checkForUpdate();
+        setInterval(this.checkForUpdate,50);
+
+    }
+
 }
 function mapStateToProps(state) {
   return {
