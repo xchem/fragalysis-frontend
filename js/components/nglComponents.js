@@ -71,6 +71,7 @@ export class NGLView extends React.Component {
         this.renderDisplay();
         setInterval(this.renderDisplay,this.interval)
         this.stage.mouseControls.add("clickPick-left",this.showPick);
+        this.old_mol_group_on = -1;
     }
 
     generateObject(object_name, input_dict){
@@ -151,7 +152,6 @@ export class NGLView extends React.Component {
     }
 
     renderProtein(ol){
-
         var cs = ol[0]
         var stage = ol[1];
         var focus_var = ol[2];
@@ -159,8 +159,6 @@ export class NGLView extends React.Component {
         // Set the object name
         var comp = stage.addComponentFromObject(cs)
         comp.addRepresentation("cartoon")
-
-
     }
 
 
@@ -186,6 +184,7 @@ export class NGLView extends React.Component {
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
+
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.typeCheck(nglObject)) {
@@ -214,6 +213,11 @@ export class NGLView extends React.Component {
                 }
             }
         }
+        if(this.props.mol_group_on != this.old_mol_group_on){
+            var comps = this.stage.getComponentsByName("MOLGROUPS_"+this.props.mol_group_on.toString());
+            this.old_mol_group_on = this.props.mol_group_on
+        }
+
     }
     
     render(){
@@ -239,6 +243,7 @@ const mapDispatchToProps = {
     hideLoading: hideLoading,
     showLoading: showLoading,
     objectLoading: nglLoadActions.objectLoading,
+    loadObject: nglLoadActions.loadObject
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess
