@@ -5,7 +5,7 @@ import { ListGroupItem, ListGroup, Col} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
-import {Pager, ProgressBar} from 'react-boostrap';
+import {Pager, ProgressBar} from 'react-bootstrap';
 
 
 class MolGroupSlider extends React.Component{
