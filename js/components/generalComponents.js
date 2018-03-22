@@ -215,7 +215,7 @@ export class Slider extends React.Component{
         }
         else {
             return <div>
-                {this.slider_name} SELECTION
+                <h3>{this.slider_name} SELECTION</h3>
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
