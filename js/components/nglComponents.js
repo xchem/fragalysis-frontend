@@ -120,7 +120,8 @@ export class NGLView extends React.Component {
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.PROTEIN){
             this.stage.loadFile( input_dict["prot_url"], { name: object_name, ext: "pdb" } ).then( function( comp ){
-                comp.addRepresentation( "ribbon", {  } );
+                comp.addRepresentation( "cartoon", {  } );
+                comp.autoView();
             });
         }
     }
@@ -151,17 +152,6 @@ export class NGLView extends React.Component {
             })
             comp.autoView("ligand");
             stage.setFocus(focus_var);
-    }
-
-    renderProtein(ol){
-        var cs = ol[0]
-        var stage = ol[1];
-        var focus_var = ol[2];
-        var object_name = ol[3]
-        // Set the object name
-        var comp = stage.addComponentFromObject(cs)
-        comp.addRepresentation("cartoon");
-        this.stage.autoView();
     }
 
 
