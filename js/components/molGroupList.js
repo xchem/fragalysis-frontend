@@ -58,22 +58,6 @@ class MolGroupList extends GenericList {
     handleOptionChange(changeEvent) {
         const new_value = changeEvent.target.value;
         this.props.setObjectOn(new_value);
-
-        var old_data;
-        var new_data;
-        for (var index in this.props.object_list){
-            if(this.props.object_list[index].id==this.props.object_on){
-                old_data = this.props.object_list[index];
-            }
-            if(this.props.object_list[index].id==new_value) {
-                new_data = this.props.object_list[index];
-            }
-        }
-        // Delete the two old spheres
-        this.props.deleteObject(this.generateObject(new_data))
-        this.props.deleteObject(this.generateObject(old_data,true))
-        this.props.loadObject(this.generateObject(new_data,true))
-        this.props.loadObject(this.generateObject(old_data))
     }
 }
 function mapStateToProps(state) {

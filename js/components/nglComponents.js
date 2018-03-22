@@ -38,6 +38,7 @@ export class NGLView extends React.Component {
         this.generateObject = this.generateObject.bind(this);
         this.showPick = this.showPick.bind(this);
         this.typeCheck = this.typeCheck.bind(this);
+        this.generateSphere = this.generateSphere.bind(this);
     }
 
     showPick (stage, pickingProxy) {
@@ -162,6 +163,25 @@ export class NGLView extends React.Component {
     }
 
 
+    generateSphere(data,selected=false){
+        this.list_type = listType.MOLGROUPS
+        var sele = ""
+        var colour = [1,0,0]
+        if(selected){
+            sele = "SELECT"
+            colour = [0,1,0]
+        }
+        // Move this out of this
+        var nglObject = {
+            "OBJECT_TYPE": nglObjectTypes.SPHERE,
+            "name": this.list_type + sele + "_" + + data.id.toString(),
+            "radius": data.mol_id.length,
+            "colour": colour,
+            "coords": [data.x_com, data.y_com, data.z_com],
+            }
+        return nglObject
+    }
+
     typeCheck(nglObject){
         var expectedDiv
         var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
@@ -213,6 +233,25 @@ export class NGLView extends React.Component {
                 }
             }
         }
+        if (this.props.mol_group_on && this.props.mol_group_on != this.old_mol_group_on){
+            var old_data;
+            var new_data;
+            for (var index in this.props.mol_group_list){
+                if(this.props.mol_group_list[index].id==this.props.mol_group_on){
+                    old_data = this.props.mol_group_list[index];
+                }
+                if(this.props.mol_group_list[index].id==new_value) {
+                    new_data = this.props.mol_group_list[index];
+                }
+            }
+            // Delete the two old spheres
+            this.props.deleteObject(this.generateSphere(new_data));
+            this.props.deleteObject(this.generateSphere(old_data,true));
+            this.props.loadObject(this.generateSphere(new_data,true));
+            this.props.loadObject(this.generateSphere(old_data));
+            this.old_mol_group_on = this.props.mol_group_on;
+        }
+
     }
     
     render(){
