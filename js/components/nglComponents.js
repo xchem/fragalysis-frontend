@@ -77,7 +77,7 @@ export class NGLView extends React.Component {
     generateObject(object_name, input_dict){
         if(input_dict["OBJECT_TYPE"]==nglObjectTypes.SPHERE)
         {
-            var colour = [1,0,0];
+            var colour = input_dict["colour"];
             var radius = input_dict["radius"];
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
@@ -213,16 +213,6 @@ export class NGLView extends React.Component {
                 }
             }
         }
-        if(this.props.mol_group_on && this.props.mol_group_on != this.old_mol_group_on){
-            var comps = this.stage.getComponentsByName("MOLGROUPS_"+this.props.mol_group_on.toString());
-            if(comps.list.length==0){
-
-            }
-            else{
-                this.old_mol_group_on = this.props.mol_group_on
-            }
-        }
-
     }
     
     render(){

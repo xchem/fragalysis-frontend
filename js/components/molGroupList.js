@@ -23,14 +23,21 @@ class MolGroupList extends GenericList {
         return null
     }
 
-    generateObject(data){
+    generateObject(data,selected=false){
         this.list_type = listType.MOLGROUPS
+        var sele = ""
+        var colour = [1,0,0]
+        if(selected){
+            sele = "SELECT"
+            colour = [0,1,0]
+        }
         // Move this out of this
         var nglObject = {
-                "OBJECT_TYPE": nglObjectTypes.SPHERE,
-                "name": this.list_type + "_" + data.id.toString(),
-                "radius": data.mol_id.length,
-                "coords": [data.x_com, data.y_com, data.z_com],
+            "OBJECT_TYPE": nglObjectTypes.SPHERE,
+            "name": this.list_type + sele + "_" + + data.id.toString(),
+            "radius": data.mol_id.length,
+            "colour": colour,
+            "coords": [data.x_com, data.y_com, data.z_com],
             }
         return nglObject
     }
@@ -51,6 +58,22 @@ class MolGroupList extends GenericList {
     handleOptionChange(changeEvent) {
         const new_value = changeEvent.target.value;
         this.props.setObjectOn(new_value);
+
+        var old_data;
+        var new_data;
+        for (var index in this.props.object_list){
+            if(this.props.object_list[index].id==this.props.object_on){
+                old_data = this.props.object_list[index];
+            }
+            if(this.props.object_list[index].id==new_value) {
+                new_data = this.props.object_list[index];
+            }
+        }
+        // Delete the two old spheres
+        this.props.deleteObject(generateObject(new_data))
+        this.props.deleteObject(this.generateObject(old_data,true))
+        this.props.loadObject(generateObject(new_data,true))
+        this.props.loadObject(generateObject(old_data))
     }
 }
 function mapStateToProps(state) {
