@@ -4,6 +4,7 @@ import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from './nglComponents';
 import MolGroupList from './molGroupList';
 import MoleculeList from './moleculeList';
+import MolGroupSlider from './molGroupSlider'
 import SummaryView from './summaryView';
 import Header from './header'; 
 import {MyMenu} from './menuView'
@@ -29,6 +30,7 @@ class Tindspect extends Component {
                   </Col>
                   <Col xs={3} md={3}>
                       <NGLView div_id="summary_view" height="200px"/>
+                      <MolGroupSlider />
                       <MoleculeList />
                   </Col>
                   <Col xs={5} md={5} >

@@ -20,7 +20,7 @@ class MolGroupList extends GenericList {
 
     }
     render() {
-        return null
+        return null;
     }
 
     generateObject(data,selected=false){
