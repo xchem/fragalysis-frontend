@@ -3,7 +3,7 @@
  */
 import SVGInline from "react-svg-inline"
 import React from 'react';
-import { ListGroup, Col,Pager,ProgressBar } from 'react-bootstrap';
+import { ListGroup, Col,Page,ProgressBar } from 'react-bootstrap';
 import fetch from 'cross-fetch'
 import * as listTypes from './listTypes';
 
@@ -217,10 +217,10 @@ export class Slider extends React.Component{
         else {
             return <div>
                 {this.slider_name} SELECTION
-                <Pager>
-                <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
-                <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
-            </Pager>
+                <Page>
+                <Page.Item onClick={this.handleBackward}>Previous</Page.Item>{' '}
+                <Page.Item onClick={this.handleForward}>Next</Page.Item>
+            </Page>
                 <ProgressBar active now={this.state.progress}/>
             </div>;
         }
