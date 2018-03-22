@@ -214,8 +214,8 @@ export class Slider extends React.Component{
             return null;
         }
         else {
-            return <Well>
-                <h3>{this.slider_name} SELECTION</h3>
+            return <Well bsSize="small">
+                <h3>{this.slider_name} Selector</h3>
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
