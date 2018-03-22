@@ -22,7 +22,7 @@ class Tindspect extends Component {
       <div id="outer-container">
           <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } /> START HERE
           <LoadingBar />
-          <Grid fluid style={{paddingTop: "50px"}} id="page-wrap">
+          <Grid fluid id="page-wrap">
               <Header/>
               <Row >
                   <Col xs={0} md={0}>
