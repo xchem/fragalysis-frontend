@@ -60,6 +60,9 @@ class TargetList extends GenericList {
             this.props.deleteObject(this.generateTargetObject(this.props.object_on));
         }
         this.props.setObjectOn(new_value);
+        for(var key in this.props.objectsInView){
+            this.props.deleteObject(this.props.objectsInView[key]);
+        }
         this.props.loadObject(this.generateTargetObject(new_value));
 
     }
@@ -81,6 +84,7 @@ class TargetList extends GenericList {
 
 function mapStateToProps(state) {
   return {
+      objectsInView: state.nglReducers.objectsInView,
       object_list: state.apiReducers.target_id_list,
       object_on: state.apiReducers.target_on
   }

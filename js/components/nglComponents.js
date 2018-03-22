@@ -167,7 +167,7 @@ export class NGLView extends React.Component {
     generateSphere(data,selected=false){
         var list_type = listTypes.MOLGROUPS
         var sele = ""
-        var colour = [1,0,0]
+        var colour = [0,0,1]
         if(selected){
             sele = "SELECT"
             colour = [0,1,0]
