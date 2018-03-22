@@ -27,11 +27,11 @@ class MoleculeList extends GenericList {
     render() {
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
-            return <Row style={molStyle}>
+            return <Well><Row style={molStyle}>
                 {
                     this.props.object_list.map((data) => <MoleculeView height={125} width={125} key={data.id} data={data}/>)
                 }
-            </Row>;
+            </Row></Well>;
         }
         else {
             return null;
