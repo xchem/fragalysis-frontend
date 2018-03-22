@@ -12,7 +12,6 @@ class MolGroupSlider extends React.Component{
 
     constructor(props) {
         super(props);
-        this.state = {currentlySelected: 0, progress: 0}
     }
     render() {
         return <div><Pager>
