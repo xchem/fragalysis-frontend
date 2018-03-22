@@ -10,6 +10,8 @@ import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import MoleculeView from './moleculeView'
 
+const molStyle = {height: "250px",
+    overflow:"scroll"}
 class MoleculeList extends GenericList {
 
     constructor(props) {
@@ -25,7 +27,7 @@ class MoleculeList extends GenericList {
     render() {
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
-            return <Row>
+            return <Row style={molStyle}>
                 {
                     this.props.object_list.map((data) => <MoleculeView height={125} width={125} key={data.id} data={data}/>)
                 }
