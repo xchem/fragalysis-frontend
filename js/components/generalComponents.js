@@ -3,7 +3,7 @@
  */
 import SVGInline from "react-svg-inline"
 import React from 'react';
-import { ListGroup, Col } from 'react-bootstrap';
+import { ListGroup, Col,Pager,ProgressBar } from 'react-bootstrap';
 import fetch from 'cross-fetch'
 import * as listTypes from './listTypes';
 
