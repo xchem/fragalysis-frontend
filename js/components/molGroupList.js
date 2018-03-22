@@ -70,10 +70,10 @@ class MolGroupList extends GenericList {
             }
         }
         // Delete the two old spheres
-        this.props.deleteObject(generateObject(new_data))
+        this.props.deleteObject(this.generateObject(new_data))
         this.props.deleteObject(this.generateObject(old_data,true))
-        this.props.loadObject(generateObject(new_data,true))
-        this.props.loadObject(generateObject(old_data))
+        this.props.loadObject(this.generateObject(new_data,true))
+        this.props.loadObject(this.generateObject(old_data))
     }
 }
 function mapStateToProps(state) {
