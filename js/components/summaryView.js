@@ -7,6 +7,9 @@ import { Button, Well } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import CompoundList from './compoundList';
 
+
+const molStyle = {height: "300px",
+    overflow:"scroll"}
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
@@ -76,7 +79,7 @@ class SummaryView extends React.Component{
             </Well>
             <Well>
                 <h1><b>Compounds to pick</b></h1>
-                <CompoundList style={{height: "300px", overflow:"scroll"}}/>
+                <CompoundList  style={molStyle}/>
             </Well>
         </div>
     }
