@@ -38,14 +38,14 @@ class MolGroupSlider extends React.Component{
         if (selected<this.props.object_list.length){
             selected+=1
         }
-        handleChange(selected);
+        this.handleChange(selected);
     }
     handleBackward(){
         var selected = this.state.currentlySelected;
         if (selected>0){
                 selected-=1
         }
-        handleChange(selected);
+        this.handleChange(selected);
     }
     handleChange(selected){
         var progress = 100*selected/this.props.object_list.length
