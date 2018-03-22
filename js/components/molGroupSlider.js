@@ -21,7 +21,6 @@ class MolGroupSlider extends React.Component{
             <Pager.Item onClick={this.handleClick('previous')}>Previous</Pager.Item>{' '}
             <Pager.Item onClick={this.handleClick('next')}>Next</Pager.Item>
         </Pager>
-        <ProgressBar now={this.progress} />;
         </div>;
     }
 
