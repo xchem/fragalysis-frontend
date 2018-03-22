@@ -11,7 +11,7 @@ class MolGroupSlider extends Slider{
 
     constructor(props) {
         super(props);
-        this.slider_name = "Molgroup"
+        this.slider_name = "Molecule Cluster"
     }
 }
 
