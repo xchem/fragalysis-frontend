@@ -206,6 +206,7 @@ export class Slider extends React.Component{
         this.handleChange = this.handleChange.bind(this);
         this.checkForUpdate = this.checkForUpdate.bind(this);
         this.state = {currentlySelected: 0, progress: 0}
+        this.slider_name = "DEFAULT"
     }
 
     render() {
@@ -214,7 +215,9 @@ export class Slider extends React.Component{
             return null;
         }
         else {
-            return <div><Pager>
+            return <div>
+                {this.slider_name} SELECTION
+                <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>

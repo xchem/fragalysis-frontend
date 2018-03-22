@@ -1,28 +1,28 @@
 /**
  * Created by abradley on 22/03/2018.
  */
+
 import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import {Slider} from './generalComponents'
 
 
-class MolGroupSlider extends Slider{
+class MoleculeSlider extends Slider{
 
     constructor(props) {
         super(props);
-        this.slider_name = "Molgroup"
+        this.slider_name = "MOLECULE"
     }
 }
 
 function mapStateToProps(state) {
   return {
-      object_list: state.apiReducers.mol_group_list,
-      object_on: state.apiReducers.mol_group_on
+      object_list: state.apiReducers.molecule_list,
+      object_on: state.apiReducers.molecule_on
   }
 }
 const mapDispatchToProps = {
-    setObjectOn: apiActions.setMolGroupOn,
-    setObjectList: apiActions.setMolGroupList
+    setObjectOn: apiActions.setMoleculeOn
 }
-export default connect(mapStateToProps, mapDispatchToProps)(MolGroupSlider);
+export default connect(mapStateToProps, mapDispatchToProps)(MoleculeSlider);
