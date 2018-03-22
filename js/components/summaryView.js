@@ -76,7 +76,7 @@ class SummaryView extends React.Component{
             </Well>
             <Well>
                 <h1><b>Compounds to pick</b></h1>
-                <CompoundList/>
+                <CompoundList style={{overflow:scroll}}/>
             </Well>
         </div>
     }

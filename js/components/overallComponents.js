@@ -31,7 +31,7 @@ class Tindspect extends Component {
                   <Col xs={3} md={3}>
                       <NGLView div_id="summary_view" height="200px"/>
                       <MolGroupSlider />
-                      <MoleculeList />
+                      <MoleculeList style={{overflow:scroll}}/>
                   </Col>
                   <Col xs={5} md={5} >
                       <NGLView div_id="major_view" height="600px"/>
