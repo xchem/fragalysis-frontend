@@ -100,7 +100,7 @@ export class NGLView extends React.Component {
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
             var colour = [1,0,0];
-            var radius = 1.0;
+            var radius = 0.7;
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
             shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
