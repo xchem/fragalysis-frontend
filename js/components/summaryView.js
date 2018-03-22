@@ -72,9 +72,11 @@ class SummaryView extends React.Component{
                 <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
                 <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                 <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
+                <Button bsStyle="success large" onClick={this.handleExport}>Export to CSV</Button>
             </Well>
-            <Button bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-            <CompoundList/>
+            <Well>
+                <CompoundList/>
+            </Well>
         </div>
     }
 }
