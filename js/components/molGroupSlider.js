@@ -60,7 +60,7 @@ class MolGroupSlider extends React.Component{
                 selected=index;
             }
         }
-        handleChange(selected);
+        this.handleChange(selected);
     }
 
     componentDidMount(){
