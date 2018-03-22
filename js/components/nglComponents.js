@@ -213,7 +213,7 @@ export class NGLView extends React.Component {
                 }
             }
         }
-        if(this.props.mol_group_on != this.old_mol_group_on){
+        if(this.props.mol_group_on && this.props.mol_group_on != this.old_mol_group_on){
             var comps = this.stage.getComponentsByName("MOLGROUPS_"+this.props.mol_group_on.toString());
             if(comps.list.length==0){
 
