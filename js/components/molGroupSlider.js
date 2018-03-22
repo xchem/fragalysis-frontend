@@ -12,7 +12,9 @@ class MolGroupSlider extends React.Component{
 
     constructor(props) {
         super(props);
+        this.state = {currentlySelected: 0, progress: 0}
     }
+
     render() {
         return <div><Pager>
             <Pager.Item onClick={this.handleClick('previous')}>Previous</Pager.Item>{' '}
@@ -23,16 +25,16 @@ class MolGroupSlider extends React.Component{
     }
 
     handleClick(staging){
-        var selected;
-        var progress;
+        var selected = this.state.currentlySelected;
+        var progress = this.state.progress;
         if (staging=='previous'){
-            if (this.state.selected>0){
-                selected=this.state.selected-1
+            if (selected>0){
+                selected-=1
             }
         }
         else if (staging=='next'){
-            if (this.state.selected<this.props.object_list.length){
-                selected=this.state.selected+1
+            if (selected<this.props.object_list.length){
+                selected+=1
             }
         }
         progress = 100*selected/this.props.object_list.length
