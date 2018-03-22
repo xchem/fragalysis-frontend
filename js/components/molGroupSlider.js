@@ -15,6 +15,7 @@ class MolGroupSlider extends React.Component{
         this.handleForward = this.handleForward.bind(this);
         this.handleBackward = this.handleBackward.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.checkForUpdate = this.checkForUpdate.bind(this);
         this.state = {currentlySelected: 0, progress: 0}
     }
 
