@@ -67,6 +67,14 @@ class SummaryView extends React.Component{
 
     }
 
+    getNum(){
+        var tot_num=0;
+        for(var key in this.props.to_select){
+            tot_num+=this.props.to_select[key].length;
+        }
+        return tot_num;
+    }
+
     render(){
         return <div>
             <Well>
@@ -77,7 +85,7 @@ class SummaryView extends React.Component{
                 <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
             </Well>
             <Well>
-                <h1><b>Compounds to pick: {this.props.to_select.length}</b></h1>
+                <h1><b>Compounds to pick: {this.getNum()}</b></h1>
                 <CompoundList />
             </Well>
         </div>
