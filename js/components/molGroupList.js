@@ -24,9 +24,20 @@ class MolGroupList extends GenericList {
     }
 
     generateObject(data,selected=false){
-        this.list_type = listType.MOLGROUPS
-        var sele = ""
-        var colour = [0,0,1]
+        this.list_type = listType.MOLGROUPS;
+        var sele = "";
+        var colour = [0,0,1];
+        var radius;
+        if(data.mol_id.length>10){
+            radius = 6.0
+        }
+        else if(data.mol_id.length>5){
+            radius = 4.0
+        }
+        else{
+            radius = 2.0
+        }
+
         if(selected){
             sele = "SELECT"
             colour = [0,1,0]
@@ -35,7 +46,7 @@ class MolGroupList extends GenericList {
         var nglObject = {
             "OBJECT_TYPE": nglObjectTypes.SPHERE,
             "name": this.list_type + sele + "_" + + data.id.toString(),
-            "radius": data.mol_id.length,
+            "radius": radius,
             "colour": colour,
             "coords": [data.x_com, data.y_com, data.z_com],
             }
