@@ -35,7 +35,7 @@ class MolGroupSlider extends React.Component{
 
     handleForward(){
         var selected = this.state.currentlySelected;
-        if (selected<this.props.object_list.length){
+        if (selected<this.props.object_list.length-1){
             selected+=1
         }
         this.handleChange(selected);
@@ -48,7 +48,7 @@ class MolGroupSlider extends React.Component{
         this.handleChange(selected);
     }
     handleChange(selected){
-        var progress = 100*selected/this.props.object_list.length
+        var progress = 100*selected/(this.props.object_list.length-1)
         this.setState(prevState => ({currentlySelected: selected, progress: progress}))
         this.props.setObjectOn(this.props.object_list[selected].id)
     }
