@@ -242,6 +242,9 @@ export class Slider extends React.Component{
     }
     handleChange(selected){
         var progress = 100*selected/(this.props.object_list.length-1)
+        if(this.props.object_list.length==1){
+            progress=100;
+        }
         this.setState(prevState => ({currentlySelected: selected, progress: progress}))
         this.props.setObjectOn(this.props.object_list[selected].id)
     }
