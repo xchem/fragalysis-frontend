@@ -122,7 +122,6 @@ class MoleculeView extends GenericView {
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             <Toggle>Complex</Toggle>
-            <Toggle>Vectors</Toggle>
             </div>
     }
 
