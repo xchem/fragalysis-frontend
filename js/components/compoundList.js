@@ -6,7 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import CompoundView from './compoundView';
 
-const molStyle = {height: "300px",
+const molStyle = {height: "400px",
     overflow:"scroll"}
 
 class CompoundList extends React.Component {
