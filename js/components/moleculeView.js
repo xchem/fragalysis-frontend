@@ -10,6 +10,7 @@ import { GenericView } from './generalComponents'
 import * as nglObjectTypes from './nglObjectTypes'
 import * as selectionActions from '../actions/selectionActions'
 import * as listTypes from './listTypes'
+import Toggle from 'react-bootstrap-toggle';
 
 
 class MoleculeView extends GenericView {
@@ -30,8 +31,6 @@ class MoleculeView extends GenericView {
         base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
         return base_url
     }
-
-
 
     /**
      * Convert the JSON into a list of arrow objects
@@ -115,10 +114,20 @@ class MoleculeView extends GenericView {
 
     }
 
+
+    render() {
+        const svg_image = <SVGInline svg={this.state.img_data}/>;
+        this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
+        return <div>
+            <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+            <Toggle>Complex</Toggle>
+            <Toggle>Vectors</Toggle>
+            </div>
+    }
+
     handleClick(e){
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
-
             this.props.deleteObject(this.generateMolObject())
             if(e.shiftKey) {
                 this.props.deleteObject(this.generateObject())
@@ -135,7 +144,6 @@ class MoleculeView extends GenericView {
                         error => console.log('An error occurred.', error)
                     )
                     .then(json => this.handleVector(json))
-
                 // Set this
                 this.props.getFullGraph(this.props.data);
                 // Do the query
@@ -145,8 +153,6 @@ class MoleculeView extends GenericView {
                     error => console.log('An error occurred.', error)
                 )
                 .then(json => this.props.gotFullGraph(json))
-
-
             }
         }
     }
