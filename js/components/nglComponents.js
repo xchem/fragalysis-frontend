@@ -8,9 +8,10 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
-import * as listTypes from '../components/listTypes'
+import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
+
 
 export class NGLView extends React.Component {
 
@@ -164,7 +165,7 @@ export class NGLView extends React.Component {
 
 
     generateSphere(data,selected=false){
-        this.list_type = listType.MOLGROUPS
+        var list_type = listTypes.MOLGROUPS
         var sele = ""
         var colour = [1,0,0]
         if(selected){
@@ -174,7 +175,7 @@ export class NGLView extends React.Component {
         // Move this out of this
         var nglObject = {
             "OBJECT_TYPE": nglObjectTypes.SPHERE,
-            "name": this.list_type + sele + "_" + + data.id.toString(),
+            "name": list_type + sele + "_" + + data.id.toString(),
             "radius": data.mol_id.length,
             "colour": colour,
             "coords": [data.x_com, data.y_com, data.z_com],
