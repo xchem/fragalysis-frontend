@@ -14,6 +14,7 @@ class MolGroupSlider extends React.Component{
         super(props);
         this.handleForward = this.handleForward.bind(this);
         this.handleBackward = this.handleBackward.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.state = {currentlySelected: 0, progress: 0}
     }
 
@@ -27,7 +28,7 @@ class MolGroupSlider extends React.Component{
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>
-                <ProgressBar active now={this.state.progress}/>;
+                <ProgressBar active now={this.state.progress}/>
             </div>;
         }
     }
@@ -37,16 +38,19 @@ class MolGroupSlider extends React.Component{
         if (selected<this.props.object_list.length){
             selected+=1
         }
-        var progress = 100*selected/this.props.object_list.length
-        this.setState(prevState => ({currentlySelected: selected, progress: progress}))
+        handleChange(selected);
     }
     handleBackward(){
         var selected = this.state.currentlySelected;
         if (selected>0){
                 selected-=1
         }
+        handleChange(selected);
+    }
+    handleChange(selected){
         var progress = 100*selected/this.props.object_list.length
         this.setState(prevState => ({currentlySelected: selected, progress: progress}))
+        this.props.setObjectOn(this.props.object_list[selected].id)
     }
 
 }
