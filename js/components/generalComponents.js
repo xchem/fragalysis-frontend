@@ -263,7 +263,7 @@ export class Slider extends React.Component{
     }
 
     componentDidMount(){
-        this.checkForUpdate();
+        this.props.setObjectOn(this.props.object_list[0].id)
         setInterval(this.checkForUpdate,50);
     }
 
