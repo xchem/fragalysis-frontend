@@ -11,6 +11,7 @@ import * as nglObjectTypes from './nglObjectTypes'
 import * as selectionActions from '../actions/selectionActions'
 import * as listTypes from './listTypes'
 import Toggle from 'react-bootstrap-toggle';
+import SVGInline from "react-svg-inline"
 
 
 class MoleculeView extends GenericView {
