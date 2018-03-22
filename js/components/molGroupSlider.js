@@ -62,7 +62,9 @@ class MolGroupSlider extends React.Component{
                     selected = index;
                 }
             }
-            this.handleChange(selected);
+            if(selecte!=undefined) {
+                this.handleChange(selected);
+            }
         }
     }
 
