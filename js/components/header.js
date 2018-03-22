@@ -7,6 +7,7 @@ import { Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
 export default class Header extends React.Component {
   render() {
     return <div>
+      <Navbar/>
       </div>
   }
 }
