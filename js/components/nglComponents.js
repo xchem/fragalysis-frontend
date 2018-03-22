@@ -160,7 +160,8 @@ export class NGLView extends React.Component {
         var object_name = ol[3]
         // Set the object name
         var comp = stage.addComponentFromObject(cs)
-        comp.addRepresentation("cartoon")
+        comp.addRepresentation("cartoon");
+        this.stage.autoView();
     }
 
 
