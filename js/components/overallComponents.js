@@ -19,7 +19,7 @@ class Tindspect extends Component {
   render() {
       return  (
       <div id="outer-container">
-          <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } />
+          <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } /> START HERE
           <LoadingBar />
           <Grid fluid style={{paddingTop: "50px"}} id="page-wrap">
               <Header/>
