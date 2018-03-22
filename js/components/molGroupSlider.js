@@ -54,7 +54,6 @@ class MolGroupSlider extends React.Component{
     }
 
     checkForUpdate(){
-
         var selected;
         for(var index in this.props.object_list) {
             if(this.props.object_list[index].id==this.props.object_on){
@@ -64,8 +63,7 @@ class MolGroupSlider extends React.Component{
         handleChange(selected);
     }
 
-    componentDidMoint(){
-
+    componentDidMount(){
         this.checkForUpdate();
         setInterval(this.checkForUpdate,50);
 
