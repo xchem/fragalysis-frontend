@@ -282,6 +282,8 @@ const mapDispatchToProps = {
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
+    deleteObject: nglLoadActions.deleteObject,
+    loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
