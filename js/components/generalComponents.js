@@ -210,11 +210,7 @@ export class Slider extends React.Component{
 
     render() {
         this.progress = this.state.progress;
-        if(this.props.object_list==undefined){
-            return null;
-        }
-        else {
-            return <Well bsSize="small">
+        return <Well bsSize="small">
                 <h3>{this.slider_name} Selector</h3>
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
@@ -222,7 +218,6 @@ export class Slider extends React.Component{
             </Pager>
                 <ProgressBar active now={this.state.progress}/>
             </Well>;
-        }
     }
 
     handleForward(){
