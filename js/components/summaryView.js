@@ -75,6 +75,7 @@ class SummaryView extends React.Component{
                 <Button bsStyle="success large" onClick={this.handleExport}>Export to CSV</Button>
             </Well>
             <Well>
+                <h1><b>Compounds to pick</b></h1>
                 <CompoundList/>
             </Well>
         </div>
