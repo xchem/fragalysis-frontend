@@ -243,7 +243,6 @@ const mapDispatchToProps = {
     hideLoading: hideLoading,
     showLoading: showLoading,
     objectLoading: nglLoadActions.objectLoading,
-    loadObject: nglLoadActions.loadObject
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess
