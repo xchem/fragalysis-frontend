@@ -238,17 +238,19 @@ export class NGLView extends React.Component {
             var new_data;
             for (var index in this.props.mol_group_list){
                 if(this.props.mol_group_list[index].id==this.props.mol_group_on){
-                    old_data = this.props.mol_group_list[index];
-                }
-                if(this.props.mol_group_list[index].id==new_value) {
                     new_data = this.props.mol_group_list[index];
                 }
+                if(this.props.mol_group_list[index].id==this.old_mol_group_on) {
+                    old_data = this.props.mol_group_list[index];
+                }
+            }
+            if (old_data) {
+                this.props.deleteObject(this.generateSphere(old_data, true));
+                this.props.loadObject(this.generateSphere(old_data));
             }
             // Delete the two old spheres
             this.props.deleteObject(this.generateSphere(new_data));
-            this.props.deleteObject(this.generateSphere(old_data,true));
             this.props.loadObject(this.generateSphere(new_data,true));
-            this.props.loadObject(this.generateSphere(old_data));
             this.old_mol_group_on = this.props.mol_group_on;
         }
 
