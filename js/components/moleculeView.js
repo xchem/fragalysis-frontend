@@ -121,7 +121,6 @@ class MoleculeView extends GenericView {
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
-            <Toggle/>Complex
             </div>
     }
 
