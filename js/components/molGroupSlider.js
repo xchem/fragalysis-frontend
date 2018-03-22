@@ -12,34 +12,38 @@ class MolGroupSlider extends React.Component{
 
     constructor(props) {
         super(props);
+        this.handleForward = this.handleForward.bind(this);
+        this.handleBackward = this.handleBackward.bind(this);
         this.state = {currentlySelected: 0, progress: 0}
     }
 
     render() {
         this.progress = this.state.progress;
         return <div><Pager>
-            <Pager.Item onClick={this.handleClick('previous')}>Previous</Pager.Item>{' '}
-            <Pager.Item onClick={this.handleClick('next')}>Next</Pager.Item>
+            <Pager.Item onClick={this.handleForward}>Previous</Pager.Item>{' '}
+            <Pager.Item onClick={this.handleBackward}>Next</Pager.Item>
         </Pager>
+        <ProgressBar active now={this.state.progress} />;
         </div>;
     }
 
-    handleClick(staging){
+    handleForward(){
         var selected = this.state.currentlySelected;
-        var progress = this.state.progress;
-        if (staging=='previous'){
-            if (selected>0){
-                selected-=1
-            }
+        if (selected<this.props.object_list.length){
+            selected+=1
         }
-        else if (staging=='next'){
-            if (selected<this.props.object_list.length){
-                selected+=1
-            }
-        }
-        progress = 100*selected/this.props.object_list.length
+        var progress = 100*selected/this.props.object_list.length
         this.setState(prevState => ({currentlySelected: selected, progress: progress}))
     }
+    handleBackward(){
+        var selected = this.state.currentlySelected;
+        if (selected>0){
+                selected-=1
+        }
+        var progress = 100*selected/this.props.object_list.length
+        this.setState(prevState => ({currentlySelected: selected, progress: progress}))
+    }
+
 }
 function mapStateToProps(state) {
   return {
