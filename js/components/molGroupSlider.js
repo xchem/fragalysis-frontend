@@ -55,8 +55,8 @@ class MolGroupSlider extends React.Component{
     }
 
     checkForUpdate(){
-        if (this.props.object_list != undefined) {
-                    var selected;
+        if (this.props.object_list != []) {
+            var selected;
             for (var index in this.props.object_list) {
                 if (this.props.object_list[index].id == this.props.object_on) {
                     selected = index;
