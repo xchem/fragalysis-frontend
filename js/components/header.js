@@ -24,15 +24,7 @@ class Header extends React.Component {
         return base_url
     }
 
-    generateTargetObject(targetOn){
-        var targetData;
-        for(var index in this.props.target_id_list){
-            var thisTarget = this.props.target_id_list[index];
-            if (thisTarget.id==targetOn){
-                targetData=thisTarget;
-                break;
-            }
-        }
+    generateTargetObject(targetData){
         // Now deal with this target
         var prot_to_load = targetData.protein_set[0]
         if(prot_to_load!=undefined) {
@@ -60,7 +52,7 @@ class Header extends React.Component {
         for(var key in this.props.target_id_list){
             if(this.props.target_id_list[key].title==option){
                 this.props.setTargetOn(this.props.target_id_list[key].id);
-                var targObject = this.generateTargetObject(new_value);
+                var targObject = this.generateTargetObject(this.props.target_id_list[key]);
                 if(targObject) {
                     this.props.loadObject(targObject);
                 }
