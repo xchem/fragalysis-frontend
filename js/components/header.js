@@ -7,7 +7,7 @@ import { Typeahead } from 'react-typeahead';
 import * as apiActions from '../actions/apiActions'
 import * as nglActions from '../actions/nglLoadActions'
 import { connect } from 'react-redux'
-
+import * as nglObjectTypes from '../components/nglObjectTypes'
 
 class Header extends React.Component {
 
