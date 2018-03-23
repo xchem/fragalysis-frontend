@@ -66,7 +66,6 @@ class TargetList extends GenericList {
         if(targObject) {
             this.props.loadObject(targObject);
         }
-
     }
     render() {
         if (this.props != undefined && this.props.object_list) {
