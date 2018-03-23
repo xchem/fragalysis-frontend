@@ -5,6 +5,7 @@ import React from 'react';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
 import { Typeahead } from 'react-typeahead';
 import * as apiActions from '../actions/apiActions'
+import { connect } from 'react-redux'
 
 
 class Header extends React.Component {
