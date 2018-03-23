@@ -13,6 +13,7 @@ class Header extends React.Component {
     constructor(props){
         super(props)
         this.getTargetList = this.getTargetList.bind(this);
+        this.selectTarget = this.selectTarget.bind(this);
     }
 
     getTargetList(){
