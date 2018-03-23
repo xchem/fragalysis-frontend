@@ -22,6 +22,14 @@ class Header extends React.Component {
         }
         return newArray;
     }
+    selectTarget(option){
+        for(var key in this.props.target_id_list){
+            if(this.props.target_id_list[key].title==option){
+                this.props.setTargetOn(this.props.target_id_list[key].id)
+                break;
+            }
+        }
+    }
 
 
 
@@ -29,6 +37,7 @@ class Header extends React.Component {
     return <Navbar>
                 <Typeahead
                     labelKey="name"
+                    onOptionSelected={this.selectTarget}
                     options={this.getTargetList()}
                     placeholder="Choose a target..."
                 />
