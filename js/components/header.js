@@ -9,11 +9,27 @@ import { connect } from 'react-redux'
 
 
 class Header extends React.Component {
+
+    constructor(props){
+        super(props)
+        this.getTargetList = this.getTargetList.bind(this);
+    }
+
+    getTargetList(){
+        var newArray = new Array()
+        for(var key in this.props.target_id_list){
+        newArray.push(this.props.target_id_list[key].title)
+        }
+        return newArray;
+    }
+
+
+
   render() {
     return <Navbar>
                 <Typeahead
                     labelKey="name"
-                    options={this.props.target_id_list}
+                    options={this.getTargetList()}
                     placeholder="Choose a target..."
                 />
       </Navbar>
