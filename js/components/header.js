@@ -53,9 +53,15 @@ class Header extends React.Component {
             if(this.props.target_id_list[key].title==option){
                 this.props.setTargetOn(this.props.target_id_list[key].id);
                 var targObject = this.generateTargetObject(this.props.target_id_list[key]);
+                this.props.setMoleculeList([]);
+                for(var key in this.props.objectsInView){
+                    this.props.deleteObject(this.props.objectsInView[key]);
+                }
                 if(targObject) {
                     this.props.loadObject(targObject);
                 }
+
+
                 break;
             }
         }
