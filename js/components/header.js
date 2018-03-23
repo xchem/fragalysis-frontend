@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
-import { Typeahead}
+import { Typeahead } from 'react-typeahead';
 
 export default class Header extends React.Component {
   render() {
@@ -26,4 +26,4 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     setTargetOn: apiActions.setTargetOn,
 }
-export default connect(mapStateToProps, mapDispatchToProps)(TargetList)
+export default connect(mapStateToProps, mapDispatchToProps)(Header)
