@@ -60,8 +60,6 @@ class Header extends React.Component {
                 if(targObject) {
                     this.props.loadObject(targObject);
                 }
-
-
                 break;
             }
         }
