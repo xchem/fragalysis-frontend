@@ -5,7 +5,7 @@ import React from 'react';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
 import { Typeahead } from 'react-typeahead';
 
-export default class Header extends React.Component {
+class Header extends React.Component {
   render() {
     return <Navbar>
                 <Typeahead
