@@ -86,6 +86,8 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
+    setMoleculeList: apiActions.setMoleculeList,
+    deleteObject: nglActions.deleteObject,
     loadObject: nglActions.loadObject,
     setTargetOn: apiActions.setTargetOn,
 }
