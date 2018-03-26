@@ -25,8 +25,10 @@ class MoleculeView extends GenericView {
         this.onVector = this.onVector.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
-        this.state = {vectorOn: false, complexOn: false, isToggleOn:false}
+        this.state.vectorOn= false
+        this.state.complexOn= false
     }
+
 
 
     getViewUrl(pk,get_view){
@@ -115,7 +117,7 @@ class MoleculeView extends GenericView {
         this.props.setVectorList(objList)
 
     }
-    
+
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
