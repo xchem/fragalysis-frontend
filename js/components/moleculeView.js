@@ -89,12 +89,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-    generateMolObject(){
+    generateMolObject(colourToggle=null){
         // Get the data
         const data = this.props.data;
         var nglObject = {
             "name": "MOLLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
+            "colour": colourToggle,
             "sdf_info": data.sdf_info
         }
         return nglObject;
@@ -140,13 +141,23 @@ class MoleculeView extends GenericView {
             </div>
     }
 
+    getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+}
+
     handleClick(e){
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+        const colourToggle = this.getRandomColor();
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, colourToggle: colourToggle}))
         if(this.state.isToggleOn){
             this.props.deleteObject(this.generateMolObject())
         }
         else{
-            this.props.loadObject(this.generateMolObject())
+            this.props.loadObject(this.generateMolObject(colourToggle))
         }
     }
 
