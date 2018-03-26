@@ -126,14 +126,14 @@ class MoleculeView extends GenericView {
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             <Toggle onClick={this.onComplex}
-                on={<h2>ON</h2>}
-                off={<h2>OFF</h2>}
+                on={<h2>Complex ON</h2>}
+                off={<h2>Complex OFF</h2>}
                 size="xs"
                 offstyle="danger"
                 active={this.state.complexOn}/>
             <Toggle onClick={this.onVector}
-                on={<h2>ON</h2>}
-                off={<h2>OFF</h2>}
+                on={<h2>Vector ON</h2>}
+                off={<h2>Vector OFF</h2>}
                 size="xs"
                 offstyle="danger"
                 active={this.state.vectorOn}/>
