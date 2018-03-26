@@ -23,6 +23,7 @@ class MoleculeView extends GenericView {
         this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
+        this.onComplex = this.onComplex.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
         this.state.vectorOn= false
