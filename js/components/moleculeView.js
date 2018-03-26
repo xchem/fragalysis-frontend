@@ -29,6 +29,7 @@ class MoleculeView extends GenericView {
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
         this.state.vectorOn= false
         this.state.complexOn= false
+        this.colourToggle = this.getRandomColor();
     }
 
 
@@ -147,8 +148,7 @@ class MoleculeView extends GenericView {
 }
 
     handleClick(e){
-        const colourToggle = this.getRandomColor();
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: colourToggle}))
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: this.colourToggle}))
         if(this.state.isToggleOn){
             this.props.deleteObject(this.generateMolObject())
         }
