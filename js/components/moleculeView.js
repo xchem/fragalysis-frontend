@@ -123,6 +123,8 @@ class MoleculeView extends GenericView {
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
+        const selected_style = {width: this.props.width.toString+'px',
+            height: this.props.height.toString()+'px', backgroundColor: this.state.backgroundColour}
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
@@ -152,7 +154,7 @@ class MoleculeView extends GenericView {
 
     handleClick(e){
         const colourToggle = this.getRandomColor();
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, colourToggle: colourToggle}))
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: colourToggle}))
         if(this.state.isToggleOn){
             this.props.deleteObject(this.generateMolObject())
         }

@@ -131,7 +131,6 @@ export class GenericView extends React.Component{
     super(props);
         this.loadFromServer = this.loadFromServer.bind(this);
         this.handleClick = this.handleClick.bind(this);
-        this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#faebcc"}
         this.not_selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px'}
         this.old_url = ''
         this.state = {isToggleOn: false, img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -149,6 +148,7 @@ export class GenericView extends React.Component{
         '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
         '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
         '</svg>'}
+        this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: this.state}
   }
 
     loadFromServer(width,height) {
