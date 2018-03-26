@@ -153,7 +153,7 @@ class MoleculeView extends GenericView {
             this.props.deleteObject(this.generateMolObject())
         }
         else{
-            this.props.loadObject(this.generateMolObject(colourToggle))
+            this.props.loadObject(this.generateMolObject(this.colourToggle))
         }
     }
 
