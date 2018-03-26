@@ -125,7 +125,7 @@ class MoleculeView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.state.backgroundColour}
-        this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
+        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             <Toggle onClick={this.onComplex}
