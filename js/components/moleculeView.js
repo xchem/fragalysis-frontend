@@ -22,8 +22,10 @@ class MoleculeView extends GenericView {
         this.generateMolObject = this.generateMolObject.bind(this);
         this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
+        this.onVector = this.onVector.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
+        this.state = {vectorOn: false, complexOn: false, isToggleOn:false}
     }
 
 
@@ -108,19 +110,29 @@ class MoleculeView extends GenericView {
 
 
     handleVector(json){
-
         var objList = this.generateObjectList(json);
         objList.forEach(item => this.props.loadObject(item));
         this.props.setVectorList(objList)
 
     }
-
-
+    
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+            <Toggle onClick={this.onComplex}
+                on={<h2>ON</h2>}
+                off={<h2>OFF</h2>}
+                size="xs"
+                offstyle="danger"
+                active={this.state.complexOn}/>
+            <Toggle onClick={this.onVector}
+                on={<h2>ON</h2>}
+                off={<h2>OFF</h2>}
+                size="xs"
+                offstyle="danger"
+                active={this.state.vectorOn}/>
             </div>
     }
 
@@ -128,31 +140,45 @@ class MoleculeView extends GenericView {
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
             this.props.deleteObject(this.generateMolObject())
-            if(e.shiftKey) {
-                this.props.deleteObject(this.generateObject())
-                this.props.vector_list.forEach(item => this.props.deleteObject(item));
-            }
         }
         else{
             this.props.loadObject(this.generateMolObject())
-            if(e.shiftKey) {
-                this.props.loadObject(this.generateObject())
-                fetch(this.getViewUrl(this.props.data.id,"get_vects_from_pk"))
-                    .then(
-                        response => response.json(),
-                        error => console.log('An error occurred.', error)
-                    )
-                    .then(json => this.handleVector(json))
-                // Set this
-                this.props.getFullGraph(this.props.data);
-                // Do the query
-                fetch(this.getViewUrl(this.props.data.id,"get_graph_from_pk"))
+        }
+    }
+
+    onComplex(){
+        this.setState(prevState => ({complexOn: !prevState.complexOn}))
+        if(this.state.complexOn){
+            this.props.deleteObject(this.generateObject())
+        }
+        else{
+            this.props.loadObject(this.generateObject())
+        }
+
+    }
+
+    onVector(){
+        this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+        if(this.state.vectorOn) {
+            this.props.vector_list.forEach(item => this.props.deleteObject(item));
+
+        }
+        else {
+            fetch(this.getViewUrl(this.props.data.id, "get_vects_from_pk"))
+                .then(
+                    response => response.json(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.handleVector(json))
+            // Set this
+            this.props.getFullGraph(this.props.data);
+            // Do the query
+            fetch(this.getViewUrl(this.props.data.id, "get_graph_from_pk"))
                 .then(
                     response => response.text(),
                     error => console.log('An error occurred.', error)
                 )
                 .then(json => this.props.gotFullGraph(json))
-            }
         }
     }
 

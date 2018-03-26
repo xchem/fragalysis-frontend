@@ -19,7 +19,6 @@ class MoleculeList extends GenericList {
         this.list_type = listType.MOLECULE;
     }
 
-
     handleOptionChange(changeEvent) {
         const new_value = changeEvent.target.value;
         this.props.setObjectOn(new_value);
