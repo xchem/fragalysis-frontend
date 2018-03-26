@@ -15,7 +15,7 @@ label.checkbox.inline .toggle {
 
 .toggle {
 	min-width: 20px;
-	height: 5px;
+	height: 1px;
 	position: relative;
 	overflow: hidden;
 }
