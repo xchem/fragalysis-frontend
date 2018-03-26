@@ -10,6 +10,7 @@ import { GenericView } from './generalComponents'
 import * as nglObjectTypes from './nglObjectTypes'
 import * as selectionActions from '../actions/selectionActions'
 import * as listTypes from './listTypes'
+import "node_modules/lib/bootstrap2-toggle.css";
 import Toggle from 'react-bootstrap-toggle';
 import SVGInline from "react-svg-inline"
 
