@@ -90,7 +90,7 @@ export class NGLView extends React.Component {
         else if (input_dict["OBJECT_TYPE"]==nglObjectTypes.MOLECULE){
             var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
             this.stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
-                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:"cyan", multipleBond: true } );
+                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true } );
             });
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.COMPLEX){
