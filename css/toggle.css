@@ -77,7 +77,7 @@ label.checkbox.inline .toggle {
 	top: -2px;
 }
 
-.toggle.btn { min-width: 30px; }
+.toggle.btn { min-width: 15px; }
 .toggle-on.btn { padding-right: 24px; display: flex; align-items: center; }
 .toggle-off.btn { padding-left: 24px; display: flex; align-items: center; }
 
