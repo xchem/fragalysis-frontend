@@ -176,7 +176,7 @@ class MoleculeView extends GenericView {
     onVector(){
         this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         if(this.state.vectorOn) {
-            this.props.vector_list.forEach(item => Object.assign({display_div: "major_view"}, this.props.deleteObject(item)));
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
 
         }
         else {
