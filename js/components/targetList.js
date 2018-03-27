@@ -75,6 +75,8 @@ class TargetList extends GenericList {
     }
 
     componentDidMount(){
+        this.loadFromServer();
+        setInterval(this.loadFromServer,50);
         setInterval(this.checkForTargetChange,50)
     }
 
