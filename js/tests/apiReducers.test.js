@@ -17,7 +17,7 @@ function getInitialState(){
     group_id: undefined,
     isFetching: false,
     group_type: "MC"
-}
+   }
 }
 
 

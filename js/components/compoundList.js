@@ -6,6 +6,9 @@ import React from 'react';
 import { connect } from 'react-redux'
 import CompoundView from './compoundView';
 
+const molStyle = {height: "400px",
+    overflow:"scroll"}
+
 class CompoundList extends React.Component {
 
     constructor(props) {
@@ -23,7 +26,7 @@ class CompoundList extends React.Component {
                 input_data["mol"]=this.props.thisMol
                 retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
             }
-            totArray.push(<Row key={key}>{retArray}</Row>)
+            totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
         }
         return totArray;
     }

@@ -53,7 +53,7 @@ export class MyMenu extends React.Component {
           <TargetList key="TARGLIST"/>
           ]
       return (
-      <Menu styles={styles}>
+      <Menu right styles={styles}>
           {menuBody}
       </Menu>
     );

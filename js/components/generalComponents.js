@@ -3,10 +3,9 @@
  */
 import SVGInline from "react-svg-inline"
 import React from 'react';
-import { ListGroup, Col } from 'react-bootstrap';
+import { ListGroup, Col, Pager, ProgressBar, Well } from 'react-bootstrap';
 import fetch from 'cross-fetch'
 import * as listTypes from './listTypes';
-
 export function FillMe(props) {
     return <h1>FILL ME UP PLEASE</h1>;
 }
@@ -132,7 +131,6 @@ export class GenericView extends React.Component{
     super(props);
         this.loadFromServer = this.loadFromServer.bind(this);
         this.handleClick = this.handleClick.bind(this);
-        this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#faebcc"}
         this.not_selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px'}
         this.old_url = ''
         this.state = {isToggleOn: false, img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -150,6 +148,7 @@ export class GenericView extends React.Component{
         '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
         '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
         '</svg>'}
+        this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#B7C185"}
   }
 
     loadFromServer(width,height) {
@@ -195,4 +194,70 @@ export class GenericView extends React.Component{
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
         return <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
     }
+}
+
+export class Slider extends React.Component{
+
+    constructor(props) {
+        super(props);
+        this.handleForward = this.handleForward.bind(this);
+        this.handleBackward = this.handleBackward.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.checkForUpdate = this.checkForUpdate.bind(this);
+        this.state = {currentlySelected: -1, progress: 0}
+        this.slider_name = "DEFAULT"
+    }
+
+    render() {
+        this.progress = this.state.progress;
+        return <Well bsSize="small">
+                <h3>{this.slider_name} Selector</h3>
+                <Pager>
+                <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
+                <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
+            </Pager>
+                <ProgressBar active now={this.state.progress}/>
+            </Well>;
+    }
+
+    handleForward(){
+        var selected = this.state.currentlySelected;
+        if (selected<this.props.object_list.length-1){
+            selected+=1
+            this.handleChange(selected);
+        }
+    }
+    handleBackward(){
+        var selected = this.state.currentlySelected;
+        if (selected>0){
+            selected-=1
+            this.handleChange(selected);
+        }
+    }
+    handleChange(selected){
+        var progress = 100*selected/(this.props.object_list.length-1)
+        this.setState(prevState => ({currentlySelected: selected, progress: progress}))
+        this.props.setObjectOn(this.props.object_list[selected].id)
+    }
+
+    checkForUpdate(){
+        if (this.props.object_list != []) {
+            var selected;
+            var counter =0
+            for (var index in this.props.object_list) {
+                if (this.props.object_list[index].id == this.props.object_on) {
+                    selected = counter;
+                }
+                counter+=1
+            }
+            if(selected!=undefined && selected !=this.state.currentlySelected) {
+                this.handleChange(selected);
+            }
+        }
+    }
+
+    componentDidMount(){
+        setInterval(this.checkForUpdate,50);
+    }
+
 }

@@ -8,10 +8,10 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
-import * as listTypes from '../components/listTypes'
+import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
-import LoadingBar from 'react-redux-loading-bar'
+
 
 export class NGLView extends React.Component {
 
@@ -19,8 +19,18 @@ export class NGLView extends React.Component {
     constructor(props) {
         super(props);
         // Create NGL Stage object
-        this.div_id = "viewport";
-        this.height = "600px";
+        if (this.props.div_id){
+            this.div_id = this.props.div_id;
+        }
+        else{
+            this.div_id = "viewport";
+        }
+        if(props.height){
+            this.height = props.height;
+        }
+        else{
+            this.height = "600px";
+        }
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;
@@ -28,6 +38,8 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.generateObject = this.generateObject.bind(this);
         this.showPick = this.showPick.bind(this);
+        this.typeCheck = this.typeCheck.bind(this);
+        this.generateSphere = this.generateSphere.bind(this);
     }
 
     showPick (stage, pickingProxy) {
@@ -61,12 +73,13 @@ export class NGLView extends React.Component {
         this.renderDisplay();
         setInterval(this.renderDisplay,this.interval)
         this.stage.mouseControls.add("clickPick-left",this.showPick);
+        this.old_mol_group_on = -1;
     }
 
     generateObject(object_name, input_dict){
         if(input_dict["OBJECT_TYPE"]==nglObjectTypes.SPHERE)
         {
-            var colour = [1,0,0];
+            var colour = input_dict["colour"];
             var radius = input_dict["radius"];
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
@@ -77,7 +90,7 @@ export class NGLView extends React.Component {
         else if (input_dict["OBJECT_TYPE"]==nglObjectTypes.MOLECULE){
             var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
             this.stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
-                comp.addRepresentation( "ball+stick", { multipleBond: true } );
+                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true } );
             });
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.COMPLEX){
@@ -90,7 +103,7 @@ export class NGLView extends React.Component {
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
             var colour = [1,0,0];
-            var radius = 1.0;
+            var radius = 0.7;
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
             shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
@@ -107,7 +120,8 @@ export class NGLView extends React.Component {
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.PROTEIN){
             this.stage.loadFile( input_dict["prot_url"], { name: object_name, ext: "pdb" } ).then( function( comp ){
-                comp.addRepresentation( "ribbon", {  } );
+                comp.addRepresentation( "cartoon", {  } );
+                comp.autoView();
             });
         }
     }
@@ -140,55 +154,114 @@ export class NGLView extends React.Component {
             stage.setFocus(focus_var);
     }
 
-    renderProtein(ol){
 
-        var cs = ol[0]
-        var stage = ol[1];
-        var focus_var = ol[2];
-        var object_name = ol[3]
-        // Set the object name
-        var comp = stage.addComponentFromObject(cs)
-        comp.addRepresentation("cartoon")
+    generateSphere(data,selected=false){
+        var list_type = listTypes.MOLGROUPS
+        var sele = ""
+        var colour = [0,0,1]
+        var radius;
+        if(data.mol_id.length>10){
+            radius = 5.0
+        }
+        else if(data.mol_id.length>5){
+            radius = 3.0
+        }
+        else{
+            radius = 2.0
+        }
 
-
+        if(selected){
+            sele = "SELECT"
+            colour = [0,1,0]
+        }
+        // Move this out of this
+        var nglObject = {
+            "OBJECT_TYPE": nglObjectTypes.SPHERE,
+            "name": list_type + sele + "_" + + data.id.toString(),
+            "radius": radius,
+            "colour": colour,
+            "coords": [data.x_com, data.y_com, data.z_com],
+            }
+        return nglObject
     }
 
+    typeCheck(nglObject){
+        var expectedDiv
+        var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
+        var summaryList = [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]
+        for (var index in majorList) {
+            if (nglObject["OBJECT_TYPE"] == majorList[index]) {
+                expectedDiv = "major_view"
+            }
+        }
+        for (var index in summaryList) {
+            if (nglObject["OBJECT_TYPE"] == summaryList[index]) {
+                expectedDiv = "summary_view"
+            }
+        }
+        return this.div_id==expectedDiv
+    }
 
 
     /**
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
+
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
-            this.generateObject(nglKey, nglObject);
-            this.props.objectLoading(nglObject);
-            this.props.showLoading()
+            if (this.typeCheck(nglObject)) {
+                this.generateObject(nglKey, nglObject);
+                this.props.objectLoading(nglObject);
+                this.props.showLoading()
+            }
         }
         for(var nglKey in this.props.objectsToDelete){
-            var comps = this.stage.getComponentsByName(nglKey)
-            for (var component in comps.list){
-                this.stage.removeComponent(comps.list[component]);
+            var nglObject = this.props.objectsToDelete[nglKey]
+            if (this.typeCheck(nglObject)) {
+                var comps = this.stage.getComponentsByName(nglKey)
+                for (var component in comps.list) {
+                    this.stage.removeComponent(comps.list[component]);
+                }
+                this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
             }
-            this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
         }
         for(var nglKey in this.props.objectsLoading){
-            if(this.stage.getComponentsByName(nglKey).list.length>0){
-                var nglObject = this.props.objectsLoading[nglKey];
-                this.props.loadObjectSuccess(nglObject);
-                this.props.hideLoading()
+            var nglObject = this.props.objectsLoading[nglKey]
+            if (this.typeCheck(nglObject)) {
+                if (this.stage.getComponentsByName(nglKey).list.length > 0) {
+                    var nglObject = this.props.objectsLoading[nglKey];
+                    this.props.loadObjectSuccess(nglObject);
+                    this.props.hideLoading()
+                }
             }
         }
+        if (this.props.mol_group_on && this.props.mol_group_on != this.old_mol_group_on){
+            var old_data;
+            var new_data;
+            for (var index in this.props.mol_group_list){
+                if(this.props.mol_group_list[index].id==this.props.mol_group_on){
+                    new_data = this.props.mol_group_list[index];
+                }
+                if(this.props.mol_group_list[index].id==this.old_mol_group_on) {
+                    old_data = this.props.mol_group_list[index];
+                }
+            }
+            if (old_data) {
+                this.props.deleteObject(this.generateSphere(old_data, true));
+                this.props.loadObject(this.generateSphere(old_data));
+            }
+            // Delete the two old spheres
+            this.props.deleteObject(this.generateSphere(new_data));
+            this.props.loadObject(this.generateSphere(new_data,true));
+            this.old_mol_group_on = this.props.mol_group_on;
+        }
+
     }
     
     render(){
-        return <div>
-            <div style={{paddingBottom: "2px"}}>
-                <LoadingBar />
-            </div>
-            <div style={{height: this.height}} id={this.div_id}>
+        return <div style={{height: this.height}} id={this.div_id}>
            </div>
-        </div>
     }
 }
 
@@ -211,6 +284,8 @@ const mapDispatchToProps = {
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
+    deleteObject: nglLoadActions.deleteObject,
+    loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

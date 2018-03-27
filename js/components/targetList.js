@@ -44,23 +44,28 @@ class TargetList extends GenericList {
         }
         // Now deal with this target
         var prot_to_load = targetData.protein_set[0]
-        //
-        var out_object = {
-            "prot_url": this.getViewUrl(prot_to_load,"prot_from_pk"),
-            "OBJECT_TYPE": nglObjectTypes.PROTEIN
+        if(prot_to_load!=undefined) {
+            var out_object = {
+                "name": "PROTEIN_" + prot_to_load.toString(),
+                "prot_url": this.getViewUrl(prot_to_load, "prot_from_pk"),
+                "OBJECT_TYPE": nglObjectTypes.PROTEIN
+            }
+            return out_object
         }
-        return out_object
+        return undefined;
     }
 
     handleOptionChange(changeEvent) {
         const new_value = changeEvent.target.value;
         this.props.setMoleculeList([]);
-        if (this.props.object_on) {
-            this.props.deleteObject(this.generateTargetObject(this.props.object_on));
-        }
         this.props.setObjectOn(new_value);
-        this.props.loadObject(this.generateTargetObject(new_value));
-
+        for(var key in this.props.objectsInView){
+            this.props.deleteObject(this.props.objectsInView[key]);
+        }
+        var targObject = this.generateTargetObject(new_value);
+        if(targObject) {
+            this.props.loadObject(targObject);
+        }
     }
     render() {
         if (this.props != undefined && this.props.object_list) {
@@ -80,6 +85,7 @@ class TargetList extends GenericList {
 
 function mapStateToProps(state) {
   return {
+      objectsInView: state.nglReducers.objectsInView,
       object_list: state.apiReducers.target_id_list,
       object_on: state.apiReducers.target_on
   }

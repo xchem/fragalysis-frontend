@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 
-import {SET_TO_BUY_LIST, APPEND_TO_BUY_LIST, REMOVE_FROM_TO_BUY_LIST, GET_FULL_GRAPH, GOT_FULL_GRAPH, SELECT_VECTOR} from './actonTypes'
+import {SET_TO_BUY_LIST, APPEND_TO_BUY_LIST, REMOVE_FROM_TO_BUY_LIST, GET_FULL_GRAPH, GOT_FULL_GRAPH, SET_VECTOR_LIST, SELECT_VECTOR} from './actonTypes'
 
 export const setToBuyList = function (to_buy_list){
     console.log("ACTIONS: "+ to_buy_list)
@@ -44,6 +44,15 @@ export const gotFullGraph = function (result){
         type: GOT_FULL_GRAPH,
         input_mol_dict: result
     }
+}
+
+export const setVectorList = function (vectList){
+    console.log("ACTIONS: "+ vectList)
+    return {
+        type: SET_VECTOR_LIST,
+        vector_list: vectList
+    }
+
 }
 
 

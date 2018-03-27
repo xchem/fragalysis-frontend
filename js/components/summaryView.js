@@ -3,9 +3,11 @@
  */
 import React from 'react';
 import { connect } from 'react-redux'
-import { Button } from 'react-bootstrap'
+import { Button, Well } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import CompoundList from './compoundList';
+
+
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -65,14 +67,27 @@ class SummaryView extends React.Component{
 
     }
 
+    getNum(){
+        var tot_num=0;
+        for(var key in this.props.to_select){
+            tot_num+=this.props.to_select[key].length;
+        }
+        return tot_num;
+    }
+
     render(){
         return <div>
-            <p>Number picked: {this.state.list_len}</p>
-            <p>Number vectors explored: {this.state.num_vectors}</p>
-            <p>Number series explored: {this.state.num_series}</p>
-            <p>Estimated cost: £{this.state.cost}</p>
-            <Button bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-            <CompoundList/>
+            <Well>
+                <h3>Number picked: <b>{this.state.list_len}</b></h3>
+                <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
+                <h3>Number series explored: <b>{this.state.num_series}</b></h3>
+                <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
+                <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+            </Well>
+            <Well>
+                <h1><b>Compounds to pick. Mol total:{this.getNum()}</b></h1>
+                <CompoundList />
+            </Well>
         </div>
     }
 }

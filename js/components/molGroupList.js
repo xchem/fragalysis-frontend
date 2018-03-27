@@ -20,17 +20,35 @@ class MolGroupList extends GenericList {
 
     }
     render() {
-        return null
+        return null;
     }
 
-    generateObject(data){
-        this.list_type = listType.MOLGROUPS
+    generateObject(data,selected=false){
+        this.list_type = listType.MOLGROUPS;
+        var sele = "";
+        var colour = [0,0,1];
+        var radius;
+        if(data.mol_id.length>10){
+            radius = 6.0
+        }
+        else if(data.mol_id.length>5){
+            radius = 4.0
+        }
+        else{
+            radius = 2.0
+        }
+
+        if(selected){
+            sele = "SELECT"
+            colour = [0,1,0]
+        }
         // Move this out of this
         var nglObject = {
-                "OBJECT_TYPE": nglObjectTypes.SPHERE,
-                "name": this.list_type + "_" + data.id.toString(),
-                "radius": data.mol_id.length,
-                "coords": [data.x_com, data.y_com, data.z_com],
+            "OBJECT_TYPE": nglObjectTypes.SPHERE,
+            "name": this.list_type + sele + "_" + + data.id.toString(),
+            "radius": radius,
+            "colour": colour,
+            "coords": [data.x_com, data.y_com, data.z_com],
             }
         return nglObject
     }

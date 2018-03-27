@@ -10,6 +10,9 @@ import { GenericView } from './generalComponents'
 import * as nglObjectTypes from './nglObjectTypes'
 import * as selectionActions from '../actions/selectionActions'
 import * as listTypes from './listTypes'
+import '../../css/toggle.css';
+import Toggle from 'react-bootstrap-toggle';
+import SVGInline from "react-svg-inline"
 
 
 class MoleculeView extends GenericView {
@@ -18,41 +21,23 @@ class MoleculeView extends GenericView {
         super(props);
         this.generateObject = this.generateObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.getGraph = this.getGraph.bind(this);
+        this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
-        this.getVects = this.getVects.bind(this);
+        this.onVector = this.onVector.bind(this);
+        this.onComplex = this.onComplex.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
+        this.state.vectorOn= false
+        this.state.complexOn= false
+        this.colourToggle = this.getRandomColor();
     }
+
 
 
     getViewUrl(pk,get_view){
         var base_url = window.location.protocol + "//" + window.location.host
         base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
         return base_url
-    }
-
-
-    getGraph(){
-        // Set this
-        this.props.getFullGraph(this.props.data);
-        // Do the query
-        fetch(this.getViewUrl(this.props.data.id,"get_graph_from_pk"))
-                .then(
-                    response => response.text(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.props.gotFullGraph(json))
-    }
-
-    getVects(){
-
-        fetch(this.getViewUrl(this.props.data.id,"get_vects_from_pk"))
-            .then(
-            response => response.json(),
-            error => console.log('An error occurred.', error)
-            )
-            .then(json => this.generateObjectList(json).forEach(item => this.props.loadObject(item)))
     }
 
     /**
@@ -75,6 +60,12 @@ class MoleculeView extends GenericView {
         for(var key in linker) {
             outList.push(this.generateCylinderObject(linker[key][0],
                 linker[key][1],key.split("_")[0],colour))
+        }
+
+        var rings = out_data["ring"]
+        for (var key in rings){
+            outList.push(this.generateCylinderObject(rings[key][0],
+                rings[key][2],key.split("_")[0],colour))
         }
         return outList;
     }
@@ -99,13 +90,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-
-    generateMolObject(){
+    generateMolObject(colourToggle=null){
         // Get the data
         const data = this.props.data;
         var nglObject = {
             "name": "MOLLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
+            "colour": colourToggle,
             "sdf_info": data.sdf_info
         }
         return nglObject;
@@ -124,21 +115,87 @@ class MoleculeView extends GenericView {
     }
 
 
+    handleVector(json){
+        var objList = this.generateObjectList(json);
+        objList.forEach(item => this.props.loadObject(item));
+        this.props.setVectorList(objList)
+
+    }
+
+    render() {
+        const svg_image = <SVGInline svg={this.state.img_data}/>;
+        const selected_style = {width: this.props.width.toString+'px',
+            height: this.props.height.toString()+'px', backgroundColor: this.state.backgroundColour}
+        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
+        return <div>
+            <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+            <Toggle onClick={this.onComplex}
+                on={<p>Complex ON</p>}
+                off={<p>Complex OFF</p>}
+                size="xs"
+                offstyle="danger"
+                active={this.state.complexOn}/>
+            <Toggle onClick={this.onVector}
+                on={<p>Vector ON</p>}
+                off={<p>Vector OFF</p>}
+                size="xs"
+                offstyle="danger"
+                active={this.state.vectorOn}/>
+            </div>
+    }
+
+    getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+}
+
     handleClick(e){
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: this.colourToggle}))
         if(this.state.isToggleOn){
-            //this.props.removeFromToBuyList(this.props.data);
-            if(e.shiftKey) {
-                this.props.deleteObject(this.generateObject())
-            }
+            this.props.deleteObject(this.generateMolObject())
         }
         else{
-            this.getVects()
-            this.getGraph()
-            // this.props.appendToBuyList(this.props.data);
-            if(e.shiftKey) {
-                this.props.loadObject(this.generateObject())
-            }
+            this.props.loadObject(this.generateMolObject(this.colourToggle))
+        }
+    }
+
+    onComplex(){
+        this.setState(prevState => ({complexOn: !prevState.complexOn}))
+        if(this.state.complexOn){
+            this.props.deleteObject(this.generateObject())
+        }
+        else{
+            this.props.loadObject(this.generateObject())
+        }
+
+    }
+
+    onVector(){
+        this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+        if(this.state.vectorOn) {
+            this.props.vector_list.forEach(item => this.props.deleteObject(item));
+
+        }
+        else {
+            fetch(this.getViewUrl(this.props.data.id, "get_vects_from_pk"))
+                .then(
+                    response => response.json(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.handleVector(json))
+            // Set this
+            this.props.getFullGraph(this.props.data);
+            // Do the query
+            fetch(this.getViewUrl(this.props.data.id, "get_graph_from_pk"))
+                .then(
+                    response => response.text(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.props.gotFullGraph(json))
         }
     }
 
@@ -147,11 +204,13 @@ function mapStateToProps(state) {
   return {
       currentList: state.apiReducers.possibleMols,
       binList: state.apiReducers.binnedMols,
+      vector_list: state.selectionReducers.vector_list,
       newListTwo: state.apiReducers.chosenMols,
   }
 }
 const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
+    setVectorList: selectionActions.setVectorList,
     gotFullGraph: selectionActions.gotFullGraph,
     transferList: apiActions.transferList,
     deleteObject: nglLoadActions.deleteObject,
