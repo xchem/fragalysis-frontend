@@ -60,11 +60,12 @@ class TargetList extends GenericList {
         this.props.setMoleculeList([]);
         this.props.setObjectOn(new_value);
         for(var key in this.props.objectsInView){
-            this.props.deleteObject(this.props.objectsInView[key]);
+            this.props.deleteObject(
+                Object.assign({display_div: "summary_view"}, this.props.objectsInView[key]));
         }
         var targObject = this.generateTargetObject(new_value);
         if(targObject) {
-            this.props.loadObject(targObject);
+            Object.assign({display_div: "summary_view"}, this.props.loadObject(targObject));
         }
     }
     render() {

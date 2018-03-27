@@ -186,22 +186,21 @@ export class NGLView extends React.Component {
     }
 
     typeCheck(nglObject){
-        var expectedDiv
-        var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
-        var summaryList = [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]
-        for (var index in majorList) {
-            if (nglObject["OBJECT_TYPE"] == majorList[index]) {
-                expectedDiv = "major_view"
-            }
-        }
-        for (var index in summaryList) {
-            if (nglObject["OBJECT_TYPE"] == summaryList[index]) {
-                expectedDiv = "summary_view"
-            }
-        }
+        var expectedDiv = nglObject["display_div"]
+        // var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
+        // var summaryList = [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]
+        // for (var index in majorList) {
+        //     if (nglObject["OBJECT_TYPE"] == majorList[index]) {
+        //         expectedDiv = "major_view"
+        //     }
+        // }
+        // for (var index in summaryList) {
+        //     if (nglObject["OBJECT_TYPE"] == summaryList[index]) {
+        //         expectedDiv = "summary_view"
+        //     }
+        // }
         return this.div_id==expectedDiv
     }
-
 
     /**
      * Function to deal with the logic of showing molecules
@@ -213,7 +212,7 @@ export class NGLView extends React.Component {
             if (this.typeCheck(nglObject)) {
                 this.generateObject(nglKey, nglObject);
                 this.props.objectLoading(nglObject);
-                this.props.showLoading()
+                this.props.showLoading();
             }
         }
         for(var nglKey in this.props.objectsToDelete){

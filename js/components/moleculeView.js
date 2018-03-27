@@ -113,11 +113,10 @@ class MoleculeView extends GenericView {
         }
         return nglObject;
     }
-
-
+    
     handleVector(json){
         var objList = this.generateObjectList(json);
-        objList.forEach(item => this.props.loadObject(item));
+        objList.forEach(item => Object.assign({display_div: "major_view"}, this.props.loadObject(item)));
         this.props.setVectorList(objList)
 
     }
@@ -156,20 +155,20 @@ class MoleculeView extends GenericView {
     handleClick(e){
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: this.colourToggle}))
         if(this.state.isToggleOn){
-            this.props.deleteObject(this.generateMolObject())
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
         }
         else{
-            this.props.loadObject(this.generateMolObject(this.colourToggle))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
         }
     }
 
     onComplex(){
         this.setState(prevState => ({complexOn: !prevState.complexOn}))
         if(this.state.complexOn){
-            this.props.deleteObject(this.generateObject())
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.props.loadObject(this.generateObject())
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
 
     }
@@ -177,7 +176,7 @@ class MoleculeView extends GenericView {
     onVector(){
         this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         if(this.state.vectorOn) {
-            this.props.vector_list.forEach(item => this.props.deleteObject(item));
+            this.props.vector_list.forEach(item => Object.assign({display_div: "major_view"}, this.props.deleteObject(item)));
 
         }
         else {
