@@ -46,6 +46,7 @@ class MolGroupList extends GenericList {
         var nglObject = {
             "OBJECT_TYPE": nglObjectTypes.SPHERE,
             "name": this.list_type + sele + "_" + + data.id.toString(),
+            display_div: "main_view",
             "radius": radius,
             "colour": colour,
             "coords": [data.x_com, data.y_com, data.z_com],
