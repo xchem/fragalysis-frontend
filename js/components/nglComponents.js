@@ -175,9 +175,11 @@ export class NGLView extends React.Component {
         }
         return Object.assign({},
             data,
-            {"name": list_type + sele + "_" + + data.id.toString(),
+            {
+                "name": list_type + sele + "_" + + data.id.toString(),
                 display_div: "summary_view",
-                "colour": colour}
+                "colour": colour
+            }
         )
     }
 
