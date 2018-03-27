@@ -182,7 +182,7 @@ export class NGLView extends React.Component {
             "colour": colour,
             "coords": [data.x_com, data.y_com, data.z_com],
             }
-        return nglObject
+        return Object.assign({},data,nglObject)
     }
 
     typeCheck(nglObject){
