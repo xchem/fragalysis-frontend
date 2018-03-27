@@ -17,6 +17,8 @@ class TargetList extends GenericList {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.render_method = this.render_method.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
+        this.checkForTargetChange = this.checkForTargetChange.bind(this);
+        this.origTarget = -1;
     }
     render_method(data) {
         return <ListGroupItem key={data.id} >
@@ -25,6 +27,23 @@ class TargetList extends GenericList {
                 {data.title}
             </label>
         </ListGroupItem>
+    }
+
+    checkForTargetChange(){
+
+        if(this.object_on!=this.origTarget && this.object_on!=undefined){
+            this.props.setMoleculeList([]);
+            this.props.setObjectOn(new_value);
+            for(var key in this.props.objectsInView){
+                this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "summary_view"}));
+                this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "major_view", name: targObject.name+"_MAIN"}));
+            }
+            var targObject = this.generateTargetObject(new_value);
+            if(targObject) {
+                this.props.loadObject(Object.assign({}, targObject, {display_div: "summary_view"}));
+                this.props.loadObject(Object.assign({}, targObject,{display_div: "major_view", name: targObject.name+"_MAIN"}));
+            }
+        }
     }
 
     getViewUrl(pk,get_view){
@@ -55,19 +74,13 @@ class TargetList extends GenericList {
         return undefined;
     }
 
+    componentDidMount(){
+        setInterval(this.checkForTargetChange,50)
+    }
+
     handleOptionChange(changeEvent) {
-        const new_value = changeEvent.target.value;
-        this.props.setMoleculeList([]);
-        this.props.setObjectOn(new_value);
-        for(var key in this.props.objectsInView){
-            this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "summary_view"}));
-            this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "major_view", name: targObject.name+"_MAIN"}));
-        }
-        var targObject = this.generateTargetObject(new_value);
-        if(targObject) {
-            this.props.loadObject(Object.assign({}, targObject,{display_div: "summary_view"}));
-            this.props.loadObject(Object.assign({}, targObject,{display_div: "major_view", name: targObject.name+"_MAIN"}));
-        }
+        this.props.setObjectOn(changeEvent.target.value);
+
     }
     render() {
         if (this.props != undefined && this.props.object_list) {
