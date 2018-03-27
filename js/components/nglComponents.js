@@ -174,15 +174,10 @@ export class NGLView extends React.Component {
             sele = "SELECT"
             colour = [0,1,0]
         }
-        // Move this out of this
-        var nglObject = {
-            "OBJECT_TYPE": nglObjectTypes.SPHERE,
-            "name": list_type + sele + "_" + + data.id.toString(),
-            "radius": radius,
-            "colour": colour,
-            "coords": [data.x_com, data.y_com, data.z_com],
-            }
-        return Object.assign({},data, nglObject)
+        return Object.assign({},
+            data,
+            {"name": list_type + sele + "_" + + data.id.toString(),"colour": colour}
+        )
     }
 
     typeCheck(nglObject){
