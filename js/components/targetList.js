@@ -31,17 +31,25 @@ class TargetList extends GenericList {
 
     checkForTargetChange(){
         if(this.props.object_on!=this.origTarget && this.props.object_on!=undefined){
+            var targetData;
+            for(var index in this.props.object_list){
+                var thisTarget = this.props.object_list[index];
+                if (thisTarget.id==this.props.object_on){
+                    targetData=thisTarget;
+                    break;
+                }
+            }
             this.props.setMoleculeList([]);
-            this.props.setObjectOn(new_value);
             for(var key in this.props.objectsInView){
                 this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "summary_view"}));
                 this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "major_view", name: targObject.name+"_MAIN"}));
             }
-            var targObject = this.generateTargetObject(new_value);
+            var targObject = this.generateTargetObject(targetData);
             if(targObject) {
                 this.props.loadObject(Object.assign({}, targObject, {display_div: "summary_view"}));
                 this.props.loadObject(Object.assign({}, targObject,{display_div: "major_view", name: targObject.name+"_MAIN"}));
             }
+            this.origTarget = this.props.object_on
         }
     }
 
@@ -51,15 +59,7 @@ class TargetList extends GenericList {
         return base_url
     }
 
-    generateTargetObject(targetOn){
-        var targetData;
-        for(var index in this.props.object_list){
-            var thisTarget = this.props.object_list[index];
-            if (thisTarget.id==targetOn){
-                targetData=thisTarget;
-                break;
-            }
-        }
+    generateTargetObject(targetData){
         // Now deal with this target
         var prot_to_load = targetData.protein_set[0]
         if(prot_to_load!=undefined) {
