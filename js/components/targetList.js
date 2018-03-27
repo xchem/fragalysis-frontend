@@ -30,8 +30,7 @@ class TargetList extends GenericList {
     }
 
     checkForTargetChange(){
-
-        if(this.object_on!=this.origTarget && this.object_on!=undefined){
+        if(this.props.object_on!=this.origTarget && this.props.object_on!=undefined){
             this.props.setMoleculeList([]);
             this.props.setObjectOn(new_value);
             for(var key in this.props.objectsInView){
