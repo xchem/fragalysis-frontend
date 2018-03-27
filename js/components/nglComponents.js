@@ -38,7 +38,6 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.generateObject = this.generateObject.bind(this);
         this.showPick = this.showPick.bind(this);
-        this.typeCheck = this.typeCheck.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
     }
 
@@ -176,26 +175,12 @@ export class NGLView extends React.Component {
         }
         return Object.assign({},
             data,
-            {"name": list_type + sele + "_" + + data.id.toString(),"colour": colour}
+            {"name": list_type + sele + "_" + + data.id.toString(),
+                display_div: "summary_view",
+                "colour": colour}
         )
     }
 
-    typeCheck(nglObject){
-        var expectedDiv = nglObject["display_div"]
-        // var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
-        // var summaryList = [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]
-        // for (var index in majorList) {
-        //     if (nglObject["OBJECT_TYPE"] == majorList[index]) {
-        //         expectedDiv = "major_view"
-        //     }
-        // }
-        // for (var index in summaryList) {
-        //     if (nglObject["OBJECT_TYPE"] == summaryList[index]) {
-        //         expectedDiv = "summary_view"
-        //     }
-        // }
-        return this.div_id==expectedDiv
-    }
 
     /**
      * Function to deal with the logic of showing molecules
@@ -204,7 +189,7 @@ export class NGLView extends React.Component {
 
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
-            if (this.typeCheck(nglObject)) {
+            if (this.div_id==nglObject.display_div) {
                 this.generateObject(nglKey, nglObject);
                 this.props.objectLoading(nglObject);
                 this.props.showLoading();
@@ -212,7 +197,7 @@ export class NGLView extends React.Component {
         }
         for(var nglKey in this.props.objectsToDelete){
             var nglObject = this.props.objectsToDelete[nglKey]
-            if (this.typeCheck(nglObject)) {
+            if (this.div_id==nglObject.display_div) {
                 var comps = this.stage.getComponentsByName(nglKey)
                 for (var component in comps.list) {
                     this.stage.removeComponent(comps.list[component]);
@@ -222,7 +207,7 @@ export class NGLView extends React.Component {
         }
         for(var nglKey in this.props.objectsLoading){
             var nglObject = this.props.objectsLoading[nglKey]
-            if (this.typeCheck(nglObject)) {
+            if (this.div_id==nglObject.display_div) {
                 if (this.stage.getComponentsByName(nglKey).list.length > 0) {
                     var nglObject = this.props.objectsLoading[nglKey];
                     this.props.loadObjectSuccess(nglObject);
