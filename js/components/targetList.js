@@ -66,7 +66,7 @@ class TargetList extends GenericList {
         var targObject = this.generateTargetObject(new_value);
         if(targObject) {
             this.props.loadObject(Object.assign({display_div: "summary_view"}, targObject));
-            this.props.loadObject(Object.assign({display_div: "major_view"}, targObject));
+            this.props.loadObject(Object.assign({display_div: "major_view", "name": targObject.name+"_MAIN"}, targObject));
 
         }
     }
