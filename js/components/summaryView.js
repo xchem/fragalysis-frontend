@@ -37,7 +37,7 @@ class SummaryView extends React.Component{
         old_state.num_series = new Set(mol_list).size;
         old_state.smiles = this.props.to_query;
         this.setState({ state: old_state});
-        if(this.props.vector_list!=this.vector_list && this.props.querying!=false){
+        if(this.props.vector_list!=this.vector_list && this.props.querying==false){
             this.loadVectors();
             this.vector_list = this.props.vector_list;
         }
