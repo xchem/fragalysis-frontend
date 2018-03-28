@@ -156,12 +156,8 @@ class MoleculeView extends GenericView {
     }
 
     getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
+        var colourList = ["#9A1CFF","#25A0E8","#5BFF71","#E8D642","#FF8134"]
+        return colourList[this.data.id % colourList.length];
     }
 
     handleClick(e){
