@@ -147,7 +147,8 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
-    selectVector: selectionActions.selectVector
+    selectVector: selectionActions.selectVector,
+    loadObject: nglLoadActions.loadObject
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
