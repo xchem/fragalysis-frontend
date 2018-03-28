@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
+import * as nglLoadActions from '../actions/nglLoadActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
 
