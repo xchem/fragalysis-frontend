@@ -157,7 +157,7 @@ class MoleculeView extends GenericView {
 
     getRandomColor() {
         var colourList = ["#9A1CFF","#25A0E8","#5BFF71","#E8D642","#FF8134"]
-        return colourList[this.data.id % colourList.length];
+        return colourList[this.props.data.id % colourList.length];
     }
 
     handleClick(e){
