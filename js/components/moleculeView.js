@@ -124,7 +124,7 @@ class MoleculeView extends GenericView {
         var complexOn = false;
         for(var key in this.props.inViewList){
             if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]])==this.props.data.id){
-                this.setState(prevState => ({isToggleOn: true}))
+                this.setState(prevState => ({isToggleOn: true}));
             }
             if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]])==this.props.data.id){
                 this.setState(prevState => ({complexOn: true}));
