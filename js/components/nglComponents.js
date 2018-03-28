@@ -102,7 +102,7 @@ export class NGLView extends React.Component {
             ).then(ol => this.renderComplex(ol));
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
-            var colour = [1,0,0];
+            var colour = object["colour"]==undefined ? [1,0,0] : object["colour"];
             var radius = 0.7;
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
@@ -111,7 +111,7 @@ export class NGLView extends React.Component {
             shapeComp.addRepresentation("buffer");
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.ARROW){
-            var colour = [1,0,0];
+            var colour = object["colour"]==undefined ? [1,0,0] : object["colour"];
             var radius = 0.5;
             var shape = new Shape( object_name );
             shape.addArrow(input_dict["start"],input_dict["end"], colour, radius);
