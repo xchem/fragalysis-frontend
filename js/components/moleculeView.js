@@ -187,9 +187,9 @@ class MoleculeView extends GenericView {
         this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         if(this.state.vectorOn) {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
-
         }
         else {
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
             fetch(this.getViewUrl(this.props.data.id, "get_vects_from_pk"))
                 .then(
                     response => response.json(),
