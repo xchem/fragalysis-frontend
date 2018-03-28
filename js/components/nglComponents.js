@@ -144,13 +144,15 @@ export class NGLView extends React.Component {
                 maxHbondDonPlaneAngle: 35,
                 sele: "/0 or /1"
             })
-            comp.addRepresentation("licorice", {
+            comp.addRepresentation("ball+stick", {
                 sele: "ligand and /1",
                 colorScheme: "element",
                 colorValue:colour,
                 multipleBond: "offset"
             })
             comp.addRepresentation("line", {
+                colorScheme: "element",
+                colorValue:colour,
                 sele: "/0"
             })
             comp.autoView("ligand");
