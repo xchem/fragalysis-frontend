@@ -76,6 +76,8 @@ class SummaryView extends React.Component{
     }
 
     render(){
+
+
         return <div>
             <Well>
                 <Row>
@@ -87,7 +89,8 @@ class SummaryView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                 </Col>
                 <Col xs={6} md={6}>
-                    <SummaryCmpd height={100} width={100} key={"QUERY"} />
+                    <SummaryCmpd height={150} width={150} key={"QUERY"} />
+                    <a>{this.props.querying ? "Loading...." : "Loaded!"}</a>
                 </Col>
                 </Row>
             </Well>
