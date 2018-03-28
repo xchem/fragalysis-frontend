@@ -90,12 +90,11 @@ class SummaryView extends React.Component{
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
-                    <h1>{this.props.querying ? "Loading...." : "Loaded!"}</h1>
                 </Col>
                 </Row>
             </Well>
             <Well>
-                <h1><b>Compounds to pick. Mol total:{this.getNum()}</b></h1>
+                <h1><b>{this.props.querying ? "Loading...." : "Compounds to pick. Mol total: " + this.getNum()}</b></h1>
                 <CompoundList />
             </Well>
         </div>
