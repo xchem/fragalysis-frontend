@@ -54,13 +54,19 @@ class SummaryView extends React.Component{
         }
         var colour = [1,0,0]
 
+        if (counter >50) {
+            colour = [0, 1, 0]
+            return {"colour": colour, "radius": 0.8}
+        }
+
+        if (counter >10) {
+            colour = [0.5,1, 0]
+            return {"colour": colour, "radius": 0.6}
+        }
+
         if (counter>0){
             colour = [1,1,0]
             return {"colour": colour,"radius": 0.5}
-        }
-        if (counter >10) {
-            colour = [0, 1, 0]
-            return {"colour": colour, "radius": 0.7}
         }
         return {"colour": colour,"radius": 0.3}
     }
