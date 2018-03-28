@@ -41,8 +41,7 @@ class TargetList extends GenericList {
             }
             this.props.setMoleculeList([]);
             for(var key in this.props.objectsInView){
-                this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "summary_view"}));
-                this.props.deleteObject(Object.assign({}, this.props.objectsInView[key], {display_div: "major_view", name: targObject.name+"_MAIN"}));
+                this.props.deleteObject(this.props.objectsInView[key]);
             }
             var targObject = this.generateTargetObject(targetData);
             if(targObject) {
