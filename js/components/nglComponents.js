@@ -155,9 +155,12 @@ export class NGLView extends React.Component {
 
 
     generateSphere(data,selected=false){
-        var list_type = listTypes.MOLGROUPS
         var sele = ""
         var colour = [0,0,1]
+        if(selected){
+            sele = "SELECT"
+            colour = [0,1,0]
+        }
         var radius;
         if(data.mol_id.length>10){
             radius = 5.0
@@ -168,16 +171,12 @@ export class NGLView extends React.Component {
         else{
             radius = 2.0
         }
-
-        if(selected){
-            sele = "SELECT"
-            colour = [0,1,0]
-        }
         return Object.assign({},
             data,
             {
-                "name": list_type + sele + "_" + + data.id.toString(),
+                "name": listTypes.MOLGROUPS + sele + "_" + + data.id.toString(),
                 display_div: "summary_view",
+                OBJECT_TYPE: nglObjectTypes.SPHERE,
                 "colour": colour
             }
         )
@@ -234,10 +233,9 @@ export class NGLView extends React.Component {
             }
             // Delete the two old spheres
             this.props.deleteObject(this.generateSphere(new_data));
-            this.props.loadObject(this.generateSphere(new_data,true));
+            this.props.loadObject(this.generateSphere(new_data, true));
             this.old_mol_group_on = this.props.mol_group_on;
         }
-
     }
     
     render(){
