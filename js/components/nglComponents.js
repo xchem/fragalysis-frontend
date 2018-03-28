@@ -98,7 +98,7 @@ export class NGLView extends React.Component {
             Promise.all([
                 this.stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
                 this.stage.loadFile(stringBlob, {ext: "sdf"}),
-                this.stage, this.focus_var, object_name]
+                this.stage, this.focus_var, object_name,input_dict["colour"]]
             ).then(ol => this.renderComplex(ol));
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
@@ -134,12 +134,15 @@ export class NGLView extends React.Component {
             )
             var stage = ol[2];
             var focus_var = ol[3];
+        var colour = ol[5];
             // Set the object name
             var comp = stage.addComponentFromObject(cs)
             comp.addRepresentation("cartoon")
             comp.addRepresentation("contact", {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
+                colorScheme: "element",
+                colorValue:colour,
                 maxHbondDonPlaneAngle: 35,
                 sele: "/0 or /1"
             })

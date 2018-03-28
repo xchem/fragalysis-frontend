@@ -89,13 +89,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-    generateMolObject(colourToggle=null){
+    generateMolObject(){
         // Get the data
         const data = this.props.data;
         var nglObject = {
             "name": "MOLLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
-            "colour": colourToggle,
+            "colour": this.colourToggle,
             "sdf_info": data.sdf_info
         }
         return nglObject;
@@ -108,6 +108,7 @@ class MoleculeView extends GenericView {
             "name": "COMPLEXLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.COMPLEX,
             "sdf_info": data.sdf_info,
+            "colour": this.colourToggle,
             "prot_url": this.getViewUrl(data.prot_id,"prot_from_pk")
         }
         return nglObject;
