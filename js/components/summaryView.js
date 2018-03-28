@@ -73,7 +73,7 @@ class SummaryView extends React.Component{
 
     loadVectors(){
         // Colour and then load the vectors in
-        if(to_query!="") {
+        if(this.props.to_query!="") {
             this.props.vector_list.forEach(item => this.props.loadObject(Object.assign({display_div: "major_view"}, item, this.getColour(item))));
         }
     }
