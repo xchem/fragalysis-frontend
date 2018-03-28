@@ -151,7 +151,7 @@ class MoleculeView extends GenericView {
                 off={<p>Vector OFF</p>}
                 size="xs"
                 offstyle="danger"
-                active={this.state.vectorOn}/>
+                active={this.props.to_query==this.props.data.smiles}/>
             </div>
     }
 
@@ -212,8 +212,8 @@ class MoleculeView extends GenericView {
 function mapStateToProps(state) {
   return {
       currentList: state.apiReducers.possibleMols,
+      to_query: state.selectionReducers.to_query,
       inViewList:state.nglReducers.objectsInView,
-      binList: state.apiReducers.binnedMols,
       vector_list: state.selectionReducers.vector_list,
       newListTwo: state.apiReducers.chosenMols,
   }
