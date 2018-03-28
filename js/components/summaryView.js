@@ -14,6 +14,8 @@ class SummaryView extends React.Component{
         this.list_len = undefined
         this.update = this.update.bind(this);
         this.handleExport = this.handleExport.bind(this);
+        this.loadVectors = this.loadVectors.bind(this);
+        this.getColour = this.getColour.bind(this);
         // Number vectors and series to be incorporated later
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
     }
@@ -33,6 +35,10 @@ class SummaryView extends React.Component{
         old_state.num_series = new Set(mol_list).size;
         old_state.smiles = this.props.to_query;
         this.setState({ state: old_state});
+        if(this.props.vector_list!=this.vector_list){
+            this.loadVectors();
+        }
+
     }
     getColour(item){
         var thisSmi = item.name.split("VECTOR_")[1]
