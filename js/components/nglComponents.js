@@ -12,6 +12,19 @@ import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
 
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;
+
+  // If you don't care about the order of the elements inside
+  // the array, you should sort both arrays here.
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
 
 export class NGLView extends React.Component {
 
@@ -190,7 +203,7 @@ export class NGLView extends React.Component {
      */
     renderDisplay() {
         var orientation = this.stage.viewerControls.getOrientation();
-        if(orientation!=this.props.orientation){
+        if(arraysEqual(orientation.elements=this.props.orientation.elements)!=true){
             this.props.setOrientation(orientation);
         }
         for(var nglKey in this.props.objectsToLoad){
