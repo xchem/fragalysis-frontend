@@ -16,7 +16,7 @@ class SummaryView extends React.Component{
         this.update = this.update.bind(this);
         this.handleExport = this.handleExport.bind(this);
         // Number vectors and series to be incorporated later
-        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0}
+        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
     }
 
     update() {
@@ -32,6 +32,7 @@ class SummaryView extends React.Component{
         }
         old_state.num_vectors = new Set(vector_list).size;
         old_state.num_series = new Set(mol_list).size;
+        old_state.smiles = this.props.to_query;
         this.setState({ state: old_state});
     }
     componentDidMount() {
@@ -87,7 +88,7 @@ class SummaryView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                 </Col>
                 <Col xs={6} md={6}>
-                    <CompoundView height={100} width={100} key={"QUERY"} data={{"smiles":this.props.to_query}}/>
+                    <CompoundView height={100} width={100} key={"QUERY"} data={{"smiles":this.state.smiles}}/>
                 </Col>
                 </Row>
             </Well>
