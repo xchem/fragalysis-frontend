@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux'
-import { Button, Well } from 'react-bootstrap'
+import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import CompoundList from './compoundList';
 import CompoundView from './compoundView'
