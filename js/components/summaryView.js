@@ -76,7 +76,11 @@ class SummaryView extends React.Component{
     }
 
     render(){
-
+        var numMols = this.getNum();
+        var mol_string = "No mols found!!!";
+        if(numMols){
+            mol_string = "Compounds to pick. Mol total: " + numMols
+        }
 
         return <div>
             <Well>
@@ -94,7 +98,7 @@ class SummaryView extends React.Component{
                 </Row>
             </Well>
             <Well>
-                <h1><b>{this.props.querying ? "Loading...." : "Compounds to pick. Mol total: " + this.getNum()}</b></h1>
+                <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
                 <CompoundList />
             </Well>
         </div>
