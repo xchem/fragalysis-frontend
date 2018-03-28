@@ -103,7 +103,7 @@ export class NGLView extends React.Component {
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
             var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
-            var radius = 0.7;
+            var radius = input_dict["radius"]==undefined ? 0.4 : input_dict["radius"];
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
             shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
@@ -112,7 +112,7 @@ export class NGLView extends React.Component {
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.ARROW){
             var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
-            var radius = 0.5;
+            var radius = input_dict["radius"]==undefined ? 0.3 : input_dict["radius"];
             var shape = new Shape( object_name );
             shape.addArrow(input_dict["start"],input_dict["end"], colour, radius);
             var shapeComp = this.stage.addComponentFromObject(shape);
