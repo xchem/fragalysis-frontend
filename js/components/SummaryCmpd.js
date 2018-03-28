@@ -13,7 +13,7 @@ class SummaryCmpd extends GenericView {
 
     constructor(props) {
         super(props);
-        var base_url = window.location.protocol + "//" + window.location.host
+        this.base_url = window.location.protocol + "//" + window.location.host
         this.update = this.update.bind(this);
         this.smiles = ""
     }
