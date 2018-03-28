@@ -12,20 +12,6 @@ import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
 
-function arraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length != b.length) return false;
-
-  // If you don't care about the order of the elements inside
-  // the array, you should sort both arrays here.
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
 export class NGLView extends React.Component {
 
 
@@ -102,7 +88,9 @@ export class NGLView extends React.Component {
         else if (input_dict["OBJECT_TYPE"]==nglObjectTypes.MOLECULE){
             var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
             this.stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
-                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true } );
+                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true }
+                );
+                comp.autoView("ligand");
             });
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.COMPLEX){
@@ -202,14 +190,14 @@ export class NGLView extends React.Component {
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
-        var orientation = this.stage.viewerControls.getOrientation();
-        var otherArray;
-        if (this.props.orientation){
-            otherArray = this.props.orientation.elements
-        }
-        if(orientation != undefined && arraysEqual(orientation.elements,otherArray)!=true){
-            this.props.setOrientation(orientation);
-        }
+        // var orientation = this.stage.viewerControls.getOrientation();
+        // var otherArray;
+        // if (this.props.orientation){
+        //     otherArray = this.props.orientation.elements
+        // }
+        // if(orientation != undefined && arraysEqual(orientation.elements,otherArray)!=true){
+        //     this.props.setOrientation(orientation);
+        // }
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
