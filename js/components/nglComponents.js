@@ -207,7 +207,7 @@ export class NGLView extends React.Component {
         if (this.props.orientation){
             otherArray = this.props.orientation.elements
         }
-        if(orientation != undefined && arraysEqual(orientation.elements,other_array)!=true){
+        if(orientation != undefined && arraysEqual(orientation.elements,otherArray)!=true){
             this.props.setOrientation(orientation);
         }
         for(var nglKey in this.props.objectsToLoad){
