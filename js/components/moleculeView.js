@@ -32,8 +32,6 @@ class MoleculeView extends GenericView {
         this.colourToggle = this.getRandomColor();
     }
 
-
-
     getViewUrl(pk,get_view){
         var base_url = window.location.protocol + "//" + window.location.host
         base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
@@ -118,7 +116,20 @@ class MoleculeView extends GenericView {
         var objList = this.generateObjectList(json);
         objList.forEach(item => this.props.loadObject(Object.assign({display_div: "major_view"}, item)));
         this.props.setVectorList(objList)
+    }
 
+    componentDidMount() {
+        this.loadFromServer(this.props.width,this.props.height);
+        var isToggleOn = false;
+        for(var key in this.props.inViewList){
+            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]])==this.props.data.id){
+                isToggleOn=true
+            }
+            if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]])==this.props.data.id){
+                isToggleOn=true
+            }
+        }
+        this.setState(prevState => ({isToggleOn: isToggleOn}))
     }
 
     render() {
@@ -150,7 +161,7 @@ class MoleculeView extends GenericView {
             color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
-}
+    }
 
     handleClick(e){
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: this.colourToggle}))
@@ -202,6 +213,7 @@ class MoleculeView extends GenericView {
 function mapStateToProps(state) {
   return {
       currentList: state.apiReducers.possibleMols,
+      inViewList:state.nglReducers.objectsInView,
       binList: state.apiReducers.binnedMols,
       vector_list: state.selectionReducers.vector_list,
       newListTwo: state.apiReducers.chosenMols,
