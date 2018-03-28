@@ -115,7 +115,6 @@ class MoleculeView extends GenericView {
 
     handleVector(json){
         var objList = this.generateObjectList(json);
-        objList.forEach(item => this.props.loadObject(Object.assign({display_div: "major_view"}, item)));
         this.props.setVectorList(objList)
     }
 

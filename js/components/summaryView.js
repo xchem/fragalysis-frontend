@@ -34,6 +34,30 @@ class SummaryView extends React.Component{
         old_state.smiles = this.props.to_query;
         this.setState({ state: old_state});
     }
+    getColour(item){
+        var thisSmi = item.name.split("VECTOR_")[1]
+        var counter = 0
+        for(var key in this.props.to_select){
+            var smi = key.split("_")[0]
+            if(smi==thisSmi){
+                counter+=this.props.to_select[key].length
+            }
+        }
+        var colour = [1,0,0]
+        if (counter>0){
+            colour = [1,1,0]
+        }
+        if (counter >10){
+            colour = [0,1,0]
+        }
+        return {"colour": colour}
+    }
+
+    loadVectors(){
+        // Colour and then load the vectors in 
+        this.props.vector_list.forEach(item => this.props.loadObject(Object.assign({display_div: "major_view"}, item, this.getColour(item))));
+    }
+
     componentDidMount() {
         this.update();
         setInterval(this.update,50);
@@ -109,6 +133,7 @@ function mapStateToProps(state) {
       to_buy_list: state.selectionReducers.to_buy_list,
       to_select: state.selectionReducers.to_select,
       this_vector_list: state.selectionReducers.this_vector_list,
+      vector_list: state.selectionReducers.vector_list,
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query
   }
