@@ -156,8 +156,8 @@ class MoleculeView extends GenericView {
             </div>
     }
 
-    getRandomColor() {
-        var colourList = shuffle(['#CC6666', '#FDBCB4', '#FF6E4A', '#C5E384', '#80DAEB', '#1F75FE', '#F75394', '#EFCDB8', '#FAE7B5', '#EDEDED', '#95918C', '#ADADD6'])
+    getThisColor() {
+        var colourList = shuffle(['#CC6666', '#FDBCB4', '#FF6E4A', '#C5E384', '#80DAEB', '#1F75FE', '#F75394', '#EFCDB8', '#FAE7B5', "#78DBE2", '#95918C', '#ADADD6'])
         return colourList[this.props.data.id % colourList.length];
     }
 
