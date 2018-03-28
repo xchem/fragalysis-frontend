@@ -61,6 +61,11 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 querying: true
             });
 
+        case actions.SET_MOL:
+            return  Object.assign({}, state, {
+                to_query: action.mol
+            });
+
         case actions.GOT_FULL_GRAPH:
             var input_mol_dict = action.input_mol_dict;
             // Check if JSON

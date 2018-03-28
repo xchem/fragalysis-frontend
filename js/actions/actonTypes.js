@@ -44,5 +44,6 @@ export const POST_TO_API_FAILURE = 'POST_TO_API_FAILURE';
 export const GET_FULL_GRAPH = 'GET_FULL_GRAPH';
 export const GOT_FULL_GRAPH = 'GOT_FULL_GRAPH';
 export const SELECT_VECTOR = 'SELECT_VECTOR';
+export const SET_MOL = 'SET_MOL';
 export const SET_VECTOR_LIST = 'SET_VECTOR_LIST';
 export const SET_ORIENTATION = 'SET_ORIENTATION'

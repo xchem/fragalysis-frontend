@@ -187,6 +187,7 @@ class MoleculeView extends GenericView {
         this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         if(this.state.vectorOn) {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            this.props.setMol("");
         }
         else {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
@@ -222,6 +223,7 @@ const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
     setVectorList: selectionActions.setVectorList,
     gotFullGraph: selectionActions.gotFullGraph,
+    setMol: selectionActions.setMol,
     transferList: apiActions.transferList,
     deleteObject: nglLoadActions.deleteObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
