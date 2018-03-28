@@ -90,7 +90,7 @@ class SummaryView extends React.Component{
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
-                    <a>{this.props.querying ? "Loading...." : "Loaded!"}</a>
+                    <h1>{this.props.querying ? "Loading...." : "Loaded!"}</h1>
                 </Col>
                 </Row>
             </Well>
