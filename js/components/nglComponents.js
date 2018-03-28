@@ -156,10 +156,10 @@ export class NGLView extends React.Component {
 
     generateSphere(data,selected=false){
         var sele = ""
-        var colour = [0,0,1]
+        var color = [0,0,1]
         if(selected){
             sele = "SELECT"
-            colour = [0,1,0]
+            color = [0,1,0]
         }
         var radius;
         if(data.mol_id.length>10){
@@ -174,10 +174,12 @@ export class NGLView extends React.Component {
         return Object.assign({},
             data,
             {
-                "name": listTypes.MOLGROUPS + sele + "_" + + data.id.toString(),
+                name: listTypes.MOLGROUPS + sele + "_" + + data.id.toString(),
                 display_div: "summary_view",
                 OBJECT_TYPE: nglObjectTypes.SPHERE,
-                "colour": colour
+                coords: [data.x_com,data.y_com,data.z_com],
+                radius: radius,
+                colour: color
             }
         )
     }
