@@ -172,7 +172,7 @@ class MoleculeView extends GenericView {
     }
 
     onComplex(){
-        this.setState(prevState => ({complexOn: !prevState.complexOn}))
+        this.setState(prevState => ({complexOn: !prevState.complexOn});
         if(this.state.complexOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
