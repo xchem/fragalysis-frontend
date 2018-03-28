@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import CompoundList from './compoundList';
-import SummaryCmpd from './summaryCmpd';
+import SummaryCmpd from './SummaryCmpd';
 
 class SummaryView extends React.Component{
     constructor(props) {
