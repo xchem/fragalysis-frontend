@@ -129,6 +129,11 @@ export default function nglReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 hydrogen: action.hydrogen
             });
+
+        case actions.SET_ORIENTATION:
+            return Object.assign({}, state, {
+                orientation: action.orientation
+            });
         // Cases like: @@redux/INIT
         default:
             return state;

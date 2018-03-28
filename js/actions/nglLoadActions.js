@@ -2,7 +2,8 @@
  * Created by abradley on 03/03/2018.
  */
 import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
-    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,DELETE_OBJECT_TYPE} from './actonTypes'
+    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,DELETE_OBJECT_TYPE, 
+    SET_ORIENTATION} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -20,6 +21,14 @@ export const objectLoading = function (group){
         group: group
     };
 
+}
+
+export const setOrientation = function (orientation){
+    console.log("ACTIONS: " + orientation);
+        return {
+        type: SET_ORIENTATION,
+        orientation: orientation
+    };
 }
 
 export const loadObjectSuccess = function (group) {

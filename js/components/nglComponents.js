@@ -189,7 +189,10 @@ export class NGLView extends React.Component {
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
-
+        var orientation = this.stage.getOrientation();
+        if(orientation!=this.props.orientation){
+            this.props.setOrientation(orientation);
+        }
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
@@ -254,6 +257,7 @@ function mapStateToProps(state) {
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
+      orientation: state.nglReducers.orientation,
       objectsPicked: state.nglReducers.objectsPicked
   }
 }
@@ -262,6 +266,7 @@ const mapDispatchToProps = {
     selectVector: selectionActions.selectVector,
     hideLoading: hideLoading,
     showLoading: showLoading,
+    setOrientation: nglLoadActions.setOrientation,
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
