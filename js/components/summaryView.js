@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { Button, Well } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import CompoundList from './compoundList';
-
+import CompoundView from './compoundView'
 
 
 class SummaryView extends React.Component{
@@ -78,11 +78,18 @@ class SummaryView extends React.Component{
     render(){
         return <div>
             <Well>
-                <h3>Number picked: <b>{this.state.list_len}</b></h3>
-                <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
-                <h3>Number series explored: <b>{this.state.num_series}</b></h3>
-                <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
-                <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                <Row>
+                <Col xs={6} md={6}>
+                    <h3>Number picked: <b>{this.state.list_len}</b></h3>
+                    <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
+                    <h3>Number series explored: <b>{this.state.num_series}</b></h3>
+                    <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                </Col>
+                <Col xs={6} md={6}>
+                    <CompoundView height={100} width={100} key={"QUERY"} smiles={{"smiles":this.props.to_query}}/>
+                </Col>
+                </Row>
             </Well>
             <Well>
                 <h1><b>Compounds to pick. Mol total:{this.getNum()}</b></h1>
