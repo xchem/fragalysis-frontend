@@ -141,13 +141,13 @@ export class NGLView extends React.Component {
             comp.addRepresentation("contact", {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
-                colorScheme: "element",
-                colorValue:colour,
                 maxHbondDonPlaneAngle: 35,
                 sele: "/0 or /1"
             })
             comp.addRepresentation("licorice", {
                 sele: "ligand and /1",
+                colorScheme: "element",
+                colorValue:colour,
                 multipleBond: "offset"
             })
             comp.addRepresentation("line", {
