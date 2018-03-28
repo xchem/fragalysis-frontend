@@ -88,7 +88,7 @@ class SummaryView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                 </Col>
                 <Col xs={6} md={6}>
-                    <CompoundView height={100} width={100} key={"QUERY"} data={{"smiles":this.state.smiles}}/>
+                    <SummaryCmpd height={100} width={100} key={"QUERY"} />
                 </Col>
                 </Row>
             </Well>
