@@ -181,7 +181,7 @@ class MoleculeView extends GenericView {
         }
         else{
             this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
-            if(this.state.toggleOn){
+            if(this.state.toggleOn==false){
                 this.handleClick()
             }
         }
