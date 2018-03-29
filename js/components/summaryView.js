@@ -125,7 +125,9 @@ class SummaryView extends React.Component{
         if(numMols){
             mol_string = "Compounds to pick. Mol total: " + numMols
         }
-
+        if(this.props.to_query=="") {
+            mol_string = ""
+        }
         return <div>
             <Well>
                 <Row>
