@@ -12,7 +12,6 @@ import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
 
-
 export class NGLView extends React.Component {
 
 
@@ -38,7 +37,6 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.generateObject = this.generateObject.bind(this);
         this.showPick = this.showPick.bind(this);
-        this.typeCheck = this.typeCheck.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
     }
 
@@ -90,7 +88,9 @@ export class NGLView extends React.Component {
         else if (input_dict["OBJECT_TYPE"]==nglObjectTypes.MOLECULE){
             var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
             this.stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
-                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true } );
+                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true }
+                );
+                comp.autoView("ligand");
             });
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.COMPLEX){
@@ -98,12 +98,12 @@ export class NGLView extends React.Component {
             Promise.all([
                 this.stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
                 this.stage.loadFile(stringBlob, {ext: "sdf"}),
-                this.stage, this.focus_var, object_name]
+                this.stage, this.focus_var, object_name,input_dict["colour"]]
             ).then(ol => this.renderComplex(ol));
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
-            var colour = [1,0,0];
-            var radius = 0.7;
+            var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
+            var radius = input_dict["radius"]==undefined ? 0.4 : input_dict["radius"];
             var coords = input_dict["coords"];
             var shape = new Shape( object_name );
             shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
@@ -111,8 +111,8 @@ export class NGLView extends React.Component {
             shapeComp.addRepresentation("buffer");
         }
         else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.ARROW){
-            var colour = [1,0,0];
-            var radius = 0.5;
+            var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
+            var radius = input_dict["radius"]==undefined ? 0.3 : input_dict["radius"];
             var shape = new Shape( object_name );
             shape.addArrow(input_dict["start"],input_dict["end"], colour, radius);
             var shapeComp = this.stage.addComponentFromObject(shape);
@@ -134,6 +134,7 @@ export class NGLView extends React.Component {
             )
             var stage = ol[2];
             var focus_var = ol[3];
+        var colour = ol[5];
             // Set the object name
             var comp = stage.addComponentFromObject(cs)
             comp.addRepresentation("cartoon")
@@ -143,11 +144,9 @@ export class NGLView extends React.Component {
                 maxHbondDonPlaneAngle: 35,
                 sele: "/0 or /1"
             })
-            comp.addRepresentation("licorice", {
-                sele: "ligand and /1",
-                multipleBond: "offset"
-            })
             comp.addRepresentation("line", {
+                colorScheme: "element",
+                colorValue:colour,
                 sele: "/0"
             })
             comp.autoView("ligand");
@@ -156,9 +155,12 @@ export class NGLView extends React.Component {
 
 
     generateSphere(data,selected=false){
-        var list_type = listTypes.MOLGROUPS
         var sele = ""
-        var colour = [0,0,1]
+        var color = [0,0,1]
+        if(selected){
+            sele = "SELECT"
+            color = [0,1,0]
+        }
         var radius;
         if(data.mol_id.length>10){
             radius = 5.0
@@ -169,37 +171,17 @@ export class NGLView extends React.Component {
         else{
             radius = 2.0
         }
-
-        if(selected){
-            sele = "SELECT"
-            colour = [0,1,0]
-        }
-        // Move this out of this
-        var nglObject = {
-            "OBJECT_TYPE": nglObjectTypes.SPHERE,
-            "name": list_type + sele + "_" + + data.id.toString(),
-            "radius": radius,
-            "colour": colour,
-            "coords": [data.x_com, data.y_com, data.z_com],
+        return Object.assign({},
+            data,
+            {
+                name: listTypes.MOLGROUPS + sele + "_" + + data.id.toString(),
+                display_div: "summary_view",
+                OBJECT_TYPE: nglObjectTypes.SPHERE,
+                coords: [data.x_com,data.y_com,data.z_com],
+                radius: radius,
+                colour: color
             }
-        return nglObject
-    }
-
-    typeCheck(nglObject){
-        var expectedDiv
-        var majorList = [nglObjectTypes.ARROW,nglObjectTypes.COMPLEX, nglObjectTypes.CYLINDER,nglObjectTypes.MOLECULE]
-        var summaryList = [nglObjectTypes.SPHERE, nglObjectTypes.PROTEIN]
-        for (var index in majorList) {
-            if (nglObject["OBJECT_TYPE"] == majorList[index]) {
-                expectedDiv = "major_view"
-            }
-        }
-        for (var index in summaryList) {
-            if (nglObject["OBJECT_TYPE"] == summaryList[index]) {
-                expectedDiv = "summary_view"
-            }
-        }
-        return this.div_id==expectedDiv
+        )
     }
 
 
@@ -207,18 +189,25 @@ export class NGLView extends React.Component {
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
-
+        // var orientation = this.stage.viewerControls.getOrientation();
+        // var otherArray;
+        // if (this.props.orientation){
+        //     otherArray = this.props.orientation.elements
+        // }
+        // if(orientation != undefined && arraysEqual(orientation.elements,otherArray)!=true){
+        //     this.props.setOrientation(orientation);
+        // }
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
-            if (this.typeCheck(nglObject)) {
+            if (this.div_id==nglObject.display_div) {
                 this.generateObject(nglKey, nglObject);
                 this.props.objectLoading(nglObject);
-                this.props.showLoading()
+                this.props.showLoading();
             }
         }
         for(var nglKey in this.props.objectsToDelete){
             var nglObject = this.props.objectsToDelete[nglKey]
-            if (this.typeCheck(nglObject)) {
+            if (this.div_id==nglObject.display_div) {
                 var comps = this.stage.getComponentsByName(nglKey)
                 for (var component in comps.list) {
                     this.stage.removeComponent(comps.list[component]);
@@ -228,7 +217,7 @@ export class NGLView extends React.Component {
         }
         for(var nglKey in this.props.objectsLoading){
             var nglObject = this.props.objectsLoading[nglKey]
-            if (this.typeCheck(nglObject)) {
+            if (this.div_id==nglObject.display_div) {
                 if (this.stage.getComponentsByName(nglKey).list.length > 0) {
                     var nglObject = this.props.objectsLoading[nglKey];
                     this.props.loadObjectSuccess(nglObject);
@@ -253,10 +242,9 @@ export class NGLView extends React.Component {
             }
             // Delete the two old spheres
             this.props.deleteObject(this.generateSphere(new_data));
-            this.props.loadObject(this.generateSphere(new_data,true));
+            this.props.loadObject(this.generateSphere(new_data, true));
             this.old_mol_group_on = this.props.mol_group_on;
         }
-
     }
     
     render(){
@@ -273,6 +261,7 @@ function mapStateToProps(state) {
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
+      orientation: state.nglReducers.orientation,
       objectsPicked: state.nglReducers.objectsPicked
   }
 }
@@ -281,6 +270,7 @@ const mapDispatchToProps = {
     selectVector: selectionActions.selectVector,
     hideLoading: hideLoading,
     showLoading: showLoading,
+    setOrientation: nglLoadActions.setOrientation,
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,

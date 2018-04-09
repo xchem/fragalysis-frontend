@@ -56,13 +56,13 @@ class MolGroupList extends GenericList {
 
     beforePush() {
         if(this.props.object_list) {
-            this.props.object_list.map(data => this.props.deleteObject(this.generateObject(data)));
+            this.props.object_list.map(data => this.props.deleteObject(Object.assign({display_div: "summary_view"}, this.generateObject(data))));
         }
      }
 
     afterPush(object_list){
         if(object_list) {
-            object_list.map(data => this.props.loadObject(this.generateObject(data)));
+            object_list.map(data => this.props.loadObject(Object.assign({display_div: "summary_view"}, this.generateObject(data))));
         }
     }
 

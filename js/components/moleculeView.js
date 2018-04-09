@@ -13,7 +13,7 @@ import * as listTypes from './listTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
 import SVGInline from "react-svg-inline"
-
+import {shuffle} from '../utils/util';
 
 class MoleculeView extends GenericView {
 
@@ -31,8 +31,6 @@ class MoleculeView extends GenericView {
         this.state.complexOn= false
         this.colourToggle = this.getRandomColor();
     }
-
-
 
     getViewUrl(pk,get_view){
         var base_url = window.location.protocol + "//" + window.location.host
@@ -90,13 +88,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-    generateMolObject(colourToggle=null){
+    generateMolObject(){
         // Get the data
         const data = this.props.data;
         var nglObject = {
             "name": "MOLLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
-            "colour": colourToggle,
+            "colour": this.colourToggle,
             "sdf_info": data.sdf_info
         }
         return nglObject;
@@ -109,23 +107,35 @@ class MoleculeView extends GenericView {
             "name": "COMPLEXLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.COMPLEX,
             "sdf_info": data.sdf_info,
+            "colour": this.colourToggle,
             "prot_url": this.getViewUrl(data.prot_id,"prot_from_pk")
         }
         return nglObject;
     }
 
-
     handleVector(json){
         var objList = this.generateObjectList(json);
-        objList.forEach(item => this.props.loadObject(item));
         this.props.setVectorList(objList)
+    }
 
+    componentDidMount() {
+        this.loadFromServer(this.props.width,this.props.height);
+        var thisToggleOn = false;
+        var complexOn = false;
+        for(var key in this.props.inViewList){
+            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]])==this.props.data.id){
+                this.setState(prevState => ({isToggleOn: true}));
+            }
+            if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]])==this.props.data.id){
+                this.setState(prevState => ({complexOn: true}));
+            }
+        }
     }
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
-            height: this.props.height.toString()+'px', backgroundColor: this.state.backgroundColour}
+            height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
@@ -140,47 +150,46 @@ class MoleculeView extends GenericView {
                 off={<p>Vector OFF</p>}
                 size="xs"
                 offstyle="danger"
-                active={this.state.vectorOn}/>
+                active={this.props.to_query==this.props.data.smiles}/>
             </div>
     }
 
     getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-}
+        var colourList = ['#EFCDB8', '#CC6666', '#FF6E4A', '#78DBE2', '#1F75FE', '#FAE7B5', '#FDBCB4', '#C5E384', '#95918C', '#F75394', '#80DAEB', '#ADADD6']
+        return colourList[this.props.data.id % colourList.length];
+    }
 
     handleClick(e){
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, backgroundColour: this.colourToggle}))
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
-            this.props.deleteObject(this.generateMolObject())
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
         }
         else{
-            this.props.loadObject(this.generateMolObject(this.colourToggle))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
         }
     }
 
     onComplex(){
         this.setState(prevState => ({complexOn: !prevState.complexOn}))
         if(this.state.complexOn){
-            this.props.deleteObject(this.generateObject())
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.props.loadObject(this.generateObject())
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
+            if(this.state.isToggleOn==false){
+                this.handleClick()
+            }
         }
-
     }
 
     onVector(){
         this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         if(this.state.vectorOn) {
-            this.props.vector_list.forEach(item => this.props.deleteObject(item));
-
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            this.props.setMol("");
         }
         else {
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
             fetch(this.getViewUrl(this.props.data.id, "get_vects_from_pk"))
                 .then(
                     response => response.json(),
@@ -203,7 +212,8 @@ class MoleculeView extends GenericView {
 function mapStateToProps(state) {
   return {
       currentList: state.apiReducers.possibleMols,
-      binList: state.apiReducers.binnedMols,
+      to_query: state.selectionReducers.to_query,
+      inViewList:state.nglReducers.objectsInView,
       vector_list: state.selectionReducers.vector_list,
       newListTwo: state.apiReducers.chosenMols,
   }
@@ -212,6 +222,7 @@ const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
     setVectorList: selectionActions.setVectorList,
     gotFullGraph: selectionActions.gotFullGraph,
+    setMol: selectionActions.setMol,
     transferList: apiActions.transferList,
     deleteObject: nglLoadActions.deleteObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
