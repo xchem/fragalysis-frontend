@@ -23,20 +23,6 @@ class PanddaSiteList extends GenericList {
         return "HELLO MOTO";
     }
 
-    loadFromServer() {
-        const url = this.getUrl();
-        if(url.toString() != this.old_url) {
-            this.beforePush();
-            fetch(url)
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.props.setObjectList(this.processResults(json)))
-        }
-        this.old_url = url.toString();
-    }
-
     generateObject(data,selected=false){
         this.list_type = listType.PANDDA_SITE;
         var sele = "";
