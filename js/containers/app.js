@@ -22,7 +22,7 @@ class App extends Component {
     }
     componentDidMount(){
         this.runMe();
-        setInterval(this.runMe,50);
+        // setInterval(this.runMe,50);
     }
 
     render() {
