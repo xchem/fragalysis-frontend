@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Grid, Well } from 'react-bootstrap';
-import NGLView from '../components/nglComponents';
-import MolGroupList from '../components/molGroupList';
-import MoleculeList from '../components/moleculeList';
-import MolGroupSlider from '../components/molGroupSlider'
-import SummaryView from '../components/summaryView';
+import NGLView from './nglComponents';
+import MolGroupList from './molGroupList';
+import MoleculeList from './moleculeList';
+import MolGroupSlider from './molGroupSlider'
+import SummaryView from './summaryView';
 
 
 class Tindspect extends Component {
