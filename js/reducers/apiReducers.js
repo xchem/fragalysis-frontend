@@ -17,7 +17,7 @@ const INITIALSTATE = {
     target_on: undefined,
     group_id: undefined,
     isFetching: false,
-    group_type: "MC"
+    group_type: "MD"
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -26,8 +26,6 @@ export default function apiReducers(state = INITIALSTATE, action) {
     console.log('action.type=' + action.type);
 
     switch (action.type) {
-        // Defined in initialState - but may be needed if we want to load a different structure
-
         case actions.LOAD_TARGETS:
             return Object.assign({}, state, {
                 project_id: action.project_id,
