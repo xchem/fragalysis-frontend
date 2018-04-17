@@ -15,10 +15,11 @@ class App extends Component {
             "PREVIEW": <Preview />
         }
         this.runMe = this.runMe.bind(this);
+        this.state.app_on = this.app_dict["TINDSPECT"]
     }
 
     runMe(){
-        this.setState(this.app_dict[this.props.app_on]);
+        this.setState(prevState => ({app_on: this.app_dict[this.props.app_on]}));
     }
     componentDidMount(){
         this.runMe();
@@ -32,7 +33,7 @@ class App extends Component {
           <LoadingBar />
           <Grid fluid id="page-wrap">
               <Header/>
-              {this.app_on}
+              {this.state.app_on}
           </Grid>
       </div>
       )
