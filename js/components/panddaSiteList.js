@@ -52,7 +52,7 @@ class PanddaSiteList extends GenericList {
             "name": this.list_type + sele + "_" + + data.site.toString(),
             "radius": radius,
             "colour": colour,
-            "coords": [data.site_align_com_x, data.site_align_com_y, data.site_align_com_z],
+            "coords": [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z],
             }
         return nglObject
     }
