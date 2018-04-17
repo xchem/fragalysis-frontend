@@ -17,6 +17,7 @@ const INITIALSTATE = {
     target_on: undefined,
     group_id: undefined,
     isFetching: false,
+    app_on: "TINDSPECT",
     group_type: "MD"
 }
 
