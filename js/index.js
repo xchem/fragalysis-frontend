@@ -1,10 +1,10 @@
 import 'babel-polyfill'
 import React from 'react'
 import { render } from 'react-dom'
-import PickerRoot from './containers/pickerRoot'
+import Root from './containers/root'
 import '../css/index.css';
 
 render(
-  <PickerRoot />,
+  <Root />,
   document.getElementById('app')
 ) 
