@@ -18,7 +18,7 @@ class Tindspect extends Component {
   render() {
       return (
           <Row >
-              <Col xs={1} md={1}>
+              <Col xs={0} md={0}>
                   <PanddaSiteList />
               </Col>
               <Col xs={1}>
