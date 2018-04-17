@@ -74,7 +74,7 @@ export class GenericList extends React.Component {
             }
         }
         else if (this.list_type==listTypes.PANDDA_SITE){
-            if (this.props.target_on != <undefined></undefined>) {
+            if (this.props.target_on != undefined) {
                 // mol group choice
                 base_url += "events/"
                 get_params["target_id"] = this.props.target_on
