@@ -29,8 +29,7 @@ class App extends Component {
 
 function mapStateToProps(state) {
   return {
-      app_on: state.apiReducers.app_on
-
+      app_on: state.app_reducers.app_on
   }
 }
 

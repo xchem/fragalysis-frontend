@@ -38,10 +38,7 @@ class Tindspect extends Component {
 }
 
 function mapStateToProps(state) {
-  return {
-      
-      
-  }
+  return { }
 }
 
 
