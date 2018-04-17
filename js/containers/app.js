@@ -21,7 +21,6 @@ class App extends Component {
         this.setState(this.app_dict[this.props.app_on]);
     }
     componentDidMount(){
-        this.runMe();
         setInterval(this.runMe,50);
     }
 
