@@ -18,7 +18,7 @@ const INITIALSTATE = {
     group_id: undefined,
     isFetching: false,
     app_on: "TINDSPECT",
-    group_type: "MD"
+    group_type: "MC"
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
