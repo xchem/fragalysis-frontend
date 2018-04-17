@@ -44,6 +44,8 @@ export const SET_PANNDA_EVENT_LIST = 'SET_PANNDA_EVENT_LIST';
 export const SET_PANNDA_SITE_ON = 'SET_PANNDA_SITE_ON';
 export const SET_PANNDA_EVENT_ON = 'SET_PANNDA_EVENT_ON';
 export const SET_PANNDA_SITE_LIST = 'SET_PANNDA_SITE_LIST';
+// Setting the display
+export const SET_APP_ON = 'SET_APP_ON';
 // Data related to network
 export const GET_FULL_GRAPH = 'GET_FULL_GRAPH';
 export const GOT_FULL_GRAPH = 'GOT_FULL_GRAPH';

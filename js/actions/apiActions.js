@@ -5,7 +5,7 @@ import {LOAD_TARGETS, SET_TARGET_ON, SET_TARGET_ID_LIST, SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST, SET_MOL_GROUP_ON, LOAD_MOLECULES,
     LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE,
     GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API, SET_PANNDA_EVENT_LIST, SET_PANNDA_EVENT_ON,
-    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST } from './actonTypes'
+    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON } from './actonTypes'
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -78,6 +78,13 @@ export const setMolGroupOn = function (mol_group_id){
         type: SET_MOL_GROUP_ON,
         mol_group_on: mol_group_id
     }
+}
+
+export const setAppOn = function (app_on){
+    console.log("ACTIONS: "+ app_on)
+    return {
+        type: SET_APP_ON,
+        app_on: app_on}
 }
 
 export const setMolGroupList = function (mol_group_list){

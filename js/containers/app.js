@@ -5,21 +5,33 @@ import Header from '../components/header'; 
 import {MyMenu} from '../components/menuView'
 import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
+import Preview from './previewHolder'
 
 class App extends Component {
-
     constructor(props) {
         super(props)
-  }
+        this.app_dict = {
+            "TINDSPECT": <Tindspect />,
+            "PREVIEW": <Preview />
+        }
+        this.runMe = this.runMe.bind(this);
+    }
 
-  render() {
+    runMe(){
+        this.setState(this.app_dict[this.props.app_on]);
+    }
+    componentDidMount(){
+        setInterval(this.runMe,50);
+    }
+
+    render() {
       return  (
       <div id="outer-container">
           <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } /> START HERE
           <LoadingBar />
           <Grid fluid id="page-wrap">
               <Header/>
-              <Tindspect></Tindspect>
+              {this.app_on}
           </Grid>
       </div>
       )
