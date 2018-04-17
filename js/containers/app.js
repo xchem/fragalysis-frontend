@@ -16,7 +16,7 @@ class App extends Component {
             "PREVIEW": <Preview />
         }
         this.runMe = this.runMe.bind(this);
-        this.state = {app_on:this.app_dict["PREVIEW"]}
+        this.state = {app_on:this.app_dict["TINDSPECT"]}
     }
 
     runMe(){
@@ -24,7 +24,7 @@ class App extends Component {
     }
     componentDidMount(){
         this.runMe();
-        setInterval(this.runMe,50);
+        // setInterval(this.runMe,50);
     }
 
     render() {
