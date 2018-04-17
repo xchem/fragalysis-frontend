@@ -8,6 +8,7 @@ import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
 
 class App extends Component {
+
     constructor(props) {
         super(props)
         this.app_dict = {
@@ -15,7 +16,7 @@ class App extends Component {
             "PREVIEW": <Preview />
         }
         this.runMe = this.runMe.bind(this);
-        this.state.app_on = this.app_dict["TINDSPECT"]
+        this.state = {app_on:this.app_dict["TINDSPECT"]}
     }
 
     runMe(){
@@ -44,7 +45,6 @@ class App extends Component {
 function mapStateToProps(state) {
   return {
       app_on: state.apiReducers.app_on
-
   }
 }
 
