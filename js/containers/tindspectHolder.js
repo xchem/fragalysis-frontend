@@ -4,7 +4,8 @@ import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
-import MolGroupSlider from '../components/molGroupSlider'
+import PanddaSiteList from '../components/panddaSiteList';
+import MolGroupSlider from '../components/molGroupSlider';
 import SummaryView from '../components/summaryView';
 
 
@@ -19,8 +20,8 @@ class Tindspect extends Component {
           <Row >
               <Col xs={0} md={0}>
                   <MolGroupList />
+                  <PanddaSiteList />
               </Col>
-              <PanddaSiteList />
               <Col xs={3} md={3}>
                   <NGLView div_id="summary_view" height="200px"/>
                   <MolGroupSlider />
