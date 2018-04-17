@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
 
@@ -120,10 +119,6 @@ class SummaryView extends React.Component{
         return tot_num;
     }
 
-    changeApp(){
-        this.props.setAppOn("TINDSPECT");
-    }
-
     render(){
         var numMols = this.getNum();
         var mol_string = "No mols found!!!";
@@ -142,7 +137,6 @@ class SummaryView extends React.Component{
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="large" bsStyle="warning" onClick={this.changeApp}>Export to CSV</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
@@ -167,7 +161,6 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
-    setAppOn: apiActions.setAppOn,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject
 }
