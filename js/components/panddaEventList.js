@@ -1,6 +1,7 @@
 /**
- * Created by abradley on 13/03/2018.
+ * Created by abradley on 17/04/2018.
  */
+
 import { ListGroupItem, ListGroup, Col} from 'react-bootstrap';
 import { GenericList } from './generalComponents';
 import React from 'react';
@@ -11,11 +12,11 @@ import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
 
 
-class MolGroupList extends GenericList {
+class PanddaSiteList extends GenericList {
 
     constructor(props) {
         super(props);
-        this.list_type = listType.MOLGROUPS;
+        this.list_type = listType.PANDDA_SITE;
         this.generateObject = this.generateObject.bind(this)
 
     }
@@ -24,7 +25,7 @@ class MolGroupList extends GenericList {
     }
 
     generateObject(data,selected=false){
-        this.list_type = listType.MOLGROUPS;
+        this.list_type = listType.PANDDA_SITE;
         var sele = "";
         var colour = [0,0,1];
         var radius;
@@ -54,6 +55,7 @@ class MolGroupList extends GenericList {
 
 
     beforePush() {
+        // Delete of them in the PANDDA VIEW
         if(this.props.object_list) {
             this.props.object_list.map(data => this.props.deleteObject(Object.assign({display_div: "summary_view"}, this.generateObject(data))));
         }
@@ -74,14 +76,14 @@ function mapStateToProps(state) {
   return {
       group_type: state.apiReducers.group_type,
       target_on: state.apiReducers.target_on,
-      object_list: state.apiReducers.mol_group_list,
-      object_on: state.apiReducers.mol_group_on
+      object_list: state.apiReducers.pandda_event_list,
+      object_on: state.apiReducers.pandda_site_on
   }
 }
 const mapDispatchToProps = {
-    setObjectOn: apiActions.setMolGroupOn,
-    setObjectList: apiActions.setMolGroupList,
+    setObjectOn: apiActions.setPanddaSiteOn,
+    setObjectList: apiActions.setPanddaSiteList,
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject
 }
-export default connect(mapStateToProps, mapDispatchToProps)(MolGroupList);
+export default connect(mapStateToProps, mapDispatchToProps)(PanddaSiteList);

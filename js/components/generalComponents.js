@@ -64,6 +64,23 @@ export class GenericList extends React.Component {
                 get_params["mol_groups"] = this.props.mol_group_on
             }
         }
+        else if (this.list_type==listTypes.PANDDA_EVENT){
+            if (this.props.target_on != undefined && this.props.mol_group_on != undefined) {
+                // mol group choice
+                base_url += "events/"
+                get_params["target_id"] = this.props.target_on
+                get_params["limit"] = -1
+                get_params["site"] = this.props.pandda_site_on
+            }
+        }
+        else if (this.list_type==listTypes.PANDDA_SITE){
+            if (this.props.target_on != undefined && this.props.mol_group_on != undefined) {
+                // mol group choice
+                base_url += "events/"
+                get_params["target_id"] = this.props.target_on
+                get_params["limit"] = -1
+            }
+        }
         else{
             console.log("DEFUALT")
         }
