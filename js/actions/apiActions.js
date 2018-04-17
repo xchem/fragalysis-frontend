@@ -4,8 +4,7 @@
 import {LOAD_TARGETS, SET_TARGET_ON, SET_TARGET_ID_LIST, SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST, SET_MOL_GROUP_ON, LOAD_MOLECULES,
     LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE,
-    GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API, SET_PANNDA_EVENT_LIST, SET_PANNDA_EVENT_ON,
-    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST } from './actonTypes'
+    GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API} from './actonTypes'
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -37,38 +36,6 @@ export const setTargetOn = function (target_id){
     return {
         type: SET_TARGET_ON,
         target_on: target_id
-    }
-}
-
-export const setPanddaSiteList = function (pandda_site_list){
-    console.log("ACTIONS: "+ pandda_site_list)
-    return {
-        type: SET_PANNDA_SITE_LIST,
-        pandda_event_list: pandda_site_list
-    }
-}
-
-export const setPanddaEventList = function (pandda_event_list){
-    console.log("ACTIONS: "+ pandda_event_list)
-    return {
-        type: SET_PANNDA_EVENT_LIST,
-        pandda_event_list: pandda_event_list
-    }
-}
-
-
-export const setPanddaSiteOn = function (pandda_site_id){
-    console.log("ACTIONS: "+ pandda_site_id)
-    return {
-        type: SET_PANNDA_SITE_ON,
-        pandda_site_id: pandda_site_id
-    }
-}
-export const setPanddaEventOn = function (pandda_event_id){
-    console.log("ACTIONS: "+ pandda_event_id)
-    return {
-        type: SET_PANNDA_EVENT_ON,
-        pandda_event_id: pandda_event_id
     }
 }
 

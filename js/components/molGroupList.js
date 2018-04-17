@@ -37,6 +37,7 @@ class MolGroupList extends GenericList {
         else{
             radius = 2.0
         }
+
         if(selected){
             sele = "SELECT"
             colour = [0,1,0]

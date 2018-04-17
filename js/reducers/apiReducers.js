@@ -9,10 +9,6 @@ const INITIALSTATE = {
     target_id_list: [],
     mol_group_list: [],
     molecule_list: [],
-    pandda_event_on: undefined,
-    pandda_site_on: undefined,
-    pandda_event_list: [],
-    pandda_site_list: [],
     mol_group_on: undefined,
     target_on: undefined,
     group_id: undefined,
@@ -87,35 +83,17 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 molecule_list: action.molecule_list
             });
 
+
         case actions.SET_TO_BUY_LIST:
             return Object.assign({}, state, {
                 to_buy_list: action.to_buy_list
             });
 
+        
         case actions.SET_MOL_GROUP_ON:
             return Object.assign({}, state, {
                 mol_group_on: action.mol_group_on
             });
-
-        case actions.SET_PANNDA_EVENT_LIST:
-            return Object.assign({}, state, {
-                pandda_event_list: action.pandda_event_list
-            });
-        case actions.SET_PANNDA_SITE_LIST:
-            return Object.assign({}, state, {
-                pandda_site_list: action.pandda_site_list
-            });
-
-        case actions.SET_PANNDA_EVENT_ON:
-            return Object.assign({}, state, {
-                pandda_event_on: action.pandda_event_on
-            });
-
-        case actions.SET_PANNDA_SITE_ON:
-            return Object.assign({}, state, {
-                pandda_site_on: action.pandda_site_on
-            });
-
         // Cases like: @@redux/INIT
         default:
             return state;
