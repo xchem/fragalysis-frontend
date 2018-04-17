@@ -19,12 +19,9 @@ class Tindspect extends Component {
       return (
           <Row >
               <Col xs={0} md={0}>
+                  <MolGroupList />
                   <PanddaSiteList />
               </Col>
-              <Col xs={1}>
-                  <MolGroupList />
-              </Col>
-
               <Col xs={3} md={3}>
                   <NGLView div_id="summary_view" height="200px"/>
                   <MolGroupSlider />

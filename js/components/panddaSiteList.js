@@ -17,8 +17,10 @@ class PanddaSiteList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.PANDDA_SITE;
-        this.generateObject = this.generateObject.bind(this);
+        this.generateObject = this.generateObject.bind(this)
+
     }
+    
     render() {
         return null;
     }
