@@ -24,7 +24,6 @@ class MolGroupList extends GenericList {
     }
 
     generateObject(data,selected=false){
-        this.list_type = listType.MOLGROUPS;
         var sele = "";
         var colour = [0,0,1];
         var radius;

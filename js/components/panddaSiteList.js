@@ -20,6 +20,7 @@ class PanddaSiteList extends GenericList {
         this.generateObject = this.generateObject.bind(this)
 
     }
+    
     render() {
         return null;
     }
