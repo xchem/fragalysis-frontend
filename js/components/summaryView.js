@@ -18,7 +18,6 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
         this.getColour = this.getColour.bind(this);
-        this.changeApp = this.changeApp.bind(this);
         this.vector_list;
         // Number vectors and series to be incorporated later
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
