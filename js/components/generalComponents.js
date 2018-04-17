@@ -65,7 +65,7 @@ export class GenericList extends React.Component {
             }
         }
         else if (this.list_type==listTypes.PANDDA_EVENT){
-            if (this.props.target_on != undefined && this.props.mol_group_on != undefined) {
+            if (this.props.target_on != undefined && this.props.pandda_site_on != undefined) {
                 // mol group choice
                 base_url += "events/"
                 get_params["target_id"] = this.props.target_on
@@ -74,7 +74,7 @@ export class GenericList extends React.Component {
             }
         }
         else if (this.list_type==listTypes.PANDDA_SITE){
-            if (this.props.target_on != undefined && this.props.mol_group_on != undefined) {
+            if (this.props.target_on != undefined) {
                 // mol group choice
                 base_url += "events/"
                 get_params["target_id"] = this.props.target_on
