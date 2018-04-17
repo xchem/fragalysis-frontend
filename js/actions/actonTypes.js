@@ -39,7 +39,13 @@ export const REMOVE_FROM_TO_BUY_LIST = 'REMOVE_FROM_TO_BUY_LIST';
 export const POST_TO_API = 'POST_TO_API';
 export const POST_TO_API_SUCCESS = 'POST_TO_API_SUCESS';
 export const POST_TO_API_FAILURE = 'POST_TO_API_FAILURE';
-
+// Pandda stuff
+export const SET_PANNDA_EVENT_LIST = 'SET_PANNDA_EVENT_LIST';
+export const SET_PANNDA_SITE_ON = 'SET_PANNDA_SITE_ON';
+export const SET_PANNDA_EVENT_ON = 'SET_PANNDA_EVENT_ON';
+export const SET_PANNDA_SITE_LIST = 'SET_PANNDA_SITE_LIST';
+// Setting the display
+export const SET_APP_ON = 'SET_APP_ON';
 // Data related to network
 export const GET_FULL_GRAPH = 'GET_FULL_GRAPH';
 export const GOT_FULL_GRAPH = 'GOT_FULL_GRAPH';
