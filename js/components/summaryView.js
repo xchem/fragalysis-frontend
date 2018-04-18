@@ -47,7 +47,6 @@ class SummaryView extends React.Component{
     }
 
     componentWillUnmount(){
-          this.statePromises.forEach(p => p.cancel());
     }
 
     getColour(item){
