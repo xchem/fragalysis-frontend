@@ -107,12 +107,12 @@ export default function apiReducers(state = INITIALSTATE, action) {
 
         case actions.SET_PANNDA_EVENT_ON:
             return Object.assign({}, state, {
-                pandda_event_on: action.pandda_event_on
+                pandda_event_on: action.pandda_event_id
             });
 
         case actions.SET_PANNDA_SITE_ON:
             return Object.assign({}, state, {
-                pandda_site_on: action.pandda_site_on
+                pandda_site_on: action.pandda_site_id
             });
 
         case actions.SET_APP_ON:

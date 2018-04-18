@@ -70,13 +70,13 @@ export class GenericList extends React.Component {
                 base_url += "events/"
                 get_params["target_id"] = this.props.target_on
                 get_params["limit"] = -1
-                get_params["site"] = this.props.pandda_site_on
+                get_params["pandda_site"] = this.props.pandda_site_on
             }
         }
         else if (this.list_type==listTypes.PANDDA_SITE){
             if (this.props.target_on != <undefined></undefined>) {
                 // mol group choice
-                base_url += "events/"
+                base_url += "sites/"
                 get_params["target_id"] = this.props.target_on
                 get_params["limit"] = -1
             }

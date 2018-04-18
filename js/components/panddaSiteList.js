@@ -49,7 +49,7 @@ class PanddaSiteList extends GenericList {
         // Move this out of this
         var nglObject = {
             "OBJECT_TYPE": nglObjectTypes.SPHERE,
-            "name": this.list_type + sele + "_" + + data.site.toString(),
+            "name": this.list_type + sele + "_" + + data.id.toString(),
             "radius": radius,
             "colour": colour,
             "coords": [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z],
@@ -61,13 +61,13 @@ class PanddaSiteList extends GenericList {
     beforePush() {
         // Delete of them in the PANDDA VIEW
         if(this.props.object_list) {
-            this.props.object_list.map(data => this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject(data))));
+            this.props.object_list.map(data => this.props.deleteObject(Object.assign({display_div: "pandda_summary"}, this.generateObject(data))));
         }
      }
 
     afterPush(object_list){
         if(object_list) {
-            object_list.map(data => this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject(data))));
+            object_list.map(data => this.props.loadObject(Object.assign({display_div: "pandda_summary"}, this.generateObject(data))));
         }
     }
 
