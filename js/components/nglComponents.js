@@ -50,6 +50,10 @@ export class NGLView extends React.Component {
                     var pk = parseInt(name.split("_")[1].split(")")[0])
                     this.props.setMolGroupOn(pk)
                 }
+                    if (type==listTypes.PANDDA_SITE){
+                        var pk = parseInt(name.split(listTypes.PANDDA_SITE)[1].split(")")[0])
+                        this.props.setPanddaSiteOn(pk)
+                    }
                 else if (type==listTypes.MOLECULE){
 
                 }
@@ -269,6 +273,7 @@ const mapDispatchToProps = {
     setMolGroupOn: apiActions.setMolGroupOn,
     selectVector: selectionActions.selectVector,
     hideLoading: hideLoading,
+    setPanddaSiteOn: apiActions.setPanddaSiteOn,
     showLoading: showLoading,
     setOrientation: nglLoadActions.setOrientation,
     objectLoading: nglLoadActions.objectLoading,
