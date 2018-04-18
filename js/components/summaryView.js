@@ -45,10 +45,7 @@ class SummaryView extends React.Component{
         }
 
     }
-
-    componentWillUnmount(){
-    }
-
+    
     getColour(item){
         var thisSmi = item.name.split("VECTOR_")[1]
         var counter = 0
