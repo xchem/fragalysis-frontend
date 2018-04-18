@@ -51,7 +51,7 @@ export class NGLView extends React.Component {
                     this.props.setMolGroupOn(pk)
                 }
                 else if (type==listTypes.PANDDA_SITE){
-                        var pk = parseInt(name.split(listTypes.PANDDA_SITE)[1].split(")")[0])
+                        var pk = parseInt(name.split("_")[1].split(")")[0])
                         this.props.setPanddaSiteOn(pk)
                     }
                 else if (type==listTypes.MOLECULE){
