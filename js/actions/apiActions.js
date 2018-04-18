@@ -44,7 +44,7 @@ export const setPanddaSiteList = function (pandda_site_list){
     console.log("ACTIONS: "+ pandda_site_list)
     return {
         type: SET_PANNDA_SITE_LIST,
-        pandda_event_list: pandda_site_list
+        pandda_site_list: pandda_site_list
     }
 }
 
