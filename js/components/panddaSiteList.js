@@ -61,13 +61,13 @@ class PanddaSiteList extends GenericList {
     beforePush() {
         // Delete of them in the PANDDA VIEW
         if(this.props.object_list) {
-            this.props.object_list.map(data => this.props.deleteObject(Object.assign({display_div: "summary_view"}, this.generateObject(data))));
+            this.props.object_list.map(data => this.props.deleteObject(Object.assign({display_div: "pandda_summary"}, this.generateObject(data))));
         }
      }
 
     afterPush(object_list){
         if(object_list) {
-            object_list.map(data => this.props.loadObject(Object.assign({display_div: "summary_view"}, this.generateObject(data))));
+            object_list.map(data => this.props.loadObject(Object.assign({display_div: "pandda_summary"}, this.generateObject(data))));
         }
     }
 

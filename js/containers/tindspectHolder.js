@@ -17,12 +17,12 @@ class Tindspect extends Component {
           <Row >
               <PanddaSiteList />
               <Col xs={4} md={4}>
-                  <NGLView div_id="summary_view" height="200px"/>
+                  <NGLView div_id="pandda_summary" height="200px"/>
                   <PanddaSlider />
                   <MoleculeList style={{overflow:scroll}}/>
               </Col>
               <Col xs={8} md={8} >
-                  <NGLView div_id="major_view" height="600px"/>
+                  <NGLView div_id="pandda_major" height="600px"/>
               </Col>
           </Row>
       )
