@@ -49,7 +49,7 @@ class PanddaSiteList extends GenericList {
         // Move this out of this
         var nglObject = {
             "OBJECT_TYPE": nglObjectTypes.SPHERE,
-            "name": this.list_type + sele + "_" + + data.site.toString(),
+            "name": this.list_type + sele + "_" + + data.id.toString(),
             "radius": radius,
             "colour": colour,
             "coords": [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z],
