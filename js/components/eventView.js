@@ -2,7 +2,7 @@
  * Created by abradley on 19/04/2018.
  */
 import React from 'react';
-
+import * as nglLoadActions from '../actions/nglLoadActions';
 
 class EventView extends React.Component {
 
