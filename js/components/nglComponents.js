@@ -148,7 +148,7 @@ export class NGLView extends React.Component {
 
 
     
-    showMap(stage,input_dict,object_name){
+    showEvent(stage,input_dict,object_name){
         stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
             comp.autoView();
