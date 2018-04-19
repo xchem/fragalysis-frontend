@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import * as nglLoadActions from '../actions/nglLoadActions';
+import { connect } from 'react-redux'
+
 
 class EventView extends React.Component {
 
