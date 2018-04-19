@@ -155,7 +155,7 @@ export class NGLView extends React.Component {
         });
 
         stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
-            var surfFofc = o.addRepresentation('surface', {
+            var surfFofc = comp.addRepresentation('surface', {
                 color: 'mediumseagreen',
                 isolevel: 3,
                 boxSize: 10,
@@ -164,7 +164,7 @@ export class NGLView extends React.Component {
                 opaqueBack: false,
                 isolevelScroll: false
             })
-            var surfFofcNeg = o.addRepresentation('surface', {
+            var surfFofcNeg = comp.addRepresentation('surface', {
                 color: 'tomato',
                 isolevel: 3,
                 negateIsolevel: true,
