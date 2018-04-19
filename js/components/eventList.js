@@ -23,8 +23,6 @@ class EventList extends GenericList {
     render() {
         return null;
     }
-    
-
 
 }
 function mapStateToProps(state) {
