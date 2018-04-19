@@ -221,14 +221,14 @@ export class Slider extends React.Component{
         this.handleBackward = this.handleBackward.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.checkForUpdate = this.checkForUpdate.bind(this);
-        this.state = {currentlySelected: -1, progress: 0}
+        this.state = {currentlySelected: -1, progress: 0, progress_string: ""}
         this.slider_name = "DEFAULT"
     }
 
     render() {
         this.progress = this.state.progress;
         return <Well bsSize="small">
-                <h3>{this.slider_name} Selector</h3> On {this.state.currentlySelected} of {this.props.object_list.length}
+                <h3>{this.slider_name} Selector</h3>  {this.state.progress_string}
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
@@ -253,7 +253,9 @@ export class Slider extends React.Component{
     }
     handleChange(selected){
         var progress = 100*selected/(this.props.object_list.length-1)
-        this.setState(prevState => ({currentlySelected: selected, progress: progress}))
+        var prog_string = "On " + selected + " of a total of " + this.state.object_list.length.toString();
+        this.setState(prevState => ({currentlySelected: selected, progress: progress,
+            progress_string: prog_string}))
         this.props.setObjectOn(this.props.object_list[selected].id)
     }
 
