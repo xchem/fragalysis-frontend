@@ -9,17 +9,20 @@ import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from './nglObjectTypes'
+
 class EventList extends GenericList {
 
     constructor(props) {
         super(props);
         this.list_type = listType.PANDDA_EVENT;
-        this.old_object = -1
+        this.old_object = -1;
+        this.loadMap = this.loadMap.bind(this);
     }
 
     handleOptionChange(changeEvent) {
         const new_value = changeEvent.target.value;
         this.props.setObjectOn(new_value);
+        this.loadMap(new_value)
     }
     render() {
         return null;
@@ -40,14 +43,11 @@ class EventList extends GenericList {
     }
     
 
-    loadMap(){
-        if(this.props.event_on!=undefined && this.props.event_on!=this.old_object){
-            for (var index in this.props.object_list){
-                if(this.props.object_list.id==this.props.event_on){
+    loadMap(new_value){
+        for (var index in this.props.object_list){
+            if(this.props.object_list.id==new_value){
                     // Build the map
                     this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventObject()))
-                    this.old_object = this.props.event_on;
-                }
             }
         }
     }
