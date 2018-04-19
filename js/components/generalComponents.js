@@ -221,6 +221,7 @@ export class Slider extends React.Component{
         this.handleBackward = this.handleBackward.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.checkForUpdate = this.checkForUpdate.bind(this);
+        this.newOption = this.newOption.bind(this);
         this.state = {currentlySelected: -1, progress: 0, progress_string: ""}
         this.slider_name = "DEFAULT"
     }
@@ -235,6 +236,10 @@ export class Slider extends React.Component{
             </Pager>
                 <ProgressBar active now={this.state.progress}/>
             </Well>;
+    }
+    newOption(new_value){
+
+
     }
 
     handleForward(){
@@ -257,6 +262,7 @@ export class Slider extends React.Component{
         this.setState(prevState => ({currentlySelected: selected, progress: progress,
             progress_string: prog_string}))
         this.props.setObjectOn(this.props.object_list[selected].id)
+        this.newOption(this.props.object_list[selected].id)
     }
 
     checkForUpdate(){
