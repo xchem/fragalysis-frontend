@@ -238,7 +238,7 @@ export class NGLView extends React.Component {
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
-                this.function_dict[input_dict["OBJECT_TYPE"]](this.stage,nglObject,nglKey)
+                this.function_dict[nglObject["OBJECT_TYPE"]](this.stage,nglObject,nglKey)
                 this.props.objectLoading(nglObject);
                 this.props.showLoading();
             }
