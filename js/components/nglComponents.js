@@ -48,6 +48,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
 
+
     }
 
     showPick (stage, pickingProxy) {
@@ -99,7 +100,7 @@ export class NGLView extends React.Component {
 
     showMol(stage,input_dict,object_name){
         var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
-        this.stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
+        stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
             comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true }
             );
             comp.autoView("ligand");
@@ -190,7 +191,7 @@ export class NGLView extends React.Component {
             sele = "SELECT"
             color = [0,1,0]
         }
-        const radius = getRadius(data)
+        const radius = this.getRadius(data)
         return Object.assign({},
             data,
             {
