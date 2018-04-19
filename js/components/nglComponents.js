@@ -49,7 +49,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.CYLINDER] = this.showCylinder
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
-        this.function_dict[nglObjectTypes.EVENT] = this.showEvent
+        this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
 
     }
 

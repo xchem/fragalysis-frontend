@@ -35,8 +35,8 @@ class EventSlider extends Slider {
     newOption(new_value){
         for (var index in this.props.object_list){
             if(this.props.object_list[index].id==new_value){
-                    // Build the map
-                    this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject(this.props.object_list[index])))
+                // Build the map
+                this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject(this.props.object_list[index])))
             }
         }
     }
