@@ -219,7 +219,7 @@ export class NGLView extends React.Component {
                 if(listOn[index].id==onGroup){
                     new_data = listOn[index];
                 }
-                if(listOn[index].id==onGroup) {
+                if(listOn[index].id==oldGroup) {
                     old_data = listOn[index];
                 }
             }
