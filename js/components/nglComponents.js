@@ -171,7 +171,7 @@ export class NGLView extends React.Component {
             comp.addRepresentation("ball+stick", {
                 sele: "LIG"
             })
-            comp.autoView("ligand");
+            comp.autoView("LIG");
         });
 
         stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
