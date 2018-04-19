@@ -151,7 +151,21 @@ export class NGLView extends React.Component {
     showEvent(stage,input_dict,object_name){
         stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
-            comp.autoView();
+            comp.addRepresentation("contact", {
+                masterModelIndex: 0,
+                weakHydrogenBond: true,
+                maxHbondDonPlaneAngle: 35,
+                sele: "/0 or /1"
+            })
+            comp.addRepresentation("line", {
+                colorScheme: "element",
+                colorValue:colour,
+                sele: "/0"
+            })
+            comp.autoView("ligand");
+            // stage.setFocus(focus_var);
+
+
         });
 
         stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
