@@ -12,6 +12,7 @@ import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
 
+
 export class NGLView extends React.Component {
     constructor(props) {
         super(props);
@@ -145,14 +146,13 @@ export class NGLView extends React.Component {
             stage, this.focus_var, object_name,input_dict["colour"]]
         ).then( ol => this.renderComplex(ol));
     }
-    
+
 
     
     showEvent(stage,input_dict,object_name){
         stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
-
-            var selection = new NGL.Selection("(( not polymer or hetero ) and not ( water or ion ))");
+            var selection = new Selection("(( not polymer or hetero ) and not ( water or ion ))");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
             var atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
@@ -169,10 +169,7 @@ export class NGLView extends React.Component {
             comp.addRepresentation("line", {
                 sele: "(( not polymer or hetero ) and not ( water or ion ))"
             })
-            comp.autoView("ligand");
-            stage.setFocus(95);
-
-
+            comp.autoView();
         });
 
         stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
