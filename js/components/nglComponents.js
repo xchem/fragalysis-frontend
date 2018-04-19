@@ -155,15 +155,15 @@ export class NGLView extends React.Component {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
                 maxHbondDonPlaneAngle: 35,
-                sele: "/0 or /1"
+                sele: "/0 or /0 and LIG"
             })
             comp.addRepresentation("line", {
                 colorScheme: "element",
                 colorValue:colour,
-                sele: "/0"
+                sele: "LIG"
             })
             comp.autoView("ligand");
-            // stage.setFocus(focus_var);
+            stage.setFocus(95);
 
 
         });
