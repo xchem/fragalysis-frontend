@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import {Slider} from './generalComponents'
-
+import * as nglObjectTypes from './nglObjectTypes';
 
 class EventSlider extends Slider {
 
