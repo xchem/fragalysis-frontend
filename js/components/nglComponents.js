@@ -147,20 +147,29 @@ export class NGLView extends React.Component {
     }
 
 
+}
+
     
     showEvent(stage,input_dict,object_name){
         stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
-            comp.addRepresentation("contact", {
+
+            var selection = new NGL.Selection("(( not polymer or hetero ) and not ( water or ion ))");
+            var radius = 5;
+            var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
+            var atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
+            var sele2 = atomSet2.toSeleString();
+            var sele1 = atomSet.toSeleString();
+            comp.addRepresentation('contact', {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
                 maxHbondDonPlaneAngle: 35,
-                sele: "/0 or /0 and LIG"
-            })
+                linewidth: 1,
+                sele: sele2 + " or LIG"
+            });
+
             comp.addRepresentation("line", {
-                colorScheme: "element",
-                colorValue:colour,
-                sele: "LIG"
+                sele: "(( not polymer or hetero ) and not ( water or ion ))"
             })
             comp.autoView("ligand");
             stage.setFocus(95);
