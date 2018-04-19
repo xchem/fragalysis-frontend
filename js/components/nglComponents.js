@@ -107,7 +107,11 @@ export class NGLView extends React.Component {
         });
     }
 
-    renderComplex(ol){
+
+
+    showComplex(stage,input_dict,object_name){
+
+        function renderComplex(ol){
             var cs = concatStructures(
                 ol[4],
                 ol[0].structure.getView(new Selection("not ligand")),
@@ -134,13 +138,12 @@ export class NGLView extends React.Component {
             stage.setFocus(focus_var);
         };
 
-    showComplex(stage,input_dict,object_name){
         var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
         Promise.all([
             stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
             stage.loadFile(stringBlob, {ext: "sdf"}),
             stage, this.focus_var, object_name,input_dict["colour"]]
-        ).then( ol => this.renderComplex(ol));
+        ).then( ol => renderComplex(ol));
     }
 
     showCylinder(stage,input_dict,object_name){
