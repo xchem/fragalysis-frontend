@@ -143,7 +143,7 @@ export class NGLView extends React.Component {
             stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
             stage.loadFile(stringBlob, {ext: "sdf"}),
             stage, this.focus_var, object_name,input_dict["colour"]]
-        ).then( ol => renderComplex(ol));
+        ).then( ol => this.renderComplex(ol));
     }
 
     showCylinder(stage,input_dict,object_name){
