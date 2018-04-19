@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
-import MoleculeList from '../components/moleculeList';
+import EventList from '../components/eventList';
 import PanddaSiteList from '../components/panddaSiteList';
 import PanddaSlider from '../components/panddaSlider';
 
@@ -19,7 +19,7 @@ class Tindspect extends Component {
               <Col xs={4} md={4}>
                   <NGLView div_id="pandda_summary" height="200px"/>
                   <PanddaSlider />
-                  <MoleculeList style={{overflow:scroll}}/>
+                  <EventList style={{overflow:scroll}}/>
               </Col>
               <Col xs={8} md={8} >
                   <NGLView div_id="pandda_major" height="600px"/>
