@@ -35,6 +35,7 @@ export class NGLView extends React.Component {
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
+        this.showComplex = this.showComplex.bind(this);
 
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
@@ -136,8 +137,6 @@ export class NGLView extends React.Component {
 
 
     showComplex(stage,input_dict,object_name){
-
-
         var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
         Promise.all([
             stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
