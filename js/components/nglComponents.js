@@ -152,7 +152,7 @@ export class NGLView extends React.Component {
     showEvent(stage,input_dict,object_name){
         stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
-            var selection = new Selection("(( not polymer or hetero ) and not ( water or ion ))");
+            var selection = new Selection("LIG");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
             var atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
@@ -166,10 +166,10 @@ export class NGLView extends React.Component {
                 sele: sele2 + " or LIG"
             });
 
-            comp.addRepresentation("line", {
-                sele: "(( not polymer or hetero ) and not ( water or ion ))"
+            comp.addRepresentation("ball+stick", {
+                sele: "LIG"
             })
-            comp.autoView();
+            comp.autoView("ligand");
         });
 
         stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
