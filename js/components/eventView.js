@@ -15,3 +15,15 @@ class EventView extends React.Component {
         return this.data.xtal;
     }
 }
+
+function mapStateToProps(state) {
+  return {
+
+  }
+}
+const mapDispatchToProps = {
+    deleteObject: nglLoadActions.deleteObject,
+    loadObject: nglLoadActions.loadObject
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(EventView);
