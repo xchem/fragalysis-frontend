@@ -37,7 +37,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     setObjectOn: apiActions.setPanddaSiteOn,
-    setEventOn: apiActions
+    setEventOn: apiActions,
     setObjectList: apiActions.setPanddaEventList
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PanddaSlider);
