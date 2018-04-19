@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import {Slider} from './generalComponents'
 import * as nglObjectTypes from './nglObjectTypes';
+import * as nglActions from '../actions/nglLoadActions';
 
 class PanddaSlider extends Slider{
 
@@ -39,8 +40,9 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
+    deleteObject: nglActions.deleteObject,
     setObjectOn: apiActions.setPanddaSiteOn,
-    setEventOn: apiActions,
+    setEventOn: apiActions.setPanddaEventOn,
     setObjectList: apiActions.setPanddaEventList
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PanddaSlider);
