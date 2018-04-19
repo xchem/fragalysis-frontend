@@ -186,9 +186,14 @@ export class NGLView extends React.Component {
         }
     }
 
+
+
     generateSphere(data,selected=false,listType=listTypes.MOLGROUPS,view="summary_view"){
         var sele = ""
         var color = [0,0,1]
+        var getCoords = {}
+        getCoords[listTypes.MOLGROUPS] = [data.x_com, data.y_com, data.z_com]
+        getCoords[listTypes.PANDDA_SITE] = [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z]
         if(selected){
             sele = "SELECT"
             color = [0,1,0]
@@ -200,7 +205,7 @@ export class NGLView extends React.Component {
                 "name": listType + sele + "_" + + data.id.toString(),
                 "display_div": view,
                 "OBJECT_TYPE": nglObjectTypes.SPHERE,
-                "coords": [data.x_com,data.y_com,data.z_com],
+                "coords": getCoords[listType],
                 "radius": radius,
                 "colour": color
             }
