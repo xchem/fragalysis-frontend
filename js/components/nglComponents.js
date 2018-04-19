@@ -186,7 +186,7 @@ export class NGLView extends React.Component {
         }
     }
 
-    generateSphere(data,selected=false,listType=listTypes.MOLGROUPS){
+    generateSphere(data,selected=false,listType=listTypes.MOLGROUPS,view="summary_view"){
         var sele = ""
         var color = [0,0,1]
         if(selected){
@@ -198,7 +198,7 @@ export class NGLView extends React.Component {
             data,
             {
                 "name": listType + sele + "_" + + data.id.toString(),
-                "display_div": "summary_view",
+                "display_div": view,
                 "OBJECT_TYPE": nglObjectTypes.SPHERE,
                 "coords": [data.x_com,data.y_com,data.z_com],
                 "radius": radius,
@@ -207,7 +207,7 @@ export class NGLView extends React.Component {
         )
     }
 
-    showSelect(listType){
+    showSelect(listType,view){
         var oldGroup = this.data_dict[listType]["oldGroupOn"];
         var listOn = this.props[this.data_dict[listType]["list"]];
         var onGroup = this.props[this.data_dict[listType]["onGroup"]];
@@ -224,12 +224,12 @@ export class NGLView extends React.Component {
                 }
             }
             if (old_data) {
-                this.props.deleteObject(this.generateSphere(old_data, true, listType));
-                this.props.loadObject(this.generateSphere(old_data, false, listType));
+                this.props.deleteObject(this.generateSphere(old_data, true, listType,view));
+                this.props.loadObject(this.generateSphere(old_data, false, listType,view));
             }
             // Delete the two old spheres
-            this.props.deleteObject(this.generateSphere(new_data, false, listType));
-            this.props.loadObject(this.generateSphere(new_data, true, listType));
+            this.props.deleteObject(this.generateSphere(new_data, false, listType,view));
+            this.props.loadObject(this.generateSphere(new_data, true, listType,view));
             this.data_dict[listType]["oldGroupOn"] = onGroup;
         }
     }
@@ -266,8 +266,8 @@ export class NGLView extends React.Component {
                 }
             }
         }
-        this.showSelect(listTypes.MOLGROUPS);
-        this.showSelect(listTypes.PANDDA_SITE);
+        this.showSelect(listTypes.MOLGROUPS,"summary_view");
+        this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
     
     render(){
