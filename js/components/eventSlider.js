@@ -11,7 +11,7 @@ class EventSlider extends Slider {
 
     constructor(props) {
         super(props);
-        this.slider_name = "Pandda Site"
+        this.slider_name = "Pandda Event"
     }
 }
 
