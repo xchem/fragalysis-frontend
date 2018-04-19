@@ -13,8 +13,6 @@ import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
 
 export class NGLView extends React.Component {
-
-
     constructor(props) {
         super(props);
         // Create NGL Stage object
@@ -36,6 +34,20 @@ export class NGLView extends React.Component {
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
+
+
+        this.data_dict = {}
+        this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
+        this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
+        // Refactor this out into a utils directory
+        this.function_dict = {}
+        this.function_dict[nglObjectTypes.SPHERE] = this.showSphere
+        this.function_dict[nglObjectTypes.MOLECULE] = this.showMol
+        this.function_dict[nglObjectTypes.COMPLEX] = this.showComplex
+        this.function_dict[nglObjectTypes.CYLINDER] = this.showCylinder
+        this.function_dict[nglObjectTypes.ARROW] = this.showArrow
+        this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
+
     }
 
     showPick (stage, pickingProxy) {
@@ -49,9 +61,9 @@ export class NGLView extends React.Component {
                     this.props.setMolGroupOn(pk)
                 }
                 else if (type==listTypes.PANDDA_SITE){
-                        var pk = parseInt(name.split("_")[1].split(")")[0])
-                        this.props.setPanddaSiteOn(pk)
-                    }
+                    var pk = parseInt(name.split("_")[1].split(")")[0])
+                    this.props.setPanddaSiteOn(pk)
+                }
                 else if (type==listTypes.MOLECULE){
 
                 }
@@ -73,21 +85,7 @@ export class NGLView extends React.Component {
         this.renderDisplay();
         setInterval(this.renderDisplay,this.interval)
         this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.data_dict = {}
-        this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
-        this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
-
-        this.function_dict = {}
-        this.function_dict[nglObjectTypes.SPHERE] = this.showSphere
-        this.function_dict[nglObjectTypes.MOLECULE] = this.showMol
-        this.function_dict[nglObjectTypes.COMPLEX] = this.showComplex
-        this.function_dict[nglObjectTypes.CYLINDER] = this.showCylinder
-        this.function_dict[nglObjectTypes.ARROW] = this.showArrow
-        this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
     }
-
-
-    // Remove the if statements here
 
     showSphere(stage,input_dict,object_name){
         var colour = input_dict["colour"];
