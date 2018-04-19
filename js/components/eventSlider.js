@@ -12,7 +12,9 @@ class EventSlider extends Slider {
     constructor(props) {
         super(props);
         this.slider_name = "Pandda Event"
+        this.old_object = -1;
     }
+
 }
 
 function mapStateToProps(state) {

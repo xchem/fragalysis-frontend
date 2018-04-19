@@ -6,4 +6,5 @@ export const COMPLEX = "COMPLEX";
 export const MOLECULE = "MOLECULE";
 export const PROTEIN = "PROTEIN";
 export const ARROW = "ARROW";
-export const CYLINDER = "CYLINDER"
+export const CYLINDER = "CYLINDER";
+export const EVENTMAP = "EVENTMAP";

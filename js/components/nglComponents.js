@@ -49,6 +49,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.CYLINDER] = this.showCylinder
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
+        this.function_dict[nglObjectTypes.EVENT] = this.showEvent
 
     }
 
@@ -145,6 +146,38 @@ export class NGLView extends React.Component {
         ).then( ol => this.renderComplex(ol));
     }
 
+
+    
+    showMap(stage,input_dict,object_name){
+        stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
+            comp.addRepresentation("cartoon", {});
+            comp.autoView();
+        });
+
+        stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
+            var surfFofc = o.addRepresentation('surface', {
+                color: 'mediumseagreen',
+                isolevel: 3,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            })
+            var surfFofcNeg = o.addRepresentation('surface', {
+                color: 'tomato',
+                isolevel: 3,
+                negateIsolevel: true,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            })
+        });
+    }
+    
+    
     showCylinder(stage,input_dict,object_name){
         var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
         var radius = input_dict["radius"]==undefined ? 0.4 : input_dict["radius"];

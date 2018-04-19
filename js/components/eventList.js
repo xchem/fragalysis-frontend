@@ -8,12 +8,13 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
-
+import * as nglObjectTypes from 'nglObjectTypes'
 class EventList extends GenericList {
 
     constructor(props) {
         super(props);
         this.list_type = listType.PANDDA_EVENT;
+        this.old_object = -1
     }
 
     handleOptionChange(changeEvent) {
@@ -24,11 +25,40 @@ class EventList extends GenericList {
         return null;
     }
 
+    generateEventMapObject(){
+        // Get the data
+        const data = this.props.data;
+        var nglObject = {
+            "name": "EVENTLOAD" + "_" + data.id.toString(),
+            "OBJECT_TYPE":nglObjectTypes.EVENTMAP,
+            "map_info": data.small_map_info,
+            "xtal": data.xtal,
+            "lig_id": data.lig_id,
+            "pdb_info": data.pdb_info
+        }
+        return nglObject;
+    }
+    
+
+    loadMap(){
+        if(this.props.event_on!=undefined && this.props.event_on!=this.old_object){
+            for (var index in this.props.object_list){
+                if(this.props.object_list.id==this.props.event_on){
+                    // Build the map
+                    this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventObject()))
+                    this.old_object = this.props.event_on;
+                }
+            }
+        }
+    }
+
+
 }
 function mapStateToProps(state) {
   return {
       group_type: state.apiReducers.group_type,
       target_on: state.apiReducers.target_on,
+      event_on: state.apiReducers.pandda_event_on,
       pandda_site_on: state.apiReducers.pandda_site_on,
       object_list: state.apiReducers.pandda_event_list
   }
