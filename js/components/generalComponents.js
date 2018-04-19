@@ -253,7 +253,7 @@ export class Slider extends React.Component{
     }
     handleChange(selected){
         var progress = 100*selected/(this.props.object_list.length-1)
-        var prog_string = "On " + selected.toString() + " of a total of " + this.props.object_list.length.toString();
+        var prog_string = "On " + (selected + 1).toString() + " of a total of " + this.props.object_list.length.toString();
         this.setState(prevState => ({currentlySelected: selected, progress: progress,
             progress_string: prog_string}))
         this.props.setObjectOn(this.props.object_list[selected].id)
