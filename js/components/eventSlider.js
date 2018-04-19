@@ -5,7 +5,9 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import {Slider} from './generalComponents'
-import * as nglObjectTypes from './nglObjectTypes';
+import * as nglLoadActions from '../actions/nglLoadActions'
+import * as nglObjectTypes from './nglObjectTypes'
+
 
 class EventSlider extends Slider {
 
@@ -49,6 +51,8 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     setObjectOn: apiActions.setPanddaEventOn,
-    setObjectList: apiActions.setPanddaEventList
+    setObjectList: apiActions.setPanddaEventList,
+    deleteObject: nglLoadActions.deleteObject,
+    loadObject: nglLoadActions.loadObject
 }
 export default connect(mapStateToProps, mapDispatchToProps)(EventSlider);
