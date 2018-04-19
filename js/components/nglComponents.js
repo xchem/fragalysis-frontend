@@ -165,7 +165,9 @@ export class NGLView extends React.Component {
                 linewidth: 1,
                 sele: sele2 + " or LIG"
             });
-
+            comp.addRepresentation("line", {
+                sele: sele1
+            })
             comp.addRepresentation("ball+stick", {
                 sele: "LIG"
             })
