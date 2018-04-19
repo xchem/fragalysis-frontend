@@ -17,9 +17,8 @@ class EventSlider extends Slider {
         this.generateEventMapObject = this.generateEventMapObject.bind(this);
     }
     
-    generateEventMapObject(){
+    generateEventMapObject(data){
         // Get the data
-        const data = this.props.data;
         var nglObject = {
             "name": "EVENTLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.EVENTMAP,
@@ -35,7 +34,7 @@ class EventSlider extends Slider {
         for (var index in this.props.object_list){
             if(this.props.object_list[index].id==new_value){
                     // Build the map
-                    this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject()))
+                    this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject(this.props.object_list[index])))
             }
         }
     }
