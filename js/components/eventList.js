@@ -47,7 +47,7 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
-    setObjectList: apiActions.setPanddaEventList(),
+    setObjectList: apiActions.setPanddaEventList,
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject
 
