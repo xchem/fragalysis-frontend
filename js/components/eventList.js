@@ -8,10 +8,7 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import EventView from './eventView';
 
-const eventStyle = {
-    overflow:"scroll"}
 class EventList extends GenericList {
 
     constructor(props) {
@@ -24,17 +21,7 @@ class EventList extends GenericList {
         this.props.setObjectOn(new_value);
     }
     render() {
-        if (this.props != undefined && this.props.object_list) {
-            console.log(this.props.message)
-            return <Well><Row style={eventStyle}>
-                {
-                    this.props.object_list.map((data) => <EventView key={data.id} data={data}/>)
-                }
-            </Row></Well>;
-        }
-        else {
-            return null;
-        }
+        return null;
     }
 
 }
