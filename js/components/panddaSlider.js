@@ -29,7 +29,7 @@ class PanddaSlider extends Slider{
 
 function mapStateToProps(state) {
   return {
-      evnet_on: state.apiReducers.pandda_event_on,
+      event_on: state.apiReducers.pandda_event_on,
       event_list: state.apiReducers.pandda_event_list,
       object_list: state.apiReducers.pandda_site_list,
       object_on: state.apiReducers.pandda_site_on
