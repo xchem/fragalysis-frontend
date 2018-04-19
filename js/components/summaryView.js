@@ -18,7 +18,6 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
         this.getColour = this.getColour.bind(this);
-        this.changeApp = this.changeApp.bind(this);
         this.vector_list;
         // Number vectors and series to be incorporated later
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
@@ -122,10 +121,6 @@ class SummaryView extends React.Component{
         return tot_num;
     }
 
-    changeApp(){
-        this.props.setAppOn("TINDSPECT");
-    }
-
     render(){
         var numMols = this.getNum();
         var mol_string = "No mols found!!!";
@@ -144,7 +139,6 @@ class SummaryView extends React.Component{
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="large" bsStyle="warning" onClick={this.changeApp}>Export to CSV</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
@@ -168,8 +162,10 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.to_query
   }
 }
+
+
+
 const mapDispatchToProps = {
-    setAppOn: apiActions.setAppOn,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject
 }

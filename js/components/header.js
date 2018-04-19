@@ -56,17 +56,15 @@ class Header extends React.Component {
             }
         }
     }
-
-
-
   render() {
     return <Navbar>
-                <Typeahead
-                    labelKey="name"
-                    onOptionSelected={this.selectTarget}
-                    options={this.getTargetList()}
-                    placeholder="Choose a target..."
-                />
+        <Typeahead
+            labelKey="name"
+            onOptionSelected={this.selectTarget}
+            options={this.getTargetList()}
+            placeholder="Choose a target..."
+        />
+        <Button bsSize="large" bsStyle="warning" onClick={this.props.setAppOn("TINDSPECT")}>TINDSPECT</Button>
       </Navbar>
   }
 }
@@ -80,6 +78,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     setMoleculeList: apiActions.setMoleculeList,
     deleteObject: nglActions.deleteObject,
+    setAppOn: apiActions.setAppOn,
     loadObject: nglActions.loadObject,
     setTargetOn: apiActions.setTargetOn,
 }
