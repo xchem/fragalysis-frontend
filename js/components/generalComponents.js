@@ -228,7 +228,7 @@ export class Slider extends React.Component{
     render() {
         this.progress = this.state.progress;
         return <Well bsSize="small">
-                <h3>{this.slider_name} Selector</h3>
+                <h3>{this.slider_name} Selector</h3> On {this.state.currentlySelected} of {this.props.object_list.length}
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
