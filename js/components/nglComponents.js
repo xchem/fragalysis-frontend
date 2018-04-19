@@ -37,6 +37,7 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
 
+
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -48,7 +49,6 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.CYLINDER] = this.showCylinder
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
-
 
     }
 
@@ -172,20 +172,18 @@ export class NGLView extends React.Component {
     }
 
     getRadius(data){
-        var radius;
         if (data.mol_id == undefined){
             return 5.0
         }
-        if(data.mol_id.length>10){
-            radius = 5.0
+        else if(data.mol_id.length>10){
+            return 5.0
         }
         else if(data.mol_id.length>5){
-            radius = 3.0
+            return 3.0
         }
         else{
-            radius = 2.0
+            return 2.0
         }
-        return radius
     }
 
     generateSphere(data,selected=false,listType=listTypes.MOLGROUPS){
@@ -195,16 +193,16 @@ export class NGLView extends React.Component {
             sele = "SELECT"
             color = [0,1,0]
         }
-        const radius = this.getRadius(data)
+        const radius = this.getRadius(data);
         return Object.assign({},
             data,
             {
-                name: listType + sele + "_" + + data.id.toString(),
-                display_div: "summary_view",
-                OBJECT_TYPE: nglObjectTypes.SPHERE,
-                coords: [data.x_com,data.y_com,data.z_com],
-                radius: radius,
-                colour: color
+                "name": listType + sele + "_" + + data.id.toString(),
+                "display_div": "summary_view",
+                "OBJECT_TYPE": nglObjectTypes.SPHERE,
+                "coords": [data.x_com,data.y_com,data.z_com],
+                "radius": radius,
+                "colour": color
             }
         )
     }
