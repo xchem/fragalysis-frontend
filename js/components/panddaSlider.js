@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import {Slider} from './generalComponents'
-
+import * as nglObjectTypes from './nglObjectTypes';
 
 class PanddaSlider extends Slider{
 
@@ -15,13 +15,16 @@ class PanddaSlider extends Slider{
     }
 
 
+
+
     newOption(new_value){
         if(this.props.event_on!=undefined) {
-            for (var index in this.props.event_list) {
-                if (this.props.event_list[index].id == this.props.event_on) {
-                    this.props.deleteObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject(this.props.event_list[index])))
+            this.props.deleteObject(Object.assign({display_div: "pandda_major"},
+                {
+                    "name": "EVENTLOAD" + "_" + this.props.event_on.toString(),
+                    "OBJECT_TYPE":nglObjectTypes.EVENTMAP
                 }
-            }
+            ))
             this.props.setEventOn(undefined);
         }
     }
