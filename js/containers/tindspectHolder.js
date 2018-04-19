@@ -6,7 +6,6 @@ import EventList from '../components/eventList';
 import PanddaSiteList from '../components/panddaSiteList';
 import PanddaSlider from '../components/panddaSlider';
 import EventSlider from '../components/eventSlider';
-import EventList from '../components/eventList';
 
 class Tindspect extends Component {
 
