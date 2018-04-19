@@ -34,7 +34,7 @@ export class NGLView extends React.Component {
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
-
+        this.renderComplex = this.renderComplex.bind(this);
 
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
@@ -107,11 +107,7 @@ export class NGLView extends React.Component {
         });
     }
 
-
-
-    showComplex(stage,input_dict,object_name){
-
-        function renderComplex(ol){
+    renderComplex(ol){
             var cs = concatStructures(
                 ol[4],
                 ol[0].structure.getView(new Selection("not ligand")),
@@ -136,7 +132,11 @@ export class NGLView extends React.Component {
             })
             comp.autoView("ligand");
             stage.setFocus(focus_var);
-        };
+    };
+
+
+    showComplex(stage,input_dict,object_name){
+
 
         var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
         Promise.all([
