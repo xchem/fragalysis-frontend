@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import * as nglObjectTypes from 'nglObjectTypes'
+import * as nglObjectTypes from './nglObjectTypes'
 class EventList extends GenericList {
 
     constructor(props) {
