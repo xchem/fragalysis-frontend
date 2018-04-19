@@ -28,7 +28,7 @@ class EventList extends GenericList {
             console.log(this.props.message)
             return <Well><Row style={eventStyle}>
                 {
-                    this.props.object_list.map((data) => <EventView/>)
+                    this.props.object_list.map((data) => <EventView key={data.id} data={data}/>)
                 }
             </Row></Well>;
         }
