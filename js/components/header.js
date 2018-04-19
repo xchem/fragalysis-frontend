@@ -16,6 +16,7 @@ class Header extends React.Component {
         super(props)
         this.getTargetList = this.getTargetList.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
+        this.clicker = this.clicker.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
     }
 
@@ -57,6 +58,10 @@ class Header extends React.Component {
             }
         }
     }
+
+    clicker(){
+        this.props.setAppOn("TINDSPECT");
+    }
   render() {
     return <Navbar>
         <Typeahead
@@ -65,7 +70,7 @@ class Header extends React.Component {
             options={this.getTargetList()}
             placeholder="Choose a target..."
         />
-        <Button bsSize="large" bsStyle="warning" onClick={this.props.setAppOn("TINDSPECT")}>TINDSPECT</Button>
+        <Button bsSize="large" bsStyle="warning" onClick={this.clicker}>TINDSPECT</Button>
       </Navbar>
   }
 }
