@@ -230,7 +230,7 @@ export class NGLView extends React.Component {
             // Delete the two old spheres
             this.props.deleteObject(this.generateSphere(new_data, false, listType));
             this.props.loadObject(this.generateSphere(new_data, true, listType));
-            this.data_dict[listTypes.MOLGROUPS]["oldGroupOn"] = onGroup;
+            this.data_dict[listType]["oldGroupOn"] = onGroup;
         }
     }
 
