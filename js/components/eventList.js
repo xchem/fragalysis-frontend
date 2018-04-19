@@ -16,7 +16,6 @@ class EventList extends GenericList {
         super(props);
         this.list_type = listType.PANDDA_EVENT;
         this.old_object = -1;
-        this.loadMap = this.loadMap.bind(this);
     }
 
     handleOptionChange(changeEvent) {

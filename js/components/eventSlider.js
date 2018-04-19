@@ -30,11 +30,8 @@ class EventSlider extends Slider {
         }
         return nglObject;
     }
-    
-
 
     newOption(new_value){
-        
         for (var index in this.props.object_list){
             if(this.props.object_list.id==new_value){
                     // Build the map
