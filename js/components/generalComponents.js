@@ -74,7 +74,7 @@ export class GenericList extends React.Component {
             }
         }
         else if (this.list_type==listTypes.PANDDA_SITE){
-            if (this.props.target_on != <undefined></undefined>) {
+            if (this.props.target_on != undefined) {
                 // mol group choice
                 base_url += "sites/"
                 get_params["target_id"] = this.props.target_on
@@ -221,20 +221,25 @@ export class Slider extends React.Component{
         this.handleBackward = this.handleBackward.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.checkForUpdate = this.checkForUpdate.bind(this);
-        this.state = {currentlySelected: -1, progress: 0}
+        this.newOption = this.newOption.bind(this);
+        this.state = {currentlySelected: -1, progress: 0, progress_string: ""}
         this.slider_name = "DEFAULT"
     }
 
     render() {
         this.progress = this.state.progress;
         return <Well bsSize="small">
-                <h3>{this.slider_name} Selector</h3>
+                <h3>{this.slider_name} Selector</h3>  {this.state.progress_string}
                 <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>
                 <ProgressBar active now={this.state.progress}/>
             </Well>;
+    }
+    newOption(new_value){
+
+
     }
 
     handleForward(){
@@ -253,8 +258,11 @@ export class Slider extends React.Component{
     }
     handleChange(selected){
         var progress = 100*selected/(this.props.object_list.length-1)
-        this.setState(prevState => ({currentlySelected: selected, progress: progress}))
+        var prog_string = "On " + (selected + 1).toString() + " of a total of " + this.props.object_list.length.toString();
+        this.setState(prevState => ({currentlySelected: selected, progress: progress,
+            progress_string: prog_string}))
         this.props.setObjectOn(this.props.object_list[selected].id)
+        this.newOption(this.props.object_list[selected].id)
     }
 
     checkForUpdate(){

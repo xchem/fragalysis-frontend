@@ -12,9 +12,8 @@ import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 import * as selectionActions from '../actions/selectionActions'
 
+
 export class NGLView extends React.Component {
-
-
     constructor(props) {
         super(props);
         // Create NGL Stage object
@@ -34,10 +33,25 @@ export class NGLView extends React.Component {
         this.focus_var = 95;
         this.stage = undefined;
         this.renderDisplay = this.renderDisplay.bind(this);
-        this.renderComplex = this.renderComplex.bind(this);
-        this.generateObject = this.generateObject.bind(this);
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
+        this.renderComplex = this.renderComplex.bind(this);
+        this.showComplex = this.showComplex.bind(this);
+
+
+        this.data_dict = {}
+        this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
+        this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
+        // Refactor this out into a utils directory
+        this.function_dict = {}
+        this.function_dict[nglObjectTypes.SPHERE] = this.showSphere
+        this.function_dict[nglObjectTypes.MOLECULE] = this.showMol
+        this.function_dict[nglObjectTypes.COMPLEX] = this.showComplex
+        this.function_dict[nglObjectTypes.CYLINDER] = this.showCylinder
+        this.function_dict[nglObjectTypes.ARROW] = this.showArrow
+        this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
+        this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
+
     }
 
     showPick (stage, pickingProxy) {
@@ -51,9 +65,9 @@ export class NGLView extends React.Component {
                     this.props.setMolGroupOn(pk)
                 }
                 else if (type==listTypes.PANDDA_SITE){
-                        var pk = parseInt(name.split("_")[1].split(")")[0])
-                        this.props.setPanddaSiteOn(pk)
-                    }
+                    var pk = parseInt(name.split("_")[1].split(")")[0])
+                    this.props.setPanddaSiteOn(pk)
+                }
                 else if (type==listTypes.MOLECULE){
 
                 }
@@ -75,59 +89,25 @@ export class NGLView extends React.Component {
         this.renderDisplay();
         setInterval(this.renderDisplay,this.interval)
         this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.old_mol_group_on = -1;
     }
 
-    generateObject(object_name, input_dict){
-        if(input_dict["OBJECT_TYPE"]==nglObjectTypes.SPHERE)
-        {
-            var colour = input_dict["colour"];
-            var radius = input_dict["radius"];
-            var coords = input_dict["coords"];
-            var shape = new Shape( object_name );
-            shape.addSphere(coords, colour, radius);
-            var shapeComp = this.stage.addComponentFromObject(shape);
-            shapeComp.addRepresentation("buffer");
-        }
-        else if (input_dict["OBJECT_TYPE"]==nglObjectTypes.MOLECULE){
-            var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
-            this.stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
-                comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true }
-                );
-                comp.autoView("ligand");
-            });
-        }
-        else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.COMPLEX){
-            var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
-            Promise.all([
-                this.stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
-                this.stage.loadFile(stringBlob, {ext: "sdf"}),
-                this.stage, this.focus_var, object_name,input_dict["colour"]]
-            ).then(ol => this.renderComplex(ol));
-        }
-        else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.CYLINDER){
-            var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
-            var radius = input_dict["radius"]==undefined ? 0.4 : input_dict["radius"];
-            var coords = input_dict["coords"];
-            var shape = new Shape( object_name );
-            shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
-            var shapeComp = this.stage.addComponentFromObject(shape);
-            shapeComp.addRepresentation("buffer");
-        }
-        else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.ARROW){
-            var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
-            var radius = input_dict["radius"]==undefined ? 0.3 : input_dict["radius"];
-            var shape = new Shape( object_name );
-            shape.addArrow(input_dict["start"],input_dict["end"], colour, radius);
-            var shapeComp = this.stage.addComponentFromObject(shape);
-            shapeComp.addRepresentation("buffer");
-        }
-        else if(input_dict["OBJECT_TYPE"]==nglObjectTypes.PROTEIN){
-            this.stage.loadFile( input_dict["prot_url"], { name: object_name, ext: "pdb" } ).then( function( comp ){
-                comp.addRepresentation( "cartoon", {  } );
-                comp.autoView();
-            });
-        }
+    showSphere(stage,input_dict,object_name){
+        var colour = input_dict["colour"];
+        var radius = input_dict["radius"];
+        var coords = input_dict["coords"];
+        var shape = new Shape( object_name );
+        shape.addSphere(coords, colour, radius);
+        var shapeComp = stage.addComponentFromObject(shape);
+        shapeComp.addRepresentation("buffer");
+    }
+
+    showMol(stage,input_dict,object_name){
+        var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
+        stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
+            comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true }
+            );
+            comp.autoView("ligand");
+        });
     }
 
     renderComplex(ol){
@@ -138,7 +118,7 @@ export class NGLView extends React.Component {
             )
             var stage = ol[2];
             var focus_var = ol[3];
-        var colour = ol[5];
+            var colour = ol[5];
             // Set the object name
             var comp = stage.addComponentFromObject(cs)
             comp.addRepresentation("cartoon")
@@ -155,56 +135,169 @@ export class NGLView extends React.Component {
             })
             comp.autoView("ligand");
             stage.setFocus(focus_var);
+    };
+
+
+    showComplex(stage,input_dict,object_name){
+        var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
+        Promise.all([
+            stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
+            stage.loadFile(stringBlob, {ext: "sdf"}),
+            stage, this.focus_var, object_name,input_dict["colour"]]
+        ).then( ol => this.renderComplex(ol));
     }
 
 
-    generateSphere(data,selected=false){
+    
+    showEvent(stage,input_dict,object_name){
+        stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
+            comp.addRepresentation("cartoon", {});
+            var selection = new Selection("LIG");
+            var radius = 5;
+            var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
+            var atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
+            var sele2 = atomSet2.toSeleString();
+            var sele1 = atomSet.toSeleString();
+            comp.addRepresentation('contact', {
+                masterModelIndex: 0,
+                weakHydrogenBond: true,
+                maxHbondDonPlaneAngle: 35,
+                linewidth: 1,
+                sele: sele2 + " or LIG"
+            });
+
+            comp.addRepresentation("ball+stick", {
+                sele: "LIG"
+            })
+            comp.autoView("ligand");
+        });
+
+        stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
+            var surfFofc = comp.addRepresentation('surface', {
+                color: 'mediumseagreen',
+                isolevel: 3,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            })
+            var surfFofcNeg = comp.addRepresentation('surface', {
+                color: 'tomato',
+                isolevel: 3,
+                negateIsolevel: true,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            })
+        });
+    }
+    
+    
+    showCylinder(stage,input_dict,object_name){
+        var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
+        var radius = input_dict["radius"]==undefined ? 0.4 : input_dict["radius"];
+        var coords = input_dict["coords"];
+        var shape = new Shape( object_name );
+        shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
+        var shapeComp = stage.addComponentFromObject(shape);
+        shapeComp.addRepresentation("buffer");
+    }
+
+    showArrow(stage,input_dict,object_name){
+        var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
+        var radius = input_dict["radius"]==undefined ? 0.3 : input_dict["radius"];
+        var shape = new Shape( object_name );
+        shape.addArrow(input_dict["start"],input_dict["end"], colour, radius);
+        var shapeComp = stage.addComponentFromObject(shape);
+        shapeComp.addRepresentation("buffer");
+    }
+
+    showProtein(stage,input_dict,object_name) {
+        stage.loadFile(input_dict["prot_url"], {name: object_name, ext: "pdb"}).then(function (comp) {
+            comp.addRepresentation("cartoon", {});
+            comp.autoView();
+        });
+    }
+
+    getRadius(data){
+        if (data.mol_id == undefined){
+            return 5.0
+        }
+        else if(data.mol_id.length>10){
+            return 5.0
+        }
+        else if(data.mol_id.length>5){
+            return 3.0
+        }
+        else{
+            return 2.0
+        }
+    }
+
+
+
+    generateSphere(data,selected=false,listType=listTypes.MOLGROUPS,view="summary_view"){
         var sele = ""
         var color = [0,0,1]
+        var getCoords = {}
+        getCoords[listTypes.MOLGROUPS] = [data.x_com, data.y_com, data.z_com]
+        getCoords[listTypes.PANDDA_SITE] = [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z]
         if(selected){
             sele = "SELECT"
             color = [0,1,0]
         }
-        var radius;
-        if(data.mol_id.length>10){
-            radius = 5.0
-        }
-        else if(data.mol_id.length>5){
-            radius = 3.0
-        }
-        else{
-            radius = 2.0
-        }
+        const radius = this.getRadius(data);
         return Object.assign({},
             data,
             {
-                name: listTypes.MOLGROUPS + sele + "_" + + data.id.toString(),
-                display_div: "summary_view",
-                OBJECT_TYPE: nglObjectTypes.SPHERE,
-                coords: [data.x_com,data.y_com,data.z_com],
-                radius: radius,
-                colour: color
+                "name": listType + sele + "_" + + data.id.toString(),
+                "display_div": view,
+                "OBJECT_TYPE": nglObjectTypes.SPHERE,
+                "coords": getCoords[listType],
+                "radius": radius,
+                "colour": color
             }
         )
     }
 
+    showSelect(listType,view){
+        var oldGroup = this.data_dict[listType]["oldGroupOn"];
+        var listOn = this.props[this.data_dict[listType]["list"]];
+        var onGroup = this.props[this.data_dict[listType]["onGroup"]];
+
+        if ( onGroup && onGroup != oldGroup){
+            var old_data;
+            var new_data;
+            for (var index in listOn){
+                if(listOn[index].id==onGroup){
+                    new_data = listOn[index];
+                }
+                if(listOn[index].id==oldGroup) {
+                    old_data = listOn[index];
+                }
+            }
+            if (old_data) {
+                this.props.deleteObject(this.generateSphere(old_data, true, listType,view));
+                this.props.loadObject(this.generateSphere(old_data, false, listType,view));
+            }
+            // Delete the two old spheres
+            this.props.deleteObject(this.generateSphere(new_data, false, listType,view));
+            this.props.loadObject(this.generateSphere(new_data, true, listType,view));
+            this.data_dict[listType]["oldGroupOn"] = onGroup;
+        }
+    }
 
     /**
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
-        // var orientation = this.stage.viewerControls.getOrientation();
-        // var otherArray;
-        // if (this.props.orientation){
-        //     otherArray = this.props.orientation.elements
-        // }
-        // if(orientation != undefined && arraysEqual(orientation.elements,otherArray)!=true){
-        //     this.props.setOrientation(orientation);
-        // }
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
-                this.generateObject(nglKey, nglObject);
+                this.function_dict[nglObject["OBJECT_TYPE"]](this.stage,nglObject,nglKey)
                 this.props.objectLoading(nglObject);
                 this.props.showLoading();
             }
@@ -229,26 +322,8 @@ export class NGLView extends React.Component {
                 }
             }
         }
-        if (this.props.mol_group_on && this.props.mol_group_on != this.old_mol_group_on){
-            var old_data;
-            var new_data;
-            for (var index in this.props.mol_group_list){
-                if(this.props.mol_group_list[index].id==this.props.mol_group_on){
-                    new_data = this.props.mol_group_list[index];
-                }
-                if(this.props.mol_group_list[index].id==this.old_mol_group_on) {
-                    old_data = this.props.mol_group_list[index];
-                }
-            }
-            if (old_data) {
-                this.props.deleteObject(this.generateSphere(old_data, true));
-                this.props.loadObject(this.generateSphere(old_data));
-            }
-            // Delete the two old spheres
-            this.props.deleteObject(this.generateSphere(new_data));
-            this.props.loadObject(this.generateSphere(new_data, true));
-            this.old_mol_group_on = this.props.mol_group_on;
-        }
+        this.showSelect(listTypes.MOLGROUPS,"summary_view");
+        this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
     
     render(){
@@ -261,6 +336,8 @@ function mapStateToProps(state) {
   return {
       mol_group_list: state.apiReducers.mol_group_list,
       mol_group_on: state.apiReducers.mol_group_on,
+      pandda_site_on: state.apiReducers.pandda_site_on,
+      pandda_site_list: state.apiReducers.pandda_site_list,
       objectsToLoad: state.nglReducers.objectsToLoad,
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,

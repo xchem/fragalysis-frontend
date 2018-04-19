@@ -13,7 +13,6 @@ import * as listTypes from './listTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
 import SVGInline from "react-svg-inline"
-import {shuffle} from '../utils/util';
 
 class MoleculeView extends GenericView {
 

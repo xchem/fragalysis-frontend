@@ -19,6 +19,7 @@ class PanddaSiteList extends GenericList {
         this.list_type = listType.PANDDA_SITE;
         this.generateObject = this.generateObject.bind(this);
     }
+    
     render() {
         return null;
     }
@@ -80,7 +81,7 @@ function mapStateToProps(state) {
   return {
       group_type: state.apiReducers.group_type,
       target_on: state.apiReducers.target_on,
-      object_list: state.apiReducers.pandda_event_list,
+      object_list: state.apiReducers.pandda_site_list,
       object_on: state.apiReducers.pandda_site_on
   }
 }
