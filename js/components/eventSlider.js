@@ -38,7 +38,7 @@ class EventSlider extends Slider {
                 // Build the map
                 this.props.loadObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject(this.props.object_list[index])))
             }
-            if(this.props.object_list[index].id==this.props.event_on){
+            else if(this.props.object_list[index].id==this.props.object_on){
                 this.props.deleteObject(Object.assign({display_div: "pandda_major"}, this.generateEventMapObject(this.props.object_list[index])))
             }
         }
