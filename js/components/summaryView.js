@@ -126,7 +126,7 @@ class SummaryView extends React.Component{
         for(var key in this.props.this_vector_list) {
             for (var index in this.props.this_vector_list[key]){
                 var thisObj = {
-                    smiles: this.props.this_vector_list[index],
+                    smiles: this.props.this_vector_list[key][index],
                     vector: key.split("_")[0],
                     mol: this.props.to_query
                 }
