@@ -124,7 +124,7 @@ class SummaryView extends React.Component{
 
     selectAll(){
         for(var key in this.props.this_vector_list) {
-            for (var index in this.props.this_vector_list[index]){
+            for (var index in this.props.this_vector_list[key]){
                 var thisObj = {
                     smiles: this.props.this_vector_list[index],
                     vector: key.split("_")[0],
