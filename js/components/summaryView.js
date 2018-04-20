@@ -126,7 +126,6 @@ class SummaryView extends React.Component{
         for(var index in this.props.this_vector_list){
             this.props.appendToBuyList(this.props.this_vector_list[index]);
         }
-        
     }
 
     render(){

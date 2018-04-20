@@ -70,7 +70,7 @@ class Header extends React.Component {
             options={this.getTargetList()}
             placeholder="Choose a target..."
         />
-        <Button bsSize="large" bsStyle="warning" onClick={this.clicker}>{TINDSPECT}</Button>
+        <Button bsSize="large" bsStyle="warning" onClick={this.clicker}>TINDSPECT</Button>
       </Navbar>
   }
 }
