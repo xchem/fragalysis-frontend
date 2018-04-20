@@ -70,13 +70,14 @@ class Header extends React.Component {
             options={this.getTargetList()}
             placeholder="Choose a target..."
         />
-        <Button bsSize="large" bsStyle="warning" onClick={this.clicker}>TINDSPECT</Button>
+        <Button bsSize="large" bsStyle="warning" onClick={this.clicker}>{TINDSPECT}</Button>
       </Navbar>
   }
 }
 
 function mapStateToProps(state) {
   return {
+      appOn: state.apiReducers.appOn,
       target_id_list: state.apiReducers.target_id_list,
       target_on: state.apiReducers.target_on
   }

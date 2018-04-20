@@ -18,6 +18,7 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
         this.getColour = this.getColour.bind(this);
+        this.selectAll = this.selectAll.bind(this);
         this.vector_list;
         // Number vectors and series to be incorporated later
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
@@ -121,6 +122,13 @@ class SummaryView extends React.Component{
         return tot_num;
     }
 
+    selectAll(){
+        for(var index in this.props.this_vector_list){
+            this.props.appendToBuyList(this.props.this_vector_list[index]);
+        }
+        
+    }
+
     render(){
         var numMols = this.getNum();
         var mol_string = "No mols found!!!";
@@ -147,6 +155,7 @@ class SummaryView extends React.Component{
             </Well>
             <Well>
                 <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
+                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
                 <CompoundList />
             </Well>
         </div>
@@ -166,6 +175,7 @@ function mapStateToProps(state) {
 
 
 const mapDispatchToProps = {
+    appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject
 }
