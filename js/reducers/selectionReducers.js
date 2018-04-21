@@ -1,9 +1,6 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-/**
- * Created by abradley on 06/03/2018.
- */
 import * as actions from '../actions/actonTypes'
 
 const INITIALSTATE = {

@@ -44,7 +44,6 @@ class CompoundView extends GenericView {
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         this.checkInList();
-        setInterval(this.checkInList,150)
     }
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
