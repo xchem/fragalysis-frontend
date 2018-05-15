@@ -10,11 +10,9 @@ const molStyle = {height: "400px",
     overflow:"scroll"}
 
 class CompoundList extends React.Component {
-
     constructor(props) {
         super(props);
     }
-
     render() {
         var totArray = new Array()
         for(var key in this.props.moleculeList){

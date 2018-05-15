@@ -17,6 +17,17 @@ class CompoundView extends GenericView {
         var get_params = {"smiles": props.data["smiles"]}
         Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
         this.send_obj = props.data
+        this.checkInList = this.checkInList.bind(this);
+    }
+
+    checkInList(){
+        var isToggleOn = false;
+        for(var item in this.props.to_buy_list){
+            if( this.props.to_buy_list[item]["smiles"]==this.send_obj["smiles"]){
+                isToggleOn=true
+            }
+        }
+        this.setState(prevState => ({isToggleOn: isToggleOn}))
     }
 
     handleClick(e){
@@ -32,13 +43,7 @@ class CompoundView extends GenericView {
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
-        var isToggleOn = false;
-        for(var item in this.props.to_buy_list){
-            if( this.props.to_buy_list[item]["smiles"]==this.send_obj["smiles"]){
-                isToggleOn=true
-            }
-        }
-        this.setState(prevState => ({isToggleOn: isToggleOn}))
+        this.checkInList();
     }
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;

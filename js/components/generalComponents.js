@@ -42,7 +42,7 @@ export class GenericList extends React.Component {
         // This should be defined by type
         var base_url = window.location.protocol + "//" + window.location.host
         // Set the version
-        base_url += "/v0.1/"
+        base_url += "/api/"
         var get_params = {}
         if (this.list_type==listTypes.TARGET) {
             base_url += "targets/"

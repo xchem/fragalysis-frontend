@@ -2,12 +2,13 @@
  * Created by abradley on 14/03/2018.
  */
 import React from 'react';
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Button} from 'react-bootstrap'
 import { Typeahead } from 'react-typeahead';
 import * as apiActions from '../actions/apiActions'
 import * as nglActions from '../actions/nglLoadActions'
 import { connect } from 'react-redux'
 import * as nglObjectTypes from '../components/nglObjectTypes'
+
 
 class Header extends React.Component {
 
@@ -15,6 +16,7 @@ class Header extends React.Component {
         super(props)
         this.getTargetList = this.getTargetList.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
+        this.clicker = this.clicker.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
     }
 
@@ -57,22 +59,25 @@ class Header extends React.Component {
         }
     }
 
-
-
+    clicker(){
+        this.props.setAppOn("TINDSPECT");
+    }
   render() {
     return <Navbar>
-                <Typeahead
-                    labelKey="name"
-                    onOptionSelected={this.selectTarget}
-                    options={this.getTargetList()}
-                    placeholder="Choose a target..."
-                />
+        <Typeahead
+            labelKey="name"
+            onOptionSelected={this.selectTarget}
+            options={this.getTargetList()}
+            placeholder="Choose a target..."
+        />
+        <Button bsSize="large" bsStyle="warning" onClick={this.clicker}>TINDSPECT</Button>
       </Navbar>
   }
 }
 
 function mapStateToProps(state) {
   return {
+      appOn: state.apiReducers.appOn,
       target_id_list: state.apiReducers.target_id_list,
       target_on: state.apiReducers.target_on
   }
@@ -80,6 +85,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     setMoleculeList: apiActions.setMoleculeList,
     deleteObject: nglActions.deleteObject,
+    setAppOn: apiActions.setAppOn,
     loadObject: nglActions.loadObject,
     setTargetOn: apiActions.setTargetOn,
 }

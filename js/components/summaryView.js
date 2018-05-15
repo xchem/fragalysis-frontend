@@ -18,7 +18,7 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
         this.getColour = this.getColour.bind(this);
-        this.changeApp = this.changeApp.bind(this);
+        this.selectAll = this.selectAll.bind(this);
         this.vector_list;
         // Number vectors and series to be incorporated later
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
@@ -122,8 +122,17 @@ class SummaryView extends React.Component{
         return tot_num;
     }
 
-    changeApp(){
-        this.props.setAppOn("TINDSPECT");
+    selectAll(){
+        for(var key in this.props.this_vector_list) {
+            for (var index in this.props.this_vector_list[key]){
+                var thisObj = {
+                    smiles: this.props.this_vector_list[key][index],
+                    vector: key.split("_")[0],
+                    mol: this.props.to_query
+                }
+                this.props.appendToBuyList(thisObj);
+            }
+        }
     }
 
     render(){
@@ -144,7 +153,6 @@ class SummaryView extends React.Component{
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="large" bsStyle="warning" onClick={this.changeApp}>Export to CSV</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
@@ -153,6 +161,7 @@ class SummaryView extends React.Component{
             </Well>
             <Well>
                 <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
+                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
                 <CompoundList />
             </Well>
         </div>
@@ -168,8 +177,11 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.to_query
   }
 }
+
+
+
 const mapDispatchToProps = {
-    setAppOn: apiActions.setAppOn,
+    appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject
 }

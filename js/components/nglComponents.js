@@ -146,8 +146,6 @@ export class NGLView extends React.Component {
             stage, this.focus_var, object_name,input_dict["colour"]]
         ).then( ol => this.renderComplex(ol));
     }
-
-
     
     showEvent(stage,input_dict,object_name){
         stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
@@ -165,11 +163,13 @@ export class NGLView extends React.Component {
                 linewidth: 1,
                 sele: sele2 + " or LIG"
             });
-
+            comp.addRepresentation("line", {
+                sele: sele1
+            })
             comp.addRepresentation("ball+stick", {
                 sele: "LIG"
             })
-            comp.autoView("ligand");
+            comp.autoView("LIG");
         });
 
         stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
