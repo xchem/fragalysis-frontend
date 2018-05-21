@@ -152,7 +152,7 @@ class SummaryView extends React.Component{
                     <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
-                    <h3>Times clicked: {this.props.hotCounter}</h3>
+                    <h3>Times clicked: {this.state.hotCounter}</h3>
                     <Button bsSize="large" onClick={this.state.hotCounter}>clickme</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                 </Col>
@@ -177,7 +177,7 @@ function mapStateToProps(state) {
       vector_list: state.selectionReducers.vector_list,
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
-      counter: state.selectionReducers.hotCounter
+      hotCounter: state.selectionReducers.hotCounter
   }
 }
 
@@ -187,7 +187,7 @@ const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject,
-    counter: selectionActions.hotCounter
+    hotCounter: selectionActions.hotCounter
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
