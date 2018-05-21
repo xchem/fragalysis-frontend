@@ -182,12 +182,11 @@ function mapStateToProps(state) {
 }
 
 
-
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject,
-    hot_Counter: selectionActions.hotCounter
+    hot_Counter: selectionActions.CounterAdd
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
