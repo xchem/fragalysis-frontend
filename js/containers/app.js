@@ -30,7 +30,7 @@ class App extends Component {
     render() {
       return  (
       <div id="outer-container">
-          <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } /> START HERE
+          <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } /> BEGIN HERE
           <LoadingBar />
           <Grid fluid id="page-wrap">
               <Header/>
