@@ -10,7 +10,7 @@ const INITIALSTATE = {
     this_vector_list: {},
     querying: false,
     to_query: undefined,
-    counter: 0
+    hotcounter: 0
 }
 
 export default function selectionReducers(state = INITIALSTATE, action) {
