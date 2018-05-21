@@ -92,8 +92,9 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
         case actions.COUNTER:
             var counter = state.counter
+            counter += 1
             return Object.assign({}, state, {
-                counter += 1
+                counter: counter
             });
 
 
