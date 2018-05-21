@@ -9,7 +9,7 @@ const INITIALSTATE = {
     vector_list: [],
     this_vector_list: {},
     querying: false,
-    to_query: undefined
+    to_query: undefined,
     counter: 0
 }
 
