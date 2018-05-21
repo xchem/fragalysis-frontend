@@ -95,7 +95,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             hotCounter += 1
             return Object.assign({}, state, {
                 hotCounter: hotCounter
-            });
+            })
 
 
         // Cases like: @@redux/INIT
