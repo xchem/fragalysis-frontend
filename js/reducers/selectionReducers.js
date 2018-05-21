@@ -90,11 +90,11 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 this_vector_list: this_vector_list
             });
 
-        case actions.COUNTER:
-            var counter = state.counter
-            counter += 1
+        case actions.HOT_COUNTER:
+            var hotCounter = state.hotCounter
+            hotCounter += 1
             return Object.assign({}, state, {
-                counter: counter
+                hotCounter: hotCounter
             });
 
 
