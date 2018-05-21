@@ -186,7 +186,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
-    loadObject: nglLoadActions.loadObject
+    loadObject: nglLoadActions.loadObject,
     counter: selectionActions.counter
 }
 
