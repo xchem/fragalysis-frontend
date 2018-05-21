@@ -15,7 +15,7 @@ export const setToBuyList = function (to_buy_list){
 export const counter = function (){
     console.log("ACTIONS: counter")
     return {
-        type: COUNTER,
+        type: COUNTER
     }
 }
 
