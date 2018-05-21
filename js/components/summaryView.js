@@ -187,7 +187,7 @@ const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject,
-    counter: selectionActions.hot_Counter
+    counter: selectionActions.hotCounter
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
