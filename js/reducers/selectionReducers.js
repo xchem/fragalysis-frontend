@@ -10,6 +10,7 @@ const INITIALSTATE = {
     this_vector_list: {},
     querying: false,
     to_query: undefined
+    counter: 0
 }
 
 export default function selectionReducers(state = INITIALSTATE, action) {
@@ -88,6 +89,12 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             return  Object.assign({}, state, {
                 this_vector_list: this_vector_list
             });
+
+        case actions.COUNTER:
+            return Object.assign({}, state, {
+                counter += 1,
+            });
+
 
         // Cases like: @@redux/INIT
         default:
