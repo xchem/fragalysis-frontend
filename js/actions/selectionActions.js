@@ -2,20 +2,13 @@
  * Created by abradley on 15/03/2018.
  */
 
-import {SET_TO_BUY_LIST, APPEND_TO_BUY_LIST, REMOVE_FROM_TO_BUY_LIST, GET_FULL_GRAPH, GOT_FULL_GRAPH, SET_VECTOR_LIST, SELECT_VECTOR, SET_MOL, COUNTER_ADD} from './actonTypes'
+import {SET_TO_BUY_LIST, APPEND_TO_BUY_LIST, REMOVE_FROM_TO_BUY_LIST, GET_FULL_GRAPH, GOT_FULL_GRAPH, SET_VECTOR_LIST, SELECT_VECTOR, SET_MOL} from './actonTypes'
 
 export const setToBuyList = function (to_buy_list){
     console.log("ACTIONS: "+ to_buy_list)
     return {
         type: SET_TO_BUY_LIST,
         to_buy_list: to_buy_list
-    }
-}
-
-export const CounterAdd = function (){
-    console.log("ACTIONS: counter")
-    return {
-        type: COUNTER_ADD,
     }
 }
 
