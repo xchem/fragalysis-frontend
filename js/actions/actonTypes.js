@@ -53,3 +53,5 @@ export const SELECT_VECTOR = 'SELECT_VECTOR';
 export const SET_MOL = 'SET_MOL';
 export const SET_VECTOR_LIST = 'SET_VECTOR_LIST';
 export const SET_ORIENTATION = 'SET_ORIENTATION';
+// State broadcast
+export const STATE_ALERT = 'STATE_ALERT';

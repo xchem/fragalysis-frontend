@@ -9,6 +9,7 @@ import * as nglLoadActions from '../actions/nglLoadActions'
 import * as apiActions from '../actions/apiActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
+import stateAlert from '../actions/stateActions'
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -24,7 +25,7 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Group type? <b>{this.props.group_type}</b></h3>
                     <h3>Molecule list?</h3>
-                    <Button bsSize="large" bsStyle="success" onClick={alert("I am an alert box!")}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.stateAlert}>Display State</Button>
                 </Col>
                 </Row>
             </Well>
@@ -50,7 +51,8 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
-    loadObject: nglLoadActions.loadObject
+    loadObject: nglLoadActions.loadObject,
+    stateAlert: stateActions.stateAlert
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
