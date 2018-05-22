@@ -22,8 +22,8 @@ class SummaryView extends React.Component{
                 <Col xs={6} md={6}>
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
-                    <h3>Target id? <b>{this.props.target_id}</b></h3>
-                    <h3>Project id? <b>{this.props.project_id}</b></h3>
+                    <h3>Group type? <b>{this.props.group_type}</b></h3>
+                    <h3>Mol Group List? <b>{this.props.mol_group_list}</b></h3>
                     <Button bsSize="large" bsStyle="success">Display State</Button>
                 </Col>
                 </Row>
@@ -40,8 +40,8 @@ function mapStateToProps(state) {
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
       target_on: state.apiReducers.target_on,
-      target_id: state.apiReducers.target_id,
-      project_id: state.apiReducers.project_id
+      group_type: state.apiReducers.group_type,
+      mol_group_list: state.apiReducers.mol_group_list
   }
 }
 
