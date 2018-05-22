@@ -24,6 +24,9 @@ class SummaryView extends React.Component{
                 <Row>
                     <h3>Target: {this.props.target_on}</h3>
                 </Row>
+                <Row>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.display_state}>Display State</Button>
+                </Row>
             </Well>
         </div>
     }
@@ -42,6 +45,7 @@ function mapStateToProps(state) {
 
 
 const mapDispatchToProps = {
+    display_state: state.displayStateReducers.display_state
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
