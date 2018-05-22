@@ -35,7 +35,7 @@ class Preview extends Component {
               <Col xs={4} md={4}>
                   <SummaryView />
               </Col>
-              <Col xs={4} md={4}>
+              <Col xs={3} md={3}>
                   <CurrentState />
               </Col>
           </Row>
