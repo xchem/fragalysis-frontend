@@ -23,7 +23,7 @@ class SummaryView extends React.Component{
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Group type? <b>{this.props.group_type}</b></h3>
-                    <h3>Pandda Site? <b>{this.props.pandda_site_id}</b></h3>
+                    <h3>Pandda Site? <b>{this.props.pandda_site_list}</b></h3>
                     <Button bsSize="large" bsStyle="success">Display State</Button>
                 </Col>
                 </Row>
@@ -41,7 +41,7 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.to_query,
       target_on: state.apiReducers.target_on,
       group_type: state.apiReducers.group_type,
-      pandda_site_id: state.apiReducers.pandda_site_id
+      pandda_site_list: state.apiReducers.pandda_site_list
   }
 }
 
