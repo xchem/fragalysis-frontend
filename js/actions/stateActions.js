@@ -13,6 +13,7 @@ export const stateAlert = function (){
 
 export const stateSpecify = function (){
     console.log("ACTIONS: user inserting state")
+    prompt("What state would you like to return to?");
     return {
         type: STATE_SPECIFY
     }
