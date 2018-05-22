@@ -13,7 +13,6 @@ import SummaryCmpd from './SummaryCmpd';
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
-        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
     }
 
     render(){
@@ -22,7 +21,7 @@ class SummaryView extends React.Component{
                 <Row>
                 <Col xs={6} md={6}>
                     <h3><b>Current State:</b></h3>
-                    <h3>Target on? <b>{this.state}</b></h3>
+                    <h3>Target on? <b>{this.props.target_id}</b></h3>
                     <Button bsSize="large" bsStyle="success">Export to CSV</Button>
                 </Col>
                 </Row>
