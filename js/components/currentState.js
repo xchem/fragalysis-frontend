@@ -20,6 +20,7 @@ class SummaryView extends React.Component{
             <Well>
                 <Row>
                     <h3><b>Current State:</b></h3>
+                    <h3>Objects In View: {this.props.object_in_view}</h3>
                 </Row>
             </Well>
         </div>
@@ -33,6 +34,7 @@ function mapStateToProps(state) {
       vector_list: state.selectionReducers.vector_list,
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
+      object_in_view: state.nglReducers.object_in_view
   }
 }
 
