@@ -48,7 +48,7 @@ function mapStateToProps(state) {
 
 
 const mapDispatchToProps = {
-    display_state: state.displayStateReducers.display_state
+//    display_state: state.displayStateReducers.display_state
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
