@@ -22,7 +22,7 @@ class SummaryView extends React.Component{
                     <h3><b>Current State: </b></h3>
                 </Row>
                 <Row>
-                    <h3>Objects In View: {this.props.object_in_view}</h3>
+                    <h3>Objects In View: {this.object_in_view}</h3>
                 </Row>
             </Well>
         </div>
