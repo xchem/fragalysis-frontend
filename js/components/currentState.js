@@ -19,7 +19,7 @@ class SummaryView extends React.Component{
         return <div>
             <Well>
                 <Row>
-                    <h3><b>Current State: \n</b></h3>
+                    <h3><b>Current State: /n</b></h3>
                     <h3>Objects In View: {this.props.object_in_view}</h3>
                 </Row>
             </Well>
