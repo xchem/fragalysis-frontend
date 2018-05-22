@@ -24,7 +24,7 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Group type? <b>{this.props.group_type}</b></h3>
                     <h3>Molecule list?</h3>
-                    <Button bsSize="large" bsStyle="success">Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick=alert("I am an alert box!")>Display State</Button>
                 </Col>
                 </Row>
             </Well>
