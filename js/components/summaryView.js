@@ -174,15 +174,16 @@ function mapStateToProps(state) {
       this_vector_list: state.selectionReducers.this_vector_list,
       vector_list: state.selectionReducers.vector_list,
       querying: state.selectionReducers.querying,
-      to_query: state.selectionReducers.to_query,
+      to_query: state.selectionReducers.to_query
   }
 }
+
 
 
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
-    loadObject: nglLoadActions.loadObject,
+    loadObject: nglLoadActions.loadObject
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
