@@ -22,7 +22,7 @@ class SummaryView extends React.Component{
                 <Row>
                 <Col xs={6} md={6}>
                     <h3><b>Current State:</b></h3>
-                    <h3>Target on? <b>{this.target_on}</b></h3>
+                    <h3>Target on? <b>{this.props.target_id}</b></h3>
                     <Button bsSize="large" bsStyle="success">Export to CSV</Button>
                 </Col>
                 </Row>
@@ -38,7 +38,7 @@ function mapStateToProps(state) {
       vector_list: state.selectionReducers.vector_list,
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
-      target_on: state.apiReducers.target_on
+      target_id: state.apiReducers.target_id
   }
 }
 
