@@ -24,7 +24,6 @@ class SummaryView extends React.Component{
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Group type? <b>{this.props.group_type}</b></h3>
-                    <h3>Molecule list?</h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.stateAlert}>Display State</Button>
                 </Col>
                 </Row>
