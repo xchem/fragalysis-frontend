@@ -9,7 +9,6 @@ import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
-import CurrentState from '../components/currentState';
 
 
 class Preview extends Component {
@@ -34,9 +33,6 @@ class Preview extends Component {
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
-              </Col>
-              <Col xs={3} md={3}>
-                  <CurrentState />
               </Col>
           </Row>
       )
