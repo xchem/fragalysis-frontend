@@ -21,10 +21,10 @@ class SummaryView extends React.Component{
                 <Row>
                     <h3><b>Current State: </b></h3>
                 </Row>
-                <Row>
+/*                <Row>
                     <h3>Target: {this.props.target_on}</h3>
                 </Row>
-/*                <Row>
+                <Row>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.display_state}>Display State</Button>
                 </Row>
                 <Row>
