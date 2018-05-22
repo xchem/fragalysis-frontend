@@ -13,14 +13,13 @@ import SummaryCmpd from './SummaryCmpd';
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
-        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
     }
 
     render(){
         return <div>
             <Well>
                 <Row>
-                    <h3><b>Current State:</b></h3>
+                    <h3><b>"Current State:"</b></h3>
                 </Row>
             </Well>
         </div>
