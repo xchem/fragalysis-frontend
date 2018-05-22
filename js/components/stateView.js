@@ -9,7 +9,7 @@ import * as nglLoadActions from '../actions/nglLoadActions'
 import * as apiActions from '../actions/apiActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
-import stateAlert from '../actions/stateActions'
+import * as stateActions from '../actions/stateActions'
 
 class SummaryView extends React.Component{
     constructor(props) {
