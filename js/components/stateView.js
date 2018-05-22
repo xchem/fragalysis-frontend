@@ -41,7 +41,7 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.to_query,
       target_on: state.apiReducers.target_on,
       group_type: state.apiReducers.group_type,
-      pandda_site_list: state.apiReducers.pandda_site_list
+      ObjectsInView: state.apiReducers.ObjectsInView
   }
 }
 
@@ -50,7 +50,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
-    loadObject: nglLoadActions.loadObject
+    ObjectsInView: nglLoadActions.ObjectsInView
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
