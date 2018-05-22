@@ -16,12 +16,12 @@ class SummaryView extends React.Component{
     }
 
     render(){
-        return <div>
+/*        return <div>
             <Well>
                 <Row>
                     <h3><b>Current State: </b></h3>
                 </Row>
-/*                <Row>
+                <Row>
                     <h3>Target: {this.props.target_on}</h3>
                 </Row>
                 <Row>
@@ -30,20 +30,20 @@ class SummaryView extends React.Component{
                 <Row>
                      <Button type="button" className={classes.modalButton} onClick={() => this.handleLoadState()}>Load State</Button>
                 </Row>
-*/            </Well>
+            </Well>
         </div>
-    }
+*/    }
 }
 function mapStateToProps(state) {
   return {
-      to_buy_list: state.selectionReducers.to_buy_list,
+/*      to_buy_list: state.selectionReducers.to_buy_list,
       to_select: state.selectionReducers.to_select,
       this_vector_list: state.selectionReducers.this_vector_list,
       vector_list: state.selectionReducers.vector_list,
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
       target_on: state.apiReducers.target_on
-  }
+*/  }
 }
 
 
