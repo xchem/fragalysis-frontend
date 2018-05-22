@@ -5,9 +5,16 @@
 import {STATE_ALERT} from './actonTypes'
 
 export const stateAlert = function (){
-    console.log("ACTIONS: state alert")
+    console.log("ACTIONS: user extracting state")
     return {
-        type: STATE_ALERT,
+        type: STATE_ALERT
+    }
+}
+
+export const stateSpecify = function (){
+    console.log("ACTIONS: user inserting state")
+    return {
+        type: STATE_SPECIFY
     }
 }
 

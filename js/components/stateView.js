@@ -25,6 +25,7 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Group type? <b>{this.props.group_type}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.stateAlert}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.stateSpecify}>Specify State</Button>
                 </Col>
                 </Row>
             </Well>
@@ -51,7 +52,8 @@ const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,
     loadObject: nglLoadActions.loadObject,
-    stateAlert: stateActions.stateAlert
+    stateAlert: stateActions.stateAlert,
+    stateSpecify: stateActions.stateSpecify
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);

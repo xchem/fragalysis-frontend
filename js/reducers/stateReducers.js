@@ -17,7 +17,12 @@ export default function stateReducers(state = INITIALSTATE, action) {
         case actions.STATE_ALERT:
             return Object.assign({}, state, {
                 alert(state);
-            });
+            })
+
+        case actions.STATE_SPECIFY:
+            return Object.assign({}, state, {
+                prompt("What state would you like to return to?");
+            })
 
         // Cases like: @@redux/INIT
         default:
