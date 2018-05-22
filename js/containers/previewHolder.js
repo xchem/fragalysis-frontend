@@ -23,7 +23,6 @@ class Preview extends Component {
           <Row >
               <Col xs={0} md={0}>
                   <MolGroupList />
-                  <CurrentState />
               </Col>
               <Col xs={3} md={3}>
                   <NGLView div_id="summary_view" height="200px"/>
@@ -35,6 +34,9 @@ class Preview extends Component {
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
+              </Col>
+              <Col xs={3} md={3}>
+                  <CurrentState />
               </Col>
           </Row>
       )
