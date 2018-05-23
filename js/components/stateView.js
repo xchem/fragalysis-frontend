@@ -20,7 +20,7 @@ class SummaryView extends React.Component{
 
 
     handleStateExport(){
-        var stateToSave = this.props.objects_in_view);
+        var stateToSave = this.props.objects_in_view;
         var encodedUri = encodeURI(StateToSave);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
