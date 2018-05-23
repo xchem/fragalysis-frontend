@@ -20,7 +20,13 @@ class SummaryView extends React.Component{
 
 
     handleStateExport(){
-        alert("copy this to store state:\n" + this.props.objects_in_view);
+        var stateToSave = this.props.objects_in_view);
+        var encodedUri = encodeURI(StateToSave);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "savedState.json");
+        document.body.appendChild(link); // Required for FF
+        link.click();
     }
 
     handleStateImport(){
