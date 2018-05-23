@@ -27,7 +27,7 @@ export default function stateReducers(state = INITIALSTATE, action) {
             })
 
         case actions.STATE_SPECIFY:
-            console.log("What state would you like to return to?");
+            alert("What state would you like to return to?");
             return Object.assign({}, state, {
             })
 
