@@ -23,8 +23,8 @@ class SummaryView extends React.Component{
                 <Col xs={6} md={6}>
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
-                    <h3>Objects in view? <b>{toString(this.props.objects_in_view)}</b></h3>
-                    <h3>Objects to load? <b>{toString(this.props.objects_to_load)}</b></h3>
+                    <h3>Objects in view? <b>{this.props.objects_in_view}</b></h3>
+                    <h3>Objects to load? <b>{this.props.objects_to_load}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.stateAlert}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.stateSpecify}>Specify State</Button>
                 </Col>
