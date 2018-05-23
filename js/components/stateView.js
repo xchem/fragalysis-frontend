@@ -58,6 +58,7 @@ class SummaryView extends React.Component{
                 <Col xs={6} md={6}>
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
+                    <h3>Water? <b>{this.props.water}</b></h3>
                     <h3>Objects in view? <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <h3>Objects to load? <b>{JSON.stringify(this.props.objects_to_load)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateExport}>Display State</Button>
@@ -79,7 +80,8 @@ function mapStateToProps(state) {
       target_on: state.apiReducers.target_on,
       group_type: state.apiReducers.group_type,
       objects_in_view: state.nglReducers.objectsInView,
-      objects_to_load: state.nglReducers.objectsToLoad
+      objects_to_load: state.nglReducers.objectsToLoad,
+      water: state.nglReducers.water,
   }
 }
 
