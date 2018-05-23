@@ -35,7 +35,7 @@ class SummaryView extends React.Component{
         let jsonContent = "data:text/csv;charset=utf-8,";
         rows.forEach(function(rowArray){
             let row = rowArray.join(",");
-            csvContent += row + "\r\n";
+            jsonContent += row + "\r\n";
         });
         var encodedUri = encodeURI(jsonContent);
         var link = document.createElement("a");
