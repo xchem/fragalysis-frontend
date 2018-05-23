@@ -1,5 +1,5 @@
 /**
- * Created by abradley on 15/03/2018.
+ * Created by rgillams on 22/05/2018.
  */
 import React from 'react';
 import { connect } from 'react-redux'
@@ -14,6 +14,11 @@ import * as stateActions from '../actions/stateActions'
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
+        this.handleStateExport = this.handleStateExport.bind(this);
+    }
+
+    handleStateExport(){
+        alert(this.props.objects_in_view);
     }
 
     render(){
@@ -26,7 +31,7 @@ class SummaryView extends React.Component{
                     <h3>Objects in view? <b>{this.props.objects_in_view.length}</b></h3>
                     <h3>Objects to load? <b>{this.props.objects_to_load.length}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={alert(this.props.objects_in_view)}>Display State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.props.stateSpecify}>Specify State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateExport}>Specify State</Button>
                 </Col>
                 </Row>
             </Well>
