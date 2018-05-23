@@ -27,10 +27,8 @@ export default function stateReducers(state = INITIALSTATE, action) {
             })
 
         case actions.STATE_SPECIFY:
-            alert("What state would you like to return to?");
             return Object.assign({}, state, {
             })
-
         // Cases like: @@redux/INIT
         default:
             return state;
