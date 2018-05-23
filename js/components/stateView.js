@@ -20,7 +20,7 @@ class SummaryView extends React.Component{
 
 
     handleStateExport(){
-        var encodedUri = encodeURI(this.props.objects_in_view);
+        var encodedUri = encodeURI(String(this.props.objects_in_view));
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "savedState.json");
