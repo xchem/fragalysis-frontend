@@ -86,9 +86,10 @@ export class NGLView extends React.Component {
         window.addEventListener("resize", function (event) {
            local_stage.handleResize();
         }, false);
-        this.renderDisplay();
-        setInterval(this.renderDisplay,this.interval)
         this.stage.mouseControls.add("clickPick-left",this.showPick);
+    }
+    componentDidUpdate() {
+        this.renderDisplay();
     }
 
     showSphere(stage,input_dict,object_name){
