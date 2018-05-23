@@ -24,7 +24,8 @@ class SummaryView extends React.Component{
     }
 
     handleStateImport(){
-        prompt("Please insert state here:")
+        var insertedState = prompt("Please insert state here:");
+        return insertedState;
     }
 
         render(){
@@ -35,7 +36,7 @@ class SummaryView extends React.Component{
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Objects in view? <b>{this.props.objects_in_view.length}</b></h3>
-                    <h3>Objects to load? <b>{this.props.objects_to_load.length}</b></h3>
+                    <h3>Objects to load? <b>{this.handleStateimport()}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateExport}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
                 </Col>
