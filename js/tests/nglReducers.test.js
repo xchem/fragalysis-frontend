@@ -97,7 +97,7 @@ describe('NGL reducer', () => {
     })
     it('should handle DELETE_OBJECT_FAILURE', () => {
     expect(nglReducers(TEST_DEL_ONE_STATE, {
-        type: types.DELETE_OBJECT_SUCCESS,
+        type: types.DELETE_OBJECT_FAILURE,
         group:  TEST_OBJ_ONE
       })
     ).toEqual(
