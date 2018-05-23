@@ -18,9 +18,26 @@ class SummaryView extends React.Component{
         this.handleStateImport = this.handleStateImport.bind(this);
     }
 
+    convert_data_to_list(input_list){
+        var outArray = new Array();
+        var headerArray = ["smiles"];
+        outArray.push(headerArray)
+        for(var item in input_list){
+            var newArray = new Array();
+            newArray.push(input_list[item].smiles)
+            outArray.push(newArray)
+        }
+        return outArray;
+    }
 
     handleStateExport(){
-        var encodedUri = encodeURI(String(this.props.objects_in_view.length) + "a test string");
+        const rows = this.convert_data_to_list(this.props.objects_in_view);
+        let jsonContent = "data:text/csv;charset=utf-8,";
+        rows.forEach(function(rowArray){
+            let row = rowArray.join(",");
+            csvContent += row + "\r\n";
+        });
+        var encodedUri = encodeURI(jsonContent) + "a test string");
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "savedState.json");

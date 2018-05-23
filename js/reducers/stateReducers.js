@@ -21,7 +21,6 @@ export default function stateReducers(state = INITIALSTATE, action) {
             var objectsInView = state.objectsInView
             return Object.assign({}, state, {
                 objectsInView: objectsInView
-            return Object.assign({}, state, {
             })
 
         case actions.STATE_SPECIFY:
@@ -29,7 +28,7 @@ export default function stateReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 objectsToLoad: objectsToLoad
             })
-        // Cases like: @@redux/INIT
+
         default:
             return state;
     }
