@@ -37,7 +37,7 @@ class SummaryView extends React.Component{
             let row = rowArray.join(",");
             csvContent += row + "\r\n";
         });
-        var encodedUri = encodeURI(jsonContent) + "a test string");
+        var encodedUri = encodeURI(jsonContent);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "savedState.json");
