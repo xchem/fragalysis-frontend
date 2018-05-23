@@ -48,8 +48,6 @@ function mapStateToProps(state) {
   }
 }
 
-
-
 const mapDispatchToProps = {
     stateAlert: stateActions.stateAlert,
     stateSpecify: stateActions.stateSpecify
