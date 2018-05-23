@@ -27,8 +27,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
             
         case actions.LOAD_OBJECT:
             // Append the input to objectsToLoad list
-            var objectsToLoad = state.objectsToLoad
-            var objectsInView = state.objectsInView
+            var objectsToLoad = Object.assign({},{},state.objectsToLoad)
+            var objectsInView = Object.assign({},{},state.objectsInView)
             if (action.group.name in objectsInView){
             }
             else{
@@ -41,10 +41,10 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
         case actions.LOAD_OBJECT_SUCCESS:
             // Remove from objectsLoading List
-            var objectsLoading = state.objectsLoading
+            var objectsLoading = Object.assign({},{},state.objectsLoading)
             delete objectsLoading[action.group.name]
             // Add to Objects in view list
-            var objectsInView = state.objectsInView
+            var objectsInView = Object.assign({},{},state.objectsInView)
             objectsInView[action.group.name]=action.group
             return Object.assign({}, state, {
                 objectsInView: objectsInView,
@@ -59,7 +59,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
         
         case actions.DELETE_OBJECT:
             // Append the input to objectsToDelete list
-            var objectsToDelete = state.objectsToDelete
+            var objectsToDelete = Object.assign({},{},state.objectsToDelete)
             // Add to the list to delete if not
             objectsToDelete[action.group.name]=action.group
             return Object.assign({}, state, {
@@ -67,10 +67,10 @@ export default function nglReducers(state = INITIALSTATE, action) {
         });
 
         case actions.OBJECT_LOADING:
-            var objectsToLoad = state.objectsToLoad
+            var objectsToLoad = Object.assign({},{},state.objectsToLoad)
             delete objectsToLoad[action.group.name]
             // Add to Objects in view list
-            var objectsLoading = state.objectsLoading
+            var objectsLoading = Object.assign({},{},state.objectsLoading)
             objectsLoading[action.group.name]=action.group
             return Object.assign({}, state, {
                 objectsToLoad:objectsToLoad,
@@ -79,10 +79,10 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
         case actions.DELETE_OBJECT_SUCCESS:
             // Remove from objectsToDelete list
-            var objectsToDelete = state.objectsToDelete
+            var objectsToDelete = Object.assign({},{},state.objectsToDelete)
             delete objectsToDelete[action.group.name]
             // Remove from ObjecsIn view list
-            var objectsInView = state.objectsInView
+            var objectsInView = Object.assign({},{},state.objectsInView)
             delete objectsInView[action.group.name]
             return Object.assign({}, state, {
                 objectsToDelete:objectsToDelete,
@@ -91,8 +91,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
         case actions.DELETE_OBJECT_TYPE:
             console.log("DELETING OBJECT OF TYPE - "+action.object_type)
-            var objectsToDelete = state.objectsToDelete
-            var objectsInView = state.objectsInView
+            var objectsToDelete = Object.assign({},{},state.objectsToDelete)
+            var objectsInView = Object.assign({},{},state.objectsInView)
             for (var key in objectsInView){
                 if(key.split("_")[0]==action.object_type){
                    objectsToDelete[key] = objectsInView[key]
