@@ -20,7 +20,7 @@ class SummaryView extends React.Component{
 
 
     handleStateExport(){
-        alert("copy this to store state:\n"this.props.objects_in_view);
+        alert("copy this to store state:\n" + this.props.objects_in_view);
     }
 
     handleStateImport(){
