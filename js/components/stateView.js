@@ -25,7 +25,7 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Objects in view? <b>{this.props.objects_in_view.length}</b></h3>
                     <h3>Objects to load? <b>{this.props.objects_to_load.length}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={alert(this.props.target_on)}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={alert(this.props.objects_in_view)}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.stateSpecify}>Specify State</Button>
                 </Col>
                 </Row>
