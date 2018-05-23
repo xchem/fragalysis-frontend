@@ -51,9 +51,6 @@ function mapStateToProps(state) {
 
 
 const mapDispatchToProps = {
-    appendToBuyList: selectionActions.appendToBuyList,
-    selectVector: selectionActions.selectVector,
-    loadObject: nglLoadActions.loadObject,
     stateAlert: stateActions.stateAlert,
     stateSpecify: stateActions.stateSpecify
 }
