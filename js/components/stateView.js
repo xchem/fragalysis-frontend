@@ -15,15 +15,16 @@ class SummaryView extends React.Component{
     constructor(props) {
         super(props);
         this.handleStateExport = this.handleStateExport.bind(this);
+        this.handleStateImport = this.handleStateImport.bind(this);
     }
 
 
     handleStateExport(){
-        alert(this.props.objects_in_view);
+        alert("copy this to store state:\n"this.props.objects_in_view);
     }
 
     handleStateImport(){
-        prompt("Please insert state hers:")
+        prompt("Please insert state here:")
     }
 
         render(){
