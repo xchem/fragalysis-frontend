@@ -18,22 +18,21 @@ class SummaryView extends React.Component{
         this.handleStateImport = this.handleStateImport.bind(this);
     }
 
-        convert_state_to_template(input_json) {
-            var outputArray = {uuid: UUID, title: TITLE, scene : JSON_OF_SCENE}
-            outputArray.scene = input_json;
-            return outputArray;
-        }
+    convert_state_to_template(input_json) {
+        var outputArray = {uuid: UUID, title: TITLE, scene : JSON_OF_SCENE}
+        outputArray.scene = input_json;
+        return outputArray;
+    }
 
     handleExport() {
-        var content = JSON.stringify(this.convert_state_to_template(this.props.objects_in_view));
-        var encodedUri = encodeURI(content);
+        var content = this.convert_state_to_template(this.props.objects_in_view);
+        var encodedUri = encodeURI(JSON.stringify(content));
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "follow_ups.csv");
         document.body.appendChild(link); // Required for FF
         link.click();
     }
-
 
     handleStateExport(){
         var jsonNglState = JSON.stringify(this.props.objects_in_view);
