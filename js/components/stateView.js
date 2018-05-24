@@ -31,12 +31,7 @@ class SummaryView extends React.Component{
     }
 
     handleStateExport(){
-        const rows = this.convert_data_to_list(JSON.stringify(Object.keys{this.props.objects_in_view}));
-        let jsonContent = "data:text/csv;charset=utf-8,";
-        rows.forEach(function(rowArray){
-            let row = rowArray.join(",");
-            jsonContent += row + "\r\n";
-        });
+        jsonContent = JSON.stringify(Object.keys{this.props.objects_in_view});
         var encodedUri = encodeURI(jsonContent);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
