@@ -19,6 +19,7 @@ class SummaryView extends React.Component{
     }
 
     convert_data_to_list(input_list){
+        let data
         var outArray = new Array();
         var headerArray = ["smiles"];
         outArray.push(headerArray)
@@ -31,7 +32,8 @@ class SummaryView extends React.Component{
     }
 
     handleStateExport(){
-        var encodedUri = encodeURI(Object.keys{this.props.objects_in_view}.toString());
+        jsonNglState = JSON.stringify(this.props.objects_in_view);
+        var encodedUri = encodeURI(jsonNglState);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "savedState.json");
@@ -53,8 +55,8 @@ class SummaryView extends React.Component{
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Water? <b>{this.props.water.toString()}</b></h3>
-                    <h3>Objects in view? <b>{Object.keys(this.props.objects_in_view).toString()}</b></h3>
-                    <h3>Objects to load? <b>{this.props.objects_to_load.length}</b></h3>
+                    <h3>Objects in view? <b>{Object.keys(this.props.objects_in_view)}</b></h3>
+                    <h3>Objects to load? <b>{Object.keys(this.props.objects_to_load.length}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateExport}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
                 </Col>
