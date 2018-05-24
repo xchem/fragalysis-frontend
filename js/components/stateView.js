@@ -18,13 +18,14 @@ class SummaryView extends React.Component{
         this.handleStateImport = this.handleStateImport.bind(this);
     }
 
-        convert_state_to_template(input_json){
-        var outputArray = ["uuid": UUID,
+        convert_state_to_template(input_json) {
+            var outputArray = Array[
+                "uuid": UUID,
                 "title": TITLE,
-                "scene": JSON_OF_SCENE];
-        outputArray.scene = input_json;
+                "scene": JSON_OF_SCENE]
+            outputArray.scene = input_json;
+            return outputArray;
         }
-        return outputArray;
 
     handleExport() {
         var content = JSON.stringify(this.convert_state_to_template(this.props.objects_in_view));
