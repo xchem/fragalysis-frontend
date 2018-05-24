@@ -20,7 +20,7 @@ class SummaryView extends React.Component{
 
     convert_state_to_template(input_json) {
         var templateOut = {uuid: "UUID", title: "TITLE", scene : "JSON_OF_SCENE"}
-        templateOut.scene = input_json;
+//        templateOut.scene = input_json;
         return templateOut;
     }
 
@@ -78,10 +78,8 @@ function mapStateToProps(state) {
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
       target_on: state.apiReducers.target_on,
-      group_type: state.apiReducers.group_type,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
-      water: state.nglReducers.water,
   }
 }
 
