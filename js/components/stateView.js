@@ -18,21 +18,8 @@ class SummaryView extends React.Component{
         this.handleStateImport = this.handleStateImport.bind(this);
     }
 
-    convert_data_to_list(input_list){
-        let data
-        var outArray = new Array();
-        var headerArray = ["smiles"];
-        outArray.push(headerArray)
-        for(var item in input_list){
-            var newArray = new Array();
-            newArray.push(input_list[item].smiles)
-            outArray.push(newArray)
-        }
-        return outArray;
-    }
-
     handleStateExport(){
-        jsonNglState = JSON.stringify(this.props.objects_in_view);
+        var jsonNglState = JSON.stringify(this.props.objects_in_view);
         var encodedUri = encodeURI(jsonNglState);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
