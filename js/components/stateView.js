@@ -19,7 +19,7 @@ class SummaryView extends React.Component{
     }
 
     convert_state_to_template(input_json) {
-        var outputArray = {uuid: "UUID", title: "TITLE", scene : "JSON_OF_SCENE"}
+        var outputArray = [uuid: "UUID", title: "TITLE", scene : "JSON_OF_SCENE"]
         outputArray.scene = input_json;
         return outputArray;
     }
