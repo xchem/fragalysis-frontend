@@ -24,7 +24,7 @@ class SummaryView extends React.Component{
         return templateOut;
     }
 
-    handleExport() {
+/*    handleExport() {
         var content = this.convert_state_to_template(this.props.objects_in_view);
         var encodedUri = encodeURI(JSON.stringify(content));
         var link = document.createElement("a");
@@ -33,7 +33,7 @@ class SummaryView extends React.Component{
         document.body.appendChild(link); // Required for FF
         link.click();
     }
-
+*/
     handleStateExport(){
         var jsonNglState = JSON.stringify(this.props.objects_in_view);
         var encodedUri = encodeURI(jsonNglState);
