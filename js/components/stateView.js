@@ -18,6 +18,31 @@ class SummaryView extends React.Component{
         this.handleStateImport = this.handleStateImport.bind(this);
     }
 
+        convert_state_to_template(input_json){
+        var outputArray = ["uuid": UUID,
+                "title": TITLE,
+                "scene": JSON_OF_SCENE];
+        outputArray.scene = input_json;
+        }
+        return outputArray;
+    }
+
+    handleExport() {
+        const rows = this.convert_state_to_template(this.props.objects_in_view);
+        let csvContent = "data:text/csv;charset=utf-8,";
+        rows.forEach(function (rowArray) {
+            let row = rowArray.join(",");
+            csvContent += row + "\r\n";
+        });
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "follow_ups.csv");
+        document.body.appendChild(link); // Required for FF
+        link.click();
+    }
+
+
     handleStateExport(){
         var jsonNglState = JSON.stringify(this.props.objects_in_view);
         var encodedUri = encodeURI(jsonNglState);
@@ -44,7 +69,7 @@ class SummaryView extends React.Component{
                     <h3>Objects in view? <b>{Object.keys(this.props.objects_in_view)}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateExport}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
                 </Col>
                 </Row>
