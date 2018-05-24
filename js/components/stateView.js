@@ -25,16 +25,10 @@ class SummaryView extends React.Component{
         outputArray.scene = input_json;
         }
         return outputArray;
-    }
 
     handleExport() {
-        const rows = this.convert_state_to_template(this.props.objects_in_view);
-        let csvContent = "data:text/csv;charset=utf-8,";
-        rows.forEach(function (rowArray) {
-            let row = rowArray.join(",");
-            csvContent += row + "\r\n";
-        });
-        var encodedUri = encodeURI(csvContent);
+        var content = JSON.stringify(this.convert_state_to_template(this.props.objects_in_view));
+        var encodedUri = encodeURI(content);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "follow_ups.csv");
@@ -66,7 +60,7 @@ class SummaryView extends React.Component{
                 <Col xs={6} md={6}>
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
-                    <h3>Objects in view? <b>{Object.keys(this.props.objects_in_view)}</b></h3>
+                    <h3>Objects in view: <b>{Object.keys(this.props.objects_in_view)}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Display State</Button>

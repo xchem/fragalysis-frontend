@@ -45,6 +45,8 @@ class CompoundView extends GenericView {
         this.loadFromServer(this.props.width,this.props.height);
         this.checkInList();
     }
+
+    
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
