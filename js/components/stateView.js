@@ -60,7 +60,6 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Objects in view: <b>{this.props.objects_in_view}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
-                    <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.stateAlert}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
                 </Col>
