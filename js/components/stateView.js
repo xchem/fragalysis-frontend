@@ -26,13 +26,13 @@ class SummaryView extends React.Component{
     }
 
     handleExport() {
-        var content = this.convert_state_to_template(this.props.objects_in_view);
+/*        var content = this.convert_state_to_template(this.props.objects_in_view);
         var encodedUri = encodeURI(JSON.stringify(content));
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "follow_ups.csv");
         document.body.appendChild(link); // Required for FF
-        link.click();
+ */       link.click();
     }
 
     handleStateExport(){
