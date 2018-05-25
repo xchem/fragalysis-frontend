@@ -48,7 +48,7 @@ class SummaryView extends React.Component{
     handleStateImport(){
         var insertedState = prompt("Please insert state here:");
         return insertedState;
-        this.props.objects_to_load = insertedState;
+//        this.props.objects_to_load = insertedState;
     }
 
         render(){
