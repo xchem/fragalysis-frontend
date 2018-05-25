@@ -14,10 +14,10 @@ import * as stateActions from '../actions/stateActions'
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
-        this.handleStateExport = this.handleStateExport.bind(this);
+/*        this.handleStateExport = this.handleStateExport.bind(this);
         this.handleStateImport = this.handleStateImport.bind(this);
         this.handleExport = this.handleExport.bind(this);
-    }
+*/    }
 
 /*    convert_state_to_template(input_json) {
         var templateOut = {uuid: "UUID", title: "TITLE", scene : "JSON_OF_SCENE"}
