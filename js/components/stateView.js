@@ -19,21 +19,21 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
     }
 
-    convert_state_to_template(input_json) {
+/*    convert_state_to_template(input_json) {
         var templateOut = {uuid: "UUID", title: "TITLE", scene : "JSON_OF_SCENE"}
-//        templateOut.scene = input_json;
+        templateOut.scene = input_json;
         return templateOut;
     }
 
     handleExport() {
-/*        var content = this.convert_state_to_template(this.props.objects_in_view);
+        var content = this.convert_state_to_template(this.props.objects_in_view);
         var encodedUri = encodeURI(JSON.stringify(content));
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "follow_ups.csv");
         document.body.appendChild(link); // Required for FF
- */       link.click();
-    }
+        link.click();
+   }
 
     handleStateExport(){
         var jsonNglState = JSON.stringify(this.props.objects_in_view);
@@ -50,7 +50,7 @@ class SummaryView extends React.Component{
         return insertedState;
         this.props.objects_to_load = insertedState;
     }
-
+*/
         render(){
         return <div>
             <Well>
