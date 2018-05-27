@@ -23,7 +23,7 @@ class MolGroupList extends GenericList {
         return null;
     }
 
-    generateObject(data,selected=false){
+    generateObject(data, selected=false) {
         var sele = "";
         var colour = [0,0,1];
         var radius;
@@ -58,7 +58,7 @@ class MolGroupList extends GenericList {
         }
      }
 
-    afterPush(object_list){
+    afterPush(object_list) {
         if(object_list) {
             object_list.map(data => this.props.loadObject(Object.assign({display_div: "summary_view"}, this.generateObject(data))));
         }

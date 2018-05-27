@@ -4,11 +4,11 @@
 import { ListGroupItem, ListGroup, Col} from 'react-bootstrap';
 import { GenericList } from './generalComponents';
 import React from 'react';
-import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import * as listType from './listTypes'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as nglObjectTypes from '../components/nglObjectTypes'
+import { connect } from 'react-redux';
+import * as apiActions from '../actions/apiActions';
+import * as listType from './listTypes';
+import * as nglLoadActions from '../actions/nglLoadActions';
+import * as nglObjectTypes from '../components/nglObjectTypes';
 
 class TargetList extends GenericList {
     constructor(props) {
@@ -29,7 +29,7 @@ class TargetList extends GenericList {
         </ListGroupItem>
     }
 
-    checkForTargetChange(){
+    checkForTargetChange() {
         if(this.props.object_on!=this.origTarget && this.props.object_on!=undefined){
             var targetData;
             for(var index in this.props.object_list){
@@ -52,13 +52,13 @@ class TargetList extends GenericList {
         }
     }
 
-    getViewUrl(pk,get_view){
+    getViewUrl(pk, get_view) {
         var base_url = window.location.protocol + "//" + window.location.host
         base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
         return base_url
     }
 
-    generateTargetObject(targetData){
+    generateTargetObject(targetData) {
         // Now deal with this target
         var prot_to_load = targetData.protein_set[0]
         if(prot_to_load!=undefined) {
@@ -72,7 +72,7 @@ class TargetList extends GenericList {
         return undefined;
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.loadFromServer();
         setInterval(this.loadFromServer,50);
         setInterval(this.checkForTargetChange,50)
@@ -94,7 +94,7 @@ class TargetList extends GenericList {
             return (<FillMe />)
         }
     }
-};
+}
 
 
 function mapStateToProps(state) {
@@ -111,4 +111,4 @@ const mapDispatchToProps = {
     setMoleculeList: apiActions.setMoleculeList,
     setObjectList: apiActions.setTargetIdList
 }
-export default connect(mapStateToProps, mapDispatchToProps)(TargetList)
+export default connect(mapStateToProps, mapDispatchToProps)(TargetList);

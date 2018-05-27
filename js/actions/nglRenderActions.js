@@ -50,7 +50,7 @@ export const setAssemblyOptions = function (structure) {
     const options = [];
     const biomolDict = structure.biomolDict;
     if( !structure.unitcell && Object.keys( biomolDict ).length === 1 &&
-        biomolDict[ "BU1" ] && biomolDict[ "BU1" ].isIdentity( structure )
+        biomolDict.BU1 && biomolDict.BU1.isIdentity( structure )
     ) {
         // don't add an entry for "Asymmetric Unit" / "Full Structure" as
         // there is only one bioassembly with an identity transform on all chains

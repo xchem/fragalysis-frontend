@@ -14,14 +14,14 @@ class CompoundList extends React.Component {
         super(props);
     }
     render() {
-        var totArray = new Array()
+        var totArray = []
         for(var key in this.props.moleculeList){
-            var retArray = new Array();
+            var retArray = [];
             for (var ele in this.props.moleculeList[key]){
                 var input_data = {}
-                input_data["smiles"]=this.props.moleculeList[key][ele]
-                input_data["vector"]=key.split("_")[0]
-                input_data["mol"]=this.props.thisMol
+                input_data.smiles=this.props.moleculeList[key][ele]
+                input_data.vector=key.split("_")[0]
+                input_data.mol=this.props.thisMol
                 retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
             }
             totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)

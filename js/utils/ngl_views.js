@@ -13,10 +13,10 @@ class BaseNGLDisplay {
         this.prot_url = "/viewer/prot_from_pk/"
     }
 
-    run(){
+    run() {
         var inputDict = this.getInputDict();
         NProgress.start();
-        if(inputDict["toggle"]==true) {
+        if(inputDict.toggle==true) {
             this.generateObject(inputDict)
         }
         else{
@@ -25,9 +25,9 @@ class BaseNGLDisplay {
         }
     }
 
-    removeComponentByName(inputDict){
+    removeComponentByName(inputDict) {
         var local_stage = this.stage
-        var compName = inputDict["object_name"]
+        var compName = inputDict.object_name
         local_stage.eachComponent(
             function(comp){
                 if (comp.name==compName){
@@ -42,25 +42,25 @@ class BaseNGLDisplay {
 
 class ShowMolLigs extends BaseNGLDisplay {
 
-    getInputDict(){
-        var prot_id = this.mol_dict["prot_id"]
-        var mol_id = this.mol_dict["mol_id"]
-        var toggle = this.mol_dict["toggle"]
+    getInputDict() {
+        var prot_id = this.mol_dict.prot_id
+        var mol_id = this.mol_dict.mol_id
+        var toggle = this.mol_dict.toggle
         var prot_url = this.prot_url + prot_id.toString() + "/"
         var mol_url = this.mol_url + mol_id.toString() + "/"
         var object_name = mol_id.toString()+"_mol"
         return {"mol_url": mol_url, "prot_url": prot_url, "object_name":object_name, "toggle": toggle}
     }
 
-    generatePromise(input_dict){
+    generatePromise(input_dict) {
         Promise.all([
-                this.stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
-                this.stage.loadFile(input_dict["mol_url"], {ext: "sdf"}),
-                this.stage, this.focus_var, input_dict["object_name"]]
+                this.stage.loadFile(input_dict.prot_url, {ext: "pdb"}),
+                this.stage.loadFile(input_dict.mol_url, {ext: "sdf"}),
+                this.stage, this.focus_var, input_dict.object_name]
             ).then(ol => this.renderDisplay(ol));
     }
 
-    renderDisplay(ol){
+    renderDisplay(ol) {
             var cs = concatStructures(
                 ol[4],
                 ol[0].structure.getView(new Selection("not ligand")),

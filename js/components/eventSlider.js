@@ -19,7 +19,7 @@ class EventSlider extends Slider {
         this.generateEventMapObject = this.generateEventMapObject.bind(this);
     }
     
-    generateEventMapObject(data){
+    generateEventMapObject(data) {
         // Get the data
         var nglObject = {
             "name": "EVENTLOAD" + "_" + data.id.toString(),
@@ -32,7 +32,7 @@ class EventSlider extends Slider {
         return nglObject;
     }
 
-    newOption(new_value){
+    newOption(new_value) {
         for (var index in this.props.object_list){
             if(this.props.object_list[index].id==new_value){
                 // Build the map

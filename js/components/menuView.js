@@ -42,11 +42,11 @@ var styles = {
 
 
 export class MyMenu extends React.Component {
-  showSettings (event) {
+  showSettings(event) {
     event.preventDefault();
   }
 
-  render () {
+  render() {
       var menuBody = [
           <a key="HOME" id="home" className="menu-item" href="/"><i className="fa fa-fw fa-star-o" /><span>Home</span></a>,
           <a key="LOGIN" className="menu-item--small" href="/accounts/login"><i className="fa fa-fw fa-bell-o" /><span>Login</span></a>,
