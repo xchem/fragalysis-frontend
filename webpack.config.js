@@ -11,20 +11,22 @@ module.exports = {
 
   output: {
       path: path.resolve('./bundles'),
-      filename: "[name]-[hash].js.gz",
+      filename: "[name]-[hash].js",
   },
 
   plugins: [
-    new BundleTracker({
-      path: __dirname,
-      filename: 'webpack-stats.json',
-      trackAssets: true,
+    new webpack.DefinePlugin({ // <-- key to reducing React's size
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
     }),
+    new BundleTracker({filename: './webpack-stats.json'}),
+    new UglifyJsPlugin(),
     new CompressionPlugin(
         {
-          asset: "[path]",
+          asset: "[path].gz[query]",
           algorithm: "gzip",
-          deleteOriginalAssets: true,
+            deleteOriginalAssets: true,
           test: /\.js$|\.css$|\.html$/,
           threshold: 10240,
           minRatio: 0.8
