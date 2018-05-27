@@ -26,11 +26,11 @@ export class GenericList extends React.Component {
   }
 
 
-    beforePush(){
+    beforePush() {
 
     }
 
-    afterPush(data){
+    afterPush(data) {
 
     }
 
@@ -38,7 +38,7 @@ export class GenericList extends React.Component {
      * Logic to generate the url - here is the logic that connects listTypes to my API
      * @returns {URL}
      */
-    getUrl(){
+    getUrl() {
         // This should be defined by type
         var base_url = window.location.protocol + "//" + window.location.host
         // Set the version
@@ -47,38 +47,38 @@ export class GenericList extends React.Component {
         if (this.list_type==listTypes.TARGET) {
             base_url += "targets/"
             if (this.props.project_id != undefined) {
-                get_params["project_id"] = this.props.project_id
+                get_params.project_id = this.props.project_id
             }
         }
         else if (this.list_type==listTypes.MOLGROUPS) {
                 if(this.props.target_on != undefined) {
-                    get_params["target_id"] = this.props.target_on
+                    get_params.target_id = this.props.target_on
                     base_url += "molgroup/"
-                    get_params["group_type"] = this.props.group_type
+                    get_params.group_type = this.props.group_type
                 }
         }
         else if (this.list_type==listTypes.MOLECULE) {
             if (this.props.target_on != undefined && this.props.mol_group_on != undefined) {
                 // mol group choice
                 base_url += "molecules/"
-                get_params["mol_groups"] = this.props.mol_group_on
+                get_params.mol_groups = this.props.mol_group_on
             }
         }
         else if (this.list_type==listTypes.PANDDA_EVENT){
             if (this.props.target_on != undefined && this.props.pandda_site_on != undefined) {
                 // mol group choice
                 base_url += "events/"
-                get_params["target_id"] = this.props.target_on
-                get_params["limit"] = -1
-                get_params["pandda_site"] = this.props.pandda_site_on
+                get_params.target_id = this.props.target_on
+                get_params.limit = -1
+                get_params.pandda_site = this.props.pandda_site_on
             }
         }
         else if (this.list_type==listTypes.PANDDA_SITE){
             if (this.props.target_on != undefined) {
                 // mol group choice
                 base_url += "sites/"
-                get_params["target_id"] = this.props.target_on
-                get_params["limit"] = -1
+                get_params.target_id = this.props.target_on
+                get_params.limit = -1
             }
         }
         else{
@@ -94,8 +94,8 @@ export class GenericList extends React.Component {
      * @param json
      * @returns {*}
      */
-    processResults(json){
-        var results = json["results"];
+    processResults(json) {
+        var results = json.results;
         this.afterPush(results)
         return results;
     }
@@ -168,7 +168,7 @@ export class GenericView extends React.Component{
         this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#B7C185"}
   }
 
-    loadFromServer(width,height) {
+    loadFromServer(width, height) {
         var url = this.url;
         var get_params = {
             "width": width,
@@ -190,12 +190,12 @@ export class GenericView extends React.Component{
         this.loadFromServer(this.props.width,this.props.height);
     }
 
-    clickHandle(){
+    clickHandle() {
 
     }
 
 
-    handleStop(e,data){
+    handleStop(e, data) {
         // Move this element from list A to list B if it moves to that zone
         const fromElement =  e.fromElement;
         const toElement = e.toElement;
@@ -237,26 +237,26 @@ export class Slider extends React.Component{
                 <ProgressBar active now={this.state.progress}/>
             </Well>;
     }
-    newOption(new_value){
+    newOption(new_value) {
 
 
     }
 
-    handleForward(){
+    handleForward() {
         var selected = this.state.currentlySelected;
         if (selected<this.props.object_list.length-1){
             selected+=1
             this.handleChange(selected);
         }
     }
-    handleBackward(){
+    handleBackward() {
         var selected = this.state.currentlySelected;
         if (selected>0){
             selected-=1
             this.handleChange(selected);
         }
     }
-    handleChange(selected){
+    handleChange(selected) {
         var progress = 100*selected/(this.props.object_list.length-1)
         var prog_string = "On " + (selected + 1).toString() + " of a total of " + this.props.object_list.length.toString();
         this.setState(prevState => ({currentlySelected: selected, progress: progress,
@@ -265,7 +265,7 @@ export class Slider extends React.Component{
         this.newOption(this.props.object_list[selected].id)
     }
 
-    checkForUpdate(){
+    checkForUpdate() {
         if (this.props.object_list != []) {
             var selected;
             var counter =0
@@ -281,7 +281,7 @@ export class Slider extends React.Component{
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         setInterval(this.checkForUpdate,50);
     }
 

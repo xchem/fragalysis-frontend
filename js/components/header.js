@@ -12,7 +12,7 @@ import * as nglObjectTypes from '../components/nglObjectTypes'
 
 class Header extends React.Component {
 
-    constructor(props){
+    constructor(props) {
         super(props)
         this.getTargetList = this.getTargetList.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
@@ -20,13 +20,13 @@ class Header extends React.Component {
         this.generateTargetObject = this.generateTargetObject.bind(this);
     }
 
-    getViewUrl(pk,get_view){
+    getViewUrl(pk, get_view) {
         var base_url = window.location.protocol + "//" + window.location.host
         base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
         return base_url
     }
 
-    generateTargetObject(targetData){
+    generateTargetObject(targetData) {
         // Now deal with this target
         var prot_to_load = targetData.protein_set[0]
         if(prot_to_load!=undefined) {
@@ -41,8 +41,8 @@ class Header extends React.Component {
     }
 
 
-    getTargetList(){
-        var newArray = new Array()
+    getTargetList() {
+        var newArray = []
         for(var key in this.props.target_id_list){
         newArray.push(this.props.target_id_list[key].title)
         }
@@ -50,7 +50,7 @@ class Header extends React.Component {
     }
 
 
-    selectTarget(option){
+    selectTarget(option) {
         for(var key in this.props.target_id_list){
             if(this.props.target_id_list[key].title==option){
                 this.props.setTargetOn(this.props.target_id_list[key].id);
@@ -59,7 +59,7 @@ class Header extends React.Component {
         }
     }
 
-    clicker(){
+    clicker() {
         this.props.setAppOn("TINDSPECT");
     }
   render() {

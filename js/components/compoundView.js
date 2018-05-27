@@ -14,23 +14,23 @@ class CompoundView extends GenericView {
         super(props);
         var base_url = window.location.protocol + "//" + window.location.host
         this.url = new URL(base_url + '/viewer/img_from_smiles/')
-        var get_params = {"smiles": props.data["smiles"]}
+        var get_params = {"smiles": props.data.smiles}
         Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
         this.send_obj = props.data
         this.checkInList = this.checkInList.bind(this);
     }
 
-    checkInList(){
+    checkInList() {
         var isToggleOn = false;
         for(var item in this.props.to_buy_list){
-            if( this.props.to_buy_list[item]["smiles"]==this.send_obj["smiles"]){
+            if( this.props.to_buy_list[item].smiles==this.send_obj.smiles){
                 isToggleOn=true
             }
         }
         this.setState(prevState => ({isToggleOn: isToggleOn}))
     }
 
-    handleClick(e){
+    handleClick(e) {
         var isToggleOn = this.state.isToggleOn
         this.setState(prevState => ({isToggleOn: !isToggleOn}))
         if(this.state.isToggleOn){

@@ -38,7 +38,7 @@ class PanddaSiteList extends GenericList {
         this.old_url = url.toString();
     }
 
-    generateObject(data,selected=false){
+    generateObject(data, selected=false) {
         this.list_type = listType.PANDDA_SITE;
         var sele = "";
         var colour = [0,0,1];
@@ -66,7 +66,7 @@ class PanddaSiteList extends GenericList {
         }
      }
 
-    afterPush(object_list){
+    afterPush(object_list) {
         if(object_list) {
             object_list.map(data => this.props.loadObject(Object.assign({display_div: "pandda_summary"}, this.generateObject(data))));
         }

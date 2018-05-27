@@ -31,7 +31,7 @@ class MoleculeView extends GenericView {
         this.colourToggle = this.getRandomColor();
     }
 
-    getViewUrl(pk,get_view){
+    getViewUrl(pk, get_view) {
         var base_url = window.location.protocol + "//" + window.location.host
         base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
         return base_url
@@ -40,26 +40,26 @@ class MoleculeView extends GenericView {
     /**
      * Convert the JSON into a list of arrow objects
      */
-    generateObjectList(out_data){
+    generateObjectList(out_data) {
         var colour = [1,0,0]
-        var deletions = out_data["deletions"]
-        var outList = new Array();
+        var deletions = out_data.deletions
+        var outList = [];
         for(var key in deletions) {
             outList.push(this.generateArrowObject(deletions[key][0],
                 deletions[key][1],key.split("_")[0],colour))
         }
-        var additions = out_data["additions"]
+        var additions = out_data.additions
         for(var key in additions) {
             outList.push(this.generateArrowObject(additions[key][0],
                 additions[key][1],key.split("_")[0],colour))
         }
-        var linker = out_data["linkers"]
+        var linker = out_data.linkers
         for(var key in linker) {
             outList.push(this.generateCylinderObject(linker[key][0],
                 linker[key][1],key.split("_")[0],colour))
         }
 
-        var rings = out_data["ring"]
+        var rings = out_data.ring
         for (var key in rings){
             outList.push(this.generateCylinderObject(rings[key][0],
                 rings[key][2],key.split("_")[0],colour))
@@ -67,7 +67,7 @@ class MoleculeView extends GenericView {
         return outList;
     }
 
-    generateArrowObject(start,end,name,colour){
+    generateArrowObject(start, end, name, colour) {
         return {
             "name": listTypes.VECTOR+"_"+name,
             "OBJECT_TYPE": nglObjectTypes.ARROW,
@@ -77,7 +77,7 @@ class MoleculeView extends GenericView {
         }
     }
 
-    generateCylinderObject(start,end,name,colour){
+    generateCylinderObject(start, end, name, colour) {
         return {
             "name": listTypes.VECTOR+"_"+name,
             "OBJECT_TYPE": nglObjectTypes.CYLINDER,
@@ -87,7 +87,7 @@ class MoleculeView extends GenericView {
         }
     }
 
-    generateMolObject(){
+    generateMolObject() {
         // Get the data
         const data = this.props.data;
         var nglObject = {
@@ -99,7 +99,7 @@ class MoleculeView extends GenericView {
         return nglObject;
     }
 
-    generateObject(){
+    generateObject() {
         // Get the data
         const data = this.props.data;
         var nglObject = {
@@ -112,7 +112,7 @@ class MoleculeView extends GenericView {
         return nglObject;
     }
 
-    handleVector(json){
+    handleVector(json) {
         var objList = this.generateObjectList(json);
         this.props.setVectorList(objList)
     }
@@ -122,10 +122,10 @@ class MoleculeView extends GenericView {
         var thisToggleOn = false;
         var complexOn = false;
         for(var key in this.props.inViewList){
-            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]])==this.props.data.id){
+            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
                 this.setState(prevState => ({isToggleOn: true}));
             }
-            if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]])==this.props.data.id){
+            if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]], 10)==this.props.data.id){
                 this.setState(prevState => ({complexOn: true}));
             }
         }
@@ -158,7 +158,7 @@ class MoleculeView extends GenericView {
         return colourList[this.props.data.id % colourList.length];
     }
 
-    handleClick(e){
+    handleClick(e) {
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
@@ -168,7 +168,7 @@ class MoleculeView extends GenericView {
         }
     }
 
-    onComplex(){
+    onComplex() {
         this.setState(prevState => ({complexOn: !prevState.complexOn}))
         if(this.state.complexOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
@@ -181,7 +181,7 @@ class MoleculeView extends GenericView {
         }
     }
 
-    onVector(){
+    onVector() {
         this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         if(this.state.vectorOn) {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
