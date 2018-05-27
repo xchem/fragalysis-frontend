@@ -15,16 +15,10 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({ // <-- key to reducing React's size
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production')
-      }
-    }),
-    new UglifyJsPlugin(), //minify everything
-    new webpack.optimize.AggressiveMergingPlugin(),//Merge chunks
     new BundleTracker({filename: 'webpack-stats.json'}),
     new CompressionPlugin({asset: "[path].gz[query]",
       algorithm: "gzip",
+      deleteOriginalAssets: true,
       test: /\.js$|\.css$|\.html$/,
       threshold: 10240,
       minRatio: 0.8}),
