@@ -11,7 +11,7 @@ module.exports = {
 
   output: {
       path: path.resolve('./bundles'),
-      filename: "[name]-[hash].js",
+      filename: "[name]-[hash].js.gz",
   },
 
   plugins: [
