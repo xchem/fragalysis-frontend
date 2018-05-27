@@ -18,13 +18,18 @@ module.exports = {
     new BundleTracker({
       path: __dirname,
       filename: 'webpack-stats.json',
-      trackAssets: true,}),
-    new CompressionPlugin({asset: "[path].gz[query]",
-      algorithm: "gzip",
-      deleteOriginalAssets: true,
-      test: /\.js$|\.css$|\.html$/,
-      threshold: 10240,
-      minRatio: 0.8}),
+      trackAssets: true,
+    }),
+    new CompressionPlugin(
+        {
+          asset: "[path]",
+          algorithm: "gzip",
+          deleteOriginalAssets: true,
+          test: /\.js$|\.css$|\.html$/,
+          threshold: 10240,
+          minRatio: 0.8
+        }
+    ),
   ],
 
   module: {
