@@ -1,6 +1,8 @@
-var path = require("path");
-var webpack = require('webpack');
-var BundleTracker = require('webpack-bundle-tracker');
+const path = require("path");
+const webpack = require('webpack');
+const BundleTracker = require('webpack-bundle-tracker');
+const CompressionPlugin = require("compression-webpack-plugin");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 module.exports = {
   context: __dirname,
@@ -13,7 +15,19 @@ module.exports = {
   },
 
   plugins: [
+    new webpack.DefinePlugin({ // <-- key to reducing React's size
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
+    new UglifyJsPlugin(), //minify everything
+    new webpack.optimize.AggressiveMergingPlugin(),//Merge chunks
     new BundleTracker({filename: 'webpack-stats.json'}),
+    new CompressionPlugin({asset: "[path].gz[query]",
+      algorithm: "gzip",
+      test: /\.js$|\.css$|\.html$/,
+      threshold: 10240,
+      minRatio: 0.8}),
   ],
 
   module: {
