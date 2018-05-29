@@ -5,7 +5,6 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as stateActions from '../actions/stateActions'
-import
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -47,11 +46,11 @@ class SummaryView extends React.Component{
         var TITLE = 'title';
         var UUID = 'uuid';
         var formattedState = {
-            uuid: UUID,
-            title: TITLE,
-            scene: stateState
+            "uuid": UUID,
+            "title": TITLE,
+            "scene": stateState
         };
-        return alert(JSON.stringify(formattedState))
+        return alert(formattedState)
     }
 
         render(){
