@@ -12,6 +12,7 @@ class SummaryView extends React.Component{
         this.handleStateImport = this.handleStateImport.bind(this);
         this.handleExport = this.handleExport.bind(this);
         this.handleStateExport = this.handleStateExport.bind(this);
+        this.handleStateState = this.handleStateState.bind(this);
     }
 
     handleExport() {
@@ -39,6 +40,11 @@ class SummaryView extends React.Component{
         return insertedState;
         this.props.objects_to_load = insertedState;
     }
+    
+    handleStateState(){
+        var stateState = JSON.stringify(this.props.objects_in_view)
+        return alert(stateState)
+    }
 
         render(){
         return <div>
@@ -49,7 +55,7 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={alert(JSON.stringify(this.props.objects_in_view))}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
                 </Col>
                 </Row>
