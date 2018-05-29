@@ -5,10 +5,9 @@ import * as actions from '../actions/actonTypes'
 
 
 const INITIALSTATE = {
-    objectsToLoad: {},
-    objectsInView: {}
+    objectsToLoad: [],
+    objectsInView: []
 }
-
 
 export default function stateReducers(state = INITIALSTATE, action) {
     console.log('REDUCERS FIRED OFF. OLD STATE');
@@ -21,6 +20,7 @@ export default function stateReducers(state = INITIALSTATE, action) {
             var objectsInView = state.objectsInView
             return Object.assign({}, state, {
                 objectsInView: objectsInView
+                alert(this.objectsInView)
             })
 
         case actions.STATE_SPECIFY:

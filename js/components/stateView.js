@@ -4,28 +4,15 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
-import * as selectionActions from '../actions/selectionActions'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
-import CompoundList from './compoundList';
-import SummaryCmpd from './SummaryCmpd';
 import * as stateActions from '../actions/stateActions'
 
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
-//        this.handleStateExport = this.handleStateExport.bind(this);
         this.handleStateImport = this.handleStateImport.bind(this);
-//        this.handleExport = this.handleExport.bind(this);
     }
 
-/*    convert_state_to_template(input_json) {
-        var templateOut = {uuid: "UUID", title: "TITLE", scene : "JSON_OF_SCENE"}
-        templateOut.scene = input_json;
-        return templateOut;
-    }
-
-    handleExport() {
+/*    handleExport() {
         var content = this.convert_state_to_template(this.props.objects_in_view);
         var encodedUri = encodeURI(JSON.stringify(content));
         var link = document.createElement("a");
