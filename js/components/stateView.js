@@ -70,7 +70,7 @@ class SummaryView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
                     <form>
-                        <label> Name: <input type="text" name="name" />
+                        <label> Name: <input type="text" name="insert state here" />
                         </label><input type="submit" value="Submit" />
                     </form>
                 </Col>
