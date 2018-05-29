@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as stateActions from '../actions/stateActions'
-import Prompt from 'react-native-prompt'
+import Prompt from 'react-prompt'
 
 class SummaryView extends React.Component{
     constructor(props) {
