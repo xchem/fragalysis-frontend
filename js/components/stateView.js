@@ -53,6 +53,10 @@ class SummaryView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
+    handleDescribeState(){
+        const handleDescribe = this.props.objects_to_load
+    }
+
         render(){
         return <div>
             <Well>
@@ -64,6 +68,11 @@ class SummaryView extends React.Component{
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
+                    <form onSubmit={handleDescribeState}>
+                        <Field name='user.email' component='input' type='email' />
+                        <Field name='user.name' component='input' />
+                        <input type='submit' value='Save' />
+                    </form>
                 </Col>
                 </Row>
             </Well>
