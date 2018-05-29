@@ -69,19 +69,10 @@ class SummaryView extends React.Component{
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
-                    <Prompt
-                        title="Say something"
-                        placeholder="Start typing"
-                        defaultValue="Hello"
-                        visible={ this.state.promptVisible }
-                        onCancel={ () => this.setState({
-                            promptVisible: false,
-                            message: "You cancelled"
-                        }) }
-                        onSubmit={ (value) => this.setState({
-                            promptVisible: false,
-                            message: `You said "${value}"`
-                        }) }/>
+                    <form>
+                        <label> Name: <input type="text" name="name" />
+                        </label><input type="submit" value="Submit" />
+                    </form>
                 </Col>
                 </Row>
             </Well>
