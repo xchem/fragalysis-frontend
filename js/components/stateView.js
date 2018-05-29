@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as stateActions from '../actions/stateActions'
+import {formReducer as form} from 'redux-form'
 
 class SummaryView extends React.Component{
     constructor(props) {
