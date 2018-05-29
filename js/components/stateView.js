@@ -13,6 +13,7 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.handleStateExport = this.handleStateExport.bind(this);
         this.handleStateState = this.handleStateState.bind(this);
+        this.handleDescribeState = this.handleDescribeState.bind(this);
     }
 
     handleExport() {
