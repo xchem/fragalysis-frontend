@@ -46,9 +46,9 @@ class SummaryView extends React.Component{
         var TITLE = 'title';
         var UUID = 'uuid';
         var formattedState = {
-            "uuid": UUID,
-            "title": TITLE,
-            "scene": stateState
+            uuid: UUID,
+            title: TITLE,
+            scene: stateState
         };
         return alert(formattedState)
     }
