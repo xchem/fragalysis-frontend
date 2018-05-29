@@ -10,9 +10,11 @@ class SummaryView extends React.Component{
     constructor(props) {
         super(props);
         this.handleStateImport = this.handleStateImport.bind(this);
+        this.handleExport = this.handleExport.bind(this);
+        this.handleStateExport = this.handleStateExport.bind(this);
     }
 
-/*    handleExport() {
+    handleExport() {
         var content = this.convert_state_to_template(this.props.objects_in_view);
         var encodedUri = encodeURI(JSON.stringify(content));
         var link = document.createElement("a");
@@ -31,7 +33,7 @@ class SummaryView extends React.Component{
         document.body.appendChild(link); // Required for FF
         link.click();
     }
-*/
+
     handleStateImport(){
         var insertedState = prompt("Please insert state here:");
         return insertedState;
