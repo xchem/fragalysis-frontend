@@ -43,14 +43,14 @@ class SummaryView extends React.Component{
     
     handleStateState(){
         var stateState = JSON.stringify(this.props.objects_in_view);
-        var TITLE = 'title';
         var UUID = 'uuid';
+        var TITLE = Object.keys(this.props.objects_in_view).length
         var formattedState = {
-            "uuid": UUID,
-            "title": TITLE,
-            "scene": stateState
+            uuid: UUID,
+            title: TITLE,
+            scene: stateState
         };
-        return alert(formattedState)
+        return alert(JSON.stringify(formattedState))
     }
 
         render(){
