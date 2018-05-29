@@ -50,7 +50,7 @@ class SummaryView extends React.Component{
             title: TITLE,
             scene: stateState
         };
-        return alert(formattedState)
+        return alert(JSON.stringify(formattedState))
     }
 
         render(){
