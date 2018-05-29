@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as stateActions from '../actions/stateActions'
-import {formReducer as form} from 'redux-form'
+import Prompt from 'react-native-prompt'
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -14,7 +14,7 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.handleStateExport = this.handleStateExport.bind(this);
         this.handleStateState = this.handleStateState.bind(this);
-        this.handleDescribeState = this.handleDescribeState.bind(this);
+//        this.handleDescribeState = this.handleDescribeState.bind(this);
     }
 
     handleExport() {
@@ -55,10 +55,10 @@ class SummaryView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
-    handleDescribeState(){
+/*    handleDescribeState(){
         const { handleDescribe } = this.props
     }
-
+*/
         render(){
         return <div>
             <Well>
@@ -70,11 +70,19 @@ class SummaryView extends React.Component{
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateImport}>Load State</Button>
-                    <form onSubmit={handleDescribeState}>
-                        <Field name='user.email' component='input' type='email' />
-                        <Field name='user.name' component='input' />
-                        <input type='submit' value='Save' />
-                    </form>
+                    <Prompt
+                        title="Say something"
+                        placeholder="Start typing"
+                        defaultValue="Hello"
+                        visible={ this.state.promptVisible }
+                        onCancel={ () => this.setState({
+                            promptVisible: false,
+                            message: "You cancelled"
+                        }) }
+                        onSubmit={ (value) => this.setState({
+                            promptVisible: false,
+                            message: `You said "${value}"`
+                        }) }/>
                 </Col>
                 </Row>
             </Well>
