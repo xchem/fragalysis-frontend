@@ -55,7 +55,7 @@ class SummaryView extends React.Component{
     }
 
     handleDescribeState(){
-        const handleDescribe = this.props.objects_to_load
+        const {handleDescribe} = this.props.objects_to_load
     }
 
         render(){
