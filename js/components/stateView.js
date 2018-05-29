@@ -42,8 +42,9 @@ class SummaryView extends React.Component{
     }
     
     handleStateState(){
-        var stateState = JSON.stringify(this.props.objects_in_view)
-        return alert(stateState)
+        var stateState = JSON.stringify(this.props.objects_in_view);
+        var formattedState = stateState;
+        return alert(formattedState)
     }
 
         render(){
