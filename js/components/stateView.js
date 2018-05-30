@@ -23,7 +23,7 @@ class SummaryView extends React.Component{
         };
         return alert(JSON.stringify(formattedState))
     }
-    
+
         render(){
         return <div>
             <Well>
@@ -32,6 +32,7 @@ class SummaryView extends React.Component{
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
+                    <h3>Orientation? <b>{this.props.orientation}
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <form>
@@ -53,8 +54,9 @@ function mapStateToProps(state) {
       querying: state.selectionReducers.querying,
       to_query: state.selectionReducers.to_query,
       target_on: state.apiReducers.target_on,
+      orientation: state.nglReducers.orientation,
       objects_in_view: state.nglReducers.objectsInView,
-      objects_to_load: state.nglReducers.objectsToLoad,
+      objects_to_load: state.nglReducers.objectsToLoad
   }
 }
 
