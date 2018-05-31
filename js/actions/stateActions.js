@@ -1,5 +1,5 @@
 /**
- * Created by abradley on 15/03/2018.
+ * Created by rgillams on 22/05/2018.
  */
 
 import {STATE_ALERT, STATE_SPECIFY, NGL_ORIENTATION} from './actonTypes'
