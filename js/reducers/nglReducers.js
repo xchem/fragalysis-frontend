@@ -11,7 +11,7 @@ const INITIALSTATE = {
     interactions: true,
     color: "blue",
     style: "xstick",
-    spin: true,
+    spin: false,
     water: true,
     hydrogen: true,
 }
