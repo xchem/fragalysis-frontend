@@ -43,7 +43,7 @@ class SummaryView extends React.Component{
                     <h3>Orientation? <b>{JSON.stringify(this.props.nglOrientation)}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={nglFunctions.getJsonView)>Display Orientation</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={nglFunctions.getJsonView()}>Display Orientation</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
                         </label><input type="submit" value="Submit" />
