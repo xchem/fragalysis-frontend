@@ -10,6 +10,7 @@ class SummaryView extends React.Component{
     constructor(props) {
         super(props);
         this.handleStateState = this.handleStateState.bind(this);
+        this.handleStateOrientation = this.handleStateOrientation(this);
     }
 
     handleStateState(){
@@ -24,6 +25,11 @@ class SummaryView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
+    handleStateOrientation() {
+        var stateOrientation = JSON.stringify(this.stage.viewerControls.getOrientation());
+        return alert(JSON.stringify(stateOrientation))
+    }
+
         render(){
         return <div>
             <Well>
@@ -36,6 +42,7 @@ class SummaryView extends React.Component{
                     <h3>Orientation? <b>{JSON.stringify(this.props.nglOrientation)}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateOrientation}>Display Orientation</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
                         </label><input type="submit" value="Submit" />
