@@ -59,7 +59,7 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
-      orientation: state.nglReducers.orientation
+      nglOrientation: state.stateReducers.nglOrientation
   }
 }
 

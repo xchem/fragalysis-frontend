@@ -6,7 +6,8 @@ import * as actions from '../actions/actonTypes'
 
 const INITIALSTATE = {
     objectsToLoad: [],
-    objectsInView: []
+    objectsInView: [],
+    nglOrientation: []
 }
 
 export default function stateReducers(state = INITIALSTATE, action) {
@@ -21,13 +22,19 @@ export default function stateReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 objectsInView: objectsInView
                 alert(this.objectsInView)
-            })
+            });
 
         case actions.STATE_SPECIFY:
             var objectsToLoad = state.objectsToLoad
             return Object.assign({}, state, {
                 objectsToLoad: objectsToLoad
-            })
+            });
+
+        case actions.GET_ORIENTATION:
+            var nglOrientation = state.nglOrientation
+            return Object.assign({}, state, {
+                nglOrientation: nglOrientation
+            });
 
         default:
             return state;

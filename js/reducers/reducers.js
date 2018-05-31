@@ -8,9 +8,7 @@ import selectionReducers from './selectionReducers';
 import renderReducers from './renderReducers';
 import { loadingBarReducer } from 'react-redux-loading-bar'
 import {reducer as burgerMenu} from 'redux-burger-menu';
-
-
-
+import stateReducers from './stateReducers'
 
 const rootReducer = combineReducers({
     renderReducers,
@@ -18,7 +16,8 @@ const rootReducer = combineReducers({
     burgerMenu,
     selectionReducers,
     loadingBar: loadingBarReducer,
-    nglReducers
+    nglReducers,
+    stateReducers
 })
  
 export default rootReducer;

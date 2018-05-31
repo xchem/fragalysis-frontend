@@ -56,3 +56,4 @@ export const SET_ORIENTATION = 'SET_ORIENTATION';
 // State broadcast
 export const STATE_ALERT = 'STATE_ALERT';
 export const STATE_SPECIFY = 'STATE_SPECIFY';
+export const GET_ORIENTATION = 'GET_ORIENTATION';

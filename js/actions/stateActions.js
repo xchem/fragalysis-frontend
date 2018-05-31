@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 
-import {STATE_ALERT, STATE_SPECIFY} from './actonTypes'
+import {STATE_ALERT, STATE_SPECIFY, NGL_ORIENTATION} from './actonTypes'
 
 export const stateAlert = function (){
     console.log("ACTIONS: user extracting state")
@@ -18,3 +18,9 @@ export const stateSpecify = function (){
     }
 }
 
+export const nglOrientation = function (){
+    console.log("ACTIONS: user extracting orientation")
+    return {
+        type: NGL_ORIENTATION
+    }
+}
