@@ -29,12 +29,6 @@ export default function stateReducers(state = INITIALSTATE, action) {
                 objectsToLoad: objectsToLoad
             });
 
-        case actions.GET_ORIENTATION:
-            var nglOrientation = state.nglOrientation
-            return Object.assign({}, state, {
-                nglOrientation: this.stage.viewerControls.getOrientation()
-            });
-
         default:
             return state;
     }
