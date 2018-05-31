@@ -26,7 +26,7 @@ class SummaryView extends React.Component{
     }
 
     handleStateOrientation() {
-        var stateOrientation = JSON.stringify(this.stage.viewerControls.getOrientation());
+        var stateOrientation = JSON.stringify(this.nglOrientation);
         return alert(JSON.stringify(stateOrientation))
     }
 
