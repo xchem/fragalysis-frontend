@@ -33,7 +33,7 @@ class SummaryView extends React.Component{
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>It is spinning? <b>{this.props.spin}</b></h3>
-                    <h3>Water? <b>{this.props.color}</b></h3>
+                    <h3>Orientation? <b>{JSON.stringify(this.props.orientation)}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <form>
@@ -58,7 +58,8 @@ function mapStateToProps(state) {
       orientation: state.nglReducers.spin,
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
-      objects_to_load: state.nglReducers.objectsToLoad
+      objects_to_load: state.nglReducers.objectsToLoad,
+      orientation: state.nglReducers.orientation
   }
 }
 
