@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as stateActions from '../actions/stateActions'
-import stage from ngl
+import Stage from 'ngl'
 import * as nglFunctions from '../utils/ngl_functions'
 
 class SummaryView extends React.Component{
@@ -28,7 +28,7 @@ class SummaryView extends React.Component{
     }
 
     handleStateOrientation() {
-        var stateOrientation = stage.viewerControls.getOrientation();
+        var stateOrientation = Stage.viewerControls.getOrientation();
         return alert(JSON.stringify(stateOrientation))
     }
 
