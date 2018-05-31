@@ -7,7 +7,6 @@ import * as actions from '../actions/actonTypes'
 const INITIALSTATE = {
     objectsToLoad: [],
     objectsInView: [],
-    nglOrientation: []
 }
 
 export default function stateReducers(state = INITIALSTATE, action) {

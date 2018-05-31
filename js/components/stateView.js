@@ -67,11 +67,11 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad
+      nglOrientation: state.nglReducers.nglOrientation
   }
 }
 
 const mapDispatchToProps = {
-    nglOrientation: stateActions.nglOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
