@@ -21,7 +21,6 @@ export default function stateReducers(state = INITIALSTATE, action) {
             var objectsInView = state.objectsInView
             return Object.assign({}, state, {
                 objectsInView: objectsInView
-                alert(this.objectsInView)
             });
 
         case actions.STATE_SPECIFY:
