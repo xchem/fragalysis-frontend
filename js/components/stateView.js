@@ -28,7 +28,7 @@ class SummaryView extends React.Component{
     }
 
     handleStateOrientation() {
-        var stateOrientation = Stage.viewerControls.getOrientation();
+        var stateOrientation = this.props.nglOrientation
         return alert(JSON.stringify(stateOrientation))
     }
 
@@ -40,7 +40,6 @@ class SummaryView extends React.Component{
                     <h3><b>Current State:</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
-                    <h3>It is spinning? <b>{this.props.spin}</b></h3>
                     <h3>Orientation? <b>{JSON.stringify(this.props.nglOrientation)}</b></h3>
                     <h3>Stringified: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
@@ -67,14 +66,14 @@ function mapStateToProps(state) {
       orientation: state.nglReducers.spin,
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
-      objects_to_load: state.nglReducers.objectsToLoad,
-      nglOrientation: state.stateReducers.nglOrientation
+      objects_to_load: state.nglReducers.objectsToLoad
   }
 }
 
 const mapDispatchToProps = {
     stateAlert: stateActions.stateAlert,
-    stateSpecify: stateActions.stateSpecify
+    stateSpecify: stateActions.stateSpecify,
+    nglOrientation: stateActions.nglOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
