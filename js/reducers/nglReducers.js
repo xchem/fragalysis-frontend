@@ -132,7 +132,6 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.NGL_ORIENTATION:
-            var nglOrientation = state.nglOrientation
             return Object.assign({}, state, {
                 nglOrientation: action.nglOrientation
             });
