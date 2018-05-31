@@ -133,7 +133,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
         case actions.NGL_ORIENTATION:
             var nglOrientation = stage.viewerControls.getOrientation()
-            return Object.assign({}, state, {tation
+            return Object.assign({}, state, {
                 nglOrientation: nglOrientation
             });
         // Cases like: @@redux/INIT
