@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
-import * as stateActions from '../actions/stateActions'
 import Stage from 'ngl'
 import * as nglFunctions from '../utils/ngl_functions'
 
