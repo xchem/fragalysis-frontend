@@ -11,7 +11,7 @@ class SummaryView extends React.Component{
     constructor(props) {
         super(props);
         this.handleStateState = this.handleStateState.bind(this);
-        this.handleStateOrientation = this.handleStateOrientation(this);
+        this.handleStateOrientation = this.handleStateOrientation.bind(this);
     }
 
     handleStateState(){
@@ -26,8 +26,8 @@ class SummaryView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
-    handleStateOrientation() {
-        var stateOrientation = this.props.ngl_orientation;
+    handleStateOrientation(){
+        var stateOrientation = JSON.stringify(this.props.ngl_orientation);
         var formattedOrientation = {
             orientation: stateOrientation
         };
