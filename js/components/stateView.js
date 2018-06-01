@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
+import Fetch from 'cross-fetch'
 import Stage from 'ngl'
 import * as nglFunctions from '../utils/ngl_functions'
 
