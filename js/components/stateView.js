@@ -12,6 +12,7 @@ class SummaryView extends React.Component{
     constructor(props) {
         super(props);
         this.handleStateState = this.handleStateState.bind(this);
+        this.handleStateLoading = this.handleStateLoading.bind(this);
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
     }
 
@@ -35,6 +36,18 @@ class SummaryView extends React.Component{
         return alert(JSON.stringify(formattedOrientation))
     }
 
+    handleStateLoading(){
+        var stateState = JSON.stringify(this.props.objects_in_view);
+        const uuidv4 = require('uuid/v4');
+        var TITLE = 'need to define title';
+        var formattedState = {
+            uuid: uuidv4(),
+            title: TITLE,
+            scene: stateState
+        };
+        return alert(JSON.stringify(formattedState))
+    }
+
         render(){
         return <div>
             <Well>
@@ -47,7 +60,7 @@ class SummaryView extends React.Component{
                     <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <h3>Also: <b>{JSON.stringify(this.props.objects_to_load)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState()}>Display State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateOrientation()}>Display Orientation</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateLoading()}>Display toLoad</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
                         </label><input type="submit" value="Submit" />
