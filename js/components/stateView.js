@@ -64,8 +64,8 @@ class SummaryView extends React.Component{
             },
             body: JSON.stringify(formattedState)
         })
-            .then( (response) => {
-                alert(response.json());
+            .then((response) => {
+                alert(JSON.stringify(response.json()));
             });
     }
 
