@@ -14,6 +14,7 @@ class SummaryView extends React.Component{
         this.handleStateState = this.handleStateState.bind(this);
         this.handleStateLoading = this.handleStateLoading.bind(this);
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
+        this.handlePostState = this.handlePostState.bind(this);
     }
 
     handleStateState(){
@@ -46,6 +47,20 @@ class SummaryView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
+    handlePostState(){
+        fetch("/api/viewscene/", {
+            method: "post",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(input_json)
+        })
+            .then( (response) => {
+                alert(response);
+            });
+    }
+
         render(){
         return <div>
             <Well>
@@ -58,6 +73,7 @@ class SummaryView extends React.Component{
                     <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                     <h3>Also: <b>{JSON.stringify(this.props.objects_to_load)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Post State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateLoading}>Display toLoad</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
