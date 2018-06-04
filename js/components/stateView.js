@@ -48,13 +48,21 @@ class SummaryView extends React.Component{
     }
 
     handlePostState(){
+        var stateState = JSON.stringify(this.props.objects_in_view);
+        const uuidv4 = require('uuid/v4');
+        var TITLE = 'need to define title';
+        var formattedState = {
+            uuid: uuidv4(),
+            title: TITLE,
+            scene: stateState
+        };
         fetch("/api/viewscene/", {
             method: "post",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(input_json)
+            body: JSON.stringify(formattedState)
         })
             .then( (response) => {
                 alert(response);
