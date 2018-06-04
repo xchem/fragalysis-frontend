@@ -37,13 +37,11 @@ class SummaryView extends React.Component{
     }
 
     handleStateLoading(){
-        var stateState = JSON.stringify(this.props.objects_in_view);
-        const uuidv4 = require('uuid/v4');
-        var TITLE = 'need to define title';
+        var stateLoading = JSON.stringify(this.props.objects_to_load);
+        var TITLE = 'To Load';
         var formattedState = {
-            uuid: uuidv4(),
             title: TITLE,
-            scene: stateState
+            scene: stateLoading
         };
         return alert(JSON.stringify(formattedState))
     }
