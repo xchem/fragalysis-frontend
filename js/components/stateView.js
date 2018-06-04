@@ -65,7 +65,7 @@ class SummaryView extends React.Component{
             body: JSON.stringify(formattedState)
         })
             .then((response) => {
-                alert(JSON.stringify(response.json()));
+                alert(JSON.stringify(response.json())+"127.0.0.1/api/viewscene/?uuid="+fomattedState.uuid);
             });
     }
 
