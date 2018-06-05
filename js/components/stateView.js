@@ -92,7 +92,9 @@ class StateView extends React.Component{
                 <Row>
                 <Col xs={6} md={6}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
+                    &nbsp;&nbsp;&nbsp;
                     <input id="state_selector" type="text" name="name" />
+                    &nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <h3><b>Current State:</b></h3>
                     <h3>Last saved pk:</h3>
@@ -125,6 +127,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
     load_object: nglactions.loadObject,
+    set_orientation: nglactions.setOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StateView);
