@@ -84,10 +84,3 @@ export const deleteObjectFailure = function (group) {
         success: false
     };
 }
-
-export const setOrientation = function () {
-    console.log("ACTIONS: set orientation");
-        return {
-            type: SET_ORIENTATION
-        };
-}
