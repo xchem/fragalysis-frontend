@@ -5,8 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
-import Stage from 'ngl'
-import * as nglFunctions from '../utils/ngl_functions'
+import * as nglactions from '../actions/nglLoadActions'
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -15,6 +14,7 @@ class SummaryView extends React.Component{
         this.handleStateLoading = this.handleStateLoading.bind(this);
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
         this.handlePostState = this.handlePostState.bind(this);
+        this.handleRenderState = this.handleRenderState.bind(this);
     }
 
     handleStateState(){
@@ -70,6 +70,17 @@ class SummaryView extends React.Component{
         });
     }
 
+
+    handleRenderState(){
+        fetch("/api/viewscene/11")
+        .then(function(response) {
+            return response.json();
+        }).then(function(myJson) {
+            for(var key in myJson){
+                this.props.load_object(myJson[key]);
+            }
+        });
+    }
         render(){
         return <div>
             <Well>
@@ -84,6 +95,7 @@ class SummaryView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Post State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateLoading}>Display toLoad</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Display toLoad</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
                         </label><input type="submit" value="Submit" />
@@ -112,6 +124,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
+    load_object: nglactions.loadObject,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
