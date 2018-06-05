@@ -9,6 +9,7 @@ import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
+import StateView from '../components/stateView';
 
 
 class Preview extends Component {
@@ -30,6 +31,7 @@ class Preview extends Component {
               </Col>
               <Col xs={5} md={5} >
                   <NGLView div_id="major_view" height="600px"/>
+                  <StateView />
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />

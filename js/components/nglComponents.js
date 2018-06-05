@@ -343,7 +343,7 @@ function mapStateToProps(state) {
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
-      orientation: state.nglReducers.orientation,
+      nglOrientation: state.nglReducers.nglOrientation,
       objectsPicked: state.nglReducers.objectsPicked
   }
 }

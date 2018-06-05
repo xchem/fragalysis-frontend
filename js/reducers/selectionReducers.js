@@ -94,5 +94,3 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             return state;
     }
 }
-
-
