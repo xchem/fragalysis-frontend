@@ -63,9 +63,11 @@ class SummaryView extends React.Component{
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(formattedState)
-        })
-            .then(response => alert(response.json()))
-            .catch(error => console.error('Error:', error))
+        }).then(function(response) {
+            return response.json();
+        }).then(function(myJson) {
+            console.log(myJson);
+        });
     }
 
         render(){
