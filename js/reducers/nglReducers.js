@@ -17,7 +17,6 @@ const INITIALSTATE = {
     nglOrientation: {}
 }
 
-
 export default function nglReducers(state = INITIALSTATE, action) {
     console.log('REDUCERS FIRED OFF. OLD STATE');
     console.log(state);

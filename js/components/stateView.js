@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
 import * as nglactions from '../actions/nglLoadActions'
+import { Stage, Shape, concatStructures, Selection } from 'ngl';
 
 class StateView extends React.Component{
     constructor(props) {
@@ -16,6 +17,7 @@ class StateView extends React.Component{
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
+        this.handleStateOrientation = this.handleStateOrientation.bind(this);
     }
 
     handleStateState(){
@@ -31,11 +33,17 @@ class StateView extends React.Component{
     }
 
     handleStateOrientation(){
+        var curr_orient = this.stage.viewerControls.getOrientation();
+/*        for (i = 0; i < curr_orient["elements"].length; i++) {
+            curr_orient["elements"][i] = ori["elements"][i];
+        }
+        this.stage.viewerControls.orient(curr_orient);
+        this.stage.setFocus(focus_var);
         var stateOrientation = JSON.stringify(this.props.ngl_orientation);
         var formattedOrientation = {
             orientation: stateOrientation
         };
-        return alert(JSON.stringify(formattedOrientation))
+*/        return alert(JSON.stringify(curr_orient))
     }
 
     handleStateLoading(){
@@ -93,10 +101,11 @@ class StateView extends React.Component{
                 <Col xs={6} md={6}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <h2><b>Type state Pkey here:</b></h2>
+                    <h2><b>Type state P-Key here:</b></h2>
                     <input id="state_selector" type="text" name="name" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateOrientation}>Orientation</Button>
                     <h3><b>Current State:</b></h3>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>

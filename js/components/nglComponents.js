@@ -238,8 +238,6 @@ export class NGLView extends React.Component {
         }
     }
 
-
-
     generateSphere(data,selected=false,listType=listTypes.MOLGROUPS,view="summary_view"){
         var sele = ""
         var color = [0,0,1]
