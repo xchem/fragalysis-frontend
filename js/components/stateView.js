@@ -92,8 +92,8 @@ class StateView extends React.Component{
                 <Row>
                 <Col xs={6} md={6}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <input id="state_selector" type="text" name="name" />
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <h3><b>Current State:</b></h3>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
