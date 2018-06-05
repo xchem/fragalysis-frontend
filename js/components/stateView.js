@@ -68,7 +68,9 @@ class StateView extends React.Component{
             return response.json();
         }).then(function(myJson) {
             console.log(myJson);
-        });
+        }).then(function(myJson) {
+            alert(myJson.scene)
+        };
     }
 
     handleJson(myJson){
@@ -94,9 +96,10 @@ class StateView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
-                        </label><input type="submit" value="Submit" />
+                        </label><input type="submit" value="Reload State" />
                     </form>
                     <h3><b>Current State:</b></h3>
+                    <h3>Last saved pk:
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Orientation? <b>{JSON.stringify(this.props.ngl_orientation)}</b></h3>
