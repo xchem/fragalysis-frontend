@@ -2,7 +2,8 @@
  * Created by abradley on 03/03/2018.
  */
 
-import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN } from './actonTypes'
+import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN, REQUEST_ORIENTATION, RECEIVE_ORIENTATION,
+    SET_ORIENTATION} from './actonTypes'
 
 export const setColor = function (color) {
     console.log("ACTIONS: " + color);
@@ -90,5 +91,27 @@ export const setAssemblyOptions = function (structure) {
     return {
         type: SET_ASSEMBLY_OPTIONS,
         assemblyOptions: options
+    };
+}
+
+export const requestOrientation = function (){
+    console.log("ACTIONS: orientation requested");
+    return {
+        type: REQUEST_ORIENTATION
+    };
+}
+
+export const receiveOrientation = function (){
+    console.log("ACTIONS: orientation received");
+    return {
+        type: RECEIVE_ORIENTATION
+    };
+}
+
+export const setOrientation = function (orientation){
+    console.log("ACTIONS: " + orientation);
+    return {
+        type: SET_ORIENTATION,
+        orientation: orientation
     };
 }

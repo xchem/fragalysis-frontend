@@ -14,6 +14,8 @@ const INITIALSTATE = {
     spin: false,
     water: true,
     hydrogen: true,
+    orientationRequested: false,
+    orientationAcquired: false,
     nglOrientation: {}
 }
 
@@ -130,7 +132,17 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 hydrogen: action.hydrogen
             });
 
-        case actions.GET_NGL_ORIENTATION:
+        case actions.REQUEST_ORIENTATION:
+            return Object.assign({}, state, {
+                orientationRequested : action.orientationRequested
+            });
+
+        case actions.RECEIVE_ORIENTATION:
+            return Object.assign({}, state, {
+                orientationAcquired : action.orientationAcquired
+            });
+
+        case actions.SET_NGL_ORIENTATION:
             var nglOrientation = Object.assign({},{},state.nglOrientation)
             return Object.assign({}, state, {
                 nglOrientation: action.nglOrientation

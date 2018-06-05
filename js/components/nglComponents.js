@@ -289,6 +289,12 @@ export class NGLView extends React.Component {
         }
     }
 
+
+//    setOrientation(){
+//        var orientation = this.stage.viewerControls.getOrientation();
+//        this.props.
+//    }
+
     /**
      * Function to deal with the logic of showing molecules
      */

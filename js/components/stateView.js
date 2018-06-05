@@ -18,7 +18,7 @@ class StateView extends React.Component{
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
-        this.stage = stage;
+        this.stage;
     }
 
     handleStateState(){
@@ -34,7 +34,7 @@ class StateView extends React.Component{
     }
 
     handleStateOrientation(){
-        var curr_orient = this.stage.viewerControls.getOrientation();
+        var curr_orient = this.props.set_orientation();
 /*        for (i = 0; i < curr_orient["elements"].length; i++) {
             curr_orient["elements"][i] = ori["elements"][i];
         }
@@ -132,6 +132,8 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
+      orientation_requested: state.nglReducers.orientationRequested,
+      orientation_acquired: state.nglReducers.orientationAcquired,
       ngl_orientation: state.nglReducers.nglOrientation
   }
 }
