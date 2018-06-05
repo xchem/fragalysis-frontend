@@ -21,6 +21,7 @@ class StateView extends React.Component{
     }
 
     handleGetOrientation() {
+        this.setState(prevState => ({this.props.orientation_requested: !prevState.this.props.orientation_requested}))
         var orientation_requested = JSON.stringify(this.props.orientation_requested);
         var orientation_acquired = JSON.stringify(this.props.orientation_acquired);
         var orientationStates = {
