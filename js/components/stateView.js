@@ -79,8 +79,8 @@ class SummaryView extends React.Component{
     };
 
     handleRenderState(){
-
-        fetch("/api/viewscene/"+31.toString())
+        var pk = 31;
+        fetch("/api/viewscene/"+pk.toString())
         .then(function(response) {
             return response.json();
         }).then(json => this.handleJson(json))
