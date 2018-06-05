@@ -7,7 +7,7 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
 import * as nglactions from '../actions/nglLoadActions'
 
-class SummaryView extends React.Component{
+class StateView extends React.Component{
     constructor(props) {
         super(props);
         this.handleStateState = this.handleStateState.bind(this);
@@ -130,4 +130,4 @@ const mapDispatchToProps = {
     load_object: nglactions.loadObject,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);
+export default connect(mapStateToProps, mapDispatchToProps)(StateView);
