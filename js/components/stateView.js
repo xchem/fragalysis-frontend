@@ -15,6 +15,7 @@ class SummaryView extends React.Component{
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
+        this.handleJson = this.handleJson.bind(this);
     }
 
     handleStateState(){
@@ -70,16 +71,17 @@ class SummaryView extends React.Component{
         });
     }
 
+    handleJson(myJson){
+        for(var key in myJson){
+                this.props.load_object(myJson[key]);
+            }
+    };
 
     handleRenderState(){
         fetch("/api/viewscene/11")
         .then(function(response) {
             return response.json();
-        }).then(function(myJson) {
-            for(var key in myJson){
-                this.props.load_object(myJson[key]);
-            }
-        });
+        }).then(json => this.handleJson(json))
     }
         render(){
         return <div>
