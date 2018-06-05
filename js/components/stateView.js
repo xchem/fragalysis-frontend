@@ -93,6 +93,7 @@ class StateView extends React.Component{
                 <Col xs={6} md={6}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <p><b>Type state Pkey here:</b></p>
                     <input id="state_selector" type="text" name="name" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
