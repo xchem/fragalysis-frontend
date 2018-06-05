@@ -91,7 +91,7 @@ class StateView extends React.Component{
                 <Row>
                 <Col xs={6} md={6}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Display toLoad</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
                         </label><input type="submit" value="Submit" />
