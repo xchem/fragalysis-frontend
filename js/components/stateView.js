@@ -18,7 +18,7 @@ class StateView extends React.Component{
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
-        this.stage;
+        this.stage = stage;
     }
 
     handleStateState(){
