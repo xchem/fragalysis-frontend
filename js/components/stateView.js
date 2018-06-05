@@ -43,9 +43,9 @@ class StateView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
-    handleStateOrientation(){
+/*    handleStateOrientation(){
         var curr_orient = this.props.set_orientation();
-/*        for (i = 0; i < curr_orient["elements"].length; i++) {
+        for (i = 0; i < curr_orient["elements"].length; i++) {
             curr_orient["elements"][i] = ori["elements"][i];
         }
         this.stage.viewerControls.orient(curr_orient);
@@ -54,9 +54,9 @@ class StateView extends React.Component{
         var formattedOrientation = {
             orientation: stateOrientation
         };
-*/        return alert(JSON.stringify(curr_orient))
+        return alert(JSON.stringify(curr_orient))
     }
-
+*/
     handleStateLoading(){
         var stateLoading = JSON.stringify(this.props.objects_to_load);
         var TITLE = 'To Load';
