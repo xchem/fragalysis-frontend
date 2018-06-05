@@ -7,6 +7,7 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
 import * as nglactions from '../actions/nglLoadActions'
 
+RENDERSTATEPK = 31;
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
@@ -72,16 +73,15 @@ class SummaryView extends React.Component{
     }
 
     handleJson(myJson){
-        alert(myJson.scene)
         var myDict = JSON.parse(myJson.scene)
         for(var key in myDict){
-            alert(key)
             this.props.load_object(myDict[key]);
         }
     };
 
     handleRenderState(){
-        fetch("/api/viewscene/11")
+
+        fetch("/api/viewscene/"+RENDERSTATEPK.toString())
         .then(function(response) {
             return response.json();
         }).then(json => this.handleJson(json))
