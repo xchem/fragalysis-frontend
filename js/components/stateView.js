@@ -99,7 +99,7 @@ class StateView extends React.Component{
                         </label><input type="submit" value="Reload State" />
                     </form>
                     <h3><b>Current State:</b></h3>
-                    <h3>Last saved pk:
+                    <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Orientation? <b>{JSON.stringify(this.props.ngl_orientation)}</b></h3>
