@@ -7,7 +7,6 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
 import * as nglactions from '../actions/nglLoadActions'
 
-RENDERSTATEPK = 31;
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
@@ -81,7 +80,7 @@ class SummaryView extends React.Component{
 
     handleRenderState(){
 
-        fetch("/api/viewscene/"+RENDERSTATEPK.toString())
+        fetch("/api/viewscene/"+31.toString())
         .then(function(response) {
             return response.json();
         }).then(json => this.handleJson(json))
