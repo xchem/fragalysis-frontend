@@ -90,19 +90,17 @@ class StateView extends React.Component{
             <Well>
                 <Row>
                 <Col xs={6} md={6}>
-                    <h3><b>Current State:</b></h3>
-                    <h3>Target on? <b>{this.props.target_on}</b></h3>
-                    <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
-                    <h3>Orientation? <b>{JSON.stringify(this.props.ngl_orientation)}</b></h3>
-                    <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Post State</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleStateLoading}>Display toLoad</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Display toLoad</Button>
                     <form>
                         <label> Insert state here: <input type="text" name="name" />
                         </label><input type="submit" value="Submit" />
                     </form>
+                    <h3><b>Current State:</b></h3>
+                    <h3>Target on? <b>{this.props.target_on}</b></h3>
+                    <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
+                    <h3>Orientation? <b>{JSON.stringify(this.props.ngl_orientation)}</b></h3>
+                    <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                 </Col>
                 </Row>
             </Well>
