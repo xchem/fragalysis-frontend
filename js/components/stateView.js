@@ -18,7 +18,15 @@ class StateView extends React.Component{
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
         this.handleStateOrientation = this.handleStateOrientation.bind(this);
-        this.stage;
+        this.handleGetOrientation = this.handleGetOrientation.bind(this);
+    }
+
+    handleGetOrientation() {
+        var orientationStates = {
+            requestOrientation: this.props.orientation_requested,
+            receiveOrientation: this.props.orientation_acquired
+        };
+        return alert(JSON.stringify(orientationStates))
     }
 
     handleStateState(){
