@@ -130,7 +130,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 hydrogen: action.hydrogen
             });
 
-        case actions.NGL_ORIENTATION:
+        case actions.GET_NGL_ORIENTATION:
+            var nglOrientation = Object.assign({},{},state.nglOrientation)
             return Object.assign({}, state, {
                 nglOrientation: action.nglOrientation
             });
