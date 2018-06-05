@@ -79,8 +79,8 @@ class StateView extends React.Component{
     };
 
     handleRenderState(){
-        var pk = 31;
-        fetch("/api/viewscene/"+pk.toString())
+        var pk = document.getElementById("state_selector").value;
+        fetch("/api/viewscene/"+pk)
         .then(function(response) {
             return response.json();
         }).then(json => this.handleJson(json))
@@ -92,10 +92,7 @@ class StateView extends React.Component{
                 <Col xs={6} md={6}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
-                    <form>
-                        <label> Insert state here: <input type="text" name="name" />
-                        </label><input type="submit" value="Reload State" />
-                    </form>
+                    <input id="state_selector" type="text" name="name" />
                     <h3><b>Current State:</b></h3>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
