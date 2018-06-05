@@ -67,7 +67,7 @@ class StateView extends React.Component{
         }).then(function(response) {
             return response.json();
         }).then(function(myJson) {
-            console.log(myJson);
+            alert(window.location + "/api/viewscene/" + myJson.id.toString())
         });
     }
 
