@@ -72,9 +72,10 @@ class SummaryView extends React.Component{
     }
 
     handleJson(myJson){
+        alert(myJson)
         for(var key in myJson){
-                this.props.load_object(myJson[key]);
-            }
+            this.props.load_object(myJson[key]);
+        }
     };
 
     handleRenderState(){
