@@ -95,7 +95,6 @@ class SummaryView extends React.Component{
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Orientation? <b>{JSON.stringify(this.props.ngl_orientation)}</b></h3>
                     <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
-                    <h3>Also: <b>{JSON.stringify(this.props.objects_to_load)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateState}>Display State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Post State</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleStateLoading}>Display toLoad</Button>
