@@ -1,6 +1,6 @@
 #!groovy​
 
-// The Fragalysis Frontend Jenkinsfile.
+// The 'xchem' Fragalysis Frontend Jenkinsfile.
 
 pipeline {
 
