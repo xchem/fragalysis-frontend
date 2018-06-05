@@ -72,10 +72,11 @@ class SummaryView extends React.Component{
     }
 
     handleJson(myJson){
-        alert(myJson)
-        for(var key in myJson){
+        alert(myJson.scene)
+        var myDict = myJson.scene.toJSON()
+        for(var key in myDict){
             alert(key)
-            this.props.load_object(myJson[key]);
+            this.props.load_object(myDict[key]);
         }
     };
 
