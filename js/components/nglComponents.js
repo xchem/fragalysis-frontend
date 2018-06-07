@@ -33,7 +33,7 @@ export class NGLView extends React.Component {
         this.focus_var = 95;
         this.stage = undefined;
         this.state = {
-            nglOrientation: 
+            nglOrientation: {}
         }
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
