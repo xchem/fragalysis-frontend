@@ -32,16 +32,12 @@ export class NGLView extends React.Component {
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;
-        this.state = {
-            nglOrientation: {}
-        }
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
         this.requestOrientation = this.requestOrientation.bind(this);
-
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -54,7 +50,6 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
-
     }
 
     showPick (stage, pickingProxy) {
@@ -329,8 +324,8 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
 
-    requestOrientation(){
-        var nglOrientation = this.stage.viewerControls.getOrientation();
+    requestOrientation() {
+        var nglOrientation = stage.viewerControls.getOrientation();
         return Object.assign({}, state, {
             nglOrientation: nglOrientation
         })
