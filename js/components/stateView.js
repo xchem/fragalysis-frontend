@@ -110,6 +110,7 @@ class StateView extends React.Component{
     handleOrientationFlag(){
         var flaggio = JSON.stringify(this.props.orientation_flag);
         alert(flaggio);
+
     }
 
         render(){
@@ -122,7 +123,7 @@ class StateView extends React.Component{
                     <input id="state_selector" type="text" name="name" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
-                    <h3><b>Orientation Flag: {JSON.stringify(this.props.orientationFlag)}</b></h3>
+                    <h3><b>Orientation Flag: {JSON.stringify(this.props.orientation_flag)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleOrientationFlag}>Orientation Toggle</Button>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
