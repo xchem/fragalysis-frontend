@@ -37,7 +37,7 @@ export class NGLView extends React.Component {
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
-        this.orientationRequest = this.orientationRequest.bind(this);
+        this.requestOrientation = this.requestOrientation.bind(this);
 
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
@@ -90,7 +90,7 @@ export class NGLView extends React.Component {
     }
     componentDidUpdate() {
         this.renderDisplay();
-        this.orientationRequest();
+        this.requestOrientation();
     }
 
     showSphere(stage,input_dict,object_name){
@@ -139,9 +139,11 @@ export class NGLView extends React.Component {
             stage.setFocus(focus_var);
     };
 
-    orientationRequest(){
+    requestOrientation(){
         var orientation = this.stage.viewerControls.getOrientation();
-        this.props.nglOrientation = orientation.toString();
+        this.setState({
+            nglOrientation = orientation.toString()
+        });
     }
 
 
@@ -364,6 +366,7 @@ const mapDispatchToProps = {
     loadObjectFailure: nglLoadActions.loadObjectFailure,
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
-    deleteObjectSuccess: nglLoadActions.deleteObjectSuccess
+    deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
+    requestOrientation: nglRenderActions.requestOrientation
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

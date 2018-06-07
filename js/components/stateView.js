@@ -21,14 +21,14 @@ class StateView extends React.Component{
     }
 
     handleGetOrientation() {
-        var orientation_requested = this.props.orientation_requested;
-        this.setState(prevState => ({orientation_requested: !prevState.orientation_requested}))
+        var orientation_requested = this.props.ngl_orientation;
+/*        this.setState(prevState => ({orientation_requested: !prevState.orientation_requested}))
         var orientation_acquired = JSON.stringify(this.props.orientation_acquired);
         var orientationStates = {
             requestOrientation: orientation_requested,
             receiveOrientation: orientation_acquired
         };
-        return alert(JSON.stringify(orientationStates))
+*/        return alert(JSON.stringify(orientation_requested))
     }
 
     handleStateState(){
