@@ -116,8 +116,8 @@ class StateView extends React.Component{
                     <input id="state_selector" type="text" name="name" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
+                    <h3><b>Orientation:</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleGetOrientation}>Orientation</Button>
-                    <h3><b>Current State:</b></h3>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
