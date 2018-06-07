@@ -108,10 +108,8 @@ class StateView extends React.Component{
     }
 
     handleOrientationFlag(){
-        var myJson = {
-            id: "test"
-        }
-        alert(JSON.stringify(myJson))
+        var flaggio = false
+        alert(flaggio.toString())
     }
 
         render(){
