@@ -60,7 +60,8 @@ class StateView extends React.Component{
     handleStateLoading(){
         var stateLoading = JSON.stringify(this.props.objects_to_load);
         var TITLE = 'To Load';
-        var formattedState = {
+        var formattedState =
+            {
             title: TITLE,
             scene: stateLoading
         };
