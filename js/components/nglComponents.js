@@ -32,6 +32,9 @@ export class NGLView extends React.Component {
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;
+        this.state = {
+            nglOrientation: 
+        }
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
