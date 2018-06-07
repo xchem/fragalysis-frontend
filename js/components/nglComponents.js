@@ -52,18 +52,18 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
     }
 
-    showPick (stage, pickingProxy) {
+    showPick(stage, pickingProxy) {
         if (pickingProxy) {
             if (pickingProxy.object.name){
                 var name = pickingProxy.object.name
                 // Ok so now perform logic
                 var type = name.split("_")[0].split("(")[1]
                 if (type==listTypes.MOLGROUPS){
-                    var pk = parseInt(name.split("_")[1].split(")")[0])
+                    var pk = parseInt(name.split("_")[1].split(")")[0], 10)
                     this.props.setMolGroupOn(pk)
                 }
                 else if (type==listTypes.PANDDA_SITE){
-                    var pk = parseInt(name.split("_")[1].split(")")[0])
+                    var pk = parseInt(name.split("_")[1].split(")")[0], 10)
                     this.props.setPanddaSiteOn(pk)
                 }
                 else if (type==listTypes.MOLECULE){
@@ -77,7 +77,7 @@ export class NGLView extends React.Component {
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.stage = new Stage(this.div_id);
         // Handle window resizing
         var local_stage = this.stage;
@@ -91,26 +91,26 @@ export class NGLView extends React.Component {
         this.requestOrientation();
     }
 
-    showSphere(stage,input_dict,object_name){
-        var colour = input_dict["colour"];
-        var radius = input_dict["radius"];
-        var coords = input_dict["coords"];
+    showSphere(stage, input_dict, object_name) {
+        var colour = input_dict.colour;
+        var radius = input_dict.radius;
+        var coords = input_dict.coords;
         var shape = new Shape( object_name );
         shape.addSphere(coords, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
         shapeComp.addRepresentation("buffer");
     }
 
-    showMol(stage,input_dict,object_name){
-        var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
+    showMol(stage, input_dict, object_name) {
+        var stringBlob = new Blob( [ input_dict.sdf_info ], { type: 'text/plain'} );
         stage.loadFile( stringBlob, { name: object_name,ext: "sdf" } ).then( function( comp ){
-            comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict["colour"], multipleBond: true }
+            comp.addRepresentation( "ball+stick", { colorScheme: "element", colorValue:input_dict.colour, multipleBond: true }
             );
             comp.autoView("ligand");
         });
     }
 
-    renderComplex(ol){
+    renderComplex(ol) {
             var cs = concatStructures(
                 ol[4],
                 ol[0].structure.getView(new Selection("not ligand")),
@@ -137,17 +137,18 @@ export class NGLView extends React.Component {
             stage.setFocus(focus_var);
     };
 
-    showComplex(stage,input_dict,object_name){
-        var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
+
+    showComplex(stage, input_dict, object_name) {
+        var stringBlob = new Blob( [ input_dict.sdf_info ], { type: 'text/plain'} );
         Promise.all([
-            stage.loadFile(input_dict["prot_url"], {ext: "pdb"}),
+            stage.loadFile(input_dict.prot_url, {ext: "pdb"}),
             stage.loadFile(stringBlob, {ext: "sdf"}),
-            stage, this.focus_var, object_name,input_dict["colour"]]
+            stage, this.focus_var, object_name,input_dict.colour]
         ).then( ol => this.renderComplex(ol));
     }
     
-    showEvent(stage,input_dict,object_name){
-        stage.loadFile(input_dict["pdb_info"], {name: object_name, ext: "pdb"}).then(function (comp) {
+    showEvent(stage, input_dict, object_name) {
+        stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
             var selection = new Selection("LIG");
             var radius = 5;
@@ -171,7 +172,7 @@ export class NGLView extends React.Component {
             comp.autoView("LIG");
         });
 
-        stage.loadFile(input_dict["map_info"], {name: object_name, ext: "ccp4"}).then(function (comp) {
+        stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
             var surfFofc = comp.addRepresentation('surface', {
                 color: 'mediumseagreen',
                 isolevel: 3,
@@ -195,33 +196,33 @@ export class NGLView extends React.Component {
     }
     
     
-    showCylinder(stage,input_dict,object_name){
-        var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
-        var radius = input_dict["radius"]==undefined ? 0.4 : input_dict["radius"];
-        var coords = input_dict["coords"];
+    showCylinder(stage, input_dict, object_name) {
+        var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
+        var radius = input_dict.radius==undefined ? 0.4 : input_dict.radius;
+        var coords = input_dict.coords;
         var shape = new Shape( object_name );
-        shape.addCylinder(input_dict["start"],input_dict["end"], colour, radius);
+        shape.addCylinder(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
         shapeComp.addRepresentation("buffer");
     }
 
-    showArrow(stage,input_dict,object_name){
-        var colour = input_dict["colour"]==undefined ? [1,0,0] : input_dict["colour"];
-        var radius = input_dict["radius"]==undefined ? 0.3 : input_dict["radius"];
+    showArrow(stage, input_dict, object_name) {
+        var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
+        var radius = input_dict.radius==undefined ? 0.3 : input_dict.radius;
         var shape = new Shape( object_name );
-        shape.addArrow(input_dict["start"],input_dict["end"], colour, radius);
+        shape.addArrow(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
         shapeComp.addRepresentation("buffer");
     }
 
-    showProtein(stage,input_dict,object_name) {
-        stage.loadFile(input_dict["prot_url"], {name: object_name, ext: "pdb"}).then(function (comp) {
+    showProtein(stage, input_dict, object_name) {
+        stage.loadFile(input_dict.prot_url, {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
             comp.autoView();
         });
     }
 
-    getRadius(data){
+    getRadius(data) {
         if (data.mol_id == undefined){
             return 5.0
         }
@@ -236,7 +237,9 @@ export class NGLView extends React.Component {
         }
     }
 
-    generateSphere(data,selected=false,listType=listTypes.MOLGROUPS,view="summary_view"){
+
+
+    generateSphere(data, selected=false, listType=listTypes.MOLGROUPS, view="summary_view") {
         var sele = ""
         var color = [0,0,1]
         var getCoords = {}
@@ -260,10 +263,10 @@ export class NGLView extends React.Component {
         )
     }
 
-    showSelect(listType,view){
-        var oldGroup = this.data_dict[listType]["oldGroupOn"];
-        var listOn = this.props[this.data_dict[listType]["list"]];
-        var onGroup = this.props[this.data_dict[listType]["onGroup"]];
+    showSelect(listType, view) {
+        var oldGroup = this.data_dict[listType].oldGroupOn;
+        var listOn = this.props[this.data_dict[listType].list];
+        var onGroup = this.props[this.data_dict[listType].onGroup];
 
         if ( onGroup && onGroup != oldGroup){
             var old_data;
@@ -283,7 +286,7 @@ export class NGLView extends React.Component {
             // Delete the two old spheres
             this.props.deleteObject(this.generateSphere(new_data, false, listType,view));
             this.props.loadObject(this.generateSphere(new_data, true, listType,view));
-            this.data_dict[listType]["oldGroupOn"] = onGroup;
+            this.data_dict[listType].oldGroupOn = onGroup;
         }
     }
 
@@ -295,7 +298,7 @@ export class NGLView extends React.Component {
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
-                this.function_dict[nglObject["OBJECT_TYPE"]](this.stage,nglObject,nglKey)
+                this.function_dict[nglObject.OBJECT_TYPE](this.stage,nglObject,nglKey)
                 this.props.objectLoading(nglObject);
                 this.props.showLoading();
             }
@@ -323,7 +326,6 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
-
     requestOrientation() {
         var nglOrientation = stage.viewerControls.getOrientation();
         return Object.assign({}, state, {

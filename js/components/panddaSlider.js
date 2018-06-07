@@ -15,7 +15,7 @@ class PanddaSlider extends Slider{
         this.slider_name = "Pandda Site"
     }
 
-    newOption(new_value){
+    newOption(new_value) {
         if(this.props.event_on!=undefined) {
             this.props.deleteObject(Object.assign({display_div: "pandda_major"},
                 {

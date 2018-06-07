@@ -40,7 +40,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             var to_buy_list = state.to_buy_list
             var index = -1;
             for(var item in to_buy_list){
-                if( to_buy_list[item]["smiles"]==action.item["smiles"]){
+                if( to_buy_list[item].smiles==action.item.smiles){
                     index = item
                     break;
                 }
@@ -79,7 +79,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
         case actions.SELECT_VECTOR:
             var input_mol_key = action.vector;
-            var this_vector_list = new Array()
+            var this_vector_list = []
             for (var key in  state.to_select){
                 if (key.split("_")[0]==input_mol_key){
                     this_vector_list[key] = state.to_select[key]

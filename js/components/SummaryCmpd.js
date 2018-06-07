@@ -20,7 +20,7 @@ class SummaryCmpd extends GenericView {
 
 
 
-    update(){
+    update() {
         if(this.smiles!=this.props.to_query) {
             this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
             var get_params = {"smiles": this.props.to_query}

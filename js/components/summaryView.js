@@ -28,12 +28,12 @@ class SummaryView extends React.Component{
         var old_state = this.state
         old_state.list_len = this.props.to_buy_list.length
         old_state.cost = this.props.to_buy_list.length * 150.0 + 500.0
-        var vector_list = new Array()
-        var mol_list = new Array()
+        var vector_list = []
+        var mol_list = []
         for(var index in this.props.to_buy_list){
             var item = this.props.to_buy_list[index];
-            vector_list.push(item["vector"])
-            mol_list.push(item["mol"])
+            vector_list.push(item.vector)
+            mol_list.push(item.mol)
         }
         old_state.num_vectors = new Set(vector_list).size;
         old_state.num_series = new Set(mol_list).size;
@@ -46,7 +46,7 @@ class SummaryView extends React.Component{
 
     }
     
-    getColour(item){
+    getColour(item) {
         var thisSmi = item.name.split("VECTOR_")[1]
         var counter = 0
         for(var key in this.props.to_select){
@@ -74,7 +74,7 @@ class SummaryView extends React.Component{
         return {"colour": colour,"radius": 0.3}
     }
 
-    loadVectors(){
+    loadVectors() {
         // Colour and then load the vectors in
         if(this.props.to_query!="") {
             this.props.vector_list.forEach(item => this.props.loadObject(Object.assign({display_div: "major_view"}, item, this.getColour(item))));
@@ -86,19 +86,19 @@ class SummaryView extends React.Component{
         setInterval(this.update,50);
     }
 
-    convert_data_to_list(input_list){
-        var outArray = new Array();
+    convert_data_to_list(input_list) {
+        var outArray = [];
         var headerArray = ["smiles"];
         outArray.push(headerArray)
         for(var item in input_list){
-            var newArray = new Array();
+            var newArray = [];
             newArray.push(input_list[item].smiles)
             outArray.push(newArray)
         }
         return outArray;
     }
 
-    handleExport(){
+    handleExport() {
         const rows = this.convert_data_to_list(this.props.to_buy_list);
         let csvContent = "data:text/csv;charset=utf-8,";
         rows.forEach(function(rowArray){
@@ -114,7 +114,7 @@ class SummaryView extends React.Component{
 
     }
 
-    getNum(){
+    getNum() {
         var tot_num=0;
         for(var key in this.props.to_select){
             tot_num+=this.props.to_select[key].length;
@@ -122,7 +122,7 @@ class SummaryView extends React.Component{
         return tot_num;
     }
 
-    selectAll(){
+    selectAll() {
         for(var key in this.props.this_vector_list) {
             for (var index in this.props.this_vector_list[key]){
                 var thisObj = {
@@ -135,7 +135,7 @@ class SummaryView extends React.Component{
         }
     }
 
-    render(){
+    render() {
         var numMols = this.getNum();
         var mol_string = "No mols found!!!";
         if(numMols){
