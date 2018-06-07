@@ -108,7 +108,7 @@ class StateView extends React.Component{
     }
 
     handleOrientationFlag(){
-        var flaggio = false
+        var flaggio = false;
         alert(flaggio.toString())
     }
 
@@ -122,7 +122,7 @@ class StateView extends React.Component{
                     <input id="state_selector" type="text" name="name" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
-                    <h3><b>Orientation Flag: {this.props.orientationFlag.toString()}</b></h3>
+                    <h3><b>Orientation Flag: {JSON.stringift(this.props.orientationFlag)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleOrientationFlag}>Orientation Toggle</Button>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
