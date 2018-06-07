@@ -108,10 +108,9 @@ export const receiveOrientation = function (){
     };
 }
 
-export const setOrientation = function (orientation){
-    console.log("ACTIONS: " + orientation);
+export const setOrientation = function (){
+    console.log("ACTIONS: set orientation");
     return {
-        type: SET_ORIENTATION,
-        orientation: orientation
+        type: SET_ORIENTATION
     };
 }
