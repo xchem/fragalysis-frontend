@@ -2,8 +2,7 @@
  * Created by abradley on 03/03/2018.
  */
 
-import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN, REQUEST_ORIENTATION, RECEIVE_ORIENTATION,
-    SET_ORIENTATION} from './actonTypes'
+import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN, REQUEST_ORIENTATION} from './actonTypes'
 
 export const setColor = function (color) {
     console.log("ACTIONS: " + color);
@@ -101,7 +100,7 @@ export const requestOrientation = function (){
     };
 }
 
-export const receiveOrientation = function (){
+/*export const receiveOrientation = function (){
     console.log("ACTIONS: orientation received");
     return {
         type: RECEIVE_ORIENTATION
@@ -114,3 +113,4 @@ export const setOrientation = function (){
         type: SET_ORIENTATION
     };
 }
+*/

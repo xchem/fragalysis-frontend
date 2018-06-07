@@ -89,7 +89,7 @@ export class NGLView extends React.Component {
     }
     componentDidUpdate() {
         this.renderDisplay();
-        this.requestOrientation();
+//        this.requestOrientation();
     }
 
     showSphere(stage, input_dict, object_name) {
@@ -327,10 +327,10 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
-    requestOrientation() {
+/*    setOrientation() {
         var nglOrientation = this.stage.viewerControls.getOrientation();
-
     }
+*/
 
     render(){
         return <div style={{height: this.height}} id={this.div_id}>
@@ -348,8 +348,8 @@ function mapStateToProps(state) {
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
-      nglOrientation: state.nglReducers.nglOrientation,
-      objectsPicked: state.nglReducers.objectsPicked
+      objectsPicked: state.nglReducers.objectsPicked,
+      orientationFlag: state.nglReducers.orientationFlag
   }
 }
 const mapDispatchToProps = {
