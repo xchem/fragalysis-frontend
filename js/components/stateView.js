@@ -111,7 +111,7 @@ class StateView extends React.Component{
         var myJson = {
             id: "test"
         }
-        alert(myJson.toString())
+        alert(JSON.stringify(myJson))
     }
 
         render(){
