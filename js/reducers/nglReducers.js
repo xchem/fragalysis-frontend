@@ -14,7 +14,7 @@ const INITIALSTATE = {
     spin: false,
     water: true,
     hydrogen: true,
-    orientationFlag: false,
+    orientationFlag: true,
 //    nglOrientation: {}
 }
 
