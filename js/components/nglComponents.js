@@ -139,14 +139,6 @@ export class NGLView extends React.Component {
             stage.setFocus(focus_var);
     };
 
-    requestOrientation(){
-        var orientation = this.stage.viewerControls.getOrientation();
-        this.setState({
-            nglOrientation = orientation.toString()
-        });
-    }
-
-
     showComplex(stage,input_dict,object_name){
         var stringBlob = new Blob( [ input_dict["sdf_info"] ], { type: 'text/plain'} );
         Promise.all([
@@ -333,7 +325,14 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
-    
+
+    requestOrientation(){
+        var orientation = this.stage.viewerControls.getOrientation();
+        this.setState({
+            this.props.nglOrientation = orientation.toString()
+        });
+    }
+
     render(){
         return <div style={{height: this.height}} id={this.div_id}>
            </div>
