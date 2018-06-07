@@ -329,9 +329,7 @@ export class NGLView extends React.Component {
     }
     requestOrientation() {
         var nglOrientation = this.stage.viewerControls.getOrientation();
-        return Object.assign({}, state, {
-            nglOrientation: nglOrientation
-        })
+
     }
 
     render(){
