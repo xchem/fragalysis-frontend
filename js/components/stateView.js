@@ -143,7 +143,6 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
-      ngl_orientation: state.nglReducers.nglOrientation,
       orientationFlag: state.nglReducers.orientationFlag
   }
 }

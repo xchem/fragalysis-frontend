@@ -54,5 +54,5 @@ export const SET_MOL = 'SET_MOL';
 export const SET_VECTOR_LIST = 'SET_VECTOR_LIST';
 // State broadcast
 export const REQUEST_ORIENTATION = 'REQUEST_ORIENTATION';
-export const GET_NGL_ORIENTATION = 'GET_NGL_ORIENTATION';
+// export const GET_NGL_ORIENTATION = 'GET_NGL_ORIENTATION';
 // export const SET_ORIENTATION = 'SET_ORIENTATION';
