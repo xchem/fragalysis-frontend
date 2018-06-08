@@ -109,8 +109,12 @@ class StateView extends React.Component{
 
     handleOrientationFlag(){
         var flaggio = JSON.stringify(this.props.orientation_flag);
+        if (this.props.orientation_flag === true) {
+            flaggio = false;
+        } else if (this.props.orientation_flag === false) {
+            flaggio = true;
+        }
         alert(flaggio);
-
     }
 
         render(){
