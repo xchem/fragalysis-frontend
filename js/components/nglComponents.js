@@ -328,10 +328,10 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
-    getNglOrientation() {
+    getNglOrientation(stage) {
         var orientationFlag = false;
         if (this.props.orientationFlag === true)
-            this.props.getNglOrientation()
+            this.props.getNglOrientation(stage)
     }
 //        var nglOrientation = this.stage.viewerControls.getOrientation();
 
