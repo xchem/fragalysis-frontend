@@ -5,7 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
-import * as nglactions from '../actions/nglLoadActions'
+import * as nglActions from '../actions/nglLoadActions'
+import * as nglRenderActions from '../actions/nglRenderActions'
 import { Stage, Shape, concatStructures, Selection } from 'ngl';
 
 class StateView extends React.Component{
@@ -16,7 +17,6 @@ class StateView extends React.Component{
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
-        this.handleOrientationFlag = this.handleOrientationFlag.bind(this);
 //        this.handleGetOrientation = this.handleGetOrientation.bind(this);
     }
 
@@ -107,16 +107,6 @@ class StateView extends React.Component{
         }).then(json => this.handleJson(json))
     }
 
-    handleOrientationFlag(){
-        var flaggio = JSON.stringify(this.props.orientation_flag);
-        if (this.props.orientation_flag === true) {
-            flaggio = false;
-        } else if (this.props.orientation_flag === false) {
-            flaggio = true;
-        }
-        alert(flaggio);
-    }
-
         render(){
         return <div>
             <Well>
@@ -127,8 +117,8 @@ class StateView extends React.Component{
                     <input id="state_selector" type="text" name="name" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
-                    <h3><b>Orientation Flag: {JSON.stringify(this.props.orientation_flag)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleOrientationFlag}>Orientation Toggle</Button>
+                    <h3><b>Orientation Flag: {JSON.stringify(this.props.orientationFlag)}</b></h3>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Orientation Toggle</Button>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
@@ -153,13 +143,14 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
-      ngl_orientation: state.nglReducers.nglOrientation,
-      orientation_flag: state.nglReducers.orientationFlag
+//      ngl_orientation: state.nglReducers.nglOrientation,
+      orientationFlag: state.nglReducers.orientationFlag
   }
 }
 
 const mapDispatchToProps = {
-    load_object: nglactions.loadObject,
+    load_object: nglActions.loadObject,
+    requestOrientation: nglRenderActions.requestOrientation
 //    set_orientation: nglactions.setOrientation
 }
 
