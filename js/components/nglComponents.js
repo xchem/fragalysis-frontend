@@ -202,7 +202,7 @@ export class NGLView extends React.Component {
         var radius = input_dict.radius==undefined ? 0.4 : input_dict.radius;
         // Handle undefined start and finish
         if (input_dict.start == undefined || input_dict.end == undefined){
-            console.log("START OR END UNDEFINED " + input_dict.toString())
+            console.log("START OR END UNDEFINED FOR CYLINDER" + input_dict.toString())
             return;
         }
 
@@ -217,7 +217,7 @@ export class NGLView extends React.Component {
         var radius = input_dict.radius==undefined ? 0.3 : input_dict.radius;
         // Handle undefined start and finish
         if (input_dict.start == undefined || input_dict.end == undefined){
-            console.log("START OR END UNDEFINED " + input_dict.toString())
+            console.log("START OR END UNDEFINED FOR ARROW " + input_dict.toString())
             return;
         }
         var shape = new Shape( object_name );
