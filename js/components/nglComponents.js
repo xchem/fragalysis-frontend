@@ -362,7 +362,6 @@ const mapDispatchToProps = {
     hideLoading: hideLoading,
     setPanddaSiteOn: apiActions.setPanddaSiteOn,
     showLoading: showLoading,
-    setOrientation: nglLoadActions.setOrientation,
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
@@ -370,6 +369,6 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
     requestOrientation: nglRenderActions.requestOrientation,
-    setNglOrientation: nglRenderActions.setNglOrientation
+    getNglOrientation: nglRenderActions.getNglOrientation
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
