@@ -151,7 +151,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     load_object: nglActions.loadObject,
     requestOrientation: nglRenderActions.requestOrientation,
-    getNglOrientation: nglactions.getNglOrientation
+    getNglOrientation: nglRenderActions.getNglOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StateView);
