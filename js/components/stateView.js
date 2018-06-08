@@ -119,6 +119,8 @@ class StateView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <h3><b>Orientation Flag: {JSON.stringify(this.props.orientationFlag)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Orientation Toggle</Button>
+                    <h3><b>Orientation Flag: {JSON.stringify(this.props.nglOrientation)}</b></h3>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.getNglOrientation}>Orientation Toggle</Button>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
@@ -143,13 +145,15 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
-      orientationFlag: state.nglReducers.orientationFlag
+      orientationFlag: state.nglReducers.orientationFlag,
+      nglOrientation: state.nglReducers.nglOrientation
   }
 }
 
 const mapDispatchToProps = {
     load_object: nglActions.loadObject,
     requestOrientation: nglRenderActions.requestOrientation,
+    getNglOrientation: nglRenderActions.getNglOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StateView);

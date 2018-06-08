@@ -100,7 +100,7 @@ export const requestOrientation = function (){
     };
 }
 
-export const getNglOrientation = function (Stage){
+export const getNglOrientation = function (){
     console.log("ACTIONS: set orientation");
     return {
         type: GET_NGL_ORIENTATION
