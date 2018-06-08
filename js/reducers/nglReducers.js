@@ -141,12 +141,12 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 orientationFlag : orientationFlag
             });
 
-/*        case actions.GET_NGL_ORIENTATION:
+        case actions.GET_NGL_ORIENTATION:
             var orientationFlag = false;
             return Object.assign({}, state, {
                 orientationFlag: orientationFlag
             });
-*/
+
             // Cases like: @@redux/INIT
         default:
             return state;

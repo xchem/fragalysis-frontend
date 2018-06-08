@@ -38,7 +38,7 @@ export class NGLView extends React.Component {
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
-        this.setNglOrientation = this.setNglOrientation.bind(this);
+        this.getNglOrientation = this.getNglOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -328,9 +328,9 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
-    setNglOrientation() {
+    getNglOrientation() {
         var orientationFlag = false;
-        this.setstate({ orientationFlag: orientationFlag })
+        this.setState({ orientationFlag: orientationFlag })
     }
 //        var nglOrientation = this.stage.viewerControls.getOrientation();
 
@@ -353,7 +353,8 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
-      orientationFlag: state.nglReducers.orientationFlag
+      orientationFlag: state.nglReducers.orientationFlag,
+      nglOrientation: state.nglReducers.nglOrientation
   }
 }
 const mapDispatchToProps = {
