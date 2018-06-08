@@ -132,11 +132,10 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.REQUEST_ORIENTATION:
-            var orientationFlag = state.orientationFlag;
             if (state.orientationFlag === true) {
-                orientationFlag = false;
+                var orientationFlag = false;
             } else if (state.orientationFlag === false) {
-                orientationFlag = true;
+                var orientationFlag = true;
             }
             return Object.assign({}, state, {
                 orientationFlag : action.orientationFlag
