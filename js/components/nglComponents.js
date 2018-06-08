@@ -200,7 +200,12 @@ export class NGLView extends React.Component {
     showCylinder(stage, input_dict, object_name) {
         var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
         var radius = input_dict.radius==undefined ? 0.4 : input_dict.radius;
-        var coords = input_dict.coords;
+        // Handle undefined start and finish
+        if (input_dict.start == undefined || input_dict.end == undefined){
+            console.log("START OR END UNDEFINED " + input_dict.toString())
+            return;
+        }
+
         var shape = new Shape( object_name );
         shape.addCylinder(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
@@ -210,6 +215,11 @@ export class NGLView extends React.Component {
     showArrow(stage, input_dict, object_name) {
         var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
         var radius = input_dict.radius==undefined ? 0.3 : input_dict.radius;
+        // Handle undefined start and finish
+        if (input_dict.start == undefined || input_dict.end == undefined){
+            console.log("START OR END UNDEFINED " + input_dict.toString())
+            return;
+        }
         var shape = new Shape( object_name );
         shape.addArrow(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
@@ -281,7 +291,7 @@ export class NGLView extends React.Component {
                 }
             }
             if (old_data) {
-                this.props.deleteObject(this.generateSphere(old_data, true, listType,view));
+                this.props.deleteObject(this.generateSphere(old_data, true, listType, view));
                 this.props.loadObject(this.generateSphere(old_data, false, listType,view));
             }
             // Delete the two old spheres
