@@ -118,9 +118,9 @@ class StateView extends React.Component{
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <h3><b>Orientation Flag: {JSON.stringify(this.props.orientationFlag)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Orientation Toggle</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
                     <h3><b>Orientation Flag: {JSON.stringify(this.props.nglOrientation)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.props.getNglOrientation}>Orientation Toggle</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.props.getNglOrientation}>Get Orientation</Button>
                     <h3>Last saved pk:</h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
