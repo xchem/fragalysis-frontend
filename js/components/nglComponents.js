@@ -327,10 +327,13 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
-/*    setOrientation() {
-        var nglOrientation = this.stage.viewerControls.getOrientation();
+    setNglOrientation() {
+        var orientationFlag = false;
+        this.setstate({ orientationFlag: orientationFlag })
     }
-*/
+//        var nglOrientation = this.stage.viewerControls.getOrientation();
+
+
 
     render(){
         return <div style={{height: this.height}} id={this.div_id}>
@@ -365,6 +368,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    requestOrientation: nglRenderActions.requestOrientation
+    requestOrientation: nglRenderActions.requestOrientation,
+    setNglOrientation: nglRenderActions.setNglOrientation
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

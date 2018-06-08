@@ -143,7 +143,7 @@ function mapStateToProps(state) {
       color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
-//      ngl_orientation: state.nglReducers.nglOrientation,
+      ngl_orientation: state.nglReducers.nglOrientation,
       orientationFlag: state.nglReducers.orientationFlag
   }
 }
@@ -151,7 +151,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     load_object: nglActions.loadObject,
     requestOrientation: nglRenderActions.requestOrientation
-//    set_orientation: nglactions.setOrientation
+    setNglOrientation: nglactions.setNglOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StateView);
