@@ -104,7 +104,7 @@ export const getNglOrientation = function (currentOrientation){
     console.log("ACTIONS: " + currentOrientation);
     return {
         type: GET_NGL_ORIENTATION,
-        currentOrientation: currentOrientation
+//        currentOrientation: currentOrientation
     };
 }
 
