@@ -12,7 +12,6 @@ import { Stage, Shape, concatStructures, Selection } from 'ngl';
 class StateView extends React.Component{
     constructor(props) {
         super(props);
-        this.handleStateState = this.handleStateState.bind(this);
         this.handleStateLoading = this.handleStateLoading.bind(this);
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
@@ -20,33 +19,6 @@ class StateView extends React.Component{
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
     }
 
-
-    handleStateState(){
-        var stateState = JSON.stringify(this.props.objects_in_view);
-        const uuidv4 = require('uuid/v4');
-        var TITLE = 'need to define title';
-        var formattedState = {
-            uuid: uuidv4(),
-            title: TITLE,
-            scene: stateState
-        };
-        return alert(JSON.stringify(formattedState))
-    }
-
-/*    handleStateOrientation(){
-        var curr_orient = this.props.set_orientation();
-        for (i = 0; i < curr_orient["elements"].length; i++) {
-            curr_orient["elements"][i] = ori["elements"][i];
-        }
-        this.stage.viewerControls.orient(curr_orient);
-        this.stage.setFocus(focus_var);
-        var stateOrientation = JSON.stringify(this.props.ngl_orientation);
-        var formattedOrientation = {
-            orientation: stateOrientation
-        };
-        return alert(JSON.stringify(curr_orient))
-    }
-*/
     handleStateLoading(){
         var stateLoading = JSON.stringify(this.props.objects_to_load);
         var TITLE = 'To Load';
