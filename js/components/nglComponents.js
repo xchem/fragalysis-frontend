@@ -339,7 +339,7 @@ export class NGLView extends React.Component {
 
     setNglOrientation(orientationToSet) {
         if (this.props.orientationToSetFlag === false)
-            this.stage.viewerControls.orient(JSON.parse(orientationToSet));
+            this.stage.viewerControls.orient("[" + orientationToSet + "]");
     }
 
     render(){
