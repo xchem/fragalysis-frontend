@@ -39,6 +39,7 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
         this.getNglOrientation = this.getNglOrientation.bind(this);
+        this.setNglOrientation = this.setNglOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -91,6 +92,8 @@ export class NGLView extends React.Component {
         this.renderDisplay();
         var currentOrientation = this.stage.viewerControls.getOrientation()
         this.getNglOrientation(currentOrientation);
+        var orientationToSet = this.props.orientationToSet;
+        this.setNglOrientation(orientationToSet);
     }
 
     showSphere(stage, input_dict, object_name) {
@@ -334,6 +337,11 @@ export class NGLView extends React.Component {
             this.props.getNglOrientation(currentOrientation)
     }
 
+    setNglOrientation(orientationToSet) {
+        if (this.props.orientationToSetFlag === false)
+            this.stage.viewerControls.orient(orientationToSet);
+    }
+
     render(){
         return <div style={{height: this.height}} id={this.div_id}>
            </div>
@@ -352,7 +360,9 @@ function mapStateToProps(state) {
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
       orientationFlag: state.nglReducers.orientationFlag,
-      nglOrientation: state.nglReducers.nglOrientation
+      nglOrientation: state.nglReducers.nglOrientation,
+      orientationToSetFlag: state.nglReducers.orientationToSetFlag,
+      orientationToSet: state.nglReducers.orientationToSet
   }
 }
 const mapDispatchToProps = {
