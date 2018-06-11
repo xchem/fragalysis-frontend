@@ -122,7 +122,7 @@ class StateView extends React.Component{
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
-                    <h3><b>Orientation: {JSON.stringify(this.props.nglOrientation)}</b></h3>
+                    <p>Orientation: {JSON.stringify(this.props.nglOrientation)}</p>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
                     <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
