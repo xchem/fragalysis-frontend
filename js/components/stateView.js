@@ -111,7 +111,7 @@ class StateView extends React.Component{
         return <div>
             <Well>
                 <Row>
-                <Col xs={6} md={6}>
+                <Col xs={5} md={5}>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input id="state_selector" type="text" name="name" />
