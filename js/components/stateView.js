@@ -119,12 +119,9 @@ class StateView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <h3><b>Orientation Flag: {JSON.stringify(this.props.orientationFlag)}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
-                    <h3><b>Orientation Flag: {JSON.stringify(this.props.nglOrientation)}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.props.getNglOrientation}>Get Orientation</Button>
-                    <h3>Last saved pk:</h3>
+                    <h3><b>Orientation: {JSON.stringify(this.props.nglOrientation)}</b></h3>
                     <h3>Target on? <b>{this.props.target_on}</b></h3>
                     <h3>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></h3>
-                    <h3>Orientation? <b>{(this.props.ngl_orientation)}</b></h3>
                     <h3>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></h3>
                 </Col>
                 </Row>
