@@ -77,7 +77,7 @@ class StateView extends React.Component{
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formattedState)
+            body: formattedState.toString()
         }).then(function(response) {
             return response.json();
         }).then(function(myJson) {
