@@ -67,7 +67,7 @@ class StateView extends React.Component{
         var formattedState = {
             uuid: uuidv4(),
             title: TITLE,
-            scene: {components: stateState}
+            scene: JSON.stringify({components: stateState})
         };
         fetch("/api/viewscene/", {
             method: "post",
@@ -75,7 +75,7 @@ class StateView extends React.Component{
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: formattedState.toString()
+            body: JSON.stringify(formattedState)
         }).then(function(response) {
             return response.json();
         }).then(function(myJson) {
