@@ -17,7 +17,7 @@ class StateView extends React.Component{
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
-//        this.handleGetOrientation = this.handleGetOrientation.bind(this);
+        this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
     }
 
 
@@ -67,8 +67,10 @@ class StateView extends React.Component{
         var formattedState = {
             uuid: uuidv4(),
             title: TITLE,
-            scene: stateState,
-            orientation: currentOrientation
+            scene: {
+                components: stateState,
+                orientation: currentOrientation
+            }
         };
         fetch("/api/viewscene/", {
             method: "post",
@@ -101,7 +103,7 @@ class StateView extends React.Component{
     }
 
     handleRenderOrientation(){
-        var orientationToLoad = document.getElementById("orientation_selector").value;
+        var orientationToLoad = [-62.2,39.9,30.4,0,24.5,66.5,-36.9,0,-43.8,-19.4,-64.0,0,0,0,0,1]
         alert(orientationToLoad);
     }
         render(){
@@ -120,7 +122,7 @@ class StateView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input id="orientation_selector" type="text" name="name" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>Reload Orientation</Button>
                     <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation.elements)}</b></p>
                     <p>Target on? <b>{this.props.target_on}</b></p>
@@ -151,7 +153,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-    load_object: nglActions.loadObject,
+    load_object: nglLoadActions.loadObject,
     requestOrientation: nglRenderActions.requestOrientation,
     getNglOrientation: nglRenderActions.getNglOrientation
 }
