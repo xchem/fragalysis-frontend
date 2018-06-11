@@ -80,7 +80,7 @@ class StateView extends React.Component{
     }
 
     handleRenderOrientation(){
-        ar pk = document.getElementById("state_selector").value;
+        var pk = document.getElementById("state_selector").value;
         fetch("/api/viewscene/"+pk)
         .then(function(response) {
             return response.json();
