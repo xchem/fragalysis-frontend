@@ -69,6 +69,7 @@ class StateView extends React.Component{
     }
 
     handlePostState(){
+        this.props.requestOrientation();
         var stateState = JSON.stringify(this.props.objects_in_view);
         const uuidv4 = require('uuid/v4');
         var TITLE = 'need to define title';
