@@ -73,7 +73,8 @@ class StateView extends React.Component{
     }
 
     handleRenderOrientation(){
-        var orientationToLoad = [-62.2,39.9,30.4,0,24.5,66.5,-36.9,0,-43.8,-19.4,-64.0,0,0,0,0,1]
+        var myPreDict = JSON.parse(myJson.scene)
+        var orientationToLoad = JSON.parse(myPreDict.components)
         alert(orientationToLoad);
     }
         render(){
