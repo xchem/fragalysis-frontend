@@ -100,6 +100,10 @@ class StateView extends React.Component{
         }).then(json => this.handleJson(json))
     }
 
+    handleRenderOrientation(){
+        var orientationToLoad = document.getElementById("orientation_selector").value;
+        alert(orientationToLoad);
+    }
         render(){
         return <div>
             <Well>
@@ -114,12 +118,10 @@ class StateView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                     <h3>Orientation</h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input id="orientation_selector" type="text" name="name" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload Orientation</Button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>Reload Orientation</Button>
                     <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation.elements)}</b></p>
                     <p>Target on? <b>{this.props.target_on}</b></p>
                     <p>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></p>
