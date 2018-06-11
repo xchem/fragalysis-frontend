@@ -75,10 +75,8 @@ class StateView extends React.Component{
 
     handleOrientationJson(myJson){
         var myPreDict = JSON.parse(myJson.scene);
-        var myDict = JSON.parse(myPreDict.orientation);
-//        for (var key in myDict) {
-            alert(myDict);
-//        }
+        var orientationToSet = JSON.parse(myPreDict.orientation);
+        alert(orientationToSet);
     }
 
     handleRenderOrientation(){
@@ -131,14 +129,18 @@ function mapStateToProps(state) {
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
       orientationFlag: state.nglReducers.orientationFlag,
-      nglOrientation: state.nglReducers.nglOrientation
+      nglOrientation: state.nglReducers.nglOrientation,
+      orientationToSetFlag: state.nglReducers.orientationToSetFlag,
+      nglOrientationToSet: state.nglReducers.orientationToSet
   }
 }
 
 const mapDispatchToProps = {
     load_object: nglLoadActions.loadObject,
     requestOrientation: nglRenderActions.requestOrientation,
-    getNglOrientation: nglRenderActions.getNglOrientation
+    getNglOrientation: nglRenderActions.getNglOrientation,
+    requestToSetOrientation: nglRenderActions.requestToSetOrientation,
+    setNglOrientation: nglRenderActions.setNglOrientation
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StateView);

@@ -15,7 +15,10 @@ const INITIALSTATE = {
     water: true,
     hydrogen: true,
     orientationFlag: false,
-    nglOrientation: {}
+    nglOrientation: {},
+    orientationToSetFlag: false,
+    orientationToSet: {}
+
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
@@ -146,6 +149,23 @@ export default function nglReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 orientationFlag: orientationFlag,
                 nglOrientation: action.currentOrientation
+            });
+
+        case actions.REQUEST_TO_SET_ORIENTATION:
+            if (state.orientationToSetFlag === true) {
+                var orientationToSetFlag = false;
+            } else if (state.orientationToSetFlag === false) {
+                var orientationToSetFlag = true;
+            }
+            return Object.assign({}, state, {
+                orientationToSetFlag : orientationToSetFlag
+            });
+
+        case actions.SET_NGL_ORIENTATION:
+            var orientationToSetFlag = false;
+            return Object.assign({}, state, {
+                orientationToSetFlag: orientationToSetFlag,
+                orientationToSet: action.orientationToSet
             });
 
             // Cases like: @@redux/INIT
