@@ -61,13 +61,13 @@ class StateView extends React.Component{
     handlePostState(){
         this.props.requestOrientation();
         var stateState = JSON.stringify(this.props.objects_in_view);
-//        var currentOrientation = JSON.stringify(this.props.nglOrientation.elements);
+        var currentOrientation = JSON.stringify(this.props.nglOrientation.elements);
         const uuidv4 = require('uuid/v4');
         var TITLE = 'need to define title';
         var formattedState = {
             uuid: uuidv4(),
             title: TITLE,
-            scene: JSON.stringify({components: stateState})
+            scene: JSON.stringify({components: stateState, orientation: currentOrientation})
         };
         fetch("/api/viewscene/", {
             method: "post",
