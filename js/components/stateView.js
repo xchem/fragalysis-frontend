@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import fetch from 'cross-fetch'
-import * as nglActions from '../actions/nglLoadActions'
+import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglRenderActions from '../actions/nglRenderActions'
 import { Stage, Shape, concatStructures, Selection } from 'ngl';
 
