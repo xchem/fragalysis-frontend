@@ -147,7 +147,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 orientationFlag: orientationFlag,
                 nglOrientation: action.stage
             });
-                        
+
             // Cases like: @@redux/INIT
         default:
             return state;
