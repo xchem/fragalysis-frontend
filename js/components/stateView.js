@@ -20,17 +20,7 @@ class StateView extends React.Component{
 //        this.handleGetOrientation = this.handleGetOrientation.bind(this);
     }
 
-/*    handleGetOrientation() {
-        var orientation_requested = this.props.ngl_orientation;
-        this.setState(prevState => ({orientation_requested: !prevState.orientation_requested}))
-        var orientation_acquired = JSON.stringify(this.props.orientation_acquired);
-        var orientationStates = {
-            requestOrientation: orientation_requested,
-            receiveOrientation: orientation_acquired
-        };
-        return alert(JSON.stringify(orientation_requested))
-    }
-*/
+
     handleStateState(){
         var stateState = JSON.stringify(this.props.objects_in_view);
         const uuidv4 = require('uuid/v4');
@@ -71,12 +61,14 @@ class StateView extends React.Component{
     handlePostState(){
         this.props.requestOrientation();
         var stateState = JSON.stringify(this.props.objects_in_view);
+        var currentOrientation = JSON.stringify(this.props.nglOrientation);
         const uuidv4 = require('uuid/v4');
         var TITLE = 'need to define title';
         var formattedState = {
             uuid: uuidv4(),
             title: TITLE,
-            scene: stateState
+            scene: stateState,
+            orientations: currentOrientation
         };
         fetch("/api/viewscene/", {
             method: "post",
