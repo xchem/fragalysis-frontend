@@ -68,7 +68,7 @@ class StateView extends React.Component{
             uuid: uuidv4(),
             title: TITLE,
             scene: stateState,
-            orientations: currentOrientation
+            orientation: currentOrientation
         };
         fetch("/api/viewscene/", {
             method: "post",
@@ -115,7 +115,7 @@ class StateView extends React.Component{
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
-                    <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation)}</b></p>
+                    <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation.elements)}</b></p>
                     <p>Target on? <b>{this.props.target_on}</b></p>
                     <p>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></p>
                     <p>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></p>
