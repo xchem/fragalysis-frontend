@@ -145,7 +145,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             var orientationFlag = false;
             return Object.assign({}, state, {
                 orientationFlag: orientationFlag,
-                nglOrientation: action.stage
+                nglOrientation: action.currentOrientation
             });
 
             // Cases like: @@redux/INIT

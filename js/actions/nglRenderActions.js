@@ -100,11 +100,11 @@ export const requestOrientation = function (){
     };
 }
 
-export const getNglOrientation = function (stage){
-    console.log("ACTIONS: " + stage);
+export const getNglOrientation = function (currentOrientation){
+    console.log("ACTIONS: " + currentOrientation);
     return {
         type: GET_NGL_ORIENTATION,
-        stage: stage
+        currentOrientation: currentOrientation
     };
 }
 
