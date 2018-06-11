@@ -57,7 +57,8 @@ class StateView extends React.Component{
     }
 
     handleJson(myJson){
-        var myDict = JSON.parse(myJson.scene)
+//        var myPreDict = JSON.parse(myJson.scene)
+        var myDict = JSON.parse(myJson.scene.components)
         for(var key in myDict){
             this.props.load_object(myDict[key]);
         }
