@@ -16,6 +16,7 @@ class StateView extends React.Component{
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
+        this.handleOrientationJson = this.handleOrientationJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
     }
 
@@ -57,8 +58,8 @@ class StateView extends React.Component{
     }
 
     handleJson(myJson){
-        var myPreDict = JSON.parse(myJson.scene)
-        var myDict = JSON.parse(myPreDict.components)
+        var myPreDict = JSON.parse(myJson.scene);
+        var myDict = JSON.parse(myPreDict.components);
         for(var key in myDict){
             this.props.load_object(myDict[key]);
         }
@@ -72,11 +73,20 @@ class StateView extends React.Component{
         }).then(json => this.handleJson(json))
     }
 
-    handleRenderOrientation(){
+    handleOrientationJson(myJson){
         var myPreDict = JSON.parse(myJson.scene)
-        var orientationToLoad = JSON.parse(myPreDict.components)
+        var orientationToLoad = JSON.parse(myPreDict.orientation)
         alert(orientationToLoad);
     }
+
+    handleRenderOrientation(){
+        ar pk = document.getElementById("state_selector").value;
+        fetch("/api/viewscene/"+pk)
+        .then(function(response) {
+            return response.json();
+        }).then(json => this.handleOrientationJson(json))
+    }
+
         render(){
         return <div>
             <Well>
