@@ -67,10 +67,8 @@ class StateView extends React.Component{
         var formattedState = {
             uuid: uuidv4(),
             title: TITLE,
-            scene: {
-                components: stateState,
-                orientation: currentOrientation
-            }
+            components: stateState,
+            orientation: currentOrientation
         };
         fetch("/api/viewscene/", {
             method: "post",
