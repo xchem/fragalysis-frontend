@@ -51,7 +51,6 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
-//        this.requestOrientation = this.requestOrientation.bind(this);
     }
 
     showPick(stage, pickingProxy) {
@@ -197,8 +196,8 @@ export class NGLView extends React.Component {
             })
         });
     }
-    
-    
+
+
     showCylinder(stage, input_dict, object_name) {
         var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
         var radius = input_dict.radius==undefined ? 0.4 : input_dict.radius;
