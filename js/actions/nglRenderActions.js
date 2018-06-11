@@ -103,7 +103,8 @@ export const requestOrientation = function (){
 export const getNglOrientation = function (stage){
     console.log("ACTIONS: " + stage);
     return {
-        type: GET_NGL_ORIENTATION
+        type: GET_NGL_ORIENTATION,
+        stage: stage
     };
 }
 

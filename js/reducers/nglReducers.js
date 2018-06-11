@@ -144,9 +144,10 @@ export default function nglReducers(state = INITIALSTATE, action) {
         case actions.GET_NGL_ORIENTATION:
             var orientationFlag = false;
             return Object.assign({}, state, {
-                orientationFlag: orientationFlag
+                orientationFlag: orientationFlag,
+                nglOrientation: action.stage
             });
-
+                        
             // Cases like: @@redux/INIT
         default:
             return state;
