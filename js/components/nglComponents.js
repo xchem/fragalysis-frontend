@@ -90,7 +90,7 @@ export class NGLView extends React.Component {
     }
     componentDidUpdate() {
         this.renderDisplay();
-        this.getNglOrientation();
+//        this.getNglOrientation();
     }
 
     showSphere(stage, input_dict, object_name) {
