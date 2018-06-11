@@ -119,7 +119,7 @@ class StateView extends React.Component{
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input id="orientation_selector" type="text" name="name" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>Reload Orientation</Button>
                     <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation.elements)}</b></p>
                     <p>Target on? <b>{this.props.target_on}</b></p>
