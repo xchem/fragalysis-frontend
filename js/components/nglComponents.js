@@ -33,6 +33,7 @@ export class NGLView extends React.Component {
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;
+        this.orientationToSet=undefined;
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
@@ -90,10 +91,13 @@ export class NGLView extends React.Component {
     }
     componentDidUpdate() {
         this.renderDisplay();
-        var currentOrientation = this.stage.viewerControls.getOrientation()
+        if (this.orientationToSet==this.props.orientationToSet){
+            this.setNglOrientation(this.props.orientationToSet);
+            this.orientationToSet=this.props.orientationToSet;
+        }
+
+        var currentOrientation = this.stage.viewerControls.getOrientation();
         this.getNglOrientation(currentOrientation);
-        var orientationToSet = this.props.orientationToSet;
-        this.setNglOrientation(orientationToSet);
     }
 
     showSphere(stage, input_dict, object_name) {
