@@ -21,7 +21,7 @@ class StateView extends React.Component{
         this.handleFullStateSave = this.handleFullStateSave.bind(this);
     }
 
-     componentDidUpdate() {
+     componentWillReceiveProps() {
         this.handlePostState();
     }
 
