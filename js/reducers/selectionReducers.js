@@ -71,7 +71,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 input_mol_dict = JSON.parse(input_mol_dict);
                 // Uniquif the dictionrary
                 for (var key in input_mol_dict) {
-                    new_dict[key] = input_mol_dict[key].unique();
+                    new_dict[key] = input_mol_dict[key].filter((x, i, a) => a.indexOf(x) == i)
                 }
             }
             else{
