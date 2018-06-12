@@ -25,11 +25,11 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             });
 
         case actions.APPEND_TO_BUY_LIST:
-            var to_buy_list = state.to_buy_list
+            var to_buy_list = state.to_buy_list.slice();
             var exists = false;
             for(var item in to_buy_list){
                 if( to_buy_list[item].smiles==action.item.smiles){
-                    exists = true
+                    exists = true;
                 }
             }
             if(exists==false) {
