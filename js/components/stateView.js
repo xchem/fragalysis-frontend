@@ -132,7 +132,7 @@ function mapStateToProps(state) {
       orientationFlag: state.nglReducers.orientationFlag,
       nglOrientation: state.nglReducers.nglOrientation,
       orientationToSetFlag: state.nglReducers.orientationToSetFlag,
-      nglOrientationToSet: state.nglReducers.orientationToSet
+      orientationToSet: state.nglReducers.orientationToSet
   }
 }
 
