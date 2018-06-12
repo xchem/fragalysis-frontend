@@ -121,10 +121,10 @@ export const getNglOrientation = function (currentOrientation){
     };
 }
 
-export const requestToSetOrientation = function (bool){
+export const toggleToSetOrientation = function (bool){
     console.log("ACTIONS: orientation set requested");
     return {
-        type: REQUEST_TO_SET_ORIENTATION,
+        type: TOGGLE_TO_SET_ORIENTATION,
         bool: bool
     };
 }

@@ -144,7 +144,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 nglOrientation: action.currentOrientation
             });
 
-        case actions.REQUEST_TO_SET_ORIENTATION:
+        case actions.TOGGLE_TO_SET_ORIENTATION:
             return Object.assign({}, state, {
                 orientationToSetFlag : action.bool
             });

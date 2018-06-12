@@ -82,7 +82,7 @@ class StateView extends React.Component{
     handleOrientationJson(myJson){
         var myPreDict = JSON.parse(myJson.scene);
         var orientationToSet = JSON.parse(myPreDict.orientation);
-        this.props.requestToSetOrientation();
+        this.props.ToggleToSetOrientation();
         this.props.setNglOrientation(orientationToSet);
     }
 
@@ -148,7 +148,7 @@ const mapDispatchToProps = {
     load_object: nglLoadActions.loadObject,
     toggleOrientationFlag: nglRenderActions.toggleOrientationFlag,
     getNglOrientation: nglRenderActions.getNglOrientation,
-    requestToSetOrientation: nglRenderActions.requestToSetOrientation,
+    toggleToSetOrientation: nglRenderActions.toggleToSetOrientation,
     setNglOrientation: nglRenderActions.setNglOrientation
 }
 

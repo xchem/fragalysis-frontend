@@ -389,7 +389,7 @@ const mapDispatchToProps = {
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
     toggleOrientationFlag: nglRenderActions.toggleOrientationFlag,
     getNglOrientation: nglRenderActions.getNglOrientation,
-    requestToSetOrientation: nglRenderActions.requestToSetOrientation,
+    toggleToSetOrientation: nglRenderActions.toggleToSetOrientation,
     confirmOrientationCollection: nglRenderActions.confirmOrientationCollection
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
