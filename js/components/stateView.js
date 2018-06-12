@@ -23,6 +23,7 @@ class StateView extends React.Component{
 
      componentWillReceiveProps() {
         this.handlePostState();
+        this.render();
     }
 
     handleStateLoading(){
