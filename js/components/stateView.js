@@ -122,6 +122,8 @@ class StateView extends React.Component{
                     <p>Target on? <b>{this.props.target_on}</b></p>
                     <p>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></p>
                     <p>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></p>
+                    <p>orientation flag: <b>{JSON.stringify(this.props.orientationFlag)}</b></p>
+                    <p>orientation flag: <b>{JSON.stringify(this.props.orientationFlag)}</b></p>
                 </Col>
                 </Row>
             </Well>
