@@ -97,7 +97,7 @@ export const requestOrientation = function (bool){
     console.log("ACTIONS: orientation requested");
     return {
         type: REQUEST_ORIENTATION,
-        bool: action.bool
+        bool: bool
     };
 }
 
