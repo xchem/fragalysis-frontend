@@ -115,6 +115,7 @@ class StateView extends React.Component{
         </div>
     }
 }
+
 function mapStateToProps(state) {
   return {
       to_buy_list: state.selectionReducers.to_buy_list,
@@ -131,7 +132,8 @@ function mapStateToProps(state) {
       orientationFlag: state.nglReducers.orientationFlag,
       nglOrientation: state.nglReducers.nglOrientation,
       orientationToSetFlag: state.nglReducers.orientationToSetFlag,
-      orientationToSet: state.nglReducers.orientationToSet
+      orientationToSet: state.nglReducers.orientationToSet,
+      orientationCollectedFlag: state.nglReducers.orientationCollectedFlag
   }
 }
 
