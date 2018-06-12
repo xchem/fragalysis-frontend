@@ -40,7 +40,7 @@ class StateView extends React.Component{
         var formattedState = {
             uuid: uuidv4(),
             title: TITLE,
-            scene: JSON.stringify({components: stateState, orientation: currentOrientation})
+            scene: JSON.stringify({components: stateState, orientatio: currentOrientation})
         };
         fetch("/api/viewscene/", {
             method: "post",
@@ -75,7 +75,7 @@ class StateView extends React.Component{
 
     handleOrientationJson(myJson){
         var myPreDict = JSON.parse(myJson.scene);
-        var orientationToSet = myPreDict.orientation;
+        var orientationToSet = myPreDict.orientatio;
         this.props.setNglOrientation(orientationToSet);
 //        alert(orientationToSet);
     }
