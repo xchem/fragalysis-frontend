@@ -65,9 +65,14 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
         case actions.GOT_FULL_GRAPH:
             var input_mol_dict = action.input_mol_dict;
+            var new_dict = {}
             // Check if JSON
             if(input_mol_dict.startsWith("{")){
                 input_mol_dict = JSON.parse(input_mol_dict);
+                // Uniquif the dictionrary
+                for (var key in input_mol_dict) {
+                    new_dict[key] = input_mol_dict[key].unique();
+                }
             }
             else{
                 input_mol_dict={"NO_JSON":-1}
