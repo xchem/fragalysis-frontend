@@ -8,7 +8,7 @@ import * as selectionActions from '../actions/selectionActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
-import UpdateOrientation from './updateOrientation';
+import UpdateOrientation from './updateOrientation';    
 
 class SummaryView extends React.Component{
     constructor(props) {
