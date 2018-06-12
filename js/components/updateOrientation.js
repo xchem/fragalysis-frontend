@@ -19,7 +19,7 @@ export class UpdateOrientation extends React.Component {
 
     refreshOrientation() {
         for(var key in this.props.nglOrientations){
-            this.props.setOrientations(key,"REFRESH")
+            this.props.setOrientation(key,"REFRESH")
         }
     }
 
