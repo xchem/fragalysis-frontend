@@ -91,13 +91,8 @@ export class NGLView extends React.Component {
     }
     componentDidUpdate() {
         this.renderDisplay();
-        if (this.orientationToSet==this.props.orientationToSet){
-            this.setNglOrientation(this.props.orientationToSet);
-            this.orientationToSet=this.props.orientationToSet;
-        }
-
-        var currentOrientation = this.stage.viewerControls.getOrientation();
-        this.getNglOrientation(currentOrientation);
+        this.setNglOrientation();
+        this.getNglOrientation();
     }
 
     showSphere(stage, input_dict, object_name) {
@@ -336,21 +331,25 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
 
-    getNglOrientation(currentOrientation) {
+    getNglOrientation() {
+        var currentOrientation = this.stage.viewerControls.getOrientation();
         if (this.props.orientationFlag === true)
             this.props.getNglOrientation(currentOrientation)
     }
 
-    setNglOrientation(orientationToSet) {
-        if (orientationToSet == {}){
+    setNglOrientation() {
+        if (this.props.orientationToSet == {}){
             return;
         }
-        console.log(orientationToSet)
-        var curr_orient = this.stage.viewerControls.getOrientation();
-        for (var i = 0; i < curr_orient.elements.length; i += 1) {
-            curr_orient.elements[i] = orientationToSet[i];
+        if (this.orientationToSet==this.props.orientationToSet) {
+            var curr_orient = this.stage.viewerControls.getOrientation();
+            for (var i = 0; i < curr_orient.elements.length; i += 1) {
+                curr_orient.elements[i] = orientationToSet[i];
+            }
+            this.stage.viewerControls.orient(curr_orient);
+            // No reset the variable in element
+            this.orientationToSet=this.props.orientationToSet;
         }
-        this.stage.viewerControls.orient(curr_orient);
     }
 
     render(){
