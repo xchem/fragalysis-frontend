@@ -2,7 +2,7 @@
  * Created by abradley on 03/03/2018.
  */
 
-import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN, REQUEST_ORIENTATION, GET_NGL_ORIENTATION, REQUEST_TO_SET_ORIENTATION, SET_NGL_ORIENTATION} from './actonTypes'
+import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN, REQUEST_ORIENTATION, GET_NGL_ORIENTATION, REQUEST_TO_SET_ORIENTATION, SET_NGL_ORIENTATION, CONFIRM_ORIENTATION_COLLECTION} from './actonTypes'
 
 export const setColor = function (color) {
     console.log("ACTIONS: " + color);
@@ -120,5 +120,11 @@ export const setNglOrientation = function (orientationToSet){
     return {
         type: SET_NGL_ORIENTATION,
         orientationToSet: orientationToSet
+    };
+}
+export const confirmOrientationCollection = function (){
+    console.log("ACTIONS: orientation collection monitoring");
+    return {
+        type: CONFIRM_ORIENTATION_COLLECTION
     };
 }
