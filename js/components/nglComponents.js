@@ -93,9 +93,9 @@ export class NGLView extends React.Component {
             )
     }
 
-    componentDidUpdate(){
-        if (newProps.collectState != undefined) {
-            if (newProps.collectState[this.div_id] == "REFRESH") {
+    componentWillReceiveProps(newState){
+        if (newState.nglOrientations != undefined) {
+            if (newState.nglOrientations[this.div_id] == "REFRESH") {
                 this.props.setOrientation(
                     this.div_id,
                     this.stage.viewerControls.getOrientation()
@@ -361,6 +361,7 @@ export class NGLView extends React.Component {
 
 function mapStateToProps(state) {
   return {
+      nglOrientations: state.nglReducers.nglOrientations,
       mol_group_list: state.apiReducers.mol_group_list,
       mol_group_on: state.apiReducers.mol_group_on,
       pandda_site_on: state.apiReducers.pandda_site_on,
