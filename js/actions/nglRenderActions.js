@@ -119,6 +119,6 @@ export const setNglOrientation = function (orientationToSet){
     console.log("ACTIONS: " + orientationToSet);
     return {
         type: SET_NGL_ORIENTATION,
-        orientationToSet: OrientationToSet
+        orientationToSet: orientationToSet
     };
 }
