@@ -31,29 +31,32 @@ class StateView extends React.Component{
         return alert(JSON.stringify(formattedState))
     }
 
-    handlePostState(){
-        var stateState = JSON.stringify(this.props.objects_in_view);
-        var currentOrientation = JSON.stringify(this.props.nglOrientation.elements);
-        const uuidv4 = require('uuid/v4');
-        var TITLE = 'need to define title';
-        var formattedState = {
-            uuid: uuidv4(),
-            title: TITLE,
-            scene: JSON.stringify({components: stateState, orientation: currentOrientation})
-        };
-        fetch("/api/viewscene/", {
-            method: "post",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formattedState)
-        }).then(function(response) {
-            return response.json();
-        }).then(function(myJson) {
-            // window.location.protocol + window.location.hostname + "/api/viewscene/" + myJson.id.toString()
-            alert(myJson.id.toString())
-        });
+    handlePostState() {
+        if (this.props.orientationCollectedFlag == true) {
+            this.props.confirmOrientationCollection()
+            var stateState = JSON.stringify(this.props.objects_in_view);
+            var currentOrientation = JSON.stringify(this.props.nglOrientation.elements);
+            const uuidv4 = require('uuid/v4');
+            var TITLE = 'need to define title';
+            var formattedState = {
+                uuid: uuidv4(),
+                title: TITLE,
+                scene: JSON.stringify({components: stateState, orientation: currentOrientation})
+            };
+            fetch("/api/viewscene/", {
+                method: "post",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formattedState)
+            }).then(function (response) {
+                return response.json();
+            }).then(function (myJson) {
+                // window.location.protocol + window.location.hostname + "/api/viewscene/" + myJson.id.toString()
+                alert(myJson.id.toString())
+            });
+        }
     }
 
     handleJson(myJson){
@@ -88,7 +91,7 @@ class StateView extends React.Component{
     }
 
     handleFullStateSave(){
-        this.props.requestToSetOrientation()
+        this.props.requestOrientation()
     }
 
         render(){
