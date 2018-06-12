@@ -87,11 +87,17 @@ class StateView extends React.Component{
         }).then(json => this.handleOrientationJson(json))
     }
 
+    handleFullStateSave(){
+        this.props.requestToSetOrientation()
+    }
+
         render(){
         return <div>
             <Well>
                 <Row>
                 <Col xs={12} md={12}>
+                    <Button bsSize="large" bsStyle="failure" onClick={this.handleFullStateSave}>THE BIG DADDY</Button>
+                    <p>state saving</p>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -99,7 +105,7 @@ class StateView extends React.Component{
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
-                    <h3>Orientation</h3>
+                    <p>orientation saving</p>
                     <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input id="orientation_selector" type="text" name="name" />
