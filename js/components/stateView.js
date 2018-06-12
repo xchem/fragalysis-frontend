@@ -19,6 +19,7 @@ class StateView extends React.Component{
         this.handleOrientationJson = this.handleOrientationJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
         this.handleFullStateSave = this.handleFullStateSave.bind(this);
+        this.render = this.render.bind(this);
     }
 
      componentWillReceiveProps() {
@@ -100,34 +101,34 @@ class StateView extends React.Component{
         this.props.requestOrientation()
     }
 
-        render(){
+    render(){
         return <div>
             <Well>
                 <Row>
-                <Col xs={12} md={12}>
-                    <Button bsSize="large" bsStyle="danger" onClick={this.handleFullStateSave}>THE BIG DADDY</Button>
-                    <p>state saving</p>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input id="state_selector" type="text" name="name" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
-                    <p>orientation saving</p>
-                    <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input id="orientation_selector" type="text" name="name" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>Reload Orientation</Button>
-                    <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation.elements)}</b></p>
-                    <p>Target on? <b>{this.props.target_on}</b></p>
-                    <p>Number of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></p>
-                    <p>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></p>
-                    <p>orientation flag: <b>{JSON.stringify(this.props.orientationFlag)}</b></p>
-                    <p>orientation collected flag: <b>{JSON.stringify(this.props.orientationCollectedFlag)}</b></p>
-                    <p>orientation to set flag: <b>{JSON.stringify(this.props.orientationToSetFlag)}</b></p>
-                </Col>
+                    <Col xs={12} md={12}>
+                        <Button bsSize="large" bsStyle="danger" onClick={this.handleFullStateSave}>THE BIG DADDY</Button>
+                        <p>state saving</p>
+                        <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input id="state_selector" type="text" name="name" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
+                        <p>orientation saving</p>
+                        <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input id="orientation_selector" type="text" name="name" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>Reload Orientation</Button>
+                        <p>Orientation: <b>{JSON.stringify(this.props.nglOrientation.elements)}</b></p>
+                        <p>Target on? <b>{this.props.target_on}</b></p>
+                        <p>umber of objects? <b>{Object.keys(this.props.objects_in_view).length}</b></p>
+                        <p>Stringified state: <b>{JSON.stringify(this.props.objects_in_view)}</b></p>
+                        <p>orientation flag: <b>{JSON.stringify(this.props.orientationFlag)}</b></p>
+                        <p>orientation collected flag: <b>{JSON.stringify(this.props.orientationCollectedFlag)}</b></p>
+                        <p>orientation to set flag: <b>{JSON.stringify(this.props.orientationToSetFlag)}</b></p>
+                    </Col>
                 </Row>
             </Well>
         </div>
