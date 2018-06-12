@@ -75,7 +75,7 @@ class StateView extends React.Component{
 
     handleOrientationJson(myJson){
         var myPreDict = JSON.parse(myJson.scene);
-        var orientationToSet = myPreDict.orientation;
+        var orientationToSet = JSON.parse(myPreDict.orientation);
         this.props.requestToSetOrientation();
         this.props.setNglOrientation(orientationToSet);
 //        alert(orientationToSet);
