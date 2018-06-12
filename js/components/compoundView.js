@@ -45,6 +45,17 @@ class CompoundView extends GenericView {
         this.loadFromServer(this.props.width,this.props.height);
         this.checkInList();
     }
+
+    componentWillReceiveProps(nextProps) {
+        var isToggleOn = false;
+        for(var item in nextProps.to_buy_list){
+            if( nextProps.to_buy_list[item].smiles==this.send_obj.smiles){
+                isToggleOn=true
+            }
+        }
+        this.setState(prevState => ({isToggleOn: isToggleOn}));
+    }
+
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
