@@ -135,10 +135,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.REQUEST_ORIENTATION:
-            var orientationFlag = true;
             return Object.assign({}, state, {
-                orientationFlag : orientationFlag,
-                bool: action.bool
+                orientationFlag : action.bool
             });
 
         case actions.GET_NGL_ORIENTATION:
@@ -147,9 +145,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.REQUEST_TO_SET_ORIENTATION:
-            var orientationToSetFlag = true;
             return Object.assign({}, state, {
-                orientationToSetFlag : orientationToSetFlag
+                orientationToSetFlag : action.bool
             });
 
         case actions.SET_NGL_ORIENTATION:
@@ -158,9 +155,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.CONFIRM_ORIENTATION_COLLECTION:
-            var orientationCollectedFlag = true;
             return Object.assign({}, state, {
-                orientationCollectedFlag : orientationCollectedFlag
+                orientationCollectedFlag : action.bool
             });
 
             // Cases like: @@redux/INIT

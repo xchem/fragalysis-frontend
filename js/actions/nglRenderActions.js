@@ -109,10 +109,11 @@ export const getNglOrientation = function (currentOrientation){
     };
 }
 
-export const requestToSetOrientation = function (){
+export const requestToSetOrientation = function (bool){
     console.log("ACTIONS: orientation set requested");
     return {
-        type: REQUEST_TO_SET_ORIENTATION
+        type: REQUEST_TO_SET_ORIENTATION,
+        bool: bool
     };
 }
 
@@ -123,9 +124,10 @@ export const setNglOrientation = function (orientationToSet){
         orientationToSet: orientationToSet
     };
 }
-export const confirmOrientationCollection = function (){
+export const confirmOrientationCollection = function (bool){
     console.log("ACTIONS: orientation collection monitoring");
     return {
-        type: CONFIRM_ORIENTATION_COLLECTION
+        type: CONFIRM_ORIENTATION_COLLECTION,
+        bool: bool
     };
 }

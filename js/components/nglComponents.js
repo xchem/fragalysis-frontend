@@ -335,19 +335,19 @@ export class NGLView extends React.Component {
             var currentOrientation = this.stage.viewerControls.getOrientation();
             this.props.getNglOrientation(currentOrientation)
             this.props.requestOrientation(false)
-            this.props.confirmOrientationCollection()
+            this.props.confirmOrientationCollection(true)
         }
     }
 
     setNglOrientation() {
-        if (this.props.orientationToSetFlag == true) {
+        if (this.props.orientationToSetFlag === true) {
             var curr_orient = this.stage.viewerControls.getOrientation();
             for (var i = 0; i < curr_orient.elements.length; i += 1) {
                 curr_orient.elements[i] = this.props.orientationToSet[i];
             }
             this.stage.viewerControls.orient(curr_orient);
             // No reset the variable in element
-            this.props.confirmOrientationCollection();
+            this.props.confirmOrientationCollection(false);
         }
     }
 
