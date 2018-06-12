@@ -78,7 +78,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 input_mol_dict={"NO_JSON":-1}
             }
             return  Object.assign({}, state, {
-                to_select: input_mol_dict,
+                to_select: new_dict,
                 querying: false
             });
 
