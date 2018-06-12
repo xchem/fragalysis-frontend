@@ -6,9 +6,9 @@ import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
+import UpdateOrientation from './updateOrientation';
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -162,6 +162,7 @@ class SummaryView extends React.Component{
             <Well>
                 <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
                 <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                <UpdateOrientation />
                 <CompoundList />
             </Well>
         </div>

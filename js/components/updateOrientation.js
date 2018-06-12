@@ -1,19 +1,13 @@
 /**
  * Created by abradley on 01/03/2018.
  */
-import { Stage, Shape, concatStructures, Selection } from 'ngl';
-import { ListGroupItem, ListGroup, Col} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import * as nglObjectTypes from '../components/nglObjectTypes'
-import * as listTypes from './listTypes'
-import { showLoading, hideLoading } from 'react-redux-loading-bar'
-import * as selectionActions from '../actions/selectionActions'
+import { Button, Well, Col, Row } from 'react-bootstrap'
 
 
-export class NGLView extends React.Component {
+export class UpdateOrientation extends React.Component {
     constructor(props) {
         super(props);
 
@@ -33,12 +27,12 @@ export class NGLView extends React.Component {
     }
 
     componentDidUpdate() {
-        this.renderDisplay();
     }
 
 
     render() {
         return <div>
+            <Button bsSize="large" bsStyle="success" onClick={this.refreshOrientation}>REFRESH</Button>
             {JSON.stringify(this.props.nglOrientations)}
            </div>
     }
