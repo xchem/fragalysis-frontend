@@ -93,7 +93,7 @@ export class NGLView extends React.Component {
             )
     }
 
-    componentDidUpdate(newProps){
+    componentDidUpdate(){
         if (newProps.collectState != undefined) {
             if (newProps.collectState[this.div_id] == "REFRESH") {
                 this.props.setOrientation(
