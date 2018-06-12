@@ -93,10 +93,11 @@ export const setAssemblyOptions = function (structure) {
     };
 }
 
-export const requestOrientation = function (){
+export const requestOrientation = function (bool){
     console.log("ACTIONS: orientation requested");
     return {
-        type: REQUEST_ORIENTATION
+        type: REQUEST_ORIENTATION,
+        bool: action.bool
     };
 }
 

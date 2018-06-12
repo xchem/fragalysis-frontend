@@ -95,7 +95,7 @@ class StateView extends React.Component{
     }
 
     handleFullStateSave(){
-        this.props.requestOrientation()
+        this.props.requestOrientation(true);
     }
 
     render(){
