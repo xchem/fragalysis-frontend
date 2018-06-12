@@ -92,9 +92,6 @@ export class NGLView extends React.Component {
 
     componentDidUpdate(){
         this.renderDisplay();
-    }
-
-    componentWillReceiveProps() {
         this.getNglOrientation();
         this.setNglOrientation();
     }
@@ -350,7 +347,7 @@ export class NGLView extends React.Component {
             }
             this.stage.viewerControls.orient(curr_orient);
             // No reset the variable in element
-            this.props.requestToSetOrientation();
+            this.props.confirmOrientationCollection();
         }
     }
 

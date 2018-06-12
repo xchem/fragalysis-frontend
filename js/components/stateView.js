@@ -22,9 +22,8 @@ class StateView extends React.Component{
         this.render = this.render.bind(this);
     }
 
-     componentWillReceiveProps() {
+     componentDidUpdate() {
         this.handlePostState();
-        this.render();
     }
 
     handleStateLoading(){
@@ -35,7 +34,7 @@ class StateView extends React.Component{
             title: TITLE,
             scene: stateLoading
         };
-        return alert(JSON.stringify(formattedState))
+        alert(JSON.stringify(formattedState))
     }
 
     handlePostState() {
