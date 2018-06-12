@@ -2,7 +2,19 @@
  * Created by abradley on 03/03/2018.
  */
 
-import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN, REQUEST_ORIENTATION, GET_NGL_ORIENTATION, REQUEST_TO_SET_ORIENTATION, SET_NGL_ORIENTATION, CONFIRM_ORIENTATION_COLLECTION} from './actonTypes'
+import {
+    SET_COLOR,
+    SET_STYLE,
+    SET_SPIN,
+    SET_WATER,
+    SET_HYDROGEN,
+    REQUEST_ORIENTATION,
+    GET_NGL_ORIENTATION,
+    REQUEST_TO_SET_ORIENTATION,
+    SET_NGL_ORIENTATION,
+    CONFIRM_ORIENTATION_COLLECTION,
+    TOGGLE_ORIENTATION_FLAG
+} from './actonTypes'
 
 export const setColor = function (color) {
     console.log("ACTIONS: " + color);
@@ -93,10 +105,10 @@ export const setAssemblyOptions = function (structure) {
     };
 }
 
-export const requestOrientation = function (bool){
-    console.log("ACTIONS: orientation requested");
+export const toggleOrientationFlag = function (bool){
+    console.log("ACTIONS: orientation toggled");
     return {
-        type: REQUEST_ORIENTATION,
+        type: TOGGLE_ORIENTATION_FLAG,
         bool: bool
     };
 }

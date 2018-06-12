@@ -334,7 +334,7 @@ export class NGLView extends React.Component {
         if (this.props.orientationFlag === true) {
             var currentOrientation = this.stage.viewerControls.getOrientation();
             this.props.getNglOrientation(currentOrientation)
-            this.props.requestOrientation(false)
+            this.props.toggleOrientation(false)
             this.props.confirmOrientationCollection(true)
         }
     }
@@ -387,7 +387,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    requestOrientation: nglRenderActions.requestOrientation,
+    toggleOrientationFlag: nglRenderActions.toggleOrientationFlag,
     getNglOrientation: nglRenderActions.getNglOrientation,
     requestToSetOrientation: nglRenderActions.requestToSetOrientation,
     confirmOrientationCollection: nglRenderActions.confirmOrientationCollection

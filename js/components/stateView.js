@@ -95,7 +95,7 @@ class StateView extends React.Component{
     }
 
     handleFullStateSave(){
-        this.props.requestOrientation(true);
+        this.props.toggleOrientationFlag(true);
     }
 
     render(){
@@ -113,7 +113,7 @@ class StateView extends React.Component{
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <Button bsSize="large" bsStyle="success" onClick={this.handleRenderState}>Reload State</Button>
                         <p>orientation saving</p>
-                        <Button bsSize="large" bsStyle="success" onClick={this.props.requestOrientation}>Prime Orientation</Button>
+                        <Button bsSize="large" bsStyle="success" onClick={this.props.toggleOrientationFlag}>Prime Orientation</Button>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input id="orientation_selector" type="text" name="name" />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -146,7 +146,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
     load_object: nglLoadActions.loadObject,
-    requestOrientation: nglRenderActions.requestOrientation,
+    toggleOrientationFlag: nglRenderActions.toggleOrientationFlag,
     getNglOrientation: nglRenderActions.getNglOrientation,
     requestToSetOrientation: nglRenderActions.requestToSetOrientation,
     setNglOrientation: nglRenderActions.setNglOrientation

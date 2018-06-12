@@ -134,7 +134,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 hydrogen: action.hydrogen
             });
 
-        case actions.REQUEST_ORIENTATION:
+        case actions.TOGGLE_ORIENTATION_FLAG:
             return Object.assign({}, state, {
                 orientationFlag : action.bool
             });
