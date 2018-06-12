@@ -135,11 +135,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.REQUEST_ORIENTATION:
-            if (state.orientationFlag === true) {
-                var orientationFlag = false;
-            } else if (state.orientationFlag === false) {
-                var orientationFlag = true;
-            }
+            var orientationFlag = true;
             return Object.assign({}, state, {
                 orientationFlag : orientationFlag
             });
@@ -150,11 +146,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.REQUEST_TO_SET_ORIENTATION:
-            if (state.orientationToSetFlag === true) {
-                var orientationToSetFlag = false;
-            } else if (state.orientationToSetFlag === false) {
-                var orientationToSetFlag = true;
-            }
+            var orientationToSetFlag = true;
             return Object.assign({}, state, {
                 orientationToSetFlag : orientationToSetFlag
             });
@@ -165,11 +157,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.CONFIRM_ORIENTATION_COLLECTION:
-            if (state.orientationCollectedFlag === true) {
-                var orientationCollectedFlag = false;
-            } else if (state.orientationCollectedFlag === false) {
-                var orientationCollectedFlag = true;
-            }
+            var orientationCollectedFlag = true;
             return Object.assign({}, state, {
                 orientationCollectedFlag : orientationCollectedFlag
             });
