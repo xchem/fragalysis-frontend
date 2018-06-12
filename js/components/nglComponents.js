@@ -87,7 +87,21 @@ export class NGLView extends React.Component {
            local_stage.handleResize();
         }, false);
         this.stage.mouseControls.add("clickPick-left",this.showPick);
+        this.props.setOrientation(
+                this.div_id,
+                this.stage.viewerControls.getOrientation()
+            )
     }
+
+    componentWillReceiveProps(newProps){
+        if (newProps.collectState[this.div_id]=="REFRESH") {
+            this.props.setOrientation(
+                this.div_id,
+                this.stage.viewerControls.getOrientation()
+            )
+        }
+    }
+
     componentDidUpdate() {
         this.renderDisplay();
     }

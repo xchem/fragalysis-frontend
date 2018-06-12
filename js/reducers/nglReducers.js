@@ -6,6 +6,7 @@ const INITIALSTATE = {
     objectsToDelete: {},
     objectsInView: {},
     objectsLoading: {},
+    nglOrientations: {},
       // Set the basic things about NGL
     visible: true,
     interactions: true,
@@ -131,8 +132,12 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.SET_ORIENTATION:
+            const div_id = action.div_id;
+            const orientation = action.orientation;
+            var toSetDiv = {}
+            toSetDiv[div_id] = orientation;
             return Object.assign({}, state, {
-                orientation: action.orientation
+                nglOrientations: toSetDiv
             });
         // Cases like: @@redux/INIT
         default:
