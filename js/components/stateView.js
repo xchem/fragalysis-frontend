@@ -20,16 +20,16 @@ class StateView extends React.Component{
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
     }
 
-    // handleStateLoading(){
-    //     var stateLoading = JSON.stringify(this.props.objects_to_load);
-    //     var TITLE = 'To Load';
-    //     var formattedState =
-    //         {
-    //         title: TITLE,
-    //         scene: stateLoading
-    //     };
-    //     return alert(JSON.stringify(formattedState))
-    // }
+    handleStateLoading(){
+        var stateLoading = JSON.stringify(this.props.objects_to_load);
+        var TITLE = 'To Load';
+        var formattedState =
+            {
+            title: TITLE,
+            scene: stateLoading
+        };
+        return alert(JSON.stringify(formattedState))
+    }
 
     handlePostState(){
         var stateState = JSON.stringify(this.props.objects_in_view);
