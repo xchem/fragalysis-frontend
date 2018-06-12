@@ -23,7 +23,7 @@ export const objectLoading = function (group){
 
 }
 
-export const setOrientation = function (div_id, orientations){
+export const setOrientation = function (div_id, orientation){
     console.log("ACTIONS: " + orientation + " " + div_id);
         return {
         type: SET_ORIENTATION,
