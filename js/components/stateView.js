@@ -22,7 +22,6 @@ class StateView extends React.Component{
     }
 
      componentDidUpdate() {
-        this.handlePostState();
     }
 
     handleStateLoading(){
@@ -135,15 +134,6 @@ class StateView extends React.Component{
 
 function mapStateToProps(state) {
   return {
-      to_buy_list: state.selectionReducers.to_buy_list,
-      to_select: state.selectionReducers.to_select,
-      this_vector_list: state.selectionReducers.this_vector_list,
-      vector_list: state.selectionReducers.vector_list,
-      querying: state.selectionReducers.querying,
-      to_query: state.selectionReducers.to_query,
-      target_on: state.apiReducers.target_on,
-      orientation: state.nglReducers.spin,
-      color: state.nglReducers.color,
       objects_in_view: state.nglReducers.objectsInView,
       objects_to_load: state.nglReducers.objectsToLoad,
       orientationFlag: state.nglReducers.orientationFlag,
