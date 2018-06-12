@@ -19,7 +19,6 @@ class StateView extends React.Component{
         this.handleOrientationJson = this.handleOrientationJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
         this.handleFullStateSave = this.handleFullStateSave.bind(this);
-        this.render = this.render.bind(this);
     }
 
      componentDidUpdate() {
