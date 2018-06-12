@@ -26,7 +26,15 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
         case actions.APPEND_TO_BUY_LIST:
             var to_buy_list = state.to_buy_list
-            to_buy_list.push(action.item)
+            var exists = false;
+            for(var item in to_buy_list){
+                if( to_buy_list[item].smiles==action.item.smiles){
+                    exists = true
+                }
+            }
+            if(exists==false) {
+                to_buy_list.push(action.item)
+            }
             return  Object.assign({}, state, {
                 to_buy_list: to_buy_list
             })
@@ -69,7 +77,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             // Check if JSON
             if(input_mol_dict.startsWith("{")){
                 input_mol_dict = JSON.parse(input_mol_dict);
-                // Uniquif the dictionrary
+                // Uniquify the dictionrary
                 for (var key in input_mol_dict) {
                     new_dict[key] = input_mol_dict[key].filter((x, i, a) => a.indexOf(x) == i)
                 }
