@@ -96,7 +96,7 @@ class StateView extends React.Component{
             <Well>
                 <Row>
                 <Col xs={12} md={12}>
-                    <Button bsSize="large" bsStyle="failure" onClick={this.handleFullStateSave}>THE BIG DADDY</Button>
+                    <Button bsSize="large" bsStyle="danger" onClick={this.handleFullStateSave}>THE BIG DADDY</Button>
                     <p>state saving</p>
                     <Button bsSize="large" bsStyle="success" onClick={this.handlePostState}>Save State</Button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
