@@ -145,9 +145,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.GET_NGL_ORIENTATION:
-            var orientationFlag = false;
             return Object.assign({}, state, {
-                orientationFlag: orientationFlag,
                 nglOrientation: action.currentOrientation
             });
 
@@ -162,9 +160,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             });
 
         case actions.SET_NGL_ORIENTATION:
-            var orientationToSetFlag = false;
             return Object.assign({}, state, {
-                orientationToSetFlag: orientationToSetFlag,
                 orientationToSet: action.orientationToSet
             });
 
