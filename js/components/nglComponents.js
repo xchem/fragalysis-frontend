@@ -385,6 +385,7 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
     requestOrientation: nglRenderActions.requestOrientation,
-    getNglOrientation: nglRenderActions.getNglOrientation
+    getNglOrientation: nglRenderActions.getNglOrientation,
+    requestToSetOrientation: nglRenderActions.requestToSetOrientation
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
