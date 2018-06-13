@@ -377,13 +377,13 @@ export class NGLView extends React.Component {
                 }
             }
         }
-        if (newState.nglOrientations != undefined) {
-            if (newState.nglOrientations[this.div_id] == "REFRESH") {
+        if (this.props.nglOrientations != undefined) {
+            if (this.props.nglOrientations[this.div_id] == "REFRESH") {
                 if(this.checkIfLoading()==true) {
                     var objectsInThisDiv = {}
-                    for (var key in newState.objectsInView) {
-                        if (newState.objectsInView[key]["display_div"] == this.div_id) {
-                            objectsInThisDiv[key] = newState.objectsInView[key]
+                    for (var key in this.props.objectsInView) {
+                        if (this.props..objectsInView[key]["display_div"] == this.div_id) {
+                            objectsInThisDiv[key] = this.props.objectsInView[key]
                         }
                     }
                     this.props.setOrientation(
