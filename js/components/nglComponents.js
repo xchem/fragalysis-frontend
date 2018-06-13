@@ -116,9 +116,14 @@ export class NGLView extends React.Component {
             }
         }
         if(newState.orientationToSet != undefined){
-            if(newState.nglOrientations[this.div_id] != "SET"){
-                this.stage.viewerControls.setOrientation(newState.nglOrientations[this.div_id])
-                this.props.setNGLOrientation(this.div_id,"SET")
+            if(newState.orientationToSet[this.div_id] != "SET"){
+                var ori = newState.orientationToSet[this.div_id]
+                var curr_orient = this.stage.viewerControls.getOrientation();
+                for (var i = 0; i < curr_orient.elements.length; i += 1) {
+                    curr_orient.elements[i] = ori.elements[i];
+                }
+                this.stage.viewerControls.orient(curr_orient);
+                this.props.setNGLOrientation(this.div_id,"SET");
             }
         }
     }
