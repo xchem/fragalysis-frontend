@@ -23,6 +23,10 @@ export class UpdateOrientation extends React.Component {
 
     handleJson(myJson){
         var myPreDict = JSON.parse(myJson.scene);
+        for(var div_id in myPreDict){
+            var orientation = myPreDict[div_id]["orientation"];
+            var components = myPreDict[div_id]["components"];
+        }
         var myDict = JSON.parse(myPreDict.components);
         for(var key in myDict){
             this.props.load_object(myDict[key]);
@@ -30,7 +34,6 @@ export class UpdateOrientation extends React.Component {
     };
 
     handleRenderState(){
-        this.props.toggleOrientationCollection(true);
         var pk = document.getElementById("state_selector").value;
         fetch("/api/viewscene/"+pk)
         .then(function(response) {
@@ -41,7 +44,6 @@ export class UpdateOrientation extends React.Component {
     handleOrientationJson(myJson){
         var myPreDict = JSON.parse(myJson.scene);
         var orientationToSet = JSON.parse(myPreDict.orientation);
-        this.props.ToggleToSetOrientation();
         this.props.setNglOrientation(orientationToSet);
     }
 
@@ -98,8 +100,8 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>REFRESH</Button>
-            {JSON.stringify(this.props.nglOrientations)}
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>POST</Button>
+            <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>GET</Button>
            </div>
     }
 }
