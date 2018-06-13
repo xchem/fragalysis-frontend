@@ -172,7 +172,7 @@ export class NGLView extends React.Component {
             stage, this.focus_var, object_name,input_dict.colour]
         ).then( ol => this.renderComplex(ol));
     }
-    
+
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});

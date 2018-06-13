@@ -7,7 +7,6 @@ const INITIALSTATE = {
     objectsInView: {},
     objectsLoading: {},
     nglOrientations: {},
-      // Set the basic things about NGL
     visible: true,
     interactions: true,
     color: "blue",

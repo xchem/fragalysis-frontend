@@ -22,6 +22,14 @@ export const objectLoading = function (group) {
     };
 }
 
+export const setOrientation = function (div_id, orientation){
+    console.log("ACTIONS: " + orientation + " " + div_id);
+        return {
+        type: SET_ORIENTATION,
+        orientation: orientation,
+            div_id: div_id,
+    };
+}
 
 export const loadObjectSuccess = function (group) {
     console.log("ACTIONS: " + group);
@@ -39,15 +47,6 @@ export const deleteObjectType = function (object_type) {
         object_type: object_type
     }
 
-}
-
-export const setOrientation = function (div_id, orientation){
-    console.log("ACTIONS: " + orientation + " " + div_id);
-        return {
-        type: SET_ORIENTATION,
-        orientation: orientation,
-            div_id: div_id,
-    };
 }
 
 export const setNGLOrientation = function (div_id, orientation){
