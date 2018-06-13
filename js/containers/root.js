@@ -14,9 +14,7 @@ export default class Root extends Component {
     render() {
         return (
             <Provider store={store}>
-                <ConnectedRouter history={history}> { /* place ConnectedRouter under Provider */ }
-                    { routes }
-                </ConnectedRouter>
+                { routes }
             </Provider>
         )
     }
