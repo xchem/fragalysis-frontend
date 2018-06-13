@@ -7,6 +7,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
+import * as nglRenderActions from '../actions/nglRenderActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
 import * as listTypes from './listTypes'
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
@@ -32,13 +33,14 @@ export class NGLView extends React.Component {
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;
+        this.orientationToSet={};
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
+        this.checkIfLoading = this.checkIfLoading.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
-        
-        
+        this.updateOrientation = this.updateOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -51,7 +53,6 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
-
     }
 
     showPick(stage, pickingProxy) {
@@ -91,6 +92,11 @@ export class NGLView extends React.Component {
                 this.div_id,
                 "STARTED"
             )
+        this.props.setNGLOrientation(
+                this.div_id,
+                "SET"
+            )
+        setInterval(this.updateOrientation,20)
     }
 
     componentWillReceiveProps(newState){
@@ -113,6 +119,23 @@ export class NGLView extends React.Component {
             }
         }
     }
+    }
+
+    checkIfLoading(){
+        for(var key in this.props.objectsToLoad){
+            if(this.props.objectsToLoad[key]["display_div"]==this.div_id){
+                return false
+            }
+        }
+        for(var key in this.props.objectsLoading){
+            if(this.props.objectsLoading[key]["display_div"]==this.div_id){
+                return false
+            }
+        }
+        return true
+    }
+
+
 
     componentDidUpdate() {
         this.renderDisplay();
@@ -221,8 +244,8 @@ export class NGLView extends React.Component {
             })
         });
     }
-    
-    
+
+
     showCylinder(stage, input_dict, object_name) {
         var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
         var radius = input_dict.radius==undefined ? 0.4 : input_dict.radius;
@@ -273,8 +296,6 @@ export class NGLView extends React.Component {
             return 2.0
         }
     }
-
-
 
     generateSphere(data, selected=false, listType=listTypes.MOLGROUPS, view="summary_view") {
         var sele = ""
@@ -327,6 +348,7 @@ export class NGLView extends React.Component {
         }
     }
 
+
     /**
      * Function to deal with the logic of showing molecules
      */
@@ -349,6 +371,45 @@ export class NGLView extends React.Component {
                 this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
             }
         }
+        this.showSelect(listTypes.MOLGROUPS,"summary_view");
+        this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
+
+    }
+
+
+    updateOrientation() {
+        if (this.props.orientationToSet != undefined) {
+            if (this.props.orientationToSet[this.div_id] != "SET") {
+                if (this.checkIfLoading()==true) {
+                    var ori = this.props.orientationToSet[this.div_id]
+                    var curr_orient = this.stage.viewerControls.getOrientation();
+                    for (var i = 0; i < curr_orient.elements.length; i += 1) {
+                        curr_orient.elements[i] = ori.elements[i];
+                    }
+                    this.stage.viewerControls.orient(curr_orient);
+                    this.props.setNGLOrientation(this.div_id, "SET");
+                }
+            }
+        }
+        if (this.props.nglOrientations != undefined) {
+            if (this.props.nglOrientations[this.div_id] == "REFRESH") {
+                if (this.checkIfLoading() == true) {
+                    var objectsInThisDiv = {}
+                    for (var key in this.props.objectsInView) {
+                        if (this.props.objectsInView[key]["display_div"] == this.div_id) {
+                            objectsInThisDiv[key] = this.props.objectsInView[key]
+                        }
+                    }
+                    this.props.setOrientation(
+                        this.div_id,
+                        {
+                            "orientation": this.stage.viewerControls.getOrientation(),
+                            "components": objectsInThisDiv,
+                        }
+                    )
+                }
+            }
+        }
         for(var nglKey in this.props.objectsLoading){
             var nglObject = this.props.objectsLoading[nglKey]
             if (this.div_id==nglObject.display_div) {
@@ -359,11 +420,10 @@ export class NGLView extends React.Component {
                 }
             }
         }
-        this.showSelect(listTypes.MOLGROUPS,"summary_view");
-        this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
+
     }
-    
-    render() {
+
+    render(){
         return <div style={{height: this.height}} id={this.div_id}>
            </div>
     }
@@ -380,22 +440,22 @@ function mapStateToProps(state) {
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
-      orientation: state.nglReducers.orientation,
-      objectsPicked: state.nglReducers.objectsPicked
+      objectsPicked: state.nglReducers.objectsPicked,
   }
 }
 const mapDispatchToProps = {
     setMolGroupOn: apiActions.setMolGroupOn,
     selectVector: selectionActions.selectVector,
     hideLoading: hideLoading,
+    setNGLOrientation: nglLoadActions.setNGLOrientation,
     setPanddaSiteOn: apiActions.setPanddaSiteOn,
-    showLoading: showLoading,
     setOrientation: nglLoadActions.setOrientation,
+    showLoading: showLoading,
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
-    deleteObjectSuccess: nglLoadActions.deleteObjectSuccess
+    deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

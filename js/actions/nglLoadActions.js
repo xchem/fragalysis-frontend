@@ -2,8 +2,8 @@
  * Created by abradley on 03/03/2018.
  */
 import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
-    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,DELETE_OBJECT_TYPE, 
-    SET_ORIENTATION} from './actonTypes'
+    DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,
+    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -14,13 +14,12 @@ export const loadObject = function (group) {
     };
 }
 
-export const objectLoading = function (group){
+export const objectLoading = function (group) {
     console.log("ACTIONS: " + group);
-        return {
+    return {
         type: OBJECT_LOADING,
         group: group
     };
-
 }
 
 export const setOrientation = function (div_id, orientation){
@@ -47,6 +46,26 @@ export const deleteObjectType = function (object_type) {
         type: DELETE_OBJECT_TYPE,
         object_type: object_type
     }
+
+}
+
+export const setOrientation = function (div_id, orientation){
+    console.log("ACTIONS: " + orientation + " " + div_id);
+        return {
+        type: SET_ORIENTATION,
+        orientation: orientation,
+            div_id: div_id,
+    };
+}
+
+export const setNGLOrientation = function (div_id, orientation){
+    console.log("ACTIONS: " + orientation + " " + div_id);
+        return {
+        type: SET_NGL_ORIENTATION,
+        orientation: orientation,
+            div_id: div_id,
+    };
+
 
 }
 
@@ -85,3 +104,4 @@ export const deleteObjectFailure = function (group) {
         success: false
     };
 }
+

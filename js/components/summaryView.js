@@ -179,8 +179,6 @@ function mapStateToProps(state) {
   }
 }
 
-
-
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,
     selectVector: selectionActions.selectVector,

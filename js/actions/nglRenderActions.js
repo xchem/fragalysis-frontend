@@ -2,7 +2,13 @@
  * Created by abradley on 03/03/2018.
  */
 
-import {SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN } from './actonTypes'
+import {
+    SET_COLOR,
+    SET_STYLE,
+    SET_SPIN,
+    SET_WATER,
+    SET_HYDROGEN,
+} from './actonTypes'
 
 export const setColor = function (color) {
     console.log("ACTIONS: " + color);
@@ -43,7 +49,6 @@ export const setHydrogen = function (hydrogen) {
         spin: hydrogen
     };
 }
-
 
 export const setAssemblyOptions = function (structure) {
     console.log("Dispatching Set Assembly Options");
@@ -92,3 +97,4 @@ export const setAssemblyOptions = function (structure) {
         assemblyOptions: options
     };
 }
+
