@@ -7,6 +7,7 @@ import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
 import { withRouter } from 'react-router-dom'
+import { Route, Switch } from 'react-router'
 
 const routes = (
       <div id="outer-container">
@@ -14,8 +15,10 @@ const routes = (
           <LoadingBar />
           <Grid fluid id="page-wrap">
               <Header/>
-              <Route exact path="/" component={Preview} />
-              <Route path="/tindspect" component={Tindspect} />
+                  <Switch>
+                      <Route exact path="/" component={Preview} />
+                      <Route path="/tindspect" component={Tindspect} />
+                  </Switch>
           </Grid>
       </div>
 )
