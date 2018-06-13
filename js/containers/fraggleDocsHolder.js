@@ -6,6 +6,8 @@ import { connect } from 'react-redux'
 import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import UpdateOrientation from '../components/updateOrientation';
+import { Route } from 'react-router-dom'
+import * as nglLoadActions from '../actions/nglLoadActions'
 
 
 class FraggleDocs extends Component {
@@ -13,6 +15,11 @@ class FraggleDocs extends Component {
     constructor(props) {
         super(props)
   }
+
+    componentDidMount(){
+        var uuid = this.props.match.params.uuid;
+        this.props.setUuid(uuid);
+    }
 
   render() {
       return (
@@ -30,8 +37,12 @@ class FraggleDocs extends Component {
 }
 
 function mapStateToProps(state) {
-  return { }
+  return {
+  }
+}
+const mapDispatchToProps = {
+    setUuid: nglLoadActions.setUuid,
 }
 
 
-export default connect(mapStateToProps)(FraggleDocs)
+export default connect(mapStateToProps, mapDispatchToProps)(FraggleDocs)

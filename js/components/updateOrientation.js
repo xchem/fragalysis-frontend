@@ -53,8 +53,15 @@ export class UpdateOrientation extends React.Component {
             this.props.setOrientation(key,"REFRESH")
         }
     }
+
     componentDidUpdate() {
         var hasBeenRefreshed = true
+        if(this.props.uuid!="UNSET"){
+            fetch("/api/viewscene/?uuid="+this.props.uuid)
+                .then(function(response) {
+                    return response.json();
+                }).then(json => this.handleJson(json.results[0]))
+        }
         for(var key in this.props.nglOrientations){
             if(this.props.nglOrientations[key]=="REFRESH"){
                 hasBeenRefreshed = false;
@@ -82,8 +89,8 @@ export class UpdateOrientation extends React.Component {
             }).then(function (response) {
                 return response.json();
             }).then(function (myJson) {
-                // window.location.protocol + window.location.hostname + "/api/viewscene/" + myJson.id.toString()
-                alert(myJson.id.toString())
+                alert("VIEW SAVED - send this link: " +
+                    window.location.protocol + "//" + window.location.hostname + "/viewer/react/fraggledocs/" + myJson.uuid.toString())
             });
         }
     }
@@ -91,15 +98,14 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>POST</Button>
-            <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>GET</Button>
-        <input id="state_selector" type="text" name="name" />
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
            </div>
     }
 }
 
 function mapStateToProps(state) {
   return {
+      uuid: state.nglReducers.uuid,
       nglOrientations: state.nglReducers.nglOrientations,
   }
 }
