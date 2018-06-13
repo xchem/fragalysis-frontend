@@ -97,14 +97,14 @@ export class NGLView extends React.Component {
             )
     }
 
-    checkIfLoading(newState){
-        for(var key in newState.objectsToLoad){
-            if(newState.objectsToLoad[key]["display_div"]==this.div_id){
+    checkIfLoading(){
+        for(var key in this.props.objectsToLoad){
+            if(this.props.objectsToLoad[key]["display_div"]==this.div_id){
                 return false
             }
         }
-        for(var key in newState.objectsLoading){
-            if(newState.objectsLoading[key]["display_div"]==this.div_id){
+        for(var key in this.props.objectsLoading){
+            if(this.props.objectsLoading[key]["display_div"]==this.div_id){
                 return false
             }
         }
@@ -129,10 +129,15 @@ export class NGLView extends React.Component {
                 )
             }
         }
+
+    }
+
+    componentDidUpdate() {
+        this.renderDisplay();
         if(newState.orientationToSet != undefined){
             if(newState.orientationToSet[this.div_id] != "SET"){
-                if(this.checkIfLoading(newState)) {
-                    var ori = newState.orientationToSet[this.div_id]
+                if(this.checkIfLoading()==true) {
+                    var ori = this.props.orientationToSet[this.div_id]
                     var curr_orient = this.stage.viewerControls.getOrientation();
                     for (var i = 0; i < curr_orient.elements.length; i += 1) {
                         curr_orient.elements[i] = ori.elements[i];
@@ -142,10 +147,7 @@ export class NGLView extends React.Component {
                 }
             }
         }
-    }
 
-    componentDidUpdate() {
-        this.renderDisplay();
     }
 
     showSphere(stage, input_dict, object_name) {
