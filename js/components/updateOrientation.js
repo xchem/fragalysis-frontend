@@ -13,7 +13,6 @@ export class UpdateOrientation extends React.Component {
         this.postToServer = this.postToServer.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
-        this.handleOrientationJson = this.handleOrientationJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
     }
 
@@ -22,7 +21,7 @@ export class UpdateOrientation extends React.Component {
 
 
     handleJson(myJson){
-        var myPreDict = JSON.parse(myJson.scene);
+        var myPreDict = JSON.parse(JSON.parse(myJson.scene));
         for(var div_id in myPreDict){
             var orientation = myPreDict[div_id]["orientation"];
             var components = myPreDict[div_id]["components"];
@@ -41,18 +40,12 @@ export class UpdateOrientation extends React.Component {
         }).then(json => this.handleJson(json))
     }
 
-    handleOrientationJson(myJson){
-        var myPreDict = JSON.parse(JSON.parse(myJson.scene));
-        var orientationToSet = JSON.parse(myPreDict.orientation);
-        this.props.setNglOrientation(orientationToSet);
-    }
-
     handleRenderOrientation(){
         var pk = document.getElementById("state_selector").value;
         fetch("/api/viewscene/"+pk)
         .then(function(response) {
             return response.json();
-        }).then(json => this.handleOrientationJson(json))
+        }).then(json => this.handleJson(json))
     }
 
     postToServer() {
