@@ -11,9 +11,9 @@ function getInitialState(){
     return {
         // Lists storing the information of what is in the viewer
         objectsToLoad: {},
-        objectsLoading:{},
         objectsToDelete: {},
         objectsInView: {},
+        objectsLoading:{},
         nglOrientations: {},
         // Set the basic things about NGL
         visible: true,
@@ -23,6 +23,7 @@ function getInitialState(){
       spin: false,
       water: true,
       hydrogen: true,
+        orientationToSet: {}
     }
 }
 

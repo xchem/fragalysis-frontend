@@ -8,8 +8,6 @@ import {
     SET_SPIN,
     SET_WATER,
     SET_HYDROGEN,
-    REQUEST_ORIENTATION,
-    GET_NGL_ORIENTATION,
 } from './actonTypes'
 
 export const setColor = function (color) {
@@ -100,10 +98,3 @@ export const setAssemblyOptions = function (structure) {
     };
 }
 
-export const getNglOrientation = function (currentOrientation){
-    console.log("ACTIONS: " + currentOrientation);
-    return {
-        type: GET_NGL_ORIENTATION,
-        currentOrientation: currentOrientation
-    };
-}

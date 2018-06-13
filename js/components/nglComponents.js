@@ -417,7 +417,6 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
-      nglOrientation: state.nglReducers.nglOrientation,
   }
 }
 const mapDispatchToProps = {
@@ -434,6 +433,5 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    getNglOrientation: nglRenderActions.getNglOrientation,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

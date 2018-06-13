@@ -15,8 +15,7 @@ const INITIALSTATE = {
     spin: false,
     water: true,
     hydrogen: true,
-    nglOrientation: {},
-    orientationToSet: {},
+    orientationToSet: {}
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
