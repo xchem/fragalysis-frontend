@@ -11,12 +11,10 @@ export class UpdateOrientation extends React.Component {
     constructor(props) {
         super(props);
         this.postToServer = this.postToServer.bind(this);
-//        this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
         this.handleOrientationJson = this.handleOrientationJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
-//        this.handleFullStateSave = this.handleFullStateSave.bind(this);
     }
 
     componentDidMount() {
