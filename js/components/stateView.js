@@ -21,20 +21,6 @@ class StateView extends React.Component{
         this.handleFullStateSave = this.handleFullStateSave.bind(this);
     }
 
-     componentDidUpdate() {
-    }
-
-    // handleStateLoading(){
-    //     var stateLoading = JSON.stringify(this.props.objects_to_load);
-    //     var TITLE = 'To Load';
-    //     var formattedState =
-    //         {
-    //         title: TITLE,
-    //         scene: stateLoading
-    //     };
-    //     alert(JSON.stringify(formattedState))
-    // }
-
     handlePostState() {
         if (this.props.orientationCollectedFlag === true) {
             this.props.toggleOrientationCollection(false)
