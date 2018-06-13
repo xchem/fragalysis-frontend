@@ -10,8 +10,7 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 export class UpdateOrientation extends React.Component {
     constructor(props) {
         super(props);
-
-        this.refreshOrientation = this.refreshOrientation.bind(this);
+        this.postToServer = this.postToServer.bind(this);
     }
     componentDidMount() {
     }
