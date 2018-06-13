@@ -37,7 +37,7 @@ class StateView extends React.Component{
 
     handlePostState() {
 //      if (this.props.orientationCollectedFlag === true) {
-//            this.props.confirmOrientationCollection()
+            this.props.toggleOrientationCollection(false)
             var stateState = JSON.stringify(this.props.objects_in_view);
             var currentOrientation = JSON.stringify(this.props.nglOrientation.elements);
             const uuidv4 = require('uuid/v4');

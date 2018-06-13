@@ -335,7 +335,7 @@ export class NGLView extends React.Component {
             var currentOrientation = this.stage.viewerControls.getOrientation();
             this.props.getNglOrientation(currentOrientation)
             this.props.toggleOrientation(false)
-            this.props.confirmOrientationCollection(true)
+            this.props.toggleOrientationCollection(true)
         }
     }
 
@@ -347,7 +347,7 @@ export class NGLView extends React.Component {
             }
             this.stage.viewerControls.orient(curr_orient);
             // No reset the variable in element
-            this.props.confirmOrientationCollection(false);
+            this.props.toggleOrientationCollection(false);
         }
     }
 
@@ -390,6 +390,6 @@ const mapDispatchToProps = {
     toggleOrientationFlag: nglRenderActions.toggleOrientationFlag,
     getNglOrientation: nglRenderActions.getNglOrientation,
     toggleToSetOrientation: nglRenderActions.toggleToSetOrientation,
-    confirmOrientationCollection: nglRenderActions.confirmOrientationCollection
+    toggleOrientationCollection: nglRenderActions.toggleOrientationCollection
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

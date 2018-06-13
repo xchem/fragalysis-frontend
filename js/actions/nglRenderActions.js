@@ -136,10 +136,11 @@ export const setNglOrientation = function (orientationToSet){
         orientationToSet: orientationToSet
     };
 }
-export const confirmOrientationCollection = function (bool){
+
+export const toggleOrientationCollection = function (bool){
     console.log("ACTIONS: orientation collection monitoring");
     return {
-        type: CONFIRM_ORIENTATION_COLLECTION,
+        type: TOGGLE_ORIENTATION_COLLECTION,
         bool: bool
     };
 }

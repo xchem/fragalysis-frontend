@@ -154,7 +154,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 orientationToSet: action.orientationToSet
             });
 
-        case actions.CONFIRM_ORIENTATION_COLLECTION:
+        case actions.TOGGLE_ORIENTATION_COLLECTION:
             return Object.assign({}, state, {
                 orientationCollectedFlag : action.bool
             });
