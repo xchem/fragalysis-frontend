@@ -41,6 +41,7 @@ export class UpdateOrientation extends React.Component {
 
     componentDidMount(){
         var uuid = this.props.uuid;
+        alert(uuid);
         fetch("/api/viewscene/?uuid="+uuid)
         .then(function(response) {
             return response.json();
