@@ -45,4 +45,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps)(FraggleDocs)
+export default connect(mapStateToProps, mapDispatchToProps)(FraggleDocs)
