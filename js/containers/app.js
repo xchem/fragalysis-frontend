@@ -15,8 +15,8 @@ const routes = (
           <Grid fluid id="page-wrap">
               <Header/>
                   <Switch>
-                      <Route exact path="/viewer/" component={Preview} />
-                      <Route path="/viewer/?tindspect" component={Tindspect} />
+                      <Route exact path="/viewer/?previewe=true" component={Preview} />
+                      <Route exact path="/viewer/?tindspect=true" component={Tindspect} />
                   </Switch>
           </Grid>
       </div>
