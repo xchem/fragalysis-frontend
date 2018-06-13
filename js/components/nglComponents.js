@@ -36,6 +36,7 @@ export class NGLView extends React.Component {
         this.orientationToSet={};
         this.renderDisplay = this.renderDisplay.bind(this);
         this.showPick = this.showPick.bind(this);
+        this.checkIfLoading = this.checkIfLoading.bind(this);
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
@@ -96,6 +97,20 @@ export class NGLView extends React.Component {
             )
     }
 
+    checkIfLoading(newState){
+        for(var key in newState.objectsToLoad){
+            if(newState.objectsToLoad[key]["display_div"]==this.div_id){
+                return false
+            }
+        }
+        for(var key in newState.objectsLoading){
+            if(newState.objectsLoading[key]["display_div"]==this.div_id){
+                return false
+            }
+        }
+        return true
+    }
+
     componentWillReceiveProps(newState){
         if (newState.nglOrientations != undefined) {
             if (newState.nglOrientations[this.div_id] == "REFRESH") {
@@ -105,7 +120,6 @@ export class NGLView extends React.Component {
                         objectsInThisDiv[key] = this.props.objectsInView[key]
                     }
                 }
-
                 this.props.setOrientation(
                     this.div_id,
                     {
@@ -117,13 +131,15 @@ export class NGLView extends React.Component {
         }
         if(newState.orientationToSet != undefined){
             if(newState.orientationToSet[this.div_id] != "SET"){
-                var ori = newState.orientationToSet[this.div_id]
-                var curr_orient = this.stage.viewerControls.getOrientation();
-                for (var i = 0; i < curr_orient.elements.length; i += 1) {
-                    curr_orient.elements[i] = ori.elements[i];
+                if(this.checkIfLoading(newState)) {
+                    var ori = newState.orientationToSet[this.div_id]
+                    var curr_orient = this.stage.viewerControls.getOrientation();
+                    for (var i = 0; i < curr_orient.elements.length; i += 1) {
+                        curr_orient.elements[i] = ori.elements[i];
+                    }
+                    this.stage.viewerControls.orient(curr_orient);
+                    this.props.setNGLOrientation(this.div_id, "SET");
                 }
-                this.stage.viewerControls.orient(curr_orient);
-                this.props.setNGLOrientation(this.div_id,"SET");
             }
         }
     }
