@@ -21,6 +21,9 @@ export class UpdateOrientation extends React.Component {
 
 
     handleJson(myJson){
+        if(myJson.scene==undefined){
+            return;
+        }
         var myPreDict = JSON.parse(JSON.parse(myJson.scene));
         for(var div_id in myPreDict){
             var orientation = myPreDict[div_id]["orientation"];
