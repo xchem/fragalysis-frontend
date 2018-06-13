@@ -32,7 +32,7 @@ export class UpdateOrientation extends React.Component {
         }
         if (hasBeenRefreshed==true){
             // Post the data to the server as usual
-            alert(this.props.nglOrientations);
+            alert(JSON.stringify(this.props.nglOrientations));
         }
     }
 
