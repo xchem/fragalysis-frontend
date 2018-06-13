@@ -6,9 +6,9 @@ import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
+import UpdateOrientation from './updateOrientation';    
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -177,8 +177,6 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.to_query
   }
 }
-
-
 
 const mapDispatchToProps = {
     appendToBuyList: selectionActions.appendToBuyList,

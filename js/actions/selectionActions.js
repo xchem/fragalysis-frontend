@@ -37,7 +37,6 @@ export const getFullGraph = function (item) {
 }
 
 
-
 export const gotFullGraph = function (result){
     console.log("ACTIONS: "+ result)
     return {
