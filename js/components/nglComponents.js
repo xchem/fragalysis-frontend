@@ -99,7 +99,10 @@ export class NGLView extends React.Component {
             if (newState.nglOrientations[this.div_id] == "REFRESH") {
                 this.props.setOrientation(
                     this.div_id,
-                    this.stage.viewerControls.getOrientation()
+                    {
+                        "orientation": this.stage.viewerControls.getOrientation(),
+                        "components": this.props.objectsInView,
+                    }
                 )
             }
         }

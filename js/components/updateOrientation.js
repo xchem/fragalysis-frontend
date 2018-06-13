@@ -10,29 +10,36 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 export class UpdateOrientation extends React.Component {
     constructor(props) {
         super(props);
-
-        this.refreshOrientation = this.refreshOrientation.bind(this);
+        this.postToServer = this.postToServer.bind(this);
     }
     componentDidMount() {
     }
 
-
-    refreshOrientation() {
+    postToServer() {
+        // Refresh orientation
         for(var key in this.props.nglOrientations){
             this.props.setOrientation(key,"REFRESH")
         }
     }
 
-    componentWillReceiveProps(newProps){
-    }
 
     componentDidUpdate() {
+        var hasBeenRefreshed = true
+        for(var key in this.props.nglOrientations){
+            if(this.props.nglOrientations[key]=="REFRESH"){
+                hasBeenRefreshed = false;
+            }
+        }
+        if (hasBeenRefreshed==true){
+            // Post the data to the server as usual
+            alert(this.props.nglOrientations);
+        }
     }
 
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.refreshOrientation}>REFRESH</Button>
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>REFRESH</Button>
             {JSON.stringify(this.props.nglOrientations)}
            </div>
     }
@@ -40,7 +47,6 @@ export class UpdateOrientation extends React.Component {
 
 function mapStateToProps(state) {
   return {
-
       nglOrientations: state.nglReducers.nglOrientations,
   }
 }
