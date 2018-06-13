@@ -12,7 +12,7 @@ export const loadObject = function (group) {
         type: LOAD_OBJECT,
         group: group
     };
-
+}
 
 export const objectLoading = function (group) {
     console.log("ACTIONS: " + group);
