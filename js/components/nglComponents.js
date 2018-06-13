@@ -334,8 +334,7 @@ export class NGLView extends React.Component {
         if (this.props.orientationFlag === true) {
             var currentOrientation = this.stage.viewerControls.getOrientation();
             this.props.getNglOrientation(currentOrientation)
-            this.props.toggleOrientation(false)
-            this.props.toggleOrientationCollection(true)
+            this.props.toggleOrientationFlag(false)
         }
     }
 
