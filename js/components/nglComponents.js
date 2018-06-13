@@ -347,16 +347,6 @@ export class NGLView extends React.Component {
                 this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
             }
         }
-        for(var nglKey in this.props.objectsLoading){
-            var nglObject = this.props.objectsLoading[nglKey]
-            if (this.div_id==nglObject.display_div) {
-                if (this.stage.getComponentsByName(nglKey).list.length > 0) {
-                    var nglObject = this.props.objectsLoading[nglKey];
-                    this.props.loadObjectSuccess(nglObject);
-                    this.props.hideLoading()
-                }
-            }
-        }
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
 
@@ -379,7 +369,7 @@ export class NGLView extends React.Component {
         }
         if (this.props.nglOrientations != undefined) {
             if (this.props.nglOrientations[this.div_id] == "REFRESH") {
-                if(this.checkIfLoading()==true) {
+                if (this.checkIfLoading() == true) {
                     var objectsInThisDiv = {}
                     for (var key in this.props.objectsInView) {
                         if (this.props.objectsInView[key]["display_div"] == this.div_id) {
@@ -393,6 +383,16 @@ export class NGLView extends React.Component {
                             "components": objectsInThisDiv,
                         }
                     )
+                }
+            }
+        }
+        for(var nglKey in this.props.objectsLoading){
+            var nglObject = this.props.objectsLoading[nglKey]
+            if (this.div_id==nglObject.display_div) {
+                if (this.stage.getComponentsByName(nglKey).list.length > 0) {
+                    var nglObject = this.props.objectsLoading[nglKey];
+                    this.props.loadObjectSuccess(nglObject);
+                    this.props.hideLoading()
                 }
             }
         }
