@@ -134,8 +134,8 @@ export class NGLView extends React.Component {
 
     componentDidUpdate() {
         this.renderDisplay();
-        if(newState.orientationToSet != undefined){
-            if(newState.orientationToSet[this.div_id] != "SET"){
+        if(this.props.orientationToSet != undefined){
+            if(this.props.orientationToSet[this.div_id] != "SET"){
                 if(this.checkIfLoading()==true) {
                     var ori = this.props.orientationToSet[this.div_id]
                     var curr_orient = this.stage.viewerControls.getOrientation();
