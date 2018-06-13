@@ -10,7 +10,7 @@ import { ConnectedRouter } from 'connected-react-router'
 import { createBrowserHistory } from 'history'
 
 
-const history = createHistory();
+const history = createBrowserHistory();
 
 const store = configureStore()
  
