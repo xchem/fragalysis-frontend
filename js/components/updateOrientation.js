@@ -29,6 +29,9 @@ export class UpdateOrientation extends React.Component {
             if(this.props.nglOrientations[key]=="REFRESH"){
                 hasBeenRefreshed = false;
             }
+            if(this.props.nglOrientations[key]=="STARTED"){
+                hasBeenRefreshed = false
+            }
         }
         if (hasBeenRefreshed==true){
             // Post the data to the server as usual
