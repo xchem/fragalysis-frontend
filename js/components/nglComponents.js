@@ -37,8 +37,8 @@ export class NGLView extends React.Component {
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
-
-
+        
+        
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -98,7 +98,10 @@ export class NGLView extends React.Component {
             if (newState.nglOrientations[this.div_id] == "REFRESH") {
                 this.props.setOrientation(
                     this.div_id,
-                    this.stage.viewerControls.getOrientation()
+                    {
+                        "orientation": this.stage.viewerControls.getOrientation(),
+                        "components": this.props.objectsInView,
+                    }
                 )
             }
         }
