@@ -92,6 +92,10 @@ export class NGLView extends React.Component {
                 this.div_id,
                 "STARTED"
             )
+        this.props.setNGLOrientation(
+                this.div_id,
+                "SET"
+            )
     }
 
     componentWillReceiveProps(newState){
@@ -111,6 +115,12 @@ export class NGLView extends React.Component {
                         "components": objectsInThisDiv,
                     }
                 )
+            }
+        }
+        if(newState.orientationToSet != undefined){
+            if(newState.nglOrientations[this.div_id] != "SET"){
+                this.stage.viewerControls.setOrientation(newState.nglOrientations[this.div_id])
+                this.props.setNglOrientation(this.div_id,"SET")
             }
         }
     }
