@@ -16,7 +16,7 @@ const routes = (
               <Header/>
                   <Switch>
                       <Route exact path="/viewer/" component={Preview} />
-                      <Route path="/viewer/tindspect" component={Tindspect} />
+                      <Route path="/viewer/?tindspect" component={Tindspect} />
                   </Switch>
           </Grid>
       </div>
