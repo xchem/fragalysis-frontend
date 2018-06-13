@@ -17,7 +17,6 @@ const routes = (
                   <Switch>
                       <Route exact path="/viewer/react/preview" component={Preview} />
                       <Route exact path="/viewer/react/tindspect" component={Tindspect} />
-                      // <Route exact path="/viewer/react/fraggledocs/:uuid" component={FraggleDocks} />
                   </Switch>
           </Grid>
       </div>
