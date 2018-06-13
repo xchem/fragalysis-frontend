@@ -24,7 +24,7 @@ class FraggleDocs extends Component {
               <Col xs={10} md={10} >
                   <NGLView div_id="major_view" height="800px"/>
               </Col>
-              <UpdateOrientation uuid={this.props.match.params.id} />
+              <UpdateOrientation uuid={this.props.match.params.uuid} />
 
           </Row>
       )
