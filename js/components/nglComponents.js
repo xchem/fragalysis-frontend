@@ -113,32 +113,8 @@ export class NGLView extends React.Component {
         return true
     }
 
-    componentWillReceiveProps(newState){
-        if (newState.nglOrientations != undefined) {
-            if (newState.nglOrientations[this.div_id] == "REFRESH") {
-                if(this.checkIfLoading()==true) {
-                    var objectsInThisDiv = {}
-                    for (var key in newState.objectsInView) {
-                        if (newState.objectsInView[key]["display_div"] == this.div_id) {
-                            objectsInThisDiv[key] = newState.objectsInView[key]
-                        }
-                    }
-                    this.props.setOrientation(
-                        this.div_id,
-                        {
-                            "orientation": this.stage.viewerControls.getOrientation(),
-                            "components": objectsInThisDiv,
-                        }
-                    )
-                }
-            }
-        }
-
-    }
-
     componentDidUpdate() {
         this.renderDisplay();
-
     }
 
     showSphere(stage, input_dict, object_name) {
@@ -383,6 +359,7 @@ export class NGLView extends React.Component {
         }
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
+
     }
 
 
@@ -400,6 +377,26 @@ export class NGLView extends React.Component {
                 }
             }
         }
+        if (newState.nglOrientations != undefined) {
+            if (newState.nglOrientations[this.div_id] == "REFRESH") {
+                if(this.checkIfLoading()==true) {
+                    var objectsInThisDiv = {}
+                    for (var key in newState.objectsInView) {
+                        if (newState.objectsInView[key]["display_div"] == this.div_id) {
+                            objectsInThisDiv[key] = newState.objectsInView[key]
+                        }
+                    }
+                    this.props.setOrientation(
+                        this.div_id,
+                        {
+                            "orientation": this.stage.viewerControls.getOrientation(),
+                            "components": objectsInThisDiv,
+                        }
+                    )
+                }
+            }
+        }
+
     }
 
     render(){
