@@ -153,11 +153,6 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 orientationToSet: toSetDiv
             });
 
-        case actions.TOGGLE_ORIENTATION_COLLECTION:
-            return Object.assign({}, state, {
-                orientationCollectedFlag : action.bool
-            });
-
             // Cases like: @@redux/INIT
         default:
             return state;

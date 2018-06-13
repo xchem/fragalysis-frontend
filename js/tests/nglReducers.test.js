@@ -14,6 +14,7 @@ function getInitialState(){
         objectsLoading:{},
         objectsToDelete: {},
         objectsInView: {},
+        nglOrientations: {},
         // Set the basic things about NGL
         visible: true,
         interactions: true,
