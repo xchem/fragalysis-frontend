@@ -12,7 +12,7 @@ export const loadObject = function (group) {
         type: LOAD_OBJECT,
         group: group
     };
-}
+
 
 export const objectLoading = function (group) {
     console.log("ACTIONS: " + group);
@@ -22,14 +22,6 @@ export const objectLoading = function (group) {
     };
 }
 
-export const setOrientation = function (div_id, orientation){
-    console.log("ACTIONS: " + orientation + " " + div_id);
-        return {
-        type: SET_ORIENTATION,
-        orientation: orientation,
-            div_id: div_id,
-    };
-}
 
 export const loadObjectSuccess = function (group) {
     console.log("ACTIONS: " + group);
