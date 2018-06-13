@@ -20,6 +20,7 @@ function getInitialState(){
         interactions: true,
         color: "blue",
       style: "xstick",
+        uuid: "UNSET",
       spin: false,
       water: true,
       hydrogen: true,

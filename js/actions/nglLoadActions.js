@@ -3,7 +3,7 @@
  */
 import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
     DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,
-    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION} from './actonTypes'
+    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION, SET_UUID} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -56,6 +56,17 @@ export const setNGLOrientation = function (div_id, orientation){
         orientation: orientation,
             div_id: div_id,
     };
+
+
+}
+
+export const setUuid = function (uuid){
+        console.log("ACTIONS: " + uuid);
+    return {
+        type: SET_UUID,
+        uuid: uuid,
+
+    }
 
 
 }

@@ -39,15 +39,6 @@ export class UpdateOrientation extends React.Component {
         }).then(json => this.handleJson(json))
     }
 
-    componentDidMount(){
-        var uuid = this.props.uuid;
-        alert(uuid);
-        fetch("/api/viewscene/?uuid="+uuid)
-        .then(function(response) {
-            return response.json();
-        }).then(json => this.handleJson(json))
-    }
-
     handleRenderOrientation(){
         var pk = document.getElementById("state_selector").value;
         fetch("/api/viewscene/"+pk)
@@ -65,6 +56,12 @@ export class UpdateOrientation extends React.Component {
 
     componentDidUpdate() {
         var hasBeenRefreshed = true
+        if(this.props.uuid!="UNSET"){
+            fetch("/api/viewscene/?uuid="+this.props.uuid)
+                .then(function(response) {
+                    return response.json();
+                }).then(json => this.handleJson(json))
+        }
         for(var key in this.props.nglOrientations){
             if(this.props.nglOrientations[key]=="REFRESH"){
                 hasBeenRefreshed = false;
@@ -110,6 +107,7 @@ export class UpdateOrientation extends React.Component {
 
 function mapStateToProps(state) {
   return {
+      uuid: state.nglReducers.uuid,
       nglOrientations: state.nglReducers.nglOrientations,
   }
 }

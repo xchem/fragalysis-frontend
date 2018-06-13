@@ -55,3 +55,4 @@ export const SET_VECTOR_LIST = 'SET_VECTOR_LIST';
 // State broadcast
 export const SET_NGL_ORIENTATION = 'SET_NGL_ORIENTATION';
 export const SET_ORIENTATION = 'SET_ORIENTATION';
+export const SET_UUID = 'SET_UUID';
