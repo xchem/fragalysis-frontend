@@ -134,19 +134,6 @@ export class NGLView extends React.Component {
 
     componentDidUpdate() {
         this.renderDisplay();
-        if(this.props.orientationToSet != undefined){
-            if(this.props.orientationToSet[this.div_id] != "SET"){
-                if(this.checkIfLoading()==true) {
-                    var ori = this.props.orientationToSet[this.div_id]
-                    var curr_orient = this.stage.viewerControls.getOrientation();
-                    for (var i = 0; i < curr_orient.elements.length; i += 1) {
-                        curr_orient.elements[i] = ori.elements[i];
-                    }
-                    this.stage.viewerControls.orient(curr_orient);
-                    this.props.setNGLOrientation(this.div_id, "SET");
-                }
-            }
-        }
 
     }
 
@@ -390,6 +377,19 @@ export class NGLView extends React.Component {
                 }
             }
         }
+        if(this.props.orientationToSet != undefined){
+            if(this.props.orientationToSet[this.div_id] != "SET"){
+                    var ori = this.props.orientationToSet[this.div_id]
+                    var curr_orient = this.stage.viewerControls.getOrientation();
+                    for (var i = 0; i < curr_orient.elements.length; i += 1) {
+                        curr_orient.elements[i] = ori.elements[i];
+                    }
+                    this.stage.viewerControls.orient(curr_orient);
+                    this.props.setNGLOrientation(this.div_id, "SET");
+                }
+            }
+        }
+
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
