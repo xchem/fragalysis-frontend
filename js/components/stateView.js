@@ -12,7 +12,7 @@ import { Stage, Shape, concatStructures, Selection } from 'ngl';
 class StateView extends React.Component{
     constructor(props) {
         super(props);
-//        this.handleStateLoading = this.handleStateLoading.bind(this);
+        this.handleStateLoading = this.handleStateLoading.bind(this);
         this.handlePostState = this.handlePostState.bind(this);
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
@@ -24,16 +24,16 @@ class StateView extends React.Component{
      componentDidUpdate() {
     }
 
-    // handleStateLoading(){
-    //     var stateLoading = JSON.stringify(this.props.objects_to_load);
-    //     var TITLE = 'To Load';
-    //     var formattedState =
-    //         {
-    //         title: TITLE,
-    //         scene: stateLoading
-    //     };
-    //     alert(JSON.stringify(formattedState))
-    // }
+    handleStateLoading(){
+        var stateLoading = JSON.stringify(this.props.objects_to_load);
+        var TITLE = 'To Load';
+        var formattedState =
+            {
+            title: TITLE,
+            scene: stateLoading
+        };
+        alert(JSON.stringify(formattedState))
+    }
 
     handlePostState() {
 //      if (this.props.orientationCollectedFlag === true) {
