@@ -99,28 +99,6 @@ export class NGLView extends React.Component {
         setInterval(this.updateOrientation,20)
     }
 
-    componentWillReceiveProps(newState){
-        if (newState.nglOrientations != undefined) {
-            if (newState.nglOrientations[this.div_id] == "REFRESH") {
-                var objectsInThisDiv = {}
-                for (var key in this.props.objectsInView){
-                    if (this.props.objectsInView[key]["display_div"]==this.div_id){
-                        objectsInThisDiv[key] = this.props.objectsInView[key]
-                    }
-                }
-
-                this.props.setOrientation(
-                    this.div_id,
-                    {
-                        "orientation": this.stage.viewerControls.getOrientation(),
-                        "components": objectsInThisDiv,
-                    }
-                )
-            }
-        }
-    }
-    }
-
     checkIfLoading(){
         for(var key in this.props.objectsToLoad){
             if(this.props.objectsToLoad[key]["display_div"]==this.div_id){
@@ -134,8 +112,6 @@ export class NGLView extends React.Component {
         }
         return true
     }
-
-
 
     componentDidUpdate() {
         this.renderDisplay();
@@ -196,7 +172,7 @@ export class NGLView extends React.Component {
             stage, this.focus_var, object_name,input_dict.colour]
         ).then( ol => this.renderComplex(ol));
     }
-    
+
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
