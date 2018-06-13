@@ -89,7 +89,7 @@ export class UpdateOrientation extends React.Component {
             }).then(function (response) {
                 return response.json();
             }).then(function (myJson) {
-                alert("VIEW SAVED - send this link: " + 
+                alert("VIEW SAVED - send this link: " +
                     window.location.protocol + "//" + window.location.hostname + "/viewer/react/fraggledocs/" + myJson.uuid.toString())
             });
         }
@@ -98,9 +98,7 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>POST</Button>
-            <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>GET</Button>
-        <input id="state_selector" type="text" name="name" />
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
            </div>
     }
 }
