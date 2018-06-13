@@ -88,9 +88,24 @@ export class NGLView extends React.Component {
            local_stage.handleResize();
         }, false);
         this.stage.mouseControls.add("clickPick-left",this.showPick);
+        this.props.setOrientation(
+                this.div_id,
+                this.stage.viewerControls.getOrientation()
+            )
     }
 
-    componentDidUpdate(){
+    componentWillReceiveProps(newState){
+        if (newState.nglOrientations != undefined) {
+            if (newState.nglOrientations[this.div_id] == "REFRESH") {
+                this.props.setOrientation(
+                    this.div_id,
+                    this.stage.viewerControls.getOrientation()
+                )
+            }
+        }
+    }
+
+    componentDidUpdate() {
         this.renderDisplay();
         this.getNglOrientation();
         this.setNglOrientation();
@@ -204,7 +219,12 @@ export class NGLView extends React.Component {
     showCylinder(stage, input_dict, object_name) {
         var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
         var radius = input_dict.radius==undefined ? 0.4 : input_dict.radius;
-        var coords = input_dict.coords;
+        // Handle undefined start and finish
+        if (input_dict.start == undefined || input_dict.end == undefined){
+            console.log("START OR END UNDEFINED FOR CYLINDER" + input_dict.toString())
+            return;
+        }
+
         var shape = new Shape( object_name );
         shape.addCylinder(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
@@ -214,6 +234,11 @@ export class NGLView extends React.Component {
     showArrow(stage, input_dict, object_name) {
         var colour = input_dict.colour==undefined ? [1,0,0] : input_dict.colour;
         var radius = input_dict.radius==undefined ? 0.3 : input_dict.radius;
+        // Handle undefined start and finish
+        if (input_dict.start == undefined || input_dict.end == undefined){
+            console.log("START OR END UNDEFINED FOR ARROW " + input_dict.toString())
+            return;
+        }
         var shape = new Shape( object_name );
         shape.addArrow(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
@@ -283,7 +308,7 @@ export class NGLView extends React.Component {
                 }
             }
             if (old_data) {
-                this.props.deleteObject(this.generateSphere(old_data, true, listType,view));
+                this.props.deleteObject(this.generateSphere(old_data, true, listType, view));
                 this.props.loadObject(this.generateSphere(old_data, false, listType,view));
             }
             // Delete the two old spheres
@@ -358,6 +383,7 @@ export class NGLView extends React.Component {
 
 function mapStateToProps(state) {
   return {
+      nglOrientations: state.nglReducers.nglOrientations,
       mol_group_list: state.apiReducers.mol_group_list,
       mol_group_on: state.apiReducers.mol_group_on,
       pandda_site_on: state.apiReducers.pandda_site_on,

@@ -6,6 +6,7 @@ const INITIALSTATE = {
     objectsToDelete: {},
     objectsInView: {},
     objectsLoading: {},
+    nglOrientations: {},
       // Set the basic things about NGL
     visible: true,
     interactions: true,
@@ -134,19 +135,13 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 hydrogen: action.hydrogen
             });
 
-        case actions.TOGGLE_ORIENTATION_FLAG:
+        case actions.SET_ORIENTATION:
+            const div_id = action.div_id;
+            const orientation = action.orientation;
+            var toSetDiv = {}
+            toSetDiv[div_id] = orientation;
             return Object.assign({}, state, {
-                orientationFlag : action.bool
-            });
-
-        case actions.GET_NGL_ORIENTATION:
-            return Object.assign({}, state, {
-                nglOrientation: action.currentOrientation
-            });
-
-        case actions.TOGGLE_TO_SET_ORIENTATION:
-            return Object.assign({}, state, {
-                orientationToSetFlag : action.bool
+                nglOrientations: toSetDiv
             });
 
         case actions.SET_NGL_ORIENTATION:

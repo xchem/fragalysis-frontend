@@ -14,11 +14,20 @@ export const loadObject = function (group) {
     };
 }
 
-export const objectLoading = function (group){
+export const objectLoading = function (group) {
     console.log("ACTIONS: " + group);
-        return {
+    return {
         type: OBJECT_LOADING,
         group: group
+    };
+}
+
+export const setOrientation = function (div_id, orientation){
+    console.log("ACTIONS: " + orientation + " " + div_id);
+        return {
+        type: SET_ORIENTATION,
+        orientation: orientation,
+            div_id: div_id,
     };
 }
 
