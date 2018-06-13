@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import UpdateOrientation from '../components/updateOrientation';
+import { Route } from 'react-router-dom'
 
 
 class FraggleDocs extends Component {
@@ -23,7 +24,8 @@ class FraggleDocs extends Component {
               <Col xs={10} md={10} >
                   <NGLView div_id="major_view" height="800px"/>
               </Col>
-              <UpdateOrientation />
+              <UpdateOrientation uuid={this.props.match.params.id} />
+
           </Row>
       )
     }
