@@ -40,6 +40,7 @@ export class NGLView extends React.Component {
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
+        this.updateOrientation = this.updateOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -95,6 +96,7 @@ export class NGLView extends React.Component {
                 this.div_id,
                 "SET"
             )
+        setInterval(this.updateOrientation,20)
     }
 
     checkIfLoading(){
@@ -377,8 +379,16 @@ export class NGLView extends React.Component {
                 }
             }
         }
+        this.showSelect(listTypes.MOLGROUPS,"summary_view");
+        this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
+    }
+
+
+    updateOrientation(){
         if(this.props.orientationToSet != undefined){
             if(this.props.orientationToSet[this.div_id] != "SET"){
+                if(this.checkIfLoading())
+                {
                     var ori = this.props.orientationToSet[this.div_id]
                     var curr_orient = this.stage.viewerControls.getOrientation();
                     for (var i = 0; i < curr_orient.elements.length; i += 1) {
@@ -388,9 +398,6 @@ export class NGLView extends React.Component {
                     this.props.setNGLOrientation(this.div_id, "SET");
                 }
         }
-
-        this.showSelect(listTypes.MOLGROUPS,"summary_view");
-        this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
 
     render(){
