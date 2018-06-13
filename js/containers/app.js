@@ -14,7 +14,7 @@ const routes = (
           <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } /> BEGIN HERE
           <LoadingBar />
           <Grid fluid id="page-wrap">
-              <Header/>
+              <Header></Header>
                   <Switch>
                       <Route exact path="/viewer/react/preview" component={Preview} />
                       <Route exact path="/viewer/react/tindspect" component={Tindspect} />
