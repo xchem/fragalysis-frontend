@@ -42,7 +42,7 @@ export class UpdateOrientation extends React.Component {
     }
 
     handleOrientationJson(myJson){
-        var myPreDict = JSON.parse(myJson.scene);
+        var myPreDict = JSON.parse(JSON.parse(myJson.scene));
         var orientationToSet = JSON.parse(myPreDict.orientation);
         this.props.setNglOrientation(orientationToSet);
     }
