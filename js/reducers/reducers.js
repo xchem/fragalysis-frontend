@@ -8,7 +8,7 @@ import selectionReducers from './selectionReducers';
 import renderReducers from './renderReducers';
 import { loadingBarReducer } from 'react-redux-loading-bar'
 import {reducer as burgerMenu} from 'redux-burger-menu';
-
+import { routerReducer } from "react-router-redux";
 
 
 
@@ -16,6 +16,7 @@ const rootReducer = combineReducers({
     renderReducers,
     apiReducers,
     burgerMenu,
+    router: routerReducer,
     selectionReducers,
     loadingBar: loadingBarReducer,
     nglReducers

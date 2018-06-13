@@ -7,6 +7,10 @@ import configureStore from '../configureStore'
 import routes from './app';
 import { Route, Switch } from 'react-router' // react-router v4
 import { ConnectedRouter } from 'connected-react-router'
+import { createBrowserHistory } from 'history'
+
+
+const history = createHistory();
 
 const store = configureStore()
  
@@ -14,7 +18,9 @@ export default class Root extends Component {
     render() {
         return (
             <Provider store={store}>
-                { routes }
+                <ConnectedRouter history={history}> { /* place ConnectedRouter under Provider */ }
+                    { routes }
+                </ConnectedRouter>
             </Provider>
         )
     }
