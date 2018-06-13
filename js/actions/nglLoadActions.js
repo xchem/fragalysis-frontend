@@ -3,7 +3,7 @@
  */
 import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
     DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,
-    DELETE_OBJECT_TYPE} from './actonTypes'
+    DELETE_OBJECT_TYPE, SET_ORIENTATION} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -49,6 +49,15 @@ export const deleteObjectType = function (object_type) {
 
 }
 
+export const setOrientation = function (div_id, orientation){
+    console.log("ACTIONS: " + orientation + " " + div_id);
+        return {
+        type: SET_ORIENTATION,
+        orientation: orientation,
+            div_id: div_id,
+    };
+}
+
 export const loadObjectFailure = function (group) {
     console.log("ACTIONS: " + group);
     return {
@@ -84,3 +93,4 @@ export const deleteObjectFailure = function (group) {
         success: false
     };
 }
+
