@@ -408,6 +408,7 @@ const mapDispatchToProps = {
     selectVector: selectionActions.selectVector,
     hideLoading: hideLoading,
     setPanddaSiteOn: apiActions.setPanddaSiteOn,
+    setOrientation: nglLoadActions.setOrientation,
     showLoading: showLoading,
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
