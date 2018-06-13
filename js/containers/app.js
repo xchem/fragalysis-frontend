@@ -6,7 +6,7 @@ import {MyMenu} from '../components/menuView'
 import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
-import { withRouter, Route, Switch} from 'react-router-dom'
+import { Route, Switch} from 'react-router-dom'
 
 const routes = (
       <div id="outer-container">
@@ -22,4 +22,4 @@ const routes = (
       </div>
 )
 
-export default routes
+export default App

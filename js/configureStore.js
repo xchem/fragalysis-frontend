@@ -5,13 +5,8 @@ import { commpose, createStore, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import rootReducer from './reducers/reducers'
-import { createBrowserHistory } from 'history'
-import {routerMiddleware} from "react-router-redux";
-
 
 const loggerMiddleware = createLogger()
-const history = createBrowserHistory()
-const middleware = routerMiddleware(history);
  
 export default function
     configureStore() {
@@ -19,7 +14,6 @@ export default function
     rootReducer,
     applyMiddleware(
         thunkMiddleware,
-        middleware,
         loggerMiddleware
     )
   )
