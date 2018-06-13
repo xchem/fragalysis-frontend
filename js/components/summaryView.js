@@ -162,7 +162,6 @@ class SummaryView extends React.Component{
             <Well>
                 <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
                 <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <UpdateOrientation />
                 <CompoundList />
             </Well>
         </div>
