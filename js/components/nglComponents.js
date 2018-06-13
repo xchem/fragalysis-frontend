@@ -384,11 +384,10 @@ export class NGLView extends React.Component {
     }
 
 
-    updateOrientation(){
-        if(this.props.orientationToSet != undefined){
-            if(this.props.orientationToSet[this.div_id] != "SET"){
-                if(this.checkIfLoading())
-                {
+    updateOrientation() {
+        if (this.props.orientationToSet != undefined) {
+            if (this.props.orientationToSet[this.div_id] != "SET") {
+                if (this.checkIfLoading()) {
                     var ori = this.props.orientationToSet[this.div_id]
                     var curr_orient = this.stage.viewerControls.getOrientation();
                     for (var i = 0; i < curr_orient.elements.length; i += 1) {
@@ -397,6 +396,7 @@ export class NGLView extends React.Component {
                     this.stage.viewerControls.orient(curr_orient);
                     this.props.setNGLOrientation(this.div_id, "SET");
                 }
+            }
         }
     }
 
