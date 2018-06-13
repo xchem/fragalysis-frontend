@@ -417,11 +417,7 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
-      orientationFlag: state.nglReducers.orientationFlag,
       nglOrientation: state.nglReducers.nglOrientation,
-      orientationToSetFlag: state.nglReducers.orientationToSetFlag,
-      orientationToSet: state.nglReducers.orientationToSet,
-      orientationCollectedFlag: state.nglReducers.orientationCollectedFlag
   }
 }
 const mapDispatchToProps = {
@@ -438,9 +434,6 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    toggleOrientationFlag: nglRenderActions.toggleOrientationFlag,
     getNglOrientation: nglRenderActions.getNglOrientation,
-    toggleToSetOrientation: nglRenderActions.toggleToSetOrientation,
-    toggleOrientationCollection: nglRenderActions.toggleOrientationCollection
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

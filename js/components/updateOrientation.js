@@ -15,11 +15,7 @@ export class UpdateOrientation extends React.Component {
         this.handleJson = this.handleJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
     }
-
-    componentDidMount() {
-    }
-
-
+    
     handleJson(myJson){
         if(myJson.scene==undefined){
             return;

@@ -10,10 +10,6 @@ import {
     SET_HYDROGEN,
     REQUEST_ORIENTATION,
     GET_NGL_ORIENTATION,
-    REQUEST_TO_SET_ORIENTATION,
-    SET_NGL_ORIENTATION,
-    CONFIRM_ORIENTATION_COLLECTION,
-    TOGGLE_ORIENTATION_FLAG
 } from './actonTypes'
 
 export const setColor = function (color) {
@@ -55,7 +51,6 @@ export const setHydrogen = function (hydrogen) {
         spin: hydrogen
     };
 }
-
 
 export const setAssemblyOptions = function (structure) {
     console.log("Dispatching Set Assembly Options");
@@ -105,42 +100,10 @@ export const setAssemblyOptions = function (structure) {
     };
 }
 
-export const toggleOrientationFlag = function (bool){
-    console.log("ACTIONS: orientation toggled");
-    return {
-        type: TOGGLE_ORIENTATION_FLAG,
-        bool: bool
-    };
-}
-
 export const getNglOrientation = function (currentOrientation){
     console.log("ACTIONS: " + currentOrientation);
     return {
         type: GET_NGL_ORIENTATION,
         currentOrientation: currentOrientation
-    };
-}
-
-export const toggleToSetOrientation = function (bool){
-    console.log("ACTIONS: orientation set requested");
-    return {
-        type: TOGGLE_TO_SET_ORIENTATION,
-        bool: bool
-    };
-}
-
-export const setNglOrientation = function (orientationToSet){
-    console.log("ACTIONS: " + orientationToSet);
-    return {
-        type: SET_NGL_ORIENTATION,
-        orientationToSet: orientationToSet
-    };
-}
-
-export const toggleOrientationCollection = function (bool){
-    console.log("ACTIONS: orientation collection monitoring");
-    return {
-        type: TOGGLE_ORIENTATION_COLLECTION,
-        bool: bool
     };
 }
