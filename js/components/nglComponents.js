@@ -387,7 +387,6 @@ export class NGLView extends React.Component {
                     this.stage.viewerControls.orient(curr_orient);
                     this.props.setNGLOrientation(this.div_id, "SET");
                 }
-            }
         }
 
         this.showSelect(listTypes.MOLGROUPS,"summary_view");
