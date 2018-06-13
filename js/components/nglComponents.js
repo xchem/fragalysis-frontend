@@ -39,8 +39,6 @@ export class NGLView extends React.Component {
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
-        this.getNglOrientation = this.getNglOrientation.bind(this);
-        this.setNglOrientation = this.setNglOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -120,15 +118,13 @@ export class NGLView extends React.Component {
         if(newState.orientationToSet != undefined){
             if(newState.nglOrientations[this.div_id] != "SET"){
                 this.stage.viewerControls.setOrientation(newState.nglOrientations[this.div_id])
-                this.props.setNglOrientation(this.div_id,"SET")
+                this.props.setNGLOrientation(this.div_id,"SET")
             }
         }
     }
 
     componentDidUpdate() {
         this.renderDisplay();
-        this.getNglOrientation();
-        this.setNglOrientation();
     }
 
     showSphere(stage, input_dict, object_name) {
@@ -375,26 +371,6 @@ export class NGLView extends React.Component {
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
     }
 
-    getNglOrientation() {
-        if (this.props.orientationFlag === true) {
-            var currentOrientation = this.stage.viewerControls.getOrientation();
-            this.props.getNglOrientation(currentOrientation)
-            this.props.toggleOrientationFlag(false)
-        }
-    }
-
-    setNglOrientation() {
-        if (this.props.orientationToSetFlag === true) {
-            var curr_orient = this.stage.viewerControls.getOrientation();
-            for (var i = 0; i < curr_orient.elements.length; i += 1) {
-                curr_orient.elements[i] = this.props.orientationToSet[i];
-            }
-            this.stage.viewerControls.orient(curr_orient);
-            // No reset the variable in element
-            this.props.toggleOrientationCollection(false);
-        }
-    }
-
     render(){
         return <div style={{height: this.height}} id={this.div_id}>
            </div>
@@ -424,6 +400,7 @@ const mapDispatchToProps = {
     setMolGroupOn: apiActions.setMolGroupOn,
     selectVector: selectionActions.selectVector,
     hideLoading: hideLoading,
+    setNGLOrientation: nglLoadActions.setNGLOrientation,
     setPanddaSiteOn: apiActions.setPanddaSiteOn,
     setOrientation: nglLoadActions.setOrientation,
     showLoading: showLoading,
