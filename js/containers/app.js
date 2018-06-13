@@ -6,7 +6,6 @@ import {MyMenu} from '../components/menuView'
 import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
-import Shareview from './shareviewHolder'
 import { withRouter } from 'react-router-dom'
 
 const routes = (
@@ -17,7 +16,6 @@ const routes = (
               <Header/>
               <Route exact path="/" component={Preview} />
               <Route path="/tindspect" component={Tindspect} />
-              <Route path="/shareview" component={Shareview} />
           </Grid>
       </div>
 )
