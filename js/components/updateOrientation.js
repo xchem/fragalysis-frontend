@@ -98,6 +98,7 @@ export class UpdateOrientation extends React.Component {
         return <div>
             <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>POST</Button>
             <Button bsSize="large" bsStyle="success" onClick={this.handleRenderOrientation}>GET</Button>
+                                    <input id="state_selector" type="text" name="name" />
            </div>
     }
 }
