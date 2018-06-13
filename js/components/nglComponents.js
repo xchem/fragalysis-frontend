@@ -116,19 +116,21 @@ export class NGLView extends React.Component {
     componentWillReceiveProps(newState){
         if (newState.nglOrientations != undefined) {
             if (newState.nglOrientations[this.div_id] == "REFRESH") {
-                var objectsInThisDiv = {}
-                for (var key in newState.objectsInView){
-                    if (newState.objectsInView[key]["display_div"]==this.div_id){
-                        objectsInThisDiv[key] = newState.objectsInView[key]
+                if(this.checkIfLoading()==true) {
+                    var objectsInThisDiv = {}
+                    for (var key in newState.objectsInView) {
+                        if (newState.objectsInView[key]["display_div"] == this.div_id) {
+                            objectsInThisDiv[key] = newState.objectsInView[key]
+                        }
                     }
+                    this.props.setOrientation(
+                        this.div_id,
+                        {
+                            "orientation": this.stage.viewerControls.getOrientation(),
+                            "components": objectsInThisDiv,
+                        }
+                    )
                 }
-                this.props.setOrientation(
-                    this.div_id,
-                    {
-                        "orientation": this.stage.viewerControls.getOrientation(),
-                        "components": objectsInThisDiv,
-                    }
-                )
             }
         }
 
@@ -387,7 +389,7 @@ export class NGLView extends React.Component {
     updateOrientation() {
         if (this.props.orientationToSet != undefined) {
             if (this.props.orientationToSet[this.div_id] != "SET") {
-                if (this.checkIfLoading()) {
+                if (this.checkIfLoading()==true) {
                     var ori = this.props.orientationToSet[this.div_id]
                     var curr_orient = this.stage.viewerControls.getOrientation();
                     for (var i = 0; i < curr_orient.elements.length; i += 1) {
