@@ -382,7 +382,7 @@ export class NGLView extends React.Component {
                 if(this.checkIfLoading()==true) {
                     var objectsInThisDiv = {}
                     for (var key in this.props.objectsInView) {
-                        if (this.props..objectsInView[key]["display_div"] == this.div_id) {
+                        if (this.props.objectsInView[key]["display_div"] == this.div_id) {
                             objectsInThisDiv[key] = this.props.objectsInView[key]
                         }
                     }
