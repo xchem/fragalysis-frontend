@@ -89,7 +89,8 @@ export class UpdateOrientation extends React.Component {
             }).then(function (response) {
                 return response.json();
             }).then(function (myJson) {
-                alert(window.location.protocol + window.location.hostname + "/viewer/react/fraggledocs/" + myJson.uuid.toString())
+                alert("VIEW SAVED - send this link: " + 
+                    window.location.protocol + "//" + window.location.hostname + "/viewer/react/fraggledocs/" + myJson.uuid.toString())
             });
         }
     }
