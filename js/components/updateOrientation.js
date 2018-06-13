@@ -26,7 +26,7 @@ export class UpdateOrientation extends React.Component {
             var orientation = myPreDict[div_id]["orientation"];
             var components = myPreDict[div_id]["components"];
             for (var component in components){
-                this.props.load_object(component);
+                this.props.loadObject(component);
             }
             this.props.setNGLOrientation(div_id, orientation);
         }
@@ -105,6 +105,7 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
+    loadObject: nglLoadActions.loadObject,
     setNGLOrientation: nglLoadActions.setNGLOrientation,
     setOrientation: nglLoadActions.setOrientation
 }
