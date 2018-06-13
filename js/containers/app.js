@@ -22,4 +22,4 @@ const routes = (
       </div>
 )
 
-export default App
+export default routes
