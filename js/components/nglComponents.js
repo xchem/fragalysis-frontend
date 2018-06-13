@@ -124,6 +124,7 @@ export class NGLView extends React.Component {
                 }
                 this.stage.viewerControls.orient(curr_orient);
                 this.props.setNGLOrientation(this.div_id,"SET");
+                this.stage.setFocus(95);
             }
         }
     }
