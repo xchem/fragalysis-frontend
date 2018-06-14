@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 import * as nglLoadActions from "../actions/nglLoadActions";
 import ReactModal from 'react-modal';
 
-export class modalLoadingScreen extends React.Component {
+export class ModalLoadingScreen extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -37,4 +37,4 @@ const mapDispatchToProps = {
     setLoadingState: nglLoadActions.setLoadingState
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(modalLoadingScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ModalLoadingScreen);

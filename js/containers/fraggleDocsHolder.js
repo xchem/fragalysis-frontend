@@ -8,7 +8,7 @@ import NGLView from '../components/nglComponents';
 import UpdateOrientation from '../components/updateOrientation';
 import { Route } from 'react-router-dom';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import modalLoadingScreen from '../components/modalLoadingScreen';
+import ModalLoadingScreen from '../components/modalLoadingScreen';
 
 
 class FraggleDocs extends Component {
@@ -32,7 +32,7 @@ class FraggleDocs extends Component {
                   <NGLView div_id="major_view" height="800px"/>
               </Col>
               <UpdateOrientation />
-              <modalLoadingScreen />
+              <ModalLoadingScreen />
           </Row>
       )
     }
