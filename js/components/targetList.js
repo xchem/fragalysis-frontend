@@ -14,7 +14,6 @@ class TargetList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.TARGET;
-        this.getViewUrl = this.getViewUrl.bind(this);
         this.render_method = this.render_method.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
@@ -52,19 +51,13 @@ class TargetList extends GenericList {
         }
     }
 
-    getViewUrl(pk, get_view) {
-        var base_url = window.location.protocol + "//" + window.location.host
-        base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
-        return base_url
-    }
-
     generateTargetObject(targetData) {
         // Now deal with this target
-        var prot_to_load = targetData.protein_set[0]
+        var prot_to_load =  window.location.protocol + "//" + window.location.host + targetData.template_protein
         if(prot_to_load!=undefined) {
             var out_object = {
                 "name": "PROTEIN_" + prot_to_load.toString(),
-                "prot_url": this.getViewUrl(prot_to_load, "prot_from_pk"),
+                "prot_url": prot_to_load,
                 "OBJECT_TYPE": nglObjectTypes.PROTEIN
             }
             return out_object

@@ -107,7 +107,7 @@ class MoleculeView extends GenericView {
             "OBJECT_TYPE":nglObjectTypes.COMPLEX,
             "sdf_info": data.sdf_info,
             "colour": this.colourToggle,
-            "prot_url": this.getViewUrl(data.prot_id,"prot_from_pk")
+            "prot_url": data.prot_id__pdb_info
         }
         return nglObject;
     }
