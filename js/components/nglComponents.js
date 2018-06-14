@@ -408,6 +408,7 @@ export class NGLView extends React.Component {
 function mapStateToProps(state) {
   return {
       nglOrientations: state.nglReducers.nglOrientations,
+      orientationToSet: state.nglReducers.orientationToSet,
       mol_group_list: state.apiReducers.mol_group_list,
       mol_group_on: state.apiReducers.mol_group_on,
       pandda_site_on: state.apiReducers.pandda_site_on,
