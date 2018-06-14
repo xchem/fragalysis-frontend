@@ -56,7 +56,7 @@ class TargetList extends GenericList {
         var prot_to_load =  window.location.protocol + "//" + window.location.host + targetData.template_protein
         if(prot_to_load!=undefined) {
             var out_object = {
-                "name": "PROTEIN_" + prot_to_load.toString(),
+                "name": "PROTEIN_" + targetData.id.toString(),
                 "prot_url": prot_to_load,
                 "OBJECT_TYPE": nglObjectTypes.PROTEIN
             }
