@@ -6,10 +6,17 @@ import {connect} from 'react-redux';
 import * as nglLoadActions from "../actions/nglLoadActions";
 import ReactModal from 'react-modal';
 import { Button, Well, Col, Row } from 'react-bootstrap'
+import {setLoadingState} from "../actions/nglLoadActions";
 
 export class ModalLoadingScreen extends React.Component {
     constructor(props) {
         super(props);
+        this.setLoadingStateFalse() = this.setLoadingStateFalse.bind(this);
+
+    }
+
+    setLoadingStateFalse() {
+        this.props.setLoadingState(false)
     }
 
     render() {
@@ -19,7 +26,7 @@ export class ModalLoadingScreen extends React.Component {
         // }
         return (
             <div>
-                <ReactModal isOpen={this.props.loadingState}>
+                <ReactModal isOpen={this.props.loadingState} onRequestClose={this.setLoadingStateFalse()}>
                     Here's some content for the modal
                 </ReactModal>
             </div>
