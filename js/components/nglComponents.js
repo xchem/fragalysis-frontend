@@ -102,14 +102,17 @@ export class NGLView extends React.Component {
     checkIfLoading(){
         for(var key in this.props.objectsToLoad){
             if(this.props.objectsToLoad[key]["display_div"]==this.div_id){
+                this.props.setLoadingState(false)
                 return false
             }
         }
         for(var key in this.props.objectsLoading){
             if(this.props.objectsLoading[key]["display_div"]==this.div_id){
+                this.props.setLoadingState(false)
                 return false
             }
         }
+        this.props.setLoadingState(true)
         return true
     }
 
@@ -418,6 +421,7 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
+      loadingState: state.nglReducers.loadingState
   }
 }
 const mapDispatchToProps = {
@@ -434,5 +438,6 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
+    setLoadingState: nglLoadActions.setLoadingState
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
