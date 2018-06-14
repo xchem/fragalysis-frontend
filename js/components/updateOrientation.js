@@ -98,7 +98,7 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save the NGL Orientation</Button>
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
             <Button bsSize="large" bsStyle="success" onClick={this.props.setLoadingState(true)}>Turn on LoadingState</Button>
             <p>{this.props.loadingState}</p>
            </div>
