@@ -18,6 +18,7 @@ export class modalLoadingScreen extends React.Component {
         // }
         return (
             <div>
+                <Button bsSize="large" bsStyle="success" onClick={this.props.setLoadingState(true)}>set to load</Button>
                 <ReactModal isOpen={this.props.loadingState} onRequestClose={this.props.setLoadingState(false)}>
                     Here's some content for the modal
                 </ReactModal>

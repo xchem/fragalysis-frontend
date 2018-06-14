@@ -31,7 +31,7 @@ class FraggleDocs extends Component {
                   <NGLView div_id="major_view" height="800px"/>
               </Col>
               <UpdateOrientation />
-              <modalLoadingScreen/>
+              <modalLoadingScreen />
           </Row>
       )
     }
