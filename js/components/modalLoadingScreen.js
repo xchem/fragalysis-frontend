@@ -18,6 +18,10 @@ export class ModalLoadingScreen extends React.Component {
         this.props.setLoadingState(false)
     }
 
+    componentWillMount() {
+        ReactModal.setAppElement('body')
+    }
+
     render() {
         var loadingState = this.props.loadingState;
         if (!loadingState) {
