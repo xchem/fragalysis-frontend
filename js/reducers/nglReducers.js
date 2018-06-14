@@ -16,7 +16,7 @@ const INITIALSTATE = {
     water: true,
     hydrogen: true,
     orientationToSet: {},
-    loadingState: true
+    loadingState: false
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
