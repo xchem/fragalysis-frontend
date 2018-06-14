@@ -11,8 +11,7 @@ import {setLoadingState} from "../actions/nglLoadActions";
 export class ModalLoadingScreen extends React.Component {
     constructor(props) {
         super(props);
-        this.setLoadingStateFalse() = this.setLoadingStateFalse.bind(this);
-
+        this.setLoadingStateFalse = this.setLoadingStateFalse.bind(this);
     }
 
     setLoadingStateFalse() {
