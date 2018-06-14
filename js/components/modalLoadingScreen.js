@@ -19,7 +19,7 @@ export class ModalLoadingScreen extends React.Component {
         // }
         return (
             <div>
-                <ReactModal isOpen={this.props.loadingState}}>
+                <ReactModal isOpen={this.props.loadingState}>
                     Here's some content for the modal
                 </ReactModal>
             </div>
