@@ -25,6 +25,7 @@ class MoleculeView extends GenericView {
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
+        this.base_url = base_url;
         this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
         this.state.vectorOn = false
         this.state.complexOn = false
@@ -107,7 +108,7 @@ class MoleculeView extends GenericView {
             "OBJECT_TYPE":nglObjectTypes.COMPLEX,
             "sdf_info": data.sdf_info,
             "colour": this.colourToggle,
-            "prot_url": this.getViewUrl(data.prot_id,"prot_from_pk")
+            "prot_url": this.base_url + data.molecule_protein
         }
         return nglObject;
     }
