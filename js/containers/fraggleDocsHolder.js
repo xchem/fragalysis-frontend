@@ -6,8 +6,9 @@ import { connect } from 'react-redux'
 import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import UpdateOrientation from '../components/updateOrientation';
-import { Route } from 'react-router-dom'
-import * as nglLoadActions from '../actions/nglLoadActions'
+import { Route } from 'react-router-dom';
+import * as nglLoadActions from '../actions/nglLoadActions';
+import modalLoadingScreen from '../components/modalLoadingScreen';
 
 
 class FraggleDocs extends Component {
