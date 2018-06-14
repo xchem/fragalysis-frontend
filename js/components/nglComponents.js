@@ -102,17 +102,17 @@ export class NGLView extends React.Component {
     checkIfLoading(){
         for(var key in this.props.objectsToLoad){
             if(this.props.objectsToLoad[key]["display_div"]==this.div_id){
-                this.props.setLoadingState(false)
+                this.props.setLoadingState(true)
                 return false
             }
         }
         for(var key in this.props.objectsLoading){
             if(this.props.objectsLoading[key]["display_div"]==this.div_id){
-                this.props.setLoadingState(false)
+                this.props.setLoadingState(true)
                 return false
             }
         }
-        this.props.setLoadingState(true)
+        this.props.setLoadingState(false)
         return true
     }
 
