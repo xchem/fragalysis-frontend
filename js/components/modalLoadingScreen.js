@@ -23,19 +23,13 @@ export class ModalLoadingScreen extends React.Component {
     }
 
     render() {
-        var loadingState = this.props.loadingState;
-        if (loadingState === false) {
-            return null;
-        } else if (loadingState === true) {
-            return (
-                <div>
-                    <ReactModal isOpen={this.props.loadingState}
-                                onRequestClose={this.setLoadingStateFalse()}>
-                        Here's some content for the modal
-                    </ReactModal>
-                </div>
-            );
-        }
+        return (
+            <div>
+                <ReactModal isOpen={this.props.loadingState}>
+                    Here's some content for the modal
+                </ReactModal>
+            </div>
+        );
     }
 }
 
