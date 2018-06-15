@@ -5,7 +5,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button, Well, Col, Row } from 'react-bootstrap'
-// import fraggleBoxLogo from './img/Fragglebox_logo_v0.2.png';
+import fraggleBoxLogo from '../img/Fragglebox_logo_v0.';
 
 
 const customStyles = {
@@ -33,7 +33,7 @@ export class ModalLoadingScreen extends React.Component {
             <div>
                 <ReactModal isOpen={this.props.loadingState} style={customStyles}>
                     <div>
-                        <img src={ require('../img/Fragglebox_logo_v0.2.png')}/>
+                        <img src={ require('../img/Fragglebox_logo_v0.2.png')} width="964" height="404" />
                     </div>
                 </ReactModal>
             </div>
