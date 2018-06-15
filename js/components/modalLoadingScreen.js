@@ -14,7 +14,7 @@ const customStyles = {
     left                  : '50%',
     right                 : 'auto',
     bottom                : 'auto',
-    marginRight           : '-50%',
+    marginRight           : '-20%',
     transform             : 'translate(-50%, -50%)'
   }
 };
@@ -32,11 +32,9 @@ export class ModalLoadingScreen extends React.Component {
         return (
             <div>
                 <ReactModal isOpen={this.props.loadingState} style={customStyles}>
-                    <h3> FraggleBox loading</h3>
                     <div>
                         <img src={ require('../img/Fragglebox_logo_v0.2.png')}/>
                     </div>
-                    Loading FraggleBox structure.
                 </ReactModal>
             </div>
         );
