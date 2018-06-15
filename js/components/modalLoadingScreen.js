@@ -9,7 +9,7 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 
 const customStyles = {
     overlay : {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+        backgroundColor: 'rgba(0, 0, 0, 0.25)'
     },
     content : {
         top: '50%',
