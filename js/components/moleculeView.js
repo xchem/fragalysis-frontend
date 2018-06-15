@@ -26,7 +26,8 @@ class MoleculeView extends GenericView {
         this.onComplex = this.onComplex.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
-        this.url = new URL(base_url + '/viewer/img_from_mol_pk/' + this.props.data.id + "/")
+        this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
+        this.key = "mol_image"
         this.state.vectorOn = false
         this.state.complexOn = false
         this.colourToggle = this.getRandomColor();
@@ -34,7 +35,7 @@ class MoleculeView extends GenericView {
 
     getViewUrl(pk, get_view) {
         var base_url = window.location.protocol + "//" + window.location.host
-        base_url += "/viewer/"+get_view+"/"+pk.toString()+"/"
+        base_url += "/api/"+get_view+"/"+pk.toString()+"/"
         return base_url
     }
 
@@ -190,7 +191,7 @@ class MoleculeView extends GenericView {
         }
         else {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
-            fetch(this.getViewUrl(this.props.data.id, "get_vects_from_pk"))
+            fetch(this.getViewUrl(this.props.data.id, "vector"))
                 .then(
                     response => response.json(),
                     error => console.log('An error occurred.', error)
@@ -199,7 +200,7 @@ class MoleculeView extends GenericView {
             // Set this
             this.props.getFullGraph(this.props.data);
             // Do the query
-            fetch(this.getViewUrl(this.props.data.id, "get_graph_from_pk"))
+            fetch(this.getViewUrl(this.props.data.id, "graph"))
                 .then(
                     response => response.text(),
                     error => console.log('An error occurred.', error)

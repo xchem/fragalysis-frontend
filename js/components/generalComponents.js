@@ -178,10 +178,10 @@ export class GenericView extends React.Component{
         if(url.toString() != this.old_url) {
             fetch(url)
                 .then(
-                    response => response.text(),
+                    response => response.json(),
                     error => console.log('An error occurred.', error)
                 )
-                .then(text =>  this.setState(prevState => ({img_data: text})))
+                .then(text =>  this.setState(prevState => ({img_data: text[this.key]})))
         }
         this.old_url = url.toString();
     }
