@@ -30,8 +30,7 @@ export class ModalLoadingScreen extends React.Component {
         return (
             <div>
                 <ReactModal isOpen={this.props.loadingState}
-                            onRequestClose={this.setLoadingStateFalse()}
-                                closeTimeoutMS={6000}>
+                            onRequestClose={this.setLoadingStateFalse()}>
                     Here's some content for the modal
                     <Button bsSize="large" bsStyle="success" onClick={this.setLoadingStateFalse}>loadingState to False</Button>
                 </ReactModal>
