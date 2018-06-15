@@ -5,7 +5,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button, Well, Col, Row } from 'react-bootstrap'
-// import fraggleBoxLogo from '../img/Fragglebox_logo_v0.2.jpg';
+import fraggleBoxLogo from '../img/Fragglebox_logo_v0.2.jpg';
 
 
 const customStyles = {
@@ -34,7 +34,7 @@ export class ModalLoadingScreen extends React.Component {
                 <ReactModal isOpen={this.props.loadingState} style={customStyles}>
                     <h3> FraggleBox loading</h3>
                     <div>
-                        <img src="https://www.dropbox.com/s/k615mrlhs7a19ae/Fragglebox_logo_v0.2.jpg?dl=0"/>
+                        <img src={fraggleBoxLogo}>
                     </div>
                     Loading your FraggleBox structure...
                 </ReactModal>
