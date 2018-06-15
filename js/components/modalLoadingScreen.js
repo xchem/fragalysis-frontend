@@ -8,14 +8,18 @@ import { Button, Well, Col, Row } from 'react-bootstrap'
 
 
 const customStyles = {
-  content : {
-    top                   : '50%',
-    left                  : '50%',
-    right                 : 'auto',
-    bottom                : 'auto',
-    marginRight           : '-20%',
-    transform             : 'translate(-50%, -50%)'
-  }
+    overlay : {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    },
+    content : {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-20%',
+        transform: 'translate(-50%, -50%)',
+        border: '10px solid #7a7a7a'
+    }
 };
 
 export class ModalLoadingScreen extends React.Component {
