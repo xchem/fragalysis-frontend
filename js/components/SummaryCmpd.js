@@ -17,8 +17,24 @@ class SummaryCmpd extends GenericView {
         this.update = this.update.bind(this);
         this.smiles = ""
     }
-
-
+    
+    loadFromServer(width, height) {
+        var url = this.url;
+        var get_params = {
+            "width": width,
+            "height": height,
+        }
+        Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
+        if(url.toString() != this.old_url) {
+            fetch(url)
+                .then(
+                    response => response.text,
+                    error => console.log('An error occurred.', error)
+                )
+                .then(text =>  this.setState(prevState => ({img_data: text})))
+        }
+        this.old_url = url.toString();
+    }
 
     update() {
         if(this.smiles!=this.props.to_query) {
