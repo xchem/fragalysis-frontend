@@ -196,16 +196,16 @@ class MoleculeView extends GenericView {
                     response => response.json(),
                     error => console.log('An error occurred.', error)
                 )
-                .then(json => this.handleVector(json))
+                .then(json => this.handleVector(json["vectors"]))
             // Set this
             this.props.getFullGraph(this.props.data);
             // Do the query
             fetch(this.getViewUrl(this.props.data.id, "graph"))
                 .then(
-                    response => response.text(),
+                    response => response.json(),
                     error => console.log('An error occurred.', error)
                 )
-                .then(json => this.props.gotFullGraph(json))
+                .then(json => this.props.gotFullGraph(json["graph"]))
         }
     }
 
