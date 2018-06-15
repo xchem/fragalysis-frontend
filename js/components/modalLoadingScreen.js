@@ -6,7 +6,6 @@ import {connect} from 'react-redux';
 import * as nglLoadActions from "../actions/nglLoadActions";
 import ReactModal from 'react-modal';
 import { Button, Well, Col, Row } from 'react-bootstrap'
-import {setLoadingState} from "../actions/nglLoadActions";
 
 const customStyles = {
   content : {
@@ -22,11 +21,6 @@ const customStyles = {
 export class ModalLoadingScreen extends React.Component {
     constructor(props) {
         super(props);
-        this.setLoadingStateFalse = this.setLoadingStateFalse.bind(this);
-    }
-
-    setLoadingStateFalse() {
-        this.props.setLoadingState(false)
     }
 
     componentWillMount() {
@@ -38,7 +32,7 @@ export class ModalLoadingScreen extends React.Component {
             <div>
                 <ReactModal isOpen={this.props.loadingState} style={customStyles}>
                     FraggleBox is currently loading your shared structure...
-                    
+
                 </ReactModal>
             </div>
         );
@@ -52,7 +46,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-    setLoadingState: nglLoadActions.setLoadingState
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalLoadingScreen);
