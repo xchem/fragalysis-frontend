@@ -22,7 +22,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         case actions.SET_TO_BUY_LIST:
             return Object.assign({}, state, {
                 to_buy_list: action.to_buy_list,
-            });
+            });s
 
         case actions.APPEND_TO_BUY_LIST:
             var to_buy_list = state.to_buy_list.slice();
@@ -75,15 +75,9 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             var input_mol_dict = action.input_mol_dict;
             var new_dict = {}
             // Check if JSON
-            if(input_mol_dict.startsWith("{")){
-                input_mol_dict = JSON.parse(input_mol_dict);
-                // Uniquify the dictionrary
-                for (var key in input_mol_dict) {
-                    new_dict[key] = input_mol_dict[key].filter((x, i, a) => a.indexOf(x) == i)
-                }
-            }
-            else{
-                input_mol_dict={"NO_JSON":-1}
+            // Uniquify the dictionrary
+            for (var key in input_mol_dict) {
+                new_dict[key] = input_mol_dict[key].filter((x, i, a) => a.indexOf(x) == i)
             }
             return  Object.assign({}, state, {
                 to_select: new_dict,
