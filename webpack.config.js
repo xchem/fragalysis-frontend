@@ -24,7 +24,20 @@ module.exports = {
       { test: /\.js$/, enforce: "pre", loader: 'babel-loader', exclude: /node_modules/ },
       { test: /\.jsx$/, enforce: "pre",  loader: 'babel-loader', exclude: /node_modules/ },
       { test: /\.css$/, loader: 'style-loader!css-loader' }
-    ]
+    ],
+
+      loaders: [{
+      test: /\.jsx?$/,
+      include: path.join(__dirname, '/client/src'),
+      loader: 'babel-loader',
+      query: {
+        presets: ["react", "es2015", "stage-1"]
+      }
+    },
+    {
+      test: /\.(gif|svg|jpg|png)$/,
+      loader: "file-loader",
+    }],
   },
 
   resolve: {
