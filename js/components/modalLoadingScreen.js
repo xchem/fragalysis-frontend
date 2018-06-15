@@ -10,10 +10,10 @@ import {setLoadingState} from "../actions/nglLoadActions";
 
 const customStyles = {
   content : {
-    top                   : '50%',
-    left                  : '50%',
-    right                 : 'auto',
-    bottom                : 'auto',
+    top                   : '20%',
+    left                  : '20%',
+    right                 : '-20%',
+    bottom                : '-20%',
     marginRight           : '-50%',
     transform             : 'translate(-50%, -50%)'
   }
@@ -38,7 +38,7 @@ export class ModalLoadingScreen extends React.Component {
             <div>
                 <ReactModal isOpen={this.props.loadingState} style={customStyles}>
                     FraggleBox is currently loading your shared structure...
-                    
+
                 </ReactModal>
             </div>
         );
