@@ -5,7 +5,6 @@ import React from 'react';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button, Well, Col, Row } from 'react-bootstrap'
-import fraggleBoxLogo from '../img/Fragglebox_logo_v0.';
 
 
 const customStyles = {
