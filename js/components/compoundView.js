@@ -13,7 +13,9 @@ class CompoundView extends GenericView {
     constructor(props) {
         super(props);
         var base_url = window.location.protocol + "//" + window.location.host
-        this.url = new URL(base_url + '/viewer/img_from_smiles/')
+        this.url = new URL(base_url + '/api/cmpdimg/' + this.props.data.id + "/")
+        this.key = "cmpd_image"
+
         var get_params = {"smiles": props.data.smiles}
         Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
         this.send_obj = props.data
