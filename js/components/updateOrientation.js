@@ -14,7 +14,6 @@ export class UpdateOrientation extends React.Component {
         this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
         this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
-        this.setLoadingStateTrue = this.setLoadingStateTrue.bind(this);
     }
     
     handleJson(myJson){
@@ -96,15 +95,9 @@ export class UpdateOrientation extends React.Component {
         }
     }
 
-    setLoadingStateTrue() {
-        this.props.setLoadingState(true)
-    }
-
-
     render() {
         return <div>
             <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
-            <Button bsSize="large" bsStyle="success" onClick={this.setLoadingStateTrue}>Toggle LoadingState</Button>
             <h3>Loading State: <b>{this.props.loadingState.toString()}</b></h3>
            </div>
     }
