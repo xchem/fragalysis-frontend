@@ -23,7 +23,7 @@ module.exports = {
     rules: [
       { test: /\.js$/, enforce: "pre", loader: 'babel-loader', exclude: /node_modules/ },
       { test: /\.jsx$/, enforce: "pre",  loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.(gif|svg|jpg|png)$/, loader: "file-loader" },
+      { test: /\.png$/, loader: "file-loader" },
     ]
   },
 
