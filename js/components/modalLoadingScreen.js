@@ -36,7 +36,7 @@ export class ModalLoadingScreen extends React.Component {
                     <div>
                         <img src={ require('../img/Fragglebox_logo_v0.2.png')}/>
                     </div>
-                    Loading your FraggleBox structure.
+                    Loading FraggleBox structure.
                 </ReactModal>
             </div>
         );
