@@ -154,7 +154,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 uuid: action.uuid
             });
 
-        case actions.LOADING_STATE:
+        case actions.SET_LOADING_STATE:
             return Object.assign({}, state, {
                 loadingState: action.loadingState
             })
