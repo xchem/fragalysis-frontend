@@ -112,7 +112,7 @@ export class NGLView extends React.Component {
                 return false
             }
         }
-        this.props.setLoadingState(false)
+        this.props.setLoadingState(true)
         return true
     }
 
