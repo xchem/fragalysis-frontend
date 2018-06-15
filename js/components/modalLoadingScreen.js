@@ -10,10 +10,10 @@ import {setLoadingState} from "../actions/nglLoadActions";
 
 const customStyles = {
   content : {
-    top                   : '20%',
-    left                  : '20%',
-    right                 : '-20%',
-    bottom                : '-20%',
+    top                   : '30%',
+    left                  : '30%',
+    right                 : '70%',
+    bottom                : '70%',
     marginRight           : '-50%',
     transform             : 'translate(-50%, -50%)'
   }
