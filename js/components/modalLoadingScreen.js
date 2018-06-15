@@ -8,6 +8,17 @@ import ReactModal from 'react-modal';
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import {setLoadingState} from "../actions/nglLoadActions";
 
+const customStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)'
+  }
+};
+
 export class ModalLoadingScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -25,7 +36,7 @@ export class ModalLoadingScreen extends React.Component {
     render() {
         return (
             <div>
-                <ReactModal isOpen={this.props.loadingState}>
+                <ReactModal isOpen={this.props.loadingState} style={customStyles}>
                     Here's some content for the modal
                 </ReactModal>
             </div>
