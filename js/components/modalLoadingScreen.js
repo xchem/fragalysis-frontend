@@ -34,7 +34,7 @@ export class ModalLoadingScreen extends React.Component {
                 <ReactModal isOpen={this.props.loadingState} style={customStyles}>
                     <h3> FraggleBox loading</h3>
                     <div>
-                        <img src={ require('./img/Fragglebox_logo_v0.2.jpg')}/>
+                        <img src={ require('../img/Fragglebox_logo_v0.2.jpg')}/>
                     </div>
                     Loading your FraggleBox structure...
                 </ReactModal>
