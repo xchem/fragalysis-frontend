@@ -3,7 +3,7 @@
  */
 import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
     DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,
-    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION, SET_UUID} from './actonTypes'
+    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION, SET_UUID, SET_LOADING_STATE} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -107,3 +107,10 @@ export const deleteObjectFailure = function (group) {
     };
 }
 
+export const setLoadingState = function (bool) {
+    console.log("ACTIONS: setting loading state to " + bool);
+    return {
+        type: SET_LOADING_STATE,
+        loadingState: bool
+    };
+}
