@@ -95,7 +95,6 @@ export class UpdateOrientation extends React.Component {
         }
     }
 
-
     render() {
         return <div>
             <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
@@ -107,11 +106,13 @@ function mapStateToProps(state) {
   return {
       uuid: state.nglReducers.uuid,
       nglOrientations: state.nglReducers.nglOrientations,
+      loadingState: state.nglReducers.loadingState
   }
 }
 const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     setNGLOrientation: nglLoadActions.setNGLOrientation,
-    setOrientation: nglLoadActions.setOrientation
+    setOrientation: nglLoadActions.setOrientation,
+    setLoadingState: nglLoadActions.setLoadingState
 }
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);

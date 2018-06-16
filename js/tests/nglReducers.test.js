@@ -24,7 +24,8 @@ function getInitialState(){
       spin: false,
       water: true,
       hydrogen: true,
-        orientationToSet: {}
+        orientationToSet: {},
+    loadingState: true
     }
 }
 

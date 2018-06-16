@@ -15,7 +15,8 @@ const INITIALSTATE = {
     spin: false,
     water: true,
     hydrogen: true,
-    orientationToSet: {}
+    orientationToSet: {},
+    loadingState: true
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
@@ -152,6 +153,11 @@ export default function nglReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 uuid: action.uuid
             });
+
+        case actions.SET_LOADING_STATE:
+            return Object.assign({}, state, {
+                loadingState: action.loadingState
+            })
 
             // Cases like: @@redux/INIT
         default:
