@@ -175,15 +175,28 @@ export class GenericView extends React.Component{
             "height": height,
         }
         Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
-        if(url.toString() != this.old_url) {
-            fetch(url)
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(text =>  this.setState(prevState => ({img_data: text[this.key]})))
+        if (this.key==undefined){
+            if(url.toString() != this.old_url) {
+                fetch(url)
+                    .then(
+                        response => response.text(),
+                        error => console.log('An error occurred.', error)
+                    )
+                    .then(text =>  this.setState(prevState => ({img_data: text})))
+            }
+        }
+        else {
+            if (url.toString() != this.old_url) {
+                fetch(url)
+                    .then(
+                        response => response.json(),
+                        error => console.log('An error occurred.', error)
+                    )
+                    .then(text => this.setState(prevState => ({img_data: text[this.key]})))
+            }
         }
         this.old_url = url.toString();
+
     }
 
     componentDidMount() {
