@@ -12,7 +12,8 @@ import * as selectionActions from '../actions/selectionActions'
 import * as listTypes from './listTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
-import SVGInline from "react-svg-inline"
+import SVGInline from "react-svg-inline";
+import fetch from 'cross-fetch';
 
 class MoleculeView extends GenericView {
 
@@ -33,10 +34,8 @@ class MoleculeView extends GenericView {
         this.colourToggle = this.getRandomColor();
     }
 
-    getViewUrl(pk, get_view) {
-        var base_url = window.location.protocol + "//" + window.location.host
-        base_url += "/api/"+get_view+"/"+pk.toString()+"/"
-        return base_url
+    getViewUrl(get_view) {
+        return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
     }
 
     /**
@@ -191,7 +190,7 @@ class MoleculeView extends GenericView {
         }
         else {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
-            fetch(this.getViewUrl(this.props.data.id, "vector"))
+            fetch(this.getViewUrl("vector"))
                 .then(
                     response => response.json(),
                     error => console.log('An error occurred.', error)
@@ -200,7 +199,7 @@ class MoleculeView extends GenericView {
             // Set this
             this.props.getFullGraph(this.props.data);
             // Do the query
-            fetch(this.getViewUrl(this.props.data.id, "graph"))
+            fetch(this.getViewUrl( "graph"))
                 .then(
                     response => response.json(),
                     error => console.log('An error occurred.', error)
