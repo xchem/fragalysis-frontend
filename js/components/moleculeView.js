@@ -35,7 +35,7 @@ class MoleculeView extends GenericView {
 
     getViewUrl(pk, get_view) {
         var base_url = window.location.protocol + "//" + window.location.host
-        base_url += "/api/"+get_view+"/"+pk.toString()+"/"
+        base_url += "/api/"+get_view+"/"+pk.toString()+"/?weird=bug"
         return base_url
     }
 
