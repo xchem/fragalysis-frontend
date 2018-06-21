@@ -122,11 +122,11 @@ class SummaryView extends React.Component{
 
     handleDocking() {
         // Get the APO protein
-        
+        this.props.to_query_prot_id;
         // Get the Original molecule
-
+        this.props.to_query_sdf_info;
         // Get the elaborations and the vector(s)
-
+        this.props.to_buy_list;
         // Get the docking script
         const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
         "/usr/bin/obabel -imol /data/input.sdf -h --gen3D -O /data/input_hydrogens.sdf\n" +
@@ -194,6 +194,9 @@ class SummaryView extends React.Component{
 }
 function mapStateToProps(state) {
   return {
+      to_query_pk: state.selectionReducers.to_query_pk,
+      to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
+      to_query_prot_id: state.selectionReducers.to_query_prot_id,
       to_buy_list: state.selectionReducers.to_buy_list,
       to_select: state.selectionReducers.to_select,
       this_vector_list: state.selectionReducers.this_vector_list,
