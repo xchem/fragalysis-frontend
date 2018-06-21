@@ -90,10 +90,11 @@ class SummaryView extends React.Component{
         var outArray = [];
         var headerArray = ["mol","vector","smiles"];
         outArray.push(headerArray)
+        var reg_ex = new RegExp("Xe", 'g')
         for(var item in input_list){
             var newArray = [];
             newArray.push(input_list[item].mol)
-            newArray.push(input_list[item].vector)
+            newArray.push(input_list[item].vector.replace(reg_ex,"*"))
             newArray.push(input_list[item].smiles)
             outArray.push(newArray)
         }
