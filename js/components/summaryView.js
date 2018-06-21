@@ -88,10 +88,12 @@ class SummaryView extends React.Component{
 
     convert_data_to_list(input_list) {
         var outArray = [];
-        var headerArray = ["smiles"];
+        var headerArray = ["mol","vector","smiles"];
         outArray.push(headerArray)
         for(var item in input_list){
             var newArray = [];
+            newArray.push(input_list[item].mol)
+            newArray.push(input_list[item].vector)
             newArray.push(input_list[item].smiles)
             outArray.push(newArray)
         }
