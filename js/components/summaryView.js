@@ -160,6 +160,7 @@ class SummaryView extends React.Component{
         const response = await fetch(url);
         const json = await response.json();
         const pdb_data = json["pdb_data"];
+        var reg_ex = new RegExp("Xe", 'g');
         // Get the Original molecule
         const orig_mol = this.props.to_query_sdf_info;
         // Get the elaborations and the vector(s)
@@ -170,7 +171,7 @@ class SummaryView extends React.Component{
         for(var mol in to_buy_by_vect) {
             var mol_folder = tot_folder.folder(mol);
             for (var vector in to_buy_by_vect[mol]) {
-                // TODO - something more meaningful here
+                // TODO - something more meaningful for this name
                 var dock_name = f_name;
                 var smiles = to_buy_by_vect[mol][vector];
                 var csvContent = ""
@@ -189,9 +190,9 @@ class SummaryView extends React.Component{
                     const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
                         "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
                         "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
-                        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint + '"\n' +
+                        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint.replace(reg_ex,"*") + '"\n' +
                         "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
-                        "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
+                        "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked -r /data/recep.prm -p dock.prm -n 9"
                     const prm_file = "RBT_PARAMETER_FILE_V1.00\n" +
                         "TITLE "+dock_name+"\n" +
                         "RECEPTOR_FILE /data/receptor.mol2\n" +
