@@ -97,7 +97,7 @@ class CompoundView extends GenericView {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': csrfToken
+                'X-CSRF-TOKEN': csrfToken
             },
             body: JSON.stringify(post_data)
         });
