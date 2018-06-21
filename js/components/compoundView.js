@@ -92,15 +92,19 @@ class CompoundView extends GenericView {
             INPUT_MOL_BLOCK: this.props.to_query_sdf_info,
         }
         const csrfToken = this.getCookie("csrftoken");
-        const rawResponse = await fetch(this.base_url + "/scoring/gen_conf_from_vect/", {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify(post_data)
-        });
+        const rawResponse = await fetch(
+            this.base_url + "/scoring/gen_conf_from_vect/",
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(post_data),
+            }
+        );
         const content = await rawResponse.json();
         // Now load this into NGL
         this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content)))
