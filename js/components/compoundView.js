@@ -13,13 +13,13 @@ class CompoundView extends GenericView {
 
     constructor(props) {
         super(props);
-        var base_url = window.location.protocol + "//" + window.location.host
+        this.base_url = window.location.protocol + "//" + window.location.host;
         if(this.props.data.id != undefined) {
-            this.url = new URL(base_url + '/api/cmpdimg/' + this.props.data.id + "/")
+            this.url = new URL(this.base_url + '/api/cmpdimg/' + this.props.data.id + "/")
             this.key = "cmpd_image"
         }
         else{
-            this.url = new URL(base_url + '/viewer/img_from_smiles/')
+            this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
             var get_params = {"smiles": props.data.smiles}
             Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
             this.key = undefined;
@@ -47,7 +47,6 @@ class CompoundView extends GenericView {
             this.handleConf();
         }
         else {
-
             var isToggleOn = this.state.isToggleOn
             this.setState(prevState => ({isToggleOn: !isToggleOn}))
             if (this.state.isToggleOn) {
@@ -65,7 +64,7 @@ class CompoundView extends GenericView {
             "INPUT_SMILES": [this.send_obj.smiles],
             "INPUT_MOL_BLOCK": this.props.to_query_sdf_info,
         }
-        const rawResponse = await fetch('https://httpbin.org/post', {
+        const rawResponse = await fetch(this.base_url + "/scoring/gen_conf_from_vect/", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
