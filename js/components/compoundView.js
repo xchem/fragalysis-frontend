@@ -8,7 +8,7 @@ import { GenericView } from './generalComponents'
 import * as selectionActions from '../actions/selectionActions'
 import SVGInline from "react-svg-inline"
 import fetch from 'cross-fetch';
-import { Cookies } from 'js-cookie';
+import { Cookies } from 'react-cookie';
 
 class CompoundView extends GenericView {
 
