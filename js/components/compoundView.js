@@ -8,9 +8,27 @@ import { GenericView } from './generalComponents'
 import * as selectionActions from '../actions/selectionActions'
 import SVGInline from "react-svg-inline"
 import fetch from 'cross-fetch';
-import { Cookies } from 'react-cookie';
+import * as nglLoadActions from '../actions/nglLoadActions'
 
 class CompoundView extends GenericView {
+
+    static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+    };
+
+    getCookie(name) {
+        if (!document.cookie) {
+            return null;
+        }
+        const xsrfCookies = document.cookie.split(';')
+            .map(c => c.trim())
+            .filter(c => c.startsWith(name + '='));
+        if (xsrfCookies.length === 0) {
+            return null;
+        }
+        return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    }
+
 
     constructor(props) {
         super(props);
@@ -59,13 +77,25 @@ class CompoundView extends GenericView {
         }
     }
 
+    generateMolObject() {
+        // Get the data
+        const data = this.props.data;
+        var nglObject = {
+            "name": "MOLLOAD" + "_" + data.id.toString(),
+            "OBJECT_TYPE":nglObjectTypes.MOLECULE,
+            "colour": this.colourToggle,
+            "sdf_info": data.sdf_info
+        }
+        return nglObject;
+    }
+
     async handleConf(){
         var post_data = {
             "INPUT_VECTOR": this.send_obj.vector,
             "INPUT_SMILES": [this.send_obj.smiles],
             "INPUT_MOL_BLOCK": this.props.to_query_sdf_info,
         }
-        var csrftoken = Cookies.get('csrftoken');
+        const csrfToken = this.getCookie("csrftoken");
         const rawResponse = await fetch(this.base_url + "/scoring/gen_conf_from_vect/", {
             method: 'POST',
             headers: {
@@ -77,7 +107,7 @@ class CompoundView extends GenericView {
         });
         const content = await rawResponse.json();
         // Now load this into NGL
-
+        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[])))
     }
 
 
@@ -112,7 +142,7 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
-
+    loadObject: nglLoadActions.loadObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
 }
