@@ -8,6 +8,7 @@ import { GenericView } from './generalComponents'
 import * as selectionActions from '../actions/selectionActions'
 import SVGInline from "react-svg-inline"
 import fetch from 'cross-fetch';
+import { Cookies } from 'js-cookie';
 
 class CompoundView extends GenericView {
 
@@ -64,11 +65,13 @@ class CompoundView extends GenericView {
             "INPUT_SMILES": [this.send_obj.smiles],
             "INPUT_MOL_BLOCK": this.props.to_query_sdf_info,
         }
+        var csrftoken = Cookies.get('csrftoken');
         const rawResponse = await fetch(this.base_url + "/scoring/gen_conf_from_vect/", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': csrfToken
             },
             body: JSON.stringify(post_data)
         });
