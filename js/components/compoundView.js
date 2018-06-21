@@ -42,17 +42,24 @@ class CompoundView extends GenericView {
     }
 
     handleClick(e) {
-        var isToggleOn = this.state.isToggleOn
-        this.setState(prevState => ({isToggleOn: !isToggleOn}))
-        if(this.state.isToggleOn){
-            this.props.removeFromToBuyList(this.send_obj);
+
+        if(e.shiftKey){
+            this.handleConf();
         }
-        else{
-            this.props.appendToBuyList(this.send_obj);
+        else {
+
+            var isToggleOn = this.state.isToggleOn
+            this.setState(prevState => ({isToggleOn: !isToggleOn}))
+            if (this.state.isToggleOn) {
+                this.props.removeFromToBuyList(this.send_obj);
+            }
+            else {
+                this.props.appendToBuyList(this.send_obj);
+            }
         }
     }
 
-    async handleConf(e){
+    async handleConf(){
         var post_data = {
             "INPUT_VECTOR": this.send_obj.vector,
             "INPUT_SMILES": [this.send_obj.smiles],
@@ -91,7 +98,7 @@ class CompoundView extends GenericView {
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
-        return <div onClick={this.handleClick} ondblclick={this.handleConf} style={this.current_style}>{svg_image}</div>
+        return <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
     }
 
 }
