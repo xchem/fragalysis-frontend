@@ -193,7 +193,7 @@ class SummaryView extends React.Component{
             }
         }
         const content = await zip.generateAsync({type: "blob"});
-        FileSaver.saveAs(content, "docking_" +  target_name + new Date().getTime().toString() + ".zip");
+        FileSaver.saveAs(content, "docking_" +  this.props.target_on_name + new Date().getTime().toString() + ".zip");
     }
 
     getNum() {
