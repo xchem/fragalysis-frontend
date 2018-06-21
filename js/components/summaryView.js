@@ -154,8 +154,6 @@ class SummaryView extends React.Component{
         return output_dict;
     }
 
-
-
     async handleDocking() {
         // Url
         var url = window.location.protocol + "//" + window.location.host
@@ -168,8 +166,9 @@ class SummaryView extends React.Component{
         // Get the elaborations and the vector(s)
         var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
         var zip = new JSZip();
+        var tot_folder = zip.folder(this.props.target_on_name);
         for(var mol in to_buy_by_vect) {
-            var mol_folder = zip.folder(mol);
+            var mol_folder = tot_folder.folder(mol);
             for (var vector in to_buy_by_vect[mol]) {
                 var constraints = vector.split(".")
                 for (var constraint_index in constraints) {
@@ -194,7 +193,7 @@ class SummaryView extends React.Component{
             }
         }
         const content = await zip.generateAsync({type: "blob"});
-        FileSaver.saveAs(content, "docking.zip");
+        FileSaver.saveAs(content, "docking_" +  target_name + new Date().getTime().toString() + ".zip");
     }
 
     getNum() {
@@ -254,6 +253,7 @@ class SummaryView extends React.Component{
 }
 function mapStateToProps(state) {
   return {
+      target_on_name: state.apiReducers.target_on,
       to_query_pk: state.selectionReducers.to_query_pk,
       to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
       to_query_prot: state.selectionReducers.to_query_prot,

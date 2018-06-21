@@ -15,6 +15,7 @@ const INITIALSTATE = {
     pandda_site_list: [],
     mol_group_on: undefined,
     target_on: undefined,
+    target_on_name: undefined,
     group_id: undefined,
     isFetching: false,
     app_on: "PREVIEW",
@@ -72,8 +73,15 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 target_id_list: action.target_id_list
             });
         case actions.SET_TARGET_ON:
+            var target_on_name = undefined;
+            for(var ind in action.target_id_list){
+                if(state.target_id_list[ind].id==action.target_on){
+                    target_on_name = state.target_id_list[ind].title;
+                }
+            }
             return Object.assign({}, state, {
-                target_on: action.target_on
+                target_on_name: target_on_name,
+                target_on: action.target_on,
             });
 
         case actions.SET_MOL_GROUP_LIST:
