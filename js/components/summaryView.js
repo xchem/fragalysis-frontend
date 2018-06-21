@@ -8,7 +8,8 @@ import * as selectionActions from '../actions/selectionActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
-import UpdateOrientation from './updateOrientation';    
+import UpdateOrientation from './updateOrientation';
+import fetch from 'cross-fetch';
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -101,6 +102,14 @@ class SummaryView extends React.Component{
         return outArray;
     }
 
+    download_file(file_data, file_name) {
+        var encodedUri = encodeURI(file_data);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", file_name);
+        document.body.appendChild(link); // Required for FF
+        link.click();
+    }
     handleExport() {
         const rows = this.convert_data_to_list(this.props.to_buy_list);
         let csvContent = "data:text/csv;charset=utf-8,";
@@ -108,13 +117,25 @@ class SummaryView extends React.Component{
             let row = rowArray.join(",");
             csvContent += row + "\r\n";
         });
-        var encodedUri = encodeURI(csvContent);
-        var link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "follow_ups.csv");
-        document.body.appendChild(link); // Required for FF
-        link.click();
+        this.download_file(csvContent,"follow_ups.csv")
+    }
 
+    handleDocking() {
+        // Get the APO protein
+        
+        // Get the Original molecule
+
+        // Get the elaborations and the vector(s)
+
+        // Get the docking script
+        const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
+        "/usr/bin/obabel -imol /data/input.sdf -h --gen3D -O /data/input_hydrogens.sdf\n" +
+        "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
+        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "ncs"\n' +
+        "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
+        "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
+        // Save as a zip
+        this.download_file(tot_content,"follow_ups.zip")
     }
 
     getNum() {
