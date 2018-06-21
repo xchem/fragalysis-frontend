@@ -157,7 +157,7 @@ class SummaryView extends React.Component{
         this.props.to_query_prot_id;
         // This should be defined by type
         var url = window.location.protocol + "//" + window.location.host
-            + "/api/protpdb/" + this.props.to_query_prot_id.toString() + "/";
+            + "/api/protpdb/" + this.props.to_query_prot.toString() + "/";
         const pdb_data = this.getFetch(url)["pdb_data"];
         // Get the Original molecule
         const orig_mol = this.props.to_query_sdf_info;
