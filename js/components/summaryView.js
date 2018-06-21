@@ -2,13 +2,16 @@
  * Created by abradley on 15/03/2018.
  */
 import React from 'react';
+import JSZip from 'jszip';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
-import UpdateOrientation from './updateOrientation';    
+import UpdateOrientation from './updateOrientation';
+import fetch from 'cross-fetch';
+import FileSaver from 'file-saver';
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -17,6 +20,7 @@ class SummaryView extends React.Component{
         this.update = this.update.bind(this);
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
+        this.handleDocking = this.handleDocking.bind(this);
         this.getColour = this.getColour.bind(this);
         this.selectAll = this.selectAll.bind(this);
         this.vector_list;
@@ -88,33 +92,142 @@ class SummaryView extends React.Component{
 
     convert_data_to_list(input_list) {
         var outArray = [];
-        var headerArray = ["mol","vector","smiles"];
+        var headerArray = ["smiles","mol","vector"];
         outArray.push(headerArray)
         var reg_ex = new RegExp("Xe", 'g')
         for(var item in input_list){
             var newArray = [];
+            newArray.push(input_list[item].smiles)
             newArray.push(input_list[item].mol)
             newArray.push(input_list[item].vector.replace(reg_ex,"*"))
-            newArray.push(input_list[item].smiles)
             outArray.push(newArray)
         }
         return outArray;
     }
 
-    handleExport() {
-        const rows = this.convert_data_to_list(this.props.to_buy_list);
-        let csvContent = "data:text/csv;charset=utf-8,";
-        rows.forEach(function(rowArray){
-            let row = rowArray.join(",");
-            csvContent += row + "\r\n";
-        });
-        var encodedUri = encodeURI(csvContent);
+    download_file(file_data, file_name) {
+        var encodedUri = encodeURI(file_data);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "follow_ups.csv");
+        link.setAttribute("download", file_name);
         document.body.appendChild(link); // Required for FF
         link.click();
+    }
 
+    generate_smiles(csvContent,input_list,delimiter){
+        const rows = this.convert_data_to_list(input_list);
+        rows.forEach(function(rowArray){
+            let row = rowArray.join(delimiter);
+            csvContent += row + "\n";
+        });
+        return csvContent;
+    }
+
+    handleExport() {
+        var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list,",");
+        this.download_file(csvContent,"follow_ups.csv");
+    }
+
+    getToBuyByVect(input_dict){
+        var output_dict = {}
+        for(var key in input_dict){
+            var vector = input_dict[key].vector;
+            var smiles = input_dict[key].smiles;
+            var mol = input_dict[key].mol;
+
+            if (mol in output_dict){
+
+            }
+            else{
+                output_dict[mol] = {}
+            }
+
+            if(vector in output_dict[mol]){
+                output_dict[mol][vector].push(smiles);
+            }
+            else{
+                output_dict[mol][vector] = new Array();
+                output_dict[mol][vector].push(smiles);
+            }
+        }
+        return output_dict;
+    }
+
+    async handleDocking() {
+        // Url
+        var url = window.location.protocol + "//" + window.location.host
+            + "/api/protpdb/" + this.props.to_query_prot.toString() + "/";
+        const response = await fetch(url);
+        const json = await response.json();
+        const pdb_data = json["pdb_data"];
+        var reg_ex = new RegExp("Xe", 'g');
+        // Get the Original molecule
+        const orig_mol = this.props.to_query_sdf_info;
+        // Get the elaborations and the vector(s)
+        var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
+        var zip = new JSZip();
+        var f_name = "docking_" +  this.props.target_on_name + "_" + new Date().getTime().toString();
+        var tot_folder = zip.folder(f_name);
+        for(var mol in to_buy_by_vect) {
+            var mol_folder = tot_folder.folder(mol);
+            for (var vector in to_buy_by_vect[mol]) {
+                // TODO - something more meaningful for this name
+                var dock_name = f_name;
+                var smiles = to_buy_by_vect[mol][vector];
+                var csvContent = ""
+                smiles.forEach(function(smiles){
+                        let row = [smiles,mol,vector].join("\t");
+                        csvContent += row + "\n";
+                    });
+                var constraints = vector.split(".")
+                for (var constraint_index in constraints) {
+                    var constraint = constraints[constraint_index];
+                    if (constraint.length < 8) {
+                        continue;
+                    }
+                    var folder = mol_folder.folder(constraint)
+                    // Get the docking script
+                    const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
+                        "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
+                        "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
+                        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint.replace(reg_ex,"*") + '"\n' +
+                        "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
+                        "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked -r /data/recep.prm -p dock.prm -n 9"
+                    const prm_file = "RBT_PARAMETER_FILE_V1.00\n" +
+                        "TITLE "+dock_name+"\n" +
+                        "RECEPTOR_FILE /data/receptor.mol2\n" +
+                        "SECTION MAPPER\n" +
+                        "\tSITE_MAPPER RbtLigandSiteMapper\n" +
+                        "\tREF_MOL /data/reference_hydrogens.sdf\n" +
+                        "\tRADIUS 6.0\n" +
+                        "\tSMALL_SPHERE 1.0\n" +
+                        "\tMIN_VOLUME 100\n" +
+                        "\tMAX_CAVITIES 1\n" +
+                        "\tVOL_INCR 0.0\n" +
+                        "\tGRIDSTEP 0.5\n" +
+                        "END_SECTION\n" +
+                        "SECTION CAVITY\n" +
+                        "\tSCORING_FUNCTION RbtCavityGridSF\n" +
+                        "\tWEIGHT 1.0\n" +
+                        "END_SECTION\n" +
+                        "SECTION LIGAND\n" +
+                        "\tTRANS_MODE TETHERED\n" +
+                        "\tROT_MODE TETHERED\n" +
+                        "\tDIHEDRAL_MODE FREE\n" +
+                        "\tMAX_TRANS 1.0\n" +
+                        "\tMAX_ROT 20.0\n" +
+                        "END_SECTION"
+                    // Save as a zip
+                    folder.file("recep.prm",prm_file);
+                    folder.file("run.sh", docking_script);
+                    folder.file("input.smi", csvContent);
+                    folder.file("receptor.pdb", pdb_data);
+                    folder.file("reference.sdf", orig_mol);
+                }
+            }
+        }
+        const content = await zip.generateAsync({type: "blob"});
+        FileSaver.saveAs(content, f_name + ".zip");
     }
 
     getNum() {
@@ -156,6 +269,7 @@ class SummaryView extends React.Component{
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
@@ -173,6 +287,10 @@ class SummaryView extends React.Component{
 }
 function mapStateToProps(state) {
   return {
+      target_on_name: state.apiReducers.target_on_name,
+      to_query_pk: state.selectionReducers.to_query_pk,
+      to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
+      to_query_prot: state.selectionReducers.to_query_prot,
       to_buy_list: state.selectionReducers.to_buy_list,
       to_select: state.selectionReducers.to_select,
       this_vector_list: state.selectionReducers.this_vector_list,
