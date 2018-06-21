@@ -135,12 +135,20 @@ class SummaryView extends React.Component{
             var vector = input_dict[key].vector;
             var smiles = input_dict[key].smiles;
             var mol = input_dict[key].mol;
-            if(vector in output_dict){
-                output_dict[vector].push(smiles);
+
+            if (mol in output_dict){
+
             }
             else{
-                output_dict[vector] = new Array();
-                output_dict[vector].push(smiles);
+                output_dict[mol] = {}
+            }
+
+            if(vector in output_dict[mol]){
+                output_dict[mol][vector].push(smiles);
+            }
+            else{
+                output_dict[mol][vector] = new Array();
+                output_dict[mol][vector].push(smiles);
             }
         }
         return output_dict;
@@ -160,26 +168,29 @@ class SummaryView extends React.Component{
         // Get the elaborations and the vector(s)
         var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
         var zip = new JSZip();
-        for(var vector in to_buy_by_vect) {
-            var constraints = vector.split(".")
-            for (var constraint_index in constraints) {
-                var constraint = constraints[constraint_index];
-                if(constraint.length<8){
-                    continue;
+        for(var mol in to_buy_by_vect) {
+            var mol_folder = zip.folder(mol);
+            for (var vector in to_buy_by_vect[mol]) {
+                var constraints = vector.split(".")
+                for (var constraint_index in constraints) {
+                    var constraint = constraints[constraint_index];
+                    if (constraint.length < 8) {
+                        continue;
+                    }
+                    var folder = mol_folder.folder(constraint)
+                    // Get the docking script
+                    const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
+                        "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
+                        "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
+                        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint + '"\n' +
+                        "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
+                        "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
+                    // Save as a zip
+                    folder.file("run.sh", docking_script);
+                    folder.file("input.smi", this.generate_smiles(this.props.to_buy_list));
+                    folder.file("receptor.pdb", pdb_data);
+                    folder.file("reference.sdf", orig_mol);
                 }
-                var folder = zip.folder(constraint)
-                // Get the docking script
-                const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
-                    "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
-                    "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
-                    '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint + '"\n' +
-                    "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
-                    "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
-                // Save as a zip
-                folder.file("run.sh", docking_script);
-                folder.file("input.smi", this.generate_smiles(this.props.to_buy_list));
-                folder.file("receptor.pdb", pdb_data);
-                folder.file("reference.sdf", orig_mol);
             }
         }
         const content = await zip.generateAsync({type: "blob"});
