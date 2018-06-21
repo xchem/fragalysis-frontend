@@ -8,6 +8,7 @@ const INITIALSTATE = {
     to_select: {},
     vector_list: [],
     to_query_pk: undefined,
+    to_query_prot: undefined,
     this_vector_list: {},
     querying: false,
     to_query: undefined
@@ -63,7 +64,8 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             var input_mol = action.item;
             return  Object.assign({}, state, {
                 to_query: input_mol.smiles,
-                to_query_pk: input_mol.pk,
+                to_query_pk: input_mol.id,
+                to_query_prot: input_mol.prot_id,
                 to_select: {},
                 querying: true
             });
