@@ -146,19 +146,15 @@ class SummaryView extends React.Component{
         return output_dict;
     }
 
-    async getFetch(url){
-        const response = fetch(url);
-        const output_json = await response.json();
-        return output_json;
-    }
 
-    handleDocking() {
-        // Get the APO protein
-        this.props.to_query_prot_id;
-        // This should be defined by type
+
+    async handleDocking() {
+        // Url
         var url = window.location.protocol + "//" + window.location.host
             + "/api/protpdb/" + this.props.to_query_prot.toString() + "/";
-        const pdb_data = this.getFetch(url)["pdb_data"];
+        const response = await fetch(url);
+        const json = await response.json();
+        const pdb_data = json["pdb_data"];
         // Get the Original molecule
         const orig_mol = this.props.to_query_sdf_info;
         // Get the elaborations and the vector(s)
@@ -179,11 +175,8 @@ class SummaryView extends React.Component{
             folder.file("receptor.pdb", pdb_data);
             folder.file("reference.sdf", orig_mol);
         }
-        zip.generateAsync({type: "blob"})
-            .then(function (content) {
-                    FileSaver.saveAs(content, "docking.zip");
-            });
-
+        const content = await zip.generateAsync({type: "blob"});
+        FileSaver.saveAs(content, "docking.zip");
     }
 
     getNum() {
