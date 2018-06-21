@@ -92,14 +92,14 @@ class SummaryView extends React.Component{
 
     convert_data_to_list(input_list) {
         var outArray = [];
-        var headerArray = ["mol","vector","smiles"];
+        var headerArray = ["smiles","mol","vector"];
         outArray.push(headerArray)
         var reg_ex = new RegExp("Xe", 'g')
         for(var item in input_list){
             var newArray = [];
+            newArray.push(input_list[item].smiles)
             newArray.push(input_list[item].mol)
             newArray.push(input_list[item].vector.replace(reg_ex,"*"))
-            newArray.push(input_list[item].smiles)
             outArray.push(newArray)
         }
         return outArray;
@@ -114,18 +114,17 @@ class SummaryView extends React.Component{
         link.click();
     }
 
-    generate_smiles(input_list){
+    generate_smiles(csvContent,input_list){
         const rows = this.convert_data_to_list(input_list);
-        let csvContent = "data:text/csv;charset=utf-8,";
         rows.forEach(function(rowArray){
-            let row = rowArray.join(",");
-            csvContent += row + "\r\n";
+            let row = rowArray.join("\t");
+            csvContent += row + "\n";
         });
         return csvContent;
     }
 
     handleExport() {
-        var csvContent = this.generate_smiles(this.props.to_buy_list);
+        var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list);
         this.download_file(csvContent,"follow_ups.csv");
     }
 
@@ -166,7 +165,8 @@ class SummaryView extends React.Component{
         // Get the elaborations and the vector(s)
         var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
         var zip = new JSZip();
-        var tot_folder = zip.folder(this.props.target_on_name);
+        var f_name = "docking_" +  this.props.target_on_name + "_" + new Date().getTime().toString();
+        var tot_folder = zip.folder(f_name);
         for(var mol in to_buy_by_vect) {
             var mol_folder = tot_folder.folder(mol);
             for (var vector in to_buy_by_vect[mol]) {
@@ -186,14 +186,14 @@ class SummaryView extends React.Component{
                         "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
                     // Save as a zip
                     folder.file("run.sh", docking_script);
-                    folder.file("input.smi", this.generate_smiles(this.props.to_buy_list));
+                    folder.file("input.csv", this.generate_smiles("",this.props.to_buy_list));
                     folder.file("receptor.pdb", pdb_data);
                     folder.file("reference.sdf", orig_mol);
                 }
             }
         }
         const content = await zip.generateAsync({type: "blob"});
-        FileSaver.saveAs(content, "docking_" +  this.props.target_on_name + new Date().getTime().toString() + ".zip");
+        FileSaver.saveAs(content, f_name + ".zip");
     }
 
     getNum() {
