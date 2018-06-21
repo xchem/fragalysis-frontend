@@ -182,7 +182,7 @@ class SummaryView extends React.Component{
         }
         zip.generateAsync({type: "blob"})
             .then(function (content) {
-                    FileSaver.saveAs(content, "docking_vector" + counter.toString() + ".zip");
+                    FileSaver.saveAs(content, "docking.zip");
             });
 
     }
