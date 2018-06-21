@@ -87,9 +87,9 @@ class CompoundView extends GenericView {
 
     async handleConf(){
         var post_data = {
-            "INPUT_VECTOR": this.send_obj.vector,
-            "INPUT_SMILES": [this.send_obj.smiles],
-            "INPUT_MOL_BLOCK": this.props.to_query_sdf_info,
+            INPUT_VECTOR: this.send_obj.vector,
+            INPUT_SMILES: [this.send_obj.smiles],
+            INPUT_MOL_BLOCK: this.props.to_query_sdf_info,
         }
         const csrfToken = this.getCookie("csrftoken");
         const rawResponse = await fetch(this.base_url + "/scoring/gen_conf_from_vect/", {
