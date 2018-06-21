@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { GenericView } from './generalComponents'
 import * as selectionActions from '../actions/selectionActions'
 import SVGInline from "react-svg-inline"
+import fetch from 'cross-fetch';
 
 class CompoundView extends GenericView {
 
@@ -27,6 +28,7 @@ class CompoundView extends GenericView {
 
         this.send_obj = props.data
         this.checkInList = this.checkInList.bind(this);
+        this.handleConf = this.handleConf.bind(this);
     }
 
     checkInList() {
@@ -50,6 +52,26 @@ class CompoundView extends GenericView {
         }
     }
 
+    async handleConf(e){
+        var post_data = {
+            "INPUT_VECTOR": this.send_obj.vector,
+            "INPUT_SMILES": [this.send_obj.smiles],
+            "INPUT_MOL_BLOCK": this.props.to_query_sdf_info,
+        }
+        const rawResponse = await fetch('https://httpbin.org/post', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(post_data)
+        });
+        const content = await rawResponse.json();
+        // Now load this into NGL
+
+    }
+
+
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         this.checkInList();
@@ -69,7 +91,7 @@ class CompoundView extends GenericView {
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
-        return <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+        return <div onClick={this.handleClick} ondblclick={this.handleConf} style={this.current_style}>{svg_image}</div>
     }
 
 }
@@ -77,9 +99,11 @@ class CompoundView extends GenericView {
 function mapStateToProps(state) {
   return {
       to_buy_list: state.selectionReducers.to_buy_list,
+      to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
   }
 }
 const mapDispatchToProps = {
+
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
 }
