@@ -169,7 +169,7 @@ class SummaryView extends React.Component{
             zip.file("reference.sdf", orig_mol);
             zip.generateAsync({type:"blob"})
                 .then(function(content) {
-                    FileSave.saveAs(content, "docking.zip");
+                    FileSaver.saveAs(content, "docking.zip");
                 });
     }
 
