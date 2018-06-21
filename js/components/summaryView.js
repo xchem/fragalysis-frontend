@@ -154,7 +154,7 @@ class SummaryView extends React.Component{
     }
 
     async handleDocking() {
-        // Url
+        // Url of the current molecule
         var url = window.location.protocol + "//" + window.location.host
             + "/api/protpdb/" + this.props.to_query_prot.toString() + "/";
         const response = await fetch(url);
@@ -168,8 +168,12 @@ class SummaryView extends React.Component{
         var zip = new JSZip();
         var f_name = "docking_" +  this.props.target_on_name + "_" + new Date().getTime().toString();
         var tot_folder = zip.folder(f_name);
+        var mol_counter = 0;
         for(var mol in to_buy_by_vect) {
-            var mol_folder = tot_folder.folder(mol);
+            var mol_folder = tot_folder.folder("MOL_" + mol_counter.toString());
+            mol_folder.file("SMILES",mol)
+            mol_counter++;
+            var vector_counter = 0;
             for (var vector in to_buy_by_vect[mol]) {
                 // TODO - something more meaningful for this name
                 var dock_name = f_name;
@@ -185,12 +189,14 @@ class SummaryView extends React.Component{
                     if (constraint.length < 8) {
                         continue;
                     }
-                    var folder = mol_folder.folder(constraint)
+                    var folder = mol_folder.folder("VECTOR_"+ vector_counter.toString());
+                    var constrain_smiles = constraint.replace(reg_ex,"*")
+                    folder.file("SMILES",constrain_smiles);
                     // Get the docking script
                     const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
                         "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
                         "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
-                        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint.replace(reg_ex,"*") + '"\n' +
+                        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constrain_smiles + '"\n' +
                         "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
                         "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked -r /data/recep.prm -p dock.prm -n 9"
                     const prm_file = "RBT_PARAMETER_FILE_V1.00\n" +
