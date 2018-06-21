@@ -2,6 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React from 'react';
+import JSZip from 'jszip';
 import { connect } from 'react-redux'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import * as selectionActions from '../actions/selectionActions'
@@ -18,6 +19,7 @@ class SummaryView extends React.Component{
         this.update = this.update.bind(this);
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
+        this.handleDocking = this.handleDocking.bind(this);
         this.getColour = this.getColour.bind(this);
         this.selectAll = this.selectAll.bind(this);
         this.vector_list;
@@ -110,32 +112,65 @@ class SummaryView extends React.Component{
         document.body.appendChild(link); // Required for FF
         link.click();
     }
-    handleExport() {
-        const rows = this.convert_data_to_list(this.props.to_buy_list);
+
+    generate_smiles(input_list){
+        const rows = this.convert_data_to_list(input_list);
         let csvContent = "data:text/csv;charset=utf-8,";
         rows.forEach(function(rowArray){
             let row = rowArray.join(",");
             csvContent += row + "\r\n";
         });
-        this.download_file(csvContent,"follow_ups.csv")
+        return csvContent;
+    }
+
+    handleExport() {
+        var csvContent = this.generate_smiles(this.props.to_buy_list);
+        this.download_file(csvContent,"follow_ups.csv");
+    }
+
+    getToBuyByVect(input_dict){
+        var output_dict = {}
+        for(var key in input_dict){
+            var vector = input_dict[key].vector;
+            var smiles = input_dict[key].smiles;
+            var mol = input_dict[key].mol;
+            if(vector in output_dict){
+                output_dict[vector].push(smiles);
+            }
+            else{
+                output_dict[vector] = new Array();
+                output_dict[vector].push(smiles);
+            }
+        }
+        return output_dict;
     }
 
     handleDocking() {
         // Get the APO protein
         this.props.to_query_prot_id;
         // Get the Original molecule
-        this.props.to_query_sdf_info;
+        const orig_mol = this.props.to_query_sdf_info;
         // Get the elaborations and the vector(s)
-        this.props.to_buy_list;
+        var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
+        alert(to_buy_by_vect);
         // Get the docking script
         const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
-        "/usr/bin/obabel -imol /data/input.sdf -h --gen3D -O /data/input_hydrogens.sdf\n" +
+        "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
         "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
-        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "ncs"\n' +
+        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "'+constraint+'"\n' +
         "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
         "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
         // Save as a zip
-        this.download_file(tot_content,"follow_ups.zip")
+        var zip = new JSZip();
+        zip.file("run.sh", docking_script);
+        zip.file("input.smi", this.generate_smiles(this.props.to_buy_list));
+        zip.file("receptor.pdb", receptor);
+        zip.file("reference.sdf", orig_mol);
+        zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                // see FileSaver.js
+                saveAs(content, "docking.zip");
+            });
     }
 
     getNum() {
@@ -177,6 +212,7 @@ class SummaryView extends React.Component{
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                    <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
