@@ -11,6 +11,7 @@ import CompoundList from './compoundList';
 import SummaryCmpd from './SummaryCmpd';
 import UpdateOrientation from './updateOrientation';
 import fetch from 'cross-fetch';
+import FileSaver from 'file-saver';
 
 class SummaryView extends React.Component{
     constructor(props) {
@@ -168,8 +169,7 @@ class SummaryView extends React.Component{
             zip.file("reference.sdf", orig_mol);
             zip.generateAsync({type:"blob"})
                 .then(function(content) {
-                    // see FileSaver.js
-                    saveAs(content, "docking.zip");
+                    FileSave.saveAs(content, "docking.zip");
                 });
     }
 
