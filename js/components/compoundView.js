@@ -11,7 +11,7 @@ import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions'
 
 class CompoundView extends GenericView {
-    
+
     getCookie(name) {
         if (!document.cookie) {
             return null;
@@ -103,7 +103,7 @@ class CompoundView extends GenericView {
         });
         const content = await rawResponse.json();
         // Now load this into NGL
-        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[])))
+        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content)))
     }
 
 
