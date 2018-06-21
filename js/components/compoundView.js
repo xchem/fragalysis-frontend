@@ -11,11 +11,7 @@ import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions'
 
 class CompoundView extends GenericView {
-
-    static propTypes = {
-    cookies: instanceOf(Cookies).isRequired
-    };
-
+    
     getCookie(name) {
         if (!document.cookie) {
             return null;
