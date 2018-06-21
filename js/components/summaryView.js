@@ -152,25 +152,25 @@ class SummaryView extends React.Component{
         const orig_mol = this.props.to_query_sdf_info;
         // Get the elaborations and the vector(s)
         var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
-        alert(to_buy_by_vect);
-        // Get the docking script
-        const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
-        "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
-        "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
-        '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "'+constraint+'"\n' +
-        "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
-        "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
-        // Save as a zip
-        var zip = new JSZip();
-        zip.file("run.sh", docking_script);
-        zip.file("input.smi", this.generate_smiles(this.props.to_buy_list));
-        zip.file("receptor.pdb", receptor);
-        zip.file("reference.sdf", orig_mol);
-        zip.generateAsync({type:"blob"})
-            .then(function(content) {
-                // see FileSaver.js
-                saveAs(content, "docking.zip");
-            });
+        for(var constraint in to_buy_by_vect){}
+            // Get the docking script
+            const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
+            "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
+            "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
+            '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "'+constraint+'"\n' +
+            "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
+            "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
+            // Save as a zip
+            var zip = new JSZip();
+            zip.file("run.sh", docking_script);
+            zip.file("input.smi", this.generate_smiles(this.props.to_buy_list));
+            zip.file("receptor.pdb", "DUMMY.pdb");
+            zip.file("reference.sdf", orig_mol);
+            zip.generateAsync({type:"blob"})
+                .then(function(content) {
+                    // see FileSaver.js
+                    saveAs(content, "docking.zip");
+                });
     }
 
     getNum() {
