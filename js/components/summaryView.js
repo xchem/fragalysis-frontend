@@ -160,20 +160,27 @@ class SummaryView extends React.Component{
         // Get the elaborations and the vector(s)
         var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
         var zip = new JSZip();
-        for(var constraint in to_buy_by_vect) {
-            var folder = zip.folder(constraint)
-            // Get the docking script
-            const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
-                "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
-                "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
-                '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint + '"\n' +
-                "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
-                "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
-            // Save as a zip
-            folder.file("run.sh", docking_script);
-            folder.file("input.smi", this.generate_smiles(this.props.to_buy_list));
-            folder.file("receptor.pdb", pdb_data);
-            folder.file("reference.sdf", orig_mol);
+        for(var vector in to_buy_by_vect) {
+            var constraints = vector.split(".")
+            for (var constraint_index in constraints) {
+                var constraint = constraints[constraint_index];
+                if(constraint.length<8){
+                    continue;
+                }
+                var folder = zip.folder(constraint)
+                // Get the docking script
+                const docking_script = "/usr/bin/obabel -imol /data/reference.sdf -h -O /data/reference_hydrogens.sdf\n" +
+                    "/usr/bin/obabel -ismi /data/input.smi -h --gen3D -O /data/input_hydrogens.sdf\n" +
+                    "/usr/bin/obabel -ipdb /data/receptor.pdb -O /data/receptor.mol2\n" +
+                    '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint + '"\n' +
+                    "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
+                    "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
+                // Save as a zip
+                folder.file("run.sh", docking_script);
+                folder.file("input.smi", this.generate_smiles(this.props.to_buy_list));
+                folder.file("receptor.pdb", pdb_data);
+                folder.file("reference.sdf", orig_mol);
+            }
         }
         const content = await zip.generateAsync({type: "blob"});
         FileSaver.saveAs(content, "docking.zip");
