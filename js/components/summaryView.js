@@ -114,17 +114,17 @@ class SummaryView extends React.Component{
         link.click();
     }
 
-    generate_smiles(csvContent,input_list){
+    generate_smiles(csvContent,input_list,delimiter){
         const rows = this.convert_data_to_list(input_list);
         rows.forEach(function(rowArray){
-            let row = rowArray.join("\t");
+            let row = rowArray.join(delimiter);
             csvContent += row + "\n";
         });
         return csvContent;
     }
 
     handleExport() {
-        var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list);
+        var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list,",");
         this.download_file(csvContent,"follow_ups.csv");
     }
 
@@ -170,6 +170,14 @@ class SummaryView extends React.Component{
         for(var mol in to_buy_by_vect) {
             var mol_folder = tot_folder.folder(mol);
             for (var vector in to_buy_by_vect[mol]) {
+                // TODO - something more meaningful here
+                var dock_name = f_name;
+                var smiles = to_buy_by_vect[mol][vector];
+                var csvContent = ""
+                smiles.forEach(function(smiles){
+                        let row = [smiles,mol,vector].join("\t");
+                        csvContent += row + "\n";
+                    });
                 var constraints = vector.split(".")
                 for (var constraint_index in constraints) {
                     var constraint = constraints[constraint_index];
@@ -184,9 +192,34 @@ class SummaryView extends React.Component{
                         '/rDock_2013.1_src/bin/sdtether /data/reference_hydrogens.sdf  /data/input_hydrogens.sdf /data/output.sdf "' + constraint + '"\n' +
                         "/rDock_2013.1_src/bin/rbcavity -was -d -r /data/recep.prm\n" +
                         "/rDock_2013.1_src/bin/rbdock -i /data/output.sdf -o /data/docked.sdf -r /data/recep.prm -p dock.prm -n 9"
+                    const prm_file = "RBT_PARAMETER_FILE_V1.00\n" +
+                        "TITLE "+dock_name+"\n" +
+                        "RECEPTOR_FILE /data/receptor.mol2\n" +
+                        "SECTION MAPPER\n" +
+                        "\tSITE_MAPPER RbtLigandSiteMapper\n" +
+                        "\tREF_MOL /data/reference_hydrogens.sdf\n" +
+                        "\tRADIUS 6.0\n" +
+                        "\tSMALL_SPHERE 1.0\n" +
+                        "\tMIN_VOLUME 100\n" +
+                        "\tMAX_CAVITIES 1\n" +
+                        "\tVOL_INCR 0.0\n" +
+                        "\tGRIDSTEP 0.5\n" +
+                        "END_SECTION\n" +
+                        "SECTION CAVITY\n" +
+                        "\tSCORING_FUNCTION RbtCavityGridSF\n" +
+                        "\tWEIGHT 1.0\n" +
+                        "END_SECTION\n" +
+                        "SECTION LIGAND\n" +
+                        "\tTRANS_MODE TETHERED\n" +
+                        "\tROT_MODE TETHERED\n" +
+                        "\tDIHEDRAL_MODE FREE\n" +
+                        "\tMAX_TRANS 1.0\n" +
+                        "\tMAX_ROT 20.0\n" +
+                        "END_SECTION"
                     // Save as a zip
+                    folder.file("recep.prm",prm_file);
                     folder.file("run.sh", docking_script);
-                    folder.file("input.csv", this.generate_smiles("",this.props.to_buy_list));
+                    folder.file("input.smi", csvContent);
                     folder.file("receptor.pdb", pdb_data);
                     folder.file("reference.sdf", orig_mol);
                 }
