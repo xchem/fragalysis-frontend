@@ -163,7 +163,6 @@ class SummaryView extends React.Component{
         const orig_mol = this.props.to_query_sdf_info;
         // Get the elaborations and the vector(s)
         var to_buy_by_vect = this.getToBuyByVect(this.props.to_buy_list);
-        var counter = 0;
         var zip = new JSZip();
         for(var constraint in to_buy_by_vect) {
             var folder = zip.folder(constraint)
@@ -246,7 +245,7 @@ function mapStateToProps(state) {
   return {
       to_query_pk: state.selectionReducers.to_query_pk,
       to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
-      to_query_prot_id: state.selectionReducers.to_query_prot_id,
+      to_query_prot: state.selectionReducers.to_query_prot,
       to_buy_list: state.selectionReducers.to_buy_list,
       to_select: state.selectionReducers.to_select,
       this_vector_list: state.selectionReducers.this_vector_list,
