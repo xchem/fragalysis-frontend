@@ -253,7 +253,7 @@ class SummaryView extends React.Component{
 }
 function mapStateToProps(state) {
   return {
-      target_on_name: state.apiReducers.target_on,
+      target_on_name: state.apiReducers.target_on_name,
       to_query_pk: state.selectionReducers.to_query_pk,
       to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
       to_query_prot: state.selectionReducers.to_query_prot,
