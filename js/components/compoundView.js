@@ -78,7 +78,7 @@ class CompoundView extends GenericView {
         var nglObject = {
             "name": "CONFLOAD_"+identifier,
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
-            "colour": "black",
+            "colour": "cyan",
             "sdf_info": data
         }
         return nglObject;
