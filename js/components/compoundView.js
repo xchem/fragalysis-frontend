@@ -150,7 +150,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
-    deleteObject: nglLoadActions.loadObject,
+    deleteObject: nglLoadActions.deleteObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
 }
