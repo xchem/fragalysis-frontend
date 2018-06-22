@@ -86,15 +86,13 @@ class CompoundView extends GenericView {
     }
 
     async handleConf(){
-
         const csrfToken = this.getCookie("csrftoken");
         const rawResponse = await fetch(
             this.base_url + "/scoring/gen_conf_from_vect/",
             {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRFToken': csrfToken
                 },
