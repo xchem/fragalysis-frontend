@@ -43,6 +43,8 @@ class CompoundView extends GenericView {
         }
 
         this.send_obj = props.data
+        this.conf_on_style = {borderStyle: "solid"}
+        this.comp_on_style = {backgroundColor: "#B7C185"}
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
     }
@@ -136,8 +138,16 @@ class CompoundView extends GenericView {
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
-        this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
-        return <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+        var current_style = this.not_selected_style;
+        if(this.state.isToggleOn){
+            current_style = Object.assign(this.comp_on_style,current_style)
+        }
+        if(this.state.isConfOn){
+            current_style = Object.assign(this.conf_on_style,current_style)
+
+        }
+
+        return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
     }
 
 }
@@ -150,7 +160,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
-    deleteObject: nglLoadActions.loadObject,
+    deleteObject: nglLoadActions.deleteObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
 }
