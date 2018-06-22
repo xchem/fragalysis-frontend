@@ -75,10 +75,10 @@ class CompoundView extends GenericView {
         }
     }
 
-    generateMolObject(data) {
+    generateMolObject(data,identifier) {
         // Get the data
         var nglObject = {
-            "name": "CONFLOAD",
+            "name": "CONFLOAD_"+identifier.toString(),
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
             "colour": "black",
             "sdf_info": data
@@ -108,7 +108,7 @@ class CompoundView extends GenericView {
         );
         const content = await rawResponse.json();
         // Now load this into NGL
-        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0])))
+        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0],this.props.data.id)))
     }
 
 
