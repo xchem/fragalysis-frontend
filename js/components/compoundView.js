@@ -42,7 +42,6 @@ class CompoundView extends GenericView {
             this.key = undefined;
         }
 
-
         this.send_obj = props.data
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
@@ -59,7 +58,6 @@ class CompoundView extends GenericView {
     }
 
     handleClick(e) {
-
         if(e.shiftKey){
             this.handleConf();
         }
@@ -87,6 +85,12 @@ class CompoundView extends GenericView {
     }
 
     async handleConf(){
+        var isConfOn = this.state.isConfOn;
+        if (isConfOn) {
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0],this.props.data.id)))
+            this.setState(prevState => ({isConfOn: false}))
+            return;
+        }
         const csrfToken = this.getCookie("csrftoken");
         var post_data = {
             INPUT_VECTOR: this.send_obj.vector,
@@ -108,6 +112,7 @@ class CompoundView extends GenericView {
         );
         const content = await rawResponse.json();
         // Now load this into NGL
+        this.setState(prevState => ({isConfOn: true}))
         this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0],this.props.data.id)))
     }
 
@@ -144,6 +149,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
+    deleteObject: nglLoadActions.loadObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
 }
