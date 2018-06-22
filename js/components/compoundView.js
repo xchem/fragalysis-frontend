@@ -9,6 +9,8 @@ import * as selectionActions from '../actions/selectionActions'
 import SVGInline from "react-svg-inline"
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions'
+import * as nglObjectTypes from '../components/nglObjectTypes'
+
 
 class CompoundView extends GenericView {
 
@@ -73,7 +75,7 @@ class CompoundView extends GenericView {
         }
     }
 
-    generateMolObject(data, identifier) {
+    generateMolObject(data) {
         // Get the data
         var nglObject = {
             "name": "CONFLOAD",
@@ -106,7 +108,7 @@ class CompoundView extends GenericView {
         );
         const content = await rawResponse.json();
         // Now load this into NGL
-        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0],"")))
+        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0])))
     }
 
 
