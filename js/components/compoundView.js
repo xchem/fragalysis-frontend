@@ -87,7 +87,7 @@ class CompoundView extends GenericView {
     async handleConf(){
         var isConfOn = this.state.isConfOn;
         if (isConfOn) {
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0],this.props.data.smiles)))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf,this.props.data.smiles)))
             this.setState(prevState => ({isConfOn: false}))
             return;
         }
@@ -112,8 +112,9 @@ class CompoundView extends GenericView {
         );
         const content = await rawResponse.json();
         // Now load this into NGL
+        this.conf = content[0]
         this.setState(prevState => ({isConfOn: true}))
-        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(content[0],this.props.data.smiles)))
+        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf,this.props.data.smiles)))
     }
 
 
