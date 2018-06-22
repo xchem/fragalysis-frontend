@@ -291,6 +291,8 @@ class SummaryView extends React.Component{
         </div>
     }
 }
+
+
 function mapStateToProps(state) {
   return {
       target_on_name: state.apiReducers.target_on_name,

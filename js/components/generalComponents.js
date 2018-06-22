@@ -150,7 +150,7 @@ export class GenericView extends React.Component{
         this.handleClick = this.handleClick.bind(this);
         this.not_selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px'}
         this.old_url = ''
-        this.state = {isToggleOn: false, img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
+        this.state = {isConfOn: false, isToggleOn: false, img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
         '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
         '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
         '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
