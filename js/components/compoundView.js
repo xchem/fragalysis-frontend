@@ -47,6 +47,7 @@ class CompoundView extends GenericView {
         this.comp_on_style = {backgroundColor: "#B7C185"}
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
+        this.handleComp = this.handleComp.bind(this);
     }
 
     checkInList() {
@@ -64,14 +65,7 @@ class CompoundView extends GenericView {
             this.handleConf();
         }
         else {
-            var isToggleOn = this.state.isToggleOn
-            this.setState(prevState => ({isToggleOn: !isToggleOn}))
-            if (this.state.isToggleOn) {
-                this.props.removeFromToBuyList(this.send_obj);
-            }
-            else {
-                this.props.appendToBuyList(this.send_obj);
-            }
+            this.handleComp();
         }
     }
 
@@ -88,35 +82,48 @@ class CompoundView extends GenericView {
 
     async handleConf(){
         var isConfOn = this.state.isConfOn;
-        if (isConfOn) {
+        this.setState(prevState => ({isToggleOn: !isConfOn}))
+        if (this.state.isConfOn) {
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf,this.props.data.smiles)))
-            this.setState(prevState => ({isConfOn: false}))
-            return;
         }
-        const csrfToken = this.getCookie("csrftoken");
-        var post_data = {
-            INPUT_VECTOR: this.send_obj.vector,
-            INPUT_SMILES: [this.send_obj.smiles],
-            INPUT_MOL_BLOCK: this.props.to_query_sdf_info
-        }
-        const rawResponse = await fetch(
-            this.base_url + "/scoring/gen_conf_from_vect/",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify(post_data)
+        else {
+            // This needs currying
+            const csrfToken = this.getCookie("csrftoken");
+            var post_data = {
+                INPUT_VECTOR: this.send_obj.vector,
+                INPUT_SMILES: [this.send_obj.smiles],
+                INPUT_MOL_BLOCK: this.props.to_query_sdf_info
             }
-        );
-        const content = await rawResponse.json();
-        // Now load this into NGL
-        this.conf = content[0]
-        this.setState(prevState => ({isConfOn: true}))
-        this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf,this.props.data.smiles)))
+            const rawResponse = await fetch(
+                this.base_url + "/scoring/gen_conf_from_vect/",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(post_data)
+                }
+            );
+            const content = await rawResponse.json();
+            // Now load this into NGL
+            this.conf = content[0]
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf, this.props.data.smiles)))
+        }
+    }
+
+
+    handleComp(){
+        var isToggleOn = this.state.isToggleOn;
+        this.setState(prevState => ({isToggleOn: !isToggleOn}))
+        if (this.state.isToggleOn) {
+            this.props.removeFromToBuyList(this.send_obj);
+        }
+        else {
+            this.props.appendToBuyList(this.send_obj);
+        }
     }
 
 
@@ -144,7 +151,6 @@ class CompoundView extends GenericView {
         }
         if(this.state.isConfOn){
             current_style = Object.assign(this.conf_on_style,current_style)
-
         }
 
         return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
