@@ -82,7 +82,7 @@ class CompoundView extends GenericView {
 
     async handleConf(){
         var isConfOn = this.state.isConfOn;
-        this.setState(prevState => ({isToggleOn: !isConfOn}))
+        this.setState(prevState => ({isConfOn: !isConfOn}))
         if (this.state.isConfOn) {
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf,this.props.data.smiles)))
         }
