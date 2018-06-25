@@ -23,7 +23,7 @@ class TargetList extends GenericList {
     }
 
     render_method(data) {
-        var preview = "/viewer/react/preview/target/" + title;
+        var preview = "/viewer/react/preview/target/" + data.title;
         return <ListGroupItem key={data.id} >
             <Link to={preview}>{data.title}</Link>
         </ListGroupItem>
