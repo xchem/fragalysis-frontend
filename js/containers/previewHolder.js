@@ -24,7 +24,7 @@ class Preview extends Component {
            // Get from the REST API
            fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
                .then(response => response.json())
-               // Set the target id from the josn
+               // Set the target id from the json
                .then(json => this.props.setTargetOn(json["results"][0].id));
        }
   render() {

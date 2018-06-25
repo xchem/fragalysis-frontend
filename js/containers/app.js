@@ -6,7 +6,8 @@ import {MyMenu} from '../components/menuView'
 import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
-import FraggleDocs from './fraggleDocsHolder';
+import FraggleBox from './fraggleBoxHolder';
+import Landing from './landingHolder';
 import { Route, Switch} from 'react-router-dom'
 
 const routes = (
@@ -16,10 +17,11 @@ const routes = (
           <Grid fluid id="page-wrap">
               <Header></Header>
                   <Switch>
+                      <Route exact path="/viewer/react/landing" component={Landing} />
                       <Route exact path="/viewer/react/preview" component={Preview} />
                       <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
                       <Route exact path="/viewer/react/tindspect" component={Tindspect} />
-                      <Route path="/viewer/react/fraggledocs/:uuid" component={FraggleDocs} />
+                      <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
                   </Switch>
           </Grid>
       </div>

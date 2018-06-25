@@ -11,7 +11,7 @@ import * as nglLoadActions from '../actions/nglLoadActions';
 import ModalLoadingScreen from '../components/modalLoadingScreen';
 
 
-class FraggleDocs extends Component {
+class FraggleBox extends Component {
 
     constructor(props) {
         super(props)
@@ -47,4 +47,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(FraggleDocs)
+export default connect(mapStateToProps, mapDispatchToProps)(FraggleBox)
