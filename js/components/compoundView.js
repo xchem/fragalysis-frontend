@@ -147,13 +147,14 @@ class CompoundView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         var current_style = Object.assign({},this.not_selected_style);
         if(this.state.isToggleOn==true && this.state.isConfOn==false){
-            current_style = Object.assign({backgroundColor: "#B7C185"},current_style)
+            current_style = Object.assign(this.comp_on_style,current_style)
         }
         if(this.state.isToggleOn==true && this.state.isConfOn==true){
-            current_style = Object.assign({borderStyle: "solid",backgroundColor: "#B7C185"},current_style)
+            current_style = Object.assign(this.comp_on_style,current_style)
+            current_style = Object.assign(this.conf_on_style,current_style)
         }
         if(this.state.isToggleOn==false && this.state.isConfOn==true){
-            current_style = Object.assign({borderStyle: "solid"},current_style)
+            current_style = Object.assign(this.conf_on_style,current_style)
 
         }
         return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
