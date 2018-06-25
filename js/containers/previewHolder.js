@@ -10,6 +10,7 @@ import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import * as apiActions from '../actions/apiActions';
+import fetch from 'cross-fetch';
 
 class Preview extends Component {
 
