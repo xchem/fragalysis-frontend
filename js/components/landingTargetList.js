@@ -74,7 +74,7 @@ class LandingTargetList extends GenericList {
 
     handleOptionChange(changeEvent) {
         this.props.setTargetOn(changeEvent.target.value);
-
+        this.props.setRedirectFlag(true);
     }
     render() {
         if (this.props != undefined && this.props.object_list) {
@@ -103,6 +103,7 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     setTargetOn: apiActions.setTargetOn,
     setMoleculeList: apiActions.setMoleculeList,
-    setObjectList: apiActions.setTargetIdList
+    setObjectList: apiActions.setTargetIdList,
+    setRedirectFlag: apiActions.setRedirectFlag,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(LandingTargetList);

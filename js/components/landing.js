@@ -11,7 +11,13 @@ import { Link } from 'react-router-dom'
 export class Welcome extends React.Component {
     constructor(props) {
         super(props);
+        this.checkRedirectFlag = this.checkRedirectFlag.bind(this);
     }
+
+    checkRedirectFlag(){
+        var redirectFlag = this.props.redirectFlag
+    }
+
 
     render() {
         return (
@@ -26,11 +32,13 @@ export class Welcome extends React.Component {
                   <div>
                       <LandingTargetList key="TARGLIST"/>
                   </div>
+                  if(this.state.redirectFlag){
                   <nav>
                       <ul>
                           <li><Link to='/viewer/react/preview'>Preview</Link></li>
                       </ul>
                   </nav>
+              }
               </Col>
           </Row>
         )
@@ -39,6 +47,7 @@ export class Welcome extends React.Component {
 
 function mapStateToProps(state) {
   return {
+      redirectFlag: state.apiReducers.redirectFlag,
   }
 }
 const mapDispatchToProps = {
