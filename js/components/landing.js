@@ -22,9 +22,9 @@ export class Welcome extends React.Component {
                   </div>
               </Col>
               <Col xs={4} md={4} >
-                  <div>
-                      <TargetList key="TARGLIST"/>
-                  </div>
+                  {/*<div>*/}
+                      {/*<TargetList key="TARGLIST"/>*/}
+                  {/*</div>*/}
               </Col>
           </Row>
         )
