@@ -20,9 +20,10 @@ class TargetList extends GenericList {
         this.origTarget = -1;
     }
     render_method(data) {
+        var preview = "/viewer/react/preview/target/" + data.title
         return <ListGroupItem key={data.id} >
             <label>
-                <a href="/viewer/react/preview/target/{data.title}">
+                <a href={preview}>
                 {data.title}
                 </a>
             </label>
