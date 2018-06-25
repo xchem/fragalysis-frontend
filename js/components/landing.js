@@ -11,54 +11,25 @@ import { Link } from 'react-router-dom'
 export class Welcome extends React.Component {
     constructor(props) {
         super(props);
-        this.checkRedirectFlag = this.checkRedirectFlag.bind(this);
-    }
-
-    checkRedirectFlag() {
-        var redirectFlag = this.props.redirectFlag
     }
 
 
     render() {
-        if (this.state.redirectFlag) {
-            return (
-                <Row>
-                    <Col xs={4} md={4}>
-                        <div>
-                            <h3>Welcome to Fragalysis{"\n"}</h3>
-                            <h3>{"\n"}To view own targets login here: <a href="/accounts/login">FedID Login</a></h3>
-                        </div>
-                    </Col>
-                    <Col xs={4} md={4}>
-                        <div>
-                            <LandingTargetList key="TARGLIST"/>
-                        </div>
-                        <nav>
-                            <ul>
-                                <li><Link to='/viewer/react/preview'>Preview</Link></li>
-                            </ul>
-                        </nav>
-                    </Col>
-                </Row>
-            )
-        }
-        else {
-            return (
-                <Row>
-                    <Col xs={4} md={4}>
-                        <div>
-                            <h3>Welcome to Fragalysis{"\n"}</h3>
-                            <h3>{"\n"}To view own targets login here: <a href="/accounts/login">FedID Login</a></h3>
-                        </div>
-                    </Col>
-                    <Col xs={4} md={4}>
-                        <div>
-                            <LandingTargetList key="TARGLIST"/>
-                        </div>
-                    </Col>
-                </Row>
-            )
-        }
+        return (
+            <Row >
+              <Col xs={4} md={4} >
+                  <div>
+                      <h3>Welcome to Fragalysis{"\n"}</h3>
+                      <h3>{"\n"}To view own targets login here: <a href="/accounts/login">FedID Login</a></h3>
+                  </div>
+              </Col>
+              <Col xs={4} md={4} >
+                  <div>
+                      <LandingTargetList key="<li><Link to='/viewer/react/preview/TARGNAME'>TARGNAME</Link></li>"/>
+                  </div>
+              </Col>
+          </Row>
+        )
     }
 }
 
