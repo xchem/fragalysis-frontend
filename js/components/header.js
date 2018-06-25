@@ -16,7 +16,6 @@ class Header extends React.Component {
         super(props)
         this.getTargetList = this.getTargetList.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
-        this.clicker = this.clicker.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
     }
 
@@ -51,17 +50,9 @@ class Header extends React.Component {
 
 
     selectTarget(option) {
-        for(var key in this.props.target_id_list){
-            if(this.props.target_id_list[key].title==option){
-                this.props.setTargetOn(this.props.target_id_list[key].id);
-                break;
-            }
-        }
+        this.props.router.push("/viewer/react/preview/target/" + option)
     }
 
-    clicker() {
-        this.props.setAppOn("TINDSPECT");
-    }
   render() {
     return <Navbar>
         <Typeahead
