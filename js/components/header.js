@@ -8,7 +8,7 @@ import * as apiActions from '../actions/apiActions'
 import * as nglActions from '../actions/nglLoadActions'
 import { connect } from 'react-redux'
 import * as nglObjectTypes from '../components/nglObjectTypes'
-
+import { withRouter } from 'react-router-dom'
 
 class Header extends React.Component {
 
@@ -79,4 +79,4 @@ const mapDispatchToProps = {
     loadObject: nglActions.loadObject,
     setTargetOn: apiActions.setTargetOn,
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Header)
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Header))
