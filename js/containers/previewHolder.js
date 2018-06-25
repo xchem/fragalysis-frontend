@@ -21,14 +21,16 @@ class Preview extends Component {
   }
     
 
-    componentDidMount(){
+
+    componentDidUpdate(){
         var target = this.props.match.params.target;
-           // Get from the REST API
-           fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
-               .then(response => response.json())
-               // Set the target id from the josn
-               .then(json => this.props.setTargetOn(json["results"][0].id));
-       }
+        // Get from the REST API
+        fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
+            .then(response => response.json())
+            // Set the target id from the josn
+            .then(json => this.props.setTargetOn(json["results"][0].id));
+
+    }
   render() {
       return (
           <Row >
