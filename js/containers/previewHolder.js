@@ -11,22 +11,32 @@ import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
+import { withRouter } from 'react-router-dom'
+
 
 class Preview extends Component {
 
     constructor(props) {
         super(props)
-  }
-    
+        this.updateTarget = this.updateTarget.bind(this);
+    }
 
-    componentDidMount(){
-           var target = this.props.match.params.target;
-           // Get from the REST API
-           fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
-               .then(response => response.json())
-               // Set the target id from the json
-               .then(json => this.props.setTargetOn(json["results"][0].id));
-       }
+    updateTarget(){
+        var target = this.props.match.params.target;
+        // Get from the REST API
+        fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
+            .then(response => response.json())
+            // Set the target id from the josn
+            .then(json => this.props.setTargetOn(json["results"][0].id));
+    }
+    componentDidMount() {
+        this.updateTarget()
+    }
+
+    componentDidUpdate(){
+        this.updateTarget()
+    }
+
   render() {
       return (
           <Row >
@@ -58,4 +68,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Preview)
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Preview))
