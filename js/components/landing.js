@@ -28,7 +28,7 @@ export class Welcome extends React.Component {
                   </div>
                   <nav>
                       <ul>
-                          <li><Link to='/preview'>Preview</Link></li>
+                          <li><Link to='/viewer/react/preview'>Preview</Link></li>
                       </ul>
                   </nav>
               </Col>
