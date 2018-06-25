@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from "../actions/nglLoadActions";
 import LandingTargetList from "./landingTargetList";
+import { Link } from 'react-router-dom'
 
 export class Welcome extends React.Component {
     constructor(props) {

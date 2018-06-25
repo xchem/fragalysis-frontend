@@ -9,7 +9,7 @@ import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
-import Link from 'react-router-dom'
+
 
 class LandingTargetList extends GenericList {
     constructor(props) {
