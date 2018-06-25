@@ -4,7 +4,8 @@
 import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
-import TargetList from "./targetList";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import LandingTargetList from "./landingTargetList";
 
 export class Welcome extends React.Component {
     constructor(props) {
@@ -22,7 +23,7 @@ export class Welcome extends React.Component {
               </Col>
               <Col xs={4} md={4} >
                   <div>
-                      <TargetList key="TARGLIST"/>
+                      <LandingTargetList key="TARGLIST"/>
                   </div>
               </Col>
           </Row>
@@ -35,6 +36,7 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
+    setUuid: nglLoadActions.setUuid,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Welcome)
