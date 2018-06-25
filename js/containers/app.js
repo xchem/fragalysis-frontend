@@ -7,6 +7,7 @@ import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
 import FraggleDocs from './fraggleDocsHolder';
+import Landing from './landingHolder';
 import { Route, Switch} from 'react-router-dom'
 
 const routes = (
@@ -16,6 +17,7 @@ const routes = (
           <Grid fluid id="page-wrap">
               <Header></Header>
                   <Switch>
+                      <Route exact path="/viewer/react/landing" component={Landing} />
                       <Route exact path="/viewer/react/preview" component={Preview} />
                       <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
                       <Route exact path="/viewer/react/tindspect" component={Tindspect} />
