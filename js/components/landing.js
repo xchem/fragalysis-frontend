@@ -25,7 +25,7 @@ export class Welcome extends React.Component {
               </Col>
               <Col xs={4} md={4} >
                   <div>
-                      <LandingTargetList key="<li><Link to='/viewer/react/preview/TARGNAME'>TARGNAME</Link></li>"/>
+                      <LandingTargetList key=<li><Link to='/viewer/react/preview/TARGNAME'>TARGNAME</Link></li>/>
                   </div>
               </Col>
           </Row>
