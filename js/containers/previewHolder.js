@@ -18,19 +18,25 @@ class Preview extends Component {
 
     constructor(props) {
         super(props)
-  }
-    
+        this.updateTarget = this.updateTarget.bind(this);
+    }
 
-
-    componentDidUpdate(){
+    updateTarget(){
         var target = this.props.match.params.target;
         // Get from the REST API
         fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
             .then(response => response.json())
             // Set the target id from the josn
             .then(json => this.props.setTargetOn(json["results"][0].id));
-
     }
+    componentDidMount() {
+        this.updateTarget()
+    }
+
+    componentDidUpdate(){
+        this.updateTarget()
+    }
+
   render() {
       return (
           <Row >
