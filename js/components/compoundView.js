@@ -150,8 +150,8 @@ class CompoundView extends GenericView {
             current_style = Object.assign(this.comp_on_style,current_style)
         }
         if(this.state.isToggleOn==true && this.state.isConfOn==true){
-            current_style = Object.assign(this.comp_on_style,current_style)
-            current_style = Object.assign(this.conf_on_style,current_style)
+            var merged_style = Object.assign(this.comp_on_style,this.conf_on_style)
+            current_style = Object.assign(merged_style,current_style)
         }
         if(this.state.isToggleOn==false && this.state.isConfOn==true){
             current_style = Object.assign(this.conf_on_style,current_style)
