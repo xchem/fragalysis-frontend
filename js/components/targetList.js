@@ -10,7 +10,7 @@ import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import { withRouter } from 'react-router-dom'
-
+import { Link } from 'react-router-dom'
 
 class TargetList extends GenericList {
     constructor(props) {
@@ -22,19 +22,11 @@ class TargetList extends GenericList {
         this.handleClick = this.handleClick.bind(this);
         this.origTarget = -1;
     }
-    handleClick(title){
-        var preview = "/viewer/react/preview/target/" + title;
-        this.props.history.push(preview);
-    }
 
     render_method(data) {
-
+        var preview = "/viewer/react/preview/target/" + title;
         return <ListGroupItem key={data.id} >
-            <label>
-                <a value={data.title} onClick={() => this.handleClick(data.title)}>
-                {data.title}
-                </a>
-            </label>
+            <Link to={preview}>{data.title}</Link>
         </ListGroupItem>
     }
 
