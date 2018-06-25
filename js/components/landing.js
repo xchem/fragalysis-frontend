@@ -5,7 +5,7 @@ import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from "../actions/nglLoadActions";
-import LandingTargetList from "./landingTargetList";
+import TargetList from "./targetList";
 
 export class Welcome extends React.Component {
     constructor(props) {
@@ -23,7 +23,7 @@ export class Welcome extends React.Component {
               </Col>
               <Col xs={4} md={4} >
                   <div>
-                      <LandingTargetList key="TARGLIST"/>
+                      <TargetList key="TARGLIST"/>
                   </div>
               </Col>
           </Row>
