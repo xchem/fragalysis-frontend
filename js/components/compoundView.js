@@ -62,9 +62,13 @@ class CompoundView extends GenericView {
 
     handleClick(e) {
         if(e.shiftKey){
+            var isConfOn = this.state.isConfOn;
+            this.setState(prevState => ({isConfOn: !isConfOn}))
             this.handleConf();
         }
         else {
+            var isToggleOn = this.state.isToggleOn;
+            this.setState(prevState => ({isToggleOn: !isToggleOn}))
             this.handleComp();
         }
     }
@@ -81,8 +85,6 @@ class CompoundView extends GenericView {
     }
 
     async handleConf(){
-        var isConfOn = this.state.isConfOn;
-        this.setState(prevState => ({isConfOn: !isConfOn}))
         if (this.state.isConfOn) {
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.conf,this.props.data.smiles)))
         }
@@ -116,8 +118,6 @@ class CompoundView extends GenericView {
 
 
     handleComp(){
-        var isToggleOn = this.state.isToggleOn;
-        this.setState(prevState => ({isToggleOn: !isToggleOn}))
         if (this.state.isToggleOn) {
             this.props.removeFromToBuyList(this.send_obj);
         }
@@ -145,14 +145,16 @@ class CompoundView extends GenericView {
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
-        var current_style = this.not_selected_style;
-        if(this.state.isToggleOn){
+        var current_style = Object.assign({},this.not_selected_style);
+        if(this.state.isToggleOn==true && this.state.isConfOn==false){
             current_style = Object.assign(this.comp_on_style,current_style)
         }
-        if(this.state.isConfOn){
+        else if(this.state.isToggleOn==true && this.state.isConfOn==true){
+            current_style = Object.assign({borderStyle: "solid",backgroundColor: "#B7C185"},current_style)
+        }
+        else if(this.state.isToggleOn==false && this.state.isConfOn==true){
             current_style = Object.assign(this.conf_on_style,current_style)
         }
-
         return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
     }
 
