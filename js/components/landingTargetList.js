@@ -83,11 +83,6 @@ class LandingTargetList extends GenericList {
                 this.props.object_list.map((data) => (this.render_method(data)))
                  }
             </ListGroup>;
-            <nav>
-                <ul>
-                    <li><Link to='/preview'>Preview</Link></li>
-                </ul>
-            </nav>
         }
         else {
             return (<FillMe />)

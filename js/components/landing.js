@@ -25,6 +25,11 @@ export class Welcome extends React.Component {
                   <div>
                       <LandingTargetList key="TARGLIST"/>
                   </div>
+                  <nav>
+                      <ul>
+                          <li><Link to='/preview'>Preview</Link></li>
+                      </ul>
+                  </nav>
               </Col>
           </Row>
         )
