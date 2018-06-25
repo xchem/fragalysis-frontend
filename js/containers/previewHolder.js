@@ -9,14 +9,23 @@ import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
-
+import * as apiActions from '../actions/apiActions';
 
 class Preview extends Component {
 
     constructor(props) {
         super(props)
   }
+    
 
+    componentDidMount(){
+           var target = this.props.match.params.target;
+           // Get from the REST API
+           fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?tittle="+target)
+               .then(response => response.json())
+               // Set the target id from the josn
+               .then(json => this.props.setTargetOn(json["results"][0].id));
+       }
   render() {
       return (
           <Row >
@@ -43,6 +52,9 @@ class Preview extends Component {
 function mapStateToProps(state) {
   return { }
 }
+const mapDispatchToProps = {
+    setTargetOn: apiActions.setTargetOn
+}
 
 
-export default connect(mapStateToProps)(Preview)
+export default connect(mapStateToProps, mapDispatchToProps)(Preview)

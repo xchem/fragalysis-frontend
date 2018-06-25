@@ -17,6 +17,7 @@ const routes = (
               <Header></Header>
                   <Switch>
                       <Route exact path="/viewer/react/preview" component={Preview} />
+                      <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
                       <Route exact path="/viewer/react/tindspect" component={Tindspect} />
                       <Route path="/viewer/react/fraggledocs/:uuid" component={FraggleDocs} />
                   </Switch>
