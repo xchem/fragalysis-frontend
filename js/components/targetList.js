@@ -9,6 +9,8 @@ import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
+import { withRouter } from 'react-router-dom'
+
 
 class TargetList extends GenericList {
     constructor(props) {
@@ -19,11 +21,16 @@ class TargetList extends GenericList {
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
         this.origTarget = -1;
     }
+    handelClick(title){
+        var preview = "/viewer/react/preview/target/" + title;
+        this.props.history.push(preview);
+    }
+
     render_method(data) {
-        var preview = "/viewer/react/preview/target/" + data.title
+
         return <ListGroupItem key={data.id} >
             <label>
-                <a href={preview}>
+                <a value={data.title} onClick={() => this.handleClick(data.title)}>
                 {data.title}
                 </a>
             </label>
@@ -106,4 +113,4 @@ const mapDispatchToProps = {
     setMoleculeList: apiActions.setMoleculeList,
     setObjectList: apiActions.setTargetIdList
 }
-export default connect(mapStateToProps, mapDispatchToProps)(TargetList);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TargetList));
