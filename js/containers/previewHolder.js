@@ -10,6 +10,7 @@ import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import * as apiActions from '../actions/apiActions';
+import fetch from 'cross-fetch';
 
 class Preview extends Component {
 
@@ -21,7 +22,7 @@ class Preview extends Component {
     componentDidMount(){
            var target = this.props.match.params.target;
            // Get from the REST API
-           fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?tittle="+target)
+           fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
                .then(response => response.json())
                // Set the target id from the josn
                .then(json => this.props.setTargetOn(json["results"][0].id));
