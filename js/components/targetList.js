@@ -19,9 +19,10 @@ class TargetList extends GenericList {
         this.render_method = this.render_method.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
+        this.handleClick = this.handleClick.bind(this);
         this.origTarget = -1;
     }
-    handelClick(title){
+    handleClick(title){
         var preview = "/viewer/react/preview/target/" + title;
         this.props.history.push(preview);
     }
