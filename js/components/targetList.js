@@ -20,10 +20,12 @@ class TargetList extends GenericList {
         this.origTarget = -1;
     }
     render_method(data) {
+        var preview = "/viewer/react/preview/target/" + data.title
         return <ListGroupItem key={data.id} >
             <label>
-                <input type="radio" value={data.id} checked={this.props.object_on == data.id} onChange={this.handleOptionChange}/>
+                <a href={preview}>
                 {data.title}
+                </a>
             </label>
         </ListGroupItem>
     }
