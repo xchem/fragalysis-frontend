@@ -230,6 +230,7 @@ class SummaryView extends React.Component{
                     folder.file("receptor.pdb", pdb_data);
                     folder.file("reference.sdf", orig_mol);
                 }
+                vector_counter++;
             }
         }
         const content = await zip.generateAsync({type: "blob"});
