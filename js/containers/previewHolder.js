@@ -22,7 +22,7 @@ class Preview extends Component {
     
 
     componentDidMount(){
-           var target = this.props.match.params.target;
+        var target = this.props.match.params.target;
            // Get from the REST API
            fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
                .then(response => response.json())
