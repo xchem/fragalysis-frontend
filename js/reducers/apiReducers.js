@@ -19,8 +19,7 @@ const INITIALSTATE = {
     group_id: undefined,
     isFetching: false,
     app_on: "PREVIEW",
-    group_type: "MC",
-    redirectFlag: "False",
+    group_type: "MC"
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -128,12 +127,6 @@ export default function apiReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 app_on: action.app_on
             });
-
-        case actions.SET_REDIRECT_FLAG:
-            return Object.assign({}, state, {
-                redirectFlag: action.redirectFlag
-            });
-
         // Cases like: @@redux/INIT
         default:
             return state;

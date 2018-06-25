@@ -5,7 +5,7 @@ import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from "../actions/nglLoadActions";
-import LandingTargetList from "./landingTargetList";
+import TargetList from "./targetList";
 import { Link } from 'react-router-dom'
 
 export class Welcome extends React.Component {
@@ -25,7 +25,7 @@ export class Welcome extends React.Component {
               </Col>
               <Col xs={4} md={4} >
                   <div>
-                      <LandingTargetList key="TARGLIST"/>
+                      <TargetList key="TARGLIST"/>
                   </div>
               </Col>
           </Row>
@@ -35,7 +35,6 @@ export class Welcome extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      redirectFlag: state.apiReducers.redirectFlag,
   }
 }
 const mapDispatchToProps = {

@@ -1,13 +1,11 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import {
-    LOAD_TARGETS, SET_TARGET_ON, SET_TARGET_ID_LIST, SET_MOLECULE_LIST,
+import {LOAD_TARGETS, SET_TARGET_ON, SET_TARGET_ID_LIST, SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST, SET_MOL_GROUP_ON, LOAD_MOLECULES,
     LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE,
     GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API, SET_PANNDA_EVENT_LIST, SET_PANNDA_EVENT_ON,
-    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON, SET_REDIRECT_FLAG
-} from './actonTypes'
+    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON } from './actonTypes'
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -166,13 +164,4 @@ export function fetchDataFillDiv(url) {
             )
             .then(json => dispatch(receiveDataFromApi(json, element_type)))
   }
-}
-
-
-export const setRedirectFlag = function (bool) {
-    console.log("ACTIONS: set redirect flag to " + bool);
-    return {
-        type: SET_REDIRECT_FLAG,
-        redirectFlag: bool
-    };
 }
