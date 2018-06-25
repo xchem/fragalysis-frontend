@@ -50,7 +50,7 @@ class Header extends React.Component {
 
 
     selectTarget(option) {
-        this.props.router.push("/viewer/react/preview/target/" + option)
+        this.props.history.push("/viewer/react/preview/target/" + option)
     }
 
   render() {
