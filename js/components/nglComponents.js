@@ -53,6 +53,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
+        this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
     showPick(stage, pickingProxy) {
@@ -257,6 +258,21 @@ export class NGLView extends React.Component {
     showProtein(stage, input_dict, object_name) {
         stage.loadFile(input_dict.prot_url, {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation("cartoon", {});
+            comp.autoView();
+        });
+    }
+
+    showHotspot(stage, input_dict, object_name) {
+        stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "ccp4"}).then(function (comp) {
+            comp.addRepresentation("surface", {
+                color: 'mediumseagreen',
+                isolevel: 3,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            });
             comp.autoView();
         });
     }
