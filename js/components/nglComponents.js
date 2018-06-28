@@ -286,7 +286,7 @@ export class NGLView extends React.Component {
                     isolevel: 17,
                     opacity: 0.5,
                     opaqueBack: false,
-                    color: '#FFFF00',
+                    color: '#0000FF',
                     name: 'surf'
                 });
                 comp.autoView();
