@@ -273,7 +273,8 @@ export class NGLView extends React.Component {
                     contour: true,
                     opaqueBack: false,
                     isolevelScroll: false,
-                    opacity: 0.7
+                    opacity: 0.7,
+                    name: 'surf'
                 });
                 comp.autoView();
             });
@@ -288,7 +289,8 @@ export class NGLView extends React.Component {
                     contour: true,
                     opaqueBack: false,
                     isolevelScroll: false,
-                    opacity: 0.7
+                    opacity: 0.7,
+                    name: 'surf'
                 });
                 comp.autoView();
             });
@@ -303,7 +305,8 @@ export class NGLView extends React.Component {
                     contour: true,
                     opaqueBack: false,
                     isolevelScroll: false,
-                    opacity: 0.7
+                    opacity: 0.7,
+                    name: 'surf'
                 });
                 comp.autoView();
             });
