@@ -287,7 +287,7 @@ export class NGLView extends React.Component {
                     useWorker: false,
                     contour: true,
                     opaqueBack: false,
-                    isolevelScroll: false
+                    isolevelScroll: false,
                     opacity: 0.7
                 });
                 comp.autoView();
@@ -302,7 +302,7 @@ export class NGLView extends React.Component {
                     useWorker: false,
                     contour: true,
                     opaqueBack: false,
-                    isolevelScroll: false
+                    isolevelScroll: false,
                     opacity: 0.7
                 });
                 comp.autoView();
