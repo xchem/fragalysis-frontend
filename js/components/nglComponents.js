@@ -263,7 +263,7 @@ export class NGLView extends React.Component {
     }
 
     showHotspot(stage, input_dict, object_name) {
-        if (input_dict.map_type == "LI") {
+        if (input_dict.map_type === "LI") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     color: '#FFFF00',
@@ -277,7 +277,7 @@ export class NGLView extends React.Component {
                 comp.autoView();
             });
         }
-        else if (input_dict.map_type == "DO") {
+        else if (input_dict.map_type === "DO") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     color: '#0000FF',
@@ -291,7 +291,7 @@ export class NGLView extends React.Component {
                 comp.autoView();
             });
         }
-        else if (input_dict.map_type == "AC") {
+        else if (input_dict.map_type === "AC") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     color: '#FF0000',

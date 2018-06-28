@@ -39,10 +39,9 @@ class HotspotList extends GenericList {
             "display_div": "major_view",
             "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
             "map_type": targetData.map_type.toString(),
-            "fragment" : targetData.prot_id.toString()
+            // "fragment" : targetData.prot_id.toString()
             }
             return out_object
-
     }
 
     componentDidMount() {
