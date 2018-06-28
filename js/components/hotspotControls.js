@@ -14,7 +14,6 @@ class HotspotControls extends React.Component {
         super(props)
     }
 
-
     render() {
         return <div>
             Hotspot controls

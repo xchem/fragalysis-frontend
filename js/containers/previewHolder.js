@@ -9,6 +9,7 @@ import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
+import HotspotControls from '../components/hotspotControls'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom'
