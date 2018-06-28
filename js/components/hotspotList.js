@@ -44,8 +44,8 @@ class HotspotList extends GenericList {
 
     handleOptionChange(changeEvent) {
         this.props.setObjectOn(changeEvent.target.value);
-
     }
+
     render() {
         if (this.props != undefined && this.props.object_list) {
             return <ListGroup>
@@ -64,15 +64,14 @@ class HotspotList extends GenericList {
 function mapStateToProps(state) {
   return {
       objectsInView: state.nglReducers.objectsInView,
-      object_list: state.apiReducers.target_id_list,
-      object_on: state.apiReducers.target_on
+      object_list: state.apiReducers.hotspot_id_list,
+      object_on: state.apiReducers.hotspot_on
   }
 }
 const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
-    setObjectOn: apiActions.setTargetOn,
-    setMoleculeList: apiActions.setMoleculeList,
-    setObjectList: apiActions.setTargetIdList
+    setObjectOn: apiActions.setHotspotOn,
+    setObjectList: apiActions.setHotspotList
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HotspotList));

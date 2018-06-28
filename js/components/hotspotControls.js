@@ -14,7 +14,7 @@ class HotspotControls extends React.Component {
     render() {
         return <div>
             Hotspot controls
-            <div><button onClick={this.props.increaseCounter}>Increase</button></div>
+            <div><button>Increase</button></div>
         </div>
     }
 }
