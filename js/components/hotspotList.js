@@ -23,13 +23,17 @@ class HotspotList extends GenericList {
     loadHotspot(data){
         var nglObject = this.generateHotspotObject(data);
         this.props.loadObject(nglObject);
+    }
 
+    removeHotspot(data){
+        var nglObject = this.generateHotspotObject(data);
+        this.props.deleteObject(nglObject);
     }
 
     render_method(data) {
         return <ListGroupItem key={data.id} >
             <Button value={data} onClick={() => this.loadHotspot(data)}> {data.id} </Button>
-            <Button value={data} onClick={() => this.loadHotspot(data)}> {data.id} off</Button>
+            <Button value={data} onClick={() => this.removeHotspot(data)}> {data.id} off</Button>
         </ListGroupItem>
     }
 
