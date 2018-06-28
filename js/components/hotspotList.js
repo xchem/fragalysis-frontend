@@ -65,6 +65,7 @@ function mapStateToProps(state) {
   return {
       objectsInView: state.nglReducers.objectsInView,
       object_list: state.apiReducers.hotspot_list,
+      target_on: state.apiReducers.target_on,
       object_on: state.apiReducers.hotspot_on
   }
 }
