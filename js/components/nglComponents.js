@@ -269,10 +269,10 @@ export class NGLView extends React.Component {
                 comp.addRepresentation("surface", {
                     color: '#FFFF00',
                     isolevelType: "value",
-                    isolevel: 17,
+                    isolevel: 10,
                     opacity: 0.5,
                     opaqueBack: false,
-                    
+
                 });
                 comp.autoView();
             });
@@ -281,7 +281,7 @@ export class NGLView extends React.Component {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     isolevelType: "value",
-                    isolevel: 17,
+                    isolevel: 10,
                     opacity: 0.5,
                     opaqueBack: false,
                     color: '#0000FF',
@@ -295,7 +295,7 @@ export class NGLView extends React.Component {
                 comp.addRepresentation("surface", {
                     color: '#FF0000',
                     isolevelType: "value",
-                    isolevel: 17,
+                    isolevel: 10,
                     opacity: 0.5,
                     opaqueBack: false,
                     name: 'surf'
