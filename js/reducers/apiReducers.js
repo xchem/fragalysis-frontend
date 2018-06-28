@@ -75,7 +75,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 target_id_list: action.target_id_list
             });
 
-            case actions.SET_TARGET_ON:
+        case actions.SET_TARGET_ON:
             var target_on_name = undefined;
             for(var ind in state.target_id_list){
                 if(state.target_id_list[ind].id==action.target_on){
@@ -92,17 +92,17 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 hotspot_list: action.hotspot_list
             });
 
-            case actions.SET_HOTSPOT_ON:
+        case actions.SET_HOTSPOT_ON:
             return Object.assign({}, state, {
                 hotspot_on: action.hotspot_on
             });
 
-            case actions.SET_MOL_GROUP_LIST:
+        case actions.SET_MOL_GROUP_LIST:
             return Object.assign({}, state, {
                 mol_group_list: action.mol_group_list
             });
 
-            case actions.SET_MOL_GROUP_ON:
+        case actions.SET_MOL_GROUP_ON:
             return Object.assign({}, state, {
                 mol_group_on: action.mol_group_on
             });
