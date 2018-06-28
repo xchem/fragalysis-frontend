@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 26/06/2018.
  */
-import { ListGroupItem, ListGroup, Col} from 'react-bootstrap';
+import { ListGroupItem, ListGroup, Col, Button} from 'react-bootstrap';
 import { GenericList } from './generalComponents';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -11,7 +11,6 @@ import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import { withRouter } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-
 class HotspotList extends GenericList {
     constructor(props) {
         super(props);
