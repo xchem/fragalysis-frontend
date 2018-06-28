@@ -263,7 +263,7 @@ export class NGLView extends React.Component {
     }
 
     showHotspot(stage, input_dict, object_name) {
-        var opacity = 0.2;
+        var opacity = 0.5;
         if (input_dict.map_type === "LI") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
