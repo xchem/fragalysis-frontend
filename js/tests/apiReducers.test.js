@@ -16,12 +16,12 @@ function getInitialState(){
        pandda_site_on: undefined,
        pandda_event_list: [],
        pandda_site_list: [],
-       app_on: "PREVIEW",
        mol_group_on: undefined,
        target_on: undefined,
        target_on_name: undefined,
        group_id: undefined,
        isFetching: false,
+       app_on: "PREVIEW",
        group_type: "MC",
        hotspot_on: undefined,
        hotspot_list: []
