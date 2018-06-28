@@ -21,7 +21,9 @@ function getInitialState(){
        target_on: undefined,
        group_id: undefined,
        isFetching: false,
-       group_type: "MC"
+       group_type: "MC",
+       hotspot_on: undefined,
+       hotspot_list: []
    }
 }
 
