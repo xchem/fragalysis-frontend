@@ -29,6 +29,7 @@ class HotspotList extends GenericList {
     render_method(data) {
         return <ListGroupItem key={data.id} >
             <Button value={data} onClick={() => this.loadHotspot(data)}> {data.id} </Button>
+            <Button value={data} onClick={() => this.loadHotspot(data)}> {data.id} off</Button>
         </ListGroupItem>
     }
 
