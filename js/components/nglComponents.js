@@ -274,7 +274,6 @@ export class NGLView extends React.Component {
                     opaqueBack: false,
 
                 });
-                comp.autoView();
             });
         }
         else if (input_dict.map_type === "DO") {
@@ -287,7 +286,6 @@ export class NGLView extends React.Component {
                     color: '#0000FF',
                     name: 'surf'
                 });
-                comp.autoView();
             });
         }
         else if (input_dict.map_type === "AC") {
@@ -300,7 +298,6 @@ export class NGLView extends React.Component {
                     opaqueBack: false,
                     name: 'surf'
                 });
-                comp.autoView();
             });
         }
     }
