@@ -55,6 +55,7 @@ class HotspotList extends GenericList {
             </ListGroup>;
         }
         else {
+            return null
         }
     }
 }
