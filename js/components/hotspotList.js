@@ -17,12 +17,19 @@ class HotspotList extends GenericList {
         super(props);
         this.list_type = listType.HOTSPOT;
         this.render_method = this.render_method.bind(this);
+        this.loadHotspot = this.loadHotspot.bind(this);
         this.generateHotspotObject = this.generateHotspotObject.bind(this);
+    }
+
+    loadHotspot(data){
+        var nglObject = this.generateHotspotObject(data);
+        this.props.loadObject(nglObject);
+
     }
 
     render_method(data) {
         return <ListGroupItem key={data.id} >
-           {data.id}
+            <Button value={data} onClick={() => this.loadHotspot(data)}> {data.id} </Button>
         </ListGroupItem>
     }
 
