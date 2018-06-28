@@ -263,18 +263,48 @@ export class NGLView extends React.Component {
     }
 
     showHotspot(stage, input_dict, object_name) {
-        stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
-            comp.addRepresentation("surface", {
-                color: 'mediumseagreen',
-                isolevel: 3,
-                boxSize: 10,
-                useWorker: false,
-                contour: true,
-                opaqueBack: false,
-                isolevelScroll: false
+        if (input_dict.map_type == "LI") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#FFFF00',
+                    isolevel: 3,
+                    boxSize: 10,
+                    useWorker: false,
+                    contour: true,
+                    opaqueBack: false,
+                    isolevelScroll: false
+                });
+                comp.autoView();
             });
-            comp.autoView();
-        });
+        }
+        else if (input_dict.map_type == "DO") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#0000FF',
+                    isolevel: 3,
+                    boxSize: 10,
+                    useWorker: false,
+                    contour: true,
+                    opaqueBack: false,
+                    isolevelScroll: false
+                });
+                comp.autoView();
+            });
+        }
+        else if (input_dict.map_type == "AC") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#FF0000',
+                    isolevel: 3,
+                    boxSize: 10,
+                    useWorker: false,
+                    contour: true,
+                    opaqueBack: false,
+                    isolevelScroll: false
+                });
+                comp.autoView();
+            });
+        }
     }
 
     getRadius(data) {

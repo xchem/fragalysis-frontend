@@ -33,12 +33,13 @@ class HotspotList extends GenericList {
     }
 
     generateHotspotObject(targetData) {
-        // Now deal with this target
         var out_object = {
-                "name": "HOTSPOT_" + targetData.id.toString(),
-                "hotUrl": targetData.map_info,
+            "name": "HOTSPOT_" + targetData.id.toString(),
+            "hotUrl": targetData.map_info,
             "display_div": "major_view",
-                "OBJECT_TYPE": nglObjectTypes.HOTSPOT
+            "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
+            "map_type": targetData.map_type.toString(),
+            "fragment" : targetData.prot_id.toString()
             }
             return out_object
 
