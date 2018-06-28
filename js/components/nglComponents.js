@@ -263,7 +263,7 @@ export class NGLView extends React.Component {
     }
 
     showHotspot(stage, input_dict, object_name) {
-        var opacity = 0.5;
+        var opacity = 1.0;
         if (input_dict.map_type === "LI") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
@@ -275,7 +275,6 @@ export class NGLView extends React.Component {
                     opaqueBack: false,
                     isolevelScroll: false,
                     opacity: opacity,
-                    name: 'surf'
                 });
                 comp.autoView();
             });
@@ -283,14 +282,11 @@ export class NGLView extends React.Component {
         else if (input_dict.map_type === "DO") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
-                    color: '#0000FF',
-                    isolevel: 3,
-                    boxSize: 15,
-                    useWorker: false,
-                    contour: true,
+                    isolevelType: "value",
+                    isolevel: 17,
+                    opacity: 0.5,
                     opaqueBack: false,
-                    isolevelScroll: false,
-                    opacity: opacity,
+                    color: '#FFFF00',
                     name: 'surf'
                 });
                 comp.autoView();
@@ -307,7 +303,6 @@ export class NGLView extends React.Component {
                     opaqueBack: false,
                     isolevelScroll: false,
                     opacity: opacity,
-                    name: 'surf'
                 });
                 comp.autoView();
             });
