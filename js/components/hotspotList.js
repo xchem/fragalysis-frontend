@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom'
 class HotspotList extends GenericList {
     constructor(props) {
         super(props);
-        this.list_type = listType.HOTSPOT_MAP;
+        this.list_type = listType.HOTSPOT;
         this.render_method = this.render_method.bind(this);
         this.generateHotspotObject = this.generateHotspotObject.bind(this);
     }
@@ -64,7 +64,7 @@ class HotspotList extends GenericList {
 function mapStateToProps(state) {
   return {
       objectsInView: state.nglReducers.objectsInView,
-      object_list: state.apiReducers.hotspot_id_list,
+      object_list: state.apiReducers.hotspot_list,
       object_on: state.apiReducers.hotspot_on
   }
 }

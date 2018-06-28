@@ -21,7 +21,7 @@ const INITIALSTATE = {
     app_on: "PREVIEW",
     group_type: "MC",
     hotspot_on: undefined,
-    hotspot_id_list: []
+    hotspot_list: []
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {

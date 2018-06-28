@@ -5,7 +5,7 @@ import {LOAD_TARGETS, SET_TARGET_ON, SET_TARGET_ID_LIST, SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST, SET_MOL_GROUP_ON, LOAD_MOLECULES,
     LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE,
     GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API, SET_PANNDA_EVENT_LIST, SET_PANNDA_EVENT_ON,
-    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON } from './actonTypes'
+    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON, SET_HOTSPOT_LIST, SET_HOTSPOT_ON } from './actonTypes'
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -112,6 +112,21 @@ export const loadMolecules = function (target_id=undefined,group_id=undefined) {
     };
 }
 
+export const setHotspotList = function (input_json) {
+    console.log("ACTIONS: " + input_json);
+    return {
+        type: SET_HOTSPOT_LIST,
+        hotspot_list: input_json
+    };
+}
+
+export const setHotspotOn = function (hotspot){
+    console.log("ACTIONS: "+ hotspot)
+    return {
+        type: SET_HOTSPOT_ON,
+        hotspot_on: hotspot
+    }
+}
 
 export const getFromApi = function (element_type){
     console.log("ACTIONS: " + element_type);

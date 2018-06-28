@@ -10,6 +10,7 @@ import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import HotspotControls from '../components/hotspotControls'
+import HotspotList from '../components/hotspotList'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom'
@@ -55,6 +56,7 @@ class Preview extends Component {
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
+                  <HotspotList/>
               </Col>
           </Row>
       )
