@@ -268,13 +268,11 @@ export class NGLView extends React.Component {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     color: '#FFFF00',
-                    isolevel: 3,
-                    boxSize: 15,
-                    useWorker: false,
-                    contour: true,
+                    isolevelType: "value",
+                    isolevel: 17,
+                    opacity: 0.5,
                     opaqueBack: false,
-                    isolevelScroll: false,
-                    opacity: opacity,
+                    
                 });
                 comp.autoView();
             });
@@ -296,13 +294,11 @@ export class NGLView extends React.Component {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     color: '#FF0000',
-                    isolevel: 3,
-                    boxSize: 15,
-                    useWorker: false,
-                    contour: true,
+                    isolevelType: "value",
+                    isolevel: 17,
+                    opacity: 0.5,
                     opaqueBack: false,
-                    isolevelScroll: false,
-                    opacity: opacity,
+                    name: 'surf'
                 });
                 comp.autoView();
             });
