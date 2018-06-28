@@ -37,6 +37,7 @@ class HotspotList extends GenericList {
         var out_object = {
                 "name": "HOTSPOT_" + targetData.id.toString(),
                 "hotUrl": targetData.map_info,
+            "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT
             }
             return out_object
