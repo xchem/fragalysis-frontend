@@ -263,7 +263,7 @@ export class NGLView extends React.Component {
     }
 
     showHotspot(stage, input_dict, object_name) {
-        stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "ccp4"}).then(function (comp) {
+        stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "grd"}).then(function (comp) {
             comp.addRepresentation("surface", {
                 color: 'mediumseagreen',
                 isolevel: 3,
