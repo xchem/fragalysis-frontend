@@ -268,11 +268,12 @@ export class NGLView extends React.Component {
                 comp.addRepresentation("surface", {
                     color: '#FFFF00',
                     isolevel: 3,
-                    boxSize: 10,
+                    boxSize: 15,
                     useWorker: false,
                     contour: true,
                     opaqueBack: false,
-                    isolevelScroll: false
+                    isolevelScroll: false,
+                    opacity: 0.7
                 });
                 comp.autoView();
             });
@@ -282,11 +283,12 @@ export class NGLView extends React.Component {
                 comp.addRepresentation("surface", {
                     color: '#0000FF',
                     isolevel: 3,
-                    boxSize: 10,
+                    boxSize: 15,
                     useWorker: false,
                     contour: true,
                     opaqueBack: false,
                     isolevelScroll: false
+                    opacity: 0.7
                 });
                 comp.autoView();
             });
@@ -296,11 +298,12 @@ export class NGLView extends React.Component {
                 comp.addRepresentation("surface", {
                     color: '#FF0000',
                     isolevel: 3,
-                    boxSize: 10,
+                    boxSize: 15,
                     useWorker: false,
                     contour: true,
                     opaqueBack: false,
                     isolevelScroll: false
+                    opacity: 0.7
                 });
                 comp.autoView();
             });
