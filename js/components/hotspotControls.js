@@ -4,9 +4,6 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import * as hotspotActions from '../actions/hotspotActions'
-import hotspotReducers from "../reducers/hotspotReducers";
-
 
 class HotspotControls extends React.Component {
 
