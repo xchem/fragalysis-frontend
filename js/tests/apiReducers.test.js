@@ -19,6 +19,7 @@ function getInitialState(){
        app_on: "PREVIEW",
        mol_group_on: undefined,
        target_on: undefined,
+       target_on_name: undefined,
        group_id: undefined,
        isFetching: false,
        group_type: "MC",
