@@ -31,9 +31,10 @@ class HotspotList extends GenericList {
     }
 
     render_method(data) {
+        var buttonLabel = 'fragment ' + data.map_type.toString() + data.prot_id.toString() + 'hotspot'
         return <ListGroupItem key={data.id} >
-            <Button value={data} onClick={() => this.loadHotspot(data)}> {data.id} </Button>
-            <Button value={data} onClick={() => this.removeHotspot(data)}> {data.id} off</Button>
+            <Button value={data} onClick={() => this.loadHotspot(data)}> {buttonLabel} </Button>
+            <Button value={data} onClick={() => this.removeHotspot(data)}> {buttonLabel} off</Button>
         </ListGroupItem>
     }
 
