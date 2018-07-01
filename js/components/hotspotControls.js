@@ -39,10 +39,9 @@ class HotspotControls extends React.Component {
 function mapStateToProps(state) {
     return {
         stageColor: state.nglReducers.stageColor
+//        hotspotStatus: state.hotspotReducers.hotspotStatus
     }
 }
-//        hotspotStatus: state.hotspotReducers.hotspotStatus
-
 
 const mapDispatchToProps = {
     setStageColor: nglRenderActions.setStageColor,
