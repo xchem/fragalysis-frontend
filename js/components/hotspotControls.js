@@ -25,7 +25,7 @@ class HotspotControls extends React.Component {
     componentDidMount() {
         setInterval(this.update,50);
     }
-    
+
     render() {
         return <div>
             <h3>Viewer controls</h3>
@@ -39,9 +39,10 @@ class HotspotControls extends React.Component {
 function mapStateToProps(state) {
     return {
         stageColor: state.nglReducers.stageColor
-//        hotspotStatus: state.hotspotReducers.hotspotStatus
     }
 }
+//        hotspotStatus: state.hotspotReducers.hotspotStatus
+
 
 const mapDispatchToProps = {
     setStageColor: nglRenderActions.setStageColor,
