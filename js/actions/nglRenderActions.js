@@ -7,7 +7,7 @@ import {
     SET_STYLE,
     SET_SPIN,
     SET_WATER,
-    SET_HYDROGEN,
+    SET_HYDROGEN
 } from './actonTypes'
 
 export const setColor = function (color) {
@@ -97,4 +97,3 @@ export const setAssemblyOptions = function (structure) {
         assemblyOptions: options
     };
 }
-

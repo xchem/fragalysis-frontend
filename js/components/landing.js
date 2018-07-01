@@ -17,7 +17,7 @@ export class Welcome extends React.Component {
             <Row >
               <Col xs={4} md={4} >
                   <div>
-                      <h3>Welcome to Fragalysis{"\n"}</h3>
+                      <h1>Welcome to Fragalysis{"\n"}</h1>
                       <h3>{"\n"}To view own targets login here: <a href="/accounts/login">FedID Login</a></h3>
                   </div>
               </Col>

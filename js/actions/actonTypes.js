@@ -15,6 +15,7 @@ export const SET_STYLE = 'SET_STYLE';
 export const SET_SPIN = 'SET_SPIN';
 export const SET_WATER = 'SET_WATER';
 export const SET_HYDROGEN = 'SET_HYDROGEN';
+export const SET_STAGE_COLOR = 'SET_STAGE_COLOR';
 // Target, Site, Molecule, Protein, Compound
 export const LOAD_TARGETS = 'LOAD_TARGETS';
 export const LOAD_PROTEINS = 'LOAD_PROTEINS';
@@ -57,3 +58,5 @@ export const SET_NGL_ORIENTATION = 'SET_NGL_ORIENTATION';
 export const SET_ORIENTATION = 'SET_ORIENTATION';
 export const SET_UUID = 'SET_UUID';
 export const SET_LOADING_STATE = 'SET_LOADING_STATE';
+export const SET_HOTSPOT_LIST = 'SET_HOTSPOT_LIST';
+export const SET_HOTSPOT_ON = 'SET_HOTSPOT_ON';

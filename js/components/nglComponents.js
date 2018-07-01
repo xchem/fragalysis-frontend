@@ -32,6 +32,7 @@ export class NGLView extends React.Component {
         }
         this.interval = 300;
         this.focus_var = 95;
+//        this.stageColor = 'black';
         this.stage = undefined;
         this.orientationToSet={};
         this.renderDisplay = this.renderDisplay.bind(this);
@@ -53,6 +54,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
+        this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
     showPick(stage, pickingProxy) {
@@ -88,6 +90,7 @@ export class NGLView extends React.Component {
            local_stage.handleResize();
         }, false);
         this.stage.mouseControls.add("clickPick-left",this.showPick);
+        this.stage.viewer.setBackground(this.props.stageColor);
         this.props.setOrientation(
                 this.div_id,
                 "STARTED"
@@ -261,6 +264,46 @@ export class NGLView extends React.Component {
         });
     }
 
+    showHotspot(stage, input_dict, object_name) {
+        var opacity = 1.0;
+        if (input_dict.map_type === "LI") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#FFFF00',
+                    isolevelType: "value",
+                    isolevel: 10,
+                    opacity: 0.5,
+                    opaqueBack: false,
+
+                });
+            });
+        }
+        else if (input_dict.map_type === "DO") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    isolevelType: "value",
+                    isolevel: 10,
+                    opacity: 0.5,
+                    opaqueBack: false,
+                    color: '#0000FF',
+                    name: 'surf'
+                });
+            });
+        }
+        else if (input_dict.map_type === "AC") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#FF0000',
+                    isolevelType: "value",
+                    isolevel: 10,
+                    opacity: 0.5,
+                    opaqueBack: false,
+                    name: 'surf'
+                });
+            });
+        }
+    }
+
     getRadius(data) {
         if (data.mol_id == undefined){
             return 5.0
@@ -421,7 +464,8 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
-      loadingState: state.nglReducers.loadingState
+      loadingState: state.nglReducers.loadingState,
+      stageColor: state.nglReducers.stageColor
   }
 }
 const mapDispatchToProps = {
@@ -438,6 +482,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    setLoadingState: nglLoadActions.setLoadingState
+    setLoadingState: nglLoadActions.setLoadingState,
+    setStageColor: nglRenderActions.setStageColor
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

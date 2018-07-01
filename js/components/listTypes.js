@@ -8,3 +8,4 @@ export const COMPOUNDS = 'COMPOUNDS';
 export const VECTOR = 'VECTOR';
 export const PANDDA_SITE = 'PANDDASITE';
 export const PANDDA_EVENT = 'PANDDAEVENT';
+export const HOTSPOT = 'HOTSPOT';

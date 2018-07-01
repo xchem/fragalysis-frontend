@@ -8,3 +8,4 @@ export const PROTEIN = "PROTEIN";
 export const ARROW = "ARROW";
 export const CYLINDER = "CYLINDER";
 export const EVENTMAP = "EVENTMAP";
+export const HOTSPOT = "HOTSPOT";
