@@ -99,9 +99,10 @@ export const setAssemblyOptions = function (structure) {
     };
 }
 
-export const setStageColor = function () {
-    console.log("ACTIONS: set stage color");
+export const setStageColor = function (stageColor) {
+    console.log("ACTIONS: " + stageColor);
     return {
         type: SET_STAGE_COLOR,
+        stageColor: stageColor
     };
 }

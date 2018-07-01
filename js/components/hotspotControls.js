@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import nglReducers from "../reducers/nglReducers";
+import * as nglReducers from "../reducers/nglReducers";
 import * as nglRenderActions from '../actions/nglRenderActions';
 
 class HotspotControls extends React.Component {
@@ -15,7 +15,11 @@ class HotspotControls extends React.Component {
     }
 
     handleStageColor() {
-        this.props.setStageColor();
+        if (this.props.stageColor === 'white') {
+            this.props.setStageColor('black');
+        } else {
+            this.props.setStageColor('white');
+        }
     }
 
     render() {
@@ -30,6 +34,7 @@ class HotspotControls extends React.Component {
 
 function mapStateToProps(state) {
     return {
+        stageColor: state.nglReducers.stageColor
 //        hotspotStatus: state.hotspotReducers.hotspotStatus
     }
 }
