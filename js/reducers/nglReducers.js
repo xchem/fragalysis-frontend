@@ -164,13 +164,13 @@ export default function nglReducers(state = INITIALSTATE, action) {
             // const setStageBackground = action.setStageBackground;
             // const setBackground = action.background;
             if (state.stageColor === 'white') {
-                var toSetStageColor = 'black'
+                state.stageColor = 'black'
             } else {
-                var toSetStageColor = 'white'
+                state.stageColor = 'white'
             }
             // toSetStageColor[setStageBackground] = setBackground;
             return Object.assign({}, state, {
-                stageColor: action.setStageColor
+                stageColor: action.stageColor
             });
 
             // Cases like: @@redux/INIT
