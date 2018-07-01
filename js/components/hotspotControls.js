@@ -5,7 +5,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglReducers from "../reducers/nglReducers";
-import * as nglRenderActions from '../actions/nglRenderActions';
+import * as nglLoadActions from '../actions/nglRenderActions';
 
 class HotspotControls extends React.Component {
 
@@ -27,7 +27,6 @@ class HotspotControls extends React.Component {
             <h3>Viewer controls</h3>
             <button onClick={this.handleStageColor}>Toggle background colour</button>
             <h3>Hotspot controls</h3>
-            <div><button>Increase</button></div>
         </div>
     }
 }
@@ -40,7 +39,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-    setStageColor: nglRenderActions.setStageColor,
+    setStageColor: nglLoadActions.setStageColor,
     //    toggleHotspot: hotspotActions.toggleHotspot
 }
 
