@@ -8,6 +8,7 @@ import {
     SET_SPIN,
     SET_WATER,
     SET_HYDROGEN,
+    SET_STAGE_COLOR
 } from './actonTypes'
 
 export const setColor = function (color) {
@@ -98,3 +99,9 @@ export const setAssemblyOptions = function (structure) {
     };
 }
 
+export const setStageColor = function () {
+    console.log("ACTIONS: set stage color");
+    return {
+        type: SET_STAGE_COLOR,
+    };
+}

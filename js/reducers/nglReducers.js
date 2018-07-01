@@ -16,7 +16,8 @@ const INITIALSTATE = {
     water: true,
     hydrogen: true,
     orientationToSet: {},
-    loadingState: true
+    loadingState: true,
+    stageColor: 'white'
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
@@ -158,6 +159,19 @@ export default function nglReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 loadingState: action.loadingState
             })
+
+        case actions.SET_STAGE_COLOR:
+            // const setStageBackground = action.setStageBackground;
+            // const setBackground = action.background;
+            if (stageColor === 'white') {
+                var toSetStageColor = 'black'
+            } else {
+                var toSetStageColor = 'white'
+            }
+            // toSetStageColor[setStageBackground] = setBackground;
+            return Object.assign({}, state, {
+                stageColor: action.toSetStageColor
+            });
 
             // Cases like: @@redux/INIT
         default:

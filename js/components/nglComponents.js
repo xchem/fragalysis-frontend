@@ -32,7 +32,7 @@ export class NGLView extends React.Component {
         }
         this.interval = 300;
         this.focus_var = 95;
-        this.stage_color = 'black';
+//        this.stageColor = 'black';
         this.stage = undefined;
         this.orientationToSet={};
         this.renderDisplay = this.renderDisplay.bind(this);
@@ -90,7 +90,7 @@ export class NGLView extends React.Component {
            local_stage.handleResize();
         }, false);
         this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.stage.viewer.setBackground(this.stage_color);
+        this.stage.viewer.setBackground(this.props.stageColor);
         this.props.setOrientation(
                 this.div_id,
                 "STARTED"
@@ -464,7 +464,8 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
-      loadingState: state.nglReducers.loadingState
+      loadingState: state.nglReducers.loadingState,
+      stageColor: state.nglReducers.stageColor
   }
 }
 const mapDispatchToProps = {
@@ -481,6 +482,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    setLoadingState: nglLoadActions.setLoadingState
+    setLoadingState: nglLoadActions.setLoadingState,
+    setStageColor: nglRenderActions.setStageColor
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
