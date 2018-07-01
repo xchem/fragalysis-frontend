@@ -163,11 +163,11 @@ export default function nglReducers(state = INITIALSTATE, action) {
         case actions.SET_STAGE_COLOR:
             // const setStageBackground = action.setStageBackground;
             // const setBackground = action.background;
-            if (stageColor === 'white') {
+            // if (stageColor === 'white') {
                 var toSetStageColor = 'black'
-            } else {
-                var toSetStageColor = 'white'
-            }
+            // } else {
+            //     var toSetStageColor = 'white'
+            // }
             // toSetStageColor[setStageBackground] = setBackground;
             return Object.assign({}, state, {
                 stageColor: action.toSetStageColor
