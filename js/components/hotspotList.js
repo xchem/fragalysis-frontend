@@ -31,10 +31,11 @@ class HotspotList extends GenericList {
     }
 
     render_method(data) {
-        var buttonLabel = 'fragment ' + data.prot_id.toString() + ' - ' + data.map_type.toString() + ' hotspot'
-        return <ListGroupItem key={data.id} >
-            <Button value={data} onClick={() => this.loadHotspot(data)}> {buttonLabel} </Button>
-            <Button value={data} onClick={() => this.removeHotspot(data)}> {buttonLabel} off</Button>
+        var reverseData = data.reverse();
+        var buttonLabel = 'fragment ' + reverseData.prot_id.toString() + ' - ' + reverseData.map_type.toString() + ' hotspot';
+        return <ListGroupItem key={reverseData.id} >
+            <Button value={reverseData} onClick={() => this.loadHotspot(reverseData)}> {buttonLabel} </Button>
+            <Button value={reverseData} onClick={() => this.removeHotspot(reverseData)}> {buttonLabel} off</Button>
         </ListGroupItem>
     }
 
