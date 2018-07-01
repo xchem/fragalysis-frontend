@@ -22,10 +22,6 @@ class HotspotControls extends React.Component {
         }
     }
 
-    componentDidMount() {
-        this.stage.viewer.setBackground(this.props.stageColor);
-    }
-
     render() {
         return <div>
             <h3>Viewer controls</h3>
