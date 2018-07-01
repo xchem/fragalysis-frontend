@@ -33,10 +33,10 @@ class HotspotList extends GenericList {
 
     render_method(data) {
         const doData = data.filter(word => word.map_type.toString() === 'DO');
-        var buttonLabel = 'fragment ' + doData.prot_id.toString() + ' - ' + doData.map_type.toString() + ' hotspot'
-        return <ListGroupItem key={doData.id} >
-            <Button value={doData} onClick={() => this.loadHotspot(doData)}> {buttonLabel} </Button>
-            <Button value={doData} onClick={() => this.removeHotspot(doData)}> {buttonLabel} off</Button>
+        var buttonLabel = 'fragment ' + data.prot_id.toString() + ' - ' + data.map_type.toString() + ' hotspot'
+        return <ListGroupItem key={data.id} >
+            <Button value={data} onClick={() => this.loadHotspot(data)}> {buttonLabel} </Button>
+            <Button value={data} onClick={() => this.removeHotspot(data)}> {buttonLabel} off</Button>
         </ListGroupItem>
     }
 
