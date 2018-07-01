@@ -23,7 +23,7 @@ class HotspotControls extends React.Component {
     }
 
     componentDidMount() {
-        setInterval(this.update,50);
+        this.stage.viewer.setBackground(this.props.stageColor);
     }
 
     render() {
