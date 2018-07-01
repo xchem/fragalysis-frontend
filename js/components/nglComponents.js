@@ -274,7 +274,7 @@ export class NGLView extends React.Component {
                     isolevel: 10,
                     opacity: 0.5,
                     opaqueBack: false,
-
+                    name: 'surf'
                 });
             });
         }
