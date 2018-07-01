@@ -5,7 +5,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglReducers from "../reducers/nglReducers";
-import * as nglLoadActions from '../actions/nglRenderActions';
+import * as nglLoadActions from '../actions/nglLoadActions';
 
 class HotspotControls extends React.Component {
 
