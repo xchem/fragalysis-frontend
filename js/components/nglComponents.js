@@ -32,6 +32,7 @@ export class NGLView extends React.Component {
         }
         this.interval = 300;
         this.focus_var = 95;
+        this.stage_color = 'black';
         this.stage = undefined;
         this.orientationToSet={};
         this.renderDisplay = this.renderDisplay.bind(this);
@@ -89,7 +90,7 @@ export class NGLView extends React.Component {
            local_stage.handleResize();
         }, false);
         this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.stage.viewer.setBackground('white');
+        this.stage.viewer.setBackground(this.stage_color);
         this.props.setOrientation(
                 this.div_id,
                 "STARTED"
