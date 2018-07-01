@@ -24,9 +24,9 @@ class HotspotControls extends React.Component {
 
     render() {
         return <div>
-            <h3>Viewer controls</h3>
-            <button onClick={this.handleStageColor}>Toggle background colour</button>
-            <h3>Hotspot controls</h3>
+            {/*<h3>Viewer controls</h3>*/}
+            {/*<button onClick={this.handleStageColor}>Toggle background colour</button>*/}
+            {/*<h3>Hotspot controls</h3>*/}
         </div>
     }
 }
