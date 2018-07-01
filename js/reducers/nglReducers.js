@@ -170,7 +170,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             }
             // toSetStageColor[setStageBackground] = setBackground;
             return Object.assign({}, state, {
-                stageColor: action.toSetStageColor
+                stageColor: action.setStageColor
             });
 
             // Cases like: @@redux/INIT
