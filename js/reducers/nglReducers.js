@@ -17,7 +17,7 @@ const INITIALSTATE = {
     hydrogen: true,
     orientationToSet: {},
     loadingState: true,
-    stageColor: 'white'
+    stageColor: 'black'
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
