@@ -90,7 +90,6 @@ export class NGLView extends React.Component {
            local_stage.handleResize();
         }, false);
         this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.stage.viewer.setBackground(this.props.stageColor);
         this.props.setOrientation(
                 this.div_id,
                 "STARTED"
@@ -375,6 +374,7 @@ export class NGLView extends React.Component {
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
+        this.stage.viewer.setBackground(this.props.stageColor);
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
