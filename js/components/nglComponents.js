@@ -181,7 +181,7 @@ export class NGLView extends React.Component {
 
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation('cartoon', {});
+            comp.addRepresentation('hyperball', {});
             var selection = new Selection("LIG");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
