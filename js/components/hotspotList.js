@@ -66,14 +66,11 @@ class HotspotList extends GenericList {
 
     render() {
         if (this.props != undefined && this.props.hotspotList) {
-            return
-            <Well><Row style={hotStyle}>
-            <ListGroup>
+            return <ListGroup>
                 {
                 this.props.hotspotList.map((data) => (this.render_method(data)))
                  }
             </ListGroup>;
-            </Row></Well>
         } else {
             return null
         }
