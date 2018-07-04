@@ -27,7 +27,7 @@ class HotspotControls extends React.Component {
         if (this.props.nglProtStyle === 'cartoon') {
             this.props.setNglProtStyle('licorice')
         } else if (this.props.nglProtStyle === 'licorice') {
-            this.props.setNGLProtStyle('hyperball')
+            this.props.setNglProtStyle('hyperball')
         }
     }
 
