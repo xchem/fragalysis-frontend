@@ -4,8 +4,8 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import * as nglReducers from "../reducers/nglReducers";
-import * as nglRenderActions from '../actions/nglLoadActions';
+import * as nglLoadActions from '../actions/nglLoadActions';
+// import * as nglReducers from "../reducers/nglReducers";
 
 class HotspotControls extends React.Component {
 
@@ -50,8 +50,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-    setStageColor: nglRenderActions.setStageColor,
-    setNglProtStyle: nglRenderActions.setNglProtStyle
+    setStageColor: nglLoadActions.setStageColor,
+    setNglProtStyle: nglLoadActions.setNglProtStyle
     //    toggleHotspot: hotspotActions.toggleHotspot
 }
 
