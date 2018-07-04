@@ -12,6 +12,7 @@ class HotspotControls extends React.Component {
     constructor(props) {
         super(props)
         this.handleStageColor = this.handleStageColor.bind(this);
+        this.handleNglProtStyle = this.handleNglProtStyle.bind(this);
     }
 
     handleStageColor() {
