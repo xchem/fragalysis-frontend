@@ -1,13 +1,12 @@
 /**
- * Created by rgillams on 28/06/2018.
+ * Created by ricgillams on 28/06/2018.
  */
 
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
-// import * as nglReducers from "../reducers/nglReducers";
 
-class HotspotControls extends React.Component {
+class NglViewerControls extends React.Component {
 
     constructor(props) {
         super(props)
@@ -36,7 +35,6 @@ class HotspotControls extends React.Component {
             <h3>Viewer controls</h3>
             <button onClick={this.handleStageColor}>Toggle background colour</button>
             {/*<button onClick={this.handleNglProtStyle}>Toggle protein style</button>*/}
-            {/*<h3>Hotspot controls</h3>*/}
         </div>
     }
 }
@@ -45,14 +43,12 @@ function mapStateToProps(state) {
     return {
         stageColor: state.nglReducers.stageColor,
         nglProtStyle: state.nglReducers.nglProtStyle
-//        hotspotStatus: state.hotspotReducers.hotspotStatus
     }
 }
 
 const mapDispatchToProps = {
     setStageColor: nglLoadActions.setStageColor,
     setNglProtStyle: nglLoadActions.setNglProtStyle
-    //    toggleHotspot: hotspotActions.toggleHotspot
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HotspotControls)
+export default connect(mapStateToProps, mapDispatchToProps)(NglViewerControls)
