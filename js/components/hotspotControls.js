@@ -35,7 +35,7 @@ class HotspotControls extends React.Component {
         return <div>
             <h3>Viewer controls</h3>
             <button onClick={this.handleStageColor}>Toggle background colour</button>
-            <button onClick={this.handleNglProtStyle}>Toggle protein style</button>
+            {/*<button onClick={this.handleNglProtStyle}>Toggle protein style</button>*/}
             {/*<h3>Hotspot controls</h3>*/}
         </div>
     }
