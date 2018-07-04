@@ -61,14 +61,14 @@ class HotspotList extends GenericList {
     }
 
     handleOptionChange(changeEvent) {
-        this.props.serHotspotOn(changeEvent.target.value);
+        this.props.setHotspotOn(changeEvent.target.value);
     }
 
     render() {
-        if (this.props != undefined && this.props.hotspot_list) {
+        if (this.props != undefined && this.props.hotspotList) {
             return <ListGroup>
                 {
-                this.props.hotspot_list.map((data) => (this.render_method(data)))
+                this.props.hotspotList.map((data) => (this.render_method(data)))
                  }
             </ListGroup>;
         } else {
@@ -89,7 +89,7 @@ function mapStateToProps(state) {
       mol_group_on: state.apiReducers.mol_group_on,
       molecule_list: state.apiReducers.molecule_list,
       objectsInView: state.nglReducers.objectsInView,
-      hotspot_list: state.apiReducers.hotspot_list,
+      hotspotList: state.apiReducers.hotspot_list,
       target_on: state.apiReducers.target_on,
       object_on: state.apiReducers.hotspot_on
   }
