@@ -16,7 +16,7 @@ const hotStyle = {height: "500px", overflow:"scroll"}
 class HotspotList extends GenericList {
     constructor(props) {
         super(props);
-        this.list_type = listType.HOTSPOT;
+        this.list_type = listType.MOLECULE;
         this.render_method = this.render_method.bind(this);
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
