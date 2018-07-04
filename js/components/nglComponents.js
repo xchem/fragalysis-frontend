@@ -152,7 +152,7 @@ export class NGLView extends React.Component {
             var colour = ol[5];
             // Set the object name
             var comp = stage.addComponentFromObject(cs)
-            comp.addRepresentation("cartoon")
+            comp.addRepresentation(this.props.nglProtStyle)
             comp.addRepresentation("contact", {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
@@ -180,7 +180,7 @@ export class NGLView extends React.Component {
 
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation("cartoon", {});
+            comp.addRepresentation(this.props.nglProtStyle, {});
             var selection = new Selection("LIG");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
@@ -258,7 +258,7 @@ export class NGLView extends React.Component {
 
     showProtein(stage, input_dict, object_name) {
         stage.loadFile(input_dict.prot_url, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation("cartoon", {});
+            comp.addRepresentation(this.props.nglProtStyle, {});
             comp.autoView();
         });
     }
@@ -465,7 +465,8 @@ function mapStateToProps(state) {
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
       loadingState: state.nglReducers.loadingState,
-      stageColor: state.nglReducers.stageColor
+      stageColor: state.nglReducers.stageColor,
+      nglProtStyle: state.nglReducers.nglProtStyle
   }
 }
 const mapDispatchToProps = {
