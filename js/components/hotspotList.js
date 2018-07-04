@@ -9,8 +9,8 @@ import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
-import { withRouter } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom';
+
 class HotspotList extends GenericList {
     constructor(props) {
         super(props);
