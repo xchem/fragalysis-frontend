@@ -144,29 +144,29 @@ export class NGLView extends React.Component {
     renderComplex(ol) {
         var cs = concatStructures(
             ol[4],
-                ol[0].structure.getView(new Selection("not ligand")),
-                ol[1].structure.getView(new Selection(""))
-            )
-            var stage = ol[2];
-            var focus_var = ol[3];
-            var colour = ol[5];
-            // Set the object name
-            var comp = stage.addComponentFromObject(cs)
-        var nglProtStyle = this.props.nglProtStyle
-            comp.addRepresentation(nglProtStyle)
-            comp.addRepresentation("contact", {
-                masterModelIndex: 0,
-                weakHydrogenBond: true,
-                maxHbondDonPlaneAngle: 35,
-                sele: "/0 or /1"
-            })
-            comp.addRepresentation("line", {
-                colorScheme: "element",
-                colorValue:colour,
-                sele: "/0"
-            })
-            comp.autoView("ligand");
-            stage.setFocus(focus_var);
+            ol[0].structure.getView(new Selection("not ligand")),
+            ol[1].structure.getView(new Selection(""))
+        )
+        var stage = ol[2];
+        var focus_var = ol[3];
+        var colour = ol[5];
+        // Set the object name
+        var comp = stage.addComponentFromObject(cs)
+        // var nglProtStyle = this.props.nglProtStyle
+        comp.addRepresentation('hyperball')
+        comp.addRepresentation("contact", {
+            masterModelIndex: 0,
+            weakHydrogenBond: true,
+            maxHbondDonPlaneAngle: 35,
+            sele: "/0 or /1"
+        })
+        comp.addRepresentation("line", {
+            colorScheme: "element",
+            colorValue:colour,
+            sele: "/0"
+        })
+        comp.autoView("ligand");
+        stage.setFocus(focus_var);
     };
 
 
@@ -181,7 +181,7 @@ export class NGLView extends React.Component {
 
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation(this.props.nglProtStyle, {});
+            comp.addRepresentation('cartoon', {});
             var selection = new Selection("LIG");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
@@ -258,9 +258,9 @@ export class NGLView extends React.Component {
     }
 
     showProtein(stage, input_dict, object_name) {
-        var nglProtStyle = this.props.nglProtStyle
+        // var nglProtStyle = this.props.nglProtStyle
         stage.loadFile(input_dict.prot_url, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation(nglProtStyle, {});
+            comp.addRepresentation('cartoon', {});
             comp.autoView();
         });
     }
