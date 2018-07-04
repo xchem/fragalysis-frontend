@@ -65,7 +65,7 @@ class HotspotList extends GenericList {
     }
 
     render() {
-        if (this.props != undefined && this.props.object_list) {
+        if (this.props != undefined && this.props.hotspot_list) {
             return <ListGroup>
                 {
                 this.props.hotspot_list.map((data) => (this.render_method(data)))
