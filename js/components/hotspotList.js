@@ -17,9 +17,9 @@ class HotspotList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.HOTSPOT;
-
         this.render_method = this.render_method.bind(this);
         this.loadHotspot = this.loadHotspot.bind(this);
+        this.removeHotspot = this.removeHotspot.bind(this);
         this.generateHotspotObject = this.generateHotspotObject.bind(this);
     }
 
@@ -66,11 +66,14 @@ class HotspotList extends GenericList {
 
     render() {
         if (this.props != undefined && this.props.hotspotList) {
-            return <ListGroup>
+            return
+            <Well><Row style={hotStyle}>
+            <ListGroup>
                 {
                 this.props.hotspotList.map((data) => (this.render_method(data)))
                  }
             </ListGroup>;
+            </Row></Well>
         } else {
             return null
         }
