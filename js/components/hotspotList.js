@@ -11,10 +11,13 @@ import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import { withRouter, Link } from 'react-router-dom';
 
+const hotStyle = {height: "500px", overflow:"scroll"}
+
 class HotspotList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.HOTSPOT;
+
         this.render_method = this.render_method.bind(this);
         this.loadHotspot = this.loadHotspot.bind(this);
         this.generateHotspotObject = this.generateHotspotObject.bind(this);
@@ -68,16 +71,23 @@ class HotspotList extends GenericList {
                 this.props.object_list.map((data) => (this.render_method(data)))
                  }
             </ListGroup>;
-        }
-        else {
+        } else {
             return null
         }
     }
+    //    return <Well><Row style={molStyle}>
+    //        {
+    //        this.props.molecule_list.map((data) => <MoleculeView height={125} width={125} key={data.id} data={data}/>)
+    //        }
+    //    </Row></Well>;
 }
 
 
 function mapStateToProps(state) {
   return {
+      group_type: state.apiReducers.group_type,
+      mol_group_on: state.apiReducers.mol_group_on,
+      molecule_list: state.apiReducers.molecule_list,
       objectsInView: state.nglReducers.objectsInView,
       object_list: state.apiReducers.hotspot_list,
       target_on: state.apiReducers.target_on,
@@ -88,6 +98,8 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     setObjectOn: apiActions.setHotspotOn,
-    setObjectList: apiActions.setHotspotList
+    setObjectList: apiActions.setHotspotList,
+    setMoleculeList: apiActions.setMoleculeList,
+
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HotspotList));
