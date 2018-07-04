@@ -18,7 +18,7 @@ const INITIALSTATE = {
     orientationToSet: {},
     loadingState: true,
     stageColor: 'black',
-    nglProtStyle: 'licorice'
+    nglProtStyle: 'cartoon'
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
