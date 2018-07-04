@@ -23,10 +23,10 @@ class HotspotControls extends React.Component {
     }
 
     handleNglProtStyle() {
-        if (this.props.nglProtStyle === 'cartoon'){
+        if (this.props.nglProtStyle === 'cartoon') {
             this.props.setNglProtStyle('licorice')
-        } else if (this.props.nglProtStyle === 'licorice')
-            this.props.setNGLProtStyle('hyper')
+        } else if (this.props.nglProtStyle === 'licorice') {
+            this.props.setNGLProtStyle('hyperball')
         }
     }
 
