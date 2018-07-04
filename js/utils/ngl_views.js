@@ -70,7 +70,7 @@ class ShowMolLigs extends BaseNGLDisplay {
             var focus_var = ol[3];
             // Set the object name
             var comp = stage.addComponentFromObject(cs)
-            comp.addRepresentation("cartoon")
+            comp.addRepresentation("hyperball")
             comp.addRepresentation("contact", {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
