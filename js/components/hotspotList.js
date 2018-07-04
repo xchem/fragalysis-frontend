@@ -42,6 +42,8 @@ class HotspotList extends GenericList {
         </ListGroupItem>
     }
 
+
+
     generateHotspotObject(targetData) {
         var out_object = {
             "name": "HOTSPOT_" + targetData.id.toString(),
@@ -75,11 +77,31 @@ class HotspotList extends GenericList {
             return null
         }
     }
-    //    return <Well><Row style={molStyle}>
-    //        {
-    //        this.props.molecule_list.map((data) => <MoleculeView height={125} width={125} key={data.id} data={data}/>)
-    //        }
-    //    </Row></Well>;
+
+    // constructor(props) {
+    //     super(props);
+    //     this.list_type = listType.MOLECULE;
+    // }
+    //
+    // handleOptionChange(changeEvent) {
+    //     const new_value = changeEvent.target.value;
+    //     this.props.setObjectOn(new_value);
+    // }
+    // render() {
+    //     if (this.props != undefined && this.props.object_list) {
+    //         console.log(this.props.message)
+    //         return <Well><Row style={molStyle}>
+    //             {
+    //                 this.props.object_list.map((data) => <MoleculeView height={125} width={125} key={data.id} data={data}/>)
+    //             }
+    //         </Row></Well>;
+    //     }
+    //     else {
+    //         return null;
+    //     }
+    // }
+
+
 }
 
 
