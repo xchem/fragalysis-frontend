@@ -50,7 +50,7 @@ class HotspotMoleculeList extends GenericList {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
-                    this.props.object_list.map((data) => <MoleculeView height={125} width={250} key={data.id} data={data}/>)
+                    this.props.object_list.map((data) => <HotspotMoleculeView height={125} width={250} key={data.id} data={data}/>)
                     this.render_method(data)
                 }
             </Row></Well>;
