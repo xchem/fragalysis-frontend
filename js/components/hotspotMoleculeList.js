@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import HotspotMoleculeView from './HotspotMoleculeView'
+import HotspotMoleculeView from './hotspotMoleculeView'
 
 const molStyle = {height: "250px",
     overflow:"scroll"}
