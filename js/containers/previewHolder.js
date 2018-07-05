@@ -7,7 +7,7 @@ import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
-import MoleculeHotspotList from '../components/moleculeHotspotList';
+import MoleculeHotspotList from '../components/hotspotMoleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import NglViewerControls from '../components/nglViewerControls'
@@ -54,7 +54,7 @@ class Preview extends Component {
               <Col xs={5} md={5} >
                   <NGLView div_id="major_view" height="600px"/>
                   <NglViewerControls />
-                  <MoleculeHotspotList />
+                  <HotspotMoleculeList />
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
