@@ -7,11 +7,11 @@ import { Row, Col, Grid, Well } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
-import MoleculeHotspotList from '../components/hotspotMoleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import NglViewerControls from '../components/nglViewerControls'
 import HotspotList from '../components/hotspotList'
+import HotspotMoleculeList from '../components/hotspotMoleculeList'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom';
