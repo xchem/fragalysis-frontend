@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 26/06/2018.
  */
-import { ListGroupItem, ListGroup, Col, Button} from 'react-bootstrap';
+import { ListGroupItem, ListGroup, Col} from 'react-bootstrap';
 import { GenericList } from './generalComponents';
 import React from 'react';
 import { connect } from 'react-redux';

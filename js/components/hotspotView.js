@@ -72,17 +72,17 @@ class HotspotView extends GenericView {
     }
 
     componentDidMount() {
-        this.loadFromServer(this.props.width,this.props.height);
-        var thisToggleOn = false;
-        var hotspotOn = false;
-        for(var key in this.props.inViewList){
-            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
-                this.setState(prevState => ({isToggleOn: true}));
-            }
-            if(key.startsWith("HOTSPOTLOAD_") && parseInt(key.split("HOTSPOTLOAD_")[[1]], 10)==this.props.data.id){
-                this.setState(prevState => ({hotspotOn: true}));
-            }
-        }
+        // this.loadFromServer(this.props.width,this.props.height);
+        // var thisToggleOn = false;
+        // var hotspotOn = false;
+        // for(var key in this.props.inViewList){
+        //     if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
+        //         this.setState(prevState => ({isToggleOn: true}));
+        //     }
+        //     if(key.startsWith("HOTSPOTLOAD_") && parseInt(key.split("HOTSPOTLOAD_")[[1]], 10)==this.props.data.id){
+        //         this.setState(prevState => ({hotspotOn: true}));
+        //     }
+        // }
     }
 
     render() {
