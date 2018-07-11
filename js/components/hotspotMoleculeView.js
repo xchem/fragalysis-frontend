@@ -19,13 +19,8 @@ class HotspotMoleculeView extends GenericView {
 
     constructor(props) {
         super(props);
-        // this.generateObject = this.generateObject.bind(this);
         this.generateHotspotObject = this.generateHotspotObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        // this.handleVector = this.handleVector.bind(this);
-        // this.getViewUrl = this.getViewUrl.bind(this);
-        // this.onVector = this.onVector.bind(this);
-        // this.onComplex = this.onComplex.bind(this);
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
@@ -41,36 +36,6 @@ class HotspotMoleculeView extends GenericView {
         return new URL(this.base_url + '/api/' + hotspots + '/' + this.props.data.id + "/")
     }
 
-    /**
-     * Convert the JSON into a list of arrow objects
-     */
-    // generateObjectList(out_data) {
-    //     var colour = [1,0,0]
-    //     var deletions = out_data.deletions
-    //     var outList = [];
-    //     for(var key in deletions) {
-    //         outList.push(this.generateArrowObject(deletions[key][0],
-    //             deletions[key][1],key.split("_")[0],colour))
-    //     }
-    //     var additions = out_data.additions
-    //     for(var key in additions) {
-    //         outList.push(this.generateArrowObject(additions[key][0],
-    //             additions[key][1],key.split("_")[0],colour))
-    //     }
-    //     var linker = out_data.linkers
-    //     for(var key in linker) {
-    //         outList.push(this.generateCylinderObject(linker[key][0],
-    //             linker[key][1],key.split("_")[0],colour))
-    //     }
-    //
-    //     var rings = out_data.ring
-    //     for (var key in rings){
-    //         outList.push(this.generateCylinderObject(rings[key][0],
-    //             rings[key][2],key.split("_")[0],colour))
-    //     }
-    //     return outList;
-    // }
-    //
     generateMolObject() {
         // Get the data
         const data = this.props.data;
@@ -106,19 +71,6 @@ class HotspotMoleculeView extends GenericView {
         this.props.deleteObject(nglObject);
     }
 
-    // generateObject() {
-    //     // Get the data
-    //     const data = this.props.data;
-    //     var nglObject = {
-    //         "name": "COMPLEXLOAD" + "_" + data.id.toString(),
-    //         "OBJECT_TYPE":nglObjectTypes.COMPLEX,
-    //         "sdf_info": data.sdf_info,
-    //         "colour": this.colourToggle,
-    //         "prot_url": this.base_url + data.molecule_protein
-    //     }
-    //     return nglObject;
-    // }
-    //
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = false;
@@ -140,12 +92,12 @@ class HotspotMoleculeView extends GenericView {
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
-            <Toggle onClick={this.loadHotspot()}
+            <Toggle onClick={this.loadHotspot(data)}
                 on={<p>Hotspot ON</p>}
                 off={<p>Hotspot OFF</p>}
                 size="xs"
-                // offstyle="danger"
-                // active={this.state.hotspotOn}
+                offstyle="danger"
+                active={this.state.hotspotOn}
             />
             </div>
     }
