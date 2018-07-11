@@ -144,13 +144,13 @@ class MoleculeView extends GenericView {
                 off={<p>Complex OFF</p>}
                 size="xs"
                 offstyle="danger"
-                // active={this.state.complexOn}/>
+                active={this.state.complexOn}/>
             <Toggle onClick={this.onVector}
                 on={<p>Vector ON</p>}
                 off={<p>Vector OFF</p>}
                 size="xs"
                 offstyle="danger"
-                // active={this.props.to_query==this.props.data.smiles}/>
+                active={this.props.to_query==this.props.data.smiles}/>
             </div>
     }
 
