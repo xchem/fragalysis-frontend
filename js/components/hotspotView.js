@@ -15,7 +15,7 @@ import Toggle from 'react-bootstrap-toggle';
 import SVGInline from "react-svg-inline";
 import fetch from 'cross-fetch';
 
-class HotspotMoleculeView extends GenericView {
+class HotspotView extends GenericView {
 
     constructor(props) {
         super(props);
@@ -151,4 +151,4 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HotspotMoleculeView);
+export default connect(mapStateToProps, mapDispatchToProps)(HotspotView);
