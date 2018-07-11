@@ -145,7 +145,8 @@ class HotspotMoleculeView extends GenericView {
                 off={<p>Hotspot OFF</p>}
                 size="xs"
                 offstyle="danger"
-                active={this.state.hotspotOn}/>
+                // active={this.state.hotspotOn}
+            />
             </div>
     }
 
