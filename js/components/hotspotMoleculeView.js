@@ -19,13 +19,13 @@ class HotspotMoleculeView extends GenericView {
 
     constructor(props) {
         super(props);
-        this.generateObject = this.generateObject.bind(this);
+        // this.generateObject = this.generateObject.bind(this);
         this.generateHotspotObject = this.generateHotspotObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.handleVector = this.handleVector.bind(this);
-        this.getViewUrl = this.getViewUrl.bind(this);
-        this.onVector = this.onVector.bind(this);
-        this.onComplex = this.onComplex.bind(this);
+        // this.handleVector = this.handleVector.bind(this);
+        // this.getViewUrl = this.getViewUrl.bind(this);
+        // this.onVector = this.onVector.bind(this);
+        // this.onComplex = this.onComplex.bind(this);
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
