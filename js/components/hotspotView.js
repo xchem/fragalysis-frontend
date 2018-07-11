@@ -92,7 +92,7 @@ class HotspotView extends GenericView {
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
-            <Toggle onClick={this.loadHotspot(data)}
+            <Toggle onClick={this.loadHotspot()}
                 on={<p>Hotspot ON</p>}
                 off={<p>Hotspot OFF</p>}
                 size="xs"
