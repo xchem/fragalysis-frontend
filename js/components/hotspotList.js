@@ -9,6 +9,7 @@ import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import HotspotView from './hotspotView'
+import MoleculeView from './moleculeView'
 
 const molStyle = {height: "250px",
     overflow:"scroll"}
@@ -39,7 +40,7 @@ class HotspotList extends GenericList {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
-                    this.props.object_list.map((data) => <HotspotView height={125} width={250} key={data.id} data={data}/>)
+                    this.props.object_list.map((data) => <MoleculeView height={125} width={250} key={data.id} data={data}/>)
                     // this.render_method(data)
                 }
             </Row></Well>;
