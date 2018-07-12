@@ -140,8 +140,8 @@ class HotspotView extends GenericView {
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             <Toggle onClick={this.onComplex}
-                on={<p>Hotspot ON</p>}
-                off={<p>Hotspot OFF</p>}
+                on={<p>Donor ON</p>}
+                off={<p>Donor OFF</p>}
                 size="xs"
                 offstyle="danger"
                 active={this.state.complexOn}/>
@@ -160,9 +160,9 @@ class HotspotView extends GenericView {
     }
 
     handleClick(e) {
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+        // this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
+            // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
         }
         else{
             this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))

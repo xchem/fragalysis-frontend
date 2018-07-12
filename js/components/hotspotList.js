@@ -24,16 +24,6 @@ class HotspotList extends GenericList {
         this.props.setObjectOn(new_value);
     }
 
-    // loadHotspot(data){
-    //     var nglObject = this.generateHotspotObject(data);
-    //     this.props.loadObject(nglObject);
-    // }
-    //
-    // removeHotspot(data){
-    //     var nglObject = this.generateHotspotObject(data);
-    //     this.props.deleteObject(nglObject);
-    // }
-
     render() {
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
