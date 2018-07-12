@@ -11,7 +11,7 @@ import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import NglViewerControls from '../components/nglViewerControls'
 import HotspotList from '../components/hotspotButtonList'
-import HotspotView from '../components/hotspotView'
+import HotspotButtonList from '../components/hotspotButtonList'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom';
