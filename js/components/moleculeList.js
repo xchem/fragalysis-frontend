@@ -23,6 +23,7 @@ class MoleculeList extends GenericList {
         const new_value = changeEvent.target.value;
         this.props.setObjectOn(new_value);
     }
+
     render() {
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)

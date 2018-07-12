@@ -12,7 +12,7 @@ import HotspotView from './hotspotView'
 
 const molStyle = {height: "250px",
     overflow:"scroll"}
-class HotspotMoleculeList extends GenericList {
+class HotspotList extends GenericList {
 
     constructor(props) {
         super(props);
@@ -64,4 +64,4 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject
 
 }
-export default connect(mapStateToProps, mapDispatchToProps)(HotspotMoleculeList);
+export default connect(mapStateToProps, mapDispatchToProps)(HotspotList);
