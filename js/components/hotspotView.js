@@ -140,8 +140,8 @@ class HotspotView extends GenericView {
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             <Toggle onClick={this.onComplex}
-                on={<p>Complex ON</p>}
-                off={<p>Complex OFF</p>}
+                on={<p>Hotspot ON</p>}
+                off={<p>Hotspot OFF</p>}
                 size="xs"
                 offstyle="danger"
                 active={this.state.complexOn}/>
