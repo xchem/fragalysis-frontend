@@ -24,15 +24,15 @@ class HotspotList extends GenericList {
         this.props.setObjectOn(new_value);
     }
 
-    loadHotspot(data){
-        var nglObject = this.generateHotspotObject(data);
-        this.props.loadObject(nglObject);
-    }
-
-    removeHotspot(data){
-        var nglObject = this.generateHotspotObject(data);
-        this.props.deleteObject(nglObject);
-    }
+    // loadHotspot(data){
+    //     var nglObject = this.generateHotspotObject(data);
+    //     this.props.loadObject(nglObject);
+    // }
+    //
+    // removeHotspot(data){
+    //     var nglObject = this.generateHotspotObject(data);
+    //     this.props.deleteObject(nglObject);
+    // }
 
     render() {
         if (this.props != undefined && this.props.object_list) {
@@ -55,7 +55,7 @@ function mapStateToProps(state) {
       group_type: state.apiReducers.group_type,
       target_on: state.apiReducers.target_on,
       mol_group_on: state.apiReducers.mol_group_on,
-      object_list: state.apiReducers.hotspot_list
+      object_list: state.apiReducers.molecule_list
   }
 }
 const mapDispatchToProps = {
