@@ -81,12 +81,12 @@ export class GenericList extends React.Component {
                 get_params.limit = -1
             }
         }
-        else if (this.list_type==listTypes.HOTSPOT){
-            if (this.props.target_on != undefined) {
-                base_url += "hotspots/"
-                get_params.target_id = this.props.target_on
-            }
-        }
+        // else if (this.list_type==listTypes.HOTSPOT){
+        //     if (this.props.target_on != undefined) {
+        //         base_url += "hotspots/"
+        //         get_params.target_id = this.props.target_on
+        //     }
+        // }
         else{
             console.log("DEFUALT")
         }
