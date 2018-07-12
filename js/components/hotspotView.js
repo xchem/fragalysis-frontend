@@ -25,6 +25,10 @@ class HotspotView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
+        this.colourToggle = this.getRandomColor();
+        this.loadHotspot = this.loadHotspot.bind(this);
+        this.removeHotspot = this.removeHotspot.bind(this);
+        this.generateHotspotObject = this.generateHotspotObject.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
@@ -34,11 +38,20 @@ class HotspotView extends GenericView {
         this.state.apolarOn = false
         this.state.vectorOn = false
         this.state.complexOn = false
-        this.colourToggle = this.getRandomColor();
     }
 
     getViewUrl(get_view) {
         return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
+    }
+
+    loadHotspot(data){
+        var nglObject = this.generateHotspotObject(data);
+        this.props.loadObject(nglObject);
+    }
+
+    removeHotspot(data){
+        var nglObject = this.generateHotspotObject(data);
+        this.props.deleteObject(nglObject);
     }
 
     generateObjectList(out_data) {
@@ -111,6 +124,19 @@ class HotspotView extends GenericView {
             "prot_url": this.base_url + data.molecule_protein
         }
         return nglObject;
+    }
+
+    generateHotspotObject(targetData) {
+        var out_object = {
+            "name": "HOTSPOT_" + targetData.id.toString(),
+            // "hotUrl": targetData.map_info.replace('http:', 'https:'),
+            "hotUrl": targetData.map_info,
+            "display_div": "major_view",
+            "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
+            "map_type": targetData.map_type.toString(),
+            "fragment" : targetData.prot_id.toString()
+            }
+            return out_object
     }
 
     handleVector(json) {
