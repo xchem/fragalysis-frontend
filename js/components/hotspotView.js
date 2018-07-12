@@ -30,9 +30,10 @@ class HotspotView extends GenericView {
         this.state.vectorOn = false
         this.state.complexOn = false
         this.colourToggle = this.getRandomColor();
+        this.getHotspotUrl = this.getHotspotUrl();
     }
 
-    getHotspotUrl(get_view) {
+    getHotspotUrl() {
         return new URL(this.base_url + '/api/' + hotspots + '/' + this.props.data.id + "/")
     }
 
