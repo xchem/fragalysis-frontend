@@ -136,7 +136,7 @@ class HotspotView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
+        this.current_style = this.state.isToggleOn ? selected_style : this.selected_style;
         return <div>
             <div style={this.current_style}>{svg_image}</div>
             <Toggle onClick={this.onComplex}
@@ -160,13 +160,13 @@ class HotspotView extends GenericView {
     }
 
     handleClick(e) {
-        // this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
-            // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
         }
         else{
-            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
-            this.props.loadObject(this.generateMolObject(this.colourToggle))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
+            // this.props.loadObject(this.generateMolObject(this.colourToggle))
         }
     }
 
