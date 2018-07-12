@@ -10,7 +10,6 @@ import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import { withRouter, Link } from 'react-router-dom';
-
 const hotStyle = {height: "500px", overflow:"scroll"}
 
 class HotspotList extends GenericList {

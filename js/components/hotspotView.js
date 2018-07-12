@@ -48,8 +48,9 @@ class HotspotView extends GenericView {
         return nglObject;
     }
 
-    generateHotspotObject(targetData) {
-        var out_object = {
+    generateHotspotObject() {
+        const targetData = this.props.data;
+            var out_object = {
             "name": "HOTSPOT_" + targetData.id.toString(),
             // "hotUrl": targetData.map_info.replace('http:', 'https:'),
             "hotUrl": targetData.map_info,
@@ -72,17 +73,17 @@ class HotspotView extends GenericView {
     }
 
     componentDidMount() {
-        // this.loadFromServer(this.props.width,this.props.height);
-        // var thisToggleOn = false;
-        // var hotspotOn = false;
-        // for(var key in this.props.inViewList){
-        //     if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
-        //         this.setState(prevState => ({isToggleOn: true}));
-        //     }
-        //     if(key.startsWith("HOTSPOTLOAD_") && parseInt(key.split("HOTSPOTLOAD_")[[1]], 10)==this.props.data.id){
-        //         this.setState(prevState => ({hotspotOn: true}));
-        //     }
-        // }
+        this.loadFromServer(this.props.width,this.props.height);
+        var thisToggleOn = false;
+        var hotspotOn = false;
+        for(var key in this.props.inViewList){
+            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
+                this.setState(prevState => ({isToggleOn: true}));
+            }
+            if(key.startsWith("HOTSPOTLOAD_") && parseInt(key.split("HOTSPOTLOAD_")[[1]], 10)==this.props.data.id){
+                this.setState(prevState => ({hotspotOn: true}));
+            }
+        }
     }
 
     render() {
