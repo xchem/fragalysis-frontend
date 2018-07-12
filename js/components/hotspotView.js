@@ -19,10 +19,12 @@ class HotspotView extends GenericView {
 
     constructor(props) {
         super(props);
-        this.generateHotspotObject = this.generateHotspotObject.bind(this);
+        this.generateObject = this.generateObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.loadHotspot = this.loadHotspot.bind(this);
-        this.removeHotspot = this.removeHotspot.bind(this);
+        this.handleVector = this.handleVector.bind(this);
+        this.getViewUrl = this.getViewUrl.bind(this);
+        this.onVector = this.onVector.bind(this);
+        this.onComplex = this.onComplex.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
@@ -30,11 +32,60 @@ class HotspotView extends GenericView {
         this.state.vectorOn = false
         this.state.complexOn = false
         this.colourToggle = this.getRandomColor();
-        this.getHotspotUrl = this.getHotspotUrl();
     }
 
-    getHotspotUrl() {
-        return new URL(this.base_url + '/api/' + hotspots + '/' + this.props.data.id + "/")
+    getViewUrl(get_view) {
+        return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
+    }
+
+    /**
+     * Convert the JSON into a list of arrow objects
+     */
+    generateObjectList(out_data) {
+        var colour = [1,0,0]
+        var deletions = out_data.deletions
+        var outList = [];
+        for(var key in deletions) {
+            outList.push(this.generateArrowObject(deletions[key][0],
+                deletions[key][1],key.split("_")[0],colour))
+        }
+        var additions = out_data.additions
+        for(var key in additions) {
+            outList.push(this.generateArrowObject(additions[key][0],
+                additions[key][1],key.split("_")[0],colour))
+        }
+        var linker = out_data.linkers
+        for(var key in linker) {
+            outList.push(this.generateCylinderObject(linker[key][0],
+                linker[key][1],key.split("_")[0],colour))
+        }
+
+        var rings = out_data.ring
+        for (var key in rings){
+            outList.push(this.generateCylinderObject(rings[key][0],
+                rings[key][2],key.split("_")[0],colour))
+        }
+        return outList;
+    }
+
+    generateArrowObject(start, end, name, colour) {
+        return {
+            "name": listTypes.VECTOR+"_"+name,
+            "OBJECT_TYPE": nglObjectTypes.ARROW,
+            "start": start,
+            "end": end,
+            "colour": colour
+        }
+    }
+
+    generateCylinderObject(start, end, name, colour) {
+        return {
+            "name": listTypes.VECTOR+"_"+name,
+            "OBJECT_TYPE": nglObjectTypes.CYLINDER,
+            "start": start,
+            "end": end,
+            "colour": colour
+        }
     }
 
     generateMolObject() {
@@ -49,42 +100,34 @@ class HotspotView extends GenericView {
         return nglObject;
     }
 
-    // generateHotspotObject() {
-    //     const targetData = this.props.data;
-    //         var out_object = {
-    //         "name": "HOTSPOT_" + targetData.id.toString(),
-    //         // "hotUrl": targetData.map_info.replace('http:', 'https:'),
-    //         "hotUrl": targetData.map_info,
-    //         "display_div": "major_view",
-    //         "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
-    //         "map_type": targetData.map_type.toString(),
-    //         "fragment" : targetData.prot_id.toString()
-    //         }
-    //         return out_object
-    // }
-
-    loadHotspot() {
+    generateObject() {
+        // Get the data
         const data = this.props.data;
-        var nglObject = this.generateHotspotObject(data);
-        this.props.loadObject(nglObject);
+        var nglObject = {
+            "name": "COMPLEXLOAD" + "_" + data.id.toString(),
+            "OBJECT_TYPE":nglObjectTypes.COMPLEX,
+            "sdf_info": data.sdf_info,
+            "colour": this.colourToggle,
+            "prot_url": this.base_url + data.molecule_protein
+        }
+        return nglObject;
     }
 
-    removeHotspot() {
-        const data = this.props.data;
-        var nglObject = this.generateHotspotObject(data);
-        this.props.deleteObject(nglObject);
+    handleVector(json) {
+        var objList = this.generateObjectList(json);
+        this.props.setVectorList(objList)
     }
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = false;
-        var hotspotOn = false;
+        var complexOn = false;
         for(var key in this.props.inViewList){
             if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
                 this.setState(prevState => ({isToggleOn: true}));
             }
-            if(key.startsWith("HOTSPOTLOAD_") && parseInt(key.split("HOTSPOTLOAD_")[[1]], 10)==this.props.data.id){
-                this.setState(prevState => ({hotspotOn: true}));
+            if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]], 10)==this.props.data.id){
+                this.setState(prevState => ({complexOn: true}));
             }
         }
     }
@@ -96,13 +139,18 @@ class HotspotView extends GenericView {
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div>
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
-            <Toggle onClick={this.loadHotspot()}
-                on={<p>Hotspot ON</p>}
-                off={<p>Hotspot OFF</p>}
+            <Toggle onClick={this.onComplex}
+                on={<p>Complex ON</p>}
+                off={<p>Complex OFF</p>}
                 size="xs"
                 offstyle="danger"
-                active={this.state.hotspotOn}
-            />
+                active={this.state.complexOn}/>
+            <Toggle onClick={this.onVector}
+                on={<p>Vector ON</p>}
+                off={<p>Vector OFF</p>}
+                size="xs"
+                offstyle="danger"
+                active={this.props.to_query==this.props.data.smiles}/>
             </div>
     }
 
@@ -121,9 +169,9 @@ class HotspotView extends GenericView {
         }
     }
 
-    onHotspot() {
-        this.setState(prevState => ({hotspotOn: !prevState.hotspotOn}))
-        if(this.state.hotspotOn){
+    onComplex() {
+        this.setState(prevState => ({complexOn: !prevState.complexOn}))
+        if(this.state.complexOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
@@ -131,6 +179,32 @@ class HotspotView extends GenericView {
             if(this.state.isToggleOn==false){
                 this.handleClick()
             }
+        }
+    }
+
+    onVector() {
+        this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+        if(this.state.vectorOn) {
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            this.props.setMol("");
+        }
+        else {
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            fetch(this.getViewUrl("vector"))
+                .then(
+                    response => response.json(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.handleVector(json["vectors"]))
+            // Set this
+            this.props.getFullGraph(this.props.data);
+            // Do the query
+            fetch(this.getViewUrl( "graph"))
+                .then(
+                    response => response.json(),
+                    error => console.log('An error occurred.', error)
+                )
+                .then(json => this.props.gotFullGraph(json["graph"]))
         }
     }
 
