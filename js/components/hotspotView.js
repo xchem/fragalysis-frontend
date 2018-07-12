@@ -165,7 +165,8 @@ class HotspotView extends GenericView {
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
+            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
+            this.props.loadObject(this.generateMolObject(this.colourToggle))
         }
     }
 
