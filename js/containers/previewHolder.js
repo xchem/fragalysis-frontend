@@ -10,7 +10,7 @@ import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import NglViewerControls from '../components/nglViewerControls'
-import HotspotList from '../components/hotspotList'
+import HotspotList from '../components/hotspotButtonList'
 import HotspotView from '../components/hotspotView'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
@@ -54,11 +54,11 @@ class Preview extends Component {
               <Col xs={5} md={5} >
                   <NGLView div_id="major_view" height="600px"/>
                   <NglViewerControls />
-                  <HotspotView/>
+                  <HotspotList/>
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
-                  <HotspotList/>
+                  <HotspotButtonList/>
               </Col>
           </Row>
       )

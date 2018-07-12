@@ -12,7 +12,7 @@ import * as nglObjectTypes from '../components/nglObjectTypes';
 import { withRouter, Link } from 'react-router-dom';
 const hotStyle = {height: "500px", overflow:"scroll"}
 
-class HotspotList extends GenericList {
+class HotspotButtonList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.HOTSPOT;
@@ -96,4 +96,4 @@ const mapDispatchToProps = {
     setMoleculeList: apiActions.setMoleculeList,
 
 }
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HotspotList));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HotspotButtonList));
