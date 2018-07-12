@@ -29,6 +29,9 @@ class HotspotView extends GenericView {
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
+        this.state.donorOn = false
+        this.state.acceptorOn = false
+        this.state.apolarOn = false
         this.state.vectorOn = false
         this.state.complexOn = false
         this.colourToggle = this.getRandomColor();
@@ -38,9 +41,6 @@ class HotspotView extends GenericView {
         return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
     }
 
-    /**
-     * Convert the JSON into a list of arrow objects
-     */
     generateObjectList(out_data) {
         var colour = [1,0,0]
         var deletions = out_data.deletions
@@ -132,30 +132,14 @@ class HotspotView extends GenericView {
         }
     }
 
-    render() {
-        const svg_image = <SVGInline svg={this.state.img_data}/>;
-        const selected_style = {width: this.props.width.toString+'px',
-            height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        this.current_style = this.state.isToggleOn ? selected_style : this.selected_style;
-        return <div>
-            <div style={this.current_style}>{svg_image}</div>
-            <Toggle onClick={this.onComplex}
-                on={<p>Donor ON</p>}
-                off={<p>Donor OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.state.complexOn}/>
-            <Toggle onClick={this.onVector}
-                on={<p>Vector ON</p>}
-                off={<p>Vector OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.props.to_query==this.props.data.smiles}/>
-            </div>
-    }
-
     getRandomColor() {
-        var colourList = ['#EFCDB8', '#CC6666', '#FF6E4A', '#78DBE2', '#1F75FE', '#FAE7B5', '#FDBCB4', '#C5E384', '#95918C', '#F75394', '#80DAEB', '#ADADD6']
+        var colourList = ['#EFCDB8',
+            '#CC6666', '#FF6E4A',
+            '#78DBE2', '#1F75FE',
+            '#FAE7B5', '#FDBCB4',
+            '#C5E384', '#95918C',
+            '#F75394', '#80DAEB',
+            '#ADADD6']
         return colourList[this.props.data.id % colourList.length];
     }
 
@@ -208,6 +192,29 @@ class HotspotView extends GenericView {
                 .then(json => this.props.gotFullGraph(json["graph"]))
         }
     }
+
+    render() {
+        const svg_image = <SVGInline svg={this.state.img_data}/>;
+        const selected_style = {width: this.props.width.toString+'px',
+            height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
+        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
+        return <div>
+            <div style={this.current_style}>{svg_image}</div>
+            <Toggle onClick={this.onComplex}
+                on={<p>Donor ON</p>}
+                off={<p>Donor OFF</p>}
+                size="xs"
+                offstyle="danger"
+                active={this.state.complexOn}/>
+            <Toggle onClick={this.onVector}
+                on={<p>Vector ON</p>}
+                off={<p>Vector OFF</p>}
+                size="xs"
+                offstyle="danger"
+                active={this.props.to_query==this.props.data.smiles}/>
+            </div>
+    }
+
 
 }
 function mapStateToProps(state) {
