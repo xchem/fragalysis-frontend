@@ -234,7 +234,7 @@ class HotspotView extends GenericView {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-                body: 
+                body: {}
             }).then(function (response) {
                 return response.json();
             }).then(function (myJson) {
