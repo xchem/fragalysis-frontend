@@ -223,7 +223,7 @@ class HotspotView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
+        this.current_style = this.state.isToggleOn ? selected_style : selected_style;
         return <div>
             <div style={this.current_style}>{svg_image}</div>
             <Toggle onClick={this.onComplex}
