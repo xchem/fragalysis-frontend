@@ -223,7 +223,16 @@ class HotspotView extends GenericView {
     }
 
     onDonorHotspot() {
-
+        this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
+        if(this.state.donorHsOn){
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
+        }
+        else{
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
+            if(this.state.isToggleOn==false){
+                this.handleClick()
+            }
+        }
     }
 
     onAcceptorHotspot() {
