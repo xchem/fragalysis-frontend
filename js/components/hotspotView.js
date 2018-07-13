@@ -225,10 +225,10 @@ class HotspotView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn ? selected_style : selected_style;
         return <div>
-            <Col xs={3} md={3}>
+            <Col xs={6} md={6}>
                 <div style={this.current_style}>{svg_image}</div>
             </Col>
-            <Col xs={3} md={3}>
+            <Col xs={6} md={6}>
                 <Toggle onClick={this.onComplex}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
