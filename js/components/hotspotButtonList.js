@@ -68,7 +68,7 @@ class HotspotButtonList extends GenericList {
             return <ListGroup>
                 {
                 this.props.hotspotList.map((data) => (this.render_method(data)))
-                 }
+                }
             </ListGroup>;
         } else {
             return null
@@ -76,17 +76,16 @@ class HotspotButtonList extends GenericList {
     }
 }
 
-
 function mapStateToProps(state) {
-  return {
-      group_type: state.apiReducers.group_type,
-      mol_group_on: state.apiReducers.mol_group_on,
-      molecule_list: state.apiReducers.molecule_list,
-      objectsInView: state.nglReducers.objectsInView,
-      hotspotList: state.apiReducers.hotspot_list,
-      target_on: state.apiReducers.target_on,
-      object_on: state.apiReducers.hotspot_on
-  }
+    return {
+        group_type: state.apiReducers.group_type,
+        mol_group_on: state.apiReducers.mol_group_on,
+        molecule_list: state.apiReducers.molecule_list,
+        objectsInView: state.nglReducers.objectsInView,
+        hotspotList: state.apiReducers.hotspot_list,
+        target_on: state.apiReducers.target_on,
+        object_on: state.apiReducers.hotspot_on
+    }
 }
 const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
