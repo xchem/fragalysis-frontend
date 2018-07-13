@@ -33,9 +33,9 @@ class HotspotView extends GenericView {
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
-        this.state.donorOn = false
-        this.state.acceptorOn = false
-        this.state.apolarOn = false
+        this.state.donorHsOn = false
+        this.state.acceptorHsOn = false
+        this.state.apolarHsOn = false
         this.state.vectorOn = false
         this.state.complexOn = false
     }
@@ -235,7 +235,7 @@ class HotspotView extends GenericView {
                         off={<p>Donor OFF</p>}
                         size="xs"
                         offstyle="primary"
-                        active={this.state.complexOn}/>
+                        active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
                     <Toggle onClick={this.onComplex}
@@ -243,7 +243,7 @@ class HotspotView extends GenericView {
                         off={<p>Acceptor OFF</p>}
                         size="xs"
                         offstyle="danger"
-                        active={this.state.complexOn}/>
+                        active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
                     <Toggle onClick={this.onVector}
@@ -251,7 +251,7 @@ class HotspotView extends GenericView {
                             off={<p>Apolar OFF</p>}
                             size="xs"
                             offstyle="warning"
-                            active={this.props.to_query==this.props.data.smiles}/>
+                            active={this.state.apolarHsOn}/>
                 {/*</Row>*/}
             </Col>
         </div>
