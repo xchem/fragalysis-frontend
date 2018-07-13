@@ -233,7 +233,7 @@ class HotspotView extends GenericView {
                 <Toggle onClick={this.onComplex}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
-                        size="s"
+                        size="xs"
                         offstyle="primary"
                         active={this.state.complexOn}/>
                 {/*</Row>*/}
@@ -241,7 +241,7 @@ class HotspotView extends GenericView {
                     <Toggle onClick={this.onComplex}
                         on={<p>Acceptor ON</p>}
                         off={<p>Acceptor OFF</p>}
-                        size="s"
+                        size="xs"
                         offstyle="danger"
                         active={this.state.complexOn}/>
                 {/*</Row>*/}
@@ -250,7 +250,7 @@ class HotspotView extends GenericView {
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="s"
-                            onstyle="warning"
+                            style="warning"
                             offstyle="warning"
                             active={this.props.to_query==this.props.data.smiles}/>
                 {/*</Row>*/}
