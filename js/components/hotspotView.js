@@ -25,7 +25,9 @@ class HotspotView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
-        this.onHotspot = this.onHotspot.bind(this);
+        this.onDonorHotspot = this.onDonorHotspot.bind(this);
+        this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
+        this.onApolarHotspot = this.onApolarHotspot.bind(this);
         this.colourToggle = this.getRandomColor();
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
@@ -220,7 +222,15 @@ class HotspotView extends GenericView {
         }
     }
 
-    onHotspot() {
+    onDonorHotspot() {
+
+    }
+
+    onAcceptorHotspot() {
+
+    }
+
+    onApolarHotspot() {
 
     }
 
@@ -235,7 +245,7 @@ class HotspotView extends GenericView {
             </Col>
             <Col xs={7} md={7}>
                 {/*<Row>*/}
-                <Toggle onClick={this.onHotspot}
+                <Toggle onClick={this.onDonorHotspot}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="xs"
@@ -243,7 +253,7 @@ class HotspotView extends GenericView {
                         active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                    <Toggle onClick={this.onHotspot}
+                    <Toggle onClick={this.onAcceptorHotspot}
                         on={<p>Acceptor ON</p>}
                         off={<p>Acceptor OFF</p>}
                         size="xs"
@@ -251,7 +261,7 @@ class HotspotView extends GenericView {
                         active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                    <Toggle onClick={this.onHotspot}
+                    <Toggle onClick={this.onApolarHotspot}
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="xs"
