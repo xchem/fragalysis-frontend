@@ -228,25 +228,31 @@ class HotspotView extends GenericView {
             <Col xs={6} md={6}>
                 <div style={this.current_style}>{svg_image}</div>
             </Col>
-            <Col xs={6} md={6}>
+            <Col xs={9} md={9}>
+                <Row>
                 <Toggle onClick={this.onComplex}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="xs"
                         offstyle="danger"
                         active={this.state.complexOn}/>
-                <Toggle onClick={this.onComplex}
+                </Row>
+                <Row>
+                    <Toggle onClick={this.onComplex}
                         on={<p>Acceptor ON</p>}
                         off={<p>Acceptor OFF</p>}
                         size="xs"
                         offstyle="danger"
                         active={this.state.complexOn}/>
-            <Toggle onClick={this.onVector}
-                on={<p>Apolar ON</p>}
-                off={<p>Apolar OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.props.to_query==this.props.data.smiles}/>
+                </Row>
+                <Row>
+                    <Toggle onClick={this.onVector}
+                            on={<p>Apolar ON</p>}
+                            off={<p>Apolar OFF</p>}
+                            size="xs"
+                            offstyle="danger"
+                            active={this.props.to_query==this.props.data.smiles}/>
+                </Row>
             </Col>
         </div>
     }
