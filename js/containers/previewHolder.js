@@ -54,11 +54,11 @@ class Preview extends Component {
               <Col xs={5} md={5} >
                   <NGLView div_id="major_view" height="600px"/>
                   <NglViewerControls />
-                  <HotspotList/>
+                  <HotspotButtonList/>
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
-                  <HotspotButtonList/>
+                  <HotspotList/>
               </Col>
           </Row>
       )
