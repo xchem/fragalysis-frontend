@@ -172,7 +172,7 @@ class HotspotView extends GenericView {
     handleClick(e) {
         this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
         if(this.state.isToggleOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
         }
         else{
             this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
