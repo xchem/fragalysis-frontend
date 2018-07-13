@@ -238,7 +238,7 @@ class HotspotView extends GenericView {
                 return response.json();
             }).then(function (myJson) {
                 alert("VIEW SAVED - send this link: " +
-                    window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + myJson.map_info.toString())
+                    window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + JSON.parse(myJson.map_info))
             });
     }
 
