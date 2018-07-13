@@ -231,7 +231,7 @@ class HotspotView extends GenericView {
         this.current_style = this.state.isToggleOn ? selected_style : selected_style;
         return <div>
             <Col xs={5} md={5}>
-                <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+                <div style={this.current_style}>{svg_image}</div>
             </Col>
             <Col xs={7} md={7}>
                 {/*<Row>*/}
