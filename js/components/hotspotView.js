@@ -25,6 +25,7 @@ class HotspotView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
+        this.onHotspot = this.onHotspot.bind(this);
         this.colourToggle = this.getRandomColor();
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
@@ -219,6 +220,10 @@ class HotspotView extends GenericView {
         }
     }
 
+    onHotspot() {
+
+    }
+
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
@@ -226,11 +231,11 @@ class HotspotView extends GenericView {
         this.current_style = this.state.isToggleOn ? selected_style : selected_style;
         return <div>
             <Col xs={5} md={5}>
-                <div style={this.current_style}>{svg_image}</div>
+                <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             </Col>
             <Col xs={7} md={7}>
                 {/*<Row>*/}
-                <Toggle onClick={this.onComplex}
+                <Toggle onClick={this.onHotspot}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="xs"
@@ -238,7 +243,7 @@ class HotspotView extends GenericView {
                         active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                    <Toggle onClick={this.onComplex}
+                    <Toggle onClick={this.onHotspot}
                         on={<p>Acceptor ON</p>}
                         off={<p>Acceptor OFF</p>}
                         size="xs"
@@ -246,7 +251,7 @@ class HotspotView extends GenericView {
                         active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                    <Toggle onClick={this.onVector}
+                    <Toggle onClick={this.onHotspot}
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="xs"
