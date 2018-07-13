@@ -250,6 +250,7 @@ class HotspotView extends GenericView {
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="s"
+                            onstyle="warning"
                             offstyle="warning"
                             active={this.props.to_query==this.props.data.smiles}/>
                 {/*</Row>*/}
