@@ -234,7 +234,7 @@ class HotspotView extends GenericView {
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="s"
-                        offstyle="danger"
+                        offstyle="primary"
                         active={this.state.complexOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
@@ -250,7 +250,7 @@ class HotspotView extends GenericView {
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="s"
-                            offstyle="danger"
+                            offstyle="warning"
                             active={this.props.to_query==this.props.data.smiles}/>
                 {/*</Row>*/}
             </Col>
