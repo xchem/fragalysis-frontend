@@ -48,6 +48,7 @@ class HotspotView extends GenericView {
     }
 
     loadHotspot(data){
+        const data = this.props.data;
         var nglObject = this.generateHotspotObject(data);
         this.props.loadObject(nglObject);
     }
@@ -107,6 +108,7 @@ class HotspotView extends GenericView {
     generateMolObject() {
         // Get the data
         const data = this.props.data;
+        console.log(data.toString())
         var nglObject = {
             "name": "MOLLOAD" + "_" + data.id.toString(),
             "OBJECT_TYPE":nglObjectTypes.MOLECULE,
@@ -280,7 +282,6 @@ class HotspotView extends GenericView {
             </Col>
         </div>
     }
-
 
 }
 function mapStateToProps(state) {
