@@ -96,4 +96,4 @@ const mapDispatchToProps = {
     setMoleculeList: apiActions.setMoleculeList,
 
 }
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HotspotButtonList));
+export default connect(mapStateToProps, mapDispatchToProps)(HotspotButtonList);
