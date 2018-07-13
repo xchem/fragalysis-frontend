@@ -23,6 +23,7 @@ class HotspotView extends GenericView {
         this.generateMolObject = this.generateMolObject.bind(this);
         this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
+        this.getHotspotUrl = this.getHotspotUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
         this.onDonorHotspot = this.onDonorHotspot.bind(this);
@@ -225,13 +226,35 @@ class HotspotView extends GenericView {
         }
     }
 
+    fetchHotspot() {
+        var hotspotQuery = "?map_type=DO&prot_id=20"
+        fetch("/api/hotspots/", {
+            method: "post",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: hotspotQuery
+            }).then(function (response) {
+                return response.json();
+            }).then(function (myJson) {
+                alert("VIEW SAVED - send this link: " +
+                    window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + myJson.uuid.toString())
+            });
+    }
+
+    getHotspotUrl(type) {
+        return new URL(this.base_url + '/api/hotspots/' + this.props.data.id + "/")
+    }
+
     onDonorHotspot() {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
+            // fetch(this.getHotspotUrl("hotspots"))
+            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             if(this.state.isToggleOn==false){
                 this.handleClick()
             }
