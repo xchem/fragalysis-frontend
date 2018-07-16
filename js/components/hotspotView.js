@@ -256,13 +256,13 @@ class HotspotView extends GenericView {
             </Col>
             <Col xs={2} md={2}>
                 <Row>
-                <H3 Donor/>
+                    <H3>Donor</H3>
                 </Row>
                 <Row>
-                <H3 Acceptor/>
+                    <H3>Acceptor</H3>
                 </Row>
                 <Row>
-                <H3 Apolar/>
+                    <H3>Apolar</H3>
                 </Row>
             </Col>
         </div>
