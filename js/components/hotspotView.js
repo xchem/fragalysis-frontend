@@ -32,7 +32,6 @@ class HotspotView extends GenericView {
         this.state.donorHsOn = false
         this.state.acceptorHsOn = false
         this.state.apolarHsOn = false
-        this.state.vectorOn = false
         this.state.complexOn = false
     }
 
@@ -163,21 +162,11 @@ class HotspotView extends GenericView {
 }
 function mapStateToProps(state) {
   return {
-      currentList: state.apiReducers.possibleMols,
-      to_query: state.selectionReducers.to_query,
       inViewList:state.nglReducers.objectsInView,
-      vector_list: state.selectionReducers.vector_list,
-      newListTwo: state.apiReducers.chosenMols,
   }
 }
 const mapDispatchToProps = {
-    getFullGraph: selectionActions.getFullGraph,
-    setVectorList: selectionActions.setVectorList,
-    gotFullGraph: selectionActions.gotFullGraph,
-    setMol: selectionActions.setMol,
-    transferList: apiActions.transferList,
     deleteObject: nglLoadActions.deleteObject,
-    removeFromToBuyList: selectionActions.removeFromToBuyList,
     loadObject: nglLoadActions.loadObject
 }
 
