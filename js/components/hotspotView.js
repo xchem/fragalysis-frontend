@@ -22,7 +22,7 @@ class HotspotView extends GenericView {
         this.onDonorHotspot = this.onDonorHotspot.bind(this);
         this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
         this.onApolarHotspot = this.onApolarHotspot.bind(this);
-        this.colourToggle = this.getRandomColor();
+        this.colorToggle = this.colorToggle();
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
@@ -58,15 +58,15 @@ class HotspotView extends GenericView {
         }
     }
 
-    getRandomColor() {
-        var colourList = ['#EFCDB8',
+    colorToggle() {
+        var colorList = ['#EFCDB8',
             '#CC6666', '#FF6E4A',
             '#78DBE2', '#1F75FE',
             '#FAE7B5', '#FDBCB4',
             '#C5E384', '#95918C',
             '#F75394', '#80DAEB',
             '#ADADD6']
-        return colourList[this.props.data.id % colourList.length];
+        return colorList[this.props.data.id % colorList.length];
     }
 
     handleClick(e) {
@@ -75,7 +75,7 @@ class HotspotView extends GenericView {
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colorToggle)))
         }
     }
 
@@ -137,7 +137,7 @@ class HotspotView extends GenericView {
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
-            height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
+            height: this.props.height.toString()+'px', backgroundColor: this.colorToggle}
         this.current_style = this.state.isToggleOn ? selected_style : selected_style;
         return <div>
             <Col xs={5} md={5}>
