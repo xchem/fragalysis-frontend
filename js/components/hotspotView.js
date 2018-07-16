@@ -55,7 +55,7 @@ class HotspotView extends GenericView {
     }
 
     removeHotspot(hotspotObject){
-        this.props.deleteObject(nglObject);
+        this.props.deleteObject(hotspotObject);
     }
 
     generateObjectList(out_data) {
