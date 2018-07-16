@@ -16,9 +16,15 @@ class HotspotView extends GenericView {
 
     constructor(props) {
         super(props);
-        this.onDonorHotspot = this.onDonorHotspot.bind(this);
-        this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
-        this.onApolarHotspot = this.onApolarHotspot.bind(this);
+        this.onDonorTepidHotspot = this.onDonorTepidHotspot.bind(this);
+        this.onAcceptorTepidHotspot = this.onAcceptorTepidHotspot.bind(this);
+        this.onApolarTepidHotspot = this.onApolarTepidHotspot.bind(this);
+        this.onDonorWarmHotspot = this.onDonorWarmHotspot.bind(this);
+        this.onAcceptorWarmHotspot = this.onAcceptorWarmHotspot.bind(this);
+        this.onApolarWarmHotspot = this.onApolarWarmHotspot.bind(this);
+        this.onDonorHotHotspot = this.onDonorHotHotspot.bind(this);
+        this.onAcceptorHotHotspot = this.onAcceptorHotHotspot.bind(this);
+        this.onApolarHotHotspot = this.onApolarHotHotspot.bind(this);
         this.colorToggle = this.colorToggle();
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
@@ -26,9 +32,15 @@ class HotspotView extends GenericView {
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
-        this.state.donorHsOn = false
-        this.state.acceptorHsOn = false
-        this.state.apolarHsOn = false
+        this.state.donorTepidHsOn = false
+        this.state.donorWarmHsOn = false
+        this.state.donorHotHsOn = false
+        this.state.acceptorTepidHsOn = false
+        this.state.acceptorWarmHsOn = false
+        this.state.acceptorHotHsOn = false
+        this.state.apolarTepidHsOn = false
+        this.state.apolarWarmHsOn = false
+        this.state.apolarHotHsOn = false
         this.state.complexOn = false
     }
 
@@ -101,33 +113,93 @@ class HotspotView extends GenericView {
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
     }
 
-    onDonorHotspot() {
-        this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
-        if(this.state.donorHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 17, 1)
+    onDonorTepidHotspot() {
+        this.setState(prevState => ({donorTepidHsOn: !prevState.donorTepidHsOn}))
+        if(this.state.donorTepidHsOn){
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 10, 0.3)
         }
         else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 17, 1)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 10, 0.3)
         }
     }
 
-    onAcceptorHotspot() {
-        this.setState(prevState => ({acceptorHsOn: !prevState.acceptorHsOn}))
-        if(this.state.acceptorHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 17, 1)
+    onDonorWarmHotspot() {
+        this.setState(prevState => ({donorWarmHsOn: !prevState.donorWarmHsOn}))
+        if(this.state.donorWarmHsOn){
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 14, 0.6)
         }
         else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 17, 1)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 14, 0.6)
         }
     }
 
-    onApolarHotspot() {
-        this.setState(prevState => ({apolarHsOn: !prevState.apolarHsOn}))
-        if(this.state.apolarHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 17, 1)
+    onDonorHotHotspot() {
+        this.setState(prevState => ({donorHotHsOn: !prevState.donorHotHsOn}))
+        if(this.state.donorHotHsOn){
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 17, 0.9)
         }
         else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 1)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 17, 0.9)
+        }
+    }
+
+    onAcceptorTepidHotspot() {
+        this.setState(prevState => ({acceptorTepidHsOn: !prevState.acceptorTepidHsOn}))
+        if(this.state.acceptorTepidHsOn){
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 10, 0.3)
+        }
+        else{
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 10, 0.3)
+        }
+    }
+
+    onAcceptorWarmHotspot() {
+        this.setState(prevState => ({acceptorWarmHsOn: !prevState.acceptorWarmHsOn}))
+        if(this.state.acceptorWarmHsOn){
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 14, 0.6)
+        }
+        else{
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 14, 0.6)
+        }
+    }
+
+    onAcceptorHotHotspot() {
+        this.setState(prevState => ({acceptorHotHsOn: !prevState.acceptorHotHsOn}))
+        if(this.state.acceptorHotHsOn){
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 17, 0.9)
+        }
+        else{
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 17, 0.9)
+        }
+    }
+
+    onApolarTepidHotspot() {
+        this.setState(prevState => ({apolarTepidHsOn: !prevState.apolarTepidHsOn}))
+        if(this.state.apolarTepidHsOn){
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 10, 0.3)
+        }
+        else{
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 10, 0.3)
+        }
+    }
+
+    onApolarWarmHotspot() {
+        this.setState(prevState => ({apolarWarmHsOn: !prevState.apolarWarmHsOn}))
+        if(this.state.apolarWarmHsOn){
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 14, 0.6)
+        }
+        else{
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 14, 0.6)
+        }
+    }
+
+    onApolarHotHotspot() {
+        this.setState(prevState => ({apolarHotHsOn: !prevState.apolarHotHsOn}))
+        if(this.state.apolarHotHsOn){
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 17, 0.9)
+        }
+        else{
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 0.9)
         }
     }
 
@@ -142,16 +214,28 @@ class HotspotView extends GenericView {
             </Col>
             <Col xs={7} md={7}>
                 {/*<Row>*/}
-                <Toggle onClick={this.onDonorHotspot} on={<p>Donor ON</p>} off={<p>Donor OFF</p>} size="xs"
-                        onstyle="primary" offstyle="primary" active={this.state.donorHsOn}/>
+                <Toggle onClick={this.onDonorTepidHotspot} on={<p>Donor ON</p>} off={<p>Donor OFF</p>} size="xs"
+                        onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
+                <Toggle onClick={this.onDonorWarmHotspot} on={<p>Donor ON</p>} off={<p>Donor OFF</p>} size="xs"
+                        onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
+                <Toggle onClick={this.onDonorHotHotspot} on={<p>Donor ON</p>} off={<p>Donor OFF</p>} size="xs"
+                        onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                <Toggle onClick={this.onAcceptorHotspot} on={<p>Acceptor ON</p>} off={<p>Acceptor OFF</p>} size="xs"
-                        onstyle="danger" offstyle="danger" active={this.state.acceptorHsOn}/>
+                <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Acceptor ON</p>} off={<p>Acceptor OFF</p>} size="xs"
+                        onstyle="danger" offstyle="danger" active={this.state.acceptorTepidHsOn}/>
+                <Toggle onClick={this.onAcceptorWarmHotspot} on={<p>Acceptor ON</p>} off={<p>Acceptor OFF</p>} size="xs"
+                        onstyle="danger" offstyle="danger" active={this.state.acceptorWarmHsOn}/>
+                <Toggle onClick={this.onAcceptorHotHotspot} on={<p>Acceptor ON</p>} off={<p>Acceptor OFF</p>} size="xs"
+                        onstyle="danger" offstyle="danger" active={this.state.acceptorHotHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                <Toggle onClick={this.onApolarHotspot} on={<p>Apolar ON</p>} off={<p>Apolar OFF</p>} size="xs"
-                        onstyle="warning" offstyle="warning" active={this.state.apolarHsOn}/>
+                <Toggle onClick={this.onApolarTepidHotspot} on={<p>Apolar ON</p>} off={<p>Apolar OFF</p>} size="xs"
+                        onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
+                <Toggle onClick={this.onApolarWarmHotspot} on={<p>Apolar ON</p>} off={<p>Apolar OFF</p>} size="xs"
+                        onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
+                <Toggle onClick={this.onApolarHotHotspot} on={<p>Apolar ON</p>} off={<p>Apolar OFF</p>} size="xs"
+                        onstyle="warning" offstyle="warning" active={this.state.apolarHotHsOn}/>
                 {/*</Row>*/}
             </Col>
         </div>
