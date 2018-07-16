@@ -237,7 +237,7 @@ class HotspotView extends GenericView {
             }).then(function (response) {
                 return response.json();
             }).then(function (myJson) {
-                alert(JSON.stringify(myJson.results))
+                alert(JSON.stringify(myJson.results.map_info))
             });
     }
 
