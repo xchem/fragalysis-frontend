@@ -239,7 +239,7 @@ class HotspotView extends GenericView {
             }).then(function (myJson) {
                 // var mapArray = myJson.results.map(a => a.map_info)
                 // return mapArray.toString
-            return myJson;
+            return myJson.results[0];
             });
     }
 
