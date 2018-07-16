@@ -200,9 +200,8 @@ class HotspotView extends GenericView {
                             on={<p>Acceptor ON</p>}
                             off={<p>Acceptor OFF</p>}
                             size="xs"
-                            active={this.state.acceptorHsOn}
-                            overrides={true}
-                            backgroundColor:'#f44336'/>
+                            bgColor='#FFFF00'
+                            active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
                     <Toggle onClick={this.onApolarHotspot}
