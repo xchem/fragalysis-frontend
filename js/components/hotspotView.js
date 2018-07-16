@@ -30,7 +30,7 @@ class HotspotView extends GenericView {
         this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
         this.onApolarHotspot = this.onApolarHotspot.bind(this);
         this.colourToggle = this.getRandomColor();
-        this.loadHotspot = this.loadHotspot.bind(this);
+        this.handleHotspot = this.handleHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
@@ -48,9 +48,7 @@ class HotspotView extends GenericView {
         return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
     }
 
-    loadHotspot(hotspotObject, loadState){
-        // const data = this.props.data;
-        // var nglObject = this.fetchHotspotUrl();
+    handleHotspot(hotspotObject, loadState){
         if (loadState === 'load'){
             this.props.loadObject(hotspotObject);
         } else if (loadState === 'unload'){
@@ -218,7 +216,7 @@ class HotspotView extends GenericView {
                 "fragment": myJson.results[0].prot_id.toString()
             }
             return hotspotObject;
-        }).then(hotspotObject => this.loadHotspot(hotspotObject, loadState))
+        }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
     }
 
     getHotspotUrl(type) {
@@ -229,12 +227,9 @@ class HotspotView extends GenericView {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
             this.fetchHotspotUrl("DO", 1, 'unload')
-            // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
             this.fetchHotspotUrl("DO", 1, 'load')
-            // fetch(this.getHotspotUrl("hotspots"))
-            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             if(this.state.isToggleOn==false){
                 this.handleClick()
             }
