@@ -24,7 +24,6 @@ class HotspotView extends GenericView {
         this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
         this.getHotspotUrl = this.getHotspotUrl.bind(this);
-        this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
         this.onDonorHotspot = this.onDonorHotspot.bind(this);
         this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
@@ -165,32 +164,6 @@ class HotspotView extends GenericView {
             if(this.state.isToggleOn==false){
                 this.handleClick()
             }
-        }
-    }
-
-    onVector() {
-        this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
-        if(this.state.vectorOn) {
-            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
-            this.props.setMol("");
-        }
-        else {
-            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
-            fetch(this.getViewUrl("vector"))
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.handleVector(json["vectors"]))
-            // Set this
-            this.props.getFullGraph(this.props.data);
-            // Do the query
-            fetch(this.getViewUrl( "graph"))
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.props.gotFullGraph(json["graph"]))
         }
     }
 
