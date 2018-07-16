@@ -234,13 +234,23 @@ class HotspotView extends GenericView {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
-            }).then(function (response) {
-                return response.json();
-            }).then(function (myJson) {
-                return myJson.results[0].toString();
-                // var mapArray = myJson.results.map(a => a.map_info)
-                // return mapArray.toString
-            });
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            // return myJson.results[0].toString();
+            var out_object = {
+                "name": "HOTSPOT_" + myJson.results[0].id.toString(),
+                // "hotUrl": targetData.map_info.replace('http:', 'https:'),
+                "hotUrl": myJson.results[0].map_info,
+                "display_div": "major_view",
+                "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
+                "map_type": myJson.results[0].map_type.toString(),
+                "fragment": myJson.results[0].prot_id.toString()
+            }
+            return out_object
+            // var mapArray = myJson.results.map(a => a.map_info)
+            // return mapArray.toString
+        });
     }
 
     getHotspotUrl(type) {
