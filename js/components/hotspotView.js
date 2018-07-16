@@ -194,6 +194,7 @@ class HotspotView extends GenericView {
                         color='#008CBA'
                         backgroundColor='#008CBA'
                         active={this.state.donorHsOn}/>
+                const styles = {buttonStyle: {backgroundColor: "#f44336"}
                 {/*</Row>*/}
                 {/*<Row>*/}
                     <Toggle onClick={this.onAcceptorHotspot}
