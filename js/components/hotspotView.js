@@ -53,7 +53,6 @@ class HotspotView extends GenericView {
         } else if (loadState === 'unload'){
             this.props.deleteObject(hotspotObject);
         }
-
     }
 
     removeHotspot(hotspotObject){
