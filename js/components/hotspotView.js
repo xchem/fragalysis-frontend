@@ -214,43 +214,43 @@ class HotspotView extends GenericView {
             </Col>
             <Col xs={2} md={2}>
                 <Row>
-                <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor ON</p>} off={<p>Tepid Donor OFF</p>} size="s"
+                <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 </Row>
                 <Row>
-                <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Tepid Acceptor ON</p>} off={<p>Tepid Acceptor OFF</p>} size="s"
+                <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Tepid Acceptor</p>} off={<p>Tepid Acc OFF</p>} size="s"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorTepidHsOn}/>
                 </Row>
                 <Row>
-                <Toggle onClick={this.onApolarTepidHotspot} on={<p>Tepid Apolar ON</p>} off={<p>Tepid Apolar OFF</p>} size="s"
+                <Toggle onClick={this.onApolarTepidHotspot} on={<p>Tepid Apolar</p>} off={<p>Tepid Apo OFF</p>} size="s"
                         onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
                 </Row>
             </Col>
             <Col xs={2} md={2}>
                 <Row>
-                <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor ON</p>} off={<p>Warm Donor OFF</p>} size="s"
+                <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
                 </Row>
                 <Row>
-                <Toggle onClick={this.onAcceptorWarmHotspot} on={<p>Warm Acceptor ON</p>} off={<p>Warm Acceptor OFF</p>} size="s"
+                <Toggle onClick={this.onAcceptorWarmHotspot} on={<p>Warm Acceptor</p>} off={<p>Warm Acc OFF</p>} size="s"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorWarmHsOn}/>
                 </Row>
                 <Row>
-                <Toggle onClick={this.onApolarWarmHotspot} on={<p>Warm Apolar ON</p>} off={<p>Warm Apolar OFF</p>} size="s"
+                <Toggle onClick={this.onApolarWarmHotspot} on={<p>Warm Apolar</p>} off={<p>Warm Apo OFF</p>} size="s"
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
                 </Row>
             </Col>
             <Col xs={2} md={2}>
                 <Row>
-                <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor ON</p>} off={<p>Hot Donor OFF</p>} size="s"
+                <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor</p>} off={<p>Hot Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
                 </Row>
                 <Row>
-                <Toggle onClick={this.onAcceptorHotHotspot} on={<p>Hot Acceptor ON</p>} off={<p>Hot Acceptor OFF</p>} size="s"
+                <Toggle onClick={this.onAcceptorHotHotspot} on={<p>Hot Acceptor</p>} off={<p>Hot Acc OFF</p>} size="s"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorHotHsOn}/>
                 </Row>
                 <Row>
-                <Toggle onClick={this.onApolarHotHotspot} on={<p>Hot Apolar ON</p>} off={<p>Hot Apolar OFF</p>} size="s"
+                <Toggle onClick={this.onApolarHotHotspot} on={<p>Hot Apolar</p>} off={<p>Hot Apo OFF</p>} size="s"
                         onstyle="warning" offstyle="warning" active={this.state.apolarHotHsOn}/>
                 </Row>
 
