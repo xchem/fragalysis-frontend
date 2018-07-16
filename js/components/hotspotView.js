@@ -116,90 +116,90 @@ class HotspotView extends GenericView {
     onDonorTepidHotspot() {
         this.setState(prevState => ({donorTepidHsOn: !prevState.donorTepidHsOn}))
         if(this.state.donorTepidHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 10, 0.3)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 10, 0.2)
         }
         else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 10, 0.3)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 10, 0.2)
         }
     }
 
     onDonorWarmHotspot() {
         this.setState(prevState => ({donorWarmHsOn: !prevState.donorWarmHsOn}))
         if(this.state.donorWarmHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 14, 0.6)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 14, 0.4)
         }
         else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 14, 0.6)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 14, 0.4)
         }
     }
 
     onDonorHotHotspot() {
         this.setState(prevState => ({donorHotHsOn: !prevState.donorHotHsOn}))
         if(this.state.donorHotHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 17, 0.9)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 17, 0.6)
         }
         else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 17, 0.9)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 17, 0.6)
         }
     }
 
     onAcceptorTepidHotspot() {
         this.setState(prevState => ({acceptorTepidHsOn: !prevState.acceptorTepidHsOn}))
         if(this.state.acceptorTepidHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 10, 0.3)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 10, 0.2)
         }
         else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 10, 0.3)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 10, 0.2)
         }
     }
 
     onAcceptorWarmHotspot() {
         this.setState(prevState => ({acceptorWarmHsOn: !prevState.acceptorWarmHsOn}))
         if(this.state.acceptorWarmHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 14, 0.6)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 14, 0.4)
         }
         else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 14, 0.6)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 14, 0.4)
         }
     }
 
     onAcceptorHotHotspot() {
         this.setState(prevState => ({acceptorHotHsOn: !prevState.acceptorHotHsOn}))
         if(this.state.acceptorHotHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 17, 0.9)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 17, 0.6)
         }
         else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 17, 0.9)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 17, 0.6)
         }
     }
 
     onApolarTepidHotspot() {
         this.setState(prevState => ({apolarTepidHsOn: !prevState.apolarTepidHsOn}))
         if(this.state.apolarTepidHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 10, 0.3)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 10, 0.2)
         }
         else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 10, 0.3)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 10, 0.2)
         }
     }
 
     onApolarWarmHotspot() {
         this.setState(prevState => ({apolarWarmHsOn: !prevState.apolarWarmHsOn}))
         if(this.state.apolarWarmHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 14, 0.6)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 14, 0.4)
         }
         else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 14, 0.6)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 14, 0.4)
         }
     }
 
     onApolarHotHotspot() {
         this.setState(prevState => ({apolarHotHsOn: !prevState.apolarHotHsOn}))
         if(this.state.apolarHotHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 17, 0.9)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 17, 0.6)
         }
         else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 0.9)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 0.6)
         }
     }
 
