@@ -241,8 +241,8 @@ class HotspotView extends GenericView {
             // return myJson.results[0].toString();
             var out_object = {
                 "name": "HOTSPOT_" + myJson.results[0].id.toString(),
-                // "hotUrl": targetData.map_info.replace('http:', 'https:'),
-                "hotUrl": myJson.results[0].map_info,
+                "hotUrl": targetData.map_info.replace('http:', 'https:'),
+                //"hotUrl": myJson.results[0].map_info,
                 "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
                 "map_type": myJson.results[0].map_type.toString(),
