@@ -199,7 +199,7 @@ class HotspotView extends GenericView {
                             on={<p>Acceptor ON</p>}
                             off={<p>Acceptor OFF</p>}
                             size="xs"
-                            bsstyle="danger"
+                            offstyle="danger"
                             active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
