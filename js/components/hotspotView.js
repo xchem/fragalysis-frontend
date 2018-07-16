@@ -21,8 +21,6 @@ class HotspotView extends GenericView {
         super(props);
         this.generateObject = this.generateObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.getViewUrl = this.getViewUrl.bind(this);
-        this.getHotspotUrl = this.getHotspotUrl.bind(this);
         this.onComplex = this.onComplex.bind(this);
         this.onDonorHotspot = this.onDonorHotspot.bind(this);
         this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
@@ -39,10 +37,6 @@ class HotspotView extends GenericView {
         this.state.apolarHsOn = false
         this.state.vectorOn = false
         this.state.complexOn = false
-    }
-
-    getViewUrl(get_view) {
-        return new URL(this.base_url + '/api/' + get_view +'/' + this.props.data.id + "/")
     }
 
     handleHotspot(hotspotObject, loadState){
@@ -150,10 +144,6 @@ class HotspotView extends GenericView {
             }
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
-    }
-
-    getHotspotUrl(type) {
-        return new URL(this.base_url + '/api/hotspots/' + this.props.data.id + "/")
     }
 
     onDonorHotspot() {
