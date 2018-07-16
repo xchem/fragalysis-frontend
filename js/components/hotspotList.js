@@ -29,7 +29,7 @@ class HotspotList extends GenericList {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
-                    this.props.object_list.map((data) => <HotspotView height={150} width={400} key={data.id} data={data}/>)
+                    this.props.object_list.map((data) => <HotspotView height={125} width={400} key={data.id} data={data}/>)
                     // this.render_method(data)
                 }
             </Row></Well>;
