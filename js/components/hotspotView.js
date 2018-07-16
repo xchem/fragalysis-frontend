@@ -167,7 +167,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    onApolarHotspot() {
+    onApolarHotspot(opacity) {
         this.setState(prevState => ({apolarHsOn: !prevState.apolarHsOn}))
         if(this.state.apolarHsOn){
             this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', opacity)
@@ -187,24 +187,24 @@ class HotspotView extends GenericView {
                 <div style={this.current_style}>{svg_image}</div>
             </Col>
             <Col xs={7} md={7}>
-                {/*<Row>*/}
-                <Toggle onClick={this.onDonorHotspot(1)}
+                <Row>
+                    <Toggle onClick={this.onDonorHotspot(1)}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="xs"
                         onstyle="primary"
                         offstyle="primary"
                         active={this.state.donorHsOn}/>
-                {/*</Row>*/}
-                {/*<Row>*/}
-                <Toggle onClick={this.onAcceptorHotspot(1)}
+                </Row>
+                <Row>
+                    <Toggle onClick={this.onAcceptorHotspot(1)}
                         on={<p>Acceptor ON</p>}
                         off={<p>Acceptor OFF</p>}
                         size="xs"
                         onstyle="warning"
                         offstyle="warning"
                         active={this.state.acceptorHsOn}/>
-                {/*</Row>*/}
+                </Row>
                 <Row>
                     <Toggle onClick={this.onApolarHotspot(1)}
                             on={<p>Apolar Tepid</p>}
