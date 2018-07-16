@@ -225,10 +225,10 @@ class HotspotView extends GenericView {
     onDonorHotspot() {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.id, 'unload')
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload')
         }
         else{
-            this.fetchHotspotUrl("DO", 1, 'load')
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load')
         }
     }
 
