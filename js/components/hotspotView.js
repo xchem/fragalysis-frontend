@@ -263,7 +263,7 @@ class HotspotView extends GenericView {
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.generateHotspotObject(this.fetchHotspotUrl())
+            this.fetchHotspotUrl()
             // fetch(this.getHotspotUrl("hotspots"))
             // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             if(this.state.isToggleOn==false){
