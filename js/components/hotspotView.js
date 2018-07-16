@@ -198,17 +198,19 @@ class HotspotView extends GenericView {
                 {/*</Row>*/}
                 {/*<Row>*/}
                     <Toggle onClick={this.onAcceptorHotspot}
-                        on={<p>Acceptor ON</p>}
-                        off={<p>Acceptor OFF</p>}
-                        size="xs"
-                        offstyle="danger"
-                        active={this.state.acceptorHsOn}/>
+                            on={<p>Acceptor ON</p>}
+                            off={<p>Acceptor OFF</p>}
+                            size="xs"
+                            background-color="#f44336"
+                            offstyle="danger"
+                            active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
                     <Toggle onClick={this.onApolarHotspot}
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="xs"
+                            background-color="#FFFF00"
                             offstyle="warning"
                             active={this.state.apolarHsOn}/>
                 {/*</Row>*/}
