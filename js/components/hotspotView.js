@@ -193,6 +193,7 @@ class HotspotView extends GenericView {
                         size="xs"
                         color="#008CBA"
                         background-color="#008CBA"
+                        offstyle="primary"
                         active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
