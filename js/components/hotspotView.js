@@ -122,7 +122,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    fetchHotspotUrl(mapType, protId, loadState) {
+    fetchHotspotUrl(mapType, protId, loadState, opacity) {
         var hotspotQuery = "?map_type=" + mapType + "&prot_id=" + protId.toString()
         fetch("/api/hotspots/" + hotspotQuery, {
             method: "get",
@@ -140,7 +140,8 @@ class HotspotView extends GenericView {
                 "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
                 "map_type": myJson.results[0].map_type.toString(),
-                "fragment": myJson.results[0].prot_id.toString()
+                "fragment": myJson.results[0].prot_id.toString(),
+                "opacity": opacity
             }
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
@@ -149,30 +150,30 @@ class HotspotView extends GenericView {
     onDonorHotspot() {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload')
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 1)
         }
         else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load')
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 1)
         }
     }
 
     onAcceptorHotspot() {
         this.setState(prevState => ({acceptorHsOn: !prevState.acceptorHsOn}))
         if(this.state.acceptorHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload')
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 1)
         }
         else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load')
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 1)
         }
     }
 
     onApolarHotspot() {
         this.setState(prevState => ({apolarHsOn: !prevState.apolarHsOn}))
         if(this.state.apolarHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload')
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 1)
         }
         else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load')
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 1)
         }
     }
 

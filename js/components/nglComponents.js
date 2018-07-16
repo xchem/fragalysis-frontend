@@ -266,14 +266,13 @@ export class NGLView extends React.Component {
     }
 
     showHotspot(stage, input_dict, object_name) {
-        var opacity = 1.0;
         if (input_dict.map_type === "AP") {
             stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
                 comp.addRepresentation("surface", {
                     color: '#FFFF00',
                     isolevelType: "value",
                     isolevel: 10,
-                    opacity: 0.5,
+                    opacity: input_dict.opacity,
                     opaqueBack: false,
                     name: 'surf'
                 });
