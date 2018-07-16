@@ -48,10 +48,15 @@ class HotspotView extends GenericView {
         return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
     }
 
-    loadHotspot(hotspotObject){
+    loadHotspot(hotspotObject, loadState){
         // const data = this.props.data;
         // var nglObject = this.fetchHotspotUrl();
-        this.props.loadObject(hotspotObject);
+        if (loadState === 'load'){
+            this.props.loadObject(hotspotObject);
+        } else if (loadState === 'unload'){
+            this.props.deleteObject(hotspotObject);
+        }
+
     }
 
     removeHotspot(hotspotObject){
@@ -213,7 +218,7 @@ class HotspotView extends GenericView {
                 "fragment": myJson.results[0].prot_id.toString()
             }
             return hotspotObject;
-        }).then(if (loadState === 'load'){hotspotObject => this.loadHotspot(hotspotObject)})
+        }).then(hotspotObject => this.loadHotspot(hotspotObject, loadState))
     }
 
     getHotspotUrl(type) {
@@ -223,6 +228,7 @@ class HotspotView extends GenericView {
     onDonorHotspot() {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
+            this.fetchHotspotUrl("DO", 1, 'unload')
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
