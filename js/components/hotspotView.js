@@ -25,6 +25,9 @@ class HotspotView extends GenericView {
         this.colorToggle = this.colorToggle();
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
+        var base_url = window.location.protocol + "//" + window.location.host
+        this.base_url = base_url;
+        this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.state.donorHsOn = false
         this.state.acceptorHsOn = false
