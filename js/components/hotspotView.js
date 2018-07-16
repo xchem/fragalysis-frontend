@@ -21,7 +21,6 @@ class HotspotView extends GenericView {
         super(props);
         this.generateObject = this.generateObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.handleVector = this.handleVector.bind(this);
         this.getViewUrl = this.getViewUrl.bind(this);
         this.getHotspotUrl = this.getHotspotUrl.bind(this);
         this.onComplex = this.onComplex.bind(this);
@@ -110,11 +109,6 @@ class HotspotView extends GenericView {
             "prot_url": this.base_url + data.molecule_protein
         }
         return nglObject;
-    }
-
-    handleVector(json) {
-        var objList = this.generateObjectList(json);
-        this.props.setVectorList(objList)
     }
 
     componentDidMount() {
