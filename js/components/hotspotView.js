@@ -229,12 +229,19 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
             </Col>
             <Col xs={3} md={3}>
+                <Row>
                 <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor ON</p>} off={<p>Hot Donor OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
+                </Row>
+                <Row>
                 <Toggle onClick={this.onAcceptorHotHotspot} on={<p>Hot Acceptor ON</p>} off={<p>Hot Acceptor OFF</p>} size="s"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorHotHsOn}/>
+                </Row>
+                <Row>
                 <Toggle onClick={this.onApolarHotHotspot} on={<p>Hot Apolar ON</p>} off={<p>Hot Apolar OFF</p>} size="s"
                         onstyle="warning" offstyle="warning" active={this.state.apolarHotHsOn}/>
+                </Row>
+
             </Col>
         </div>
     }
