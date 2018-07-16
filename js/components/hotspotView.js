@@ -21,7 +21,6 @@ class HotspotView extends GenericView {
         super(props);
         this.generateObject = this.generateObject.bind(this);
         this.generateMolObject = this.generateMolObject.bind(this);
-        this.onComplex = this.onComplex.bind(this);
         this.onDonorHotspot = this.onDonorHotspot.bind(this);
         this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
         this.onApolarHotspot = this.onApolarHotspot.bind(this);
