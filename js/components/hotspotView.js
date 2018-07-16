@@ -226,7 +226,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    fetchHotspot() {
+    fetchHotspotUrl() {
         var hotspotQuery = "?map_type=DO&prot_id=20 "
         fetch("/api/hotspots/?map_type=DO&prot_id=1", {
             method: "get",
@@ -238,7 +238,7 @@ class HotspotView extends GenericView {
                 return response.json();
             }).then(function (myJson) {
                 var mapArray = myJson.results.map(a => a.map_info)
-                alert(mapArray.toString())
+                return mapArray.toString
             });
     }
 
@@ -252,7 +252,7 @@ class HotspotView extends GenericView {
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.fetchHotspot()
+            this.generateHotspotObject(this.fetchHotspotUrl())
             // fetch(this.getHotspotUrl("hotspots"))
             // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             if(this.state.isToggleOn==false){
