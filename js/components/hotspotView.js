@@ -230,7 +230,7 @@ class HotspotView extends GenericView {
         }
         else{
             this.fetchHotspotUrl("DO", 1, 'load')
-            if(this.state.isToggleOn==false){
+            // if(this.state.isToggleOn==false){
                 this.handleClick()
             }
         }
