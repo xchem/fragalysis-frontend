@@ -254,17 +254,17 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarHotHsOn}/>
                 </Row>
             </Col>
-            <Col xs={2} md={2}>
-                <Row>
-                    <H3>Donor</H3>
-                </Row>
-                <Row>
-                    <H3>Acceptor</H3>
-                </Row>
-                <Row>
-                    <H3>Apolar</H3>
-                </Row>
-            </Col>
+            {/*<Col xs={2} md={2}>*/}
+                {/*<Row>*/}
+                    {/*<H3>Donor</H3>*/}
+                {/*</Row>*/}
+                {/*<Row>*/}
+                    {/*<H3>Acceptor</H3>*/}
+                {/*</Row>*/}
+                {/*<Row>*/}
+                    {/*<H3>Apolar</H3>*/}
+                {/*</Row>*/}
+            {/*</Col>*/}
         </div>
     }
 
