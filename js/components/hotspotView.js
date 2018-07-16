@@ -29,7 +29,6 @@ class HotspotView extends GenericView {
         this.onApolarHotspot = this.onApolarHotspot.bind(this);
         this.colourToggle = this.getRandomColor();
         this.handleHotspot = this.handleHotspot.bind(this);
-        this.removeHotspot = this.removeHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
@@ -52,37 +51,6 @@ class HotspotView extends GenericView {
         } else if (loadState === 'unload'){
             this.props.deleteObject(hotspotObject);
         }
-    }
-
-    removeHotspot(hotspotObject){
-        this.props.deleteObject(hotspotObject);
-    }
-
-    generateObjectList(out_data) {
-        var colour = [1,0,0]
-        var deletions = out_data.deletions
-        var outList = [];
-        for(var key in deletions) {
-            outList.push(this.generateArrowObject(deletions[key][0],
-                deletions[key][1],key.split("_")[0],colour))
-        }
-        var additions = out_data.additions
-        for(var key in additions) {
-            outList.push(this.generateArrowObject(additions[key][0],
-                additions[key][1],key.split("_")[0],colour))
-        }
-        var linker = out_data.linkers
-        for(var key in linker) {
-            outList.push(this.generateCylinderObject(linker[key][0],
-                linker[key][1],key.split("_")[0],colour))
-        }
-
-        var rings = out_data.ring
-        for (var key in rings){
-            outList.push(this.generateCylinderObject(rings[key][0],
-                rings[key][2],key.split("_")[0],colour))
-        }
-        return outList;
     }
 
     generateMolObject() {
