@@ -206,17 +206,29 @@ class HotspotView extends GenericView {
                         active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 <Row>
-                <Toggle onClick={this.onApolarHotspot(1)}
-                            on={<p>Apolar Tepid</p>} off={<p>Apolar Tepid</p>} size="xs" onstyle="danger"
-                            offstyle="danger" active={this.state.apolarHsOn}/>
+                    <Toggle onClick={this.onApolarHotspot(1)}
+                            on={<p>Apolar Tepid</p>}
+                            off={<p>Apolar Tepid</p>}
+                            size="xs"
+                            onstyle="danger"
+                            offstyle="danger"
+                            active={this.state.apolarHsOn}/>
 
-                <Toggle onClick={this.onApolarHotspot(1)}
-                            on={<p>Apolar Warm</p>} off={<p>Apolar Warm</p>} size="xs" onstyle="danger"
-                            offstyle="danger" active={this.state.apolarHsOn}/>
+                    <Toggle onClick={this.onApolarHotspot(1)}
+                            on={<p>Apolar Warm</p>}
+                            off={<p>Apolar Warm</p>}
+                            size="xs"
+                            onstyle="danger"
+                            offstyle="danger"
+                            active={this.state.apolarHsOn}/>
 
-                <Toggle onClick={this.onApolarHotspot(1)}
-                            on={<p>Apolar Hot</p>} off={<p>Apolar Hot</p>} size="xs" onstyle="danger"
-                            offstyle="danger" active={this.state.apolarHsOn}/>
+                    <Toggle onClick={this.onApolarHotspot(1)}
+                            on={<p>Apolar Hot</p>}
+                            off={<p>Apolar Hot</p>}
+                            size="xs"
+                            onstyle="danger"
+                            offstyle="danger"
+                            active={this.state.apolarHsOn}/>
                 </Row>
             </Col>
         </div>
