@@ -19,8 +19,6 @@ class HotspotView extends GenericView {
 
     constructor(props) {
         super(props);
-        this.generateObject = this.generateObject.bind(this);
-        this.generateMolObject = this.generateMolObject.bind(this);
         this.onDonorHotspot = this.onDonorHotspot.bind(this);
         this.onAcceptorHotspot = this.onAcceptorHotspot.bind(this);
         this.onApolarHotspot = this.onApolarHotspot.bind(this);
@@ -44,32 +42,6 @@ class HotspotView extends GenericView {
         } else if (loadState === 'unload'){
             this.props.deleteObject(hotspotObject);
         }
-    }
-
-    generateMolObject() {
-        // Get the data
-        const data = this.props.data;
-        console.log(data.toString())
-        var nglObject = {
-            "name": "MOLLOAD" + "_" + data.id.toString(),
-            "OBJECT_TYPE":nglObjectTypes.MOLECULE,
-            "colour": this.colourToggle,
-            "sdf_info": data.sdf_info
-        }
-        return nglObject;
-    }
-
-    generateObject() {
-        // Get the data
-        const data = this.props.data;
-        var nglObject = {
-            "name": "COMPLEXLOAD" + "_" + data.id.toString(),
-            "OBJECT_TYPE":nglObjectTypes.COMPLEX,
-            "sdf_info": data.sdf_info,
-            "colour": this.colourToggle,
-            "prot_url": this.base_url + data.molecule_protein
-        }
-        return nglObject;
     }
 
     componentDidMount() {
