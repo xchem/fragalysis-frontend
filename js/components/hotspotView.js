@@ -50,8 +50,8 @@ class HotspotView extends GenericView {
     }
 
     loadHotspot(){
-        const data = this.props.data;
-        var nglObject = this.generateHotspotObject(data);
+        // const data = this.props.data;
+        var nglObject = this.fetchHotspotUrl();
         this.props.loadObject(nglObject);
     }
 
