@@ -132,7 +132,7 @@ class HotspotView extends GenericView {
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
     }
 
-    onDonorHotspot(opacity) {
+    onDonorHotspot() {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
             this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 1)
@@ -142,7 +142,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    onAcceptorHotspot(opacity) {
+    onAcceptorHotspot() {
         this.setState(prevState => ({acceptorHsOn: !prevState.acceptorHsOn}))
         if(this.state.acceptorHsOn){
             this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 1)
@@ -152,7 +152,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    onApolarHotspot(opacity) {
+    onApolarHotspot() {
         this.setState(prevState => ({apolarHsOn: !prevState.apolarHsOn}))
         if(this.state.apolarHsOn){
             this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 1)
@@ -173,26 +173,16 @@ class HotspotView extends GenericView {
             </Col>
             <Col xs={7} md={7}>
                 {/*<Row>*/}
-                <Toggle onClick={this.onDonorHotspot}
-                        on={<p>Donor ON</p>}
-                        off={<p>Donor OFF</p>}
-                        size="xs"
-                        onstyle="primary"
-                        offstyle="primary"
-                        active={this.state.donorHsOn}/>
+                <Toggle onClick={this.onDonorHotspot} on={<p>Donor ON</p>} off={<p>Donor OFF</p>} size="xs"
+                        onstyle="primary" offstyle="primary" active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
                 <Toggle onClick={this.onAcceptorHotspot} on={<p>Acceptor ON</p>} off={<p>Acceptor OFF</p>} size="xs"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                <Toggle onClick={this.onApolarHotspot}
-                            on={<p>Apolar ON</p>}
-                            off={<p>Apolar OFF</p>}
-                            size="xs"
-                            onstyle="warning"
-                            offstyle="warning"
-                            active={this.state.apolarHsOn}/>
+                <Toggle onClick={this.onApolarHotspot} on={<p>Apolar ON</p>} off={<p>Apolar OFF</p>} size="xs"
+                        onstyle="warning" offstyle="warning" active={this.state.apolarHsOn}/>
                 {/*</Row>*/}
             </Col>
         </div>
