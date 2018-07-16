@@ -208,8 +208,8 @@ class HotspotView extends GenericView {
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="xs"
-                            data-onstyle="warning"
-                            offstyle="warning"
+                            data-onstyle="danger"
+                            offstyle="danger"
                             active={this.state.apolarHsOn}/>
                 {/*</Row>*/}
             </Col>
