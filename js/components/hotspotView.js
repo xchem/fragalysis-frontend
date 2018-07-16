@@ -213,7 +213,7 @@ class HotspotView extends GenericView {
                 "fragment": myJson.results[0].prot_id.toString()
             }
             return hotspotObject;
-        }).then(if (loadState === 'load'){hotspotObject => this.removeHotspot(hotspotObject)})
+        }).then(if (loadState === 'load'){hotspotObject => this.loadHotspot(hotspotObject)})
     }
 
     getHotspotUrl(type) {
