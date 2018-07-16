@@ -191,8 +191,8 @@ class HotspotView extends GenericView {
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="xs"
-                        color="#008CBA"
-                        background-color="#008CBA"
+                        color='#008CBA'
+                        backgroundColor='#008CBA'
                         active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
@@ -200,7 +200,7 @@ class HotspotView extends GenericView {
                             on={<p>Acceptor ON</p>}
                             off={<p>Acceptor OFF</p>}
                             size="xs"
-                            color="#f44336"
+                            color='#f44336'
                             active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
@@ -208,7 +208,7 @@ class HotspotView extends GenericView {
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="xs"
-                            color="#FFFF00"
+                            color='#FFFF00'
                             active={this.state.apolarHsOn}/>
                 {/*</Row>*/}
             </Col>
