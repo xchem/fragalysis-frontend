@@ -5,11 +5,8 @@ import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
 import { GenericView } from './generalComponents'
 import * as nglObjectTypes from './nglObjectTypes'
-import * as selectionActions from '../actions/selectionActions'
-import * as listTypes from './listTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
 import SVGInline from "react-svg-inline";
@@ -25,9 +22,6 @@ class HotspotView extends GenericView {
         this.colorToggle = this.colorToggle();
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
-        var base_url = window.location.protocol + "//" + window.location.host
-        this.base_url = base_url;
-        this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.state.donorHsOn = false
         this.state.acceptorHsOn = false
