@@ -209,10 +209,10 @@ class HotspotView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colorToggle}
         this.current_style = this.state.isToggleOn ? selected_style : selected_style;
         return <div>
-            <Col xs={4} md={4}>
+            <Col xs={3} md={3}>
                 <div style={this.current_style}>{svg_image}</div>
             </Col>
-            <Col xs={2.5} md={2.5}>
+            <Col xs={3} md={3}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
@@ -226,7 +226,7 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
                 </Row>
             </Col>
-            <Col xs={2.5} md={2.5}>
+            <Col xs={3} md={3}>
                 <Row>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
@@ -240,7 +240,7 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
                 </Row>
             </Col>
-            <Col xs={2.5} md={2.5}>
+            <Col xs={3} md={3}>
                 <Row>
                 <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor</p>} off={<p>Hot Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
