@@ -212,7 +212,7 @@ class HotspotView extends GenericView {
             <Col xs={4} md={4}>
                 <div style={this.current_style}>{svg_image}</div>
             </Col>
-            <Col xs={2} md={2}>
+            <Col xs={2.5} md={2.5}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
@@ -226,7 +226,7 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
                 </Row>
             </Col>
-            <Col xs={2} md={2}>
+            <Col xs={2.5} md={2.5}>
                 <Row>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
@@ -240,7 +240,7 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
                 </Row>
             </Col>
-            <Col xs={2} md={2}>
+            <Col xs={2.5} md={2.5}>
                 <Row>
                 <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor</p>} off={<p>Hot Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
