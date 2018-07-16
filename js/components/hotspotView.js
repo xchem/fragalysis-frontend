@@ -205,7 +205,6 @@ class HotspotView extends GenericView {
         }).then(function (response) {
             return response.json();
         }).then(function (myJson) {
-            // return myJson.results[0].toString();
             var hotspotObject = {
                 "name": "HOTSPOT_" + myJson.results[0].id.toString(),
                 //"hotUrl": myJson.results[0].map_info.replace('http:', 'https:'),
@@ -226,13 +225,10 @@ class HotspotView extends GenericView {
     onDonorHotspot() {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
-            this.fetchHotspotUrl("DO", 1, 'unload')
+            this.fetchHotspotUrl("DO", this.props.data.id, 'unload')
         }
         else{
             this.fetchHotspotUrl("DO", 1, 'load')
-            // if(this.state.isToggleOn==false){
-            //     this.handleClick()
-            // }
         }
     }
 
