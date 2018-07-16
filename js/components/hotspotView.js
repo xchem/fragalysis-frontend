@@ -44,7 +44,7 @@ class HotspotView extends GenericView {
     }
 
     getViewUrl(get_view) {
-        return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
+        return new URL(this.base_url + '/api/' + get_view +'/' + this.props.data.id + "/")
     }
 
     handleHotspot(hotspotObject, loadState){
