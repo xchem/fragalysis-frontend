@@ -214,8 +214,8 @@ class HotspotView extends GenericView {
     }
 
     fetchHotspotUrl() {
-        var hotspotQuery = "?map_type=DO&prot_id=20 "
-        fetch("/api/hotspots/?map_type=DO&prot_id=1", {
+        var hotspotQuery = "?map_type=DO&prot_id=1 "
+        fetch("/api/hotspots/" + hotspotQuery, {
             method: "get",
             headers: {
                 'Accept': 'application/json',
