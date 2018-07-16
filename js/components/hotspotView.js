@@ -87,26 +87,6 @@ class HotspotView extends GenericView {
         return outList;
     }
 
-    generateArrowObject(start, end, name, colour) {
-        return {
-            "name": listTypes.VECTOR+"_"+name,
-            "OBJECT_TYPE": nglObjectTypes.ARROW,
-            "start": start,
-            "end": end,
-            "colour": colour
-        }
-    }
-
-    generateCylinderObject(start, end, name, colour) {
-        return {
-            "name": listTypes.VECTOR+"_"+name,
-            "OBJECT_TYPE": nglObjectTypes.CYLINDER,
-            "start": start,
-            "end": end,
-            "colour": colour
-        }
-    }
-
     generateMolObject() {
         // Get the data
         const data = this.props.data;
@@ -235,8 +215,6 @@ class HotspotView extends GenericView {
                 "fragment": myJson.results[0].prot_id.toString()
             }
             return hotspotObject;
-            // var mapArray = myJson.results.map(a => a.map_info)
-            // return mapArray.toString
         }).then(hotspotObject => this.loadHotspot(hotspotObject))
     }
 
