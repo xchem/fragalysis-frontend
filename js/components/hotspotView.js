@@ -239,7 +239,7 @@ class HotspotView extends GenericView {
             return response.json();
         }).then(function (myJson) {
             // return myJson.results[0].toString();
-            var out_object = {
+            var hotspotObject = {
                 "name": "HOTSPOT_" + myJson.results[0].id.toString(),
                 "hotUrl": myJson.results[0].map_info.replace('http:', 'https:'),
                 //"hotUrl": myJson.results[0].map_info,
@@ -248,10 +248,10 @@ class HotspotView extends GenericView {
                 "map_type": myJson.results[0].map_type.toString(),
                 "fragment": myJson.results[0].prot_id.toString()
             }
-            return out_object
+            return hotspotObject;
             // var mapArray = myJson.results.map(a => a.map_info)
             // return mapArray.toString
-        });
+        }).then(hotspotObject => this.loadHotspot(hotspotObject))
     }
 
     getHotspotUrl(type) {
