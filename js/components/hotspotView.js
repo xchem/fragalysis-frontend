@@ -218,10 +218,10 @@ class HotspotView extends GenericView {
     onApolarHotspot() {
         this.setState(prevState => ({apolarHsOn: !prevState.apolarHsOn}))
         if(this.state.apolarHsOn){
-            this.fetchHotspotUrl("LI", this.props.data.prot_id, 'unload')
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload')
         }
         else{
-            this.fetchHotspotUrl("LI", this.props.data.prot_id, 'load')
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load')
         }
     }
 
