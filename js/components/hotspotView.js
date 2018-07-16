@@ -32,7 +32,7 @@ class HotspotView extends GenericView {
         this.colourToggle = this.getRandomColor();
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
-        // this.generateHotspotObject = this.generateHotspotObject.bind(this);
+        this.generateHotspotObject = this.generateHotspotObject.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
@@ -49,8 +49,9 @@ class HotspotView extends GenericView {
     }
 
     loadHotspot(){
-        const data = this.props.data;
-        var nglObject = this.generateHotspotObject(data);
+        // const data = this.props.data;
+        // var nglObject = this.generateHotspotObject(data);
+        var nglObject = this.generateHotspotObject();
         this.props.loadObject(nglObject);
     }
 
@@ -226,7 +227,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    fetchHotspotUrl() {
+    generateHotspotObject() {
         var hotspotQuery = "?map_type=DO&prot_id=20 "
         fetch("/api/hotspots/?map_type=DO&prot_id=1", {
             method: "get",
@@ -263,7 +264,7 @@ class HotspotView extends GenericView {
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.fetchHotspotUrl()
+            this.loadHotspot()
             // fetch(this.getHotspotUrl("hotspots"))
             // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             if(this.state.isToggleOn==false){
