@@ -99,7 +99,7 @@ class HotspotView extends GenericView {
             return response.json();
         }).then(function (myJson) {
             var hotspotObject = {
-                "name": "HOTSPOT_" + myJson.results[0].id.toString(),
+                "name": "HOTSPOT_" + myJson.results[0].prot_id.toString() + mapType + isoLevel,
                 //"hotUrl": myJson.results[0].map_info.replace('http:', 'https:'),
                 "hotUrl": myJson.results[0].map_info,
                 "display_div": "major_view",
