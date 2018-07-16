@@ -11,7 +11,6 @@ import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
 import NglViewerControls from '../components/nglViewerControls'
 import HotspotList from '../components/hotspotList'
-import HotspotButtonList from '../components/hotspotButtonList'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom';
@@ -54,7 +53,6 @@ class Preview extends Component {
               <Col xs={5} md={5} >
                   <NGLView div_id="major_view" height="600px"/>
                   <NglViewerControls />
-                  <HotspotButtonList/>
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
