@@ -108,20 +108,6 @@ class HotspotView extends GenericView {
         }
     }
 
-
-    onComplex() {
-        this.setState(prevState => ({complexOn: !prevState.complexOn}))
-        if(this.state.complexOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
-        }
-        else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
-            if(this.state.isToggleOn==false){
-                this.handleClick()
-            }
-        }
-    }
-
     fetchHotspotUrl(mapType, protId, loadState, opacity) {
         var hotspotQuery = "?map_type=" + mapType + "&prot_id=" + protId.toString()
         fetch("/api/hotspots/" + hotspotQuery, {
@@ -150,30 +136,30 @@ class HotspotView extends GenericView {
     onDonorHotspot(opacity) {
         this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
         if(this.state.donorHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', opacity)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 1)
         }
         else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', opacity)
+            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 1)
         }
     }
 
     onAcceptorHotspot(opacity) {
         this.setState(prevState => ({acceptorHsOn: !prevState.acceptorHsOn}))
         if(this.state.acceptorHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', opacity)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 1)
         }
         else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', opacity)
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 1)
         }
     }
 
     onApolarHotspot(opacity) {
         this.setState(prevState => ({apolarHsOn: !prevState.apolarHsOn}))
         if(this.state.apolarHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', opacity)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 1)
         }
         else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', opacity)
+            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 1)
         }
     }
 
@@ -188,7 +174,7 @@ class HotspotView extends GenericView {
             </Col>
             <Col xs={7} md={7}>
                 {/*<Row>*/}
-                <Toggle onClick={this.onDonorHotspot(1)}
+                <Toggle onClick={this.onDonorHotspot}
                         on={<p>Donor ON</p>}
                         off={<p>Donor OFF</p>}
                         size="xs"
@@ -197,7 +183,7 @@ class HotspotView extends GenericView {
                         active={this.state.donorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                <Toggle onClick={this.onAcceptorHotspot(1)}
+                <Toggle onClick={this.onAcceptorHotspot}
                         on={<p>Acceptor ON</p>}
                         off={<p>Acceptor OFF</p>}
                         size="xs"
@@ -206,7 +192,7 @@ class HotspotView extends GenericView {
                         active={this.state.acceptorHsOn}/>
                 {/*</Row>*/}
                 {/*<Row>*/}
-                <Toggle onClick={this.onApolarHotspot(1)}
+                <Toggle onClick={this.onApolarHotspot}
                             on={<p>Apolar ON</p>}
                             off={<p>Apolar OFF</p>}
                             size="xs"
