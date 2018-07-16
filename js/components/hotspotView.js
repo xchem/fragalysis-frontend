@@ -233,11 +233,23 @@ class HotspotView extends GenericView {
     }
 
     onAcceptorHotspot() {
-
+        this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
+        if(this.state.donorHsOn){
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload')
+        }
+        else{
+            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load')
+        }
     }
 
     onApolarHotspot() {
-
+        this.setState(prevState => ({donorHsOn: !prevState.donorHsOn}))
+        if(this.state.donorHsOn){
+            this.fetchHotspotUrl("LI", this.props.data.prot_id, 'unload')
+        }
+        else{
+            this.fetchHotspotUrl("LI", this.props.data.prot_id, 'load')
+        }
     }
 
     render() {
