@@ -54,9 +54,7 @@ class HotspotView extends GenericView {
         this.props.loadObject(hotspotObject);
     }
 
-    removeHotspot(){
-        const data = this.props.data;
-        var nglObject = this.generateHotspotObject(data);
+    removeHotspot(hotspotObject){
         this.props.deleteObject(nglObject);
     }
 
@@ -215,7 +213,7 @@ class HotspotView extends GenericView {
                 "fragment": myJson.results[0].prot_id.toString()
             }
             return hotspotObject;
-        }).then(hotspotObject => this.loadHotspot(hotspotObject))
+        }).then(hotspotObject => this.removeHotspot(hotspotObject))
     }
 
     getHotspotUrl(type) {
