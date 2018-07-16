@@ -94,8 +94,8 @@ class HotspotView extends GenericView {
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
                 "map_type": myJson.results[0].map_type.toString(),
                 "fragment": myJson.results[0].prot_id.toString(),
-                "isoLevel": isoLevel
-                "opacity": opacity,
+                "isoLevel": isoLevel,
+                "opacity": opacity
             }
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
