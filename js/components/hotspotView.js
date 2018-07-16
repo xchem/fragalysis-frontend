@@ -33,7 +33,6 @@ class HotspotView extends GenericView {
         this.loadHotspot = this.loadHotspot.bind(this);
         this.removeHotspot = this.removeHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
-        // this.generateHotspotObject = this.generateHotspotObject.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
@@ -133,19 +132,6 @@ class HotspotView extends GenericView {
         }
         return nglObject;
     }
-
-    // generateHotspotObject(targetData) {
-    //     var out_object = {
-    //         "name": "HOTSPOT_" + targetData.id.toString(),
-    //         // "hotUrl": targetData.map_info.replace('http:', 'https:'),
-    //         "hotUrl": targetData.map_info,
-    //         "display_div": "major_view",
-    //         "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
-    //         "map_type": targetData.map_type.toString(),
-    //         "fragment" : targetData.prot_id.toString()
-    //         }
-    //         return out_object
-    // }
 
     handleVector(json) {
         var objList = this.generateObjectList(json);
