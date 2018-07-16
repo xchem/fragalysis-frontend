@@ -191,7 +191,7 @@ class HotspotView extends GenericView {
         }
     }
 
-    fetchHotspotUrl(mapType, protId) {
+    fetchHotspotUrl(mapType, protId, loadState) {
         var hotspotQuery = "?map_type=" + mapType + "&prot_id=" + protId.toString()
         fetch("/api/hotspots/" + hotspotQuery, {
             method: "get",
@@ -213,7 +213,7 @@ class HotspotView extends GenericView {
                 "fragment": myJson.results[0].prot_id.toString()
             }
             return hotspotObject;
-        }).then(hotspotObject => this.removeHotspot(hotspotObject))
+        }).then(if (loadState === 'load'){hotspotObject => this.removeHotspot(hotspotObject)})
     }
 
     getHotspotUrl(type) {
@@ -226,7 +226,7 @@ class HotspotView extends GenericView {
             // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
         }
         else{
-            this.fetchHotspotUrl("DO", 1)
+            this.fetchHotspotUrl("DO", 1, 'load')
             // fetch(this.getHotspotUrl("hotspots"))
             // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             if(this.state.isToggleOn==false){
