@@ -224,7 +224,7 @@ class HotspotView extends GenericView {
                         onClick={this.onDonorTepidHotspot}> Tepid Donor </Button>
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sx"
-                        {/*onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>*/}
+                        onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="xs"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
                 <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor</p>} off={<p>Hot Don OFF</p>} size="xs"
