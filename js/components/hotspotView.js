@@ -205,12 +205,12 @@ class HotspotView extends GenericView {
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
-        // const selected_style = {width: this.props.width.toString+'px',
-        //     height: this.props.height.toString()+'px', backgroundColor: this.colorToggle}
         const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
             <Col xs={4} md={4}>
                 <div style={selected_style}>{svg_image}</div>
+            </Col>
+            <Col> xs={2} md={2}>
             </Col>
             <Col xs={2} md={2}>
                 <Row>
