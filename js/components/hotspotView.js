@@ -209,7 +209,7 @@ class HotspotView extends GenericView {
         return <div>
             <Col xs={4} md={4}>
                 {/*<div style={selected_style}>{svg_image}</div>*/}
-                <img src={svg_image} class="img-fluid">
+                <img src={svg_image} class="img-fluid"></img>
             </Col>
             {/*<Col> xs={2} md={2}>*/}
             {/*</Col>*/}
