@@ -210,8 +210,8 @@ class HotspotView extends GenericView {
         const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
             <Col xs={4} md={4}>
-                <svg style={position = "absolute"} viewBox={'0 0 540 340'}> {imgLoc} </svg>
-                {/*<div style={selected_style}>{svg_image}</div>*/}
+                {/*<svg style={position = "absolute"} viewBox={'0 0 540 340'}> {imgLoc} </svg>*/}
+                <div style={selected_style}>{svg_image}</div>
                 {/*<div>*/}
                     {/*<img src={svg_image} class="img-fluid"> </img>*/}
                 {/*</div>*/}
