@@ -207,12 +207,12 @@ class HotspotView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
-            <Col xs={3} md={3}>
+            <Col xs={4} md={4}>
                 <div style={selected_style}>{svg_image}</div>
             </Col>
             {/*<Col> xs={2} md={2}>*/}
             {/*</Col>*/}
-            <Col xs={9} md={9}>
+            <Col xs={8} md={8}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sm"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
