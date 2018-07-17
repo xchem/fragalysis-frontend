@@ -204,16 +204,13 @@ class HotspotView extends GenericView {
     }
 
     render() {
-        const styles = {
-            position = "absolute"
-        };
         const strokeSize = 2;
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
             <Col xs={4} md={4}>
                 <g
-                    style={styles}
+                    style={position = "absolute"}
                     viewBox={'0 0 540 340'}
                 >
                 <g
