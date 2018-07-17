@@ -202,7 +202,7 @@ class HotspotView extends GenericView {
             this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 0.6)
         }
     }
-    
+
     render() {
         const strokeSize = 2;
         const svg_image = <SVGInline svg={this.state.img_data}/>;
@@ -292,11 +292,13 @@ class HotspotView extends GenericView {
     }
 
 }
+
 function mapStateToProps(state) {
   return {
       inViewList:state.nglReducers.objectsInView,
   }
 }
+
 const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject
