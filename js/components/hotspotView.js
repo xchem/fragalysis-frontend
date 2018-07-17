@@ -211,14 +211,7 @@ class HotspotView extends GenericView {
             <Col xs={4} md={4}>
                 <svg
                     style={position = "absolute"}
-                    viewBox={'0 0 540 340'}
-                >
-                <g
-                    stroke="black"
-                    strokeWidth={strokeSize}
-                    fill="none"
-                >
-                </g>
+                    viewBox={'0 0 540 340'}>
                 </svg>
                 {/*<div style={selected_style}>{svg_image}</div>*/}
                 {/*<div>*/}
