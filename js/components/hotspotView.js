@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 05/07/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
+import { ListGroupItem, ListGroup, Col, Row, Button} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
@@ -209,7 +209,9 @@ class HotspotView extends GenericView {
         return <div>
             <Col xs={4} md={4}>
                 {/*<div style={selected_style}>{svg_image}</div>*/}
-                <img src={svg_image} class="img-fluid"></img>
+                <div>
+                    <img src={svg_image} class="img-fluid"> </img>
+                </div>
             </Col>
             {/*<Col> xs={2} md={2}>*/}
             {/*</Col>*/}
