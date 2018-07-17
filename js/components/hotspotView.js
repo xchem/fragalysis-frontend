@@ -202,7 +202,6 @@ class HotspotView extends GenericView {
             this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 0.6)
         }
     }
-
     
     render() {
         const strokeSize = 2;
