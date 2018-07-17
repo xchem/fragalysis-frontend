@@ -203,6 +203,7 @@ class HotspotView extends GenericView {
         }
     }
 
+    
     render() {
         const strokeSize = 2;
         const svg_image = <SVGInline svg={this.state.img_data}/>;
