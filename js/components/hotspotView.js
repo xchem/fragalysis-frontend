@@ -209,7 +209,7 @@ class HotspotView extends GenericView {
         const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
             <Col xs={4} md={4}>
-                <g
+                <svg
                     style={position = "absolute"}
                     viewBox={'0 0 540 340'}
                 >
