@@ -56,7 +56,7 @@ class Preview extends Component {
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
-                  <HotspotList/>
+                  <HotspotList style={{overflow:scroll}}/>
               </Col>
           </Row>
       )
