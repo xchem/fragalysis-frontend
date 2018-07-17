@@ -204,11 +204,30 @@ class HotspotView extends GenericView {
     }
 
     render() {
+        const styles {
+            position = "absolute"
+        };
+        const strokeSize = 2;
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
             <Col xs={4} md={4}>
-                <div style={selected_style}>{svg_image}</div>
+                <g
+                    style={styles}
+                    viewBox={'0 0 540 340'}
+                >
+                <g
+                    stroke="black"
+                    strokeWidth={strokeSize}
+                    fill="none"
+                >
+                <path
+                    vectorEffect="non-scaling-stroke"
+                    d="M539,1 L1,1 L1,329 L463,329 L493,300 L539,300 Z"
+                />
+                </g>
+                </svg>
+                {/*<div style={selected_style}>{svg_image}</div>*/}
                 {/*<div>*/}
                     {/*<img src={svg_image} class="img-fluid"> </img>*/}
                 {/*</div>*/}
@@ -217,7 +236,7 @@ class HotspotView extends GenericView {
             {/*</Col>*/}
             <Col xs={8} md={8}>
                 <Row>
-                <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sm"
+                <Button onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sm"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="sm"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
