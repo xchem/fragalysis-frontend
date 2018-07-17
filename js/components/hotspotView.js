@@ -210,8 +210,8 @@ class HotspotView extends GenericView {
             <Col xs={4} md={4}>
                 <div style={selected_style}>{svg_image}</div>
             </Col>
-            <Col> xs={2} md={2}>
-            </Col>
+            {/*<Col> xs={2} md={2}>*/}
+            {/*</Col>*/}
             <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sm"
