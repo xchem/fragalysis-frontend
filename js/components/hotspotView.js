@@ -204,7 +204,7 @@ class HotspotView extends GenericView {
     }
 
     render() {
-        const styles {
+        const styles = {
             position = "absolute"
         };
         const strokeSize = 2;
