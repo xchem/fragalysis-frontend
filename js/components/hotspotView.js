@@ -212,7 +212,7 @@ class HotspotView extends GenericView {
             </Col>
             {/*<Col> xs={2} md={2}>*/}
             {/*</Col>*/}
-            <Col xs={8} md={8}>
+            <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sm"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
@@ -225,8 +225,8 @@ class HotspotView extends GenericView {
                 <Toggle onClick={this.onApolarTepidHotspot} on={<p>Tepid Apolar</p>} off={<p>Tepid Apo OFF</p>} size="sm"
                         onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
                 </Row>
-            {/*</Col>*/}
-            {/*<Col xs={2} md={2}>*/}
+            </Col>
+            <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="sm"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
@@ -239,8 +239,8 @@ class HotspotView extends GenericView {
                 <Toggle onClick={this.onApolarWarmHotspot} on={<p>Warm Apolar</p>} off={<p>Warm Apo OFF</p>} size="sm"
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
                 </Row>
-            {/*</Col>*/}
-            {/*<Col xs={2} md={2}>*/}
+            </Col>
+            <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor</p>} off={<p>Hot Don OFF</p>} size="sm"
                         onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
@@ -254,17 +254,17 @@ class HotspotView extends GenericView {
                         onstyle="warning" offstyle="warning" active={this.state.apolarHotHsOn}/>
                 </Row>
             </Col>
-            {/*<Col xs={2} md={2}>*/}
-                {/*<Row>*/}
-                    {/*<H3>Donor</H3>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<H3>Acceptor</H3>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<H3>Apolar</H3>*/}
-                {/*</Row>*/}
-            {/*</Col>*/}
+            <Col xs={2} md={2}>
+                <Row>
+                    <H3>Donor</H3>
+                </Row>
+                <Row>
+                    <H3>Acceptor</H3>
+                </Row>
+                <Row>
+                    <H3>Apolar</H3>
+                </Row>
+            </Col>
         </div>
     }
 
