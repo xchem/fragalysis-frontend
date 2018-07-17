@@ -221,7 +221,8 @@ class HotspotView extends GenericView {
                 <path
                     vectorEffect="non-scaling-stroke"
                     d="M539,1 L1,1 L1,329 L463,329 L493,300 L539,300 Z"
-                />
+                >
+                </path>
                 </g>
                 </svg>
                 {/*<div style={selected_style}>{svg_image}</div>*/}
