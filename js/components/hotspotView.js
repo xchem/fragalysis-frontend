@@ -54,7 +54,7 @@ class HotspotView extends GenericView {
     }
 
     componentDidMount() {
-        this.loadFromServer(this.props.width,this.props.height,image_type="png");
+        this.loadFromServer(this.props.width,this.props.height,"png");
         var thisToggleOn = false;
         var complexOn = false;
         for(var key in this.props.inViewList){
