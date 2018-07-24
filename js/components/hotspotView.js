@@ -215,7 +215,7 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={this.onHotspot(donorTepidHsOn, "DO", loadState, 10, 0.2)} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
+                    <Toggle onClick={this.onHotspot(donorTepidHsOn, "DO", 10, 0.2)} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 </Row>
                 <Row>
