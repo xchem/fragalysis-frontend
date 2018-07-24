@@ -198,7 +198,10 @@ class HotspotView extends React.Component {
         const strokeSize = 2;
         return <div>
             <Col xs={3} md={3}>
-                <Panel style={backgroundColor: red,}>
+                var color = {
+                backgroundColor: red,
+            }
+                <Panel style={color}>
                     <Image src={this.img_url+"&dummy=png"} responsive rounded />
                 </Panel>
             </Col>
