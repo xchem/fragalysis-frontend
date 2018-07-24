@@ -213,10 +213,10 @@ class HotspotView extends React.Component {
     render() {
         const strokeSize = 2;
         return <div>
-            <Col xs={3} md={3}>
+            <Col xs={4} md={4}>
                 <Image src={this.img_url+"&dummy=png"} responsive rounded />
             </Col>
-            <Col xs={3} md={3}>
+            <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
@@ -230,7 +230,7 @@ class HotspotView extends React.Component {
                         onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
                 </Row>
             </Col>
-            <Col xs={3} md={3}>
+            <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
@@ -244,7 +244,7 @@ class HotspotView extends React.Component {
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
                 </Row>
             </Col>
-            <Col xs={3} md={3}>
+            <Col xs={2} md={2}>
                 <Row>
                 <Toggle onClick={this.onDonorHotHotspot} on={<p>Hot Donor</p>} off={<p>Hot Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorHotHsOn}/>
