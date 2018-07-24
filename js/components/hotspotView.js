@@ -39,6 +39,7 @@ class HotspotView extends React.Component {
         }
         Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
         this.key = "mol_image"
+        this.state = {}
         this.state.donorTepidHsOn = false
         this.state.donorWarmHsOn = false
         this.state.donorHotHsOn = false
