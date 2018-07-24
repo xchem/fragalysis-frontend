@@ -274,7 +274,8 @@ export class NGLView extends React.Component {
                     isolevel: input_dict.isoLevel,
                     opacity: input_dict.opacity,
                     opaqueBack: false,
-                    name: 'surf'
+                    name: 'surf',
+                    disblePicking: input_dict.disablePicking
                 });
             });
         }
@@ -286,7 +287,8 @@ export class NGLView extends React.Component {
                     opacity: input_dict.opacity,
                     opaqueBack: false,
                     color: '#0000FF',
-                    name: 'surf'
+                    name: 'surf',
+                    disblePicking: input_dict.disablePicking
                 });
             });
         }
@@ -298,7 +300,8 @@ export class NGLView extends React.Component {
                     isolevel: input_dict.isoLevel,
                     opacity: input_dict.opacity,
                     opaqueBack: false,
-                    name: 'surf'
+                    name: 'surf',
+                    disblePicking: input_dict.disablePicking
                 });
             });
         }
