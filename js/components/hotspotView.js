@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 05/07/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row, Button} from 'react-bootstrap';
+import { ListGroupItem, ListGroup, Col, Row, Button, Image} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
