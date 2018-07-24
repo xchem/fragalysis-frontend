@@ -57,9 +57,6 @@ class HotspotView extends React.Component {
         }
     }
 
-    componentDidMount() {
-    }
-
     colorToggle() {
         var colorList = ['#EFCDB8',
             '#CC6666', '#FF6E4A',
