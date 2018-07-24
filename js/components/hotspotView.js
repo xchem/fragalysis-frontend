@@ -106,8 +106,8 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(stateDef, type, contour, opacity){
-        this.setState(prevState => ({{stateDef}: !prevState.{stateDef}}))
-        if(this.state.{stateDef}){
+        this.setState(prevState => ({stateDef: !prevState.stateDef}))
+        if(stateDef){
             this.fetchHotspotUrl(type, this.props.data.prot_id, 'unload', contour, opacity)
         }
         else{
@@ -215,7 +215,7 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={this.onHotspot(donorTepidHsOn, "DO", 10, 0.2)} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
+                    <Toggle onClick={this.onHotspot(this.state.donorTepidHsOn, "DO", 10, 0.2)} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 </Row>
                 <Row>
