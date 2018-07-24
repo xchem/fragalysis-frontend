@@ -31,7 +31,14 @@ class HotspotView extends GenericView {
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         // this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
-        this.url = new URL(base_url + '/viewer/img_from_smiles/')
+        this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
+        var get_params = {
+            "width": 200,
+            "height": 200,
+            "img_type": "png",
+            "smiles": props.data.smiles
+        }
+        Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
         this.key = "mol_image"
         this.state.donorTepidHsOn = false
         this.state.donorWarmHsOn = false
@@ -213,7 +220,7 @@ class HotspotView extends GenericView {
             <Col xs={4} md={4}>
                 {/*<svg style={position = "absolute"} viewBox={'0 0 540 340'}> {imgLoc} </svg>*/}
                 {/*<div style={selected_style}>{svg_image}</div>*/}
-                <Image src={this.state.img_data} />
+                <Image href={this.img_url} />
             </Col>
             {/*<Col> xs={2} md={2}>*/}
             {/*</Col>*/}
