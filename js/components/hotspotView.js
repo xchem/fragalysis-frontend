@@ -106,7 +106,7 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(stateDef, def, type, contour, opacity){
-        this.setState(prevState => ({{def}: !prevState.{def}}))
+        this.setState(prevState => ({def: !prevState.def}))
         if(stateDef){
             this.fetchHotspotUrl(type, this.props.data.prot_id, 'unload', contour, opacity)
         }
