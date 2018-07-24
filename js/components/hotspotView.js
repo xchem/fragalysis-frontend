@@ -5,7 +5,6 @@ import { ListGroupItem, ListGroup, Col, Row, Button, Image} from 'react-bootstra
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import { GenericView } from './generalComponents'
 import * as nglObjectTypes from './nglObjectTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
