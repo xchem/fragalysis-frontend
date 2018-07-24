@@ -61,7 +61,6 @@ class HotspotView extends React.Component {
     }
 
     componentDidMount() {
-        this.loadFromServer(this.props.width,this.props.height,"png");
         var thisToggleOn = false;
         var complexOn = false;
         for(var key in this.props.inViewList){
