@@ -12,7 +12,7 @@ import Toggle from 'react-bootstrap-toggle';
 import SVGInline from "react-svg-inline";
 import fetch from 'cross-fetch';
 
-class HotspotView extends GenericView {
+class HotspotView extends React.Component {
 
     constructor(props) {
         super(props);
@@ -213,17 +213,10 @@ class HotspotView extends GenericView {
 
     render() {
         const strokeSize = 2;
-        const imgLoc = this.state.img_data
-        const svg_image = <SVGInline svg={this.state.img_data}/>;
-        const selected_style = {width: '125px', height: '125px', backgroundColor: this.colorToggle}
         return <div>
             <Col xs={4} md={4}>
-                {/*<svg style={position = "absolute"} viewBox={'0 0 540 340'}> {imgLoc} </svg>*/}
-                {/*<div style={selected_style}>{svg_image}</div>*/}
                 <Image href={this.img_url} />
             </Col>
-            {/*<Col> xs={2} md={2}>*/}
-            {/*</Col>*/}
             <Col xs={8} md={8}>
                 <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="xs"
@@ -249,36 +242,6 @@ class HotspotView extends GenericView {
                 <Toggle onClick={this.onApolarHotHotspot} on={<p>Hot Apolar</p>} off={<p>Hot Apo OFF</p>} size="xs"
                         onstyle="warning" offstyle="warning" active={this.state.apolarHotHsOn}/>
                 </Row>
-                {/*</Row>*/}
-            {/*</Col>*/}
-            {/*<Col xs={2} md={2}>*/}
-                {/*<Row>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-            {/*</Col>*/}
-            {/*<Col xs={2} md={2}>*/}
-                {/*<Row>*/}
-
-                {/*</Row>*/}
-                {/*<Row>*/}
-
-                {/*</Row>*/}
-                {/*<Row>*/}
-
-                {/*</Row>*/}
-            {/*</Col>*/}
-            {/*<Col xs={2} md={2}>*/}
-                {/*<Row>*/}
-                    {/*Donor*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*Acceptor*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*Apolar*/}
-                {/*</Row>*/}
             </Col>
         </div>
     }
