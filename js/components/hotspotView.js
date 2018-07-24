@@ -106,7 +106,7 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(stateDef, type, contour, opacity){
-        this.setState(prevState => ({def: !prevState.def}))
+        // this.setState(prevState => ({def: !prevState.def}))
         if(stateDef){
             var newState = {};
             newState[stateDef] = false;
