@@ -30,7 +30,6 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
-        // this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
             "width": 200,
@@ -38,7 +37,7 @@ class HotspotView extends React.Component {
             "img_type": "png",
             "smiles": props.data.smiles
         }
-        Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
+        Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
         this.key = "mol_image"
         this.state.donorTepidHsOn = false
         this.state.donorWarmHsOn = false
