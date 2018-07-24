@@ -65,9 +65,9 @@ describe('API Redcuer', () => {
           type: types.LOAD_TARGETS
       })
       ).toEqual({
-          project_id: 1,
+          project_id: undefined,
           target_id: undefined,
-          target_id_list: undefined,
+          target_id_list: [],
           mol_group_list: [],
           molecule_list: [],
           pandda_event_on: undefined,
@@ -118,9 +118,9 @@ describe('API Redcuer', () => {
           group_id: 1
       })
     ).toEqual({
-          project_id: 1,
+          project_id: undefined,
           target_id: undefined,
-          target_id_list: undefined,
+          target_id_list: [],
           mol_group_list: [],
           molecule_list: [],
           pandda_event_on: undefined,
@@ -130,10 +130,10 @@ describe('API Redcuer', () => {
           mol_group_on: undefined,
           target_on: undefined,
           target_on_name: undefined,
-          group_id: undefined,
+          group_id: 1,
           isFetching: false,
           app_on: "PREVIEW",
-          group_type: "MC",
+          group_type: "PC",
           hotspot_on: undefined,
           hotspot_list: []
     }
@@ -171,9 +171,9 @@ describe('API Redcuer', () => {
         target_id: 1
       })
     ).toEqual({
-          project_id: 1,
-          target_id: undefined,
-          target_id_list: undefined,
+          project_id: undefined,
+          target_id: 1,
+          target_id_list: [],
           mol_group_list: [],
           molecule_list: [],
           pandda_event_on: undefined,
