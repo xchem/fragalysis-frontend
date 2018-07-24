@@ -8,7 +8,6 @@ import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from './nglObjectTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
-import SVGInline from "react-svg-inline";
 import fetch from 'cross-fetch';
 
 class HotspotView extends React.Component {
@@ -28,7 +27,6 @@ class HotspotView extends React.Component {
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
-        this.base_url = base_url;
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
             "width": 100,
