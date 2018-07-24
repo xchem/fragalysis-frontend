@@ -31,7 +31,7 @@ class HotspotView extends GenericView {
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         // this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
-        this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
+        this.url = new URL(base_url + '/viewer/img_from_smiles/')
         this.key = "mol_image"
         this.state.donorTepidHsOn = false
         this.state.donorWarmHsOn = false
