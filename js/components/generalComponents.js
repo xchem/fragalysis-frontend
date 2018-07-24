@@ -176,11 +176,11 @@ export class GenericView extends React.Component{
         this.comp_on_style = {backgroundColor: "#B7C185"}
     }
 
-    loadFromServer(width, height, image_type="svg") {
+    loadFromServer(width, height) {
         var url = this.url;
         var get_params = {
             "width": width,
-            "height": height,
+            "height": height
         }
         Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
         if (this.key==undefined){
