@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 05/07/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row, Button, Image} from 'react-bootstrap';
+import { ListGroupItem, ListGroup, Col, Row, Button, Image, Panel} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
@@ -198,9 +198,9 @@ class HotspotView extends React.Component {
         const strokeSize = 2;
         return <div>
             <Col xs={3} md={3}>
-                <span className="border border-dark">
+                <Panel bsStyle="primary">
                     <Image src={this.img_url+"&dummy=png"} responsive rounded />
-                </span>
+                </Panel>
             </Col>
             <Col xs={3} md={3}>
                 <Row>
