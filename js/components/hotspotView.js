@@ -30,7 +30,8 @@ class HotspotView extends GenericView {
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
-        this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
+        // this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
+        this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
         this.key = "mol_image"
         this.state.donorTepidHsOn = false
         this.state.donorWarmHsOn = false
@@ -211,19 +212,14 @@ class HotspotView extends GenericView {
         return <div>
             <Col xs={4} md={4}>
                 {/*<svg style={position = "absolute"} viewBox={'0 0 540 340'}> {imgLoc} </svg>*/}
-                <div style={selected_style}>{svg_image}</div>
-                {/*<div>*/}
-                    {/*<img src={svg_image} class="img-fluid"> </img>*/}
-                {/*</div>*/}
+                {/*<div style={selected_style}>{svg_image}</div>*/}
+                <image src={this.state.img_data} />
             </Col>
             {/*<Col> xs={2} md={2}>*/}
             {/*</Col>*/}
             <Col xs={8} md={8}>
                 <Row>
-                {/*<Button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"*/}
-                        {/*onClick={this.onDonorTepidHotspot}> Tepid Donor </Button>*/}
-                        {/*onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>*/}
-                <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="sx"
+                <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="xs"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="xs"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>

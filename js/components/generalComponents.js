@@ -177,11 +177,13 @@ export class GenericView extends React.Component{
 
     }
 
-    loadFromServer(width, height) {
+    loadFromServer(width, height, image_type="svg") {
         var url = this.url;
         var get_params = {
             "width": width,
             "height": height,
+            "img_type": image_type,
+            "smiles": this.props.data.smiles
         }
         Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
         if (this.key==undefined){
