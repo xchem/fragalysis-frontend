@@ -214,7 +214,7 @@ class HotspotView extends React.Component {
         const strokeSize = 2;
         return <div>
             <Col xs={4} md={4}>
-                <Image href={this.img_url} />
+                <Image href={this.img_url+"&dummy=png"} />
             </Col>
             <Col xs={8} md={8}>
                 <Row>
