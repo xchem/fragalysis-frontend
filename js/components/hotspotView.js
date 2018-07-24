@@ -217,12 +217,18 @@ class HotspotView extends React.Component {
                 <Image src={this.img_url+"&dummy=png"} responsive rounded />
             </Col>
             <Col xs={3} md={3}>
+                <Row>
                 <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Don OFF</p>} size="xs"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
-                <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Tepid Acceptor</p>} off={<p>Tepid Acc OFF</p>} size="xs"
+                </Row>
+                <Row>
+                    <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Tepid Acceptor</p>} off={<p>Tepid Acc OFF</p>} size="xs"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorTepidHsOn}/>
+                </Row>
+                <Row>
                     <Toggle onClick={this.onApolarTepidHotspot} on={<p>Tepid Apolar</p>} off={<p>Tepid Apo OFF</p>} size="xs"
                         onstyle="warning" offstyle="warning" active={this.state.apolarTepidHsOn}/>
+                </Row>
             </Col>
             <Col xs={3} md={3}>
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="xs"
