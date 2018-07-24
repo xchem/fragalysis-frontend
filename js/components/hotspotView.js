@@ -23,7 +23,7 @@ class HotspotView extends React.Component {
         this.onDonorHotHotspot = this.onDonorHotHotspot.bind(this);
         this.onAcceptorHotHotspot = this.onAcceptorHotHotspot.bind(this);
         this.onApolarHotHotspot = this.onApolarHotHotspot.bind(this);
-        this.colorToggle = this.colorToggle();
+        this.colorToggle = this.colorToggle.bind(this);
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
