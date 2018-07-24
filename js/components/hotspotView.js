@@ -65,7 +65,7 @@ class HotspotView extends React.Component {
             '#C5E384', '#95918C',
             '#F75394', '#80DAEB',
             '#ADADD6']
-        return colorList[this.props.data.id % colorList.length];
+        return {backgroundColor: colorList[this.props.data.id % colorList.length]};
     }
 
     handleClick(e) {
