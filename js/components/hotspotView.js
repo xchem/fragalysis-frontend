@@ -14,7 +14,6 @@ class HotspotView extends React.Component {
 
     constructor(props) {
         super(props);
-        this.onHotspot = this.onHotspot.bind(this);
         this.onDonorTepidHotspot = this.onDonorTepidHotspot.bind(this);
         this.onAcceptorTepidHotspot = this.onAcceptorTepidHotspot.bind(this);
         this.onApolarTepidHotspot = this.onApolarTepidHotspot.bind(this);
@@ -103,22 +102,6 @@ class HotspotView extends React.Component {
             }
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
-    }
-
-    onHotspot(stateDef, type, contour, opacity){
-        // this.setState(prevState => ({def: !prevState.def}))
-        if(stateDef){
-            var newState = {};
-            newState[stateDef] = false;
-            this.setState(newState);
-            this.fetchHotspotUrl(type, this.props.data.prot_id, 'unload', contour, opacity)
-        }
-        else{
-            var newState = {};
-            newState[stateDef] = true;
-            this.setState(newState);
-            this.fetchHotspotUrl(type, this.props.data.prot_id, 'load', contour, opacity)
-        }
     }
 
     onDonorTepidHotspot() {
@@ -221,7 +204,7 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={this.onHotspot(this.state.donorTepidHsOn, "DO", 10, 0.2)} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
+                    <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
                         onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 </Row>
                 <Row>
