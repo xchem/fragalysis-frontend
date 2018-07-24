@@ -13,7 +13,7 @@ import NglViewerControls from '../components/nglViewerControls'
 import HotspotList from '../components/hotspotList'
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom'
 
 
 class Preview extends Component {

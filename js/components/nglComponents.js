@@ -32,7 +32,6 @@ export class NGLView extends React.Component {
         }
         this.interval = 300;
         this.focus_var = 95;
-//        this.stageColor = 'black';
         this.stage = undefined;
         this.orientationToSet={};
         this.renderDisplay = this.renderDisplay.bind(this);

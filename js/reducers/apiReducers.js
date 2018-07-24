@@ -107,7 +107,6 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 mol_group_on: action.mol_group_on
             });
 
-
         case actions.SET_MOLECULE_LIST:
             return Object.assign({}, state, {
                 molecule_list: action.molecule_list
