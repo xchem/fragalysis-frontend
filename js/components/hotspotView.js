@@ -235,8 +235,10 @@ class HotspotView extends React.Component {
                 <Toggle onClick={this.onDonorWarmHotspot} on={<p>Warm Donor</p>} off={<p>Warm Don OFF</p>} size="s"
                         onstyle="primary" offstyle="primary" active={this.state.donorWarmHsOn}/>
                 </Row>
+                <Row>
                 <Toggle onClick={this.onAcceptorWarmHotspot} on={<p>Warm Acceptor</p>} off={<p>Warm Acc OFF</p>} size="s"
                         onstyle="danger" offstyle="danger" active={this.state.acceptorWarmHsOn}/>
+                </Row>
                 <Row>
                     <Toggle onClick={this.onApolarWarmHotspot} on={<p>Warm Apolar</p>} off={<p>Warm Apo OFF</p>} size="s"
                         onstyle="warning" offstyle="warning" active={this.state.apolarWarmHsOn}/>
