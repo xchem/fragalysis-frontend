@@ -61,16 +61,6 @@ class HotspotView extends React.Component {
     }
 
     componentDidMount() {
-        var thisToggleOn = false;
-        var complexOn = false;
-        for(var key in this.props.inViewList){
-            if(key.startsWith("MOLLOAD_") && parseInt(key.split("MOLLOAD_")[[1]], 10)==this.props.data.id){
-                this.setState(prevState => ({isToggleOn: true}));
-            }
-            if(key.startsWith("COMPLEXLOAD_") && parseInt(key.split("COMPLEXLOAD_")[[1]], 10)==this.props.data.id){
-                this.setState(prevState => ({complexOn: true}));
-            }
-        }
     }
 
     colorToggle() {
