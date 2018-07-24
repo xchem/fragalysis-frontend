@@ -174,7 +174,6 @@ export class GenericView extends React.Component{
         this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#B7C185"}
         this.conf_on_style = {borderStyle: "solid"}
         this.comp_on_style = {backgroundColor: "#B7C185"}
-
     }
 
     loadFromServer(width, height, image_type="svg") {
