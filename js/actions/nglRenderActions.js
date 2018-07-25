@@ -97,4 +97,3 @@ export const setAssemblyOptions = function (structure) {
         assemblyOptions: options
     };
 }
-

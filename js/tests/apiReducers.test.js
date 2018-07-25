@@ -16,12 +16,15 @@ function getInitialState(){
        pandda_site_on: undefined,
        pandda_event_list: [],
        pandda_site_list: [],
-       app_on: "PREVIEW",
        mol_group_on: undefined,
        target_on: undefined,
+       target_on_name: undefined,
        group_id: undefined,
        isFetching: false,
-       group_type: "MC"
+       app_on: "PREVIEW",
+       group_type: "MC",
+       hotspot_on: undefined,
+       hotspot_list: []
    }
 }
 
@@ -35,48 +38,53 @@ describe('API Redcuer', () => {
  
   it('should handle LOAD_TARGETS', () => {
     expect(apiReducers(undefined, {
-        type: types.LOAD_TARGETS,
-        project_id: 1
+      type: types.LOAD_TARGETS,
+      project_id: 1
       })
     ).toEqual({
         project_id: 1,
         target_id: undefined,
-        group_id: undefined,
-        isFetching: false,
-        group_type: "MC",
+        target_id_list: [],
+        mol_group_list: [],
+        molecule_list: [],
         pandda_event_on: undefined,
         pandda_site_on: undefined,
         pandda_event_list: [],
         pandda_site_list: [],
+        mol_group_on: undefined,
+        target_on: undefined,
+        target_on_name: undefined,
+        group_id: undefined,
+        isFetching: false,
         app_on: "PREVIEW",
+        group_type: "MC",
+        hotspot_on: undefined,
+        hotspot_list: []
+      })
+      expect(apiReducers(undefined, {
+          type: types.LOAD_TARGETS
+      })
+      ).toEqual({
+          project_id: undefined,
+          target_id: undefined,
           target_id_list: [],
           mol_group_list: [],
           molecule_list: [],
-          mol_group_on: undefined,
-          target_on: undefined,
-    }
-    )
-      expect(apiReducers(undefined, {
-        type: types.LOAD_TARGETS
-      })
-    ).toEqual({
-          project_id: undefined,
-          target_id: undefined,
-          group_id: undefined,
-          isFetching: false,
-          group_type: "MC",
           pandda_event_on: undefined,
           pandda_site_on: undefined,
           pandda_event_list: [],
           pandda_site_list: [],
-          app_on: "PREVIEW",
-          target_id_list: [],
-          mol_group_list: [],
-          molecule_list: [],
           mol_group_on: undefined,
           target_on: undefined,
-    }
-    )
+          target_on_name: undefined,
+          group_id: undefined,
+          isFetching: false,
+          app_on: "PREVIEW",
+          group_type: "MC",
+          hotspot_on: undefined,
+          hotspot_list: []
+      }
+      )
   })
     it('should handle LOAD_MOL_GROUPS', () => {
     expect(apiReducers(undefined, {
@@ -86,19 +94,22 @@ describe('API Redcuer', () => {
     ).toEqual({
         project_id: undefined,
         target_id: undefined,
-        group_id: 1,
-        isFetching: false,
-        group_type: "MC",
+        target_id_list: [],
+        mol_group_list: [],
+        molecule_list: [],
         pandda_event_on: undefined,
         pandda_site_on: undefined,
         pandda_event_list: [],
         pandda_site_list: [],
-        app_on: "PREVIEW",
-        target_id_list: [],
-        mol_group_list: [],
-        molecule_list: [],
         mol_group_on: undefined,
         target_on: undefined,
+        target_on_name: undefined,
+        group_id: 1,
+        isFetching: false,
+        app_on: "PREVIEW",
+        group_type: "MC",
+        hotspot_on: undefined,
+        hotspot_list: []
     }
     )
       expect(apiReducers(undefined, {
@@ -109,19 +120,22 @@ describe('API Redcuer', () => {
     ).toEqual({
           project_id: undefined,
           target_id: undefined,
-          isFetching: false,
-          group_id: 1,
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
           pandda_event_on: undefined,
           pandda_site_on: undefined,
           pandda_event_list: [],
           pandda_site_list: [],
-          app_on: "PREVIEW",
-          group_type: "PC",
-          target_id_list: [],
-          mol_group_list: [],
-          molecule_list: [],
           mol_group_on: undefined,
           target_on: undefined,
+          target_on_name: undefined,
+          group_id: 1,
+          isFetching: false,
+          app_on: "PREVIEW",
+          group_type: "PC",
+          hotspot_on: undefined,
+          hotspot_list: []
     }
     )
   })
@@ -147,6 +161,9 @@ describe('API Redcuer', () => {
         molecule_list: [],
         mol_group_on: undefined,
         target_on: undefined,
+        hotspot_list: [],
+        hotspot_on: undefined,
+        target_on_name: undefined
     }
     )
       expect(apiReducers(undefined, {
@@ -156,19 +173,22 @@ describe('API Redcuer', () => {
     ).toEqual({
           project_id: undefined,
           target_id: 1,
-          isFetching: false,
-          group_id: undefined,
+          target_id_list: [],
+          mol_group_list: [],
+          molecule_list: [],
           pandda_event_on: undefined,
           pandda_site_on: undefined,
           pandda_event_list: [],
           pandda_site_list: [],
-          app_on: "PREVIEW",
-          group_type: "MC",
-          target_id_list: [],
-          mol_group_list: [],
-          molecule_list: [],
           mol_group_on: undefined,
           target_on: undefined,
+          target_on_name: undefined,
+          group_id: undefined,
+          isFetching: false,
+          app_on: "PREVIEW",
+          group_type: "MC",
+          hotspot_on: undefined,
+          hotspot_list: []
     }
     )
   })

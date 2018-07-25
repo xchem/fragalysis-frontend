@@ -53,6 +53,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
+        this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
     showPick(stage, pickingProxy) {
@@ -150,7 +151,8 @@ export class NGLView extends React.Component {
             var colour = ol[5];
             // Set the object name
             var comp = stage.addComponentFromObject(cs)
-            comp.addRepresentation("cartoon")
+            // var nglProtStyle = this.props.nglProtStyle
+            comp.addRepresentation('cartoon')
             comp.addRepresentation("contact", {
                 masterModelIndex: 0,
                 weakHydrogenBond: true,
@@ -178,7 +180,7 @@ export class NGLView extends React.Component {
 
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation("cartoon", {});
+            comp.addRepresentation('cartoon', {});
             var selection = new Selection("LIG");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
@@ -255,10 +257,53 @@ export class NGLView extends React.Component {
     }
 
     showProtein(stage, input_dict, object_name) {
+        // var nglProtStyle = this.props.nglProtStyle
         stage.loadFile(input_dict.prot_url, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation("cartoon", {});
+            comp.addRepresentation('cartoon', {});
             comp.autoView();
         });
+    }
+
+    showHotspot(stage, input_dict, object_name) {
+        if (input_dict.map_type === "AP") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#FFFF00',
+                    isolevelType: "value",
+                    isolevel: input_dict.isoLevel,
+                    opacity: input_dict.opacity,
+                    opaqueBack: false,
+                    name: 'surf',
+                    disblePicking: input_dict.disablePicking
+                });
+            });
+        }
+        else if (input_dict.map_type === "DO") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    isolevelType: "value",
+                    isolevel: input_dict.isoLevel,
+                    opacity: input_dict.opacity,
+                    opaqueBack: false,
+                    color: '#0000FF',
+                    name: 'surf',
+                    disblePicking: input_dict.disablePicking
+                });
+            });
+        }
+        else if (input_dict.map_type === "AC") {
+            stage.loadFile(input_dict.hotUrl, {name: object_name, ext: "dx"}).then(function (comp) {
+                comp.addRepresentation("surface", {
+                    color: '#FF0000',
+                    isolevelType: "value",
+                    isolevel: input_dict.isoLevel,
+                    opacity: input_dict.opacity,
+                    opaqueBack: false,
+                    name: 'surf',
+                    disblePicking: input_dict.disablePicking
+                });
+            });
+        }
     }
 
     getRadius(data) {
@@ -332,6 +377,7 @@ export class NGLView extends React.Component {
      * Function to deal with the logic of showing molecules
      */
     renderDisplay() {
+        this.stage.viewer.setBackground(this.props.stageColor);
         for(var nglKey in this.props.objectsToLoad){
             var nglObject = this.props.objectsToLoad[nglKey];
             if (this.div_id==nglObject.display_div) {
@@ -421,7 +467,9 @@ function mapStateToProps(state) {
       objectsLoading: state.nglReducers.objectsLoading,
       objectsInView: state.nglReducers.objectsInView,
       objectsPicked: state.nglReducers.objectsPicked,
-      loadingState: state.nglReducers.loadingState
+      loadingState: state.nglReducers.loadingState,
+      stageColor: state.nglReducers.stageColor,
+      nglProtStyle: state.nglReducers.nglProtStyle
   }
 }
 const mapDispatchToProps = {
@@ -438,6 +486,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-    setLoadingState: nglLoadActions.setLoadingState
+    setLoadingState: nglLoadActions.setLoadingState,
+    setStageColor: nglRenderActions.setStageColor
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

@@ -16,7 +16,9 @@ const INITIALSTATE = {
     water: true,
     hydrogen: true,
     orientationToSet: {},
-    loadingState: true
+    loadingState: true,
+    stageColor: 'black',
+    nglProtStyle: 'cartoon'
 }
 
 export default function nglReducers(state = INITIALSTATE, action) {
@@ -158,6 +160,16 @@ export default function nglReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 loadingState: action.loadingState
             })
+
+        case actions.SET_STAGE_COLOR:
+            return Object.assign({}, state, {
+                stageColor: action.stageColor
+            });
+
+            case actions.SET_NGL_PROT_STYLE:
+            return Object.assign({}, state, {
+                nglProtStyle: action.nglProtStyle
+            });
 
             // Cases like: @@redux/INIT
         default:

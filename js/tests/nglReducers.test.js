@@ -25,7 +25,9 @@ function getInitialState(){
       water: true,
       hydrogen: true,
         orientationToSet: {},
-    loadingState: true
+    loadingState: true,
+        nglProtStyle: "cartoon",
+        stageColor: "black"
     }
 }
 

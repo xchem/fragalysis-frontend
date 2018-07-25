@@ -1,9 +1,12 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import {LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
+import {
+    LOAD_OBJECT, LOAD_OBJECT_SUCCESS, LOAD_OBJECT_FAILURE, OBJECT_LOADING,
     DELETE_OBJECT, DELETE_OBJECT_FAILURE, DELETE_OBJECT_SUCCESS,
-    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION, SET_UUID, SET_LOADING_STATE} from './actonTypes'
+    DELETE_OBJECT_TYPE, SET_ORIENTATION, SET_NGL_ORIENTATION, SET_UUID, SET_LOADING_STATE,
+    SET_STAGE_COLOR, SET_NGL_PROT_STYLE
+} from './actonTypes'
 
 
 export const loadObject = function (group) {
@@ -112,5 +115,21 @@ export const setLoadingState = function (bool) {
     return {
         type: SET_LOADING_STATE,
         loadingState: bool
+    };
+}
+
+export const setStageColor = function (stageColor) {
+    console.log("ACTIONS: " + stageColor);
+    return {
+        type: SET_STAGE_COLOR,
+        stageColor: stageColor
+    };
+}
+
+export const setNglProtStyle = function (nglProtStyle) {
+    console.log("ACTIONS: " + nglProtStyle);
+    return {
+        type: SET_NGL_PROT_STYLE,
+        nglProtStyle: nglProtStyle
     };
 }
