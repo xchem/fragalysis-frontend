@@ -114,26 +114,26 @@ class HotspotView extends React.Component {
         return this.hsDict[type]+strength
     }
 
-    onHotspot(strength, type) {
+    onDonorTepidHotspot(strength, type) {
         const newState = !this.state.hs_dict.donor.Tepid
         const currentDict = this.state.hs_dict;
         const currentSubDict = this.state.hs_dict.donor;
         const donor = update(currentSubDict, {$merge: {"Tepid": newState}});
         const newDict = update(currentDict, {$merge: {donor}});
         this.setState({hs_dict:newDict});
-        // this.setState(prevState => ({...this.state.hs_dict.donor: !prevState.hs_dict.donor.Tepid}))
         const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
         this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
 
-    onDonorTepidHotspot() {
-        this.setState(prevState => ({donorTepidHsOn: !prevState.donorTepidHsOn}))
-        if(this.state.donorTepidHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 10, 0.2)
-        }
-        else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 10, 0.2)
-        }
+    onHotspot(strength, type) {
+        const newState = !this.state.hs_dict.acceptor.Tepid
+        const currentDict = this.state.hs_dict;
+        const currentSubDict = this.state.hs_dict.acceptor;
+        const acceptor = update(currentSubDict, {$merge: {"Tepid": newState}});
+        const newDict = update(currentDict, {$merge: {acceptor}});
+        this.setState({hs_dict:newDict});
+        const load_var = this.state.hs_dict.acceptor.Tepid ? "unload" : "load";
+        this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
 
     onDonorWarmHotspot() {
@@ -226,14 +226,12 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={() => this.onHotspot("Tepid", "DO")} on={<p>Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
+                    <Toggle onClick={() => this.onDonorTepidHotspot("Tepid", "DO")} on={<p>Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
                             onstyle="primary" offstyle={"primary"} active={this.state.hs_dict.donor.Tepid}/>
-                    {/*<Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"*/}
-                        {/*onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>*/}
                 </Row>
                 <Row>
-                    <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
-                        onstyle="danger" offstyle="danger" active={this.state.acceptorTepidHsOn}/>
+                    <Toggle onClick={this.onHotspot("Tepid", "AC")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
+                        onstyle="danger" offstyle="danger" active={this.state.hs_dict.acceptor.Tepid}/>
                 </Row>
                 <Row>
                     <Toggle onClick={this.onApolarTepidHotspot} on={<p>Tepid Apolar on</p>} off={<p>Tepid Apolar Off</p>} size="lg"
