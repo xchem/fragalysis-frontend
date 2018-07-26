@@ -115,9 +115,10 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(strength, type) {
+        const newState = !this.state.hs_dict.donor.Tepid
         const currentDict = this.state.hs_dict;
         const currentSubDict = this.state.hs_dict.donor;
-        const donor = update(currentSubDict, {$merge: {"Tepid": true}});
+        const donor = update(currentSubDict, {$merge: {"Tepid": newState}});
         const newDict = update(currentDict, {$merge: {donor}});
         this.setState({newDict});
         // this.setState(prevState => ({...this.state.hs_dict.donor: !prevState.hs_dict.donor.Tepid}))
