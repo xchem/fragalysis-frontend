@@ -115,7 +115,7 @@ class HotspotView extends React.Component {
 
     onHotspot(strength, type) {
         var currHsState = this.state.hs_dict;
-        currHsState.donor[Tepid] = true
+        currHsState.donor.Tepid = true
         this.setState.hs_dict = currHsState;
 //        this.setState(prevState => ({hs_dict.donor: !prevState.hs_dict.donor.Tepid}))
         const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
