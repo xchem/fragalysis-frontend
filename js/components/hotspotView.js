@@ -29,6 +29,8 @@ class HotspotView extends React.Component {
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
+            "width": 100,
+            "height": 200,
             "img_type": "png",
             "smiles": props.data.smiles
         }
