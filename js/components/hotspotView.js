@@ -114,10 +114,10 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(strength, type) {
-        // let currHsState = JSON.parse(JSON.stringify(this.state.hs_dict));
-        // currHsState.donor.Tepid = true;
-        // this.setState({hs_dict:currHsState});
-        this.setState(prevState => ({hs_dict.donor.Tepid: !prevState.hs_dict.donor.Tepid}))
+        var donor = {...this.state.hs_dict.donor};
+        donor.Tepid = true;
+        this.setState({donor});
+        this.setState(prevState => ({...this.state.hs_dict.donor.Tepid: !prevState.hs_dict.donor.Tepid}))
         const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
         this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
