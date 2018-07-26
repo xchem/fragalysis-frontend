@@ -9,6 +9,7 @@ import * as nglObjectTypes from './nglObjectTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
+import update from 'immutability-helper';
 
 class HotspotView extends React.Component {
 
@@ -114,10 +115,10 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(strength, type) {
-        var donor = {...this.state.hs_dict.donor};
-        donor.Tepid = true;
-        this.setState({donor});
-        // this.setState(prevState => ({...this.state.hs_dict.donor.Tepid: !prevState.hs_dict.donor.Tepid}))
+        const currentDict = this.state.hs_dict;
+        const newDict = update(currentDict, $merge: {"donor": {"Tepid": true}});
+        // this.setState({donor});
+        // this.setState(prevState => ({...this.state.hs_dict.donor: !prevState.hs_dict.donor.Tepid}))
         const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
         this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
