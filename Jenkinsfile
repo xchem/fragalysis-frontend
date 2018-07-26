@@ -22,6 +22,7 @@ pipeline {
                     message: "${JOB_NAME} build ${BUILD_NUMBER} - starting..."
           echo "Inspecting..."
           sh "false"
+        }
       }
     }
 
