@@ -14,6 +14,7 @@ class HotspotView extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onHotspot = this.onHotspot.bind(this)
         this.onDonorTepidHotspot = this.onDonorTepidHotspot.bind(this);
         this.onAcceptorTepidHotspot = this.onAcceptorTepidHotspot.bind(this);
         this.onApolarTepidHotspot = this.onApolarTepidHotspot.bind(this);
@@ -34,17 +35,33 @@ class HotspotView extends React.Component {
         }
         Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
         this.key = "mol_image"
-        this.state = {}
-        this.state.donorTepidHsOn = false
-        this.state.donorWarmHsOn = false
-        this.state.donorHotHsOn = false
-        this.state.acceptorTepidHsOn = false
-        this.state.acceptorWarmHsOn = false
-        this.state.acceptorHotHsOn = false
-        this.state.apolarTepidHsOn = false
-        this.state.apolarWarmHsOn = false
-        this.state.apolarHotHsOn = false
-        this.state.complexOn = false
+        this.state = {
+            "hs_dict": {
+                "donor": {
+                    "Tepid": false,
+                    "Warm": false,
+                    "Hot": false
+                },
+                "acceptor":{
+                    "Tepid": false,
+                    "Warm": false,
+                    "Hot": false
+                },
+                "apolar":{
+                    "Tepid": false,
+                    "Warm": false,
+                    "Hot": false
+                }
+            }
+        }
+        this.hsDict = {
+            "Tepid": {"opacity": 0.2, "contour": 10},
+            "Warm": {"opacity": 0.4, "contour": 14},
+            "Hot": {"opacity": 0.6, "contour": 17},
+            "DO": "donor",
+            "AP": "apolar",
+            "AC": "acceptor"
+        }
     }
 
     handleHotspot(hotspotObject, loadState){
@@ -66,16 +83,6 @@ class HotspotView extends React.Component {
         return {backgroundColor: colorList[this.props.data.id % colorList.length]};
     }
 
-    handleClick(e) {
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
-        if(this.state.isToggleOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
-        }
-        else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colorToggle)))
-        }
-    }
-
     fetchHotspotUrl(mapType, protId, loadState, isoLevel, opacity) {
         var hotspotQuery = "?map_type=" + mapType + "&prot_id=" + protId.toString()
         fetch("/api/hotspots/" + hotspotQuery, {
@@ -89,7 +96,6 @@ class HotspotView extends React.Component {
         }).then(function (myJson) {
             var hotspotObject = {
                 "name": "HOTSPOT_" + myJson.results[0].prot_id.toString() + mapType + isoLevel,
-                //"hotUrl": myJson.results[0].map_info.replace('http:', 'https:'),
                 "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
                 "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
@@ -101,6 +107,18 @@ class HotspotView extends React.Component {
             }
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
+    }
+
+    getDictString(strength, type){
+        return this.hsDict[type]+strength
+    }
+
+    onHotspot(strength, type) {
+        // var this_type = this.getDictString(strength, type)
+        // var currHsState = hotspotStateDict[this_type];
+        this.setState(prevState => ({hs_dict.donor.Tepid: !prevState.hs_dict.donor.Tepid}))
+        const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
+        this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
 
     onDonorTepidHotspot() {
@@ -203,8 +221,10 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"
-                        onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
+                    <Toggle onClick={this.onHotspot("Tepid", "DO")} on={<p>Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
+                            onstyle="primary" offstyle={"primary"} active={this.state.hs_dict.donor.Tepid}
+                    {/*<Toggle onClick={this.onDonorTepidHotspot} on={<p>Tepid Donor</p>} off={<p>Tepid Donor</p>} size="lg"*/}
+                        // onstyle="primary" offstyle="primary" active={this.state.donorTepidHsOn}/>
                 </Row>
                 <Row>
                     <Toggle onClick={this.onAcceptorTepidHotspot} on={<p>Tepid Acceptor</p>} off={<p>Tepid Acceptor</p>} size="lg"
