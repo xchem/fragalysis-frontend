@@ -230,7 +230,7 @@ class HotspotView extends React.Component {
                             onstyle="primary" offstyle={"primary"} active={this.state.hs_dict.donor.Tepid}/>
                 </Row>
                 <Row>
-                    <Toggle onClick={this.onHotspot("Tepid", "AC")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
+                    <Toggle onClick={() => this.onHotspot("Tepid", "AC")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
                         onstyle="danger" offstyle="danger" active={this.state.hs_dict.acceptor.Tepid}/>
                 </Row>
                 <Row>
