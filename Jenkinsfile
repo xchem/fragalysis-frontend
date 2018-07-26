@@ -17,12 +17,10 @@ pipeline {
 
     stage('Inspect') {
       steps {
-        steps {
-          slackSend channel: "#${SLACK_BUILD_CHANNEL}",
-                    message: "${JOB_NAME} build ${BUILD_NUMBER} - starting..."
-          echo "Inspecting..."
-          sh "false"
-        }
+        slackSend channel: "#${SLACK_BUILD_CHANNEL}",
+                  message: "${JOB_NAME} build ${BUILD_NUMBER} - starting..."
+        echo "Inspecting..."
+        sh "false"
       }
     }
 
