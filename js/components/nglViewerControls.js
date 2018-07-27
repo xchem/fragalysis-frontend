@@ -35,7 +35,7 @@ class NglViewerControls extends React.Component {
         return <div>
             <h3>Viewer controls</h3>
             <button onClick={this.handleStageColor}>Toggle background colour</button>
-                <UpdateOrientation />
+            <UpdateOrientation />
         </div>
     }
 }

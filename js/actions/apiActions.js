@@ -5,7 +5,7 @@ import {LOAD_TARGETS, SET_TARGET_ON, SET_TARGET_ID_LIST, SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST, SET_MOL_GROUP_ON, LOAD_MOLECULES,
     LOAD_MOL_GROUPS, GET_FROM_API, GET_FROM_API_FAILURE,
     GET_FROM_API_SUCCESS, RECEIVE_DATA_FROM_API, SET_PANNDA_EVENT_LIST, SET_PANNDA_EVENT_ON,
-    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON, SET_HOTSPOT_LIST, SET_HOTSPOT_ON } from './actonTypes'
+    SET_PANNDA_SITE_ON, SET_PANNDA_SITE_LIST, SET_APP_ON, SET_HOTSPOT_LIST, SET_HOTSPOT_ON, SET_DUCK_YANK_DATA } from './actonTypes'
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -30,6 +30,15 @@ export const setTargetIdList = function (input_json) {
         type: SET_TARGET_ID_LIST,
         target_id_list: input_json
     };
+}
+
+export const setDuckYankData = function (input_json){
+    console.log("ACTIONS: " + input_json);
+    return {
+        type: SET_DUCK_YANK_DATA,
+        duck_yank_data: input_json
+    };
+
 }
 
 export const setTargetOn = function (target_id){
