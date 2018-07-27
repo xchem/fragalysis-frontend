@@ -9,7 +9,6 @@ import * as nglObjectTypes from './nglObjectTypes'
 import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
-import update from 'immutability-helper';
 import $ from 'jquery';
 
 class HotspotView extends React.Component {
@@ -45,15 +44,15 @@ class HotspotView extends React.Component {
                     "Warm": false,
                     "Hot": false
                 }
+            },
+            "hsParams": {
+                "Tepid": {"opacity": 0.2, "contour": 10},
+                "Warm": {"opacity": 0.4, "contour": 14},
+                "Hot": {"opacity": 0.6, "contour": 17},
+                "donor": {"abbreviation": "DO", "buttonStyle": "Primary"},
+                "apolar": {"abbreviation": "AP", "buttonStyle": "Danger"},
+                "acceptor": {"abbreviation": "AC", "buttonStyle": "Warning"}
             }
-        }
-        this.hsDict = {
-            "Tepid": {"opacity": 0.2, "contour": 10},
-            "Warm": {"opacity": 0.4, "contour": 14},
-            "Hot": {"opacity": 0.6, "contour": 17},
-            "donor": {"abbreviation": "DO", "buttonStyle": "Primary"},
-            "apolar": {"abbreviation": "AP", "buttonStyle": "Danger"},
-            "acceptor": {"abbreviation": "AC", "buttonStyle": "Warning"}
         }
     }
 
@@ -109,7 +108,7 @@ class HotspotView extends React.Component {
         const newDict = $.extend(true, {}, currentDict, replacementObject)
         this.setState({hs_dict:newDict});
         const load_var = this.state.hs_dict[type][strength] ? "unload" : "load";
-        this.fetchHotspotUrl(this.hsDict[type].abbreviation, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
+        this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
     render() {
@@ -123,43 +122,43 @@ class HotspotView extends React.Component {
             <Col xs={3} md={3}>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
-                            onstyle={this.hsDict.donor.abbreviation} offstyle={this.hsDict.donor.abbreviation} active={this.state.hs_dict.donor.Tepid}/>
+                            onstyle={this.state.hsParams.donor.abbreviation} offstyle={this.state.hsParams.donor.abbreviation} active={this.state.hs_dict.donor.Tepid}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Tepid", "acceptor")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
-                        onstyle={this.hsDict.acceptor.abbreviation} offstyle={this.hsDict.acceptor.abbreviation} active={this.state.hs_dict.acceptor.Tepid}/>
+                        onstyle={this.state.hsParams.acceptor.abbreviation} offstyle={this.state.hsParams.acceptor.abbreviation} active={this.state.hs_dict.acceptor.Tepid}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Tepid", "apolar")} on={<p>Tepid Apolar on</p>} off={<p>Tepid Apolar Off</p>} size="lg"
-                        onstyle={this.hsDict.apolar.abbreviation} offstyle={this.hsDict.apolar.abbreviation} active={this.state.hs_dict.apolar.Tepid}/>
+                        onstyle={this.state.hsParams.apolar.abbreviation} offstyle={this.state.hsParams.apolar.abbreviation} active={this.state.hs_dict.apolar.Tepid}/>
                 </Row>
             </Col>
             <Col xs={3} md={3}>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Warm", "donor")} on={<p> Warm Donor on</p>} off={<p> Warm Donor Off</p>} size="lg"
-                        onstyle={this.hsDict.donor.abbreviation} offstyle={this.hsDict.donor.abbreviation} active={this.state.hs_dict.donor.Warm}/>
+                        onstyle={this.state.hsParams.donor.abbreviation} offstyle={this.state.hsParams.donor.abbreviation} active={this.state.hs_dict.donor.Warm}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot ("Warm", "acceptor")} on={<p>Warm Acceptor on</p>} off={<p>Warm Acceptor Off</p>} size="lg"
-                        onstyle={this.hsDict.acceptor.abbreviation} offstyle={this.hsDict.acceptor.abbreviation} active={this.state.hs_dict.acceptor.Warm}/>
+                        onstyle={this.state.hsParams.acceptor.abbreviation} offstyle={this.state.hsParams.acceptor.abbreviation} active={this.state.hs_dict.acceptor.Warm}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot ("Warm", "apolar")} on={<p> Warm Apolar on</p>} off={<p>Warm Apolar Off</p>} size="lg"
-                        onstyle={this.hsDict.apolar.abbreviation} offstyle={this.hsDict.apolar.abbreviation} active={this.state.hs_dict.apolar.Warm}/>
+                        onstyle={this.state.hsParams.apolar.abbreviation} offstyle={this.state.hsParams.apolar.abbreviation} active={this.state.hs_dict.apolar.Warm}/>
                 </Row>
             </Col>
             <Col xs={3} md={3}>
                 <Row>
                 <Toggle onClick={() => this.onHotspot ("Hot", "donor")} on={<p> Hot Donor on</p>} off={<p>Hot Donor Off</p>} size="lg"
-                        onstyle={this.hsDict.donor.abbreviation} offstyle={this.hsDict.donor.abbreviation} active={this.state.hs_dict.donor.Hot}/>
+                        onstyle={this.state.hsParams.donor.abbreviation} offstyle={this.state.hsParams.donor.abbreviation} active={this.state.hs_dict.donor.Hot}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot ("Hot", "acceptor")} on={<p>Hot Acceptor on</p>} off={<p>Hot Acceptor Off</p>} size="lg"
-                        onstyle={this.hsDict.acceptor.abbreviation} offstyle={this.hsDict.acceptor.abbreviation} active={this.state.acceptorHotHsOn}/>
+                        onstyle={this.state.hsParams.acceptor.abbreviation} offstyle={this.state.hsParams.acceptor.abbreviation} active={this.state.acceptorHotHsOn}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot ("Hot", "apolar")} on={<p> Hot Apolar on</p>} off={<p>Hot Apolar Off</p>} size="lg"
-                             onstyle={this.hsDict.apolar.abbreviation} offstyle={this.hsDict.apolar.abbreviation} active={this.state.hs_dict.apolar.Hot}/>
+                             onstyle={this.state.hsParams.apolar.abbreviation} offstyle={this.state.hsParams.apolar.abbreviation} active={this.state.hs_dict.apolar.Hot}/>
                 </Row>
             </Col>
         </div>
