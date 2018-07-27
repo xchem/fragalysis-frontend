@@ -262,7 +262,7 @@ class HotspotView extends React.Component {
                         onstyle="danger" offstyle="danger" active={this.state.acceptorHotHsOn}/>
                 </Row>
                 <Row>
-                    <Toggle onClick={() => this.onHotspot ("Hot", "acceptor")} on={<p> Hot Apolar on</p>} off={<p>Hot Apolar Off</p>} size="lg"
+                    <Toggle onClick={() => this.onHotspot ("Hot", "apolar")} on={<p> Hot Apolar on</p>} off={<p>Hot Apolar Off</p>} size="lg"
                              onstyle="warning" offstyle="warning" active={this.state.hs_dict.apolar.Hot}/>
                 </Row>
             </Col>
