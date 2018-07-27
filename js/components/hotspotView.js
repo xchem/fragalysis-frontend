@@ -129,7 +129,7 @@ class HotspotView extends React.Component {
     onHotspot(strength, type) {
         const newState = !this.state.hs_dict[type][strength];
         const replacementObject = {
-            [type]: {"Tepid": newState}
+            [type]: {[strength]: newState}
         }
         const currentDict = this.state.hs_dict;
         const newDict = $.extend(true, {}, currentDict, replacementObject)
