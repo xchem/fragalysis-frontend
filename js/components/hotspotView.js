@@ -126,7 +126,8 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(strength, type) {
-        const newState = !this.state.hs_dict.eval(this.hsDict[type]).eval(strength);
+        let newState = this.getDictString(strength, type);
+        // const newState = !this.state.hs_dict.{this.hsDict[type]}.{strength};
         const currentDict = this.state.hs_dict;
         const currentSubDict = this.state.hs_dict.acceptor;
         const acceptor = update(currentSubDict, {$merge: {"Tepid": newState}});
