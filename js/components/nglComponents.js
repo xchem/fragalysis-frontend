@@ -74,7 +74,7 @@ export class NGLView extends React.Component {
                 var res_num = pickingProxy.object[atom_id].resno
                 var tot_name = chain_name+"_"+res_name+"_"+res_num.toString()+"_"+atom_name;
                 var mol_int = parseInt(pickingProxy.object.atom1.structure.name.split("COMPLEXLOAD_")[1])
-                this.props.setDuckYankData({"int_name": tot_name, "mol_int": mol_int})
+                this.props.setDuckYankData({"interaction": tot_name, "complex_id": mol_int})
             }
             else if (pickingProxy.object.name){
                 var name = pickingProxy.object.name
