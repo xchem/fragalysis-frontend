@@ -19,7 +19,6 @@ class HotspotView extends React.Component {
         this.colorToggle = this.colorToggle.bind(this);
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
-        this.buttonGridBuilder = this.buttonGridBuilder.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
@@ -107,15 +106,7 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    buttonGridBuilder() {
-        let buttonGrid = [];
-        buttonGrid.push(<Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
-                                onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Tepid}/>);
-        return buttonGrid;
-    }
-
     render() {
-        this.buttonGridBuilder()
         return <div>
             <Col xs={3} md={3}>
                 <Panel style={this.colorToggle()}>
@@ -166,7 +157,6 @@ class HotspotView extends React.Component {
             </Col>
         </div>
     }
-
 }
 
 function mapStateToProps(state) {
