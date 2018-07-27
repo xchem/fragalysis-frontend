@@ -59,9 +59,9 @@ class HotspotView extends React.Component {
             "Tepid": {"opacity": 0.2, "contour": 10},
             "Warm": {"opacity": 0.4, "contour": 14},
             "Hot": {"opacity": 0.6, "contour": 17},
-            "DO": "donor",
-            "AP": "apolar",
-            "AC": "acceptor"
+            "donor": "DO",
+            "apolar": "AP",
+            "acceptor": "AC"
         }
     }
 
@@ -122,19 +122,19 @@ class HotspotView extends React.Component {
         const newDict = update(currentDict, {$merge: {donor}});
         this.setState({hs_dict:newDict});
         const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
-        this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
+        this.fetchHotspotUrl(this.hsDict[type], this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
 
     onHotspot(strength, type) {
-        let newState = "this.state.hs_dict."+this.getDictString(strength, type);
-        // const newState = !this.state.hs_dict.{this.hsDict[type]}.{strength};
+        // let newState = "this.state.hs_dict."+this.getDictString(strength, type);
+        const newState = !this.state.hs_dict[type][strength];
         const currentDict = this.state.hs_dict;
         const currentSubDict = this.state.hs_dict.acceptor;
         const acceptor = update(currentSubDict, {$merge: {"Tepid": newState}});
         const newDict = update(currentDict, {$merge: {acceptor}});
         this.setState({hs_dict:newDict});
         const load_var = this.state.hs_dict.acceptor.Tepid ? "unload" : "load";
-        this.fetchHotspotUrl(type, this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
+        this.fetchHotspotUrl(this.hsDict[type], this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
 
     onDonorWarmHotspot() {
@@ -227,7 +227,7 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={() => this.onDonorTepidHotspot("Tepid", "DO")} on={<p>Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
+                    <Toggle onClick={() => this.onDonorTepidHotspot("Tepid", "donor")} on={<p>Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
                             onstyle="primary" offstyle={"primary"} active={this.state.hs_dict.donor.Tepid}/>
                 </Row>
                 <Row>
