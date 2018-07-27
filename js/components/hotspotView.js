@@ -111,7 +111,7 @@ class HotspotView extends React.Component {
     }
 
     getDictString(strength, type){
-        return this.hsDict[type]+strength
+        return this.hsDict[type]+"."+strength
     }
 
     onDonorTepidHotspot(strength, type) {
@@ -126,7 +126,7 @@ class HotspotView extends React.Component {
     }
 
     onHotspot(strength, type) {
-        let newState = this.getDictString(strength, type);
+        let newState = "this.state.hs_dict."+this.getDictString(strength, type);
         // const newState = !this.state.hs_dict.{this.hsDict[type]}.{strength};
         const currentDict = this.state.hs_dict;
         const currentSubDict = this.state.hs_dict.acceptor;
