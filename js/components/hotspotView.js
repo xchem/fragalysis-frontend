@@ -17,15 +17,6 @@ class HotspotView extends React.Component {
     constructor(props) {
         super(props);
         this.onHotspot = this.onHotspot.bind(this)
-        this.onDonorTepidHotspot = this.onDonorTepidHotspot.bind(this);
-        this.onAcceptorTepidHotspot = this.onAcceptorTepidHotspot.bind(this);
-        this.onApolarTepidHotspot = this.onApolarTepidHotspot.bind(this);
-        this.onDonorWarmHotspot = this.onDonorWarmHotspot.bind(this);
-        this.onAcceptorWarmHotspot = this.onAcceptorWarmHotspot.bind(this);
-        this.onApolarWarmHotspot = this.onApolarWarmHotspot.bind(this);
-        this.onDonorHotHotspot = this.onDonorHotHotspot.bind(this);
-        this.onAcceptorHotHotspot = this.onAcceptorHotHotspot.bind(this);
-        this.onApolarHotHotspot = this.onApolarHotHotspot.bind(this);
         this.colorToggle = this.colorToggle.bind(this);
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
@@ -111,21 +102,6 @@ class HotspotView extends React.Component {
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
     }
 
-    getDictString(strength, type){
-        return this.hsDict[type]+"."+strength
-    }
-
-    onDonorTepidHotspot(strength, type) {
-        const newState = !this.state.hs_dict.donor.Tepid
-        const currentDict = this.state.hs_dict;
-        const currentSubDict = this.state.hs_dict.donor;
-        const donor = update(currentSubDict, {$merge: {"Tepid": newState}});
-        const newDict = update(currentDict, {$merge: {donor}});
-        this.setState({hs_dict:newDict});
-        const load_var = this.state.hs_dict.donor.Tepid ? "unload" : "load";
-        this.fetchHotspotUrl(this.hsDict[type], this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
-    }
-
     onHotspot(strength, type) {
         const newState = !this.state.hs_dict[type][strength];
         const replacementObject = { [type]: {[strength]: newState}}
@@ -135,87 +111,7 @@ class HotspotView extends React.Component {
         const load_var = this.state.hs_dict[type][strength] ? "unload" : "load";
         this.fetchHotspotUrl(this.hsDict[type], this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
     }
-
-    onDonorWarmHotspot() {
-        this.setState(prevState => ({donorWarmHsOn: !prevState.donorWarmHsOn}))
-        if(this.state.donorWarmHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 14, 0.4)
-        }
-        else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 14, 0.4)
-        }
-    }
-
-    onDonorHotHotspot() {
-        this.setState(prevState => ({donorHotHsOn: !prevState.donorHotHsOn}))
-        if(this.state.donorHotHsOn){
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'unload', 17, 0.6)
-        }
-        else{
-            this.fetchHotspotUrl("DO", this.props.data.prot_id, 'load', 17, 0.6)
-        }
-    }
-
-    onAcceptorTepidHotspot() {
-        this.setState(prevState => ({acceptorTepidHsOn: !prevState.acceptorTepidHsOn}))
-        if(this.state.acceptorTepidHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 10, 0.2)
-        }
-        else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 10, 0.2)
-        }
-    }
-
-    onAcceptorWarmHotspot() {
-        this.setState(prevState => ({acceptorWarmHsOn: !prevState.acceptorWarmHsOn}))
-        if(this.state.acceptorWarmHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 14, 0.4)
-        }
-        else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 14, 0.4)
-        }
-    }
-
-    onAcceptorHotHotspot() {
-        this.setState(prevState => ({acceptorHotHsOn: !prevState.acceptorHotHsOn}))
-        if(this.state.acceptorHotHsOn){
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'unload', 17, 0.6)
-        }
-        else{
-            this.fetchHotspotUrl("AC", this.props.data.prot_id, 'load', 17, 0.6)
-        }
-    }
-
-    onApolarTepidHotspot() {
-        this.setState(prevState => ({apolarTepidHsOn: !prevState.apolarTepidHsOn}))
-        if(this.state.apolarTepidHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 10, 0.2)
-        }
-        else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 10, 0.2)
-        }
-    }
-
-    onApolarWarmHotspot() {
-        this.setState(prevState => ({apolarWarmHsOn: !prevState.apolarWarmHsOn}))
-        if(this.state.apolarWarmHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 14, 0.4)
-        }
-        else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 14, 0.4)
-        }
-    }
-
-    onApolarHotHotspot() {
-        this.setState(prevState => ({apolarHotHsOn: !prevState.apolarHotHsOn}))
-        if(this.state.apolarHotHsOn){
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'unload', 17, 0.6)
-        }
-        else{
-            this.fetchHotspotUrl("AP", this.props.data.prot_id, 'load', 17, 0.6)
-        }
-    }
-
+    
     render() {
         const strokeSize = 2;
         return <div>
@@ -226,7 +122,7 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                    <Toggle onClick={() => this.onDonorTepidHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
+                    <Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
                             onstyle="primary" offstyle={"primary"} active={this.state.hs_dict.donor.Tepid}/>
                 </Row>
                 <Row>
@@ -235,7 +131,7 @@ class HotspotView extends React.Component {
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Tepid", "apolar")} on={<p>Tepid Apolar on</p>} off={<p>Tepid Apolar Off</p>} size="lg"
-                        onstyle="danger" offstyle="danger" active={this.state.hs_dict.apolar.Tepid}/>
+                        onstyle="warning" offstyle="warning" active={this.state.hs_dict.apolar.Tepid}/>
                 </Row>
             </Col>
             <Col xs={3} md={3}>
