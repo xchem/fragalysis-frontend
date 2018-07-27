@@ -158,12 +158,12 @@ class SummaryView extends React.Component{
         var interaction = this.props.duck_yank_data["interaction"];
         var complex_id = this.props.duck_yank_data["complex_id"];
         var url = window.location.protocol + "//" + window.location.host + "/api/molecules/" + complex_id.toString() + "/";
-        const response = await fetch(url);
-        const mol_json = await response.json();
+        const mol_response = await fetch(url);
+        const mol_json = await mol_response.json();
         var prot_id = mol_json["prot_id"]
         var url = window.location.protocol + "//" + window.location.host + "/api/protpdb/" + prot_id + "/";
-        const response = await fetch(url);
-        const prot_json = await response.json();
+        const prot_response = await fetch(url);
+        const prot_json = await prot_response.json();
         const pdb_data = prot_json["pdb_data"];
         const mol_data = mol_json["sdf_info"];
         var duck_yaml = 'prot_code: "'+prot_code+'"\n' +
