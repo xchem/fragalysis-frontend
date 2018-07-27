@@ -164,6 +164,10 @@ class SummaryView extends React.Component{
         var url = window.location.protocol + "//" + window.location.host + "/api/protpdb/" + prot_id + "/";
         const prot_response = await fetch(url);
         const prot_json = await prot_response.json();
+        var url = window.location.protocol + "//" + window.location.host + "/api/proteins/" + prot_id + "/";
+        const prot_data_response = await fetch(url);
+        const prot_data_json = await prot_data_response.json();
+        const prot_code = prot_data_json["code"];
         const pdb_data = prot_json["pdb_data"];
         const mol_data = mol_json["sdf_info"];
         var duck_yaml = 'prot_code: "'+prot_code+'"\n' +
