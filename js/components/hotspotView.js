@@ -49,9 +49,9 @@ class HotspotView extends React.Component {
                 "Tepid": {"opacity": 0.2, "contour": 10},
                 "Warm": {"opacity": 0.4, "contour": 14},
                 "Hot": {"opacity": 0.6, "contour": 17},
-                "donor": {"abbreviation": "DO", "buttonStyle": "Primary"},
-                "apolar": {"abbreviation": "AP", "buttonStyle": "Danger"},
-                "acceptor": {"abbreviation": "AC", "buttonStyle": "Warning"}
+                "donor": {"abbreviation": "DO", "buttonStyle": "primary"},
+                "apolar": {"abbreviation": "AP", "buttonStyle": "danger"},
+                "acceptor": {"abbreviation": "AC", "buttonStyle": "warning"}
             }
         }
     }
