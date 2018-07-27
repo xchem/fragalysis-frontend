@@ -10,7 +10,7 @@ import '../../css/toggle.css';
 import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
 import update from 'immutability-helper';
-import extend from 'jquery';
+import $ from 'jquery';
 
 class HotspotView extends React.Component {
 
@@ -135,7 +135,7 @@ class HotspotView extends React.Component {
         // const currentSubDict = this.state.hs_dict[type];
         // const acceptor = update(currentSubDict, {$merge: {[strength]: newState}});
         // const newDict = update(currentDict, {$merge: {acceptor}});
-        const newDict = extend({}, currentDict, replacementObject)
+        const newDict = $.extend({}, currentDict, replacementObject)
         this.setState({hs_dict:newDict});
         const load_var = this.state.hs_dict[type][strength] ? "unload" : "load";
         this.fetchHotspotUrl(this.hsDict[type], this.props.data.prot_id, load_var, this.hsDict[strength].contour, this.hsDict[strength].opacity)
