@@ -122,7 +122,7 @@ class HotspotView extends React.Component {
             <Col xs={3} md={3}>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
-                            onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hs_dict.donor.Tepid}/>
+                            onstyle={this.state.hsParams[donor].buttonStyle} offstyle={this.state.hsParams[donor].buttonStyle} active={this.state.hs_dict.donor.Tepid}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot("Tepid", "acceptor")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
@@ -154,7 +154,7 @@ class HotspotView extends React.Component {
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot ("Hot", "acceptor")} on={<p>Hot Acceptor on</p>} off={<p>Hot Acceptor Off</p>} size="lg"
-                        onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.acceptorHotHsOn}/>
+                        onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hs_dict.acceptor.Hot}/>
                 </Row>
                 <Row>
                     <Toggle onClick={() => this.onHotspot ("Hot", "apolar")} on={<p> Hot Apolar on</p>} off={<p>Hot Apolar Off</p>} size="lg"
