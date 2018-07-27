@@ -20,6 +20,7 @@ class SummaryView extends React.Component{
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
         this.handleDocking = this.handleDocking.bind(this);
+        this.handleYankDuck = this.handleYankDuck.bind(this);
         this.getColour = this.getColour.bind(this);
         this.selectAll = this.selectAll.bind(this);
         this.vector_list;
