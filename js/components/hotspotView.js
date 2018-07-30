@@ -40,11 +40,11 @@ class HotspotView extends React.Component {
                     "Warm": false,
                     "Hot": false
                 },
-                // "apolar":{
-                //     "Tepid": false,
-                //     "Warm": false,
-                //     "Hot": false
-                // }
+                "apolar":{
+                    "Tepid": false,
+                    "Warm": false,
+                    "Hot": false
+                }
             },
             "hsParams": {
                 "Tepid": {"opacity": 0.2, "contour": 10},
@@ -115,7 +115,7 @@ class HotspotView extends React.Component {
                 var button = React.createElement(Toggle, {
                     key: strength+type,
                     onClick: function onClick() {
-                        return _this.onHotspot(strength, type);
+                        return this.onHotspot(this.state.hsDict[type][strength], this.state.hsDict[type]);
                         },
                     on: React.createElement('p', null, strength + ' ' + type + ' on'),
                     off: React.createElement('p', null, strength + ' ' + type + ' Off'),
