@@ -108,10 +108,10 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    buttonRender (type, strength) {
+    buttonRender (strength, type) {
         var button = React.createElement(Toggle,
                     { onClick: function onClick() {
-                        return this.onHotspot(type, strength);
+                        return this.onHotspot(strength, type);
                         }, on: React.createElement(
                         'p',
                         null,
@@ -128,7 +128,7 @@ class HotspotView extends React.Component {
     buttonIterate() {
         for (var type in this.state.hsDict) {
             for (var strength in this.state.hsDict[type]) {
-                console.log('hotspot button request ' + type + strength)
+                // console.log('hotspot button request ' + type + strength)
                 {this.buttonRender(type, strength)}
             }
         }
@@ -142,10 +142,10 @@ class HotspotView extends React.Component {
                     <Image src={this.img_url+"&dummy=png"} responsive rounded />
                 </Panel>
             </Col>
-            <Col xs={9} md={9}>
-                {this.buttonIterate()}
+            <Col xs={3} md={3}>
+                {/*{this.buttonIterate()}*/}
                 <Row>
-                    {this.buttonRender("donor", "Tepid")}
+                    {this.buttonRender("Tepid", "donor")}
                     {/*<Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"*/}
                             {/*onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Tepid}/>*/}
                 </Row>
