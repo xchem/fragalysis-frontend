@@ -144,46 +144,47 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={9} md={9}>
                 {this.buttonIterate()}
-                {/*<Row>*/}
+                <Row>
+                    {this.buttonRender("donor", "Tepid")}
                     {/*<Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"*/}
                             {/*onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Tepid}/>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot("Tepid", "acceptor")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hsDict.acceptor.Tepid}/>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot("Tepid", "apolar")} on={<p>Tepid Apolar on</p>} off={<p>Tepid Apolar Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.apolar.buttonStyle} offstyle={this.state.hsParams.apolar.buttonStyle} active={this.state.hsDict.apolar.Tepid}/>*/}
-                {/*</Row>*/}
-            {/*</Col>*/}
-            {/*<Col xs={3} md={3}>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot("Warm", "donor")} on={<p> Warm Donor on</p>} off={<p> Warm Donor Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Warm}/>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot ("Warm", "acceptor")} on={<p>Warm Acceptor on</p>} off={<p>Warm Acceptor Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hsDict.acceptor.Warm}/>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot ("Warm", "apolar")} on={<p> Warm Apolar on</p>} off={<p>Warm Apolar Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.apolar.buttonStyle} offstyle={this.state.hsParams.apolar.buttonStyle} active={this.state.hsDict.apolar.Warm}/>*/}
-                {/*</Row>*/}
-            {/*</Col>*/}
-            {/*<Col xs={3} md={3}>*/}
-                {/*<Row>*/}
-                {/*<Toggle onClick={() => this.onHotspot ("Hot", "donor")} on={<p> Hot Donor on</p>} off={<p>Hot Donor Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Hot}/>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot ("Hot", "acceptor")} on={<p>Hot Acceptor on</p>} off={<p>Hot Acceptor Off</p>} size="lg"*/}
-                        {/*onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hsDict.acceptor.Hot}/>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                    {/*<Toggle onClick={() => this.onHotspot ("Hot", "apolar")} on={<p> Hot Apolar on</p>} off={<p>Hot Apolar Off</p>} size="lg"*/}
-                             {/*onstyle={this.state.hsParams.apolar.buttonStyle} offstyle={this.state.hsParams.apolar.buttonStyle} active={this.state.hsDict.apolar.Hot}/>*/}
-                {/*</Row>*/}
+                </Row>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot("Tepid", "acceptor")} on={<p>Tepid Acceptor on</p>} off={<p>Tepid Acceptor Off</p>} size="lg"
+                        onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hsDict.acceptor.Tepid}/>
+                </Row>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot("Tepid", "apolar")} on={<p>Tepid Apolar on</p>} off={<p>Tepid Apolar Off</p>} size="lg"
+                        onstyle={this.state.hsParams.apolar.buttonStyle} offstyle={this.state.hsParams.apolar.buttonStyle} active={this.state.hsDict.apolar.Tepid}/>
+                </Row>
+            </Col>
+            <Col xs={3} md={3}>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot("Warm", "donor")} on={<p> Warm Donor on</p>} off={<p> Warm Donor Off</p>} size="lg"
+                        onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Warm}/>
+                </Row>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot ("Warm", "acceptor")} on={<p>Warm Acceptor on</p>} off={<p>Warm Acceptor Off</p>} size="lg"
+                        onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hsDict.acceptor.Warm}/>
+                </Row>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot ("Warm", "apolar")} on={<p> Warm Apolar on</p>} off={<p>Warm Apolar Off</p>} size="lg"
+                        onstyle={this.state.hsParams.apolar.buttonStyle} offstyle={this.state.hsParams.apolar.buttonStyle} active={this.state.hsDict.apolar.Warm}/>
+                </Row>
+            </Col>
+            <Col xs={3} md={3}>
+                <Row>
+                <Toggle onClick={() => this.onHotspot ("Hot", "donor")} on={<p> Hot Donor on</p>} off={<p>Hot Donor Off</p>} size="lg"
+                        onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Hot}/>
+                </Row>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot ("Hot", "acceptor")} on={<p>Hot Acceptor on</p>} off={<p>Hot Acceptor Off</p>} size="lg"
+                        onstyle={this.state.hsParams.acceptor.buttonStyle} offstyle={this.state.hsParams.acceptor.buttonStyle} active={this.state.hsDict.acceptor.Hot}/>
+                </Row>
+                <Row>
+                    <Toggle onClick={() => this.onHotspot ("Hot", "apolar")} on={<p> Hot Apolar on</p>} off={<p>Hot Apolar Off</p>} size="lg"
+                             onstyle={this.state.hsParams.apolar.buttonStyle} offstyle={this.state.hsParams.apolar.buttonStyle} active={this.state.hsDict.apolar.Hot}/>
+                </Row>
             </Col>
             </Grid>
         </div>
