@@ -110,29 +110,26 @@ class HotspotView extends React.Component {
     buttonIterate() {
         var _this = this;
         var buttonList = [];
-        for (var type in this.state.hsDict) for (var strength in this.state.hsDict[type]) {
-            var button = React.createElement(Toggle,
-                {
-                    key: strength + type,
-                    onClick: function onClick() {
-                        return _this.onHotspot(strength, type);
-                    },
-                    on: React.createElement(
-                        'p',
-                        null,
-                        strength + ' ' + type + ' on'
-                    ),
-                    off: React.createElement(
-                        'p',
-                        null,
-                        strength + ' ' + type + ' Off'
-                    ),
-                    size: 'lg',
-                    onstyle: this.state.hsParams[type].buttonStyle,
-                    offstyle: this.state.hsParams[type].buttonStyle,
-                    active: this.state.hsDict[type][strength]
-                })
-            buttonList.push(button);
+        for (var type in this.state.hsDict) {
+            for (var strength in this.state.hsDict[type]) {
+                var button = React.createElement(Toggle,
+                    { key: strength+type, onClick: function onClick() {
+                        return this.onHotspot(strength, type);
+                        }, on: React.createElement(
+                            'p',
+                            null,
+                            strength + ' ' + type + ' on'
+                        ), off: React.createElement(
+                            'p',
+                            null,
+                            strength + ' ' + type + ' Off'
+                        ),
+                        size: 'lg',
+                        onstyle: this.state.hsParams[type].buttonStyle,
+                        offstyle: this.state.hsParams[type].buttonStyle,
+                        active: this.state.hsDict[type][strength] })
+                buttonList.push(button);
+            }
         }
         return buttonList;
     }
