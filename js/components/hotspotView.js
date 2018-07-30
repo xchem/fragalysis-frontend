@@ -108,10 +108,10 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    buttonRender (type, strength) {
+    buttonRender (hotspotFunction, type, strength) {
         var button = React.createElement(Toggle,
                     { onClick: function onClick() {
-                        return this.onHotspot(type, strength);
+                        return hotspotFunction(type, strength);
                         }, on: React.createElement(
                         'p',
                         null,
@@ -145,7 +145,7 @@ class HotspotView extends React.Component {
             <Col xs={9} md={9}>
                 {this.buttonIterate()}
                 <Row>
-                    {this.buttonRender("donor", "Tepid")}
+                    {this.buttonRender(this.onHotspot, "donor", "Tepid")}
                     {/*<Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"*/}
                             {/*onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Tepid}/>*/}
                 </Row>
