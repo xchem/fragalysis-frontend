@@ -111,7 +111,7 @@ class HotspotView extends React.Component {
     buttonRender (strength, type) {
         var _this4 = this;
         var button = React.createElement(Toggle,
-                    { onClick: function onClick() {
+                    { key:strength+type, onClick: function onClick() {
                         return _this4.onHotspot(strength, type);
                         }, on: React.createElement(
                         'p',
@@ -131,8 +131,6 @@ class HotspotView extends React.Component {
         var buttonList = [];
         for (var type in this.state.hsDict) {
             for (var strength in this.state.hsDict[type]) {
-                //console.log('hotspot button request ' + type + strength)
-                // () => _this3.buttonRender(type, strength)
                 var button = React.createElement(Toggle,
                     { onClick: function onClick() {
                         return _this.onHotspot(strength, type);
