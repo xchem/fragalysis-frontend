@@ -40,11 +40,11 @@ class HotspotView extends React.Component {
                     "Warm": false,
                     "Hot": false
                 },
-                "apolar":{
-                    "Tepid": false,
-                    "Warm": false,
-                    "Hot": false
-                }
+                // "apolar":{
+                //     "Tepid": false,
+                //     "Warm": false,
+                //     "Hot": false
+                // }
             },
             "hsParams": {
                 "Tepid": {"opacity": 0.2, "contour": 10},
@@ -112,22 +112,18 @@ class HotspotView extends React.Component {
         for (var type in this.state.hsDict) {
             for (var strength in this.state.hsDict[type]) {
                 var _this = this;
-                var button = React.createElement(Toggle,
-                    { key: strength+type, onClick: function onClick() {
+                var button = React.createElement(Toggle, {
+                    key: strength+type,
+                    onClick: function onClick() {
                         return _this.onHotspot(strength, type);
-                        }, on: React.createElement(
-                            'p',
-                            null,
-                            strength + ' ' + type + ' on'
-                        ), off: React.createElement(
-                            'p',
-                            null,
-                            strength + ' ' + type + ' Off'
-                        ),
-                        size: 'lg',
-                        onstyle: this.state.hsParams[type].buttonStyle,
-                        offstyle: this.state.hsParams[type].buttonStyle,
-                        active: this.state.hsDict[type][strength] })
+                        },
+                    on: React.createElement('p', null, strength + ' ' + type + ' on'),
+                    off: React.createElement('p', null, strength + ' ' + type + ' Off'),
+                    size: 'lg',
+                    onstyle: this.state.hsParams[type].buttonStyle,
+                    offstyle: this.state.hsParams[type].buttonStyle,
+                    active: this.state.hsDict[type][strength]
+                })
                 buttonList.push(button);
             }
         }
