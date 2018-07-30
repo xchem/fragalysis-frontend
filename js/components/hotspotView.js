@@ -131,7 +131,7 @@ class HotspotView extends React.Component {
         for (var type in this.state.hsDict) {
             for (var strength in this.state.hsDict[type]) {
                 //console.log('hotspot button request ' + type + strength)
-                {() => _this3.buttonRender(type, strength)}
+                () => _this3.buttonRender(type, strength)
             }
         }
     }
