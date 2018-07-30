@@ -127,14 +127,15 @@ class HotspotView extends React.Component {
     }
 
     buttonIterate() {
-        // var _this3 = this;
+        var _this = this;
         for (var type in this.state.hsDict) {
             for (var strength in this.state.hsDict[type]) {
                 //console.log('hotspot button request ' + type + strength)
                 // () => _this3.buttonRender(type, strength)
+                var buttonList = [];
                 var button = React.createElement(Toggle,
                     { onClick: function onClick() {
-                        return this.onHotspot(strength, type);
+                        return _this.onHotspot(strength, type);
                         }, on: React.createElement(
                         'p',
                         null,
@@ -145,9 +146,10 @@ class HotspotView extends React.Component {
                         strength + ' ' + type + ' Off'
                     ), size: 'lg',
                     onstyle: this.state.hsParams[type].buttonStyle, offstyle: this.state.hsParams[type].buttonStyle, active: this.state.hsDict[type][strength] })
-                return button;
+                buttonList.append(button);
             }
         }
+        return buttonList;
     }
 
     render() {
