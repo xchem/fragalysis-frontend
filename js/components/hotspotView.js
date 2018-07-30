@@ -145,7 +145,7 @@ class HotspotView extends React.Component {
                 </Panel>
             </Col>
             <Col xs={3} md={3}>
-                {this.buttonIterate()}
+                {/*{this.buttonIterate()}*/}
                 <Row>
                     {this.buttonRender("Tepid", "donor")}
                     {/*<Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"*/}
