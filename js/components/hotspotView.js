@@ -146,7 +146,7 @@ class HotspotView extends React.Component {
                         strength + ' ' + type + ' Off'
                     ), size: 'lg',
                     onstyle: this.state.hsParams[type].buttonStyle, offstyle: this.state.hsParams[type].buttonStyle, active: this.state.hsDict[type][strength] })
-                buttonList.append(button);
+                buttonList.push(button);
             }
         }
         return buttonList;
