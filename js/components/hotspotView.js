@@ -19,7 +19,6 @@ class HotspotView extends React.Component {
         this.colorToggle = this.colorToggle.bind(this);
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
-        this.buttonRender = this.buttonRender.bind(this);
         this.buttonIterate = this.buttonIterate.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
@@ -108,24 +107,6 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    buttonRender (strength, type) {
-        var _this4 = this;
-        var button = React.createElement(key=strength+type, Toggle,
-                    {onClick: function onClick() {
-                        return _this4.onHotspot(strength, type);
-                        }, on: React.createElement(
-                        'p',
-                        null,
-                        strength + ' ' + type + ' on'
-                    ), off: React.createElement(
-                        'p',
-                        null,
-                        strength + ' ' + type + ' Off'
-                    ), size: 'lg',
-                    onstyle: this.state.hsParams[type].buttonStyle, offstyle: this.state.hsParams[type].buttonStyle, active: this.state.hsDict[type][strength] })
-        return button;
-    }
-
     buttonIterate() {
         var _this = this;
         var buttonList = [];
@@ -144,6 +125,7 @@ class HotspotView extends React.Component {
                         strength + ' ' + type + ' Off'
                     ), size: 'lg',
                     onstyle: this.state.hsParams[type].buttonStyle, offstyle: this.state.hsParams[type].buttonStyle, active: this.state.hsDict[type][strength] })
+                button.setAttribute("key", strength+type)
                 buttonList.push(button);
             }
         }
