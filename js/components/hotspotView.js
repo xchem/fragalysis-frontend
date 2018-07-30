@@ -140,8 +140,8 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                {this.buttonIterate()}
-                {/*{this.buttonRender("Tepid", "donor")}*/}
+                {/*{this.buttonIterate()}*/}
+                {this.buttonRender("Tepid", "donor")}
                 </Row>
             </Col>
             </Grid>
