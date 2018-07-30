@@ -126,12 +126,12 @@ class HotspotView extends React.Component {
         return button;
     }
 
-    buttonIterate(initStrength, initType) {
+    buttonIterate() {
         var _this3 = this;
         for (var type in this.state.hsDict) {
             for (var strength in this.state.hsDict[type]) {
                 //console.log('hotspot button request ' + type + strength)
-                _this3.buttonRender(type, strength)
+                {() => _this3.buttonRender(type, strength)}
             }
         }
     }
@@ -146,7 +146,7 @@ class HotspotView extends React.Component {
             </Col>
             <Col xs={3} md={3}>
                 <Row>
-                {this.buttonIterate("Tepid", "donor")}
+                {this.buttonIterate()}
                 {/*{this.buttonRender("Tepid", "donor")}*/}
                     {/*<Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"*/}
                             {/*onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Tepid}/>*/}
