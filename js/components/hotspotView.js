@@ -20,7 +20,7 @@ class HotspotView extends React.Component {
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         this.buttonIterate = this.buttonIterate.bind(this);
-        this.hotspotToggle = this.hotspotToggle.bind(this);
+        // this.hotspotToggle = this.hotspotToggle.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
@@ -121,7 +121,7 @@ class HotspotView extends React.Component {
                 var button = React.createElement(Toggle, {
                     key: strength+type,
                     onClick: function onClick() {
-                        return _this.hotspotToggle(strength, type);
+                        return this.hotspotToggle(strength, type);
                         },
                     on: React.createElement('p', null, strength + ' ' + type + ' on'),
                     off: React.createElement('p', null, strength + ' ' + type + ' Off'),
