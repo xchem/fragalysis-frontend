@@ -109,8 +109,9 @@ class HotspotView extends React.Component {
 
     buttonIterate() {
         var buttonList = [];
-        for (var type in this.state.hsDict) {
-            for (var strength in this.state.hsDict[type]) {
+        const currentDict = this.state.hsDict;
+        for (var type in currentDict) {
+            for (var strength currentDict[type]) {
                 var _this = this;
                 var button = React.createElement(Toggle, {
                     key: strength+type,
