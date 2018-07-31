@@ -19,7 +19,7 @@ class HotspotView extends React.Component {
         this.colorToggle = this.colorToggle.bind(this);
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
-        this.buttonIterate = this.buttonIterate.bind(this);
+        this.buttonRender = this.buttonRender.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
@@ -107,45 +107,44 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    buttonIterate() {
-        var buttonList = [];
-        const currentDict = this.state.hsDict;
-        for (var type in currentDict) {
-            for (var strength in currentDict[type]) {
-                var _this = this;
-                var button = React.createElement(Toggle, {
-                    key: strength+type,
-                    onClick: function onClick() {
-                        return _this.onHotspot(strength, type);
-                        },
-                    on: React.createElement('p', null, strength + ' ' + type + ' on'),
-                    off: React.createElement('p', null, strength + ' ' + type + ' Off'),
-                    size: 'lg',
-                    onstyle: this.state.hsParams[type].buttonStyle,
-                    offstyle: this.state.hsParams[type].buttonStyle,
-                    active: this.state.hsDict[type][strength]
-                })
-                buttonList.push(button);
-            }
-        }
-        return buttonList;
+    buttonRender(strength, type) {
+        var button = React.createElement(Toggle, {
+            onClick: function onClick() {
+                return this.onHotspot(strength, type);
+                },
+            on: React.createElement('p', null, strength + ' ' + type + ' on'),
+            off: React.createElement('p', null, strength + ' ' + type + ' Off'),
+            size: 'lg',
+            onstyle: this.state.hsParams[type].buttonStyle,
+            offstyle: this.state.hsParams[type].buttonStyle,
+            active: this.state.hsDict[type][strength]
+        })
+        return button;
     }
 
     render() {
         return <div>
             <Grid>
-            <Col xs={3} md={3}>
-                <Panel style={this.colorToggle()}>
-                    <Image src={this.img_url+"&dummy=png"} responsive rounded />
-                </Panel>
-            </Col>
-            <Col xs={3} md={3}>
-                <Row>
-                    {this.buttonIterate()}
-                    <Toggle onClick={() => this.onHotspot("Tepid", "donor")} on={<p> Tepid Donor on</p>} off={<p>Tepid Donor Off</p>} size="lg"
-                            onstyle={this.state.hsParams.donor.buttonStyle} offstyle={this.state.hsParams.donor.buttonStyle} active={this.state.hsDict.donor.Tepid}/>
-                </Row>
-            </Col>
+                <Col xs={3} md={3}>
+                    <Panel style={this.colorToggle()}>
+                        <Image src={this.img_url+"&dummy=png"} responsive rounded />
+                    </Panel>
+                </Col>
+                <Col xs={3} md={3}>
+                    <Row> {this.buttonRender("Tepid", "donor")} </Row>
+                    <Row> {this.buttonRender("Tepid", "acceptor")} </Row>
+                    <Row> {this.buttonRender("Tepid", "apolar")} </Row>
+                </Col>
+                <Col xs={3} md={3}>
+                    <Row> {this.buttonRender("Warm", "donor")} </Row>
+                    <Row> {this.buttonRender("Warm", "acceptor")} </Row>
+                    <Row> {this.buttonRender("Warm", "apolar")} </Row>
+                </Col>
+                <Col xs={3} md={3}>
+                    <Row> {this.buttonRender("Hot", "donor")} </Row>
+                    <Row> {this.buttonRender("Hot", "acceptor")} </Row>
+                    <Row> {this.buttonRender("Hot", "apolar")} </Row>
+                </Col>
             </Grid>
         </div>
     }
