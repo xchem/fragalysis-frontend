@@ -108,9 +108,10 @@ class HotspotView extends React.Component {
     }
 
     buttonRender(strength, type) {
+        var _this = this;
         var button = React.createElement(Toggle, {
             onClick: function onClick() {
-                return this.onHotspot(strength, type);
+                return _this.onHotspot(strength, type);
                 },
             on: React.createElement('p', null, strength + ' ' + type + ' on'),
             off: React.createElement('p', null, strength + ' ' + type + ' Off'),
