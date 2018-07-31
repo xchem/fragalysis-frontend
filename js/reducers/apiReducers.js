@@ -9,6 +9,7 @@ const INITIALSTATE = {
     target_id_list: [],
     mol_group_list: [],
     molecule_list: [],
+    duck_yank_data: {},
     pandda_event_on: undefined,
     pandda_site_on: undefined,
     pandda_event_list: [],
@@ -140,6 +141,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_APP_ON:
             return Object.assign({}, state, {
                 app_on: action.app_on
+            });
+
+        case actions.SET_DUCK_YANK_DATA:
+            return Object.assign({}, state, {
+                duck_yank_data: action.duck_yank_data
             });
         // Cases like: @@redux/INIT
         default:

@@ -62,6 +62,7 @@ export class GenericList extends React.Component {
                 // mol group choice
                 base_url += "molecules/"
                 get_params.mol_groups = this.props.mol_group_on
+                get_params.mol_type = "PR"
             }
         }
         else if (this.list_type==listTypes.PANDDA_EVENT){
