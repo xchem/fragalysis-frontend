@@ -100,8 +100,7 @@ class HotspotView extends React.Component {
     onHotspot(strength, type) {
         const newState = !this.state.hsDict[type][strength];
         const replacementObject = { [type]: {[strength]: newState}}
-        const currentDict = this.state.hsDict;
-        const newDict = $.extend(true, {}, currentDict, replacementObject)
+        const newDict = $.extend(true, {}, this.state.hsDict, replacementObject)
         this.setState({hsDict:newDict});
         const load_var = this.state.hsDict[type][strength] ? "unload" : "load";
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
@@ -117,7 +116,7 @@ class HotspotView extends React.Component {
             onstyle: this.state.hsParams[type].buttonStyle,
             offstyle: this.state.hsParams[type].buttonStyle,
             active: this.state.hsDict[type][strength]
-        })
+        });
         return button;
     }
 
@@ -151,7 +150,6 @@ class HotspotView extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      inViewList:state.nglReducers.objectsInView,
   }
 }
 

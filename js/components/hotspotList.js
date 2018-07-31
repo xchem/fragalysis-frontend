@@ -5,9 +5,7 @@ import { ListGroupItem, ListGroup, Col, Row, Well} from 'react-bootstrap';
 import { GenericList } from './generalComponents';
 import React from 'react';
 import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
 import * as listType from './listTypes'
-import * as nglLoadActions from '../actions/nglLoadActions'
 import HotspotView from './hotspotView'
 
 const molStyle = {height: "250px",
@@ -30,7 +28,6 @@ class HotspotList extends GenericList {
             return <Well><Row style={molStyle}>
                 {
                     this.props.object_list.map((data) => <HotspotView key={data.id} data={data}/>)
-                    // this.render_method(data)
                 }
             </Row></Well>;
         }
@@ -42,16 +39,10 @@ class HotspotList extends GenericList {
 }
 function mapStateToProps(state) {
   return {
-      group_type: state.apiReducers.group_type,
-      target_on: state.apiReducers.target_on,
-      mol_group_on: state.apiReducers.mol_group_on,
       object_list: state.apiReducers.molecule_list
   }
 }
 const mapDispatchToProps = {
-    setObjectList: apiActions.setMoleculeList,
-    deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject
-
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(HotspotList);
