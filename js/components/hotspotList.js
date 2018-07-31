@@ -43,6 +43,7 @@ function mapStateToProps(state) {
   }
 }
 const mapDispatchToProps = {
+    setObjectList: apiActions.setMoleculeList,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HotspotList);
