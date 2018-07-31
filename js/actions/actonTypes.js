@@ -61,3 +61,4 @@ export const SET_UUID = 'SET_UUID';
 export const SET_LOADING_STATE = 'SET_LOADING_STATE';
 export const SET_HOTSPOT_LIST = 'SET_HOTSPOT_LIST';
 export const SET_HOTSPOT_ON = 'SET_HOTSPOT_ON';
+export const SET_DUCK_YANK_DATA = 'SET_DUCK_YANK_DATA';

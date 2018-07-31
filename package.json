@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.0.1-alpha",
+  "version": "0.1.0",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -8,6 +8,9 @@
     "build": "webpack --config webpack.config.js --progress --colors --mode production",
     "watch": "webpack --config webpack.config.js --watch",
     "dev": "webpack --config webpack.config.js --mode development --watch"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "repository": {
     "type": "git",
@@ -75,6 +78,7 @@
     "fixmyjs": "^2.0.0",
     "install": "^0.10.4",
     "jest": "^22.4.2",
+    "jsdom": "^11.11.0",
     "jshint": "^2.9.5",
     "webpack": "^4.12.0",
     "webpack-bundle-tracker": "^0.2.1",
