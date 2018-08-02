@@ -91,9 +91,11 @@ export class NGLView extends React.Component {
             if (pickingProxy.object.type=="hydrogen bond"){
                 var input_dict = this.processInt(pickingProxy);
                 this.props.setDuckYankData(input_dict)
+                // Delete the old one
                 this.props.deleteObject({
-                    "start": pickingProxy.object.center1, "end": pickingProxy.object.center2, radius: 0.2, "display_div": "major_view",
-                    "color": [1,0,0], "name": this.props.duck_yank_data["interaction"]+"_INTERACTION", "OBJECT_TYPE": nglObjectTypes.ARROW});
+                    "display_div": "major_view", "name": this.props.duck_yank_data["interaction"]+"_INTERACTION"
+                });
+                // Load the new one
                 this.props.loadObject({
                     "start": pickingProxy.object.center1, "end": pickingProxy.object.center2, radius: 0.2, "display_div": "major_view",
                     "color": [1,0,0], "name": input_dict["interaction"]+"_INTERACTION", "OBJECT_TYPE": nglObjectTypes.ARROW});
