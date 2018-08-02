@@ -56,6 +56,17 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
+    showLine(stage, input_dict, object_name){
+        var colour = input_dict.color;
+        var start = input_dict.start;
+        var end = input_dict.end;
+        var shape = new Shape( object_name );
+        shape.addLine()
+        var shapeComp = stage.addComponentFromObject(shape);
+        shapeComp.addRepresentation("buffer");
+
+    }
+
     processInt(pickingProxy){
         var atom_id = ""
         if(pickingProxy.object.atom2.resname=="HET") {
@@ -78,9 +89,14 @@ export class NGLView extends React.Component {
         if (pickingProxy) {
             // For assigning the ligand interaction
             if (pickingProxy.object.type=="hydrogen bond"){
-                this.props.setDuckYankData(this.processInt(pickingProxy))
-                // TODO Dispatch action to highlight selected H-bond
-                // TODO Think it just needs a new object pickingProxy.object.name
+                var input_dict = this.processInt(pickingProxy);
+                this.props.setDuckYankData(input_dict)
+                this.props.deleteObject({
+                    "start": pickingProxy.object.center1, "end": pickingProxy.object.center2, radius: 0.2, "display_div": "major_view",
+                    "color": [1,0,0], "name": this.props.duck_yank_data["interaction"]+"_INTERACTION", "OBJECT_TYPE": nglObjectTypes.ARROW});
+                this.props.loadObject({
+                    "start": pickingProxy.object.center1, "end": pickingProxy.object.center2, radius: 0.2, "display_div": "major_view",
+                    "color": [1,0,0], "name": input_dict["interaction"]+"_INTERACTION", "OBJECT_TYPE": nglObjectTypes.ARROW});
             }
             else if (pickingProxy.object.name){
                 var name = pickingProxy.object.name
@@ -486,6 +502,7 @@ function mapStateToProps(state) {
       mol_group_on: state.apiReducers.mol_group_on,
       pandda_site_on: state.apiReducers.pandda_site_on,
       pandda_site_list: state.apiReducers.pandda_site_list,
+      duck_yank_data: state.apiReducers.duck_yank_data,
       objectsToLoad: state.nglReducers.objectsToLoad,
       objectsToDelete: state.nglReducers.objectsToDelete,
       objectsLoading: state.nglReducers.objectsLoading,
