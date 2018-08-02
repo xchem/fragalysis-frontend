@@ -7,5 +7,6 @@ export const MOLECULE = "MOLECULE";
 export const PROTEIN = "PROTEIN";
 export const ARROW = "ARROW";
 export const CYLINDER = "CYLINDER";
+export const LINE = "LINE";
 export const EVENTMAP = "EVENTMAP";
 export const HOTSPOT = "HOTSPOT";
