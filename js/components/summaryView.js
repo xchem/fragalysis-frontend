@@ -177,6 +177,7 @@ class SummaryView extends React.Component{
         'md_len: 0.5\n' +
         'init_velocity: 0.00001\n' +
         'num_smd_cycles: 2\n' +
+            'distance: 2.5\n' +
         'gpu_id: "0"\n' +
         'apo_pdb_file: '+prot_code+'_apo.pdb\n' +
         'mol_file: '+prot_code+'.mol'
