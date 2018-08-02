@@ -81,7 +81,6 @@ export class NGLView extends React.Component {
                 this.props.setDuckYankData(this.processInt(pickingProxy))
                 // TODO Dispatch action to highlight selected H-bond
                 // TODO Think it just needs a new object pickingProxy.object.name
-
             }
             else if (pickingProxy.object.name){
                 var name = pickingProxy.object.name

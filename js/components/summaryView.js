@@ -25,7 +25,7 @@ class SummaryView extends React.Component{
         this.selectAll = this.selectAll.bind(this);
         this.vector_list;
         // Number vectors and series to be incorporated later
-        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: "", interaction_select: "None selected."}
+        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: "", interaction_select: undefined}
     }
 
     update() {
@@ -306,6 +306,9 @@ class SummaryView extends React.Component{
         if(this.props.to_query=="" || this.props.to_query==undefined) {
             mol_string = ""
         }
+
+        var interaction_select = this.state.interaction_select == undefined ? "Not selected" : this.state.interaction_select
+
         return <div>
             <Well>
                 <Row>
@@ -316,7 +319,7 @@ class SummaryView extends React.Component{
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
-                    <h3>Selected Interaction: <b>{this.state.interaction_select}</b></h3>
+                    <h3>Selected Interaction: <b>{interaction_select}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
                 <Col xs={6} md={6}>
