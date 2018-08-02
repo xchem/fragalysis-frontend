@@ -25,7 +25,7 @@ class SummaryView extends React.Component{
         this.selectAll = this.selectAll.bind(this);
         this.vector_list;
         // Number vectors and series to be incorporated later
-        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: ""}
+        this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: "", interaction_select: ""}
     }
 
     update() {
@@ -42,6 +42,7 @@ class SummaryView extends React.Component{
         old_state.num_vectors = new Set(vector_list).size;
         old_state.num_series = new Set(mol_list).size;
         old_state.smiles = this.props.to_query;
+        old_state.interaction_select = this.props.duck_yank_data["interaction"]
         this.setState({ state: old_state});
         if(this.props.vector_list!=this.vector_list && this.props.querying==false){
             this.loadVectors();
@@ -315,6 +316,7 @@ class SummaryView extends React.Component{
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
+                    <h3>Selected Interaction: <b>{this.state.interaction_select}</b></h3>
                     <Button bsSize="large" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
                 <Col xs={6} md={6}>
