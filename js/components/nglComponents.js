@@ -56,27 +56,31 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
+    processInt(pickingProxy){
+        var atom_id = ""
+        if(pickingProxy.object.atom2.resname=="HET") {
+            atom_id = "atom1"
+        }
+        else{
+            atom_id = "atom2"
+        }
+        var atom_name = pickingProxy.object[atom_id].atomname
+        var res_name = pickingProxy.object[atom_id].resname
+        var chain_name = pickingProxy.object[atom_id].chainname
+        var res_num = pickingProxy.object[atom_id].resno
+        var tot_name = chain_name+"_"+res_name+"_"+res_num.toString()+"_"+atom_name;
+        var mol_int = parseInt(pickingProxy.object.atom1.structure.name.split("COMPLEXLOAD_")[1])
+        return {"interaction": tot_name, "complex_id": mol_int}
+    }
+
 
     showPick(stage, pickingProxy) {
         if (pickingProxy) {
             // For assigning the ligand interaction
             if (pickingProxy.object.type=="hydrogen bond"){
-                var atom_id = ""
-                if(pickingProxy.object.atom2.resname=="HET") {
-                    atom_id = "atom1"
-                }
-                else{
-                    atom_id = "atom2"
-                }
-                var atom_name = pickingProxy.object[atom_id].atomname
-                var res_name = pickingProxy.object[atom_id].resname
-                var chain_name = pickingProxy.object[atom_id].chainname
-                var res_num = pickingProxy.object[atom_id].resno
-                var tot_name = chain_name+"_"+res_name+"_"+res_num.toString()+"_"+atom_name;
-                var mol_int = parseInt(pickingProxy.object.atom1.structure.name.split("COMPLEXLOAD_")[1])
-                this.props.setDuckYankData({"interaction": tot_name, "complex_id": mol_int})
-                // Dispatch action to highlight selected H-bond
-                // "select_name": pickingProxy.object.name
+                this.props.setDuckYankData(this.processInt(pickingProxy))
+                // TODO Dispatch action to highlight selected H-bond
+                // TODO Think it just needs a new object pickingProxy.object.name
 
             }
             else if (pickingProxy.object.name){
