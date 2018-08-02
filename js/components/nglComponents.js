@@ -90,11 +90,13 @@ export class NGLView extends React.Component {
             // For assigning the ligand interaction
             if (pickingProxy.object.type=="hydrogen bond"){
                 var input_dict = this.processInt(pickingProxy);
-                this.props.setDuckYankData(input_dict)
                 // Delete the old one
-                this.props.deleteObject({
-                    "display_div": "major_view", "name": this.props.duck_yank_data["interaction"]+"_INTERACTION"
-                });
+                if (this.props.duck_yank_data["interaction"] != undefined) {
+                    this.props.deleteObject({
+                        "display_div": "major_view", "name": this.props.duck_yank_data["interaction"] + "_INTERACTION"
+                    });
+                }
+                this.props.setDuckYankData(input_dict)
                 // Load the new one
                 this.props.loadObject({
                     "start": pickingProxy.object.center1, "end": pickingProxy.object.center2, radius: 0.2, "display_div": "major_view",
