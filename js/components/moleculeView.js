@@ -138,7 +138,8 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div>
-            <div onClick={this.handleClick} style={this.current_style}>{svg_image} {this.props.data.protein_code}</div>
+            <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+            <div>{this.props.data.protein_code}</div>
             <Toggle onClick={this.onComplex}
                 on={<p>Complex ON</p>}
                 off={<p>Complex OFF</p>}
