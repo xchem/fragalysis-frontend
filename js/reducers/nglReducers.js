@@ -17,7 +17,7 @@ const INITIALSTATE = {
     hydrogen: true,
     orientationToSet: {},
     loadingState: true,
-    stageColor: 'black',
+    stageColor: 'white',
     nglProtStyle: 'cartoon'
 }
 
@@ -151,6 +151,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
             return Object.assign({}, state, {
                 orientationToSet: toSetDiv
             });
+
         case actions.SET_UUID:
             return Object.assign({}, state, {
                 uuid: action.uuid

@@ -4,7 +4,8 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
-import { Button, Well, Col, Row } from 'react-bootstrap'
+import * as apiActions from '../actions/apiActions'
+import { Button } from 'react-bootstrap'
 
 
 export class UpdateOrientation extends React.Component {
@@ -28,6 +29,12 @@ export class UpdateOrientation extends React.Component {
                 this.props.loadObject(components[component]);
             }
             this.props.setNGLOrientation(div_id, orientation);
+            var targetOn = JSON.parse(JSON.parse(myJson.scene)).targetOn;
+            this.props.setTargetOn(targetOn);
+            var molGroupList = JSON.parse(JSON.parse(myJson.scene)).molGroupList;
+            // this.props.setMolGroupList(molGroupList);
+            var mol_group_id = JSON.parse(JSON.parse(myJson.scene)).mol_group_id;
+            // this.props.setMolGroupOn(mol_group_id);
         }
     };
 
@@ -48,7 +55,6 @@ export class UpdateOrientation extends React.Component {
     }
 
     postToServer() {
-        // Refresh orientation
         for(var key in this.props.nglOrientations){
             this.props.setOrientation(key,"REFRESH")
         }
@@ -72,12 +78,13 @@ export class UpdateOrientation extends React.Component {
         }
         if (hasBeenRefreshed==true){
             // Post the data to the server as usual
+            var fullState = Object.assign(this.props.nglOrientations, {targetOn: this.props.target_on}, {molGroupList: this.props.mol_group_list}, {mol_group_id: this.props.mol_group_on})
             const uuidv4 = require('uuid/v4');
             var TITLE = 'need to define title';
             var formattedState = {
                 uuid: uuidv4(),
                 title: TITLE,
-                scene: JSON.stringify(JSON.stringify(this.props.nglOrientations))
+                scene: JSON.stringify(JSON.stringify(fullState))
             };
             fetch("/api/viewscene/", {
                 method: "post",
@@ -97,7 +104,7 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save view in Fragglebox</Button>
            </div>
     }
 }
@@ -106,13 +113,19 @@ function mapStateToProps(state) {
   return {
       uuid: state.nglReducers.uuid,
       nglOrientations: state.nglReducers.nglOrientations,
-      loadingState: state.nglReducers.loadingState
+      loadingState: state.nglReducers.loadingState,
+      target_on: state.apiReducers.target_on,
+      mol_group_on: state.apiReducers.mol_group_on,
+      mol_group_list: state.apiReducers.mol_group_list,
   }
 }
 const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     setNGLOrientation: nglLoadActions.setNGLOrientation,
     setOrientation: nglLoadActions.setOrientation,
-    setLoadingState: nglLoadActions.setLoadingState
+    setLoadingState: nglLoadActions.setLoadingState,
+    setTargetOn: apiActions.setTargetOn,
+    setMolGroupOn: apiActions.setMolGroupOn,
+    setMolGroupList: apiActions.setMolGroupList,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);
