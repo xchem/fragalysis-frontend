@@ -316,7 +316,7 @@ export class NGLView extends React.Component {
                     opacity: input_dict.opacity,
                     opaqueBack: false,
                     name: 'surf',
-                    disblePicking: input_dict.disablePicking
+                    disablePicking: input_dict.disablePicking
                 });
             });
         }
@@ -329,7 +329,7 @@ export class NGLView extends React.Component {
                     opaqueBack: false,
                     color: '#0000FF',
                     name: 'surf',
-                    disblePicking: input_dict.disablePicking
+                    disablePicking: input_dict.disablePicking
                 });
             });
         }
@@ -342,7 +342,7 @@ export class NGLView extends React.Component {
                     opacity: input_dict.opacity,
                     opaqueBack: false,
                     name: 'surf',
-                    disblePicking: input_dict.disablePicking
+                    disablePicking: input_dict.disablePicking
                 });
             });
         }
