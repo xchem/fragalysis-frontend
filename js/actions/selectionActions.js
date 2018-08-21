@@ -127,5 +127,9 @@ export const reloadSelectionState = function (selectionReducers){
         to_query: selectionReducers.to_query,
         vector_list: selectionReducers.vector_list,
         to_select: selectionReducers.to_select,
+        to_query_pk: selectionReducers.to_query_pk,
+        to_query_prot: selectionReducers.to_query_prot,
+        to_query_sdf_info: selectionReducers.to_query_sdf_info,
+        currentVector: selectionReducers.currentVector,
     }
 }

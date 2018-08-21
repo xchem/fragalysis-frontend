@@ -34,12 +34,6 @@ export class UpdateOrientation extends React.Component {
                 this.props.loadObject(components[component]);
             }
             this.props.setNGLOrientation(div_id, orientation);
-            var targetOn = JSON.parse(JSON.parse(myJson.scene)).targetOn;
-            this.props.setTargetOn(targetOn);
-            var molGroupList = JSON.parse(JSON.parse(myJson.scene)).molGroupList;
-            // this.props.setMolGroupList(molGroupList);
-            var mol_group_id = JSON.parse(JSON.parse(myJson.scene)).mol_group_id;
-            // this.props.setMolGroupOn(mol_group_id);
         }
     };
 
@@ -110,7 +104,7 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save view in Fragglebox</Button>
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
            </div>
     }
 }
