@@ -27,11 +27,11 @@ class EventList extends GenericList {
 }
 function mapStateToProps(state) {
   return {
-      group_type: state.apiReducers.group_type,
-      target_on: state.apiReducers.target_on,
-      event_on: state.apiReducers.pandda_event_on,
-      pandda_site_on: state.apiReducers.pandda_site_on,
-      object_list: state.apiReducers.pandda_event_list
+      group_type: state.apiReducers.present.group_type,
+      target_on: state.apiReducers.present.target_on,
+      event_on: state.apiReducers.present.pandda_event_on,
+      pandda_site_on: state.apiReducers.present.pandda_site_on,
+      object_list: state.apiReducers.present.pandda_event_list
   }
 }
 const mapDispatchToProps = {

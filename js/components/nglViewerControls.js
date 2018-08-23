@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import UpdateOrientation from './updateOrientation';
+import { Button } from 'react-bootstrap';
 
 class NglViewerControls extends React.Component {
 
@@ -28,13 +29,15 @@ class NglViewerControls extends React.Component {
             this.props.setNglProtStyle('licorice')
         } else if (this.props.nglProtStyle === 'licorice') {
             this.props.setNglProtStyle('hyperball')
+        } else if (this.props.nglProtStyle === "hyperball") {
+            this.props.setNglProtStyle("ball+stick")
         }
     }
 
     render() {
         return <div>
             <h3>Viewer controls</h3>
-            <button onClick={this.handleStageColor}>Toggle background colour</button>
+            <Button bsSize="large" bsStyle="success" onClick={this.handleStageColor}>Change background colour</Button>
             <UpdateOrientation />
         </div>
     }
@@ -42,8 +45,8 @@ class NglViewerControls extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        stageColor: state.nglReducers.stageColor,
-        nglProtStyle: state.nglReducers.nglProtStyle
+        stageColor: state.nglReducers.present.stageColor,
+        nglProtStyle: state.nglReducers.present.nglProtStyle
     }
 }
 

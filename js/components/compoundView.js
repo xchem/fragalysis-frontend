@@ -162,8 +162,8 @@ class CompoundView extends GenericView {
 
 function mapStateToProps(state) {
   return {
-      to_buy_list: state.selectionReducers.to_buy_list,
-      to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
+      to_buy_list: state.selectionReducers.present.to_buy_list,
+      to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
   }
 }
 const mapDispatchToProps = {

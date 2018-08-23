@@ -71,10 +71,10 @@ class MolGroupList extends GenericList {
 }
 function mapStateToProps(state) {
   return {
-      group_type: state.apiReducers.group_type,
-      target_on: state.apiReducers.target_on,
-      object_list: state.apiReducers.mol_group_list,
-      object_on: state.apiReducers.mol_group_on
+      group_type: state.apiReducers.present.group_type,
+      target_on: state.apiReducers.present.target_on,
+      object_list: state.apiReducers.present.mol_group_list,
+      object_on: state.apiReducers.present.mol_group_on
   }
 }
 const mapDispatchToProps = {

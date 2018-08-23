@@ -40,7 +40,7 @@ class HotspotList extends GenericList {
 }
 function mapStateToProps(state) {
   return {
-      object_list: state.apiReducers.molecule_list
+      object_list: state.apiReducers.present.molecule_list
   }
 }
 const mapDispatchToProps = {

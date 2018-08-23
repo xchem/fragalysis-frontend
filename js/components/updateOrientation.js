@@ -1,10 +1,14 @@
 /**
- * Created by abradley on 01/03/2018.
+ * Created by ricgillams on 13/06/2018.
  */
 import React from 'react';
 import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
+import * as apiActions from '../actions/apiActions'
+import * as selectionActions from '../actions/selectionActions'
 import { Button, Well, Col, Row } from 'react-bootstrap'
+import { getStore } from '../containers/globalStore';
+import { saveStore } from '../containers/globalStore';
 
 
 export class UpdateOrientation extends React.Component {
@@ -20,10 +24,14 @@ export class UpdateOrientation extends React.Component {
         if(myJson.scene==undefined){
             return;
         }
-        var myPreDict = JSON.parse(JSON.parse(myJson.scene));
-        for(var div_id in myPreDict){
-            var orientation = myPreDict[div_id]["orientation"];
-            var components = myPreDict[div_id]["components"];
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        // saveStore(jsonOfView)
+        this.props.reloadApiState(jsonOfView.apiReducers.present);
+        this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
+        var myOrientDict = jsonOfView.nglReducers.present.nglOrientations;
+        for(var div_id in myOrientDict){
+            var orientation = myOrientDict[div_id]["orientation"];
+            var components = myOrientDict[div_id]["components"];
             for (var component in components){
                 this.props.loadObject(components[component]);
             }
@@ -48,7 +56,6 @@ export class UpdateOrientation extends React.Component {
     }
 
     postToServer() {
-        // Refresh orientation
         for(var key in this.props.nglOrientations){
             this.props.setOrientation(key,"REFRESH")
         }
@@ -71,13 +78,14 @@ export class UpdateOrientation extends React.Component {
             }
         }
         if (hasBeenRefreshed==true){
-            // Post the data to the server as usual
+            var store = JSON.stringify(getStore().getState());
+            var fullState = {"state": store};
             const uuidv4 = require('uuid/v4');
             var TITLE = 'need to define title';
             var formattedState = {
                 uuid: uuidv4(),
                 title: TITLE,
-                scene: JSON.stringify(JSON.stringify(this.props.nglOrientations))
+                scene: JSON.stringify(JSON.stringify(fullState))
             };
             fetch("/api/viewscene/", {
                 method: "post",
@@ -91,6 +99,7 @@ export class UpdateOrientation extends React.Component {
             }).then(function (myJson) {
                 alert("VIEW SAVED - send this link: " +
                     window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + myJson.uuid.toString())
+                hasBeenRefreshed = false;
             });
         }
     }
@@ -104,15 +113,17 @@ export class UpdateOrientation extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      uuid: state.nglReducers.uuid,
-      nglOrientations: state.nglReducers.nglOrientations,
-      loadingState: state.nglReducers.loadingState
+      uuid: state.nglReducers.present.uuid,
+      nglOrientations: state.nglReducers.present.nglOrientations,
+      loadingState: state.nglReducers.present.loadingState,
   }
 }
 const mapDispatchToProps = {
+    reloadApiState: apiActions.reloadApiState,
+    reloadSelectionState: selectionActions.reloadSelectionState,
     loadObject: nglLoadActions.loadObject,
     setNGLOrientation: nglLoadActions.setNGLOrientation,
     setOrientation: nglLoadActions.setOrientation,
-    setLoadingState: nglLoadActions.setLoadingState
+    setLoadingState: nglLoadActions.setLoadingState,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);

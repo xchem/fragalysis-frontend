@@ -12,7 +12,11 @@ const INITIALSTATE = {
     to_query_sdf_info: undefined,
     this_vector_list: {},
     querying: false,
-    to_query: undefined
+    to_query: undefined,
+    fragmentDisplayList: new Set(),
+    complexList: new Set(),
+    vectorOnList: new Set(),
+    currentVector: undefined,
 }
 
 export default function selectionReducers(state = INITIALSTATE, action) {
@@ -99,7 +103,84 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 }
             }
             return  Object.assign({}, state, {
-                this_vector_list: this_vector_list
+                this_vector_list: this_vector_list,
+                currentVector: action.vector
+            });
+
+        case actions.SET_FRAGMENT_DISPLAY_LIST:
+            return Object.assign({}, state, {
+                fragmentDisplayList: action.fragmentDisplayList,
+            });
+
+        case actions.APPEND_FRAGMENT_DISPLAY_LIST:
+            var fragmentDisplayList = new Set(state.fragmentDisplayList.add(action.item.id));
+            return Object.assign({}, state, {
+                fragmentDisplayList: fragmentDisplayList
+            })
+
+        case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
+            var fragmentDisplayList = new Set(state.fragmentDisplayList);
+            fragmentDisplayList.delete(action.item.id);
+            return Object.assign({}, state, {
+                fragmentDisplayList: fragmentDisplayList
+            })
+
+        case actions.SET_COMPLEX_LIST:
+            return Object.assign({}, state, {
+                complexList: action.complexList,
+            });
+
+        case actions.APPEND_COMPLEX_LIST:
+            var complexList = new Set(state.complexList.add(action.item.id));
+            return Object.assign({}, state, {
+                complexList: complexList
+            })
+
+        case actions.REMOVE_FROM_COMPLEX_LIST:
+            var complexList = new Set(state.complexList);
+            complexList.delete(action.item.id);
+            return Object.assign({}, state, {
+                complexList: complexList
+            })
+
+        case actions.SET_VECTOR_ON_LIST:
+            return Object.assign({}, state, {
+                vectorOnList: action.vectorOnList,
+            });
+
+        case actions.APPEND_VECTOR_ON_LIST:
+            var vectorOnList = new Set(state.vectorOnList.add(action.item.id));
+            return Object.assign({}, state, {
+                vectorOnList: vectorOnList
+            })
+
+        case actions.REMOVE_FROM_VECTOR_ON_LIST:
+            var vectorOnList = new Set(state.vectorOnList)
+            vectorOnList.delete(action.item.id)
+            return Object.assign({}, state, {
+                vectorOnList: vectorOnList
+            })
+
+        case actions.RELOAD_SELECTION_STATE:
+            var input_mol_key = action.currentVector;
+            var this_vector_list = []
+            for (var key in  state.to_select){
+                if (key.split("_")[0]==input_mol_key){
+                    this_vector_list[key] = state.to_select[key]
+                }
+            }
+            return  Object.assign({}, state, {
+                this_vector_list: this_vector_list,
+                fragmentDisplayList: action.fragmentDisplayList,
+                complexList: action.complexList,
+                vectorOnList: action.vectorOnList,
+                to_query: action.to_query,
+                vector_list: action.vector_list,
+                to_select: action.to_select,
+                to_query_pk: action.to_query_pk,
+                to_query_prot: action.to_query_prot,
+                to_query_sdf_info: action.to_query_sdf_info,
+                currentVector: action.currentVector,
             });
 
         // Cases like: @@redux/INIT

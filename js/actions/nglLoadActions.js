@@ -49,7 +49,6 @@ export const deleteObjectType = function (object_type) {
         type: DELETE_OBJECT_TYPE,
         object_type: object_type
     }
-
 }
 
 export const setNGLOrientation = function (div_id, orientation){
@@ -59,8 +58,6 @@ export const setNGLOrientation = function (div_id, orientation){
         orientation: orientation,
             div_id: div_id,
     };
-
-
 }
 
 export const setUuid = function (uuid){
@@ -68,10 +65,7 @@ export const setUuid = function (uuid){
     return {
         type: SET_UUID,
         uuid: uuid,
-
     }
-
-
 }
 
 export const loadObjectFailure = function (group) {
