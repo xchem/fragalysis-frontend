@@ -13,8 +13,9 @@ const INITIALSTATE = {
     this_vector_list: {},
     querying: false,
     to_query: undefined,
-    fragmentDisplayList: [],
-    complexList: [],
+    fragmentDisplayList: new Set(),
+    complexList: new Set(),
+    vectorOnList: new Set(),
     currentVector: undefined,
 }
 
@@ -112,28 +113,14 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             });
 
         case actions.APPEND_FRAGMENT_DISPLAY_LIST:
-            var fragmentDisplayList = state.fragmentDisplayList.slice();
-            var exists = false;
-            for (var item in fragmentDisplayList) {
-                if (fragmentDisplayList[item].id == action.item.id) {
-                    exists = true;
-                }
-            }
-            if (exists == false) {
-                fragmentDisplayList.push(action.item)
-            }
+            var fragmentDisplayList = new Set(state.fragmentDisplayList.add(action.item.id));
             return Object.assign({}, state, {
                 fragmentDisplayList: fragmentDisplayList
             })
 
         case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
-            var fragmentDisplayList = state.fragmentDisplayList
-            var index = -1;
-            for (var item in fragmentDisplayList) {
-                index = item
-                break;
-            }
-            fragmentDisplayList.splice(index, 1);
+            var fragmentDisplayList = new Set(state.fragmentDisplayList);
+            fragmentDisplayList.delete(action.item.id);
             return Object.assign({}, state, {
                 fragmentDisplayList: fragmentDisplayList
             })
@@ -144,30 +131,34 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             });
 
         case actions.APPEND_COMPLEX_LIST:
-            var complexList = state.complexList.slice();
-            var exists = false;
-            for (var item in complexList) {
-                if (complexList[item].id == action.item.id) {
-                    exists = true;
-                }
-            }
-            if (exists == false) {
-                complexList.push(action.item)
-            }
+            var complexList = new Set(state.complexList.add(action.item.id));
             return Object.assign({}, state, {
                 complexList: complexList
             })
 
         case actions.REMOVE_FROM_COMPLEX_LIST:
-            var complexList = state.complexList
-            var index = -1;
-            for (var item in complexList) {
-                index = item
-                break;
-            }
-            complexList.splice(index, 1);
+            var complexList = new Set(state.complexList);
+            complexList.delete(action.item.id);
             return Object.assign({}, state, {
                 complexList: complexList
+            })
+
+        case actions.SET_VECTOR_ON_LIST:
+            return Object.assign({}, state, {
+                vectorOnList: action.vectorOnList,
+            });
+
+        case actions.APPEND_VECTOR_ON_LIST:
+            var vectorOnList = new Set(state.vectorOnList.add(action.item.id));
+            return Object.assign({}, state, {
+                vectorOnList: vectorOnList
+            })
+
+        case actions.REMOVE_FROM_VECTOR_ON_LIST:
+            var vectorOnList = new Set(state.vectorOnList)
+            vectorOnList.delete(action.item.id)
+            return Object.assign({}, state, {
+                vectorOnList: vectorOnList
             })
 
         case actions.RELOAD_SELECTION_STATE:
@@ -182,6 +173,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 this_vector_list: this_vector_list,
                 fragmentDisplayList: action.fragmentDisplayList,
                 complexList: action.complexList,
+                vectorOnList: action.vectorOnList,
                 to_query: action.to_query,
                 vector_list: action.vector_list,
                 to_select: action.to_select,
@@ -189,79 +181,6 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 to_query_prot: action.to_query_prot,
                 to_query_sdf_info: action.to_query_sdf_info,
                 currentVector: action.currentVector,
-            });
-
-        case actions.SET_FRAGMENT_DISPLAY_LIST:
-            return Object.assign({}, state, {
-                fragmentDisplayList: action.fragmentDisplayList,
-            });
-
-        case actions.APPEND_FRAGMENT_DISPLAY_LIST:
-            var fragmentDisplayList = state.fragmentDisplayList.slice();
-            var exists = false;
-            for (var item in fragmentDisplayList) {
-                if (fragmentDisplayList[item].id == action.item.id) {
-                    exists = true;
-                }
-            }
-            if (exists == false) {
-                fragmentDisplayList.push(action.item)
-            }
-            return Object.assign({}, state, {
-                fragmentDisplayList: fragmentDisplayList
-            })
-
-        case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
-            var fragmentDisplayList = state.fragmentDisplayList
-            var index = -1;
-            for (var item in fragmentDisplayList) {
-                index = item
-                break;
-            }
-            fragmentDisplayList.splice(index, 1);
-            return Object.assign({}, state, {
-                fragmentDisplayList: fragmentDisplayList
-            })
-
-        case actions.SET_COMPLEX_LIST:
-            return Object.assign({}, state, {
-                complexList: action.complexList,
-            });
-
-        case actions.APPEND_COMPLEX_LIST:
-            var complexList = state.complexList.slice();
-            var exists = false;
-            for (var item in complexList) {
-                if (complexList[item].id == action.item.id) {
-                    exists = true;
-                }
-            }
-            if (exists == false) {
-                complexList.push(action.item)
-            }
-            return Object.assign({}, state, {
-                complexList: complexList
-            })
-
-        case actions.REMOVE_FROM_COMPLEX_LIST:
-            var complexList = state.complexList
-            var index = -1;
-            for (var item in complexList) {
-                index = item
-                break;
-            }
-            complexList.splice(index, 1);
-            return Object.assign({}, state, {
-                complexList: complexList
-            })
-
-        case actions.RELOAD_SELECTION_STATE:
-            return Object.assign({}, state, {
-                fragmentDisplayList: action.fragmentDisplayList,
-                complexList: action.complexList,
-                to_query: action.to_query,
-                vector_list: action.vector_list,
-                to_select: action.to_select
             });
 
         // Cases like: @@redux/INIT

@@ -4,7 +4,8 @@
 
 import {SET_TO_BUY_LIST, APPEND_TO_BUY_LIST, REMOVE_FROM_TO_BUY_LIST, GET_FULL_GRAPH, GOT_FULL_GRAPH, SET_VECTOR_LIST,
     SELECT_VECTOR, SET_MOL, SET_FRAGMENT_DISPLAY_LIST, APPEND_FRAGMENT_DISPLAY_LIST, REMOVE_FROM_FRAGMENT_DISPLAY_LIST,
-    SET_COMPLEX_LIST, APPEND_COMPLEX_LIST, REMOVE_FROM_COMPLEX_LIST, RELOAD_SELECTION_STATE} from './actonTypes'
+    SET_COMPLEX_LIST, APPEND_COMPLEX_LIST, REMOVE_FROM_COMPLEX_LIST, SET_VECTOR_ON_LIST, APPEND_VECTOR_ON_LIST,
+    REMOVE_FROM_VECTOR_ON_LIST, RELOAD_SELECTION_STATE} from './actonTypes'
 
 export const setToBuyList = function (to_buy_list){
     console.log("ACTIONS: "+ to_buy_list)
@@ -118,12 +119,37 @@ export const removeFromComplexList = function (item){
     }
 }
 
+export const setVectorOnList = function (vectorOnList){
+    console.log("ACTIONS: "+ vectorOnList)
+    return {
+        type: SET_VECTOR_ON_LIST,
+        vectorList: vectorOnList
+    }
+}
+
+export const appendVectorOnList = function (item){
+    console.log("ACTIONS: "+ item)
+    return {
+        type: APPEND_VECTOR_ON_LIST,
+        item: item
+    }
+}
+
+export const removeFromVectorOnList = function (item){
+    console.log("ACTIONS: "+ item)
+    return {
+        type: REMOVE_FROM_VECTOR_ON_LIST,
+        item: item
+    }
+}
+
 export const reloadSelectionState = function (selectionReducers){
     console.log("RELOAD STATE: " + selectionReducers)
     return {
         type: RELOAD_SELECTION_STATE,
-        fragmentDisplayList: selectionReducers.fragmentDisplayList,
-        complexList: selectionReducers.complexList,
+        fragmentDisplayList: new Set(selectionReducers.fragmentDisplayList),
+        complexList: new Set(selectionReducers.complexList),
+        vectorOnList: new Set(selectionReducers.vectorOnList),
         to_query: selectionReducers.to_query,
         vector_list: selectionReducers.vector_list,
         to_select: selectionReducers.to_select,

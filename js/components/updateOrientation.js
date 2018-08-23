@@ -8,6 +8,7 @@ import * as apiActions from '../actions/apiActions'
 import * as selectionActions from '../actions/selectionActions'
 import { Button, Well, Col, Row } from 'react-bootstrap'
 import { getStore } from '../containers/globalStore';
+import { saveStore } from '../containers/globalStore';
 
 
 export class UpdateOrientation extends React.Component {
@@ -24,9 +25,10 @@ export class UpdateOrientation extends React.Component {
             return;
         }
         var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-        this.props.reloadSelectionState(jsonOfView.selectionReducers);
-        this.props.reloadApiState(jsonOfView.apiReducers);
-        var myOrientDict = jsonOfView.nglReducers.nglOrientations;
+        // saveStore(jsonOfView)
+        this.props.reloadApiState(jsonOfView.apiReducers.present);
+        this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
+        var myOrientDict = jsonOfView.nglReducers.present.nglOrientations;
         for(var div_id in myOrientDict){
             var orientation = myOrientDict[div_id]["orientation"];
             var components = myOrientDict[div_id]["components"];

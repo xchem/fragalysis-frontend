@@ -12,11 +12,11 @@ import undoable from 'redux-undo';
 
 const rootReducer = combineReducers({
     renderReducers,
-    apiReducers: undoable(apiRed),
+    apiReducers: undoable(apiRed, {limit: 10}),
     burgerMenu,
     loadingBar: loadingBarReducer,
-    nglReducers: undoable(nglRed),
-    selectionReducers: undoable(selectionRed)
+    nglReducers: undoable(nglRed, {limit: 10}),
+    selectionReducers: undoable(selectionRed, {limit: 10})
 })
 
 export default rootReducer;
