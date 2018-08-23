@@ -46,7 +46,7 @@ export class ModalLoadingScreen extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        loadingState: state.nglReducers.loadingState
+        loadingState: state.nglReducers.present.loadingState
     }
 }
 

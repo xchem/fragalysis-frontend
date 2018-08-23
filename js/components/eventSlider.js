@@ -48,8 +48,8 @@ class EventSlider extends Slider {
 
 function mapStateToProps(state) {
   return {
-      object_list: state.apiReducers.pandda_event_list,
-      object_on: state.apiReducers.pandda_event_on
+      object_list: state.apiReducers.present.pandda_event_list,
+      object_on: state.apiReducers.present.pandda_event_on
   }
 }
 const mapDispatchToProps = {

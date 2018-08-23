@@ -498,21 +498,21 @@ export class NGLView extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      nglOrientations: state.nglReducers.nglOrientations,
-      orientationToSet: state.nglReducers.orientationToSet,
-      mol_group_list: state.apiReducers.mol_group_list,
-      mol_group_on: state.apiReducers.mol_group_on,
-      pandda_site_on: state.apiReducers.pandda_site_on,
-      pandda_site_list: state.apiReducers.pandda_site_list,
-      duck_yank_data: state.apiReducers.duck_yank_data,
-      objectsToLoad: state.nglReducers.objectsToLoad,
-      objectsToDelete: state.nglReducers.objectsToDelete,
-      objectsLoading: state.nglReducers.objectsLoading,
-      objectsInView: state.nglReducers.objectsInView,
-      objectsPicked: state.nglReducers.objectsPicked,
-      loadingState: state.nglReducers.loadingState,
-      stageColor: state.nglReducers.stageColor,
-      nglProtStyle: state.nglReducers.nglProtStyle
+      nglOrientations: state.nglReducers.present.nglOrientations,
+      orientationToSet: state.nglReducers.present.orientationToSet,
+      mol_group_list: state.apiReducers.present.mol_group_list,
+      mol_group_on: state.apiReducers.present.mol_group_on,
+      pandda_site_on: state.apiReducers.present.pandda_site_on,
+      pandda_site_list: state.apiReducers.present.pandda_site_list,
+      duck_yank_data: state.apiReducers.present.duck_yank_data,
+      objectsToLoad: state.nglReducers.present.objectsToLoad,
+      objectsToDelete: state.nglReducers.present.objectsToDelete,
+      objectsLoading: state.nglReducers.present.objectsLoading,
+      objectsInView: state.nglReducers.present.objectsInView,
+      objectsPicked: state.nglReducers.present.objectsPicked,
+      loadingState: state.nglReducers.present.loadingState,
+      stageColor: state.nglReducers.present.stageColor,
+      nglProtStyle: state.nglReducers.present.nglProtStyle
   }
 }
 const mapDispatchToProps = {

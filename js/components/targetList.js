@@ -93,9 +93,9 @@ class TargetList extends GenericList {
 
 function mapStateToProps(state) {
   return {
-      objectsInView: state.nglReducers.objectsInView,
-      object_list: state.apiReducers.target_id_list,
-      object_on: state.apiReducers.target_on
+      objectsInView: state.nglReducers.present.objectsInView,
+      object_list: state.apiReducers.present.target_id_list,
+      object_on: state.apiReducers.present.target_on
   }
 }
 const mapDispatchToProps = {

@@ -45,8 +45,8 @@ class NglViewerControls extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        stageColor: state.nglReducers.stageColor,
-        nglProtStyle: state.nglReducers.nglProtStyle
+        stageColor: state.nglReducers.present.stageColor,
+        nglProtStyle: state.nglReducers.present.nglProtStyle
     }
 }
 

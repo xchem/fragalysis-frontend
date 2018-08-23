@@ -305,17 +305,17 @@ class SummaryView extends React.Component{
 
 function mapStateToProps(state) {
   return {
-      target_on_name: state.apiReducers.target_on_name,
-      duck_yank_data: state.apiReducers.duck_yank_data,
-      to_query_pk: state.selectionReducers.to_query_pk,
-      to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
-      to_query_prot: state.selectionReducers.to_query_prot,
-      to_buy_list: state.selectionReducers.to_buy_list,
-      to_select: state.selectionReducers.to_select,
-      this_vector_list: state.selectionReducers.this_vector_list,
-      vector_list: state.selectionReducers.vector_list,
-      querying: state.selectionReducers.querying,
-      to_query: state.selectionReducers.to_query
+      target_on_name: state.apiReducers.present.target_on_name,
+      duck_yank_data: state.apiReducers.present.duck_yank_data,
+      to_query_pk: state.selectionReducers.present.to_query_pk,
+      to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
+      to_query_prot: state.selectionReducers.present.to_query_prot,
+      to_buy_list: state.selectionReducers.present.to_buy_list,
+      to_select: state.selectionReducers.present.to_select,
+      this_vector_list: state.selectionReducers.present.this_vector_list,
+      vector_list: state.selectionReducers.present.vector_list,
+      querying: state.selectionReducers.present.querying,
+      to_query: state.selectionReducers.present.to_query
   }
 }
 

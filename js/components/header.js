@@ -69,9 +69,9 @@ class Header extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      appOn: state.apiReducers.appOn,
-      target_id_list: state.apiReducers.target_id_list,
-      target_on: state.apiReducers.target_on
+      appOn: state.apiReducers.present.appOn,
+      target_id_list: state.apiReducers.present.target_id_list,
+      target_on: state.apiReducers.present.target_on
   }
 }
 const mapDispatchToProps = {

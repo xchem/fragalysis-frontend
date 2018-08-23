@@ -212,11 +212,11 @@ class MoleculeView extends GenericView {
 }
 function mapStateToProps(state) {
   return {
-      currentList: state.apiReducers.possibleMols,
-      to_query: state.selectionReducers.to_query,
-      inViewList:state.nglReducers.objectsInView,
-      vector_list: state.selectionReducers.vector_list,
-      newListTwo: state.apiReducers.chosenMols,
+      currentList: state.apiReducers.present.possibleMols,
+      to_query: state.selectionReducers.present.to_query,
+      inViewList:state.nglReducers.present.objectsInView,
+      vector_list: state.selectionReducers.present.vector_list,
+      newListTwo: state.apiReducers.present.chosenMols,
   }
 }
 const mapDispatchToProps = {

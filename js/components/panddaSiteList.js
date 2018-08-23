@@ -79,10 +79,10 @@ class PanddaSiteList extends GenericList {
 }
 function mapStateToProps(state) {
   return {
-      group_type: state.apiReducers.group_type,
-      target_on: state.apiReducers.target_on,
-      object_list: state.apiReducers.pandda_site_list,
-      object_on: state.apiReducers.pandda_site_on
+      group_type: state.apiReducers.present.group_type,
+      target_on: state.apiReducers.present.target_on,
+      object_list: state.apiReducers.present.pandda_site_list,
+      object_on: state.apiReducers.present.pandda_site_on
   }
 }
 const mapDispatchToProps = {

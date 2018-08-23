@@ -31,8 +31,8 @@ class CompoundList extends React.Component {
 }
 function mapStateToProps(state) {
   return {
-      moleculeList: state.selectionReducers.this_vector_list,
-      thisMol: state.selectionReducers.to_query
+      moleculeList: state.selectionReducers.present.this_vector_list,
+      thisMol: state.selectionReducers.present.to_query
   }
 }
 const mapDispatchToProps = {

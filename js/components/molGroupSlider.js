@@ -17,8 +17,8 @@ class MolGroupSlider extends Slider{
 
 function mapStateToProps(state) {
   return {
-      object_list: state.apiReducers.mol_group_list,
-      object_on: state.apiReducers.mol_group_on
+      object_list: state.apiReducers.present.mol_group_list,
+      object_on: state.apiReducers.present.mol_group_on
   }
 }
 const mapDispatchToProps = {
