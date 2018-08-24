@@ -171,12 +171,13 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             }
             return  Object.assign({}, state, {
                 this_vector_list: this_vector_list,
-                fragmentDisplayList: action.fragmentDisplayList,
-                complexList: action.complexList,
-                vectorOnList: action.vectorOnList,
+                fragmentDisplayList: new Set(action.item.fragmentDisplayList),
+                complexList: new Set(action.item.complexList),
+                vectorOnList: new Set(action.item.vectorOnList),
                 to_query: action.to_query,
                 vector_list: action.vector_list,
                 to_select: action.to_select,
+                to_buy_list: action.to_buy_list,
                 to_query_pk: action.to_query_pk,
                 to_query_prot: action.to_query_prot,
                 to_query_sdf_info: action.to_query_sdf_info,

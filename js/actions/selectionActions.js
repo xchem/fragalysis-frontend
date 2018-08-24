@@ -147,16 +147,6 @@ export const reloadSelectionState = function (item){
     console.log("RELOAD STATE: " + item)
     return {
         type: RELOAD_SELECTION_STATE,
-        fragmentDisplayList: new Set(item.fragmentDisplayList),
-        complexList: new Set(item.complexList),
-        vectorOnList: new Set(item.vectorOnList),
-        to_query: item.to_query,
-        vector_list: item.vector_list,
-        to_select: item.to_select,
-        to_buy_list: item.to_buy_list,
-        to_query_pk: item.to_query_pk,
-        to_query_prot: item.to_query_prot,
-        to_query_sdf_info: item.to_query_sdf_info,
-        currentVector: item.currentVector,
+        item: item
     }
 }
