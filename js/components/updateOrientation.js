@@ -105,7 +105,7 @@ export class UpdateOrientation extends React.Component {
             fetch("/api/viewscene/", {
                 method: "post",
                 headers: {
-                    'X-CSRFToken': '',
+                    'X-CSRFToken': csrfToken,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
