@@ -174,14 +174,14 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 fragmentDisplayList: new Set(action.item.fragmentDisplayList),
                 complexList: new Set(action.item.complexList),
                 vectorOnList: new Set(action.item.vectorOnList),
-                to_query: action.to_query,
-                vector_list: action.vector_list,
-                to_select: action.to_select,
-                to_buy_list: action.to_buy_list,
-                to_query_pk: action.to_query_pk,
-                to_query_prot: action.to_query_prot,
-                to_query_sdf_info: action.to_query_sdf_info,
-                currentVector: action.currentVector,
+                to_query: action.item.to_query,
+                vector_list: action.item.vector_list,
+                to_select: action.item.to_select,
+                to_buy_list: action.item.to_buy_list,
+                to_query_pk: action.item.to_query_pk,
+                to_query_prot: action.item.to_query_prot,
+                to_query_sdf_info: action.item.to_query_sdf_info,
+                currentVector: action.item.currentVector,
             });
 
         // Cases like: @@redux/INIT
