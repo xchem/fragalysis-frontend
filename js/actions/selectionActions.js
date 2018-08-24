@@ -143,19 +143,10 @@ export const removeFromVectorOnList = function (item){
     }
 }
 
-export const reloadSelectionState = function (selectionReducers){
-    console.log("RELOAD STATE: " + selectionReducers)
+export const reloadSelectionState = function (item){
+    console.log("RELOAD STATE: " + item)
     return {
         type: RELOAD_SELECTION_STATE,
-        fragmentDisplayList: new Set(selectionReducers.fragmentDisplayList),
-        complexList: new Set(selectionReducers.complexList),
-        vectorOnList: new Set(selectionReducers.vectorOnList),
-        to_query: selectionReducers.to_query,
-        vector_list: selectionReducers.vector_list,
-        to_select: selectionReducers.to_select,
-        to_query_pk: selectionReducers.to_query_pk,
-        to_query_prot: selectionReducers.to_query_prot,
-        to_query_sdf_info: selectionReducers.to_query_sdf_info,
-        currentVector: selectionReducers.currentVector,
+        item: item
     }
 }
