@@ -149,7 +149,8 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             });
 
         case actions.APPEND_VECTOR_ON_LIST:
-            var vectorOnList = new Set(state.vectorOnList.add(action.item.id));
+            var vectorOnList = new Set(state.vectorOnList.clear())
+            vectorOnList.add(action.item.id);
             return Object.assign({}, state, {
                 vectorOnList: vectorOnList
             })

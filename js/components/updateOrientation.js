@@ -61,6 +61,20 @@ export class UpdateOrientation extends React.Component {
         }
     }
 
+    getCookie(name) {
+        if (!document.cookie) {
+            return null;
+        }
+        const xsrfCookies = document.cookie.split(';')
+            .map(c => c.trim())
+            .filter(c => c.startsWith(name + '='));
+        if (xsrfCookies.length === 0) {
+            return null;
+        }
+        return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    }
+
+
     componentDidUpdate() {
         var hasBeenRefreshed = true
         if(this.props.uuid!="UNSET"){
@@ -79,6 +93,7 @@ export class UpdateOrientation extends React.Component {
         }
         if (hasBeenRefreshed==true){
             var store = JSON.stringify(getStore().getState());
+            const csrfToken = this.getCookie("csrftoken");
             var fullState = {"state": store};
             const uuidv4 = require('uuid/v4');
             var TITLE = 'need to define title';
@@ -90,6 +105,7 @@ export class UpdateOrientation extends React.Component {
             fetch("/api/viewscene/", {
                 method: "post",
                 headers: {
+                    'X-CSRFToken': csrfToken,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
