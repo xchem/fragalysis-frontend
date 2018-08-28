@@ -59,7 +59,8 @@ class TargetList extends GenericList {
             var out_object = {
                 "name": "PROTEIN_" + targetData.id.toString(),
                 "prot_url": prot_to_load,
-                "OBJECT_TYPE": nglObjectTypes.PROTEIN
+                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
+                "nglProtStyle": this.props.nglProtStyle
             }
             return out_object
         }
@@ -95,7 +96,8 @@ function mapStateToProps(state) {
   return {
       objectsInView: state.nglReducers.present.objectsInView,
       object_list: state.apiReducers.present.target_id_list,
-      object_on: state.apiReducers.present.target_on
+      object_on: state.apiReducers.present.target_on,
+      nglProtStyle: state.nglReducers.present.nglProtStyle
   }
 }
 const mapDispatchToProps = {
