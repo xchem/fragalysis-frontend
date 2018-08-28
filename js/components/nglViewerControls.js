@@ -36,7 +36,7 @@ class NglViewerControls extends React.Component {
         return <div>
             <h3>Viewer controls</h3>
             <Button bsSize="large" bsStyle="success" onClick={this.handleStageColor}>Change background colour</Button>
-            <Button bsSize="large" bsStyle="success" onClick={this.handleNglProtStyle}>Change protein representation</Button>
+            {/*<Button bsSize="large" bsStyle="success" onClick={this.handleNglProtStyle}>Change protein representation</Button>*/}
             <UpdateOrientation />
         </div>
     }
