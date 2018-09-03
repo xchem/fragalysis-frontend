@@ -17,6 +17,8 @@ const INITIALSTATE = {
     complexList: new Set(),
     vectorOnList: new Set(),
     currentVector: undefined,
+    highlightedCompound: {},
+    compoundClasses: {1: "Blue", 2: "Red", 3: "Green", 4: "Purple", 5: "Apricot"},
 }
 
 export default function selectionReducers(state = INITIALSTATE, action) {
@@ -37,6 +39,9 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             for(var item in to_buy_list){
                 if( to_buy_list[item].smiles==action.item.smiles){
                     exists = true;
+                    if (to_buy_list[item].class!=action.item.class){
+                        Object.assign(to_buy_list[item], {class: action.item.class})
+                    }
                 }
             }
             if(exists==false) {
@@ -160,6 +165,16 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             vectorOnList.delete(action.item.id)
             return Object.assign({}, state, {
                 vectorOnList: vectorOnList
+            })
+
+        case actions.SET_HIGHLIGHTED:
+            return Object.assign({}, state, {
+                highlightedCompound: action.highlightedCompound,
+            })
+
+        case actions.SET_COMPOUND_CLASSES:
+            return Object.assign({}, state, {
+                compoundClasses: action.compoundClasses
             })
 
         case actions.RELOAD_SELECTION_STATE:
