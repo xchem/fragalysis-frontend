@@ -11,7 +11,6 @@ import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
 
-
 class CompoundView extends GenericView {
 
     getCookie(name) {
@@ -43,8 +42,9 @@ class CompoundView extends GenericView {
         }
 
         this.send_obj = props.data
-        this.conf_on_style = {borderStyle: "solid"}
-        this.comp_on_style = {backgroundColor: "#B7C185"}
+        this.conf_on_style = {opacity: "0.3"};
+        this.comp_on_style = {backgroundColor: "#B7C185"};
+        this.highlightedCompStyle = {borderStyle:"solid"};
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
         this.handleComp = this.handleComp.bind(this);
@@ -52,9 +52,9 @@ class CompoundView extends GenericView {
 
     checkInList() {
         var isToggleOn = false;
-        for(var item in this.props.to_buy_list){
-            if( this.props.to_buy_list[item].smiles==this.send_obj.smiles){
-                isToggleOn=true
+        for(var item in this.props.to_buy_list) {
+            if (this.props.to_buy_list[item].smiles == this.send_obj.smiles) {
+                isToggleOn = true
             }
         }
         this.setState(prevState => ({isToggleOn: isToggleOn}))
@@ -116,7 +116,6 @@ class CompoundView extends GenericView {
         }
     }
 
-
     handleComp(){
         if (this.state.isToggleOn) {
             this.props.removeFromToBuyList(this.send_obj);
@@ -140,30 +139,58 @@ class CompoundView extends GenericView {
             }
         }
         this.setState(prevState => ({isToggleOn: isToggleOn}));
+
+        var isHighlighted = false;
+        if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
+            isHighlighted = true;
+        }
+        this.setState(prevState => ({isHighlighted: isHighlighted}));
+
+        var compoundClass = 0;
+        for(var item in nextProps.to_buy_list){
+            if (nextProps.to_buy_list[item].smiles == this.send_obj.smiles) {
+                var compoundClass = nextProps.to_buy_list[item].class
+            }
+        }
+        this.setState(prevState => ({compoundClass: compoundClass}))
     }
 
+    handleKeyPress(event) {
+        if(event.key == 'Enter'){
+            console.log('enter press here! ')
+        }
+    }
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         var current_style = Object.assign({},this.not_selected_style);
-        if(this.state.isToggleOn==true && this.state.isConfOn==false){
-            current_style = Object.assign(this.comp_on_style,current_style)
+        if(this.state.isToggleOn==true){
+            current_style = Object.assign(current_style, this.comp_on_style)
         }
-        else if(this.state.isToggleOn==true && this.state.isConfOn==true){
-            current_style = Object.assign({borderStyle: "solid",backgroundColor: "#B7C185"},current_style)
+        if(this.state.isConfOn==true){
+            current_style = Object.assign(current_style, this.conf_on_style)
         }
-        else if(this.state.isToggleOn==false && this.state.isConfOn==true){
-            current_style = Object.assign(this.conf_on_style,current_style)
+        if(this.state.isHighlighted==true){
+            current_style = Object.assign(current_style, this.highlightedCompStyle)
         }
-        return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
+        if(this.state.compoundClass!=0){
+            var colourList = ['#78DBE2', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
+            current_style = Object.assign(current_style, {backgroundColor: colourList[this.state.compoundClass]})
+        }
+        return (
+            <div>
+            <div style={current_style}>{svg_image}</div>
+            </div>
+        )
     }
-
 }
 
 function mapStateToProps(state) {
   return {
       to_buy_list: state.selectionReducers.present.to_buy_list,
       to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
+      highlightedCompound: state.selectionReducers.present.highlightedCompound,
+      thisVectorList: state.selectionReducers.present.this_vector_list,
   }
 }
 const mapDispatchToProps = {

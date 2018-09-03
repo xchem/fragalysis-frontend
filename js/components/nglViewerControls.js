@@ -26,11 +26,9 @@ class NglViewerControls extends React.Component {
 
     handleNglProtStyle() {
         if (this.props.nglProtStyle === 'cartoon') {
-            this.props.setNglProtStyle('licorice')
-        } else if (this.props.nglProtStyle === 'licorice') {
             this.props.setNglProtStyle('hyperball')
-        } else if (this.props.nglProtStyle === "hyperball") {
-            this.props.setNglProtStyle("ball+stick")
+        } else if (this.props.nglProtStyle === 'hyperball') {
+            this.props.setNglProtStyle('cartoon')
         }
     }
 
@@ -38,6 +36,7 @@ class NglViewerControls extends React.Component {
         return <div>
             <h3>Viewer controls</h3>
             <Button bsSize="large" bsStyle="success" onClick={this.handleStageColor}>Change background colour</Button>
+            {/*<Button bsSize="large" bsStyle="success" onClick={this.handleNglProtStyle}>Change protein representation</Button>*/}
             <UpdateOrientation />
         </div>
     }

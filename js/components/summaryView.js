@@ -94,8 +94,9 @@ class SummaryView extends React.Component{
     }
 
     convert_data_to_list(input_list) {
+        var compoundClasses = this.props.compoundClasses;
         var outArray = [];
-        var headerArray = ["smiles","mol","vector"];
+        var headerArray = ["smiles","mol","vector","classNumber","class"];
         outArray.push(headerArray)
         var reg_ex = new RegExp("Xe", 'g')
         for(var item in input_list){
@@ -103,6 +104,8 @@ class SummaryView extends React.Component{
             newArray.push(input_list[item].smiles)
             newArray.push(input_list[item].mol)
             newArray.push(input_list[item].vector.replace(reg_ex,"*"))
+            newArray.push(input_list[item].class)
+            newArray.push(compoundClasses[input_list[item].class])
             outArray.push(newArray)
         }
         return outArray;
@@ -315,7 +318,8 @@ function mapStateToProps(state) {
       this_vector_list: state.selectionReducers.present.this_vector_list,
       vector_list: state.selectionReducers.present.vector_list,
       querying: state.selectionReducers.present.querying,
-      to_query: state.selectionReducers.present.to_query
+      to_query: state.selectionReducers.present.to_query,
+      compoundClasses: state.selectionReducers.present.compoundClasses,
   }
 }
 

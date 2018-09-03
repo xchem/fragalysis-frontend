@@ -5,7 +5,7 @@
 import {SET_TO_BUY_LIST, APPEND_TO_BUY_LIST, REMOVE_FROM_TO_BUY_LIST, GET_FULL_GRAPH, GOT_FULL_GRAPH, SET_VECTOR_LIST,
     SELECT_VECTOR, SET_MOL, SET_FRAGMENT_DISPLAY_LIST, APPEND_FRAGMENT_DISPLAY_LIST, REMOVE_FROM_FRAGMENT_DISPLAY_LIST,
     SET_COMPLEX_LIST, APPEND_COMPLEX_LIST, REMOVE_FROM_COMPLEX_LIST, SET_VECTOR_ON_LIST, APPEND_VECTOR_ON_LIST,
-    REMOVE_FROM_VECTOR_ON_LIST, RELOAD_SELECTION_STATE} from './actonTypes'
+    REMOVE_FROM_VECTOR_ON_LIST, SET_HIGHLIGHTED, SET_COMPOUND_CLASSES, RELOAD_SELECTION_STATE} from './actonTypes'
 
 export const setToBuyList = function (to_buy_list){
     console.log("ACTIONS: "+ to_buy_list)
@@ -140,6 +140,22 @@ export const removeFromVectorOnList = function (item){
     return {
         type: REMOVE_FROM_VECTOR_ON_LIST,
         item: item
+    }
+}
+
+export const setCompoundClasses = function (compoundClasses){
+    console.log("ACTIONS: "+ compoundClasses)
+    return {
+        type: SET_COMPOUND_CLASSES,
+        compoundClasses: compoundClasses
+    }
+}
+
+export const setHighlighted = function (item){
+    console.log("ACTIONS: "+ item)
+    return {
+        type: SET_HIGHLIGHTED,
+        highlightedCompound: item
     }
 }
 
