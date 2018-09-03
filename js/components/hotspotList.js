@@ -16,6 +16,7 @@ class HotspotList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
+        this.hsCount = undefined;
     }
 
     handleOptionChange(changeEvent) {
@@ -24,7 +25,18 @@ class HotspotList extends GenericList {
     }
 
     render() {
-        if (this.props != undefined && this.props.object_list) {
+        fetch("/api/hotspots/?map_type=DO&prot_id=" + this.props.object_list[0].prot_id.toString(), {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            this.setState({hsCount: myJson.count})
+        }
+            if (this.props != undefined && this.props.object_list && this.props.hsCount != 0) {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
