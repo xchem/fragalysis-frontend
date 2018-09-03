@@ -26,10 +26,10 @@ class HotspotList extends GenericList {
     }
 
 
-    updateCount(){
+    updateCount(props){
 
-        if(this.props.object_list != undefined && this.props.object_list.length>0){
-        fetch("/api/hotspots/?map_type=DO&prot_id=" + this.props.object_list[0].prot_id.toString(), {
+        if(props.object_list != undefined && props.object_list.length>0){
+        fetch("/api/hotspots/?map_type=DO&prot_id=" + props.object_list[0].prot_id.toString(), {
             method: "get",
             headers: {
                 'Accept': 'application/json',
@@ -42,15 +42,15 @@ class HotspotList extends GenericList {
         })}
     }
 
-    componentWillReceiveProps(){
-        this.updateCount()
+    componentWillReceiveProps(nextProps){
+        this.updateCount(nextProps)
 
 
     }
 
 
     componentDidMount(){
-        this.updateCount()
+        this.updateCount(this.props)
 
     }
 
