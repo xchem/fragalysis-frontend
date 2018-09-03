@@ -35,8 +35,8 @@ class HotspotList extends GenericList {
             return response.json();
         }).then(function (myJson) {
             this.setState({hsCount: myJson.count})
-        }
-            if (this.props != undefined && this.props.hsCount != 0) {
+        })
+        if (this.props != undefined && this.props.hsCount != 0) {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
