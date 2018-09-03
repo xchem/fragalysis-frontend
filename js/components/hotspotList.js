@@ -28,7 +28,7 @@ class HotspotList extends GenericList {
 
     updateCount(){
 
-        if(this.props.object_list.length>0){
+        if(this.props.object_list != undefined && this.props.object_list.length>0){
         fetch("/api/hotspots/?map_type=DO&prot_id=" + this.props.object_list[0].prot_id.toString(), {
             method: "get",
             headers: {
