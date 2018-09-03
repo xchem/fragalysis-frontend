@@ -27,7 +27,6 @@ class HotspotList extends GenericList {
 
 
      async updateCount(props){
-
         if(props.object_list != undefined && props.object_list.length>0){
         var response = await fetch("/api/hotspots/?map_type=DO&prot_id=" + props.object_list[0].prot_id.toString(), {
             method: "get",
@@ -42,15 +41,12 @@ class HotspotList extends GenericList {
     }
 
     componentWillReceiveProps(nextProps){
-        this.updateCount(nextProps)
-
-
+        this.updateCount(nextProps);
     }
 
 
     componentDidMount(){
-        this.updateCount(this.props)
-
+        this.updateCount(this.props);
     }
 
 
