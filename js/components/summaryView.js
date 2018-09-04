@@ -244,24 +244,7 @@ class SummaryView extends React.Component{
         FileSaver.saveAs(content, f_name + ".zip");
     }
 
-    getNum() {
-        var tot_num=0;
-        for(var key in this.props.to_select){
-            tot_num+=this.props.to_select[key].length;
-        }
-        return tot_num;
-    }
-
     render() {
-        var numMols = this.getNum();
-        var mol_string = "No mols found!!!";
-        if(numMols){
-            mol_string = "Compounds to pick. Mol total: " + numMols
-        }
-        if(this.props.to_query=="" || this.props.to_query==undefined) {
-            mol_string = ""
-        }
-
         var interaction_select = this.state.interaction_select == undefined ? "Not selected" : this.state.interaction_select
 
         return <div>

@@ -84,7 +84,23 @@ class CompoundList extends React.Component {
         }
     }
 
+    getNum() {
+        var tot_num=0;
+        for(var key in this.props.to_select){
+            tot_num+=this.props.to_select[key].length;
+        }
+        return tot_num;
+    }
+
     render() {
+        var numMols = this.getNum();
+        var mol_string = "No mols found!!!";
+        if(numMols){
+            mol_string = "Compounds to pick. Mol total: " + numMols
+        }
+        if(this.props.to_query=="" || this.props.to_query==undefined) {
+            mol_string = ""
+        }
         if (Object.keys(this.props.moleculeList).length > 0) {
             var totArray = []
             totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleCursor }></input>)
