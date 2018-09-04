@@ -70,7 +70,7 @@ class CompoundList extends React.Component {
         }
     }
     render() {
-        if (this.props.moleculeList.length > 0) {
+        if (Object.keys(this.props.moleculeList).length > 0) {
             var totArray = []
             totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleCursor }></input>)
             totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleCursor }></input>)
