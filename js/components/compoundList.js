@@ -139,6 +139,7 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.present.to_query,
       currentVector: state.selectionReducers.present.currentVector,
       compoundClasses: state.selectionReducers.present.compoundClasses,
+      to_select: state.selectionReducers.present.to_select,
   }
 }
 const mapDispatchToProps = {
