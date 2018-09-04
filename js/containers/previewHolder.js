@@ -9,6 +9,7 @@ import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSlider from '../components/molGroupSlider'
 import SummaryView from '../components/summaryView';
+import CompoundList from '../components/compoundList';
 import NglViewerControls from '../components/nglViewerControls'
 import HotspotList from '../components/hotspotList'
 import * as apiActions from '../actions/apiActions';
@@ -56,6 +57,7 @@ class Preview extends Component {
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
+                  <CompoundList />
                   <HotspotList />
               </Col>
           </Row>

@@ -69,27 +69,34 @@ class CompoundList extends React.Component {
             this.props.appendToBuyList(toBuyObj)
         }
     }
-
     render() {
-        var totArray = []
-        totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleCursor }></input>)
-        totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleCursor }></input>)
-        totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleCursor }></input>)
-        totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleCursor }></input>)
-        totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleCursor }></input>)
-        for(var key in this.props.moleculeList){
-            var retArray = [];
-            for (var ele in this.props.moleculeList[key]){
-                var input_data = {}
-                input_data.smiles=this.props.moleculeList[key][ele]
-                input_data.vector=key.split("_")[0]
-                input_data.mol=this.props.thisMol
-                retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
+        if (this.props.moleculeList.length > 0) {
+            var totArray = []
+            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleCursor }></input>)
+            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleCursor }></input>)
+            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleCursor }></input>)
+            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleCursor }></input>)
+            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleCursor }></input>)
+            for(var key in this.props.moleculeList){
+                var retArray = [];
+                for (var ele in this.props.moleculeList[key]){
+                    var input_data = {}
+                    input_data.smiles=this.props.moleculeList[key][ele]
+                    input_data.vector=key.split("_")[0]
+                    input_data.mol=this.props.thisMol
+                    retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
+                }
+                totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
             }
-            totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
+            return <Well>
+                <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
+                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                <div>{totArray}</div>;
+            </Well>
         }
-
-        return <div>{totArray}</div>;
+        else {
+            return null;
+        }
     }
 }
 function mapStateToProps(state) {
