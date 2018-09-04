@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
+import { ListGroupItem, ListGroup, Col, Row, Well, Button} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import CompoundView from './compoundView';
@@ -15,6 +15,7 @@ class CompoundList extends React.Component {
     constructor(props) {
         super(props);
         this.handleCursor=this.handleCursor.bind(this);
+        this.selectAll = this.selectAll.bind(this);
     }
 
     handleCursor(e) {
@@ -69,6 +70,20 @@ class CompoundList extends React.Component {
             this.props.appendToBuyList(toBuyObj)
         }
     }
+
+    selectAll() {
+        for(var key in this.props.this_vector_list) {
+            for (var index in this.props.this_vector_list[key]){
+                var thisObj = {
+                    smiles: this.props.this_vector_list[key][index],
+                    vector: key.split("_")[0],
+                    mol: this.props.to_query
+                }
+                this.props.appendToBuyList(thisObj);
+            }
+        }
+    }
+
     render() {
         if (Object.keys(this.props.moleculeList).length > 0) {
             var totArray = []

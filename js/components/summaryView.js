@@ -23,7 +23,6 @@ class SummaryView extends React.Component{
         this.handleDocking = this.handleDocking.bind(this);
         this.handleYankDuck = this.handleYankDuck.bind(this);
         this.getColour = this.getColour.bind(this);
-        this.selectAll = this.selectAll.bind(this);
         this.dockingScripts = new DockingScripts();
         this.vector_list;
         // Number vectors and series to be incorporated later
@@ -251,19 +250,6 @@ class SummaryView extends React.Component{
             tot_num+=this.props.to_select[key].length;
         }
         return tot_num;
-    }
-
-    selectAll() {
-        for(var key in this.props.this_vector_list) {
-            for (var index in this.props.this_vector_list[key]){
-                var thisObj = {
-                    smiles: this.props.this_vector_list[key][index],
-                    vector: key.split("_")[0],
-                    mol: this.props.to_query
-                }
-                this.props.appendToBuyList(thisObj);
-            }
-        }
     }
 
     render() {
