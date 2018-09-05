@@ -181,6 +181,7 @@ function mapStateToProps(state) {
       to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
       highlightedCompound: state.selectionReducers.present.highlightedCompound,
       thisVectorList: state.selectionReducers.present.this_vector_list,
+      currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
   }
 }
 const mapDispatchToProps = {
