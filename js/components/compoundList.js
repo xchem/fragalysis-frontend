@@ -18,18 +18,22 @@ class CompoundList extends React.Component {
     constructor(props) {
         super(props);
         this.handleCursor=this.handleCursor.bind(this);
+        this.handleClassNaming = this.handleClassNaming.bind(this);
         this.selectAll = this.selectAll.bind(this);
     }
 
-    handleCursor(keyCode) {
-        var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
-        if (keyCode === 13) {
+    handleClassNaming(e){
+        if (e.keyCode === 13) {
             var newClassDescription = {[e.target.id]: e.target.value};
             console.log('submit new class name ' + newClassDescription);
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.props.setCompoundClasses(descriptionToSet);
         }
+    }
+
+    handleCursor(keyCode) {
+        var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
         if (keyCode === 37) {
             console.log('left cursor ' + e.target.value);
             this.props.highlightedCompound;
@@ -112,11 +116,11 @@ class CompoundList extends React.Component {
         }
         if (this.props.currentVector != undefined) {
             var totArray = []
-            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleCursor }></input>)
-            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleCursor }></input>)
-            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleCursor }></input>)
-            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleCursor }></input>)
-            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleCursor }></input>)
+            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
             for(var key in this.props.moleculeList){
                 var retArray = [];
                 for (var ele in this.props.moleculeList[key]){
