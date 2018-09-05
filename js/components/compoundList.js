@@ -21,16 +21,16 @@ class CompoundList extends React.Component {
         this.selectAll = this.selectAll.bind(this);
     }
 
-    handleCursor(e) {
+    handleCursor(keyCode) {
         var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
-        if (e.keyCode === 13) {
+        if (keyCode === 13) {
             var newClassDescription = {[e.target.id]: e.target.value};
             console.log('submit new class name ' + newClassDescription);
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.props.setCompoundClasses(descriptionToSet);
         }
-        if (e.keyCode === 37) {
+        if (keyCode === 37) {
             console.log('left cursor ' + e.target.value);
             this.props.highlightedCompound;
             if (Object.keys(this.props.highlightedCompound).length == 0) {
@@ -43,7 +43,7 @@ class CompoundList extends React.Component {
                     smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][indexToSet]
                 })
             }
-        } else if (e.keyCode === 39) {
+        } else if (keyCode === 39) {
             console.log('right cursor ' + e.target.value);
             if (Object.keys(this.props.highlightedCompound).length == 0) {
                 this.props.setHighlighted(defaultSet)
@@ -63,12 +63,12 @@ class CompoundList extends React.Component {
         // numbers 1-5 have keycodes 49-53
         var classDict = {49: 1, 50: 2, 51:3, 52:4, 53:5}
         // This might not work
-        if(e.keyCode in classDict) {
+        if(keyCode in classDict) {
             var toBuyObj = {
                 mol: this.props.to_query,
                 smiles: this.props.highlightedCompound.smiles,
                 vector: this.props.currentVector,
-                class: classDict[e.keyCode]
+                class: classDict[keyCode]
             }
             this.props.appendToBuyList(toBuyObj)
         }
@@ -97,7 +97,7 @@ class CompoundList extends React.Component {
 
     componentWillReceiveProps( { keydown } ){
         if ( keydown.event ) {
-            this.handleCursor;
+            this.handleCursor(keydown.event.which);
         }
     }
 
