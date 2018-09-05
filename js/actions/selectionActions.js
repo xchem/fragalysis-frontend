@@ -151,6 +151,14 @@ export const setCompoundClasses = function (compoundClasses){
     }
 }
 
+export const setCurrentCompoundClass = function (currentCompoundClass){
+    console.log("ACTIONS: "+ currentCompoundClass)
+    return {
+        type: SET_CURRENT_COMPOUND_CLASS,
+        currentCompoundClass: currentCompoundClass
+    }
+}
+
 export const setHighlighted = function (item){
     console.log("ACTIONS: "+ item)
     return {

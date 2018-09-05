@@ -19,6 +19,7 @@ const INITIALSTATE = {
     currentVector: undefined,
     highlightedCompound: {},
     compoundClasses: {1: "Blue", 2: "Red", 3: "Green", 4: "Purple", 5: "Apricot"},
+    currentCompoundClass: 1,
 }
 
 export default function selectionReducers(state = INITIALSTATE, action) {
@@ -175,6 +176,11 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         case actions.SET_COMPOUND_CLASSES:
             return Object.assign({}, state, {
                 compoundClasses: action.compoundClasses
+            })
+
+        case actions.SET_CURRENT_COMPOUND_CLASSES:
+            return Object.assign({}, state, {
+                currentCompoundClass: action.currentCompoundClass
             })
 
         case actions.RELOAD_SELECTION_STATE:

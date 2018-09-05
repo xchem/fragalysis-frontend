@@ -139,6 +139,7 @@ class CompoundList extends React.Component {
         }
     }
 }
+
 function mapStateToProps(state) {
   return {
       moleculeList: state.selectionReducers.present.this_vector_list,
