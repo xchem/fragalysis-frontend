@@ -64,9 +64,7 @@ class CompoundList extends React.Component {
         if (Object.keys(this.props.highlightedCompound).length == 0) {
             this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]});
         }
-        // numbers 1-5 have keycodes 49-53
         var classDict = {49: 1, 50: 2, 51:3, 52:4, 53:5}
-        // This might not work
         if(keyCode in classDict) {
             var toBuyObj = {
                 mol: this.props.to_query,
@@ -103,6 +101,7 @@ class CompoundList extends React.Component {
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
         }
+
     }
 
     render() {

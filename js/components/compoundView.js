@@ -67,9 +67,9 @@ class CompoundView extends GenericView {
             this.handleConf();
         }
         else {
-            var isToggleOn = this.state.isToggleOn;
-            this.setState(prevState => ({isToggleOn: !isToggleOn}))
-            this.handleComp();
+            if (this.state.compoundClass == this.props.currentCompoundClass){
+                this.setState(prevState => ({compoundClass: 0}))
+            }
         }
     }
 
