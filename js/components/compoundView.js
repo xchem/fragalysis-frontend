@@ -137,7 +137,7 @@ class CompoundView extends GenericView {
                 thisCompoundClass = this.to_buy_list[item].class
             }
         }
-        this.setState(prevState => ({compoundClass: thisCompoundclass}));
+        this.setState(prevState => ({compoundClass: thisCompoundClass}));
 
         var isHighlighted = false;
         if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
