@@ -95,7 +95,7 @@ class CompoundList extends React.Component {
         return tot_num;
     }
 
-    componentWillRecieveProps( { keydown } ){
+    componentWillReceiveProps( { keydown } ){
         if ( keydown.event ) {
             console.log( keydown.event.which );
         }
