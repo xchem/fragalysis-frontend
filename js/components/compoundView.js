@@ -125,20 +125,19 @@ class CompoundView extends GenericView {
         }
     }
 
-
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         this.checkInList();
     }
 
     componentWillReceiveProps(nextProps) {
-        var isToggleOn = false;
+        var thisCompoundClass = 0;
         for(var item in nextProps.to_buy_list){
             if( nextProps.to_buy_list[item].smiles==this.send_obj.smiles){
-                isToggleOn=true
+                thisCompoundClass = this.to_buy_list[item].class
             }
         }
-        this.setState(prevState => ({isToggleOn: isToggleOn}));
+        this.setState(prevState => ({compoundClass: thisCompoundclass}));
 
         var isHighlighted = false;
         if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
