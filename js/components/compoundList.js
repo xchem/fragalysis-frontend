@@ -97,7 +97,7 @@ class CompoundList extends React.Component {
 
     componentWillReceiveProps( { keydown } ){
         if ( keydown.event ) {
-            console.log( keydown.event.which );
+            this.handleCursor;
         }
     }
 
