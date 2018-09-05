@@ -155,12 +155,6 @@ class CompoundView extends GenericView {
         this.setState(prevState => ({compoundClass: compoundClass}))
     }
 
-    handleKeyPress(event) {
-        if(event.key == 'Enter'){
-            console.log('enter press here! ')
-        }
-    }
-
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         var current_style = Object.assign({},this.not_selected_style);
@@ -177,11 +171,7 @@ class CompoundView extends GenericView {
             var colourList = ['#78DBE2', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
             current_style = Object.assign(current_style, {backgroundColor: colourList[this.state.compoundClass]})
         }
-        return (
-            <div>
-            <div style={current_style}>{svg_image}</div>
-            </div>
-        )
+        return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
     }
 }
 
