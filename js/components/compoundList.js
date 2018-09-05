@@ -7,9 +7,12 @@ import { connect } from 'react-redux'
 import CompoundView from './compoundView';
 import * as selectionActions from "../actions/selectionActions";
 import * as actions from "../actions/actonTypes";
+import keydown from 'react-keydown';
 
 const molStyle = {height: "400px",
     overflow:"scroll"}
+const KEYS = [ 'left', 'right', '1', '2', '3', '4', '5' ];
+@keydown( KEYS )
 
 class CompoundList extends React.Component {
     constructor(props) {
@@ -90,6 +93,12 @@ class CompoundList extends React.Component {
             tot_num+=this.props.to_select[key].length;
         }
         return tot_num;
+    }
+
+    componentWillRecieveProps( { keydown } ){
+        if ( keydown.event ) {
+            console.log( keydown.event.which );
+        }
     }
 
     render() {
