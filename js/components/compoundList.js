@@ -122,7 +122,7 @@ class CompoundList extends React.Component {
             return <Well>
                 <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
                 <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <div>{totArray}</div>;
+                <div>{totArray}</div>
             </Well>
         }
         else {
