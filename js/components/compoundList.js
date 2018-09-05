@@ -35,7 +35,7 @@ class CompoundList extends React.Component {
     handleCursor(keyCode) {
         var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
         if (keyCode === 37) {
-            console.log('left cursor ' + e.target.value);
+            console.log('left cursor ' + this.props.currentCompoundClass);
             this.props.highlightedCompound;
             if (Object.keys(this.props.highlightedCompound).length == 0) {
                 this.props.setHighlighted(defaultSet)
@@ -48,7 +48,7 @@ class CompoundList extends React.Component {
                 })
             }
         } else if (keyCode === 39) {
-            console.log('right cursor ' + e.target.value);
+            console.log('right cursor ' + this.props.currentCompoundClass);
             if (Object.keys(this.props.highlightedCompound).length == 0) {
                 this.props.setHighlighted(defaultSet)
             }
@@ -153,6 +153,7 @@ function mapStateToProps(state) {
       to_query: state.selectionReducers.present.to_query,
       currentVector: state.selectionReducers.present.currentVector,
       compoundClasses: state.selectionReducers.present.compoundClasses,
+      currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
       to_select: state.selectionReducers.present.to_select,
   }
 }
