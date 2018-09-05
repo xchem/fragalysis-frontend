@@ -101,7 +101,7 @@ class CompoundList extends React.Component {
         if(this.props.to_query=="" || this.props.to_query==undefined) {
             mol_string = ""
         }
-        if (Object.keys(this.props.moleculeList).length > 0) {
+        if (this.props.currentVector != undefined) {
             var totArray = []
             totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleCursor }></input>)
             totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleCursor }></input>)
