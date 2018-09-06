@@ -67,7 +67,7 @@ class CompoundView extends GenericView {
             this.handleConf();
         }
         else {
-            this.props.setHighlighted({index: send_obj.index, smiles: this.send_obj.smiles})
+            this.props.setHighlighted({index: this.send_obj.index, smiles: this.send_obj.smiles})
             if (this.state.compoundClass == this.props.currentCompoundClass){
                 this.setState(prevState => ({compoundClass: 0}))
                 this.props.removeFromToBuyList(this.send_obj);
