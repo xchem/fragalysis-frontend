@@ -61,6 +61,7 @@ class CompoundView extends GenericView {
     }
 
     handleClick(e) {
+        this.props.setHighlighted({index: this.send_obj.index, smiles: this.send_obj.smiles})
         if(e.shiftKey){
             var isConfOn = this.state.isConfOn;
             this.setState(prevState => ({isConfOn: !isConfOn}))
@@ -83,14 +84,6 @@ class CompoundView extends GenericView {
         }
     }
 
-    hoverOn() {
-        this.props.setHighlighted({index: this.send_obj.index, smiles: this.send_obj.smiles})
-    }
-
-    // hoverOff() {
-    //     this.props.setHighlighted({index: this.send_obj.index, smiles: this.send_obj.smiles})
-    // }
-    //
     generateMolObject(data,identifier) {
         // Get the data
         var nglObject = {
@@ -180,7 +173,7 @@ class CompoundView extends GenericView {
             var colourList = ['#78DBE2', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
             current_style = Object.assign(current_style, {backgroundColor: colourList[this.state.compoundClass]})
         }
-        return <div onClick={this.handleClick} onMouseEnter={this.hoverOn} style={current_style}>{svg_image}</div>
+        return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
     }
 }
 
