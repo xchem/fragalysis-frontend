@@ -1,17 +1,17 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React from 'react';
-import JSZip from 'jszip';
-import { connect } from 'react-redux'
-import { Button, Well, Col, Row } from 'react-bootstrap'
-import * as selectionActions from '../actions/selectionActions'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import CompoundList from './compoundList';
-import SummaryCmpd from './SummaryCmpd';
-import fetch from 'cross-fetch';
-import FileSaver from 'file-saver';
-import { DockingScripts } from '../utils/script_utils'
+import React from "react";
+import JSZip from "jszip";
+import {connect} from "react-redux";
+import {Button, Well, Col, Row} from "react-bootstrap";
+import * as selectionActions from "../actions/selectionActions";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import CompoundList from "./compoundList";
+import SummaryCmpd from "./SummaryCmpd";
+import fetch from "cross-fetch";
+import FileSaver from "file-saver";
+import {DockingScripts} from "../utils/script_utils";
 
 class SummaryView extends React.Component{
     constructor(props) {

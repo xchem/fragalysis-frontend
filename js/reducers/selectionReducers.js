@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import * as actions from '../actions/actonTypes'
+import * as actions from "../actions/actonTypes";
 
 const INITIALSTATE = {
     to_buy_list: [],
@@ -31,7 +31,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         case actions.SET_TO_BUY_LIST:
             return Object.assign({}, state, {
                 to_buy_list: action.to_buy_list,
-            });s
+            });
 
         case actions.APPEND_TO_BUY_LIST:
             var to_buy_list = state.to_buy_list.slice();

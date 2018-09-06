@@ -1,9 +1,9 @@
 /**
  * Created by abradley on 20/03/2018.
  */
-import Menu from './menu';
-import React from 'react';
-import TargetList from './targetList';
+import Menu from "./menu";
+import React from "react";
+import TargetList from "./targetList";
 var styles = {
   bmBurgerButton: {
     position: 'fixed',

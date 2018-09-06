@@ -1,19 +1,18 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
-import React from 'react';
-import { connect } from 'react-redux'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
-import { GenericView } from './generalComponents'
-import * as nglObjectTypes from './nglObjectTypes'
-import * as selectionActions from '../actions/selectionActions'
-import * as listTypes from './listTypes'
-import '../../css/toggle.css';
-import Toggle from 'react-bootstrap-toggle';
+import {ListGroupItem, ListGroup, Col, Row} from "react-bootstrap";
+import React from "react";
+import {connect} from "react-redux";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import {GenericView} from "./generalComponents";
+import * as nglObjectTypes from "./nglObjectTypes";
+import * as selectionActions from "../actions/selectionActions";
+import * as listTypes from "./listTypes";
+import "../../css/toggle.css";
+import Toggle from "react-bootstrap-toggle";
 import SVGInline from "react-svg-inline";
-import fetch from 'cross-fetch';
+import fetch from "cross-fetch";
 
 class MoleculeView extends GenericView {
 

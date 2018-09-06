@@ -1,14 +1,14 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row, Well} from 'react-bootstrap';
-import { GenericList } from './generalComponents';
-import React from 'react';
-import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import * as listType from './listTypes'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import MoleculeView from './moleculeView'
+import {ListGroupItem, ListGroup, Col, Row, Well} from "react-bootstrap";
+import {GenericList} from "./generalComponents";
+import React from "react";
+import {connect} from "react-redux";
+import * as apiActions from "../actions/apiActions";
+import * as listType from "./listTypes";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import MoleculeView from "./moleculeView";
 
 const molStyle = {height: "250px",
     overflow:"scroll"}

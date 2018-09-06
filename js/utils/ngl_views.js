@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 02/03/2018.
  */
-import { concatStructures, Selection } from "ngl"
+import {concatStructures, Selection} from "ngl";
 
 class BaseNGLDisplay {
 

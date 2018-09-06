@@ -1,15 +1,15 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
-import React from 'react';
-import { connect } from 'react-redux'
-import { GenericView } from './generalComponents'
-import * as selectionActions from '../actions/selectionActions'
-import SVGInline from "react-svg-inline"
-import fetch from 'cross-fetch';
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as nglObjectTypes from '../components/nglObjectTypes'
+import {ListGroupItem, ListGroup, Col, Row} from "react-bootstrap";
+import React from "react";
+import {connect} from "react-redux";
+import {GenericView} from "./generalComponents";
+import * as selectionActions from "../actions/selectionActions";
+import SVGInline from "react-svg-inline";
+import fetch from "cross-fetch";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import * as nglObjectTypes from "../components/nglObjectTypes";
 
 class CompoundView extends GenericView {
 
