@@ -69,7 +69,17 @@ class CompoundView extends GenericView {
         else {
             if (this.state.compoundClass == this.props.currentCompoundClass){
                 this.setState(prevState => ({compoundClass: 0}))
+                // need to remove from buylist here
+            } else {
+                var toBuyObj = {
+                    mol: this.props.to_query,
+                    smiles: this.props.highlightedCompound.smiles,
+                    vector: this.props.currentVector,
+                    class: this.props.currentCompoundClass
+                }
+                this.props.appendToBuyList(toBuyObj)
             }
+            // need to add functionality to change class... remove and then reappend?
         }
     }
 
@@ -173,6 +183,8 @@ function mapStateToProps(state) {
       highlightedCompound: state.selectionReducers.present.highlightedCompound,
       thisVectorList: state.selectionReducers.present.this_vector_list,
       currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
+      to_query: state.selectionReducers.present.to_query,
+      currentVector: state.selectionReducers.present.currentVector,
   }
 }
 const mapDispatchToProps = {
