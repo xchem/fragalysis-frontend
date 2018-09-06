@@ -165,6 +165,7 @@ class CompoundView extends GenericView {
         return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
     }
 }
+
 function mapStateToProps(state) {
   return {
       to_buy_list: state.selectionReducers.present.to_buy_list,
