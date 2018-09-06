@@ -67,6 +67,7 @@ class CompoundView extends GenericView {
             this.handleConf();
         }
         else {
+            this.props.setHighlighted({index: 0, smiles: this.send_obj.smiles})
             if (this.state.compoundClass == this.props.currentCompoundClass){
                 this.setState(prevState => ({compoundClass: 0}))
                 this.props.removeFromToBuyList(this.send_obj);
@@ -192,6 +193,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
+    setHighlighted: selectionActions.setHighlighted,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(CompoundView);

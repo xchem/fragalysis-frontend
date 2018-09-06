@@ -121,13 +121,14 @@ class CompoundList extends React.Component {
             totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
-            for(var key in this.props.moleculeList){
+            for(var key in this.props.this_vector_list){
                 var retArray = [];
-                for (var ele in this.props.moleculeList[key]){
+                for (var ele in this.props.this_vector_list[key]){
                     var input_data = {}
-                    input_data.smiles=this.props.moleculeList[key][ele]
+                    input_data.smiles=this.props.this_vector_list[key][ele]
                     input_data.vector=key.split("_")[0]
-                    input_data.mol=this.props.thisMol
+                    input_data.mol=this.props.to_query
+                    input_data.index=ele
                     retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
                 }
                 totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
@@ -146,11 +147,9 @@ class CompoundList extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      moleculeList: state.selectionReducers.present.this_vector_list,
-      thisMol: state.selectionReducers.present.to_query,
-      highlightedCompound: state.selectionReducers.present.highlightedCompound,
       this_vector_list: state.selectionReducers.present.this_vector_list,
       to_query: state.selectionReducers.present.to_query,
+      highlightedCompound: state.selectionReducers.present.highlightedCompound,
       currentVector: state.selectionReducers.present.currentVector,
       compoundClasses: state.selectionReducers.present.compoundClasses,
       currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
