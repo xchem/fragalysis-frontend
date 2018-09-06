@@ -131,14 +131,6 @@ class CompoundView extends GenericView {
     }
 
     componentWillReceiveProps(nextProps) {
-        var thisCompoundClass = 0;
-        for(var item in nextProps.to_buy_list){
-            if( nextProps.to_buy_list[item].smiles==this.send_obj.smiles){
-                thisCompoundClass = this.to_buy_list[item].class
-            }
-        }
-        this.setState(prevState => ({compoundClass: thisCompoundClass}));
-
         var isHighlighted = false;
         if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
             isHighlighted = true;
