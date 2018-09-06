@@ -178,7 +178,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 compoundClasses: action.compoundClasses
             })
 
-        case actions.SET_CURRENT_COMPOUND_CLASSES:
+        case actions.SET_CURRENT_COMPOUND_CLASS:
             return Object.assign({}, state, {
                 currentCompoundClass: action.currentCompoundClass
             })
