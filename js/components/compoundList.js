@@ -29,6 +29,7 @@ class CompoundList extends React.Component {
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.props.setCompoundClasses(descriptionToSet);
+            this.props.setCurrentCompoundClass(e.target.id);
         }
     }
 
@@ -160,6 +161,7 @@ const mapDispatchToProps = {
     setHighlighted: selectionActions.setHighlighted,
     appendToBuyList: selectionActions.appendToBuyList,
     setCompoundClasses: selectionActions.setCompoundClasses,
+    setCurrentCompoundClass: selectionActions.setCurrentCompoundClass,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(CompoundList);
