@@ -48,8 +48,8 @@ class NGLFunctions {
 
             if (propt.file_path.includes(":::")) {
                 var f_p = propt.file_path;
-                file_path_1 = f_p.split(":::")[0]
-                file_path_2 = f_p.split(":::")[1]
+                var file_path_1 = f_p.split(":::")[0]
+                var file_path_2 = f_p.split(":::")[1]
                 var this_repr = propt.repr;
                 Promise.all([
                     this.stage.loadFile(file_path_1, {ext: "pdb"}),
@@ -61,7 +61,7 @@ class NGLFunctions {
                             ol[1].structure.getView(new NGL.Selection(""))
                         )
                         var comp = this.stage.addComponentFromObject(cs)
-                        for (j = 0; j < this.length; j += 1) {
+                        for (var j = 0; j < this.length; j += 1) {
                             comp.addRepresentation(this[j].name, this[j].data);
                         }
                     }.bind(this_repr));
@@ -70,7 +70,7 @@ class NGLFunctions {
                 var this_repr = propt.repr;
                 this.stage.loadFile(propt.file_path, {ext: ext})
                     .then(function (comp) {
-                        for (j = 0; j < this.length; j += 1) {
+                        for (var j = 0; j < this.length; j += 1) {
                             comp.addRepresentation(this[j].name, this[j].data);
                         }
                     }.bind(this_repr));
@@ -78,7 +78,7 @@ class NGLFunctions {
         }
         // Set the orientation
         var curr_orient = this.stage.viewerControls.getOrientation();
-        for (i = 0; i < curr_orient.elements.length; i += 1) {
+        for (var i = 0; i < curr_orient.elements.length; i += 1) {
             curr_orient.elements[i] = ori.elements[i];
         }
         this.stage.viewerControls.orient(curr_orient);
@@ -87,7 +87,7 @@ class NGLFunctions {
 
     post_view(title) {
         NProgress.start();
-        var scene = getJsonView();
+        var scene = this.getJsonView();
         $.ajax({
             type: "POST",
             url: "/viewer/post_view/",
@@ -119,7 +119,7 @@ class NGLFunctions {
     display_view(response) {
         var res = JSON.parse(response);
         var title = res.title;
-        setJsonView(res.scene);
+        this.setJsonView(res.scene);
     }
 
     display_arrow(start, end, colour, key) {

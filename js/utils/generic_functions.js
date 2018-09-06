@@ -1,4 +1,4 @@
-import NProgress from 'nprogress';
+import NProgress from "nprogress";
 
 $( document ).ajaxStart(function() {
       NProgress.start();

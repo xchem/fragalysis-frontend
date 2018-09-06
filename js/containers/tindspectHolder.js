@@ -1,11 +1,11 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Row, Col, Grid, Well } from 'react-bootstrap';
-import NGLView from '../components/nglComponents';
-import EventList from '../components/eventList';
-import PanddaSiteList from '../components/panddaSiteList';
-import PanddaSlider from '../components/panddaSlider';
-import EventSlider from '../components/eventSlider';
+import React, {Component} from "react";
+import {connect} from "react-redux";
+import {Row, Col, Grid, Well} from "react-bootstrap";
+import NGLView from "../components/nglComponents";
+import EventList from "../components/eventList";
+import PanddaSiteList from "../components/panddaSiteList";
+import PanddaSlider from "../components/panddaSlider";
+import EventSlider from "../components/eventSlider";
 
 class Tindspect extends Component {
 

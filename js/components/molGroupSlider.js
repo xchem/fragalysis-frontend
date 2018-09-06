@@ -1,10 +1,10 @@
 /**
  * Created by abradley on 22/03/2018.
  */
-import React from 'react';
-import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import {Slider} from './generalComponents'
+import React from "react";
+import {connect} from "react-redux";
+import * as apiActions from "../actions/apiActions";
+import {Slider} from "./generalComponents";
 
 
 class MolGroupSlider extends Slider{

@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 07/03/2018.
  */
-import * as actions from '../actions/actonTypes'
+import * as actions from "../actions/actonTypes";
 
 
 const INITIALSTATE = {

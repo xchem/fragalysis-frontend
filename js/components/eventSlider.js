@@ -1,12 +1,12 @@
 /**
  * Created by abradley on 19/04/2018.
  */
-import React from 'react';
-import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import {Slider} from './generalComponents'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as nglObjectTypes from './nglObjectTypes'
+import React from "react";
+import {connect} from "react-redux";
+import * as apiActions from "../actions/apiActions";
+import {Slider} from "./generalComponents";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import * as nglObjectTypes from "./nglObjectTypes";
 
 
 class EventSlider extends Slider {

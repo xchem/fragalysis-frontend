@@ -1,4 +1,4 @@
-import * as actions from '../actions/actonTypes'
+import * as actions from "../actions/actonTypes";
 
 const INITIALSTATE = {
       // Lists storing the information of what is in the viewer
