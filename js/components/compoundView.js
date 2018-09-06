@@ -10,6 +10,7 @@ import SVGInline from "react-svg-inline"
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
+import {appendToBuyList} from "../actions/selectionActions";
 
 class CompoundView extends GenericView {
 
@@ -72,16 +73,21 @@ class CompoundView extends GenericView {
                 this.setState(prevState => ({compoundClass: 0}))
                 this.props.removeFromToBuyList(this.send_obj);
             } else {
-                var toBuyObj = {
-                    mol: this.props.to_query,
-                    smiles: this.props.highlightedCompound.smiles,
-                    vector: this.props.currentVector,
-                    class: this.props.currentCompoundClass
-                }
-                this.props.appendToBuyList(toBuyObj)
+                this.setState(prevState => ({compoundClass: this.props.currentCompoundClass}));
+                this.appendToBuyList()
             }
             // need to add functionality to change class... remove and then reappend?
         }
+    }
+
+    appendToBuyList(){
+        var toBuyObj = {
+            mol: this.props.to_query,
+            smiles: this.props.highlightedCompound.smiles,
+            vector: this.props.currentVector,
+            class: this.props.currentCompoundClass
+        }
+        this.props.appendToBuyList(toBuyObj)
     }
 
     generateMolObject(data,identifier) {
