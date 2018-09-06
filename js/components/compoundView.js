@@ -69,7 +69,7 @@ class CompoundView extends GenericView {
         else {
             if (this.state.compoundClass == this.props.currentCompoundClass){
                 this.setState(prevState => ({compoundClass: 0}))
-                // need to remove from buylist here
+                this.props.removeFromToBuyList(this.send_obj);
             } else {
                 var toBuyObj = {
                     mol: this.props.to_query,
