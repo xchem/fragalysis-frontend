@@ -45,7 +45,7 @@ class CompoundView extends GenericView {
         this.highlightedCompStyle = {borderStyle:"solid"};
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
-        this.handleComp = this.handleComp.bind(this);
+        // this.handleComp = this.handleComp.bind(this);
     }
 
     checkInList() {
