@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as apiActions from '../actions/apiActions'
 import * as selectionActions from '../actions/selectionActions'
-import { Button, Well, Col, Row } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import { getStore } from '../containers/globalStore';
 import { saveStore } from '../containers/globalStore';
 

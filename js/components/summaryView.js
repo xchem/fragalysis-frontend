@@ -16,7 +16,6 @@ import { DockingScripts } from '../utils/script_utils'
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
-        this.list_len;
         this.update = this.update.bind(this);
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
@@ -24,8 +23,8 @@ class SummaryView extends React.Component{
         this.handleYankDuck = this.handleYankDuck.bind(this);
         this.getColour = this.getColour.bind(this);
         this.dockingScripts = new DockingScripts();
-        this.vector_list;
         // Number vectors and series to be incorporated later
+        // this.vector_list;
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: "", interaction_select: undefined}
     }
 

@@ -1,7 +1,6 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import { GenericView } from './generalComponents'

@@ -1,7 +1,6 @@
 /**
  * Created by abradley on 18/04/2018.
  */
-import React from 'react';
 import { connect } from 'react-redux'
 import * as apiActions from '../actions/apiActions'
 import {Slider} from './generalComponents'

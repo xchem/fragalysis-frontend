@@ -3,7 +3,7 @@
  */
 import SVGInline from "react-svg-inline"
 import React from 'react';
-import { ListGroup, Col, Pager, ProgressBar, Well } from 'react-bootstrap';
+import { ListGroup, Pager, ProgressBar, Well } from 'react-bootstrap';
 import fetch from 'cross-fetch'
 import * as listTypes from './listTypes';
 export function FillMe(props) {

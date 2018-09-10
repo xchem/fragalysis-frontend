@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row, Well, Button} from 'react-bootstrap';
+import { Row, Well, Button} from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux'
 import CompoundView from './compoundView';
@@ -37,7 +37,6 @@ class CompoundList extends React.Component {
         var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
         if (keyCode === 37) {
             console.log('left cursor ' + this.props.currentCompoundClass);
-            this.props.highlightedCompound;
             if (Object.keys(this.props.highlightedCompound).length == 0) {
                 this.props.setHighlighted(defaultSet)
             }
