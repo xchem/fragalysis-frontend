@@ -76,16 +76,6 @@ class CompoundView extends GenericView {
         }
     }
 
-    appendToBuyList(){
-        var toBuyObj = {
-            mol: this.props.to_query,
-            smiles: this.props.highlightedCompound.smiles,
-            vector: this.props.currentVector,
-            class: this.props.currentCompoundClass
-        }
-        this.props.appendToBuyList(toBuyObj)
-    }
-
     generateMolObject(data,identifier) {
         // Get the data
         var nglObject = {
