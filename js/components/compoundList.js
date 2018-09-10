@@ -114,7 +114,7 @@ class CompoundList extends React.Component {
         }
     }
 
-    componentWillMount(){
+    componentDidMount(){
         if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
             if (Object.keys(this.props.this_vector_list).length > 0) {
                 console.log("should set highlighted")
