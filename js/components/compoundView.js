@@ -119,15 +119,6 @@ class CompoundView extends GenericView {
         }
     }
 
-    handleComp(){
-        if (this.state.isToggleOn) {
-            this.props.removeFromToBuyList(this.send_obj);
-        }
-        else {
-            this.props.appendToBuyList(this.send_obj);
-        }
-    }
-
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         this.checkInList();
