@@ -60,7 +60,7 @@ class CompoundList extends React.Component {
                 })
             }
         }
-        // Handle nothing selectd
+        // Handle nothing selected
         if (Object.keys(this.props.highlightedCompound).length == 0) {
             this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]});
         }
