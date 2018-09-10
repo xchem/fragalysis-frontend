@@ -132,6 +132,7 @@ class CompoundList extends React.Component {
                     input_data.vector=key.split("_")[0]
                     input_data.mol=this.props.to_query
                     input_data.index=ele
+                    input_data.class=this.props.currentCompoundClass
                     retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
                 }
                 totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
