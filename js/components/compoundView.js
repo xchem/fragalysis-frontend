@@ -9,7 +9,6 @@ import SVGInline from "react-svg-inline"
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions'
 import * as nglObjectTypes from '../components/nglObjectTypes'
-import {appendToBuyList} from "../actions/selectionActions";
 
 class CompoundView extends GenericView {
 
@@ -72,9 +71,8 @@ class CompoundView extends GenericView {
                 this.props.removeFromToBuyList(this.send_obj);
             } else {
                 this.setState(prevState => ({compoundClass: this.props.currentCompoundClass}))
-                this.appendToBuyList()
+                this.props.appendToBuyList(this.send_obj)
             }
-            // need to add functionality to change class... remove and then reappend?
         }
     }
 

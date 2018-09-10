@@ -39,7 +39,6 @@ class Header extends React.Component {
         return undefined;
     }
 
-
     getTargetList() {
         var newArray = []
         for(var key in this.props.target_id_list){
