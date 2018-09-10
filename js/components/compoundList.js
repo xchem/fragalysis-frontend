@@ -8,6 +8,7 @@ import CompoundView from './compoundView';
 import * as selectionActions from "../actions/selectionActions";
 import * as actions from "../actions/actonTypes";
 import keydown from 'react-keydown';
+import {setHighlighted} from "../actions/selectionActions";
 
 const molStyle = {height: "400px",
     overflow:"scroll"}
@@ -105,7 +106,9 @@ class CompoundList extends React.Component {
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
         }
-
+        if (Object.keys(this.props.highlightedCompound).length === 0) {
+            this.props.setHighlighted(0, this.props.thisVectorList[Object.keys(this.props.thisVectorList)[0]][0])
+        }
     }
 
     render() {
