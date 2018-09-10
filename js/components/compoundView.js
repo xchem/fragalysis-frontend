@@ -71,6 +71,7 @@ class CompoundView extends GenericView {
                 this.props.removeFromToBuyList(this.send_obj);
             } else {
                 this.setState(prevState => ({compoundClass: this.props.currentCompoundClass}))
+                Object.assign(this.send_obj, {class:parseInt(this.props.currentCompoundClass)})
                 this.props.appendToBuyList(this.send_obj)
             }
         }
