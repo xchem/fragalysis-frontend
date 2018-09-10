@@ -1,7 +1,7 @@
 import React from 'react'
-import Grid from 'react-bootstrap';
+import { Grid } from 'react-bootstrap';
 import Header from '../components/header'; 
-import MyMenu from '../components/menuView'
+import {MyMenu} from '../components/menuView'
 import LoadingBar from 'react-redux-loading-bar'
 import Tindspect from './tindspectHolder'
 import Preview from './previewHolder'
