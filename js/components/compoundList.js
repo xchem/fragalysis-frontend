@@ -65,7 +65,7 @@ class CompoundList extends React.Component {
         if (Object.keys(this.props.highlightedCompound).length == 0) {
             this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]});
         }
-        var classDict = {49: 1, 50: 2, 51:3, 52:4, 53:5}
+        var classDict = {48: 0, 49: 1, 50: 2, 51:3, 52:4, 53:5}
         if(keyCode in classDict) {
             var toBuyObj = {
                 mol: this.props.to_query,
@@ -73,7 +73,11 @@ class CompoundList extends React.Component {
                 vector: this.props.currentVector,
                 class: classDict[keyCode]
             }
-            this.props.appendToBuyList(toBuyObj)
+            if (keyCode === 48) {
+                this.props.removeFromToBuyList(toBuyObj)
+            } else{
+                this.props.appendToBuyList(toBuyObj)
+            }
         }
     }
 
@@ -159,6 +163,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     setHighlighted: selectionActions.setHighlighted,
     appendToBuyList: selectionActions.appendToBuyList,
+    removeFromToBuyList: seclectionActions.removeFromToBuyList,
     setCompoundClasses: selectionActions.setCompoundClasses,
     setCurrentCompoundClass: selectionActions.setCurrentCompoundClass,
 }

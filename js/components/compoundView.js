@@ -27,7 +27,6 @@ class CompoundView extends GenericView {
         return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     }
 
-
     constructor(props) {
         super(props);
         this.base_url = window.location.protocol + "//" + window.location.host;
@@ -62,7 +61,7 @@ class CompoundView extends GenericView {
     }
 
     handleClick(e) {
-
+        this.props.setHighlighted({index: this.send_obj.index, smiles: this.send_obj.smiles});
         if(e.shiftKey){
             var isConfOn = this.state.isConfOn;
             this.setState(prevState => ({isConfOn: !isConfOn}))
@@ -73,13 +72,11 @@ class CompoundView extends GenericView {
                 this.setState(prevState => ({compoundClass: 0}))
                 this.props.removeFromToBuyList(this.send_obj);
             } else {
-                this.setState(prevState => ({isHighlighted: true, compoundClass: this.props.currentCompoundClass}))
+                this.setState(prevState => ({compoundClass: this.props.currentCompoundClass}))
                 this.appendToBuyList()
-                return;
             }
             // need to add functionality to change class... remove and then reappend?
         }
-        this.setState(prevState => ({isHighlighted: true}));
     }
 
     appendToBuyList(){
