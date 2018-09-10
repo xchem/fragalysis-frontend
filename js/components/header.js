@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 import React from 'react';
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap'
+import { Navbar } from 'react-bootstrap'
 import { Typeahead } from 'react-typeahead';
 import * as apiActions from '../actions/apiActions'
 import * as nglActions from '../actions/nglLoadActions'
