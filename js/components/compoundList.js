@@ -107,8 +107,10 @@ class CompoundList extends React.Component {
             this.handleCursor(keydown.event.which);
         }
         if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
-            console.log("should set highlighted")
-            this.props.setHighlighted(0, this.props.thisVectorList[Object.keys(this.props.thisVectorList)[0]][0])
+            if (Object.keys(this.props.this_vector_list).length > 0) {
+                console.log("should set highlighted")
+                this.props.setHighlighted(0, this.props.this_vector_list[Object.keys(this.props.this_vector_list)[0]][0])
+            }
         }
     }
 
