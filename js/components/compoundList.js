@@ -11,7 +11,7 @@ import keydown from 'react-keydown';
 
 const molStyle = {height: "400px",
     overflow:"scroll"}
-const KEYS = [ 'left', 'right', '1', '2', '3', '4', '5' ];
+const KEYS = [ 'left', 'right', '0', '1', '2', '3', '4', '5' ];
 @keydown( KEYS )
 
 class CompoundList extends React.Component {
