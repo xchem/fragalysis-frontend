@@ -38,24 +38,21 @@ class CompoundView extends GenericView {
             Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
             this.key = undefined;
         }
-
         this.send_obj = props.data
         this.conf_on_style = {opacity: "0.3"};
-        this.comp_on_style = {backgroundColor: "#B7C185"};
         this.highlightedCompStyle = {borderStyle:"solid"};
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
-        // this.handleComp = this.handleComp.bind(this);
     }
 
     checkInList() {
-        var isToggleOn = false;
+        var isInToBuyList = false;
         for(var item in this.props.to_buy_list) {
             if (this.props.to_buy_list[item].smiles == this.send_obj.smiles) {
-                isToggleOn = true
+                isInToBuyList = true
             }
         }
-        this.setState(prevState => ({isToggleOn: isToggleOn}))
+        this.setState(prevState => ({isInToBuyList: isInToBuyList}))
     }
 
     handleClick(e) {
@@ -122,7 +119,7 @@ class CompoundView extends GenericView {
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
-        this.checkInList();
+        // this.checkInList();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -144,9 +141,6 @@ class CompoundView extends GenericView {
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         var current_style = Object.assign({},this.not_selected_style);
-        if(this.state.isToggleOn==true){
-            current_style = Object.assign(current_style, this.comp_on_style)
-        }
         if(this.state.isConfOn==true){
             current_style = Object.assign(current_style, this.conf_on_style)
         }
