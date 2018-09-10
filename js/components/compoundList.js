@@ -163,7 +163,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     setHighlighted: selectionActions.setHighlighted,
     appendToBuyList: selectionActions.appendToBuyList,
-    removeFromToBuyList: seclectionActions.removeFromToBuyList,
+    removeFromToBuyList: selectionActions.removeFromToBuyList,
     setCompoundClasses: selectionActions.setCompoundClasses,
     setCurrentCompoundClass: selectionActions.setCurrentCompoundClass,
 }
