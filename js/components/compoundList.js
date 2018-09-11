@@ -24,7 +24,7 @@ class CompoundList extends React.Component {
         this.colourClassBoxes = this.colourClassBoxes.bind(this)
         this.state = {
             currentCompoundClass: 1,
-            compoundClasses: {1: "Blue", 2: "Red", 3: "Green", 4: "Purple", 5: "Apricot"},
+            compoundClasses: this.props.compoundClasses,
         }
     }
 
