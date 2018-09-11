@@ -115,6 +115,7 @@ class CompoundList extends React.Component {
             if (!!document.getElementById(i.toString())) {
                 var inputId = document.getElementById(i.toString());
                 inputId.style.backgroundColor = colourList[i];
+                inputId.style.borderColor = "yellow"
                 if ( this.props.currentCompoundClass === i ) {
                     inputId.style.borderColor = "yellow"
                 }
