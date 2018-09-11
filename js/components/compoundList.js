@@ -8,7 +8,6 @@ import CompoundView from './compoundView';
 import * as selectionActions from "../actions/selectionActions";
 import * as actions from "../actions/actonTypes";
 import keydown from 'react-keydown';
-import {setHighlighted} from "../actions/selectionActions";
 
 const molStyle = {height: "400px",
     overflow:"scroll"}
@@ -87,8 +86,10 @@ class CompoundList extends React.Component {
                 var thisObj = {
                     smiles: this.props.this_vector_list[key][index],
                     vector: key.split("_")[0],
-                    mol: this.props.to_query
+                    mol: this.props.to_query,
+                    class:parseInt(this.props.currentCompoundClass)
                 }
+
                 this.props.appendToBuyList(thisObj);
             }
         }
@@ -130,6 +131,10 @@ class CompoundList extends React.Component {
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
         }
+    }
+
+    handleOptionChange(changeEvent) {
+        console.log("HandlingOptionChange" + changeEvent)
     }
 
     render() {
