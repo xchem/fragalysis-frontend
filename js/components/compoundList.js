@@ -24,8 +24,6 @@ class CompoundList extends React.Component {
     }
 
     handleClassNaming(e){
-        var inputVal = document.getElementById("1");
-        inputVal.style.backgroundColor = "yellow";
         if (e.keyCode === 13) {
             var newClassDescription = {[e.target.id]: e.target.value};
             console.log('submit new class name ' + newClassDescription);
@@ -105,6 +103,9 @@ class CompoundList extends React.Component {
     }
 
     componentWillReceiveProps( { keydown } ){
+        var colourList = {1:'#b3cde3', 2:'#fbb4ae', 3:'#ccebc5', 4:'#decbe4', 5:'#fed9a6'];
+        var inputVal = document.getElementById("1");
+        inputVal.style.backgroundColor = "#b3cde3";
         if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
             if (Object.keys(this.props.this_vector_list).length > 0) {
                 this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
