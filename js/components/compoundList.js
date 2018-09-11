@@ -131,7 +131,7 @@ class CompoundList extends React.Component {
         }
     }
 
-    componentWillReceiveProps( { keydown } ){
+    componentWillReceiveProps( keydown ){
         this.highlightFirstCompound();
         this.colourClassBoxes();
         if ( keydown.event ) {
