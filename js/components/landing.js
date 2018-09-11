@@ -1,9 +1,9 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import {ListGroupItem, ListGroup, Col, Row} from "react-bootstrap";
-import React from "react";
-import {connect} from "react-redux";
+import { Col, Row} from 'react-bootstrap';
+import React from 'react';
+import { connect } from 'react-redux'
 import TargetList from "./targetList";
 
 export class Welcome extends React.Component {

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col, Grid, Well} from "react-bootstrap";
+import {Row, Col} from "react-bootstrap";
 import NGLView from "../components/nglComponents";
 import EventList from "../components/eventList";
 import PanddaSiteList from "../components/panddaSiteList";

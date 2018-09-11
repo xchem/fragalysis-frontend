@@ -7,7 +7,6 @@ import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import {Slider} from "./generalComponents";
 
-
 class MoleculeSlider extends Slider{
 
     constructor(props) {

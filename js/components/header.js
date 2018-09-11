@@ -1,15 +1,14 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React from "react";
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem, Button} from "react-bootstrap";
-import {Typeahead} from "react-typeahead";
-import * as apiActions from "../actions/apiActions";
-import * as nglActions from "../actions/nglLoadActions";
-import {connect} from "react-redux";
-import * as nglObjectTypes from "../components/nglObjectTypes";
-import {withRouter, Link} from "react-router-dom";
-
+import React from 'react';
+import { Navbar } from 'react-bootstrap'
+import { Typeahead } from 'react-typeahead';
+import * as apiActions from '../actions/apiActions'
+import * as nglActions from '../actions/nglLoadActions'
+import { connect } from 'react-redux'
+import * as nglObjectTypes from '../components/nglObjectTypes'
+import { withRouter } from 'react-router-dom'
 
 class Header extends React.Component {
 
@@ -39,7 +38,6 @@ class Header extends React.Component {
         }
         return undefined;
     }
-
 
     getTargetList() {
         var newArray = []

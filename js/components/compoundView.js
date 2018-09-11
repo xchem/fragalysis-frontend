@@ -1,15 +1,14 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import {ListGroupItem, ListGroup, Col, Row} from "react-bootstrap";
-import React from "react";
-import {connect} from "react-redux";
-import {GenericView} from "./generalComponents";
-import * as selectionActions from "../actions/selectionActions";
-import SVGInline from "react-svg-inline";
-import fetch from "cross-fetch";
-import * as nglLoadActions from "../actions/nglLoadActions";
-import * as nglObjectTypes from "../components/nglObjectTypes";
+import React from 'react';
+import { connect } from 'react-redux'
+import { GenericView } from './generalComponents'
+import * as selectionActions from '../actions/selectionActions'
+import SVGInline from "react-svg-inline"
+import fetch from 'cross-fetch';
+import * as nglLoadActions from '../actions/nglLoadActions'
+import * as nglObjectTypes from '../components/nglObjectTypes'
 
 class CompoundView extends GenericView {
 
@@ -26,7 +25,6 @@ class CompoundView extends GenericView {
         return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     }
 
-
     constructor(props) {
         super(props);
         this.base_url = window.location.protocol + "//" + window.location.host;
@@ -40,36 +38,39 @@ class CompoundView extends GenericView {
             Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
             this.key = undefined;
         }
-
         this.send_obj = props.data
         this.conf_on_style = {opacity: "0.3"};
-        this.comp_on_style = {backgroundColor: "#B7C185"};
         this.highlightedCompStyle = {borderStyle:"solid"};
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
-        this.handleComp = this.handleComp.bind(this);
     }
 
     checkInList() {
-        var isToggleOn = false;
+        var isInToBuyList = false;
         for(var item in this.props.to_buy_list) {
             if (this.props.to_buy_list[item].smiles == this.send_obj.smiles) {
-                isToggleOn = true
+                isInToBuyList = true
             }
         }
-        this.setState(prevState => ({isToggleOn: isToggleOn}))
+        this.setState(prevState => ({isInToBuyList: isInToBuyList}))
     }
 
     handleClick(e) {
+        this.props.setHighlighted({index: this.send_obj.index, smiles: this.send_obj.smiles});
         if(e.shiftKey){
             var isConfOn = this.state.isConfOn;
             this.setState(prevState => ({isConfOn: !isConfOn}))
             this.handleConf();
         }
         else {
-            var isToggleOn = this.state.isToggleOn;
-            this.setState(prevState => ({isToggleOn: !isToggleOn}))
-            this.handleComp();
+            if (this.state.compoundClass == this.props.currentCompoundClass){
+                this.setState(prevState => ({compoundClass: 0}))
+                this.props.removeFromToBuyList(this.send_obj);
+            } else {
+                this.setState(prevState => ({compoundClass: this.props.currentCompoundClass}))
+                Object.assign(this.send_obj, {class:parseInt(this.props.currentCompoundClass)})
+                this.props.appendToBuyList(this.send_obj)
+            }
         }
     }
 
@@ -116,30 +117,12 @@ class CompoundView extends GenericView {
         }
     }
 
-    handleComp(){
-        if (this.state.isToggleOn) {
-            this.props.removeFromToBuyList(this.send_obj);
-        }
-        else {
-            this.props.appendToBuyList(this.send_obj);
-        }
-    }
-
-
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
-        this.checkInList();
+        // this.checkInList();
     }
 
     componentWillReceiveProps(nextProps) {
-        var isToggleOn = false;
-        for(var item in nextProps.to_buy_list){
-            if( nextProps.to_buy_list[item].smiles==this.send_obj.smiles){
-                isToggleOn=true
-            }
-        }
-        this.setState(prevState => ({isToggleOn: isToggleOn}));
-
         var isHighlighted = false;
         if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
             isHighlighted = true;
@@ -155,18 +138,9 @@ class CompoundView extends GenericView {
         this.setState(prevState => ({compoundClass: compoundClass}))
     }
 
-    handleKeyPress(event) {
-        if(event.key == 'Enter'){
-            console.log('enter press here! ')
-        }
-    }
-
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         var current_style = Object.assign({},this.not_selected_style);
-        if(this.state.isToggleOn==true){
-            current_style = Object.assign(current_style, this.comp_on_style)
-        }
         if(this.state.isConfOn==true){
             current_style = Object.assign(current_style, this.conf_on_style)
         }
@@ -177,11 +151,7 @@ class CompoundView extends GenericView {
             var colourList = ['#78DBE2', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
             current_style = Object.assign(current_style, {backgroundColor: colourList[this.state.compoundClass]})
         }
-        return (
-            <div>
-            <div style={current_style}>{svg_image}</div>
-            </div>
-        )
+        return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
     }
 }
 
@@ -191,6 +161,9 @@ function mapStateToProps(state) {
       to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
       highlightedCompound: state.selectionReducers.present.highlightedCompound,
       thisVectorList: state.selectionReducers.present.this_vector_list,
+      currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
+      to_query: state.selectionReducers.present.to_query,
+      currentVector: state.selectionReducers.present.currentVector,
   }
 }
 const mapDispatchToProps = {
@@ -198,6 +171,7 @@ const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
+    setHighlighted: selectionActions.setHighlighted,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(CompoundView);

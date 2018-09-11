@@ -1,13 +1,15 @@
 /**
  * Created by ricgillams in 25/06/2018.
  */
+
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col, Grid, Well, Image} from "react-bootstrap";
+import {Row, Col, Image} from "react-bootstrap";
 import MolGroupList from "../components/molGroupList";
 import MoleculeList from "../components/moleculeList";
 import MolGroupSlider from "../components/molGroupSlider";
 import SummaryView from "../components/summaryView";
+import CompoundList from '../components/compoundList';
 import NGLView from "../components/nglComponents";
 import NglViewerControls from "../components/nglViewerControls";
 import {Route, withRouter} from "react-router-dom";
@@ -15,22 +17,13 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
 import HotspotList from "../components/hotspotList";
 import * as apiActions from "../actions/apiActions";
-
+import fetch from 'cross-fetch';
 
 class FraggleBox extends Component {
 
     constructor(props) {
         super(props)
-        // this.updateTarget = this.updateTarget.bind(this);
     }
-    // updateTarget(){
-    //     var target = this.props.match.params.target;
-    //     // Get from the REST API
-    //     fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
-    //         .then(response => response.json())
-    //         // Set the target id from the json
-    //         .then(json => this.props.setTargetOn(json["results"][0].id));
-    // }
 
     componentDidMount(){
         var uuid = this.props.match.params.uuid;
@@ -57,6 +50,7 @@ class FraggleBox extends Component {
                 </Col>
                 <Col xs={4} md={4}>
                     <SummaryView />
+                    <CompoundList />
                     <HotspotList />
                 </Col>
                 <ModalLoadingScreen/>
