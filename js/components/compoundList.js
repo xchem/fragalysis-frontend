@@ -103,9 +103,9 @@ class CompoundList extends React.Component {
     }
 
     componentWillReceiveProps( { keydown } ){
+        console.log("should set highlighted");
         if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
             if (Object.keys(this.props.this_vector_list).length > 0) {
-                console.log("should set highlighted")
                 this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
             }
         }
