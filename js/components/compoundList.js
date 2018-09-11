@@ -22,6 +22,7 @@ class CompoundList extends React.Component {
         this.selectAll = this.selectAll.bind(this);
         this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
         this.colourClassBoxes = this.colourClassBoxes.bind(this)
+
     }
 
     handleClassNaming(e){
@@ -133,8 +134,8 @@ class CompoundList extends React.Component {
         }
     }
 
-    handleOptionChange(changeEvent) {
-        console.log("HandlingOptionChange" + changeEvent)
+    componentWillReceiveProps(nextProps){
+        this.colourClassBoxes();
     }
 
     render() {
