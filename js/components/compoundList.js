@@ -24,6 +24,8 @@ class CompoundList extends React.Component {
     }
 
     handleClassNaming(e){
+        var inputVal = document.getElementById("1");
+        inputVal.style.backgroundColor = "yellow";
         if (e.keyCode === 13) {
             var newClassDescription = {[e.target.id]: e.target.value};
             console.log('submit new class name ' + newClassDescription);
@@ -129,8 +131,6 @@ class CompoundList extends React.Component {
             totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
-            var inputVal = document.getElementById("1");
-            inputVal.style.backgroundColor = "yellow";
             for(var key in this.props.this_vector_list){
                 var retArray = [];
                 for (var ele in this.props.this_vector_list[key]){
