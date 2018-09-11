@@ -132,10 +132,7 @@ class CompoundList extends React.Component {
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
         }
-    }
 
-    componentWillReceiveProps(nextProps){
-        this.colourClassBoxes();
     }
 
     render() {
