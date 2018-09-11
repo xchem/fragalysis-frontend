@@ -36,7 +36,7 @@ class CompoundList extends React.Component {
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.setState(prevState => ({compoundClasses: descriptionToSet}));
             this.props.setCompoundClasses(descriptionToSet);
-            this.setState(prevState => ({currentCompoundClass: e.target.id}));
+            // this.setState(prevState => ({currentCompoundClass: e.target.id}));
             this.props.setCurrentCompoundClass(e.target.id);
             this.colourClassBoxes();
         }
