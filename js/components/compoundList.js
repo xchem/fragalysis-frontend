@@ -23,8 +23,9 @@ class CompoundList extends React.Component {
         this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
         this.colourClassBoxes = this.colourClassBoxes.bind(this)
         this.state = {
-            currentCompoundClass: 1
-        }
+            currentCompoundClass: 1,
+            compoundClasses: {1: "Blue", 2: "Red", 3: "Green", 4: "Purple", 5: "Apricot"},
+
     }
 
     handleClassNaming(e){
@@ -33,8 +34,9 @@ class CompoundList extends React.Component {
             console.log('submit new class name ' + newClassDescription);
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
-            this.setState(prevState => ({currentCompoundClass: newClassDescription}));
+            this.setState(prevState => ({compoundClasses: descriptionToSet}));
             this.props.setCompoundClasses(descriptionToSet);
+            this.setState(prevState => ({currentCompoundClass: e.target.id}));
             this.props.setCurrentCompoundClass(e.target.id);
             this.colourClassBoxes();
         }
