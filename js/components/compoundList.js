@@ -21,6 +21,8 @@ class CompoundList extends React.Component {
         this.handleCursor=this.handleCursor.bind(this);
         this.handleClassNaming = this.handleClassNaming.bind(this);
         this.selectAll = this.selectAll.bind(this);
+        this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
+        this.colourClassBoxes = this.colourClassBoxes.bind(this)
     }
 
     handleClassNaming(e){
@@ -102,19 +104,27 @@ class CompoundList extends React.Component {
         return tot_num;
     }
 
-    componentWillReceiveProps( nextprops, { keydown } ){
-        var colourList = {1:'#b3cde3', 2:'#fbb4ae', 3:'#ccebc5', 4:'#decbe4', 5:'#fed9a6'};
+    highlightFirstCompound() {
+        if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
+            if (Object.keys(this.props.this_vector_list).length == 0) {
+                this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
+            }
+        }
+    }
+
+    colourClassBoxes() {
+        var colourList = {1: '#b3cde3', 2: '#fbb4ae', 3: '#ccebc5', 4: '#decbe4', 5: '#fed9a6'};
         for (var i in colourList) {
             if (!!document.getElementById(i.toString())) {
                 var inputVal = document.getElementById(i.toString());
                 inputVal.style.backgroundColor = colourList[i];
             }
         }
-        if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
-            if (Object.keys(this.props.this_vector_list).length > 0) {
-                this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
-            }
-        }
+    }
+
+    componentWillReceiveProps( { keydown } ){
+        this.highlightFirstCompound();
+        this.colourClassBoxes();
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
         }
