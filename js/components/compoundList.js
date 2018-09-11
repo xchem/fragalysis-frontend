@@ -23,6 +23,7 @@ class CompoundList extends React.Component {
         this.selectAll = this.selectAll.bind(this);
         this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
         this.colourClassBoxes = this.colourClassBoxes.bind(this)
+        defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
     }
 
     handleClassNaming(e){
@@ -41,7 +42,7 @@ class CompoundList extends React.Component {
         if (keyCode === 37) {
             console.log('left cursor ' + this.props.currentCompoundClass);
             if (Object.keys(this.props.highlightedCompound).length == 0) {
-                this.props.setHighlighted(defaultSet)
+                this.props.setHighlighted(this.defaultSet)
             }
             else {
                 var indexToSet = Math.max(this.props.highlightedCompound["index"] - 1, 0)
