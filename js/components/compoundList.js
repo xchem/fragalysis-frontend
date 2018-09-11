@@ -139,10 +139,6 @@ class CompoundList extends React.Component {
         }
     }
 
-    handleChange(event){
-        this.setState({currentCompoundClass:event.currentTarget.value})
-    }
-
     render() {
         var numMols = this.getNum();
         var mol_string = "No mols found!!!";
