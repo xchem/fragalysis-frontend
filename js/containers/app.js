@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col, Grid, Well} from "react-bootstrap";
+import {Grid} from "react-bootstrap";
 import Header from "../components/header";
 import {MyMenu} from "../components/menuView";
 import LoadingBar from "react-redux-loading-bar";

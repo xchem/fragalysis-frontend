@@ -2,7 +2,6 @@
  * Created by abradley on 17/04/2018.
  */
 
-import {ListGroupItem, ListGroup, Col} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -10,7 +9,6 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglObjectTypes from "../components/nglObjectTypes";
-
 
 class PanddaSiteList extends GenericList {
 

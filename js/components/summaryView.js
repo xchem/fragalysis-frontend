@@ -16,17 +16,15 @@ import {DockingScripts} from "../utils/script_utils";
 class SummaryView extends React.Component{
     constructor(props) {
         super(props);
-        this.list_len;
         this.update = this.update.bind(this);
         this.handleExport = this.handleExport.bind(this);
         this.loadVectors = this.loadVectors.bind(this);
         this.handleDocking = this.handleDocking.bind(this);
         this.handleYankDuck = this.handleYankDuck.bind(this);
         this.getColour = this.getColour.bind(this);
-        this.selectAll = this.selectAll.bind(this);
         this.dockingScripts = new DockingScripts();
-        this.vector_list;
         // Number vectors and series to be incorporated later
+        // this.vector_list;
         this.state = {list_len: 0, cost: 0, num_vectors: 0, num_series: 0, smiles: "", interaction_select: undefined}
     }
 
@@ -245,37 +243,7 @@ class SummaryView extends React.Component{
         FileSaver.saveAs(content, f_name + ".zip");
     }
 
-    getNum() {
-        var tot_num=0;
-        for(var key in this.props.to_select){
-            tot_num+=this.props.to_select[key].length;
-        }
-        return tot_num;
-    }
-
-    selectAll() {
-        for(var key in this.props.this_vector_list) {
-            for (var index in this.props.this_vector_list[key]){
-                var thisObj = {
-                    smiles: this.props.this_vector_list[key][index],
-                    vector: key.split("_")[0],
-                    mol: this.props.to_query
-                }
-                this.props.appendToBuyList(thisObj);
-            }
-        }
-    }
-
     render() {
-        var numMols = this.getNum();
-        var mol_string = "No mols found!!!";
-        if(numMols){
-            mol_string = "Compounds to pick. Mol total: " + numMols
-        }
-        if(this.props.to_query=="" || this.props.to_query==undefined) {
-            mol_string = ""
-        }
-
         var interaction_select = this.state.interaction_select == undefined ? "Not selected" : this.state.interaction_select
 
         return <div>
@@ -295,11 +263,6 @@ class SummaryView extends React.Component{
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
                 </Col>
                 </Row>
-            </Well>
-            <Well>
-                <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
-                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <CompoundList />
             </Well>
         </div>
     }

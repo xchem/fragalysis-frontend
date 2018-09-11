@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 01/03/2018.
  */
+
 import {Stage, Shape, concatStructures, Selection} from "ngl";
-import {ListGroupItem, ListGroup, Col} from "react-bootstrap";
 import React from "react";
 import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
@@ -12,7 +12,6 @@ import * as nglObjectTypes from "../components/nglObjectTypes";
 import * as listTypes from "./listTypes";
 import {showLoading, hideLoading} from "react-redux-loading-bar";
 import * as selectionActions from "../actions/selectionActions";
-
 
 export class NGLView extends React.Component {
     constructor(props) {
@@ -57,9 +56,6 @@ export class NGLView extends React.Component {
     }
 
     showLine(stage, input_dict, object_name){
-        var colour = input_dict.color;
-        var start = input_dict.start;
-        var end = input_dict.end;
         var shape = new Shape( object_name );
         shape.addLine()
         var shapeComp = stage.addComponentFromObject(shape);

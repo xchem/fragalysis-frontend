@@ -22,6 +22,7 @@ import {
     REMOVE_FROM_VECTOR_ON_LIST,
     SET_HIGHLIGHTED,
     SET_COMPOUND_CLASSES,
+    SET_CURRENT_COMPOUND_CLASS,
     RELOAD_SELECTION_STATE
 } from "./actonTypes";
 
@@ -166,6 +167,14 @@ export const setCompoundClasses = function (compoundClasses){
     return {
         type: SET_COMPOUND_CLASSES,
         compoundClasses: compoundClasses
+    }
+}
+
+export const setCurrentCompoundClass = function (currentCompoundClass){
+    console.log("ACTIONS: "+ currentCompoundClass)
+    return {
+        type: SET_CURRENT_COMPOUND_CLASS,
+        currentCompoundClass: currentCompoundClass
     }
 }
 

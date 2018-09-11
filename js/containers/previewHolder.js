@@ -1,20 +1,21 @@
 /**
  * Created by abradley on 14/04/2018.
  */
+
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col, Grid, Well} from "react-bootstrap";
+import {Row, Col} from "react-bootstrap";
 import NGLView from "../components/nglComponents";
 import MolGroupList from "../components/molGroupList";
 import MoleculeList from "../components/moleculeList";
 import MolGroupSlider from "../components/molGroupSlider";
 import SummaryView from "../components/summaryView";
+import CompoundList from '../components/compoundList';
 import NglViewerControls from "../components/nglViewerControls";
 import HotspotList from "../components/hotspotList";
 import * as apiActions from "../actions/apiActions";
 import fetch from "cross-fetch";
 import {withRouter} from "react-router-dom";
-
 
 class Preview extends Component {
 
@@ -56,6 +57,7 @@ class Preview extends Component {
               </Col>
               <Col xs={4} md={4}>
                   <SummaryView />
+                  <CompoundList />
                   <HotspotList />
               </Col>
           </Row>
