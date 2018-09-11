@@ -1,9 +1,9 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import nglReducers from  '../reducers/nglReducers'
-import * as types from '../actions/actonTypes'
- 
+import nglReducers from "../reducers/nglReducers";
+import * as types from "../actions/actonTypes";
+
 const TEST_OBJ_ONE = {name: "TESTOBJ", loadMe: "STRING"}
 const TEST_OBJ_TWO = {name: "TESTOBJ2", loadMe: "STRING_TWO"}
 

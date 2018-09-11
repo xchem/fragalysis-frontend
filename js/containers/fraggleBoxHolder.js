@@ -1,22 +1,20 @@
 /**
  * Created by ricgillams in 25/06/2018.
  */
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Row, Col, Grid, Well, Image } from 'react-bootstrap';
-import MolGroupList from '../components/molGroupList';
-import MoleculeList from '../components/moleculeList';
-import MolGroupSlider from '../components/molGroupSlider'
-import SummaryView from '../components/summaryView';
-import NGLView from '../components/nglComponents';
-import NglViewerControls from '../components/nglViewerControls';
-import { Route } from 'react-router-dom';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import ModalLoadingScreen from '../components/modalLoadingScreen';
-import HotspotList from '../components/hotspotList'
-import * as apiActions from '../actions/apiActions';
-import fetch from 'cross-fetch';
-import { withRouter } from 'react-router-dom'
+import React, {Component} from "react";
+import {connect} from "react-redux";
+import {Row, Col, Grid, Well, Image} from "react-bootstrap";
+import MolGroupList from "../components/molGroupList";
+import MoleculeList from "../components/moleculeList";
+import MolGroupSlider from "../components/molGroupSlider";
+import SummaryView from "../components/summaryView";
+import NGLView from "../components/nglComponents";
+import NglViewerControls from "../components/nglViewerControls";
+import {Route, withRouter} from "react-router-dom";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import ModalLoadingScreen from "../components/modalLoadingScreen";
+import HotspotList from "../components/hotspotList";
+import * as apiActions from "../actions/apiActions";
 
 
 class FraggleBox extends Component {

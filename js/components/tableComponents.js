@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 08/03/2018.
  */
-import BootstrapTable from 'react-bootstrap-table-next';
+import BootstrapTable from "react-bootstrap-table-next";
 
 const products = [];
 const columns = [{

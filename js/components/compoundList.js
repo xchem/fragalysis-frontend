@@ -1,12 +1,11 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { ListGroupItem, ListGroup, Col, Row} from 'react-bootstrap';
-import React from 'react';
-import { connect } from 'react-redux'
-import CompoundView from './compoundView';
+import {ListGroupItem, ListGroup, Col, Row} from "react-bootstrap";
+import React from "react";
+import {connect} from "react-redux";
+import CompoundView from "./compoundView";
 import * as selectionActions from "../actions/selectionActions";
-import * as actions from "../actions/actonTypes";
 
 const molStyle = {height: "400px",
     overflow:"scroll"}

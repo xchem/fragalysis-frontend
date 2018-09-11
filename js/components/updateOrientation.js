@@ -1,14 +1,13 @@
 /**
  * Created by ricgillams on 13/06/2018.
  */
-import React from 'react';
-import { connect } from 'react-redux'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as apiActions from '../actions/apiActions'
-import * as selectionActions from '../actions/selectionActions'
-import { Button, Well, Col, Row } from 'react-bootstrap'
-import { getStore } from '../containers/globalStore';
-import { saveStore } from '../containers/globalStore';
+import React from "react";
+import {connect} from "react-redux";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import * as apiActions from "../actions/apiActions";
+import * as selectionActions from "../actions/selectionActions";
+import {Button, Well, Col, Row} from "react-bootstrap";
+import {getStore} from "../containers/globalStore";
 
 
 export class UpdateOrientation extends React.Component {

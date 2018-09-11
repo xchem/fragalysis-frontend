@@ -2,11 +2,11 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React from 'react';
-import { connect } from 'react-redux';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import UpdateOrientation from './updateOrientation';
-import { Button } from 'react-bootstrap';
+import React from "react";
+import {connect} from "react-redux";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import UpdateOrientation from "./updateOrientation";
+import {Button} from "react-bootstrap";
 
 class NglViewerControls extends React.Component {
 
