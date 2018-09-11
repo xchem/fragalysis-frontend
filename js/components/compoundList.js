@@ -140,6 +140,10 @@ class CompoundList extends React.Component {
         }
     }
 
+    componentDidMount(){
+        this.colourClassBoxes()
+    }
+
     render() {
         var numMols = this.getNum();
         var mol_string = "No mols found!!!";
