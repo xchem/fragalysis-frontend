@@ -103,7 +103,7 @@ class CompoundList extends React.Component {
     }
 
     componentWillReceiveProps( { keydown } ){
-        // var colourList = {1:'#b3cde3', 2:'#fbb4ae', 3:'#ccebc5', 4:'#decbe4', 5:'#fed9a6'};
+        var colourList = {1:'#b3cde3', 2:'#fbb4ae', 3:'#ccebc5', 4:'#decbe4', 5:'#fed9a6'};
         if (!!document.getElementById("1")) {
             var inputVal = document.getElementById("1");
             inputVal.style.backgroundColor = "#b3cde3";
