@@ -63,10 +63,7 @@ class CompoundList extends React.Component {
                 })
             }
         }
-        // Handle nothing selected
-        if (Object.keys(this.props.highlightedCompound).length == 0) {
-            this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]});
-        }
+        this.highlightFirstCompound()
         var classDict = {48: 0, 49: 1, 50: 2, 51:3, 52:4, 53:5}
         if(keyCode in classDict) {
             var toBuyObj = {
