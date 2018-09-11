@@ -113,8 +113,11 @@ class CompoundList extends React.Component {
         var colourList = {1: '#b3cde3', 2: '#fbb4ae', 3: '#ccebc5', 4: '#decbe4', 5: '#fed9a6'};
         for (var i in colourList) {
             if (!!document.getElementById(i.toString())) {
-                var inputVal = document.getElementById(i.toString());
-                inputVal.style.backgroundColor = colourList[i];
+                var inputId = document.getElementById(i.toString());
+                inputId.style.backgroundColor = colourList[i];
+                if ( this.props.currentCompoundClass === i ) {
+                    inputId.style.outline = "5px green"
+                }
             }
         }
     }
