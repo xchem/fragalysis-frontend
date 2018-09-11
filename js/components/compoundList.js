@@ -32,11 +32,11 @@ class CompoundList extends React.Component {
         if (e.keyCode === 13) {
             var newClassDescription = {[e.target.id]: e.target.value};
             console.log('submit new class name ' + newClassDescription);
-            var classDescription = this.props.compoundClasses;
-            var descriptionToSet = Object.assign(classDescription, newClassDescription);
+            classDescription = this.props.compoundClasses;
+            descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.setState(prevState => ({compoundClasses: descriptionToSet}));
             this.props.setCompoundClasses(descriptionToSet);
-            var newCurrentClass = e.target.id;
+            newCurrentClass = e.target.id;
             this.setState(prevState => ({currentCompoundClass: newCurrentClass}));
             this.props.setCurrentCompoundClass(e.target.id);
             this.colourClassBoxes();
