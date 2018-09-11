@@ -2,16 +2,16 @@
  * Created by abradley on 01/03/2018.
  */
 
-import { Stage, Shape, concatStructures, Selection } from 'ngl';
-import React from 'react';
-import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import * as nglLoadActions from '../actions/nglLoadActions'
-import * as nglRenderActions from '../actions/nglRenderActions'
-import * as nglObjectTypes from '../components/nglObjectTypes'
-import * as listTypes from './listTypes'
-import { showLoading, hideLoading } from 'react-redux-loading-bar'
-import * as selectionActions from '../actions/selectionActions'
+import {Stage, Shape, concatStructures, Selection} from "ngl";
+import React from "react";
+import {connect} from "react-redux";
+import * as apiActions from "../actions/apiActions";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import * as nglRenderActions from "../actions/nglRenderActions";
+import * as nglObjectTypes from "../components/nglObjectTypes";
+import * as listTypes from "./listTypes";
+import {showLoading, hideLoading} from "react-redux-loading-bar";
+import * as selectionActions from "../actions/selectionActions";
 
 export class NGLView extends React.Component {
     constructor(props) {

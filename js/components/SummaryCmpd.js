@@ -2,11 +2,10 @@
  * Created by abradley on 28/03/2018.
  */
 
-import React from 'react';
-import { connect } from 'react-redux'
-import { GenericView } from './generalComponents'
-import * as selectionActions from '../actions/selectionActions'
-import SVGInline from "react-svg-inline"
+import React from "react";
+import {connect} from "react-redux";
+import {GenericView} from "./generalComponents";
+import SVGInline from "react-svg-inline";
 
 class SummaryCmpd extends GenericView {
 

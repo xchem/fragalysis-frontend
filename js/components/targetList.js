@@ -2,14 +2,14 @@
  * Created by abradley on 13/03/2018.
  */
 
-import { ListGroupItem, ListGroup } from 'react-bootstrap';
-import { GenericList } from './generalComponents';
-import React from 'react';
-import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as listType from './listTypes';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from '../components/nglObjectTypes';
+import {ListGroupItem, ListGroup} from "react-bootstrap";
+import {GenericList} from "./generalComponents";
+import React from "react";
+import {connect} from "react-redux";
+import * as apiActions from "../actions/apiActions";
+import * as listType from "./listTypes";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter, Link} from "react-router-dom";
 
 class TargetList extends GenericList {

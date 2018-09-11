@@ -1,13 +1,13 @@
 /**
  * Created by ricgillams on 04/07/2018.
  */
-import { Row, Well} from 'react-bootstrap';
-import { GenericList } from './generalComponents';
-import React from 'react';
-import { connect } from 'react-redux'
-import * as apiActions from '../actions/apiActions'
-import * as listType from './listTypes'
-import HotspotView from './hotspotView'
+import {Row, Well} from "react-bootstrap";
+import {GenericList} from "./generalComponents";
+import React from "react";
+import {connect} from "react-redux";
+import * as apiActions from "../actions/apiActions";
+import * as listType from "./listTypes";
+import HotspotView from "./hotspotView";
 
 const molStyle = {height: "250px",
     overflow:"scroll"}

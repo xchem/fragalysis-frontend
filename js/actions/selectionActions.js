@@ -26,7 +26,6 @@ import {
     RELOAD_SELECTION_STATE
 } from "./actonTypes";
 
-
 export const setToBuyList = function (to_buy_list){
     console.log("ACTIONS: "+ to_buy_list)
     return {

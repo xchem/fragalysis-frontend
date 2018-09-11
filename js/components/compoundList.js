@@ -3,8 +3,8 @@
  */
 import { Row, Well, Button} from 'react-bootstrap';
 import React from 'react';
-import { connect } from 'react-redux'
-import CompoundView from './compoundView';
+import {connect} from "react-redux";
+import CompoundView from "./compoundView";
 import * as selectionActions from "../actions/selectionActions";
 import keydown from 'react-keydown';
 

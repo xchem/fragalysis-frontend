@@ -1,12 +1,12 @@
 /**
  * Created by abradley on 01/03/2018.
  */
-import SVGInline from "react-svg-inline"
-import React from 'react';
-import { ListGroup, Pager, ProgressBar, Well } from 'react-bootstrap';
-import fetch from 'cross-fetch'
-import * as listTypes from './listTypes';
 
+import SVGInline from "react-svg-inline";
+import React from "react";
+import {ListGroup, Pager, ProgressBar, Well} from "react-bootstrap";
+import fetch from "cross-fetch";
+import * as listTypes from "./listTypes";
 export function FillMe(props) {
     return <h1>FILL ME UP PLEASE</h1>;
 }
