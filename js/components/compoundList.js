@@ -33,6 +33,7 @@ class CompoundList extends React.Component {
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.props.setCompoundClasses(descriptionToSet);
             this.props.setCurrentCompoundClass(e.target.id);
+            this.colourClassBoxes();
         }
     }
 
@@ -115,8 +116,9 @@ class CompoundList extends React.Component {
             if (!!document.getElementById(i.toString())) {
                 var inputId = document.getElementById(i.toString());
                 inputId.style.backgroundColor = colourList[i];
+                inputId.style.border = "1px solid black"
                 if ( this.props.currentCompoundClass === i ) {
-                    inputId.style.border = "5px solid red"
+                    inputId.style.border = "3px solid red"
                 }
             }
         }
