@@ -103,7 +103,6 @@ class CompoundList extends React.Component {
     }
 
     componentWillReceiveProps( { keydown } ){
-        console.log("should set highlighted" + Object.keys(this.props.highlightedCompound).length + Object.keys(this.props.this_vector_list).length);
         if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
             if (Object.keys(this.props.this_vector_list).length > 0) {
                 this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
@@ -111,15 +110,6 @@ class CompoundList extends React.Component {
         }
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
-        }
-    }
-
-    componentWillMount(){
-        if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
-            if ( Object.keys(this.props.this_vector_list).length > 0 ) {
-                console.log("should set highlighted")
-                this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
-            }
         }
     }
 
@@ -134,7 +124,7 @@ class CompoundList extends React.Component {
         }
         if (this.props.currentVector != undefined) {
             var totArray = []
-            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="1" style.backgroundColor="yellow" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
