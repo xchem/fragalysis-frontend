@@ -22,7 +22,9 @@ class CompoundList extends React.Component {
         this.selectAll = this.selectAll.bind(this);
         this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
         this.colourClassBoxes = this.colourClassBoxes.bind(this)
-
+        this.state = {
+            currentCompoundClass: 1
+        }
     }
 
     handleClassNaming(e){
@@ -31,6 +33,7 @@ class CompoundList extends React.Component {
             console.log('submit new class name ' + newClassDescription);
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
+            this.setState(prevState => ({currentCompoundClass: newClassDescription}));
             this.props.setCompoundClasses(descriptionToSet);
             this.props.setCurrentCompoundClass(e.target.id);
             this.colourClassBoxes();
@@ -132,7 +135,10 @@ class CompoundList extends React.Component {
         if ( keydown.event ) {
             this.handleCursor(keydown.event.which);
         }
+    }
 
+    handleChange(event){
+        this.setState({currentCompoundClass:event.currentTarget.value})
     }
 
     render() {
