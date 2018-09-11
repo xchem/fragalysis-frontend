@@ -102,7 +102,7 @@ class CompoundList extends React.Component {
         return tot_num;
     }
 
-    componentWillReceiveProps( { keydown } ){
+    componentWillReceiveProps( nextprops, { keydown } ){
         var colourList = {1:'#b3cde3', 2:'#fbb4ae', 3:'#ccebc5', 4:'#decbe4', 5:'#fed9a6'};
         for (var i in colourList) {
             if (!!document.getElementById(i.toString())) {
