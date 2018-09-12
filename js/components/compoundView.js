@@ -119,7 +119,6 @@ class CompoundView extends GenericView {
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
-        // this.checkInList();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -148,7 +147,7 @@ class CompoundView extends GenericView {
             current_style = Object.assign(current_style, this.highlightedCompStyle)
         }
         if(this.state.compoundClass!=0){
-            var colourList = ['#78DBE2', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
+            var colourList = ['null', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
             current_style = Object.assign(current_style, {backgroundColor: colourList[this.state.compoundClass]})
         }
         return <div onClick={this.handleClick} style={current_style}>{svg_image}</div>
@@ -166,6 +165,7 @@ function mapStateToProps(state) {
       currentVector: state.selectionReducers.present.currentVector,
   }
 }
+
 const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     deleteObject: nglLoadActions.deleteObject,

@@ -17,7 +17,6 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
 import HotspotList from "../components/hotspotList";
 import * as apiActions from "../actions/apiActions";
-import fetch from 'cross-fetch';
 
 class FraggleBox extends Component {
 
