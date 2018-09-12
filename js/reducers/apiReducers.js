@@ -113,12 +113,6 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 molecule_list: action.molecule_list
             });
 
-        case actions.SET_TO_BUY_LIST:
-            return Object.assign({}, state, {
-                to_buy_list: action.to_buy_list
-            });
-
-
         case actions.SET_PANNDA_EVENT_LIST:
             return Object.assign({}, state, {
                 pandda_event_list: action.pandda_event_list

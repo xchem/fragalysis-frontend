@@ -37,39 +37,41 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         case actions.APPEND_TO_BUY_LIST:
             var to_buy_list = state.to_buy_list.slice();
             var exists = false;
-            for(var item in to_buy_list){
-                if( to_buy_list[item].smiles==action.item.smiles){
+            for (var item in to_buy_list) {
+                if (to_buy_list[item].smiles == action.item.smiles) {
                     exists = true;
-                    if (to_buy_list[item].class!=action.item.class){
+                    if (to_buy_list[item].class != action.item.class) {
                         Object.assign(to_buy_list[item], {class: action.item.class})
                     }
                 }
             }
-            if(exists==false) {
+            if (exists == false) {
                 to_buy_list.push(action.item)
             }
-            return  Object.assign({}, state, {
+            return Object.assign({}, state, {
                 to_buy_list: to_buy_list
             })
-        
+
         case actions.SET_VECTOR_LIST:
-            return  Object.assign({}, state, {
+            return Object.assign({}, state, {
                 vector_list: action.vector_list
             })
 
         case actions.REMOVE_FROM_TO_BUY_LIST:
-            var to_buy_list = state.to_buy_list
+            var to_buy_list = state.to_buy_list.slice();
             var index = -1;
-            for(var item in to_buy_list){
-                if( to_buy_list[item].smiles==action.item.smiles){
+            for (var item in to_buy_list) {
+                if (to_buy_list[item].smiles == action.item.smiles) {
                     index = item
                     break;
                 }
             }
-            to_buy_list.splice(index,1);
-            return  Object.assign({}, state, {
-                to_buy_list: to_buy_list
-            });
+            if (index != -1) {
+                to_buy_list.splice(index, 1);
+                return Object.assign({}, state, {to_buy_list: to_buy_list});
+            } else {
+                return state;
+            }
 
         case actions.GET_FULL_GRAPH:
             var input_mol = action.item;

@@ -6,25 +6,19 @@ import React from 'react';
 import {connect} from "react-redux";
 import CompoundView from "./compoundView";
 import * as selectionActions from "../actions/selectionActions";
-import keydown from 'react-keydown';
 
 const molStyle = {height: "400px",
     overflow:"scroll"}
-const KEYS = [ 'left', 'right', '0', '1', '2', '3', '4', '5' ];
-@keydown( KEYS )
 
 class CompoundList extends React.Component {
     constructor(props) {
         super(props);
-        this.handleCursor=this.handleCursor.bind(this);
         this.handleClassNaming = this.handleClassNaming.bind(this);
         this.selectAll = this.selectAll.bind(this);
+        this.clearAll = this.clearAll.bind(this);
         this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
         this.colourClassBoxes = this.colourClassBoxes.bind(this)
-        this.state = {
-            currentCompoundClass: 1,
-            compoundClasses: this.props.compoundClasses,
-        }
+
     }
 
     handleClassNaming(e){
@@ -33,56 +27,9 @@ class CompoundList extends React.Component {
             console.log('submit new class name ' + newClassDescription);
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
-            this.setState(prevState => ({compoundClasses: descriptionToSet}));
             this.props.setCompoundClasses(descriptionToSet);
             var newCurrentClass = e.target.id;
-            this.setState(prevState => ({currentCompoundClass: newCurrentClass}));
             this.props.setCurrentCompoundClass(e.target.id);
-            this.colourClassBoxes();
-        }
-    }
-
-    handleCursor(keyCode) {
-        var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
-        if (keyCode === 37) {
-            console.log('left cursor ' + this.props.currentCompoundClass);
-            if (Object.keys(this.props.highlightedCompound).length == 0) {
-                this.props.setHighlighted(defaultSet)
-            }
-            else {
-                var indexToSet = Math.max(this.props.highlightedCompound["index"] - 1, 0)
-                this.props.setHighlighted({
-                    index: indexToSet,
-                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][indexToSet]
-                })
-            }
-        } else if (keyCode === 39) {
-            console.log('right cursor ' + this.props.currentCompoundClass);
-            if (Object.keys(this.props.highlightedCompound).length == 0) {
-                this.props.setHighlighted(defaultSet)
-            }
-            else {
-                var indexToSet = Math.min(this.props.highlightedCompound["index"] + 1, this.props.this_vector_list[Object.keys(this.props.this_vector_list)].length - 1)
-                this.props.setHighlighted({
-                    index: indexToSet,
-                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][indexToSet]
-                })
-            }
-        }
-        this.highlightFirstCompound()
-        var classDict = {48: 0, 49: 1, 50: 2, 51:3, 52:4, 53:5}
-        if(keyCode in classDict) {
-            var toBuyObj = {
-                mol: this.props.to_query,
-                smiles: this.props.highlightedCompound.smiles,
-                vector: this.props.currentVector,
-                class: classDict[keyCode]
-            }
-            if (keyCode === 48) {
-                this.props.removeFromToBuyList(toBuyObj)
-            } else{
-                this.props.appendToBuyList(toBuyObj)
-            }
         }
     }
 
@@ -95,10 +42,13 @@ class CompoundList extends React.Component {
                     mol: this.props.to_query,
                     class:parseInt(this.props.currentCompoundClass)
                 }
-
                 this.props.appendToBuyList(thisObj);
             }
         }
+    }
+
+    clearAll() {
+        this.props.setToBuyList([]);
     }
 
     getNum() {
@@ -109,38 +59,36 @@ class CompoundList extends React.Component {
         return tot_num;
     }
 
-    highlightFirstCompound() {
-        if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
-            if (Object.keys(this.props.this_vector_list).length > 0) {
-                this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
+    highlightFirstCompound(props) {
+        if ( Object.keys(props.highlightedCompound).length === 0 && props.this_vector_list != undefined ) {
+            if (Object.keys(props.this_vector_list).length > 0) {
+                props.setHighlighted({index: 0, smiles: props.this_vector_list[Object.keys(props.this_vector_list)][0]})
             }
         }
     }
 
-    colourClassBoxes() {
+    colourClassBoxes(props) {
         var colourList = {1: '#b3cde3', 2: '#fbb4ae', 3: '#ccebc5', 4: '#decbe4', 5: '#fed9a6'};
         for (var i in colourList) {
             if (!!document.getElementById(i)) {
                 var inputId = document.getElementById(i);
                 inputId.style.backgroundColor = colourList[i];
                 inputId.style.border = "1px solid black"
-                if ( this.state.currentCompoundClass === i ) {
+                if ( props.currentCompoundClass === i ) {
                     inputId.style.border = "2px solid red"
                 }
             }
         }
     }
 
-    componentWillReceiveProps( {keydown} ){
-        this.highlightFirstCompound();
-        this.colourClassBoxes();
-        if ( keydown.event ) {
-            this.handleCursor(keydown.event.which);
-        }
+    componentWillReceiveProps( nextProps ){
+        this.highlightFirstCompound(nextProps);
+        this.colourClassBoxes(nextProps);
     }
 
     componentDidMount(){
-        this.colourClassBoxes()
+        this.highlightFirstCompound(this.props);
+        this.colourClassBoxes(this.props);
     }
 
     render() {
@@ -154,11 +102,11 @@ class CompoundList extends React.Component {
         }
         if (this.props.currentVector != undefined) {
             var totArray = []
-            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.state.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.state.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.state.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.state.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.state.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
             for(var key in this.props.this_vector_list){
                 var retArray = [];
                 for (var ele in this.props.this_vector_list[key]){
@@ -175,6 +123,7 @@ class CompoundList extends React.Component {
             return <Well>
                 <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
                 <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                <Button bsSize="large" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
                 <div>{totArray}</div>
             </Well>
         }
@@ -197,6 +146,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     setHighlighted: selectionActions.setHighlighted,
+    setToBuyList: selectionActions.setToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
     setCompoundClasses: selectionActions.setCompoundClasses,
