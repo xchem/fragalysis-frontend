@@ -125,9 +125,6 @@ class CompoundView extends GenericView {
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
-        if(JSON.stringify(this.props.highlightedCompound)!=JSON.stringify({}) || this.props.to_buy_list.length!=0){
-            this.checkInList(this.props);
-        }
     }
 
     componentWillReceiveProps(nextProps) {
