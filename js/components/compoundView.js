@@ -45,7 +45,7 @@ class CompoundView extends GenericView {
         this.handleConf = this.handleConf.bind(this);
     }
 
-    checkInList() {
+    checkInList(nextProps) {
         var isHighlighted = false;
         if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
             isHighlighted = true;
@@ -125,11 +125,11 @@ class CompoundView extends GenericView {
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
-        this.checkInList();
+        this.checkInList(this.props);
     }
 
     componentWillReceiveProps(nextProps) {
-        this.checkInList();
+        this.checkInList(nextProps);
     }
 
     render() {
