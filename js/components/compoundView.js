@@ -46,13 +46,19 @@ class CompoundView extends GenericView {
     }
 
     checkInList() {
-        var isInToBuyList = false;
-        for(var item in this.props.to_buy_list) {
-            if (this.props.to_buy_list[item].smiles == this.send_obj.smiles) {
-                isInToBuyList = true
+        var isHighlighted = false;
+        if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
+            isHighlighted = true;
+        }
+        this.setState(prevState => ({isHighlighted: isHighlighted}));
+
+        var compoundClass = 0;
+        for(var item in nextProps.to_buy_list){
+            if (nextProps.to_buy_list[item].smiles == this.send_obj.smiles) {
+                var compoundClass = nextProps.to_buy_list[item].class
             }
         }
-        this.setState(prevState => ({isInToBuyList: isInToBuyList}))
+        this.setState(prevState => ({compoundClass: compoundClass}))
     }
 
     handleClick(e) {
@@ -119,22 +125,11 @@ class CompoundView extends GenericView {
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
+        this.checkInList();
     }
 
     componentWillReceiveProps(nextProps) {
-        var isHighlighted = false;
-        if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
-            isHighlighted = true;
-        }
-        this.setState(prevState => ({isHighlighted: isHighlighted}));
-
-        var compoundClass = 0;
-        for(var item in nextProps.to_buy_list){
-            if (nextProps.to_buy_list[item].smiles == this.send_obj.smiles) {
-                var compoundClass = nextProps.to_buy_list[item].class
-            }
-        }
-        this.setState(prevState => ({compoundClass: compoundClass}))
+        this.checkInList();
     }
 
     render() {
