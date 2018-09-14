@@ -158,6 +158,18 @@ class MoleculeView extends GenericView {
         this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
     }
 
+    componentWillReceiveProps(nextProps){
+        var value_list = this.state.value.slice();
+        if(nextProps.to_query!=this.props.data.smiles){
+            var index = value_list.indexOf(3);
+            if (index > -1) {
+                value_list.splice(index, 1);
+                this.setState(prevState => ({value: value_list}))
+            }
+        }
+    }
+
+
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
