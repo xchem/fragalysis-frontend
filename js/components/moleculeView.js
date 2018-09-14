@@ -132,7 +132,6 @@ class MoleculeView extends GenericView {
         var removed = old.filter(function(i) {return value.indexOf(i)<0;})[0]
         var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
         var changed = [removed,added];
-
         if (changed.indexOf(1)>-1){
             this.onComplex();
         }
@@ -149,7 +148,17 @@ class MoleculeView extends GenericView {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
-        this.setState(prevState => ({complexOn: complexOn, isToggleOn: thisToggleOn}))
+        var value_list = []
+        if(complexOn){
+            value_list.push(1)
+        }
+        if(thisToggleOn){
+            value_list.push(2)
+        }
+        if(this.props.to_query==this.props.data.smiles){
+            value_list.push(3)
+        }
+        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
     }
 
     render() {
