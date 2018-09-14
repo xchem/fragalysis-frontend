@@ -41,7 +41,6 @@ class FraggleBox extends Component {
                     <NGLView div_id="summary_view" height="200px"/>
                     <MolGroupSlider />
                     <MoleculeList style={{overflow:scroll}}/>
-                    <Image src={ require('../img/Fragglebox_logo_v0.2.png')} responsive rounded />
                 </Col>
                 <Col xs={5} md={5} >
                     <NGLView div_id="major_view" height="600px"/>

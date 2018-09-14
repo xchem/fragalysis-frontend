@@ -4,13 +4,13 @@
 
 import React from "react";
 import {connect} from "react-redux";
+import {ButtonToolbar, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
 import * as selectionActions from "../actions/selectionActions";
 import * as listTypes from "./listTypes";
 import "../../css/toggle.css";
-import Toggle from "react-bootstrap-toggle";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
 
@@ -25,12 +25,11 @@ class MoleculeView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
-        this.state.vectorOn = false
-        this.state.complexOn = false
         this.colourToggle = this.getRandomColor();
     }
 
@@ -125,33 +124,69 @@ class MoleculeView extends GenericView {
         this.props.setVectorList(objList)
     }
 
+    handleChange(value){
+        var old = this.state.value;
+        var new_list = value.slice();
+        var removed = old.filter(function(i) {return value.indexOf(i)<0;})[0]
+        var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
+        var changed = [removed,added];
+        if (changed.indexOf(1)>-1){
+            this.onComplex(new_list);
+        }
+        if (changed.indexOf(2)>-1){
+            this.handleClick(new_list);
+        }
+        if (changed.indexOf(3)>-1){
+            this.onVector(new_list);
+        }
+    }
+
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
-        this.setState(prevState => ({complexOn: complexOn, isToggleOn: thisToggleOn}))
+        var value_list = []
+        if(complexOn){
+            value_list.push(1)
+        }
+        if(thisToggleOn){
+            value_list.push(2)
+        }
+        if(this.props.to_query==this.props.data.smiles){
+            value_list.push(3)
+        }
+        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
     }
+
+    componentWillReceiveProps(nextProps){
+        var value_list = this.state.value.slice();
+        if(nextProps.to_query!=this.props.data.smiles){
+            var index = value_list.indexOf(3);
+            if (index > -1) {
+                value_list.splice(index, 1);
+                this.setState(prevState => ({value: value_list}))
+            }
+        }
+    }
+
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
-        return <div>
-            <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+        this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
+        return <div style={{border: "1px solid black"}}>
+            <div style={this.current_style}>{svg_image}</div>
             <div>{this.props.data.protein_code}</div>
-            <Toggle onClick={this.onComplex}
-                on={<p>Complex ON</p>}
-                off={<p>Complex OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.state.complexOn}/>
-            <Toggle onClick={this.onVector}
-                on={<p>Vector ON</p>}
-                off={<p>Vector OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.props.to_query==this.props.data.smiles}/>
+              <ButtonToolbar>
+                  <ToggleButtonGroup type="checkbox"
+                                     value={this.state.value}
+                                     onChange={this.handleChange}>
+                      <ToggleButton value={1}>Complex</ToggleButton>
+                      <ToggleButton value={2}>Ligand</ToggleButton>
+                      <ToggleButton value={3}>Vectors</ToggleButton>
+                  </ToggleButtonGroup>
+              </ButtonToolbar>
             </div>
     }
 
@@ -160,8 +195,13 @@ class MoleculeView extends GenericView {
         return colourList[this.props.data.id % colourList.length];
     }
 
-    handleClick(e) {
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+    handleClick(new_list=undefined) {
+        if(new_list!=undefined){
+            this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, value: new_list}));
+        }
+        else{
+            this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+        }
         if(this.state.isToggleOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
             this.props.removeFromFragmentDisplayList(this.generateMolId())
@@ -172,8 +212,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-    onComplex() {
-        this.setState(prevState => ({complexOn: !prevState.complexOn}))
+    onComplex(new_list=undefined) {
+        if(new_list!=undefined) {
+            this.setState(prevState => ({complexOn: !prevState.complexOn, value: new_list}))
+        }
+        else{
+            this.setState(prevState => ({complexOn: !prevState.complexOn}))
+        }
         if(this.state.complexOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             this.props.removeFromComplexList(this.generateMolId())
@@ -181,14 +226,16 @@ class MoleculeView extends GenericView {
         else{
             this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             this.props.appendComplexList(this.generateMolId())
-            if(this.state.isToggleOn==false){
-                this.handleClick()
-            }
         }
     }
 
-    onVector() {
-        this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+    onVector(new_list=undefined) {
+        if(new_list!=undefined) {
+            this.setState(prevState => ({vectorOn: !prevState.vectorOn, value: new_list}))
+        }
+        else{
+            this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+        }
         if(this.state.vectorOn) {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
             this.props.setMol("");
