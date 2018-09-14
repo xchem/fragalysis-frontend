@@ -131,15 +131,14 @@ class MoleculeView extends GenericView {
         var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
         var changed = [removed,added];
         if (changed.indexOf(1)>-1){
-            this.onComplex();
+            this.onComplex(new_list);
         }
         if (changed.indexOf(2)>-1){
-            this.handleClick();
+            this.handleClick(new_list);
         }
         if (changed.indexOf(3)>-1){
-            this.onVector();
+            this.onVector(new_list);
         }
-        this.setState({ value: new_list });
     }
 
     componentDidMount() {
@@ -196,8 +195,13 @@ class MoleculeView extends GenericView {
         return colourList[this.props.data.id % colourList.length];
     }
 
-    handleClick(e) {
-        this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+    handleClick(new_list=undefined) {
+        if(new_list!=undefined){
+            this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, value: new_list}));
+        }
+        else{
+            this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
+        }
         if(this.state.isToggleOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
             this.props.removeFromFragmentDisplayList(this.generateMolId())
@@ -208,8 +212,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-    onComplex() {
-        this.setState(prevState => ({complexOn: !prevState.complexOn}))
+    onComplex(new_list=undefined) {
+        if(new_list!=undefined) {
+            this.setState(prevState => ({complexOn: !prevState.complexOn, value: new_list}))
+        }
+        else{
+            this.setState(prevState => ({complexOn: !prevState.complexOn}))
+        }
         if(this.state.complexOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             this.props.removeFromComplexList(this.generateMolId())
@@ -220,8 +229,13 @@ class MoleculeView extends GenericView {
         }
     }
 
-    onVector() {
-        this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+    onVector(new_list=undefined) {
+        if(new_list!=undefined) {
+            this.setState(prevState => ({vectorOn: !prevState.vectorOn, value: new_list}))
+        }
+        else{
+            this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+        }
         if(this.state.vectorOn) {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
             this.props.setMol("");
