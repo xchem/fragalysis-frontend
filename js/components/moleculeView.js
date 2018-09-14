@@ -183,7 +183,7 @@ class MoleculeView extends GenericView {
             <div style={this.current_style}>{svg_image}</div>
             <div>{this.props.data.protein_code}</div>
               <ButtonToolbar>
-                  <ToggleButtonGroup vertical block type="checkbox"
+                  <ToggleButtonGroup vertical type="checkbox"
                                      value={this.state.value}
                                      onChange={this.handleChange}>
                       <ToggleButton value={1}>Complex</ToggleButton>
