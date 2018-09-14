@@ -30,9 +30,9 @@ class MoleculeView extends GenericView {
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
+        this.state.value = []
         this.state.vectorOn = false
         this.state.complexOn = false
-        this.state.value = []
         this.colourToggle = this.getRandomColor();
     }
 
@@ -129,6 +129,7 @@ class MoleculeView extends GenericView {
 
     handleChange(value){
         var old = this.state.value;
+        var new_list = value.slice();
         var removed = old.filter(function(i) {return value.indexOf(i)<0;})[0]
         var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
         var changed = [removed,added];
@@ -141,7 +142,7 @@ class MoleculeView extends GenericView {
         if (changed.indexOf(3)>-1){
             this.onVector();
         }
-        this.setState({ value: value });
+        this.setState({ value: new_list });
     }
 
     componentDidMount() {
@@ -170,7 +171,6 @@ class MoleculeView extends GenericView {
             }
         }
         this.setState(prevState => ({value: value_list}))
-
     }
 
 
