@@ -30,9 +30,6 @@ class MoleculeView extends GenericView {
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
-        this.state.value = []
-        this.state.vectorOn = false
-        this.state.complexOn = false
         this.colourToggle = this.getRandomColor();
     }
 
