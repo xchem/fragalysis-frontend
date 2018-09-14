@@ -165,7 +165,7 @@ class MoleculeView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
+        this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <div style={{border: "1px solid black"}}>
             <div style={this.current_style}>{svg_image}</div>
             <div>{this.props.data.protein_code}</div>
