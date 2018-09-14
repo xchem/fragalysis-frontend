@@ -133,13 +133,13 @@ class MoleculeView extends GenericView {
         var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
         var changed = [removed,added];
 
-        if (changed.index(1)>-1){
+        if (changed.indexOf(1)>-1){
             this.onComplex();
         }
-        if (changed.index(2)>-1){
+        if (changed.indexOf(2)>-1){
             this.handleClick();
         }
-        if (changed.index(3)>-1){
+        if (changed.indexOf(3)>-1){
             this.onVector();
         }
         this.setState({ value: value });
