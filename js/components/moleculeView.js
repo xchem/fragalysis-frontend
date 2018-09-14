@@ -169,7 +169,7 @@ class MoleculeView extends GenericView {
                 value_list.splice(index, 1);
             }
         }
-        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
+        this.setState(prevState => ({value: value_list}))
 
     }
 
