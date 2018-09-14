@@ -119,7 +119,7 @@ class Preview extends Component {
                     <MoleculeList style={{overflow: scroll}}/>
                 </Col>
                 <Col xs={5} md={5}>
-                    <NGLView div_id="major_view" height="600px"/>
+                    <NGLView div_id="major_view" height="90%"/>
                     <NglViewerControls/>
                 </Col>
                 <Col xs={4} md={4}>

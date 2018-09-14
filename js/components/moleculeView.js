@@ -25,12 +25,14 @@ class MoleculeView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.state.vectorOn = false
         this.state.complexOn = false
+        this.state.value = []
         this.colourToggle = this.getRandomColor();
     }
 
@@ -125,6 +127,21 @@ class MoleculeView extends GenericView {
         this.props.setVectorList(objList)
     }
 
+    handleChange(value){
+        if (value==1){
+            this.onComplex();
+            this.setState({ value: value });
+        }
+        else if (value==2){
+            this.handleClick();
+            this.setState({ value: value });
+        }
+        else if (value==3){
+            this.onVector();
+            this.setState({ value: value });
+        }
+    }
+
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
@@ -137,21 +154,18 @@ class MoleculeView extends GenericView {
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
-        return <div>
+        return <div style="border:1px solid black;">
             <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
             <div>{this.props.data.protein_code}</div>
-            <Toggle onClick={this.onComplex}
-                on={<p>Complex ON</p>}
-                off={<p>Complex OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.state.complexOn}/>
-            <Toggle onClick={this.onVector}
-                on={<p>Vector ON</p>}
-                off={<p>Vector OFF</p>}
-                size="xs"
-                offstyle="danger"
-                active={this.props.to_query==this.props.data.smiles}/>
+              <ButtonToolbar>
+                  <ToggleButtonGroup type="checkbox"
+                                     value={this.state.value}
+                                     onChange={this.handleChange}>
+                      <ToggleButton value={1}>Complex</ToggleButton>
+                      <ToggleButton value={2}>Ligand</ToggleButton>
+                      <ToggleButton value={3}>Vectors</ToggleButton>
+                  </ToggleButtonGroup>
+              </ButtonToolbar>
             </div>
     }
 
