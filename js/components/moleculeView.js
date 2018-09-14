@@ -128,18 +128,21 @@ class MoleculeView extends GenericView {
     }
 
     handleChange(value){
-        if (value==1){
+        var old = this.state.value;
+        var removed = old.filter(function(i) {return value.indexOf(i)<0;})[0]
+        var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
+        var changed = [removed,added];
+
+        if (1 in changed){
             this.onComplex();
-            this.setState({ value: value });
         }
-        else if (value==2){
+        else if (2 in changed){
             this.handleClick();
-            this.setState({ value: value });
         }
-        else if (value==3){
+        else if (3 in changed){
             this.onVector();
-            this.setState({ value: value });
         }
+        this.setState({ value: value });
     }
 
     componentDidMount() {
