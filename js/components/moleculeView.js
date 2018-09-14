@@ -167,7 +167,7 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn ? selected_style : this.not_selected_style;
         return <div style={{border: "1px solid black"}}>
-            <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
+            <div style={this.current_style}>{svg_image}</div>
             <div>{this.props.data.protein_code}</div>
               <ButtonToolbar>
                   <ToggleButtonGroup type="checkbox"
