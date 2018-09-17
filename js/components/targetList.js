@@ -55,7 +55,7 @@ class TargetList extends GenericList {
     generateTargetObject(targetData) {
         // Now deal with this target
         var prot_to_load =  window.location.protocol + "//" + window.location.host + targetData.template_protein
-        if(prot_to_load!=undefined) {
+        if(JSON.stringify(prot_to_load)!=JSON.stringify(undefined)) {
             var out_object = {
                 "name": "PROTEIN_" + targetData.id.toString(),
                 "prot_url": prot_to_load,

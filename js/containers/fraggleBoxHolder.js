@@ -12,7 +12,7 @@ import SummaryView from "../components/summaryView";
 import CompoundList from '../components/compoundList';
 import NGLView from "../components/nglComponents";
 import NglViewerControls from "../components/nglViewerControls";
-import {Route, withRouter} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
 import HotspotList from "../components/hotspotList";

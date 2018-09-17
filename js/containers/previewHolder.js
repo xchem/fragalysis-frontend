@@ -61,7 +61,7 @@ class Preview extends Component {
                 this.props.setHighlighted(defaultSet)
             }
             else {
-                var indexToSet = Math.min(this.props.highlightedCompound["index"] + 1, this.props.this_vector_list[Object.keys(this.props.this_vector_list)].length - 1)
+                var indexToSet = Math.min(parseInt(this.props.highlightedCompound["index"]) + 1, this.props.this_vector_list[Object.keys(this.props.this_vector_list)].length - 1)
                 this.props.setHighlighted({
                     index: indexToSet,
                     smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][indexToSet]

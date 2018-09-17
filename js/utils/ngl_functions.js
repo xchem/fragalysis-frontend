@@ -118,7 +118,6 @@ class NGLFunctions {
 
     display_view(response) {
         var res = JSON.parse(response);
-        var title = res.title;
         this.setJsonView(res.scene);
     }
 

@@ -16,9 +16,8 @@ class CompoundList extends React.Component {
         this.handleClassNaming = this.handleClassNaming.bind(this);
         this.selectAll = this.selectAll.bind(this);
         this.clearAll = this.clearAll.bind(this);
-        this.highlightFirstCompound = this.highlightFirstCompound.bind(this)
-        this.colourClassBoxes = this.colourClassBoxes.bind(this)
-
+        this.highlightFirstCompound = this.highlightFirstCompound.bind(this);
+        this.colourClassBoxes = this.colourClassBoxes.bind(this);
     }
 
     handleClassNaming(e){
@@ -28,7 +27,6 @@ class CompoundList extends React.Component {
             var classDescription = this.props.compoundClasses;
             var descriptionToSet = Object.assign(classDescription, newClassDescription);
             this.props.setCompoundClasses(descriptionToSet);
-            var newCurrentClass = e.target.id;
             this.props.setCurrentCompoundClass(e.target.id);
         }
     }
@@ -93,14 +91,14 @@ class CompoundList extends React.Component {
 
     render() {
         var numMols = this.getNum();
-        var mol_string = "No mols found!!!";
+        var mol_string = "Loading...";
         if(numMols){
             mol_string = "Compounds to pick. Mol total: " + numMols
         }
         if(this.props.to_query=="" || this.props.to_query==undefined) {
             mol_string = ""
         }
-        if (this.props.currentVector != undefined) {
+        if (this.props.to_query != undefined) {
             var totArray = []
             totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
@@ -142,6 +140,8 @@ function mapStateToProps(state) {
       compoundClasses: state.selectionReducers.present.compoundClasses,
       currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
       to_select: state.selectionReducers.present.to_select,
+      objectsInView: state.nglReducers.present.objectsInView,
+      querying: state.selectionReducers.present.querying,
   }
 }
 const mapDispatchToProps = {
