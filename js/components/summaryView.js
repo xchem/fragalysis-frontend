@@ -209,7 +209,7 @@ class SummaryView extends React.Component{
             var vector_counter = 0;
             for (var vector in to_buy_by_vect[mol]) {
                 // TODO - something more meaningful for this name
-                var dock_name = f_name;
+                // var dock_name = f_name;
                 var smiles = to_buy_by_vect[mol][vector];
                 var csvContent = ""
                 smiles.forEach(function(smiles){

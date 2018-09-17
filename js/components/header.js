@@ -9,7 +9,7 @@ import * as apiActions from "../actions/apiActions";
 import * as nglActions from "../actions/nglLoadActions";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
-import {withRouter, Link} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 
 class Header extends React.Component {
 

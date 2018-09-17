@@ -1,5 +1,4 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React from "react";
 import {Grid} from "react-bootstrap";
 import Header from "../components/header";
 import {MyMenu} from "../components/menuView";
