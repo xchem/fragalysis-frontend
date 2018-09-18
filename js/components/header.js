@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import {Navbar} from "react-bootstrap";
+import {Navbar, Nav, NavItem} from "react-bootstrap";
 import {Typeahead} from "react-typeahead";
 import * as apiActions from "../actions/apiActions";
 import * as nglActions from "../actions/nglLoadActions";
