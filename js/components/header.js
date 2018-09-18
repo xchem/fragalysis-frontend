@@ -11,6 +11,7 @@ import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter, Link} from "react-router-dom";
 import TargetList from "./targetList";
+import UpdateOrientation from "./updateOrientation";
 
 class Header extends React.Component {
 
@@ -84,9 +85,7 @@ class Header extends React.Component {
             placeholder="Choose a target..."
         />
         <Nav pullRight>
-            <NavItem eventKey={1} href="#">
-                Save Page
-            </NavItem>
+            <UpdateOrientation />
         </Nav>
         <TargetList key="TARGLIST" render={false}/>
       </Navbar>
