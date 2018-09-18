@@ -10,6 +10,8 @@ import * as nglActions from "../actions/nglLoadActions";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter} from "react-router-dom";
+import TargetList from "./targetList";
+
 
 class Header extends React.Component {
 
