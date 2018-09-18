@@ -76,6 +76,7 @@ class Header extends React.Component {
                 <Link to={landing}>Home</Link>
             </Navbar.Brand>
         </Navbar.Header>
+        {new_ele}
         <Typeahead
             labelKey="name"
             onOptionSelected={this.selectTarget}
