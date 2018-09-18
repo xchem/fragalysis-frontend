@@ -1,7 +1,6 @@
 import React from "react";
 import {Grid} from "react-bootstrap";
 import Header from "../components/header";
-import {MyMenu} from "../components/menuView";
 import LoadingBar from "react-redux-loading-bar";
 import Tindspect from "./tindspectHolder";
 import Preview from "./previewHolder";
@@ -11,7 +10,6 @@ import {Route, Switch} from "react-router-dom";
 
 const routes = (
       <div id="outer-container">
-          <MyMenu right pageWrapId={ "page-wrap" } outerContainerId={ "outer-container" } />
           <LoadingBar />
           <Grid fluid id="page-wrap">
               <Header></Header>
