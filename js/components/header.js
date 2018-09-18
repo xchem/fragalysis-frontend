@@ -81,9 +81,6 @@ class Header extends React.Component {
             <NavItem eventKey={1} href="#">
                 Save Page
             </NavItem>
-            <NavItem eventKey={2} href="#">
-                Share Page
-            </NavItem>
         </Nav>
         <TargetList key="TARGLIST" render={false}/>
       </Navbar>
