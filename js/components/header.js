@@ -61,6 +61,7 @@ class Header extends React.Component {
             options={this.getTargetList()}
             placeholder="Choose a target..."
         />
+        <TargetList key="TARGLIST" render={false}/>
       </Navbar>
   }
 }
