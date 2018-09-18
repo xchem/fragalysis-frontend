@@ -62,14 +62,14 @@ class Header extends React.Component {
       var new_ele;
       var username = DJANGO_CONTEXT["username"];
       if (username=="NOT_LOGGED_IN"){
-          new_ele = <Button bsSize="large" bsStyle="info">
+          new_ele = <Button bsSize="medium" bsStyle="info">
               <a href={login}>Login</a>
               </Button>
       }
       else{
           new_ele = <a>
               <b>Hello {username}!</b>
-              <Button bsSize="large" bsStyle="info">
+              <Button bsSize="medium" bsStyle="info">
               <a href={logout}>Logout</a>
               </Button>
           </a>
