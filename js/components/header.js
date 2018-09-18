@@ -56,6 +56,14 @@ class Header extends React.Component {
 
   render() {
       var landing = "/viewer/react/landing";
+      var new_ele;
+      var username = DJANGO_CONTEXT["username"];
+      if (username=="NOT_LOGGED_IN"){
+          new_ele = <Link to={login}>Login</Link>
+      }
+      else{
+          new_ele = <b>Hello {username}!</b>
+      }
 
     return <Navbar>
         <Navbar.Header>
