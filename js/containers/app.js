@@ -1,7 +1,6 @@
 import React from "react";
 import {Grid} from "react-bootstrap";
 import Header from "../components/header";
-import LoadingBar from "react-redux-loading-bar";
 import Tindspect from "./tindspectHolder";
 import Preview from "./previewHolder";
 import FraggleBox from "./fraggleBoxHolder";
@@ -10,7 +9,6 @@ import {Route, Switch} from "react-router-dom";
 
 const routes = (
       <div id="outer-container">
-          <LoadingBar />
           <Grid fluid id="page-wrap">
               <Header></Header>
                   <Switch>

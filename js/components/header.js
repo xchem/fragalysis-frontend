@@ -56,13 +56,28 @@ class Header extends React.Component {
     }
 
   render() {
+      var landing = "/viewer/react/landing";
+
     return <Navbar>
+        <Navbar.Header>
+            <Navbar.Brand>
+                <Link to={landing}>Home</Link>
+            </Navbar.Brand>
+        </Navbar.Header>
         <Typeahead
             labelKey="name"
             onOptionSelected={this.selectTarget}
             options={this.getTargetList()}
             placeholder="Choose a target..."
         />
+        <Nav pullRight>
+            <NavItem eventKey={1} href="#">
+                Save Page
+            </NavItem>
+            <NavItem eventKey={2} href="#">
+                Share Page
+            </NavItem>
+        </Nav>
         <TargetList key="TARGLIST" render={false}/>
       </Navbar>
   }
