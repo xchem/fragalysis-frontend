@@ -67,14 +67,18 @@ class Header extends React.Component {
       else{
           new_ele = <a>
               <b>Hello {username}!</b>
+              <Button bsSize="large" bsStyle="info">
               <a href={logout}>Logout</a>
+              </Button>
           </a>
       }
 
     return <Navbar>
         <Navbar.Header>
             <Navbar.Brand>
-                <Link to={landing}>Home</Link>
+                <Button bsSize="large" bsStyle="info">
+                    <Link to={landing}>Home</Link>
+                </Button>
             </Navbar.Brand>
         </Navbar.Header>
         {new_ele}
