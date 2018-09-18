@@ -82,7 +82,6 @@ class Header extends React.Component {
                     Home
                 </Button>
                 </Link>
-                </Button>
             </Navbar.Brand>
         </Navbar.Header>
         {new_ele}
