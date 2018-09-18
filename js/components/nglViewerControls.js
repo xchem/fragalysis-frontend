@@ -5,7 +5,6 @@
 import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
-import UpdateOrientation from "./updateOrientation";
 import {Button} from "react-bootstrap";
 
 class NglViewerControls extends React.Component {
@@ -36,8 +35,6 @@ class NglViewerControls extends React.Component {
         return <div>
             <h3>Viewer controls</h3>
             <Button bsSize="large" bsStyle="success" onClick={this.handleStageColor}>Change background colour</Button>
-            {/*<Button bsSize="large" bsStyle="success" onClick={this.handleNglProtStyle}>Change protein representation</Button>*/}
-            <UpdateOrientation />
         </div>
     }
 }

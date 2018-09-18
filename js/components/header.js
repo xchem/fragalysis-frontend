@@ -3,15 +3,15 @@
  */
 
 import React from "react";
-import {Navbar} from "react-bootstrap";
+import {Navbar, Nav, NavItem} from "react-bootstrap";
 import {Typeahead} from "react-typeahead";
 import * as apiActions from "../actions/apiActions";
 import * as nglActions from "../actions/nglLoadActions";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
-import {withRouter} from "react-router-dom";
+import {withRouter, Link} from "react-router-dom";
 import TargetList from "./targetList";
-
+import UpdateOrientation from "./updateOrientation";
 
 class Header extends React.Component {
 
@@ -56,13 +56,37 @@ class Header extends React.Component {
     }
 
   render() {
+      var landing = "/viewer/react/landing";
+      var login = "/accounts/login"
+      var logout = "/accounts/logout"
+      var new_ele;
+      var username = DJANGO_CONTEXT["username"];
+      if (username=="NOT_LOGGED_IN"){
+          new_ele = <a href={login}>Login</a>
+      }
+      else{
+          new_ele = <a>
+              <b>Hello {username}!</b>
+              <a href={logout}>Logout</a>
+          </a>
+      }
+
     return <Navbar>
+        <Navbar.Header>
+            <Navbar.Brand>
+                <Link to={landing}>Home</Link>
+            </Navbar.Brand>
+        </Navbar.Header>
+        {new_ele}
         <Typeahead
             labelKey="name"
             onOptionSelected={this.selectTarget}
             options={this.getTargetList()}
             placeholder="Choose a target..."
         />
+        <Nav pullRight>
+            <UpdateOrientation />
+        </Nav>
         <TargetList key="TARGLIST" render={false}/>
       </Navbar>
   }
