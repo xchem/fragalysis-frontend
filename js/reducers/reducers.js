@@ -7,13 +7,11 @@ import nglRed from "./nglReducers";
 import selectionRed from "./selectionReducers";
 import renderReducers from "./renderReducers";
 import {loadingBarReducer} from "react-redux-loading-bar";
-import {reducer as burgerMenu} from "redux-burger-menu";
 import undoable from "redux-undo";
 
 const rootReducer = combineReducers({
     renderReducers,
     apiReducers: undoable(apiRed, {limit: 10}),
-    burgerMenu,
     loadingBar: loadingBarReducer,
     nglReducers: undoable(nglRed, {limit: 10}),
     selectionReducers: undoable(selectionRed, {limit: 10})
