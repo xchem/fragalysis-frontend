@@ -75,15 +75,11 @@ class Header extends React.Component {
       }
 
     return <Navbar>
-        <Navbar.Header>
-            <Navbar.Brand>
-                <Link to={landing}>
-                <Button bsSize="large" bsStyle="info">
-                    Home
-                </Button>
-                </Link>
-            </Navbar.Brand>
-        </Navbar.Header>
+        <Link to={landing}>
+            <Button bsSize="large" bsStyle="info">
+                Home
+            </Button>
+        </Link>
         {new_ele}
         <Typeahead
             labelKey="name"
