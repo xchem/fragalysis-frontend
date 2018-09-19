@@ -112,7 +112,6 @@ export class UpdateOrientation extends React.Component {
             }).then(myJsonStr => {
                 this.updateFraggleBox(myJsonStr);
             });
-            hasBeenRefreshed = false;
         }
     }
 

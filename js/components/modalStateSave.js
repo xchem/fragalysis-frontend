@@ -28,7 +28,7 @@ export class ModalStateSave extends React.Component {
     constructor(props) {
         super(props);
         this.closeModal = this.closeModal.bind(this);
-        this.state = {loading: undefined, fraggleBoxLoc: undefined}
+        this.state = {fraggleBoxLoc: undefined}
     }
 
     closeModal(){
