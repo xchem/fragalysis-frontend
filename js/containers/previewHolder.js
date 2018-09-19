@@ -13,6 +13,7 @@ import SummaryView from "../components/summaryView";
 import CompoundList from '../components/compoundList';
 import NglViewerControls from "../components/nglViewerControls";
 import HotspotList from "../components/hotspotList";
+import ModalStateSave from "../components/modalStateSave";
 import * as apiActions from "../actions/apiActions";
 import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
@@ -127,6 +128,7 @@ class Preview extends Component {
                     <CompoundList/>
                     <HotspotList/>
                 </Col>
+                <ModalStateSave/>
             </Row>
         )
     }

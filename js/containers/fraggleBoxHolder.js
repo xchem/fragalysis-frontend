@@ -4,7 +4,7 @@
 
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col, Image} from "react-bootstrap";
+import {Row, Col} from "react-bootstrap";
 import MolGroupList from "../components/molGroupList";
 import MoleculeList from "../components/moleculeList";
 import MolGroupSlider from "../components/molGroupSlider";
@@ -15,6 +15,7 @@ import NglViewerControls from "../components/nglViewerControls";
 import {withRouter} from "react-router-dom";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
+import ModalStateSave from "../components/modalStateSave";
 import HotspotList from "../components/hotspotList";
 import * as apiActions from "../actions/apiActions";
 
@@ -52,6 +53,7 @@ class FraggleBox extends Component {
                     <HotspotList />
                 </Col>
                 <ModalLoadingScreen/>
+                <ModalStateSave/>
           </Row>
         )
     }

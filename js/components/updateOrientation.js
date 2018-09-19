@@ -6,55 +6,33 @@ import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as apiActions from "../actions/apiActions";
-import * as selectionActions from "../actions/selectionActions";
 import {Button} from "react-bootstrap";
+import { css } from 'react-emotion';
+import { RingLoader } from 'react-spinners';
 import {getStore} from "../containers/globalStore";
+import * as selectionActions from "../actions/selectionActions";
+
+const override = css`
+    display: block;
+    margin: 0 auto;
+    border-color: red;
+`;
 
 export class UpdateOrientation extends React.Component {
     constructor(props) {
         super(props);
+        this.updateFraggleBox = this.updateFraggleBox.bind(this);
         this.postToServer = this.postToServer.bind(this);
-        this.handleRenderState = this.handleRenderState.bind(this);
         this.handleJson = this.handleJson.bind(this);
-        this.handleRenderOrientation = this.handleRenderOrientation.bind(this);
-    }
-    
-    handleJson(myJson){
-        if(myJson.scene==undefined){
-            return;
-        }
-        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-        // saveStore(jsonOfView)
-        this.props.reloadApiState(jsonOfView.apiReducers.present);
-        this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
-        var myOrientDict = jsonOfView.nglReducers.present.nglOrientations;
-        for(var div_id in myOrientDict){
-            var orientation = myOrientDict[div_id]["orientation"];
-            var components = myOrientDict[div_id]["components"];
-            for (var component in components){
-                this.props.loadObject(components[component]);
-            }
-            this.props.setNGLOrientation(div_id, orientation);
-        }
-    };
-
-    handleRenderState(){
-        var pk = document.getElementById("state_selector").value;
-        fetch("/api/viewscene/"+pk)
-        .then(function(response) {
-            return response.json();
-        }).then(json => this.handleJson(json))
+        this.getCookie = this.getCookie.bind(this);
     }
 
-    handleRenderOrientation(){
-        var pk = document.getElementById("state_selector").value;
-        fetch("/api/viewscene/"+pk)
-        .then(function(response) {
-            return response.json();
-        }).then(json => this.handleJson(json))
+    updateFraggleBox(url){
+        this.props.setLatestFraggleBox(url);
     }
 
     postToServer() {
+        this.props.setSavingState(true);
         for(var key in this.props.nglOrientations){
             this.props.setOrientation(key,"REFRESH")
         }
@@ -73,6 +51,24 @@ export class UpdateOrientation extends React.Component {
         return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     }
 
+    handleJson(myJson){
+        if(myJson.scene==undefined){
+            return;
+        }
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        // saveStore(jsonOfView)
+        this.props.reloadApiState(jsonOfView.apiReducers.present);
+        this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
+        var myOrientDict = jsonOfView.nglReducers.present.nglOrientations;
+        for(var div_id in myOrientDict){
+            var orientation = myOrientDict[div_id]["orientation"];
+            var components = myOrientDict[div_id]["components"];
+            for (var component in components){
+                this.props.loadObject(components[component]);
+            }
+            this.props.setNGLOrientation(div_id, orientation);
+        }
+    };
 
     componentDidUpdate() {
         var hasBeenRefreshed = true
@@ -112,33 +108,41 @@ export class UpdateOrientation extends React.Component {
             }).then(function (response) {
                 return response.json();
             }).then(function (myJson) {
-                alert("VIEW SAVED - send this link: " +
-                    window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + myJson.uuid.toString())
-                hasBeenRefreshed = false;
+                return JSON.stringify(myJson.uuid)
+            }).then(myJsonStr => {
+                this.updateFraggleBox(myJsonStr);
             });
+            hasBeenRefreshed = false;
         }
     }
 
     render() {
-        return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
-           </div>
+        if (this.props.savingState == true) {
+            return <div>
+                <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={this.props.savingState}/>
+            </div>
+        } else {
+            return <div>
+                <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
+            </div>
+        }
     }
 }
 
 function mapStateToProps(state) {
   return {
-      uuid: state.nglReducers.present.uuid,
       nglOrientations: state.nglReducers.present.nglOrientations,
-      loadingState: state.nglReducers.present.loadingState,
+      savingState: state.apiReducers.present.savingState,
+      uuid: state.nglReducers.present.uuid,
   }
 }
 const mapDispatchToProps = {
+    setSavingState: apiActions.setSavingState,
+    setOrientation: nglLoadActions.setOrientation,
+    setNGLOrientation: nglLoadActions.setNGLOrientation,
+    loadObject: nglLoadActions.loadObject,
     reloadApiState: apiActions.reloadApiState,
     reloadSelectionState: selectionActions.reloadSelectionState,
-    loadObject: nglLoadActions.loadObject,
-    setNGLOrientation: nglLoadActions.setNGLOrientation,
-    setOrientation: nglLoadActions.setOrientation,
-    setLoadingState: nglLoadActions.setLoadingState,
+    setLatestFraggleBox: apiActions.setLatestFraggleBox,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);

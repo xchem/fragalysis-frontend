@@ -22,7 +22,9 @@ const INITIALSTATE = {
     app_on: "PREVIEW",
     group_type: "MC",
     hotspot_on: undefined,
-    hotspot_list: []
+    hotspot_list: [],
+    savingState: false,
+    latestFraggleBox: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -140,6 +142,16 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_DUCK_YANK_DATA:
             return Object.assign({}, state, {
                 duck_yank_data: action.duck_yank_data
+            });
+
+        case actions.SET_SAVING_STATE:
+            return Object.assign({}, state, {
+                savingState: action.savingState
+            });
+
+        case actions.SET_LATEST_FRAGGLE_BOX:
+            return Object.assign({}, state, {
+                latestFraggleBox: action.latestFraggleBox
             });
 
         case actions.RELOAD_API_STATE:
