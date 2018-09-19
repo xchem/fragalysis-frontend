@@ -22,7 +22,9 @@ import {
     SET_HOTSPOT_LIST,
     SET_HOTSPOT_ON,
     SET_DUCK_YANK_DATA,
-    RELOAD_API_STATE
+    RELOAD_API_STATE,
+    SET_SAVING_STATE,
+    SET_LATEST_FRAGGLE_BOX,
 } from "./actonTypes";
 
 
@@ -190,6 +192,22 @@ export const receiveDataFromApi = function (json, element_type) {
         // Perhaps need to handle pagination here
         children: json.data.children.map(child => child.data),
         receivedAt: Date.now()
+    }
+}
+
+export const setSavingState = function (bool) {
+    console.log("ACTIONS: setting saving state to " + bool);
+    return {
+        type: SET_SAVING_STATE,
+        savingState: bool
+    };
+}
+
+export const setLatestFraggleBox = function (url) {
+    console.log("ACTIONS: latest FraggleBox is " + url)
+    return {
+        type: SET_LATEST_FRAGGLE_BOX,
+        latestFraggleBox: url
     }
 }
 
