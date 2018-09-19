@@ -111,6 +111,8 @@ export class UpdateOrientation extends React.Component {
                 return JSON.stringify(myJson.uuid)
             }).then(myJsonStr => {
                 this.updateFraggleBox(myJsonStr);
+            }).catch((error) => {
+                console.log(error)
             });
         }
     }
