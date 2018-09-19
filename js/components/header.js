@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem} from "react-bootstrap";
+import {Navbar, Nav, NavItem, Button} from "react-bootstrap";
 import {Typeahead} from "react-typeahead";
 import * as apiActions from "../actions/apiActions";
 import * as nglActions from "../actions/nglLoadActions";
@@ -62,19 +62,26 @@ class Header extends React.Component {
       var new_ele;
       var username = DJANGO_CONTEXT["username"];
       if (username=="NOT_LOGGED_IN"){
-          new_ele = <a href={login}>Login</a>
+          new_ele = <Button href={login} bsSize="medium" bsStyle="info">
+                  Login</Button>
       }
       else{
           new_ele = <a>
               <b>Hello {username}!</b>
-              <a href={logout}>Logout</a>
+              <Button href={logout} bsSize="medium" bsStyle="info">
+                  Logout
+              </Button>
           </a>
       }
 
     return <Navbar>
         <Navbar.Header>
             <Navbar.Brand>
-                <Link to={landing}>Home</Link>
+                <Link to={landing}>
+                <Button bsSize="large" bsStyle="info">
+                    Home
+                </Button>
+                </Link>
             </Navbar.Brand>
         </Navbar.Header>
         {new_ele}
