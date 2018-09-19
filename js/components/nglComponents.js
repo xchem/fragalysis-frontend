@@ -10,7 +10,6 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglRenderActions from "../actions/nglRenderActions";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import * as listTypes from "./listTypes";
-import {showLoading, hideLoading} from "react-redux-loading-bar";
 import * as selectionActions from "../actions/selectionActions";
 
 export class NGLView extends React.Component {
@@ -418,7 +417,6 @@ export class NGLView extends React.Component {
             if (this.div_id==nglObject.display_div) {
                 this.function_dict[nglObject.OBJECT_TYPE](this.stage,nglObject,nglKey)
                 this.props.objectLoading(nglObject);
-                this.props.showLoading();
             }
         }
         for(var nglKey in this.props.objectsToDelete){
@@ -476,7 +474,6 @@ export class NGLView extends React.Component {
                 if (this.stage.getComponentsByName(nglKey).list.length > 0) {
                     var nglObject = this.props.objectsLoading[nglKey];
                     this.props.loadObjectSuccess(nglObject);
-                    this.props.hideLoading()
                 }
             }
         }
@@ -511,11 +508,9 @@ const mapDispatchToProps = {
     setMolGroupOn: apiActions.setMolGroupOn,
     selectVector: selectionActions.selectVector,
     setDuckYankData: apiActions.setDuckYankData,
-    hideLoading: hideLoading,
     setNGLOrientation: nglLoadActions.setNGLOrientation,
     setPanddaSiteOn: apiActions.setPanddaSiteOn,
     setOrientation: nglLoadActions.setOrientation,
-    showLoading: showLoading,
     objectLoading: nglLoadActions.objectLoading,
     loadObjectSuccess: nglLoadActions.loadObjectSuccess,
     loadObjectFailure: nglLoadActions.loadObjectFailure,

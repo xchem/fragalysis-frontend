@@ -121,7 +121,7 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         return <div>
-            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save NGL Orientation</Button>
+            <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
            </div>
     }
 }
