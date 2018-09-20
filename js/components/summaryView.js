@@ -249,13 +249,13 @@ class SummaryView extends React.Component{
             <Well>
                 <Row>
                 <Col xs={6} md={6}>
-                    <h3>Number picked: <b>{this.state.list_len}</b></h3>
-                    <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
-                    <h3>Number series explored: <b>{this.state.num_series}</b></h3>
-                    <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
+                    <h5>Number picked: <b>{this.state.list_len}</b></h5>
+                    <h5>Number vectors explored: <b>{this.state.num_vectors}</b></h5>
+                    <h5>Number series explored: <b>{this.state.num_series}</b></h5>
+                    <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
                     <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
                     <Button bsSize="sm" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
-                    <h3>Selected Interaction: <b>{interaction_select}</b></h3>
+                    <h5>Selected Interaction: <b>{interaction_select}</b></h5>
                     <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
                 <Col xs={6} md={6}>
