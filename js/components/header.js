@@ -63,33 +63,36 @@ class Header extends React.Component {
       var username = DJANGO_CONTEXT["username"];
       if (username=="NOT_LOGGED_IN"){
           new_ele =  <NavItem eventKey={1} href={login}>
-              Login
+              <h5> Login </h5>
           </NavItem>
       }
       else{
           new_ele = <NavItem eventKey={1} href={logout}>
-              <b>Hello {username}!</b> Logout.
+              <h5><b>Hello {username}!</b> Logout.</h5>
           </NavItem>
       }
 
     return <Navbar>
           <Navbar.Header>
-              <Navbar.Brand href={landing}>
-                  <h4>FragalysisHome</h4>
+              <Navbar.Brand>
+                  <h4 href={landing}>FragalysisHome</h4>
               </Navbar.Brand>
           </Navbar.Header>
         <Nav pullLeft>
             {new_ele}
         </Nav>
-        <Typeahead
+        <NavItem>
+            <Typeahead
                 labelKey="name"
                 onOptionSelected={this.selectTarget}
                 options={this.getTargetList()}
                 placeholder="Choose a target..."
-        />
-
+            />
+        </NavItem>
         <Nav pullRight>
-            <UpdateOrientation />
+            <NavItem>
+                <UpdateOrientation />
+            </NavItem>
         </Nav>
         <TargetList key="TARGLIST" render={false}/>
       </Navbar>
