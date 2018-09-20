@@ -175,8 +175,6 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <div>
-            <Row>
-                <div>
                     <Col xs={0} md={2}></Col>
                     <Col xs={6} md={4}>
                         <div style={this.current_style}>{svg_image}</div>
@@ -192,8 +190,6 @@ class MoleculeView extends GenericView {
                         <Label bsStyle="default">{this.props.data.protein_code}</Label>
                     </Col>
                     <Col xs={0} md={2}></Col>
-                </div>
-            </Row>
         </div>
     }
 
