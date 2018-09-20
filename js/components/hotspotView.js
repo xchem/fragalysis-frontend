@@ -7,7 +7,6 @@ import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglObjectTypes from "./nglObjectTypes";
-import "../../css/toggle.css";
 import Toggle from "react-bootstrap-toggle";
 import fetch from "cross-fetch";
 import $ from "jquery";

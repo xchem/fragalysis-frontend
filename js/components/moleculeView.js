@@ -10,7 +10,6 @@ import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
 import * as selectionActions from "../actions/selectionActions";
 import * as listTypes from "./listTypes";
-import "../../css/toggle.css";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
 
