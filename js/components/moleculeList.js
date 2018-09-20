@@ -25,7 +25,7 @@ class MoleculeList extends GenericList {
         this.props.setObjectOn(new_value);
     }
     render() {
-        var imgSize = window.innerWidth*0.08
+        var imgSize = window.innerWidth*0.1
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
             return <Well>
