@@ -253,10 +253,10 @@ class SummaryView extends React.Component{
                     <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
                     <h3>Number series explored: <b>{this.state.num_series}</b></h3>
                     <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
                     <h3>Selected Interaction: <b>{interaction_select}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
