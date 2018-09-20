@@ -182,7 +182,7 @@ class MoleculeView extends GenericView {
                     </Col>
                     <Col xs={6} xs={6}>
                         <ButtonToolbar>
-                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                            <ToggleButtonGroup vertical type="checkbox" value={this.state.value} onChange={this.handleChange}>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
