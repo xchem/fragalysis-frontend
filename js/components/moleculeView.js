@@ -175,7 +175,6 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <div>
-            <Col xs={12} md={12} lg={6}>
                 <div style={{border: "1px solid black"}}>
                     <Col xs={6}>
                         <div style={this.current_style}>{svg_image}</div>
@@ -191,7 +190,6 @@ class MoleculeView extends GenericView {
                         </ButtonToolbar>
                     </Col>
                 </div>
-            </Col>
         </div>
     }
 
