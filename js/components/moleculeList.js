@@ -11,7 +11,6 @@ import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
 
-const molStyle = {overflow:"scroll"}
 class MoleculeList extends GenericList {
 
     constructor(props) {
@@ -24,6 +23,7 @@ class MoleculeList extends GenericList {
         this.props.setObjectOn(new_value);
     }
     render() {
+        const molStyle = {overflow:"scroll", height: this.props.height}
         var imgSize = window.innerWidth*0.1
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
