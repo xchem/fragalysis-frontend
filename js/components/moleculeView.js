@@ -178,9 +178,9 @@ class MoleculeView extends GenericView {
                 <div style={this.current_style}>{svg_image}</div>
                 <ButtonToolbar>
                     <ToggleButtonGroup type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                        <ToggleButton bsSize="xsm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                        <ToggleButton bsSize="xsm" bsStyle="info" value={1}>Complex</ToggleButton>
-                        <ToggleButton bsSize="xsm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                        <ToggleButton bsSize="xs" bsStyle="info" value={2}>Ligand</ToggleButton>
+                        <ToggleButton bsSize="xs" bsStyle="info" value={1}>Complex</ToggleButton>
+                        <ToggleButton bsSize="xs" bsStyle="info" value={3}>Vectors</ToggleButton>
                     </ToggleButtonGroup>
                 </ButtonToolbar>
                 <Label bsStyle="default">{this.props.data.protein_code}</Label>
