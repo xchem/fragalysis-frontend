@@ -258,7 +258,6 @@ export class Slider extends React.Component{
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>
-                <ProgressBar active now={this.state.progress}/>
             </Well>;
     }
     newOption(new_value) {
@@ -272,11 +271,19 @@ export class Slider extends React.Component{
             selected+=1
             this.handleChange(selected);
         }
+        else{
+            selected=0
+            this.handleChange(selected);
+        }
     }
     handleBackward() {
         var selected = this.state.currentlySelected;
         if (selected>0){
             selected-=1
+            this.handleChange(selected);
+        }
+        else{
+            selected=this.props.object_list.length-1;
             this.handleChange(selected);
         }
     }
