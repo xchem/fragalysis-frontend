@@ -4,7 +4,7 @@
 
 import React from "react";
 import {connect} from "react-redux";
-import {ButtonToolbar, ToggleButtonGroup, ToggleButton, Col, Row} from "react-bootstrap";
+import {ButtonToolbar,Label, ToggleButtonGroup, ToggleButton, Col, Row} from "react-bootstrap";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
@@ -183,8 +183,8 @@ class MoleculeView extends GenericView {
                     <Col xs={6} xs={6}>
                         <ButtonToolbar>
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                                <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
                             </ToggleButtonGroup>
                         </ButtonToolbar>
