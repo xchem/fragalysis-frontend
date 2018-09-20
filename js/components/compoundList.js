@@ -100,11 +100,11 @@ class CompoundList extends React.Component {
         }
         if (this.props.to_query != undefined) {
             var totArray = []
-            totArray.push(<input id="1" key="CLASS_1" width={100} defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="2" key="CLASS_2" width={100} defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="3" key="CLASS_3" width={100} defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="4" key="CLASS_4" width={100} defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="5" key="CLASS_5" width={100} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="1" key="CLASS_1" style={{ width:100 }} defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="2" key="CLASS_2" style={{ width:100 }} defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="3" key="CLASS_3" style={{ width:100 }} defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="4" key="CLASS_4" style={{ width:100 }} defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
             var retArray = [];
             for(var key in this.props.this_vector_list){
                 for (var ele in this.props.this_vector_list[key]){
