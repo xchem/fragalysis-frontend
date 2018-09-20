@@ -174,19 +174,17 @@ class MoleculeView extends GenericView {
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
-        return <Row>
-            <div style={{background: "solid"}}>
+        return <div style={{background: "solid"}}>
                 <div style={this.current_style}>{svg_image}</div>
                 <ButtonToolbar>
                     <ToggleButtonGroup type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                        <ToggleButton bsSize="xsm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                        <ToggleButton bsSize="xsm" bsStyle="info" value={1}>Complex</ToggleButton>
+                        <ToggleButton bsSize="xsm" bsStyle="info" value={3}>Vectors</ToggleButton>
                     </ToggleButtonGroup>
                 </ButtonToolbar>
                 <Label bsStyle="default">{this.props.data.protein_code}</Label>
             </div>
-        </Row>
     }
 
     getRandomColor() {
