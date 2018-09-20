@@ -175,23 +175,17 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <Row>
-            <Well>
-                    <Col xs={0} md={0}></Col>
-                    <Col xs={6} md={6}>
-                        <div style={this.current_style}>{svg_image}</div>
-                    </Col>
-                    <Col xs={6} md={6}>
-                        <ButtonToolbar>
-                            <ToggleButtonGroup vertical type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                                <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
-                            </ToggleButtonGroup>
-                        </ButtonToolbar>
-                        <Label bsStyle="default">{this.props.data.protein_code}</Label>
-                    </Col>
-                <Col xs={0} md={0}></Col>
-            </Well>
+            <div style={{background: "solid"}}>
+                <div style={this.current_style}>{svg_image}</div>
+                <ButtonToolbar>
+                    <ToggleButtonGroup type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                    </ToggleButtonGroup>
+                </ButtonToolbar>
+                <Label bsStyle="default">{this.props.data.protein_code}</Label>
+            </div>
         </Row>
     }
 
