@@ -100,13 +100,13 @@ class CompoundList extends React.Component {
         }
         if (this.props.to_query != undefined) {
             var totArray = []
-            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="1" key="CLASS_1" style={{ width:100 }} defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="2" key="CLASS_2" style={{ width:100 }} defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="3" key="CLASS_3" style={{ width:100 }} defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="4" key="CLASS_4" style={{ width:100 }} defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            var retArray = [];
             for(var key in this.props.this_vector_list){
-                var retArray = [];
                 for (var ele in this.props.this_vector_list[key]){
                     var input_data = {}
                     input_data.smiles=this.props.this_vector_list[key][ele]
@@ -116,12 +116,12 @@ class CompoundList extends React.Component {
                     input_data.class=this.props.currentCompoundClass
                     retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
                 }
-                totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
             }
+            totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
             return <Well>
-                <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
-                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <Button bsSize="large" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                <h3><b>{this.props.querying ? "Loading...." : mol_string }</b></h3>
+                <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
                 <div>{totArray}</div>
             </Well>
         }

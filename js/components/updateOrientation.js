@@ -117,13 +117,9 @@ export class UpdateOrientation extends React.Component {
 
     render() {
         if (this.props.savingState == true) {
-            return <div>
-                <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={this.props.savingState}/>
-            </div>
+            return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={this.props.savingState}/>
         } else {
-            return <div>
-                <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
-            </div>
+            return <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
         }
     }
 }

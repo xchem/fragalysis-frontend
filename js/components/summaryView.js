@@ -4,7 +4,7 @@
 import React from "react";
 import JSZip from "jszip";
 import {connect} from "react-redux";
-import {Button, Well, Col, Row} from "react-bootstrap";
+import {Button, ButtonGroup, Well, Col, Row} from "react-bootstrap";
 import * as selectionActions from "../actions/selectionActions";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import SummaryCmpd from "./SummaryCmpd";
@@ -249,14 +249,16 @@ class SummaryView extends React.Component{
             <Well>
                 <Row>
                 <Col xs={6} md={6}>
-                    <h3>Number picked: <b>{this.state.list_len}</b></h3>
-                    <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
-                    <h3>Number series explored: <b>{this.state.num_series}</b></h3>
-                    <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
-                    <h3>Selected Interaction: <b>{interaction_select}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
+                    <h5>Number picked: <b>{this.state.list_len}</b></h5>
+                    <h5>Number vectors explored: <b>{this.state.num_vectors}</b></h5>
+                    <h5>Number series explored: <b>{this.state.num_series}</b></h5>
+                    <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
+                    <ButtonGroup>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
+                    </ButtonGroup>
+                    <h5>Selected Interaction: <b>{interaction_select}</b></h5>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />

@@ -156,7 +156,7 @@ export class GenericView extends React.Component{
     super(props);
         this.loadFromServer = this.loadFromServer.bind(this);
         this.handleClick = this.handleClick.bind(this);
-        this.not_selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px'}
+        this.not_selected_style = {width: (props.width+5).toString()+'px', height: (props.height+5).toString()+'px', display:"inline-block"}
         this.old_url = ''
         this.state = {isToggleOn: false, img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
         '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
@@ -173,7 +173,7 @@ export class GenericView extends React.Component{
         '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
         '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
         '</svg>', value: [], vectorOn: false, complexOn:false}
-        this.selected_style = {width: props.width.toString+'px', height: props.height.toString()+'px', backgroundColor: "#B7C185"}
+        this.selected_style = {width: (props.width+5).toString()+'px', height: (props.height+5).toString()+'px', display:"inline-block", backgroundColor: "#B7C185"}
         this.conf_on_style = {borderStyle: "solid"}
         this.comp_on_style = {backgroundColor: "#B7C185"}
 
@@ -258,7 +258,6 @@ export class Slider extends React.Component{
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>
-                <ProgressBar active now={this.state.progress}/>
             </Well>;
     }
     newOption(new_value) {
@@ -272,11 +271,19 @@ export class Slider extends React.Component{
             selected+=1
             this.handleChange(selected);
         }
+        else{
+            selected=0
+            this.handleChange(selected);
+        }
     }
     handleBackward() {
         var selected = this.state.currentlySelected;
         if (selected>0){
             selected-=1
+            this.handleChange(selected);
+        }
+        else{
+            selected=this.props.object_list.length-1;
             this.handleChange(selected);
         }
     }
