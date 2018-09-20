@@ -11,8 +11,7 @@ import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
 
-const molStyle = {height: "250px",
-    overflow:"scroll"}
+const molStyle = {overflow:"scroll"}
 class MoleculeList extends GenericList {
 
     constructor(props) {
