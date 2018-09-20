@@ -175,11 +175,11 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <Row>
-                    <Col xs={1} md={2}></Col>
-                    <Col xs={5} md={4}>
+                    <Col xs={0} md={0}></Col>
+                    <Col xs={6} md={6}>
                         <div style={this.current_style}>{svg_image}</div>
                     </Col>
-                    <Col xs={5} md={4}>
+                    <Col xs={5} md={5}>
                         <ButtonToolbar>
                             <ToggleButtonGroup vertical type="checkbox" value={this.state.value} onChange={this.handleChange}>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
@@ -189,7 +189,7 @@ class MoleculeView extends GenericView {
                         </ButtonToolbar>
                         <Label bsStyle="default">{this.props.data.protein_code}</Label>
                     </Col>
-                <Col xs={1} md={2}></Col>
+                <Col xs={1} md={1}></Col>
         </Row>
     }
 
