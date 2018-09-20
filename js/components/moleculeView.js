@@ -174,19 +174,24 @@ class MoleculeView extends GenericView {
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
-        return <div style={{border: "1px solid black"}}>
-            <div style={this.current_style}>{svg_image}</div>
-            <div>{this.props.data.protein_code}</div>
-              <ButtonToolbar>
-                  <ToggleButtonGroup type="checkbox"
-                                     value={this.state.value}
-                                     onChange={this.handleChange}>
-                      <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
-                      <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                      <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
-                  </ToggleButtonGroup>
-              </ButtonToolbar>
+        return
+         <Col xs={12} md={6}>
+             <div style={{border: "1px solid black"}}>
+                 <Col xs={6}>
+                     <div style={this.current_style}>{svg_image}</div>
+                     <div>{this.props.data.protein_code}</div>
+                 </Col>
+                 <Col xs={6}>
+                     <ButtonToolbar>
+                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                             <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
+                             <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                             <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                         </ToggleButtonGroup>
+                     </ButtonToolbar>
+                 </Col>
             </div>
+         </Col>
     }
 
     getRandomColor() {
