@@ -180,7 +180,7 @@ class MoleculeView extends GenericView {
                     <Col xs={6}>
                         <div style={this.current_style}>{svg_image}</div>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={6} xs={6}>
                         <ButtonToolbar>
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
@@ -188,7 +188,7 @@ class MoleculeView extends GenericView {
                                 <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
                             </ToggleButtonGroup>
                         </ButtonToolbar>
-                        <div>{this.props.data.protein_code}</div>
+                        <div >{this.props.data.protein_code}</div>
                     </Col>
                 </div>
             </Row>
