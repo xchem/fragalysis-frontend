@@ -171,20 +171,22 @@ class MoleculeView extends GenericView {
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
+        // Here add the logic that updates this based on the information
+        const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         const selected_style = {width: this.props.width.toString+'px',
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <div style={{border: "solid", display: "inline-block"}}>
                 <div style={this.current_style}>{svg_image}</div>
+            <Label bsStyle="default">{this.props.data.protein_code}</Label>
+            {refinement}
                 <ButtonToolbar>
-                    <ToggleButtonGroup justified type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                        <ToggleButton bsSize="xs" bsStyle="info" value={2}>Ligand</ToggleButton>
-                        <ToggleButton bsSize="xs" bsStyle="info" value={1}>Complex</ToggleButton>
-                        <ToggleButton bsSize="xs" bsStyle="info" value={3}>Vectors</ToggleButton>
+                    <ToggleButtonGroup vertical type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
                     </ToggleButtonGroup>
                 </ButtonToolbar>
-                <Label bsStyle="default">{this.props.data.protein_code}</Label>
-            <Label bsStyle="success">{"Refined"}</Label>
             </div>
     }
 
