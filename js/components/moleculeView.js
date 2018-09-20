@@ -188,7 +188,7 @@ class MoleculeView extends GenericView {
                                 <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
                             </ToggleButtonGroup>
                         </ButtonToolbar>
-                        <div >{this.props.data.protein_code}</div>
+                        <Label bsStyle="default">{this.props.data.protein_code}</Label>
                     </Col>
                 </div>
             </Row>
