@@ -177,10 +177,11 @@ class MoleculeView extends GenericView {
         return <div>
             <Row>
                 <div>
-                    <Col xs={6}>
+                    <Col xs={0} md={2}></Col>
+                    <Col xs={6} md={4}>
                         <div style={this.current_style}>{svg_image}</div>
                     </Col>
-                    <Col xs={6} xs={6}>
+                    <Col xs={6} md={4}>
                         <ButtonToolbar>
                             <ToggleButtonGroup vertical type="checkbox" value={this.state.value} onChange={this.handleChange}>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
@@ -190,6 +191,7 @@ class MoleculeView extends GenericView {
                         </ButtonToolbar>
                         <Label bsStyle="default">{this.props.data.protein_code}</Label>
                     </Col>
+                    <Col xs={0} md={2}></Col>
                 </div>
             </Row>
         </div>
