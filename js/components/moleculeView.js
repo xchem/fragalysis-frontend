@@ -4,7 +4,7 @@
 
 import React from "react";
 import {connect} from "react-redux";
-import {ButtonToolbar, ToggleButtonGroup, ToggleButton, Col} from "react-bootstrap";
+import {ButtonToolbar, ToggleButtonGroup, ToggleButton, Col, Row} from "react-bootstrap";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
@@ -175,6 +175,7 @@ class MoleculeView extends GenericView {
             height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <div>
+            <Row>
                 <div style={{border: "1px solid black"}}>
                     <Col xs={6}>
                         <div style={this.current_style}>{svg_image}</div>
@@ -190,6 +191,7 @@ class MoleculeView extends GenericView {
                         </ButtonToolbar>
                     </Col>
                 </div>
+            </Row>
         </div>
     }
 
