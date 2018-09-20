@@ -75,12 +75,14 @@ class Header extends React.Component {
       }
 
     return <Navbar>
-        <Link to={landing}>
-            <Button bsSize="sm" bsStyle="info">
-                Home
-            </Button>
-        </Link>
-        {new_ele}
+        <Nav pullRight>
+            <Link to={landing}>
+                <Button bsSize="sm" bsStyle="info">
+                    Home
+                </Button>
+            </Link>
+            {new_ele}
+        </Nav>
         <Typeahead
             labelKey="name"
             onOptionSelected={this.selectTarget}
