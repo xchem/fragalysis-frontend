@@ -74,25 +74,22 @@ class Header extends React.Component {
 
     return <Navbar>
           <Navbar.Header>
-              <Navbar.Brand>
-                  <a href={landing}>Home</a>
+              <Navbar.Brand href={landing}>
+                  <h4>FragalysisHome</h4>
               </Navbar.Brand>
           </Navbar.Header>
         <Nav pullLeft>
             {new_ele}
         </Nav>
-        <NavItem eventKey={2} >
-            <Typeahead
+        <Typeahead
                 labelKey="name"
                 onOptionSelected={this.selectTarget}
                 options={this.getTargetList()}
                 placeholder="Choose a target..."
-            />
-        </NavItem>
+        />
+
         <Nav pullRight>
-            <NavItem eventKey={3} >
-                <UpdateOrientation />
-            </NavItem>
+            <UpdateOrientation />
         </Nav>
         <TargetList key="TARGLIST" render={false}/>
       </Navbar>
