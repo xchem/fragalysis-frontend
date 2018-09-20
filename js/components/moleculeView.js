@@ -176,7 +176,7 @@ class MoleculeView extends GenericView {
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
         return <div>
             <Row>
-                <div style={{border: "2px solid black"}}>
+                <div>
                     <Col xs={6}>
                         <div style={this.current_style}>{svg_image}</div>
                     </Col>

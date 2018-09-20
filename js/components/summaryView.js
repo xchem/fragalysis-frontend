@@ -4,7 +4,7 @@
 import React from "react";
 import JSZip from "jszip";
 import {connect} from "react-redux";
-import {Button, Well, Col, Row} from "react-bootstrap";
+import {Button, ButtonGroup, Well, Col, Row} from "react-bootstrap";
 import * as selectionActions from "../actions/selectionActions";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import SummaryCmpd from "./SummaryCmpd";
@@ -253,8 +253,10 @@ class SummaryView extends React.Component{
                     <h5>Number vectors explored: <b>{this.state.num_vectors}</b></h5>
                     <h5>Number series explored: <b>{this.state.num_series}</b></h5>
                     <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
+                    <ButtonGroup>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
+                    </ButtonGroup>
                     <h5>Selected Interaction: <b>{interaction_select}</b></h5>
                     <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
