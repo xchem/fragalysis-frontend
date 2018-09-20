@@ -75,7 +75,7 @@ class Header extends React.Component {
       }
 
     return <Navbar>
-        <Nav pullRight>
+        <Nav pullLeft>
             <Link to={landing}>
                 <Button bsSize="sm" bsStyle="info">
                     Home
