@@ -177,7 +177,7 @@ class MoleculeView extends GenericView {
         return <div style={{border: "solid", display: "inline-block"}}>
                 <div style={this.current_style}>{svg_image}</div>
                 <ButtonToolbar>
-                    <ToggleButtonGroup type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                    <ToggleButtonGroup justified type="checkbox" value={this.state.value} onChange={this.handleChange}>
                         <ToggleButton bsSize="xs" bsStyle="info" value={2}>Ligand</ToggleButton>
                         <ToggleButton bsSize="xs" bsStyle="info" value={1}>Complex</ToggleButton>
                         <ToggleButton bsSize="xs" bsStyle="info" value={3}>Vectors</ToggleButton>
