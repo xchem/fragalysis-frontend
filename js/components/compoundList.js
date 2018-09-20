@@ -119,9 +119,9 @@ class CompoundList extends React.Component {
                 totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
             }
             return <Well>
-                <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
-                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <Button bsSize="large" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                <h3><b>{this.props.querying ? "Loading...." : mol_string }</b></h3>
+                <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
                 <div>{totArray}</div>
             </Well>
         }
