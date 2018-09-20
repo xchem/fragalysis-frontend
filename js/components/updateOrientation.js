@@ -122,7 +122,7 @@ export class UpdateOrientation extends React.Component {
             </div>
         } else {
             return <div>
-                <Button bsSize="large" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
+                <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
             </div>
         }
     }
