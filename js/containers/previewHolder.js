@@ -110,6 +110,7 @@ class Preview extends Component {
 
     render() {
         var screenHeight= window.innerHeight*0.8.toString()+"px"
+        var molListHeight= window.innerHeight*0.6.toString()+"px"
         return (
             <Row>
                 <Col xs={0} md={0}>
@@ -118,7 +119,7 @@ class Preview extends Component {
                 <Col xs={3} md={3}>
                     <NGLView div_id="summary_view" height="200px"/>
                     <MolGroupSlider/>
-                    <MoleculeList style={{overflow: scroll}}/>
+                    <MoleculeList style={{height: molListHeight,overflow: scroll}}/>
                 </Col>
                 <Col xs={5} md={5}>
                     <NGLView div_id="major_view" height={screenHeight}/>
