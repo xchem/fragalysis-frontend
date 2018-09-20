@@ -40,7 +40,7 @@
     "ngl": "2.0.0-dev.33",
     "nprogress": "^0.2.0",
     "react": "^16.2.0",
-    "react-bootstrap": "^0.32.1",
+    "react-bootstrap": "^0.32.4",
     "react-chartjs": "^1.2.0",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.2.0",
