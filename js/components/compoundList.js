@@ -107,10 +107,14 @@ class CompoundList extends React.Component {
             totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
             var retArray = [];
             for(var key in this.props.this_vector_list){
-                for (var ele in this.props.this_vector_list[key]){
+                var vector_smi = this.props.this_vector_list[key]["vector"]
+                var change_list = this.props.this_vector_list[key]["addition"]
+                for (var ele in change_list){
+                    var data_transfer = change_list[ele]
                     var input_data = {}
-                    input_data.smiles=this.props.this_vector_list[key][ele]
-                    input_data.vector=key.split("_")[0]
+                    input_data.smiles = data_transfer["end"]
+                    input_data.show_frag = data_transfer["frag"]
+                    input_data.vector = vector_smi
                     input_data.mol=this.props.to_query
                     input_data.index=ele
                     input_data.class=this.props.currentCompoundClass
