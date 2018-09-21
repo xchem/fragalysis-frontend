@@ -93,19 +93,19 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             var input_mol_dict = action.input_mol_dict;
             var new_dict = {}
             // Uniquify
-                for (var key in input_mol_dict) {
-                    var smiSet = new Set()
-                    new_dict[key] = {}
-                    new_dict[key]["addition"] = []
-                    new_dict[key]["vector"] = input_mol_dict[key]["vector"]
-                    for (var index in input_mol_dict[key]["addition"]){
-                        var newSmi = input_mol_dict[key]["addition"][index]["end"]
-                        if(smiSet.has(newSmi)!=true) {
-                            new_dict[key]["addition"].push(input_mol_dict[key]["addition"][index])
-                            smiSet.add(newSmi)
-                        }
+            for (var key in input_mol_dict) {
+                var smiSet = new Set()
+                new_dict[key] = {}
+                new_dict[key]["addition"] = []
+                new_dict[key]["vector"] = input_mol_dict[key]["vector"]
+                for (var index in input_mol_dict[key]["addition"]){
+                    var newSmi = input_mol_dict[key]["addition"][index]["end"]
+                    if(smiSet.has(newSmi)!=true) {
+                        new_dict[key]["addition"].push(input_mol_dict[key]["addition"][index])
+                        smiSet.add(newSmi)
                     }
                 }
+            }
             return  Object.assign({}, state, {
                 to_select: new_dict,
                 querying: false
