@@ -91,12 +91,12 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
         case actions.GOT_FULL_GRAPH:
             var input_mol_dict = action.input_mol_dict;
-            var new_dict = {}
-            // Check if JSON
-            // Uniquify the dictionrary
-            for (var key in input_mol_dict) {
-                new_dict[key] = input_mol_dict[key].filter((x, i, a) => a.indexOf(x) == i)
-            }
+            var new_dict = input_mol_dict
+            // // Check if JSON
+            // // Uniquify the dictionrary
+            // for (var key in input_mol_dict) {
+            //     new_dict[key] = input_mol_dict[key].filter((x, i, a) => a.indexOf(x) == i)
+            // }
             return  Object.assign({}, state, {
                 to_select: new_dict,
                 querying: false
