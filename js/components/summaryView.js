@@ -30,7 +30,12 @@ class SummaryView extends React.Component{
     update() {
         var old_state = this.state
         old_state.list_len = this.props.to_buy_list.length
-        old_state.cost = this.props.to_buy_list.length * 150.0 + 500.0
+        if (this.props.to_buy_list.length>0){
+            old_state.cost = this.props.to_buy_list.length * 150.0 + 500.0
+        }
+        else{
+            old_state.cost = 0.0
+        }
         var vector_list = []
         var mol_list = []
         for(var index in this.props.to_buy_list){
