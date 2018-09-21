@@ -99,7 +99,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 new_dict[key]["addition"] = []
                 for (var index in input_mol_dict[key]["addition"]){
                     var newSmi = input_mol_dict[key][index]["end"]
-                    if(smiSet.has(newSmi)) {
+                    if(smiSet.has(newSmi)!=true) {
                         new_dict[key]["addition"].push(input_mol_dict[key][index])
                         smiSet.add(newSmi)
                     }
