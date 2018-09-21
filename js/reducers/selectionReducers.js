@@ -92,10 +92,18 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         case actions.GOT_FULL_GRAPH:
             var input_mol_dict = action.input_mol_dict;
             var new_dict = {}
-            // // Check if JSON
-            // // Uniquify the dictionrary
+            // Uniquify
             for (var key in input_mol_dict) {
+                var smiSet = {}
                 new_dict[key] = input_mol_dict[key]
+                new_dict[key]["addition"] = []
+                for (var index in input_mol_dict[key]["addition"]){
+                    var newSmi = input_mol_dict[key][index]["end"]
+                    if(smiSet.has(newSmi)) {
+                        new_dict[key]["addition"].push(input_mol_dict[key][index])
+                        smiSet.add(newSmi)
+                    }
+                }
             }
             return  Object.assign({}, state, {
                 to_select: new_dict,

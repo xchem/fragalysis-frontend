@@ -56,7 +56,7 @@ class SummaryView extends React.Component{
         for(var key in this.props.to_select){
             var smi = key.split("_")[0]
             if(smi==thisSmi){
-                counter+=this.props.to_select[key].length
+                counter+=this.props.to_select[key]["addition"].length
             }
         }
         var colour = [1,0,0]

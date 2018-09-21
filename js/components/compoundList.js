@@ -52,7 +52,7 @@ class CompoundList extends React.Component {
     getNum() {
         var tot_num=0;
         for(var key in this.props.to_select){
-            tot_num+=this.props.to_select[key].length;
+            tot_num+=this.props.to_select[key]["addition"].length;
         }
         return tot_num;
     }
