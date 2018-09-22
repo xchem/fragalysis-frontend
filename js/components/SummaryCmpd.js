@@ -48,7 +48,10 @@ class SummaryCmpd extends GenericView {
     update(props) {
          var isotopes = []
         if(props.this_vector_list!=undefined) {
-           isotopes = this.getIsotopes(props.this_vector_list[Object.keys(props.this_vector_list)]["vector"])
+            var initial_dict = props.this_vector_list[Object.keys(props.this_vector_list)];
+            if (initial_dict!=undefined){
+                isotopes = this.getIsotopes(["vector"])
+            }
         }
         this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
         var get_params = {"smiles": props.to_query, "isotopes": Array.join(isotopes)}
