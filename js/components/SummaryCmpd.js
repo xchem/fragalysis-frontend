@@ -73,7 +73,7 @@ class SummaryCmpd extends GenericView {
 
 function mapStateToProps(state) {
   return {
-      to_query: state.selectionReducers.present.to_query
+      to_query: state.selectionReducers.present.to_query,
       this_vector_list: state.selectionReducers.present.this_vector_list,
   }
 }
