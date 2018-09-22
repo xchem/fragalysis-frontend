@@ -61,8 +61,9 @@ class SummaryCmpd extends GenericView {
 
 
     componentDidMount() {
-
+        this.update(this.props);
     }
+    
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         return <div onClick={this.handleClick} >{svg_image}</div>
