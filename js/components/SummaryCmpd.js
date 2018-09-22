@@ -46,15 +46,22 @@ class SummaryCmpd extends GenericView {
     }
 
     update(props) {
-         var isotopes = []
+        var isotopes = undefined
         if(props.this_vector_list!=undefined) {
-            var initial_dict = props.this_vector_list[Object.keys(props.this_vector_list)];
+                var initial_dict = props.this_vector_list[Object.keys(props.this_vector_list)];
             if (initial_dict!=undefined){
                 isotopes = this.getIsotopes(["vector"])
             }
         }
         this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
-        var get_params = {"smiles": props.to_query, "isotopes": Array.join(isotopes)}
+        var get_params
+        if (isotopes==undefined){
+            get_params = {"smiles": props.to_query}
+        }
+        else{
+            get_params = {"smiles": props.to_query, "isotopes": Array.join(isotopes)}
+
+        }
         Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
         this.loadFromServer(props.width, props.height);
         this.smiles = props.to_query
