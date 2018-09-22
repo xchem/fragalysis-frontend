@@ -49,7 +49,7 @@ class SummaryCmpd extends GenericView {
         var isotopes = undefined
         if(props.this_vector_list!=undefined) {
                 var initial_dict = props.this_vector_list[Object.keys(props.this_vector_list)];
-            if (initial_dict!=undefined){
+            if (false==true){
                 isotopes = this.getIsotopes(initial_dict["vector"])
             }
         }
