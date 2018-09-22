@@ -260,10 +260,9 @@ class SummaryView extends React.Component{
                     <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
                     <ButtonGroup>
                         <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                     </ButtonGroup>
                     <h5>Selected Interaction: <b>{interaction_select}</b></h5>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />
