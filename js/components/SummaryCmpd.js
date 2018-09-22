@@ -34,19 +34,49 @@ class SummaryCmpd extends GenericView {
         this.old_url = url.toString();
     }
 
-    update() {
-        if(this.smiles!=this.props.to_query) {
-            this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
-            var get_params = {"smiles": this.props.to_query}
-            Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
-            this.loadFromServer(this.props.width, this.props.height);
-            this.smiles = this.props.to_query
+    getIsotopes(input_string){
+        var res_array = input_string.split("Xe")
+        var new_array = []
+        res_array.pop()
+        for(var index in res_array){
+            var new_int = parseInt(res_array[index].slice(-3))
+            new_array.push(new_int)
         }
+        return new_array
     }
 
-    componentDidMount() {
-        setInterval(this.update,50);
+    update(props) {
+        var isotopes = undefined
+        if(props.this_vector_list!=undefined) {
+                var initial_dict = props.this_vector_list[Object.keys(props.this_vector_list)];
+            if (false==true){
+                isotopes = this.getIsotopes(initial_dict["vector"])
+            }
+        }
+        this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
+        var get_params
+        if (isotopes==undefined){
+            get_params = {"smiles": props.to_query}
+        }
+        else{
+            get_params = {"smiles": props.to_query, "isotopes": Array.join(isotopes)}
+
+        }
+        Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
+        this.loadFromServer(props.width, props.height);
+        this.smiles = props.to_query
     }
+
+
+    componentWillReceiveProps(nextProps){
+        this.update(nextProps);
+    }
+
+
+    componentDidMount() {
+        this.update(this.props);
+    }
+    
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         return <div onClick={this.handleClick} >{svg_image}</div>
@@ -56,7 +86,8 @@ class SummaryCmpd extends GenericView {
 
 function mapStateToProps(state) {
   return {
-      to_query: state.selectionReducers.present.to_query
+      to_query: state.selectionReducers.present.to_query,
+      this_vector_list: state.selectionReducers.present.this_vector_list,
   }
 }
 const mapDispatchToProps = {

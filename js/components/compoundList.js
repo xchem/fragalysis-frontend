@@ -91,7 +91,7 @@ class CompoundList extends React.Component {
 
     render() {
         var numMols = this.getNum();
-        var mol_string = "Loading...";
+        var mol_string = "No molecules found!";
         if(numMols){
             mol_string = "Compounds to pick. Mol total: " + numMols
         }
