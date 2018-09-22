@@ -34,18 +34,34 @@ class SummaryCmpd extends GenericView {
         this.old_url = url.toString();
     }
 
-    update() {
-        if(this.smiles!=this.props.to_query) {
-            this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
-            var get_params = {"smiles": this.props.to_query}
-            Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
-            this.loadFromServer(this.props.width, this.props.height);
-            this.smiles = this.props.to_query
+    getIsotopes(input_string){
+        var res_array = input_string.split("Xe")
+        var new_array = []
+        res_array.pop()
+        for(var index in res_array){
+            var new_int = parseInt(res_array[index].slice(-3))
+            new_array.push(new_int)
         }
+        return new_array
     }
 
+    update(props) {
+        var isotopes = this.getIsotopes(nextProps.this_vector_list[Object.keys(nextProps.this_vector_list)]["vector"])
+        this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
+        var get_params = {"smiles": props.to_query, "isotopes": Array.join(isotopes)}
+        Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
+        this.loadFromServer(props.width, props.height);
+        this.smiles = props.to_query
+    }
+
+
+    componentWillReceiveProps(nextProps){
+        this.update(nextProps);
+    }
+
+
     componentDidMount() {
-        setInterval(this.update,50);
+
     }
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
@@ -57,6 +73,7 @@ class SummaryCmpd extends GenericView {
 function mapStateToProps(state) {
   return {
       to_query: state.selectionReducers.present.to_query
+      this_vector_list: state.selectionReducers.present.this_vector_list,
   }
 }
 const mapDispatchToProps = {
