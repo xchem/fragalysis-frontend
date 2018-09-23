@@ -22,17 +22,23 @@ export class UpdateOrientation extends React.Component {
     constructor(props) {
         super(props);
         this.updateFraggleBox = this.updateFraggleBox.bind(this);
+        this.deployErrorModal = this.deployErrorModal.bind(this);
         this.postToServer = this.postToServer.bind(this);
         this.handleJson = this.handleJson.bind(this);
         this.getCookie = this.getCookie.bind(this);
     }
 
-    updateFraggleBox(url){
-        this.props.setLatestFraggleBox(url);
+    updateFraggleBox(myJson){
+        this.props.setLatestFraggleBox(JSON.stringify(myJson.uuid));
+    }
+
+    deployErrorModal(error) {
+        this.props.setErrorMessage(error);
     }
 
     postToServer() {
         this.props.setSavingState(true);
+        this.props.setLatestFraggleBox(undefined);
         for(var key in this.props.nglOrientations){
             this.props.setOrientation(key,"REFRESH")
         }
@@ -72,21 +78,21 @@ export class UpdateOrientation extends React.Component {
 
     componentDidUpdate() {
         var hasBeenRefreshed = true
-        if(this.props.uuid!="UNSET"){
+        if (this.props.uuid!="UNSET") {
             fetch("/api/viewscene/?uuid="+this.props.uuid)
                 .then(function(response) {
                     return response.json();
                 }).then(json => this.handleJson(json.results[0]))
         }
-        for(var key in this.props.nglOrientations){
-            if(this.props.nglOrientations[key]=="REFRESH"){
+        for (var key in this.props.nglOrientations){
+            if(this.props.nglOrientations[key]=="REFRESH") {
                 hasBeenRefreshed = false;
             }
             if(this.props.nglOrientations[key]=="STARTED"){
                 hasBeenRefreshed = false
             }
         }
-        if (hasBeenRefreshed==true){
+        if (hasBeenRefreshed==true) {
             var store = JSON.stringify(getStore().getState());
             const csrfToken = this.getCookie("csrftoken");
             var fullState = {"state": store};
@@ -107,12 +113,10 @@ export class UpdateOrientation extends React.Component {
                 body: JSON.stringify(formattedState)
             }).then(function (response) {
                 return response.json();
-            }).then(function (myJson) {
-                return JSON.stringify(myJson.uuid)
-            }).then(myJsonStr => {
-                this.updateFraggleBox(myJsonStr);
+            }).then((myJson) => {
+                this.updateFraggleBox(myJson);
             }).catch((error) => {
-                console.log(error)
+                this.deployErrorModal(error);
             });
         }
     }
@@ -141,5 +145,6 @@ const mapDispatchToProps = {
     reloadApiState: apiActions.reloadApiState,
     reloadSelectionState: selectionActions.reloadSelectionState,
     setLatestFraggleBox: apiActions.setLatestFraggleBox,
+    setErrorMessage: apiActions.setErrorMessage,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);

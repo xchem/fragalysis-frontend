@@ -25,8 +25,8 @@ import {
     RELOAD_API_STATE,
     SET_SAVING_STATE,
     SET_LATEST_FRAGGLE_BOX,
+    SET_ERROR_MESSAGE,
 } from "./actonTypes";
-
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -208,6 +208,14 @@ export const setLatestFraggleBox = function (url) {
     return {
         type: SET_LATEST_FRAGGLE_BOX,
         latestFraggleBox: url
+    }
+}
+
+export const setErrorMessage = function (errorMessage) {
+    console.log("ACTIONS: errorMessage is " + errorMessage)
+    return {
+        type: SET_ERROR_MESSAGE,
+        errorMessage: errorMessage
     }
 }
 
