@@ -4,13 +4,12 @@
 
 import React from "react";
 import {connect} from "react-redux";
-import {ButtonToolbar, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
+import {ButtonToolbar,Label, Well, ToggleButtonGroup, ToggleButton, Col, Row} from "react-bootstrap";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
 import * as selectionActions from "../actions/selectionActions";
 import * as listTypes from "./listTypes";
-import "../../css/toggle.css";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
 
@@ -172,21 +171,22 @@ class MoleculeView extends GenericView {
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
-        const selected_style = {width: this.props.width.toString+'px',
-            height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : this.not_selected_style;
-        return <div style={{border: "1px solid black"}}>
-            <div style={this.current_style}>{svg_image}</div>
-            <div>{this.props.data.protein_code}</div>
-              <ButtonToolbar>
-                  <ToggleButtonGroup type="checkbox"
-                                     value={this.state.value}
-                                     onChange={this.handleChange}>
-                      <ToggleButton value={1}>Complex</ToggleButton>
-                      <ToggleButton value={2}>Ligand</ToggleButton>
-                      <ToggleButton value={3}>Vectors</ToggleButton>
-                  </ToggleButtonGroup>
-              </ButtonToolbar>
+        // Here add the logic that updates this based on the information
+        const refinement = <Label bsStyle="success">{"Refined"}</Label>;
+        const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
+        const not_selected_style = {height: this.props.height.toString()+'px'}
+        this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
+        return <div style={{border: "solid", display: "inline-block"}}>
+                <div style={this.current_style}>{svg_image}</div>
+            <Label bsStyle="default">{this.props.data.protein_code}</Label>
+            {refinement}
+                <ButtonToolbar>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                    </ToggleButtonGroup>
+                </ButtonToolbar>
             </div>
     }
 

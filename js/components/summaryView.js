@@ -4,7 +4,7 @@
 import React from "react";
 import JSZip from "jszip";
 import {connect} from "react-redux";
-import {Button, Well, Col, Row} from "react-bootstrap";
+import {Button, ButtonGroup, Well, Col, Row} from "react-bootstrap";
 import * as selectionActions from "../actions/selectionActions";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import SummaryCmpd from "./SummaryCmpd";
@@ -30,7 +30,12 @@ class SummaryView extends React.Component{
     update() {
         var old_state = this.state
         old_state.list_len = this.props.to_buy_list.length
-        old_state.cost = this.props.to_buy_list.length * 150.0 + 500.0
+        if (this.props.to_buy_list.length>0){
+            old_state.cost = this.props.to_buy_list.length * 150.0 + 500.0
+        }
+        else{
+            old_state.cost = 0.0
+        }
         var vector_list = []
         var mol_list = []
         for(var index in this.props.to_buy_list){
@@ -56,7 +61,7 @@ class SummaryView extends React.Component{
         for(var key in this.props.to_select){
             var smi = key.split("_")[0]
             if(smi==thisSmi){
-                counter+=this.props.to_select[key].length
+                counter+=this.props.to_select[key]["addition"].length
             }
         }
         var colour = [1,0,0]
@@ -249,14 +254,15 @@ class SummaryView extends React.Component{
             <Well>
                 <Row>
                 <Col xs={6} md={6}>
-                    <h3>Number picked: <b>{this.state.list_len}</b></h3>
-                    <h3>Number vectors explored: <b>{this.state.num_vectors}</b></h3>
-                    <h3>Number series explored: <b>{this.state.num_series}</b></h3>
-                    <h3>Estimated cost: <b>£{this.state.cost}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleDocking}>Download Docking</Button>
-                    <h3>Selected Interaction: <b>{interaction_select}</b></h3>
-                    <Button bsSize="large" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
+                    <h5>Number picked: <b>{this.state.list_len}</b></h5>
+                    <h5>Number vectors explored: <b>{this.state.num_vectors}</b></h5>
+                    <h5>Number series explored: <b>{this.state.num_series}</b></h5>
+                    <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
+                    <ButtonGroup>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
+                    </ButtonGroup>
+                    <h5>Selected Interaction: <b>{interaction_select}</b></h5>
                 </Col>
                 <Col xs={6} md={6}>
                     <SummaryCmpd height={150} width={150} key={"QUERY"} />

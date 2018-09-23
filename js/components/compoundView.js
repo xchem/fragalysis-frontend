@@ -34,7 +34,7 @@ class CompoundView extends GenericView {
         }
         else{
             this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
-            var get_params = {"smiles": props.data.smiles}
+            var get_params = {"smiles": props.data.show_frag}
             Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
             this.key = undefined;
         }
@@ -44,7 +44,7 @@ class CompoundView extends GenericView {
         this.checkInList = this.checkInList.bind(this);
         this.handleConf = this.handleConf.bind(this);
     }
-
+    
     checkInList(nextProps) {
         var isHighlighted = false;
         if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {

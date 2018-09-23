@@ -34,7 +34,7 @@ class NglViewerControls extends React.Component {
     render() {
         return <div>
             <h3>Viewer controls</h3>
-            <Button bsSize="large" bsStyle="success" onClick={this.handleStageColor}>Change background colour</Button>
+            <Button bsSize="sm" bsStyle="success" onClick={this.handleStageColor}>Change background colour</Button>
         </div>
     }
 }

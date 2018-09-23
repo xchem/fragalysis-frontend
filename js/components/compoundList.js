@@ -52,7 +52,7 @@ class CompoundList extends React.Component {
     getNum() {
         var tot_num=0;
         for(var key in this.props.to_select){
-            tot_num+=this.props.to_select[key].length;
+            tot_num+=this.props.to_select[key]["addition"].length;
         }
         return tot_num;
     }
@@ -91,7 +91,7 @@ class CompoundList extends React.Component {
 
     render() {
         var numMols = this.getNum();
-        var mol_string = "Loading...";
+        var mol_string = "No molecules found!";
         if(numMols){
             mol_string = "Compounds to pick. Mol total: " + numMols
         }
@@ -100,28 +100,33 @@ class CompoundList extends React.Component {
         }
         if (this.props.to_query != undefined) {
             var totArray = []
-            totArray.push(<input id="1" key="CLASS_1" defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="2" key="CLASS_2" defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="3" key="CLASS_3" defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="4" key="CLASS_4" defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="5" key="CLASS_5" defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="1" key="CLASS_1" style={{ width:100 }} defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="2" key="CLASS_2" style={{ width:100 }} defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="3" key="CLASS_3" style={{ width:100 }} defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="4" key="CLASS_4" style={{ width:100 }} defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            var retArray = [];
             for(var key in this.props.this_vector_list){
-                var retArray = [];
-                for (var ele in this.props.this_vector_list[key]){
+                var vector_smi = this.props.this_vector_list[key]["vector"]
+                var change_list = this.props.this_vector_list[key]["addition"]
+                for (var ele in change_list){
+                    var data_transfer = change_list[ele]
                     var input_data = {}
-                    input_data.smiles=this.props.this_vector_list[key][ele]
-                    input_data.vector=key.split("_")[0]
+                    input_data.smiles = data_transfer["end"]
+                    // Set this back for now - because it's confusing
+                    input_data.show_frag = data_transfer["end"]
+                    input_data.vector = vector_smi
                     input_data.mol=this.props.to_query
                     input_data.index=ele
                     input_data.class=this.props.currentCompoundClass
                     retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
                 }
-                totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
             }
+            totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
             return <Well>
-                <h1><b>{this.props.querying ? "Loading...." : mol_string }</b></h1>
-                <Button bsSize="large" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <Button bsSize="large" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                <h3><b>{this.props.querying ? "Loading...." : mol_string }</b></h3>
+                <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
                 <div>{totArray}</div>
             </Well>
         }
