@@ -16,6 +16,7 @@ LogRocket.identify(DJANGO_CONTEXT["username"], {
 init({
   dsn: 'https://65029677c9dd4a8a94b778cd221efb3d@sentry.io/1286780',
 });
+
 render(
       <Root />, document.getElementById('app')
 ) 

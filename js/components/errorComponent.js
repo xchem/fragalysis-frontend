@@ -6,7 +6,7 @@ import React from "react";
 
 
 export class ErrorView extends React.Component {
-    
+
     constructor(props) {
         super(props);
         this.state = { error: null };
@@ -29,8 +29,7 @@ export class ErrorView extends React.Component {
               <a onClick={() => Sentry.showReportDialog()}>Report feedback</a>
             );
         } else {
-            //when there's not an error, render children untouched
-            return this.props.children;
+            return null;
         }
     }
 }
