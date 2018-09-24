@@ -16,6 +16,7 @@ import {withRouter} from "react-router-dom";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
 import ModalStateSave from "../components/modalStateSave";
+import ModalErrorMessage from "../components/modalErrorDisplay";
 import HotspotList from "../components/hotspotList";
 import * as apiActions from "../actions/apiActions";
 
@@ -54,6 +55,7 @@ class FraggleBox extends Component {
                 </Col>
                 <ModalLoadingScreen/>
                 <ModalStateSave/>
+                <ModalErrorMessage/>
           </Row>
         )
     }
@@ -66,7 +68,6 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     setUuid: nglLoadActions.setUuid,
-    setTargetOn: apiActions.setTargetOn,
 }
 
 

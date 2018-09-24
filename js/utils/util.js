@@ -1,7 +1,7 @@
 // return querystring parameter by name
 function getQueryStringParameterByName(name) {
     const href = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
+    // name = name.replace(/[\[\]]/g, "\\$&");
     const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
     const results = regex.exec(href);
     //if (!results) return null;

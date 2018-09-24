@@ -29,10 +29,18 @@ export class ModalStateSave extends React.Component {
         super(props);
         this.closeModal = this.closeModal.bind(this);
         this.state = {fraggleBoxLoc: undefined}
+        this.openFraggleLink = this.openFraggleLink.bind(this)
+    }
+
+    openFraggleLink(){
+        var url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + JSON.parse(this.props.latestFraggleBox);
+        window.open(url);
     }
 
     closeModal(){
-        this.props.setSavingState(false)
+        this.setState(prevState => ({fraggleBoxLoc: undefined}));
+        this.props.setLatestFraggleBox(undefined);
+        this.props.setSavingState(false);
     }
 
     componentWillMount() {
@@ -48,18 +56,16 @@ export class ModalStateSave extends React.Component {
     render() {
         if (this.state.fraggleBoxLoc != undefined) {
             return (
-                <div>
-                    <ReactModal isOpen={this.props.savingState} style={customStyles}>
-                        <div>
-                            <h3>State can be viewed
-                                at: {window.location.protocol}//{window.location.hostname}/viewer/react/fragglebox/{JSON.parse(this.props.latestFraggleBox)}</h3>
-                            <CopyToClipboard text={window.location.protocol + window.location.hostname + "/viewer/react/fragglebox/" + JSON.parse(this.props.latestFraggleBox)} >
-                                <Button bsSize="large" bsStyle="success" >Copy FraggleLink</Button>
-                            </CopyToClipboard>
-                            <Button bsSize="large" bsStyle="success" onClick={this.closeModal}>Close</Button>
-                        </div>
-                    </ReactModal>
-                </div>
+                <ReactModal isOpen={this.props.savingState} style={customStyles}>
+                    <div>
+                        <h3>State can be viewed at: {window.location.protocol}//{window.location.hostname}/viewer/react/fragglebox/{this.props.latestFraggleBox.slice(1, -1)}</h3>
+                        <CopyToClipboard text={window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)} >
+                            <Button bsSize="large" bsStyle="success" >Copy FraggleLink</Button>
+                        </CopyToClipboard>
+                        <Button bsSize="large" bsStyle="success" onClick={this.openFraggleLink}>Open in new tab</Button>
+                        <Button bsSize="large" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                    </div>
+                </ReactModal>
             );
         } else {
             return null;
@@ -76,6 +82,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
     setSavingState: apiActions.setSavingState,
+    setLatestFraggleBox: apiActions.setLatestFraggleBox,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalStateSave);

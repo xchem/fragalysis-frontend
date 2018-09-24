@@ -25,6 +25,7 @@ const INITIALSTATE = {
     hotspot_list: [],
     savingState: false,
     latestFraggleBox: undefined,
+    errorMessage: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -152,6 +153,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_LATEST_FRAGGLE_BOX:
             return Object.assign({}, state, {
                 latestFraggleBox: action.latestFraggleBox
+            });
+
+        case actions.SET_ERROR_MESSAGE:
+            return Object.assign({}, state, {
+                errorMessage: action.errorMessage
             });
 
         case actions.RELOAD_API_STATE:
