@@ -14,6 +14,7 @@ import CompoundList from '../components/compoundList';
 import NglViewerControls from "../components/nglViewerControls";
 import HotspotList from "../components/hotspotList";
 import ModalStateSave from "../components/modalStateSave";
+import ModalErrorMessage from "../components/modalErrorDisplay";
 import * as apiActions from "../actions/apiActions";
 import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
@@ -131,6 +132,7 @@ class Preview extends Component {
                     <HotspotList/>
                 </Col>
                 <ModalStateSave/>
+                <ModalErrorMessage/>
             </Row>
         )
     }

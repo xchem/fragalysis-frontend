@@ -10,9 +10,9 @@ import undoable from "redux-undo";
 
 const rootReducer = combineReducers({
     renderReducers,
-    apiReducers: undoable(apiRed, {limit: 10}),
-    nglReducers: undoable(nglRed, {limit: 10}),
-    selectionReducers: undoable(selectionRed, {limit: 10})
+    apiReducers: undoable(apiRed, {limit: 1}),
+    nglReducers: undoable(nglRed, {limit: 1}),
+    selectionReducers: undoable(selectionRed, {limit: 1})
 })
 
 export default rootReducer;

@@ -28,6 +28,7 @@ function getInitialState(){
        hotspot_list: [],
        savingState: false,
        latestFraggleBox: undefined,
+       errorMessage: undefined,
    }
 }
 
@@ -66,7 +67,8 @@ describe('API Redcuer', () => {
         hotspot_list: [],
         savingState: false,
         latestFraggleBox: undefined,
-      })
+        errorMessage: undefined,
+    })
       expect(apiReducers(undefined, {
           type: types.LOAD_TARGETS
       })
@@ -92,6 +94,7 @@ describe('API Redcuer', () => {
               hotspot_list: [],
               savingState: false,
               latestFraggleBox: undefined,
+              errorMessage: undefined,
           }
       )
   })
@@ -122,6 +125,7 @@ describe('API Redcuer', () => {
             hotspot_list: [],
             savingState: false,
             latestFraggleBox: undefined,
+            errorMessage: undefined,
         }
     )
       expect(apiReducers(undefined, {
@@ -151,6 +155,7 @@ describe('API Redcuer', () => {
           hotspot_list: [],
           savingState: false,
           latestFraggleBox: undefined,
+          errorMessage: undefined,
       }
     )
   })
@@ -181,7 +186,8 @@ describe('API Redcuer', () => {
             hotspot_on: undefined,
             savingState: false,
             latestFraggleBox: undefined,
-            target_on_name: undefined
+            target_on_name: undefined,
+            errorMessage: undefined,
         }
     )
       expect(apiReducers(undefined, {
@@ -210,6 +216,7 @@ describe('API Redcuer', () => {
           hotspot_list: [],
           savingState: false,
           latestFraggleBox: undefined,
+          errorMessage: undefined,
       }
     )
   })
