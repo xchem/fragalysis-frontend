@@ -1,6 +1,7 @@
 import React from "react";
 import {Grid} from "react-bootstrap";
 import Header from "../components/header";
+import {ErrorView} from "../components/errorComponent";
 import Tindspect from "./tindspectHolder";
 import Preview from "./previewHolder";
 import FraggleBox from "./fraggleBoxHolder";
@@ -11,6 +12,7 @@ const routes = (
       <div id="outer-container">
           <Grid fluid id="page-wrap">
               <Header></Header>
+              <ErrorView></ErrorView>
                   <Switch>
                       <Route exact path="/viewer/react/landing" component={Landing} />
                       <Route exact path="/viewer/react/preview" component={Preview} />
