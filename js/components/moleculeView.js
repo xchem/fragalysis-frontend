@@ -109,7 +109,7 @@ class MoleculeView extends GenericView {
         // Get the data
         const data = this.props.data;
         var nglObject = {
-            "name": "COMPLEXLOAD" + "_" + data.id.toString(),
+            "name": this.props.data.protein_code + "_COMP",
             "OBJECT_TYPE":nglObjectTypes.COMPLEX,
             "sdf_info": data.sdf_info,
             "colour": this.colourToggle,
@@ -119,7 +119,8 @@ class MoleculeView extends GenericView {
     }
 
     handleVector(json) {
-        var objList = this.generateObjectList(json);
+        // TODO here handle the bond INDICES
+        var objList = this.generateObjectList(json["3d"]);
         this.props.setVectorList(objList)
     }
 
