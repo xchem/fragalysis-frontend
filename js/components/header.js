@@ -5,8 +5,6 @@
 import React from "react";
 import {Navbar, Nav, NavItem, Button} from "react-bootstrap";
 import {Typeahead} from "react-typeahead";
-import * as apiActions from "../actions/apiActions";
-import * as nglActions from "../actions/nglLoadActions";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter, Link} from "react-router-dom";
@@ -95,16 +93,9 @@ class Header extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      appOn: state.apiReducers.present.appOn,
       target_id_list: state.apiReducers.present.target_id_list,
-      target_on: state.apiReducers.present.target_on
   }
 }
 const mapDispatchToProps = {
-    setMoleculeList: apiActions.setMoleculeList,
-    deleteObject: nglActions.deleteObject,
-    setAppOn: apiActions.setAppOn,
-    loadObject: nglActions.loadObject,
-    setTargetOn: apiActions.setTargetOn,
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Header))

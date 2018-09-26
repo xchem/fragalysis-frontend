@@ -96,9 +96,10 @@ class SummaryView extends React.Component{
     }
 
     convert_data_to_list(input_list) {
+        var classColors = {1: "blue", 2: "red", 3: "green", 4: "purple", 5: "apricot"}
         var compoundClasses = this.props.compoundClasses;
         var outArray = [];
-        var headerArray = ["smiles","mol","vector","classNumber","class"];
+        var headerArray = ["smiles","mol","vector","classNumber","class","classColors"];
         outArray.push(headerArray)
         var reg_ex = new RegExp("Xe", 'g')
         for(var item in input_list){
@@ -108,6 +109,7 @@ class SummaryView extends React.Component{
             newArray.push(input_list[item].vector.replace(reg_ex,"*"))
             newArray.push(input_list[item].class)
             newArray.push(compoundClasses[input_list[item].class])
+            newArray.push(classColors[input_list[item].class])
             outArray.push(newArray)
         }
         return outArray;

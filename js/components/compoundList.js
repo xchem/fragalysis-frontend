@@ -100,11 +100,13 @@ class CompoundList extends React.Component {
         }
         if (this.props.to_query != undefined) {
             var totArray = []
+            totArray.push(<p key={"breakup"}><br/></p>)
             totArray.push(<input id="1" key="CLASS_1" style={{ width:100 }} defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="2" key="CLASS_2" style={{ width:100 }} defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="3" key="CLASS_3" style={{ width:100 }} defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="4" key="CLASS_4" style={{ width:100 }} defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<p key={"breakdown"}><br/></p>)
             var retArray = [];
             for(var key in this.props.this_vector_list){
                 var vector_smi = this.props.this_vector_list[key]["vector"]
@@ -122,7 +124,7 @@ class CompoundList extends React.Component {
                     retArray.push(<CompoundView height={100} width={100} key={ele+"__"+key} data={input_data}/>)
                 }
             }
-            totArray.push(<Row style={molStyle} key={key}>{retArray}</Row>)
+            totArray.push(<Row style={molStyle} key={"CMPD_ROW"}>{retArray}</Row>)
             return <Well>
                 <h3><b>{this.props.querying ? "Loading...." : mol_string }</b></h3>
                 <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>

@@ -15,6 +15,7 @@ import NglViewerControls from "../components/nglViewerControls";
 import HotspotList from "../components/hotspotList";
 import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
+import ModalTargetUnrecognised from "../components/modalTargetUnrecognised";
 import * as apiActions from "../actions/apiActions";
 import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
@@ -30,14 +31,31 @@ class Preview extends Component {
         this.updateTarget = this.updateTarget.bind(this);
         this.handleCursor = this.handleCursor.bind(this);
         this.highlightFirstCompound = this.highlightFirstCompound.bind(this);
+        this.deployErrorModal = this.deployErrorModal.bind(this);
+    }
+
+    deployErrorModal(error) {
+        this.props.setErrorMessage(error);
     }
 
     updateTarget(){
         var target = this.props.match.params.target;
         // Get from the REST API
+        if (this.props.targetIdList.length != 0) {
+            var targetUnrecognised = true;
+            for (var i in this.props.targetIdList) {
+                if (target == this.props.targetIdList[i].title) {
+                    targetUnrecognised = false;
+                }
+            }
+        }
+        this.props.setTargetUnrecognised(targetUnrecognised);
         fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
             .then(response => response.json())
-            .then(json => this.props.setTargetOn(json["results"][0].id));
+            .then(json => this.props.setTargetOn(json["results"][0].id))
+            .catch((error) => {
+                this.deployErrorModal(error);
+            })
     }
 
     handleCursor(keyCode) {
@@ -133,6 +151,7 @@ class Preview extends Component {
                 </Col>
                 <ModalStateSave/>
                 <ModalErrorMessage/>
+                <ModalTargetUnrecognised/>
             </Row>
         )
     }
@@ -146,6 +165,7 @@ function mapStateToProps(state) {
       highlightedCompound: state.selectionReducers.present.highlightedCompound,
       currentVector: state.selectionReducers.present.currentVector,
       currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
+      targetIdList: state.apiReducers.present.target_id_list,
   }
 }
 const mapDispatchToProps = {
@@ -153,6 +173,8 @@ const mapDispatchToProps = {
     setHighlighted: selectionActions.setHighlighted,
     appendToBuyList: selectionActions.appendToBuyList,
     removeFromToBuyList: selectionActions.removeFromToBuyList,
+    setTargetUnrecognised: apiActions.setTargetUnrecognised,
+    setErrorMessage: apiActions.setErrorMessage,
 }
 
 

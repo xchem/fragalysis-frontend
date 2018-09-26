@@ -26,6 +26,7 @@ const INITIALSTATE = {
     savingState: false,
     latestFraggleBox: undefined,
     errorMessage: undefined,
+    targetUnrecognised: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -158,6 +159,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_ERROR_MESSAGE:
             return Object.assign({}, state, {
                 errorMessage: action.errorMessage
+            });
+
+        case actions.SET_TARGET_UNRECOGNISED:
+            return Object.assign({}, state, {
+                targetUnrecognised: action.targetUnrecognised
             });
 
         case actions.RELOAD_API_STATE:

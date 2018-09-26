@@ -29,6 +29,7 @@ function getInitialState(){
        savingState: false,
        latestFraggleBox: undefined,
        errorMessage: undefined,
+       targetUnrecognised: undefined,
    }
 }
 
@@ -68,6 +69,7 @@ describe('API Redcuer', () => {
         savingState: false,
         latestFraggleBox: undefined,
         errorMessage: undefined,
+        targetUnrecognised: undefined,
     })
       expect(apiReducers(undefined, {
           type: types.LOAD_TARGETS
@@ -95,6 +97,7 @@ describe('API Redcuer', () => {
               savingState: false,
               latestFraggleBox: undefined,
               errorMessage: undefined,
+              targetUnrecognised: undefined,
           }
       )
   })
@@ -126,6 +129,7 @@ describe('API Redcuer', () => {
             savingState: false,
             latestFraggleBox: undefined,
             errorMessage: undefined,
+            targetUnrecognised: undefined,
         }
     )
       expect(apiReducers(undefined, {
@@ -156,6 +160,7 @@ describe('API Redcuer', () => {
           savingState: false,
           latestFraggleBox: undefined,
           errorMessage: undefined,
+          targetUnrecognised: undefined,
       }
     )
   })
@@ -188,6 +193,7 @@ describe('API Redcuer', () => {
             latestFraggleBox: undefined,
             target_on_name: undefined,
             errorMessage: undefined,
+            targetUnrecognised: undefined,
         }
     )
       expect(apiReducers(undefined, {
@@ -217,6 +223,7 @@ describe('API Redcuer', () => {
           savingState: false,
           latestFraggleBox: undefined,
           errorMessage: undefined,
+          targetUnrecognised: undefined,
       }
     )
   })

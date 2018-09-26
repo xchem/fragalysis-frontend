@@ -33,7 +33,7 @@ export class ModalStateSave extends React.Component {
     }
 
     openFraggleLink(){
-        var url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + JSON.parse(this.props.latestFraggleBox);
+        var url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1);
         window.open(url);
     }
 
