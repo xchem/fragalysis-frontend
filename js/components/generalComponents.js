@@ -252,12 +252,22 @@ export class Slider extends React.Component{
 
     render() {
         this.progress = this.state.progress;
-        return <Well bsSize="small">
-                <h3>{this.slider_name} Selector</h3>  {this.state.progress_string}
-                <Pager>
+        const pager =   <Pager>
                 <Pager.Item onClick={this.handleBackward}>Previous</Pager.Item>{' '}
                 <Pager.Item onClick={this.handleForward}>Next</Pager.Item>
             </Pager>
+        const error_text = "No "+this.slider_name+" available";
+        var meat_of_div;
+        if (this.props.object_list.length==0){
+            meat_of_div=error_text;
+        }
+        else{
+            meat_of_div=pager;
+        }
+
+        return <Well bsSize="small">
+                <h3>{this.slider_name} Selector</h3>  {this.state.progress_string}
+            {meat_of_div}
             </Well>;
     }
     newOption(new_value) {
