@@ -19,4 +19,4 @@ init({
 
 render(
       <Root />, document.getElementById('app')
-) 
+)
