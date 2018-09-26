@@ -26,6 +26,7 @@ import {
     SET_SAVING_STATE,
     SET_LATEST_FRAGGLE_BOX,
     SET_ERROR_MESSAGE,
+    SET_TARGET_UNRECOGNISED,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -217,6 +218,14 @@ export const setErrorMessage = function (errorMessage) {
         type: SET_ERROR_MESSAGE,
         errorMessage: errorMessage
     }
+}
+
+export const setTargetUnrecognised = function (bool) {
+    console.log("ACTIONS: set targetUnrecognised to " + bool);
+    return {
+        type: SET_TARGET_UNRECOGNISED,
+        targetUnrecognised: bool
+    };
 }
 
 export const reloadApiState = function (apiReducers) {
