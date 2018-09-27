@@ -258,7 +258,7 @@ export class Slider extends React.Component{
             </Pager>
         const error_text = "No "+this.slider_name+" available";
         var meat_of_div;
-        if (this.props.object_list.length==0){
+        if (this.props.object_list ==undefuned || this.props.object_list.length==0){
             meat_of_div=error_text;
         }
         else{
