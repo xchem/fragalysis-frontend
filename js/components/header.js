@@ -3,11 +3,10 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem, Button} from "react-bootstrap";
-import {Typeahead} from "react-typeahead";
+import {Navbar, Nav, NavItem} from "react-bootstrap";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
-import {withRouter, Link} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 import TargetList from "./targetList";
 import UpdateOrientation from "./updateOrientation";
 
