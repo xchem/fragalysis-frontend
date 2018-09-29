@@ -74,6 +74,9 @@ export class UpdateOrientation extends React.Component {
             }
             this.props.setNGLOrientation(div_id, orientation);
         }
+        this.props.selectVector(jsonOfView.selectionReducers.present.currentVector);
+        this.props.setStageColor(jsonOfView.nglReducers.present.stageColor);
+        this.props.setCompoundClasses(jsonOfView.selectionReducers.present.compoundClasses);
     };
 
     componentDidUpdate() {
@@ -146,5 +149,8 @@ const mapDispatchToProps = {
     reloadSelectionState: selectionActions.reloadSelectionState,
     setLatestFraggleBox: apiActions.setLatestFraggleBox,
     setErrorMessage: apiActions.setErrorMessage,
+    selectVector: selectionActions.selectVector,
+    setStageColor: nglLoadActions.setStageColor,
+    setCompoundClasses: selectionActions.setCompoundClasses,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);
