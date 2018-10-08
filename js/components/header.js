@@ -84,7 +84,7 @@ class Header extends React.Component {
         </Nav>
         <Nav pullRight>
             <NavItem>
-                <ReportError />
+                <ErrorReport />
                 <UpdateOrientation />
             </NavItem>
         </Nav>
