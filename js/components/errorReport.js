@@ -14,7 +14,7 @@ export class ErrorReport extends React.Component {
     }
 
     render() {
-        return <Button bsSize="sm" bsStyle="error" onClick={showReportDialog}>Report Error</Button>
+        return <Button bsSize="sm" bsStyle="danger" onClick={showReportDialog}>Report Error</Button>
     }
 }
 
