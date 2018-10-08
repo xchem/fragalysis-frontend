@@ -10,6 +10,8 @@ import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter, Link} from "react-router-dom";
 import TargetList from "./targetList";
 import UpdateOrientation from "./updateOrientation";
+import { showReportDialog } from '@sentry/browser';
+
 
 class Header extends React.Component {
 
@@ -82,6 +84,9 @@ class Header extends React.Component {
             {new_ele}
         </Nav>
         <Nav pullRight>
+            <NavItem>
+                <Button bsSize="sm" bsStyle="error" onClick={showReportDialog}>Report Error</Button>
+            </NavItem>
             <NavItem>
                 <UpdateOrientation />
             </NavItem>
