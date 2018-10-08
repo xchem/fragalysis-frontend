@@ -15,6 +15,11 @@ LogRocket.identify(DJANGO_CONTEXT["username"], {
 });
 init({
   dsn: 'https://65029677c9dd4a8a94b778cd221efb3d@sentry.io/1286780',
+    beforeSend: (event) => {
+        // Check if it is an exception -> Show report dialog
+      event.exception && Sentry.showReportDialog();
+      return event;
+    }
 });
 
 render(
