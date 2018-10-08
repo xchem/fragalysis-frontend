@@ -3,15 +3,14 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem, Button} from "react-bootstrap";
+import {Navbar, Nav, NavItem} from "react-bootstrap";
 import {Typeahead} from "react-typeahead";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter, Link} from "react-router-dom";
 import TargetList from "./targetList";
 import UpdateOrientation from "./updateOrientation";
-import { showReportDialog } from '@sentry/browser';
-
+import ErrorReport from "./errorReport"
 
 class Header extends React.Component {
 
@@ -85,9 +84,7 @@ class Header extends React.Component {
         </Nav>
         <Nav pullRight>
             <NavItem>
-                <Button bsSize="sm" bsStyle="error" >
-                    Report Error
-                </Button>
+                <ReportError />
                 <UpdateOrientation />
             </NavItem>
         </Nav>
