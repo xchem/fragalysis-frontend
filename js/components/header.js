@@ -85,9 +85,9 @@ class Header extends React.Component {
         </Nav>
         <Nav pullRight>
             <NavItem>
-                <Button bsSize="sm" bsStyle="error" onClick={showReportDialog}>Report Error</Button>
-            </NavItem>
-            <NavItem>
+                <Button bsSize="sm" bsStyle="error" >
+                    Report Error
+                </Button>
                 <UpdateOrientation />
             </NavItem>
         </Nav>
