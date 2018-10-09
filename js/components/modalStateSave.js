@@ -2,12 +2,13 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React from "react";
+import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
-import {CopyToClipboard} from 'react-copy-to-clipboard';
+import Clipboard from 'react-clipboard.js';
+
 
 const customStyles = {
     overlay : {
@@ -26,7 +27,7 @@ const customStyles = {
 
 };
 
-export class ModalStateSave extends React.Component {
+export class ModalStateSave extends Component {
     constructor(props) {
         super(props);
         this.closeModal = this.closeModal.bind(this);
@@ -34,38 +35,37 @@ export class ModalStateSave extends React.Component {
         this.openFraggleLink = this.openFraggleLink.bind(this)
     }
 
-    openFraggleLink(){
+    openFraggleLink() {
         var url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1);
         window.open(url);
     }
 
-    closeModal(){
+    closeModal() {
         this.setState(prevState => ({fraggleBoxLoc: undefined}));
         this.props.setLatestFraggleBox(undefined);
         this.props.setSavingState(false);
     }
 
     componentWillMount() {
-        ReactModal.setAppElement('body')
+        ReactModal.setAppElement('body');
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true){
+        if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true) {
             this.setState(prevState => ({fraggleBoxLoc: nextProps.latestFraggleBox}))
         }
     }
 
     render() {
         if (this.state.fraggleBoxLoc != undefined) {
+            var url_to_copy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)
             return (
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
-                        <h3>State can be viewed at: {window.location.protocol}//{window.location.hostname}/viewer/react/fragglebox/{this.props.latestFraggleBox.slice(1, -1)}</h3>
-                        <CopyToClipboard text={window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)} >
-                            <Button bsSize="large" bsStyle="success" >Copy FraggleLink</Button>
-                        </CopyToClipboard>
-                        <Button bsSize="large" bsStyle="success" onClick={this.openFraggleLink}>Open in new tab</Button>
-                        <Button bsSize="large" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                        <h3>State can be viewed at: {url_to_copy}</h3>
+                        <Clipboard data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.openFraggleLink}>Open in new tab</Button>
+                        <Button bsSize="sm" bsStyle="danger" onClick={this.closeModal}>Close</Button>
                     </div>
                 </ReactModal>
             );
