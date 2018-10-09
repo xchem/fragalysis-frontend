@@ -16,8 +16,22 @@ class CompoundList extends React.Component {
         this.handleClassNaming = this.handleClassNaming.bind(this);
         this.selectAll = this.selectAll.bind(this);
         this.clearAll = this.clearAll.bind(this);
-        this.highlightFirstCompound = this.highlightFirstCompound.bind(this);
         this.colourClassBoxes = this.colourClassBoxes.bind(this);
+        this.updateClassNames = this.updateClassNames.bind(this);
+        this.state = {
+            "compoundClasses": {
+                1: "blue",
+                2: "red",
+                3: "green",
+                4: "purple",
+                5: "apricot"
+            }
+        }
+    }
+
+    updateClassNames(newNames){
+        var newCompoundClasses = newNames;
+        this.setState(prevState => ({compoundClasses: newCompoundClasses}))
     }
 
     handleClassNaming(e){
@@ -57,14 +71,6 @@ class CompoundList extends React.Component {
         return tot_num;
     }
 
-    highlightFirstCompound(props) {
-        if ( Object.keys(props.highlightedCompound).length === 0 && props.this_vector_list != undefined ) {
-            if (Object.keys(props.this_vector_list).length > 0) {
-                props.setHighlighted({index: 0, smiles: props.this_vector_list[Object.keys(props.this_vector_list)][0]})
-            }
-        }
-    }
-
     colourClassBoxes(props) {
         var colourList = {1: '#b3cde3', 2: '#fbb4ae', 3: '#ccebc5', 4: '#decbe4', 5: '#fed9a6'};
         for (var i in colourList) {
@@ -79,14 +85,14 @@ class CompoundList extends React.Component {
         }
     }
 
-    componentWillReceiveProps( nextProps ){
-        this.highlightFirstCompound(nextProps);
+    componentWillReceiveProps(nextProps){
+        this.updateClassNames(nextProps.compoundClasses)
         this.colourClassBoxes(nextProps);
     }
 
     componentDidMount(){
-        this.highlightFirstCompound(this.props);
         this.colourClassBoxes(this.props);
+        this.updateClassNames(this.props.compoundClasses)
     }
 
     render() {
@@ -101,11 +107,11 @@ class CompoundList extends React.Component {
         if (this.props.to_query != undefined) {
             var totArray = []
             totArray.push(<p key={"breakup"}><br/></p>)
-            totArray.push(<input id="1" key="CLASS_1" style={{ width:100 }} defaultValue={this.props.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="2" key="CLASS_2" style={{ width:100 }} defaultValue={this.props.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="3" key="CLASS_3" style={{ width:100 }} defaultValue={this.props.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="4" key="CLASS_4" style={{ width:100 }} defaultValue={this.props.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
-            totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.props.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="1" key="CLASS_1" style={{ width:100 }} defaultValue={this.state.compoundClasses[1]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="2" key="CLASS_2" style={{ width:100 }} defaultValue={this.state.compoundClasses[2]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="3" key="CLASS_3" style={{ width:100 }} defaultValue={this.state.compoundClasses[3]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="4" key="CLASS_4" style={{ width:100 }} defaultValue={this.state.compoundClasses[4]} onKeyDown={ this.handleClassNaming }></input>)
+            totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.state.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<p key={"breakdown"}><br/></p>)
             var retArray = [];
             for(var key in this.props.this_vector_list){
@@ -142,20 +148,15 @@ function mapStateToProps(state) {
   return {
       this_vector_list: state.selectionReducers.present.this_vector_list,
       to_query: state.selectionReducers.present.to_query,
-      highlightedCompound: state.selectionReducers.present.highlightedCompound,
-      currentVector: state.selectionReducers.present.currentVector,
       compoundClasses: state.selectionReducers.present.compoundClasses,
       currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
       to_select: state.selectionReducers.present.to_select,
-      objectsInView: state.nglReducers.present.objectsInView,
       querying: state.selectionReducers.present.querying,
   }
 }
 const mapDispatchToProps = {
-    setHighlighted: selectionActions.setHighlighted,
     setToBuyList: selectionActions.setToBuyList,
     appendToBuyList: selectionActions.appendToBuyList,
-    removeFromToBuyList: selectionActions.removeFromToBuyList,
     setCompoundClasses: selectionActions.setCompoundClasses,
     setCurrentCompoundClass: selectionActions.setCurrentCompoundClass,
 }
