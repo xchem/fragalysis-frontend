@@ -18,7 +18,7 @@ init({
     beforeSend: (event) => {
         // Check if it is a particular type of exception -> Show report dialog
         // E.g. we might not want it show for all exceptions - just custom user ones
-      if(event.exception && event.message.startsWith("Custom user error.")){
+      if(event.exception && event.exception.values[0].value.startsWith("Custom user error.")){
           showReportDialog()
       }
       return event;
