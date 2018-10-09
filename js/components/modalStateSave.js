@@ -7,6 +7,8 @@ import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
+import Clipboard from 'react-clipboard.js';
+
 
 const customStyles = {
     overlay : {
@@ -31,23 +33,23 @@ export class ModalStateSave extends React.Component {
         this.openFraggleLink = this.openFraggleLink.bind(this)
     }
 
-    openFraggleLink(){
+    openFraggleLink() {
         var url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1);
         window.open(url);
     }
 
-    closeModal(){
+    closeModal() {
         this.setState(prevState => ({fraggleBoxLoc: undefined}));
         this.props.setLatestFraggleBox(undefined);
         this.props.setSavingState(false);
     }
 
     componentWillMount() {
-        ReactModal.setAppElement('body')
+        ReactModal.setAppElement('body');
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true){
+        if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true) {
             this.setState(prevState => ({fraggleBoxLoc: nextProps.latestFraggleBox}))
         }
     }
@@ -59,7 +61,7 @@ export class ModalStateSave extends React.Component {
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
                         <h3>State can be viewed at: {url_to_copy}</h3>
-                        <Button bsSize="sm" data-clipboard-text={url_to_copy} bsStyle="success" >Copy FraggleLink</Button>
+                        <Clipboard data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
                         <Button bsSize="sm" bsStyle="success" onClick={this.openFraggleLink}>Open in new tab</Button>
                         <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
                     </div>
