@@ -1,25 +1,12 @@
 import React from "react";
 import {Grid} from "react-bootstrap";
-import Header from "../components/header";
-import {ErrorView} from "../components/errorComponent";
-import Tindspect from "./tindspectHolder";
-import Preview from "./previewHolder";
-import FraggleBox from "./fraggleBoxHolder";
-import Landing from "./landingHolder";
-import {Route, Switch} from "react-router-dom";
+import UserInputCapture from "../components/userInputCapture";
 
 const routes = (
       <div id="outer-container">
           <Grid fluid id="page-wrap">
-              <Header></Header>
-              <ErrorView></ErrorView>
-                  <Switch>
-                      <Route exact path="/viewer/react/landing" component={Landing} />
-                      <Route exact path="/viewer/react/preview" component={Preview} />
-                      <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
-                      <Route exact path="/viewer/react/tindspect" component={Tindspect} />
-                      <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
-                  </Switch>
+              {/* switches contains routes to containers!!!! */}
+              <UserInputCapture></UserInputCapture>
           </Grid>
       </div>
 )

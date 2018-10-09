@@ -11,6 +11,7 @@ import TargetList from "./targetList";
 
 const customStyles = {
     overlay : {
+        zIndex: 50,
         backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
     content : {
