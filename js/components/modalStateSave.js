@@ -62,8 +62,8 @@ export class ModalStateSave extends React.Component {
                     <div>
                         <h3>State can be viewed at: {url_to_copy}</h3>
                         <Clipboard data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.openFraggleLink}>Open in new tab</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.openFraggleLink}>Open in new tab</Button>
+                        <Button bsSize="sm" bsStyle="danger" onClick={this.closeModal}>Close</Button>
                     </div>
                 </ReactModal>
             );
