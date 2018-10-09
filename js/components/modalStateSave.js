@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React from "react";
+import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button} from 'react-bootstrap';
@@ -25,7 +25,7 @@ const customStyles = {
     }
 };
 
-export class ModalStateSave extends React.Component {
+export class ModalStateSave extends Component {
     constructor(props) {
         super(props);
         this.closeModal = this.closeModal.bind(this);
@@ -48,6 +48,10 @@ export class ModalStateSave extends React.Component {
         ReactModal.setAppElement('body');
     }
 
+    onSuccess() {
+        console.info('successfully copied');
+    }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true) {
             this.setState(prevState => ({fraggleBoxLoc: nextProps.latestFraggleBox}))
@@ -61,7 +65,7 @@ export class ModalStateSave extends React.Component {
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
                         <h3>State can be viewed at: {url_to_copy}</h3>
-                        <Clipboard data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
+                        <Clipboard button-bsSize="sm" button-bsStyle="info" data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
                         <Button bsSize="sm" bsStyle="info" onClick={this.openFraggleLink}>Open in new tab</Button>
                         <Button bsSize="sm" bsStyle="danger" onClick={this.closeModal}>Close</Button>
                     </div>
