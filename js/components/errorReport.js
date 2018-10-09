@@ -14,7 +14,8 @@ export class ErrorReport extends React.Component {
 
     reportError(){
         // Set a custom user error to invoke sentry
-        throw new Error('Custom user error.');
+        const uuidv4 = require('uuid/v4');
+        throw new Error('Custom user error.' + uuidv4());
     }
 
     render() {
