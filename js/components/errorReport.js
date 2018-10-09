@@ -14,8 +14,8 @@ export class ErrorReport extends React.Component {
 
     reportError(){
         // Set the custom event ids to -1
+        throw new Error('Custom user error');
         showReportDialog({
-            eventId:"XXX",
             title:	"It looks like we’re having issues.",
             subtitle:	"Our team has been notified.",
             subtitle2:	"If you’d like to help, tell us what happened below. – not visible on small screen resolutions",
