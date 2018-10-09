@@ -18,7 +18,6 @@ import ModalLoadingScreen from "../components/modalLoadingScreen";
 import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
 import HotspotList from "../components/hotspotList";
-import * as apiActions from "../actions/apiActions";
 
 class FraggleBox extends Component {
 

@@ -113,7 +113,7 @@ export class NGLView extends React.Component {
                 else if (type==listTypes.VECTOR){
                     const vectorSmi = name.split("_")[1].slice(0,-1);
                     this.props.selectVector(vectorSmi);
-
+                    this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[0].end})
                 }
             }
         }
@@ -478,7 +478,6 @@ export class NGLView extends React.Component {
                 }
             }
         }
-
     }
 
     render(){
@@ -503,6 +502,7 @@ function mapStateToProps(state) {
       objectsPicked: state.nglReducers.present.objectsPicked,
       loadingState: state.nglReducers.present.loadingState,
       stageColor: state.nglReducers.present.stageColor,
+      this_vector_list: state.selectionReducers.present.this_vector_list,
   }
 }
 const mapDispatchToProps = {
@@ -519,6 +519,7 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
     setLoadingState: nglLoadActions.setLoadingState,
-    setStageColor: nglRenderActions.setStageColor
+    setStageColor: nglRenderActions.setStageColor,
+    setHighlighted: selectionActions.setHighlighted,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(NGLView);

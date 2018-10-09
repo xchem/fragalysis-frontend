@@ -62,9 +62,9 @@ class Preview extends Component {
         if(JSON.stringify(this.props.this_vector_list)==JSON.stringify({})){
             return;
         }
-        var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]};
+        var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[0].end};
         if (keyCode === 37) {
-            console.log('left cursor ' + this.props.currentCompoundClass);
+            console.log('left cursor');
             if (Object.keys(this.props.highlightedCompound).length == 0) {
                 this.props.setHighlighted(defaultSet)
             }
@@ -72,19 +72,19 @@ class Preview extends Component {
                 var indexToSet = Math.max(this.props.highlightedCompound["index"] - 1, 0)
                 this.props.setHighlighted({
                     index: indexToSet,
-                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][indexToSet]
+                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[indexToSet].end
                 })
             }
         } else if (keyCode === 39) {
-            console.log('right cursor ' + this.props.currentCompoundClass);
+            console.log('right cursor');
             if (Object.keys(this.props.highlightedCompound).length == 0) {
                 this.props.setHighlighted(defaultSet)
             }
             else {
-                var indexToSet = Math.min(parseInt(this.props.highlightedCompound["index"]) + 1, this.props.this_vector_list[Object.keys(this.props.this_vector_list)].length - 1)
+                var indexToSet = Math.min(parseInt(this.props.highlightedCompound["index"]) + 1, this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition.length - 1)
                 this.props.setHighlighted({
                     index: indexToSet,
-                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][indexToSet]
+                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[indexToSet].end
                 })
             }
         }
