@@ -7,7 +7,6 @@ import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 const customStyles = {
     overlay : {
@@ -55,15 +54,14 @@ export class ModalStateSave extends React.Component {
 
     render() {
         if (this.state.fraggleBoxLoc != undefined) {
+            var url_to_copy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)
             return (
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
-                        <h3>State can be viewed at: {window.location.protocol}//{window.location.hostname}/viewer/react/fragglebox/{this.props.latestFraggleBox.slice(1, -1)}</h3>
-                        <CopyToClipboard text={window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)} >
-                            <Button bsSize="large" bsStyle="success" >Copy FraggleLink</Button>
-                        </CopyToClipboard>
-                        <Button bsSize="large" bsStyle="success" onClick={this.openFraggleLink}>Open in new tab</Button>
-                        <Button bsSize="large" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                        <h3>State can be viewed at: {url_to_copy}</h3>
+                        <Button bsSize="sm" data-clipboard-text={url_to_copy} bsStyle="success" >Copy FraggleLink</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.openFraggleLink}>Open in new tab</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
                     </div>
                 </ReactModal>
             );
