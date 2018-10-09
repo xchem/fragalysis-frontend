@@ -9,6 +9,7 @@ import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter} from "react-router-dom";
 import TargetList from "./targetList";
 import UpdateOrientation from "./updateOrientation";
+import ErrorReport from "./errorReport"
 
 class Header extends React.Component {
 
@@ -82,6 +83,7 @@ class Header extends React.Component {
         </Nav>
         <Nav pullRight>
             <NavItem>
+                <ErrorReport />
                 <UpdateOrientation />
             </NavItem>
         </Nav>
