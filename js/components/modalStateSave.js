@@ -48,10 +48,6 @@ export class ModalStateSave extends Component {
         ReactModal.setAppElement('body');
     }
 
-    onSuccess() {
-        console.info('successfully copied');
-    }
-
     componentWillReceiveProps(nextProps) {
         if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true) {
             this.setState(prevState => ({fraggleBoxLoc: nextProps.latestFraggleBox}))
@@ -65,7 +61,7 @@ export class ModalStateSave extends Component {
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
                         <h3>State can be viewed at: {url_to_copy}</h3>
-                        <Clipboard button-bsSize="sm" button-bsStyle="info" data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
+                        <Clipboard data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
                         <Button bsSize="sm" bsStyle="info" onClick={this.openFraggleLink}>Open in new tab</Button>
                         <Button bsSize="sm" bsStyle="danger" onClick={this.closeModal}>Close</Button>
                     </div>
