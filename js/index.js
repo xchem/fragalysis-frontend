@@ -6,7 +6,7 @@ import Root from "./containers/root";
 import { init, showReportDialog } from '@sentry/browser';
 // Setup log rocket logging
 import LogRocket from 'logrocket';
-LogRocket.init('afxrm2/fragalysis');
+LogRocket.init('eoalzb/fragalysis');
 // This is the log rocket setup
 LogRocket.identify(DJANGO_CONTEXT["username"], {
     pk: DJANGO_CONTEXT["pk"],
