@@ -10,6 +10,7 @@ import {withRouter} from "react-router-dom";
 import TargetList from "./targetList";
 import UpdateOrientation from "./updateOrientation";
 
+
 class Header extends React.Component {
 
     constructor(props) {
