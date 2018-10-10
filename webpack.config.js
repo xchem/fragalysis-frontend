@@ -21,6 +21,7 @@ module.exports = {
           uglifyOptions:
           {
             ecma: 7,
+            keep_fnames: true,
             ie8: false,
             output: {
               comments: false
