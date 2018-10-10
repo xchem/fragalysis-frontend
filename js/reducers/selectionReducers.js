@@ -14,6 +14,7 @@ const INITIALSTATE = {
     querying: false,
     to_query: undefined,
     fragmentDisplayList: new Set(),
+    bondColorMap: undefined,
     complexList: new Set(),
     vectorOnList: new Set(),
     currentVector: undefined,
@@ -192,6 +193,11 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         case actions.SET_CURRENT_COMPOUND_CLASS:
             return Object.assign({}, state, {
                 currentCompoundClass: action.currentCompoundClass
+            })
+
+        case actions.SET_BOND_COLOR_MAP:
+            return Object.assign({}, state, {
+                bondColorMap: action.bondColorMap
             })
 
         case actions.RELOAD_SELECTION_STATE:

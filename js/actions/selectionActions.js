@@ -23,7 +23,8 @@ import {
     SET_HIGHLIGHTED,
     SET_COMPOUND_CLASSES,
     SET_CURRENT_COMPOUND_CLASS,
-    RELOAD_SELECTION_STATE
+    RELOAD_SELECTION_STATE,
+    SET_BOND_COLOR_MAP,
 } from "./actonTypes";
 
 export const setToBuyList = function (to_buy_list){
@@ -63,6 +64,14 @@ export const gotFullGraph = function (result){
     return {
         type: GOT_FULL_GRAPH,
         input_mol_dict: result
+    }
+}
+
+export const setBondColorMap = function (result){
+    console.log("ACTIONS: "+ result)
+    return {
+        type: SET_BOND_COLOR_MAP,
+        bondColorMap: result
     }
 }
 
