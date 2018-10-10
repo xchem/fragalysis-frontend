@@ -16,7 +16,19 @@ module.exports = {
 
   plugins: [
     new BundleTracker({filename: './webpack-stats.json', trackAssets:true}),
-    new UglifyJsPlugin(),
+    new UglifyJsPlugin(
+        {
+          uglifyOptions:
+          {
+            ecma: 7,
+            keep_fnames: true,
+            ie8: false,
+            output: {
+              comments: false
+            }
+          },
+        }
+    ),
   ],
 
   module: {
