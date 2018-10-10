@@ -12,6 +12,7 @@ import { RingLoader } from 'react-spinners';
 import {getStore} from "../containers/globalStore";
 import * as selectionActions from "../actions/selectionActions";
 import ErrorReport from "./errorReport"
+import {withRouter} from "react-router-dom";
 
 
 const override = css`
