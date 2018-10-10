@@ -3,13 +3,12 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem, ButtonToolbar} from "react-bootstrap";
+import {Navbar, Nav, NavItem} from "react-bootstrap";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter} from "react-router-dom";
 import TargetList from "./targetList";
 import UpdateOrientation from "./updateOrientation";
-import ErrorReport from "./errorReport"
 
 class Header extends React.Component {
 
@@ -83,10 +82,7 @@ class Header extends React.Component {
         </Nav>
         <Nav pullRight>
             <NavItem>
-                <ButtonToolbar>
-                    <ErrorReport />
-                    <UpdateOrientation />
-                </ButtonToolbar>
+                <UpdateOrientation />
             </NavItem>
         </Nav>
         <TargetList key="TARGLIST" render={false}/>

@@ -6,11 +6,13 @@ import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as apiActions from "../actions/apiActions";
-import {Button} from "react-bootstrap";
+import {Button,  ButtonToolbar} from "react-bootstrap";
 import { css } from 'react-emotion';
 import { RingLoader } from 'react-spinners';
 import {getStore} from "../containers/globalStore";
 import * as selectionActions from "../actions/selectionActions";
+import ErrorReport from "./errorReport"
+
 
 const override = css`
     display: block;
@@ -128,7 +130,10 @@ export class UpdateOrientation extends React.Component {
         if (this.props.savingState == true) {
             return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={this.props.savingState}/>
         } else {
-            return <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
+            return <ButtonToolbar>
+                <ErrorReport />
+                <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
+            </ButtonToolbar>
         }
     }
 }
