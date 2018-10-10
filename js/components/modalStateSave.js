@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Button, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import {Button, Tooltip, OverlayTrigger, ButtonToolbar} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -71,6 +71,7 @@ export class ModalStateSave extends Component {
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
                         <h3>State can be viewed at: {url_to_copy}</h3>
+                        <ButtonToolbar>
                         <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
                             <Clipboard option-container="modal" data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
                         </OverlayTrigger>
@@ -78,6 +79,7 @@ export class ModalStateSave extends Component {
                         <button onClick={this.openFraggleLink}>Open in new tab</button>
                         <br></br>
                         <button onClick={this.closeModal}>Close</button>
+                            </ButtonToolbar>
                     </div>
                 </ReactModal>
             );
