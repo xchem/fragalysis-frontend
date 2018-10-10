@@ -36,11 +36,11 @@ class SummaryCmpd extends GenericView {
     }
 
 
-    getAtomIndices(){
-        if(this.props.currentVector==undefined){
+    getAtomIndices(props){
+        if(props.currentVector==undefined){
             return undefined;
         }
-        var optionList = this.props.bondColorMap[this.props.currentVector];
+        var optionList = props.bondColorMap[props.currentVector];
         var outStrList = []
         for (var index in optionList){
             var newList = []
@@ -60,7 +60,7 @@ class SummaryCmpd extends GenericView {
     }
 
     update(props) {
-        var atomIndices = this.getAtomIndices()
+        var atomIndices = this.getAtomIndices(props)
         this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
         var get_params
         if (atomIndices==undefined){
