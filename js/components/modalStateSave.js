@@ -12,6 +12,7 @@ import Clipboard from 'react-clipboard.js';
 
 const customStyles = {
     overlay : {
+        zIndex: 50,
         backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
     content : {
@@ -23,6 +24,7 @@ const customStyles = {
         transform: 'translate(-50%, -50%)',
         border: '10px solid #7a7a7a'
     }
+
 };
 
 export class ModalStateSave extends Component {

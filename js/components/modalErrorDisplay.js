@@ -10,6 +10,7 @@ import * as apiActions from "../actions/apiActions";
 
 const customStyles = {
     overlay : {
+        zIndex: 50,
         backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
     content : {

@@ -20,17 +20,12 @@ import * as apiActions from "../actions/apiActions";
 import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
 import {withRouter} from "react-router-dom";
-import keydown from "react-keydown";
 
-const KEYS = [ 'left', 'right', '0', '1', '2', '3', '4', '5' ];
-@keydown( KEYS )
 class Preview extends Component {
 
     constructor(props) {
         super(props)
         this.updateTarget = this.updateTarget.bind(this);
-        this.handleCursor = this.handleCursor.bind(this);
-        this.highlightFirstCompound = this.highlightFirstCompound.bind(this);
         this.deployErrorModal = this.deployErrorModal.bind(this);
     }
 
@@ -54,63 +49,8 @@ class Preview extends Component {
             .then(response => response.json())
             .then(json => this.props.setTargetOn(json["results"][0].id))
             .catch((error) => {
-                this.deployErrorModal(error);
-            })
-    }
-
-    handleCursor(keyCode) {
-        if(JSON.stringify(this.props.this_vector_list)==JSON.stringify({})){
-            return;
-        }
-        var defaultSet = {index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[0].end};
-        if (keyCode === 37) {
-            console.log('left cursor');
-            if (Object.keys(this.props.highlightedCompound).length == 0) {
-                this.props.setHighlighted(defaultSet)
-            }
-            else {
-                var indexToSet = Math.max(this.props.highlightedCompound["index"] - 1, 0)
-                this.props.setHighlighted({
-                    index: indexToSet,
-                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[indexToSet].end
+                    this.deployErrorModal(error);
                 })
-            }
-        } else if (keyCode === 39) {
-            console.log('right cursor');
-            if (Object.keys(this.props.highlightedCompound).length == 0) {
-                this.props.setHighlighted(defaultSet)
-            }
-            else {
-                var indexToSet = Math.min(parseInt(this.props.highlightedCompound["index"]) + 1, this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition.length - 1)
-                this.props.setHighlighted({
-                    index: indexToSet,
-                    smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[indexToSet].end
-                })
-            }
-        }
-        this.highlightFirstCompound()
-        var classDict = {48: 0, 49: 1, 50: 2, 51:3, 52:4, 53:5}
-        if(keyCode in classDict) {
-            var toBuyObj = {
-                mol: this.props.to_query,
-                smiles: this.props.highlightedCompound.smiles,
-                vector: this.props.currentVector,
-                class: classDict[keyCode]
-            }
-            if (keyCode === 48) {
-                this.props.removeFromToBuyList(toBuyObj)
-            } else{
-                this.props.appendToBuyList(toBuyObj)
-            }
-        }
-    }
-
-    highlightFirstCompound() {
-        if ( Object.keys(this.props.highlightedCompound).length === 0 && this.props.this_vector_list != undefined ) {
-            if (Object.keys(this.props.this_vector_list).length > 0) {
-                this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)][0]})
-            }
-        }
     }
 
     componentDidMount() {
@@ -119,12 +59,6 @@ class Preview extends Component {
 
     componentDidUpdate(){
         this.updateTarget()
-    }
-
-    componentWillReceiveProps( {keydown} ){
-        if ( keydown.event ) {
-            this.handleCursor(keydown.event.which);
-        }
     }
 
     render() {
