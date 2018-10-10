@@ -13,6 +13,7 @@ class SummaryCmpd extends GenericView {
         super(props);
         this.base_url = window.location.protocol + "//" + window.location.host
         this.update = this.update.bind(this);
+        this.getAtomIndices = this.getAtomIndices.bind(this);
         this.smiles = ""
     }
 
@@ -34,32 +35,29 @@ class SummaryCmpd extends GenericView {
         this.old_url = url.toString();
     }
 
-    getIsotopes(input_string){
-        var res_array = input_string.split("Xe")
-        var new_array = []
-        res_array.pop()
-        for(var index in res_array){
-            var new_int = parseInt(res_array[index].slice(-3))
-            new_array.push(new_int)
+
+    getAtomIndices(){
+        if(this.props.currentVector==undefined){
+            return undefined;
         }
-        return new_array
+        var optionList = this.props.bondColorMap[this.props.currentVector];
+        var outStrList = []
+        for (var index in optionList){
+            var newStr = optionList[index].join(",")
+            outStrList.push(newStr);
+        }
+        return outStrList.join(",")
     }
 
     update(props) {
-        var isotopes = undefined
-        if(props.this_vector_list!=undefined) {
-            var initial_dict = props.this_vector_list[Object.keys(props.this_vector_list)];
-            if (initial_dict!=undefined){
-                isotopes = this.getIsotopes(initial_dict["vector"])
-            }
-        }
+        var atomIndices = this.getAtomIndices()
         this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
         var get_params
-        if (isotopes==undefined){
+        if (atomIndices==undefined){
             get_params = {"smiles": props.to_query}
         }
         else{
-            get_params = {"smiles": props.to_query, "isotopes": Array.join(isotopes)}
+            get_params = {"smiles": props.to_query, "atom_indices": atomIndices}
 
         }
         Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]))
@@ -87,6 +85,8 @@ class SummaryCmpd extends GenericView {
 function mapStateToProps(state) {
   return {
       to_query: state.selectionReducers.present.to_query,
+      bondColorMap: state.selectionReducers.present.bondColorMap,
+      currentVector: state.selectionReducers.present.currentVector,
       this_vector_list: state.selectionReducers.present.this_vector_list,
   }
 }
