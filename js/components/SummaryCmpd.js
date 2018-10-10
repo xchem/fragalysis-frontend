@@ -51,7 +51,7 @@ class SummaryCmpd extends GenericView {
                 newList.push(optionList[index][newIndex])
             }
 
-            var newStr = optionList[index].join(",")
+            var newStr = newList.join(",")
             outStrList.push(newStr);
         }
         return outStrList.join(",")
