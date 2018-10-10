@@ -127,12 +127,17 @@ export class UpdateOrientation extends React.Component {
     }
 
     render() {
+        const {pathname} = this.props.location;
+        var button = ""
+        if (pathname != "viewer/react/landing") {
+            button = <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
+        }
         if (this.props.savingState == true) {
             return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={this.props.savingState}/>
         } else {
             return <ButtonToolbar>
                 <ErrorReport />
-                <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
+                {button}
             </ButtonToolbar>
         }
     }
@@ -158,4 +163,4 @@ const mapDispatchToProps = {
     setStageColor: nglLoadActions.setStageColor,
     setCompoundClasses: selectionActions.setCompoundClasses,
 }
-export default connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UpdateOrientation));
