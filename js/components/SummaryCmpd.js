@@ -43,6 +43,14 @@ class SummaryCmpd extends GenericView {
         var optionList = this.props.bondColorMap[this.props.currentVector];
         var outStrList = []
         for (var index in optionList){
+            var newList = []
+            for (var newIndex in optionList[index]) {
+                if(optionList[index][newIndex]=="NA"){
+                    newList.push(101)
+                }
+                newList.push(optionList[index][newIndex])
+            }
+
             var newStr = optionList[index].join(",")
             outStrList.push(newStr);
         }
