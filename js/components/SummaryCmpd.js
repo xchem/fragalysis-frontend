@@ -48,7 +48,9 @@ class SummaryCmpd extends GenericView {
                 if(optionList[index][newIndex]=="NA"){
                     newList.push(101)
                 }
-                newList.push(optionList[index][newIndex])
+                else {
+                    newList.push(optionList[index][newIndex])
+                }
             }
 
             var newStr = newList.join(",")
