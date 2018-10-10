@@ -70,7 +70,9 @@ export class ModalStateSave extends Component {
             return (
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
-                        <h3>State can be viewed at: {url_to_copy}</h3>
+                        <strong>
+                            State can be viewed <a href={url_to_copy}>here </a>
+                        </strong>
                         <ButtonToolbar>
                         <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
                             <Clipboard option-container="modal" data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
