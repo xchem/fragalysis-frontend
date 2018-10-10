@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Button} from 'react-bootstrap';
+import {Button, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -54,14 +54,24 @@ export class ModalStateSave extends Component {
         }
     }
 
+
     render() {
+
+        const tooltip = (
+            <Tooltip id="tooltip">
+                <strong>Copied!</strong>
+            </Tooltip>
+        );
+
         if (this.state.fraggleBoxLoc != undefined) {
             var url_to_copy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)
             return (
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
                         <h3>State can be viewed at: {url_to_copy}</h3>
-                        <Clipboard data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
+                        <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
+                            <Clipboard button-bsSize="sm" option-container="modal" button-bsStyle="info" data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
+                        </OverlayTrigger>
                         <Button bsSize="sm" bsStyle="info" onClick={this.openFraggleLink}>Open in new tab</Button>
                         <Button bsSize="sm" bsStyle="danger" onClick={this.closeModal}>Close</Button>
                     </div>
