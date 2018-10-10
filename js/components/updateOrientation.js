@@ -130,7 +130,7 @@ export class UpdateOrientation extends React.Component {
     render() {
         const {pathname} = this.props.location;
         var button = ""
-        if (pathname != "viewer/react/landing") {
+        if (pathname != "/viewer/react/landing") {
             button = <Button bsSize="sm" bsStyle="success" onClick={this.postToServer}>Save Page</Button>
         }
         if (this.props.savingState == true) {
