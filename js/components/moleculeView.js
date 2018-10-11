@@ -273,6 +273,7 @@ class MoleculeView extends GenericView {
                 )
                 .then(json => this.props.gotFullGraph(json["graph"]))
             this.props.appendVectorOnList(this.generateMolId())
+            this.props.selectVector(undefined);
         }
     }
 
@@ -289,6 +290,7 @@ const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
     setVectorList: selectionActions.setVectorList,
     setBondColorMap: selectionActions.setBondColorMap,
+    selectVector: selectionActions.selectVector,
     gotFullGraph: selectionActions.gotFullGraph,
     setMol: selectionActions.setMol,
     deleteObject: nglLoadActions.deleteObject,
