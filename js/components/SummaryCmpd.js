@@ -40,6 +40,9 @@ class SummaryCmpd extends GenericView {
         if(props.currentVector==undefined){
             return undefined;
         }
+        if(props.bondColorMap==undefined){
+            return undefined;
+        }
         var optionList = props.bondColorMap[props.currentVector];
         var outStrList = []
         for (var index in optionList){
