@@ -12,6 +12,7 @@ import * as selectionActions from "../actions/selectionActions";
 import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
+import RefinementOutcome from "./refinementOutcome";
 
 class MoleculeView extends GenericView {
 
@@ -193,7 +194,7 @@ class MoleculeView extends GenericView {
         return <div style={{border: "solid", display: "inline-block"}}>
                 <div style={this.current_style}>{svg_image}</div>
             <Label bsStyle="default">{this.props.data.protein_code}</Label>
-            {refinement}
+            <RefinementOutcome data={this.props.data}></RefinementOutcome>
                 <ButtonToolbar>
                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
                         <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
