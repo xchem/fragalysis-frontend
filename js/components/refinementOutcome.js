@@ -10,7 +10,6 @@ class RefinementOutcome extends React.Component{
 
     constructor(props) {
         super(props);
-        this.generateMolObject = this.generateMolObject.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.getUrl = this.getUrl.bind(this);
