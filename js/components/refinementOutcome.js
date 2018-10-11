@@ -58,6 +58,10 @@ class RefinementOutcome extends React.Component{
         else if (this.state.refinementOutcome==6){
             return <Label bsStyle="success">{"Refined"}</Label>;
         }
+        else{
+            return <Label bsStyle="success">{"Unknown - " + this.state.refinementOutcome.toString()}</Label>;
+
+        }
     }
 
 
