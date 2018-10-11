@@ -3,6 +3,7 @@
  */
 import React from "react";
 import fetch from "cross-fetch";
+import {connect} from "react-redux";
 
 
 class RefinementOutcome extends React.Component{
