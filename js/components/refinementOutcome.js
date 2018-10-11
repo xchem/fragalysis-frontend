@@ -3,6 +3,7 @@
  */
 import React from "react";
 import fetch from "cross-fetch";
+import {Label} from "react-bootstrap";
 import {connect} from "react-redux";
 
 
