@@ -66,7 +66,7 @@ class RefinementOutcome extends React.Component{
         }
 
         else{
-            return <Label bsStyle="default">{"Unknown - " + this.state.refinementOutcome.toString()}</Label>;
+            return <Label bsStyle="danger">{"Unknown:" + this.state.refinementOutcome.toString()}</Label>;
         }
     }
 
