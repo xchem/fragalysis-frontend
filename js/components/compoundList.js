@@ -121,7 +121,7 @@ class CompoundList extends React.Component {
                     var data_transfer = change_list[ele]
                     var input_data = {}
                     input_data.smiles = data_transfer["end"]
-                    // Set this back for now - because it's confusing
+                    // Set this back for now - because it's confusing - alter to change if want later
                     input_data.show_frag = data_transfer["end"]
                     input_data.vector = vector_smi
                     input_data.mol=this.props.to_query
