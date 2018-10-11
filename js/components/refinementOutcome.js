@@ -61,7 +61,7 @@ class RefinementOutcome extends React.Component{
         else if (this.state.refinementOutcome==5){
             return <Label bsStyle="warning">{"Ready"}</Label>;
         }
-        else if (this.state.refinementOutcome==5){
+        else if (this.state.refinementOutcome==4){
             return <Label bsStyle="danger">{"CompChem"}</Label>;
         }
 
