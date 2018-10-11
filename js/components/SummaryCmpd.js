@@ -63,7 +63,11 @@ class SummaryCmpd extends GenericView {
         var atomIndices = this.getAtomIndices(props)
         this.url = new URL(this.base_url + '/viewer/img_from_smiles/')
         var get_params
-        if (atomIndices==undefined){
+        if(props.to_query==""){
+            this.smiles = props.to_query;
+            return;
+        }
+        else if (atomIndices==undefined){
             get_params = {"smiles": props.to_query}
         }
         else{
