@@ -113,7 +113,6 @@ export class NGLView extends React.Component {
                 else if (type==listTypes.VECTOR){
                     const vectorSmi = name.split("_")[1].slice(0,-1);
                     this.props.selectVector(vectorSmi);
-                    this.props.setHighlighted({index: 0, smiles: this.props.this_vector_list[Object.keys(this.props.this_vector_list)].addition[0].end})
                 }
             }
         }
