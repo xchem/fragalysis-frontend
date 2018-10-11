@@ -131,7 +131,6 @@ class MoleculeView extends GenericView {
     }
 
     handleVector(json) {
-        // TODO here handle the bond INDICES
         var objList = this.generateObjectList(json["3d"]);
         this.props.setVectorList(objList);
         var vectorBondColorMap = this.generateBondColorMap(json["indices"])
