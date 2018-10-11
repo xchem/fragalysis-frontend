@@ -56,11 +56,17 @@ class RefinementOutcome extends React.Component{
             return <Label bsStyle="default">{"Undefined"}</Label>;
         }
         else if (this.state.refinementOutcome==6){
-            return <Label bsStyle="success">{"Refined"}</Label>;
+            return <Label bsStyle="success">{"Deposited"}</Label>;
         }
-        else{
-            return <Label bsStyle="success">{"Unknown - " + this.state.refinementOutcome.toString()}</Label>;
+        else if (this.state.refinementOutcome==5){
+            return <Label bsStyle="warning">{"Ready"}</Label>;
+        }
+        else if (this.state.refinementOutcome==5){
+            return <Label bsStyle="danger">{"CompChem"}</Label>;
+        }
 
+        else{
+            return <Label bsStyle="default">{"Unknown - " + this.state.refinementOutcome.toString()}</Label>;
         }
     }
 
