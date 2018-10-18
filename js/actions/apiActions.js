@@ -24,9 +24,12 @@ import {
     SET_DUCK_YANK_DATA,
     RELOAD_API_STATE,
     SET_SAVING_STATE,
-    SET_LATEST_FRAGGLE_BOX,
+    SET_LATEST_SESSION,
+    SET_LATEST_SNAPSHOT,
+    SET_SESSION_ID,
     SET_ERROR_MESSAGE,
     SET_TARGET_UNRECOGNISED,
+    SET_UUID,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -196,19 +199,35 @@ export const receiveDataFromApi = function (json, element_type) {
     }
 }
 
-export const setSavingState = function (bool) {
-    console.log("ACTIONS: setting saving state to " + bool);
+export const setSavingState = function (savingState) {
+    console.log("ACTIONS: setting saving state to " + savingState);
     return {
         type: SET_SAVING_STATE,
-        savingState: bool
+        savingState: savingState
     };
 }
 
-export const setLatestFraggleBox = function (url) {
-    console.log("ACTIONS: latest FraggleBox is " + url)
+export const setLatestSession = function (uuid) {
+    console.log("ACTIONS: latest session uuid is " + uuid)
     return {
-        type: SET_LATEST_FRAGGLE_BOX,
-        latestFraggleBox: url
+        type: SET_LATEST_SESSION,
+        latestSession: uuid
+    }
+}
+
+export const setLatestSnapshot = function (uuid) {
+    console.log("ACTIONS: latest state snapshot is " + uuid)
+    return {
+        type: SET_LATEST_SNAPSHOT,
+        latestSnapshot: uuid
+    }
+}
+
+export const setSessionId = function (id) {
+    console.log("ACTIONS: django session ID is " + id)
+    return {
+        type: SET_SESSION_ID,
+        sessionId: id
     }
 }
 
@@ -226,6 +245,14 @@ export const setTargetUnrecognised = function (bool) {
         type: SET_TARGET_UNRECOGNISED,
         targetUnrecognised: bool
     };
+}
+
+export const setUuid = function (uuid){
+        console.log("ACTIONS: " + uuid);
+    return {
+        type: SET_UUID,
+        uuid: uuid,
+    }
 }
 
 export const reloadApiState = function (apiReducers) {

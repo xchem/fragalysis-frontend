@@ -434,7 +434,6 @@ export class NGLView extends React.Component {
 
     }
 
-
     updateOrientation() {
         if (this.props.orientationToSet != undefined) {
             if (this.props.orientationToSet[this.div_id] != "SET") {

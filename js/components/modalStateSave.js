@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Button, Tooltip, OverlayTrigger, ButtonToolbar} from 'react-bootstrap';
+import {Tooltip, OverlayTrigger, ButtonToolbar} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -36,14 +36,19 @@ export class ModalStateSave extends Component {
     }
 
     openFraggleLink() {
-        var url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1);
-        window.open(url);
+        var url = "";
+        if (this.props.savingState == "savingSnapshot") {
+            url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
+            window.open(url);
+        } else if (this.props.savingState == "savingSession" || this.props.savingState == "overwritingSession") {
+            url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+            window.open(url);
+        }
     }
 
     closeModal() {
         this.setState(prevState => ({fraggleBoxLoc: undefined}));
-        this.props.setLatestFraggleBox(undefined);
-        this.props.setSavingState(false);
+        this.props.setSavingState("UNSET");
     }
 
     componentWillMount() {
@@ -51,36 +56,48 @@ export class ModalStateSave extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.latestFraggleBox != undefined && nextProps.savingState == true) {
-            this.setState(prevState => ({fraggleBoxLoc: nextProps.latestFraggleBox}))
+        if (nextProps.latestSession != undefined) {
+            this.setState(prevState => ({fraggleBoxLoc: nextProps.latestSession}))
         }
     }
 
 
     render() {
-
         const tooltip = (
             <Tooltip id="tooltip">
                 <strong>Copied!</strong>
             </Tooltip>
         );
-
+        var urlToCopy = "";
+        var information = "";
+        var text = "";
         if (this.state.fraggleBoxLoc != undefined) {
-            var url_to_copy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestFraggleBox.slice(1, -1)
+            if (this.props.savingState == "savingSnapshot") {
+                urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
+                information = "A snapshot of the current point in time has been saved and can ";
+                text = ". This snapshot cannot be overwritten.";
+            } else if (this.props.savingState == "savingSession") {
+                urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+                information = "A new session has been generated and can ";
+                text = ". The session can be overwritten.";
+            } else if (this.props.savingState == "overwritingSession") {
+                urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+                information = "Your session has been updated and can still ";
+                text = ". This has overwritten the session record.";
+            }
             return (
-                <ReactModal isOpen={this.props.savingState} style={customStyles}>
-                    <div>
-                        <strong>
-                            State can be viewed <a href={url_to_copy}>here </a>
-                        </strong>
-                        <ButtonToolbar>
+                <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
+                    <strong>
+                        {information} be viewed <a href={urlToCopy}>here </a>{text}
+                    </strong>
+                    <ButtonToolbar>
                         <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
-                            <Clipboard option-container="modal" data-clipboard-text={url_to_copy} button-title="Copy me!" >Copy FraggleLink</Clipboard>
+                            <Clipboard option-container="modal" data-clipboard-text={urlToCopy}
+                                       button-title="Copy me!">Copy link</Clipboard>
                         </OverlayTrigger>
                         <button onClick={this.openFraggleLink}>Open in new tab</button>
                         <button onClick={this.closeModal}>Close</button>
-                            </ButtonToolbar>
-                    </div>
+                    </ButtonToolbar>
                 </ReactModal>
             );
         } else {
@@ -92,13 +109,13 @@ export class ModalStateSave extends Component {
 function mapStateToProps(state) {
     return {
         savingState: state.apiReducers.present.savingState,
-        latestFraggleBox: state.apiReducers.present.latestFraggleBox,
+        latestSession: state.apiReducers.present.latestSession,
+        latestSnapshot: state.apiReducers.present.latestSnapshot,
     }
 }
 
 const mapDispatchToProps = {
     setSavingState: apiActions.setSavingState,
-    setLatestFraggleBox: apiActions.setLatestFraggleBox,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalStateSave);

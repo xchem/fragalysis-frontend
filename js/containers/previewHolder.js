@@ -62,8 +62,8 @@ class Preview extends Component {
     }
 
     render() {
-        var screenHeight= window.innerHeight*0.8.toString()+"px"
-        var molListHeight= window.innerHeight*0.6.toString()+"px"
+        var screenHeight= window.innerHeight*0.75.toString()+"px"
+        var molListHeight= window.innerHeight*0.5.toString()+"px"
         return (
             <Row>
                 <Col xs={0} md={0}>
@@ -89,7 +89,6 @@ class Preview extends Component {
             </Row>
         )
     }
-
 }
 
 function mapStateToProps(state) {

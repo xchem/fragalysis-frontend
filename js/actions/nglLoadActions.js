@@ -12,7 +12,6 @@ import {
     DELETE_OBJECT_TYPE,
     SET_ORIENTATION,
     SET_NGL_ORIENTATION,
-    SET_UUID,
     SET_LOADING_STATE,
     SET_STAGE_COLOR,
     SET_NGL_PROT_STYLE
@@ -68,14 +67,6 @@ export const setNGLOrientation = function (div_id, orientation){
         orientation: orientation,
             div_id: div_id,
     };
-}
-
-export const setUuid = function (uuid){
-        console.log("ACTIONS: " + uuid);
-    return {
-        type: SET_UUID,
-        uuid: uuid,
-    }
 }
 
 export const loadObjectFailure = function (group) {

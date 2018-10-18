@@ -8,7 +8,6 @@ const INITIALSTATE = {
     objectsLoading: {},
     nglOrientations: {},
     visible: true,
-    uuid: "UNSET",
     interactions: true,
     color: "blue",
     style: "xstick",
@@ -150,11 +149,6 @@ export default function nglReducers(state = INITIALSTATE, action) {
             toSetDiv[set_div_id] = set_orientation;
             return Object.assign({}, state, {
                 orientationToSet: toSetDiv
-            });
-
-        case actions.SET_UUID:
-            return Object.assign({}, state, {
-                uuid: action.uuid
             });
 
         case actions.SET_LOADING_STATE:
