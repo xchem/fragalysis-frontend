@@ -23,10 +23,13 @@ const INITIALSTATE = {
     group_type: "MC",
     hotspot_on: undefined,
     hotspot_list: [],
-    savingState: false,
-    latestFraggleBox: undefined,
+    savingState: "UNSET",
+    latestSession: undefined,
+    latestSnapshot: undefined,
     errorMessage: undefined,
     targetUnrecognised: undefined,
+    uuid: "UNSET",
+    sessionId: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -151,9 +154,19 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 savingState: action.savingState
             });
 
-        case actions.SET_LATEST_FRAGGLE_BOX:
+        case actions.SET_LATEST_SESSION:
             return Object.assign({}, state, {
-                latestFraggleBox: action.latestFraggleBox
+                latestSession: action.latestSession
+            });
+
+        case actions.SET_LATEST_SNAPSHOT:
+            return Object.assign({}, state, {
+                latestSnapshot: action.latestSnapshot
+            });
+
+        case actions.SET_SESSION_ID:
+            return Object.assign({}, state, {
+                sessionId: action.sessionId
             });
 
         case actions.SET_ERROR_MESSAGE:
@@ -164,6 +177,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_TARGET_UNRECOGNISED:
             return Object.assign({}, state, {
                 targetUnrecognised: action.targetUnrecognised
+            });
+
+        case actions.SET_UUID:
+            return Object.assign({}, state, {
+                uuid: action.uuid
             });
 
         case actions.RELOAD_API_STATE:

@@ -26,10 +26,13 @@ function getInitialState(){
        group_type: "MC",
        hotspot_on: undefined,
        hotspot_list: [],
-       savingState: false,
-       latestFraggleBox: undefined,
+       savingState: "UNSET",
+       latestSession: undefined,
+       latestSnapshot: undefined,
+       sessionId: undefined,
        errorMessage: undefined,
        targetUnrecognised: undefined,
+       uuid: "UNSET",
    }
 }
 
@@ -66,10 +69,13 @@ describe('API Redcuer', () => {
         group_type: "MC",
         hotspot_on: undefined,
         hotspot_list: [],
-        savingState: false,
-        latestFraggleBox: undefined,
+        savingState: "UNSET",
+        latestSession: undefined,
+        latestSnapshot: undefined,
+        sessionId: undefined,
         errorMessage: undefined,
         targetUnrecognised: undefined,
+        uuid: "UNSET",
     })
       expect(apiReducers(undefined, {
           type: types.LOAD_TARGETS
@@ -94,10 +100,13 @@ describe('API Redcuer', () => {
               group_type: "MC",
               hotspot_on: undefined,
               hotspot_list: [],
-              savingState: false,
-              latestFraggleBox: undefined,
+              savingState: "UNSET",
+              latestSession: undefined,
+              latestSnapshot: undefined,
+              sessionId: undefined,
               errorMessage: undefined,
               targetUnrecognised: undefined,
+              uuid: "UNSET",
           }
       )
   })
@@ -126,10 +135,13 @@ describe('API Redcuer', () => {
             group_type: "MC",
             hotspot_on: undefined,
             hotspot_list: [],
-            savingState: false,
-            latestFraggleBox: undefined,
+            savingState: "UNSET",
+            latestSession: undefined,
+            latestSnapshot: undefined,
+            sessionId: undefined,
             errorMessage: undefined,
             targetUnrecognised: undefined,
+            uuid: "UNSET",
         }
     )
       expect(apiReducers(undefined, {
@@ -157,10 +169,13 @@ describe('API Redcuer', () => {
           group_type: "PC",
           hotspot_on: undefined,
           hotspot_list: [],
-          savingState: false,
-          latestFraggleBox: undefined,
+          savingState: "UNSET",
+          latestSession: undefined,
+          latestSnapshot: undefined,
+          sessionId: undefined,
           errorMessage: undefined,
           targetUnrecognised: undefined,
+          uuid: "UNSET",
       }
     )
   })
@@ -189,11 +204,14 @@ describe('API Redcuer', () => {
             target_on: undefined,
             hotspot_list: [],
             hotspot_on: undefined,
-            savingState: false,
-            latestFraggleBox: undefined,
+            savingState: "UNSET",
+            latestSession: undefined,
+            latestSnapshot: undefined,
+            sessionId: undefined,
             target_on_name: undefined,
             errorMessage: undefined,
             targetUnrecognised: undefined,
+            uuid: "UNSET",
         }
     )
       expect(apiReducers(undefined, {
@@ -220,10 +238,13 @@ describe('API Redcuer', () => {
           group_type: "MC",
           hotspot_on: undefined,
           hotspot_list: [],
-          savingState: false,
-          latestFraggleBox: undefined,
+          savingState: "UNSET",
+          latestSession: undefined,
+          latestSnapshot: undefined,
+          sessionId: undefined,
           errorMessage: undefined,
           targetUnrecognised: undefined,
+          uuid: "UNSET",
       }
     )
   })

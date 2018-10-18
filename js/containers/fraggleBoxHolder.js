@@ -13,7 +13,7 @@ import CompoundList from '../components/compoundList';
 import NGLView from "../components/nglComponents";
 import NglViewerControls from "../components/nglViewerControls";
 import {withRouter} from "react-router-dom";
-import * as nglLoadActions from "../actions/nglLoadActions";
+import * as apiActions from "../actions/apiActions";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
 import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
@@ -26,9 +26,14 @@ class FraggleBox extends Component {
     }
 
     componentDidMount(){
-        var uuid = this.props.match.params.uuid;
-        this.props.setUuid(uuid);
-        // this.props.setStageColor
+        if (this.props.match.params.uuid != undefined) {
+            var uuid = this.props.match.params.uuid;
+            this.props.setUuid(uuid);
+            this.props.setLatestSession(uuid);
+        } else if (this.props.match.params.snapshotUuid != undefined) {
+            var snapshotUuid = this.props.match.params.snapshotUuid;
+            this.props.setUuid(snapshotUuid);
+        }
         // this.updateTarget();
     }
 
@@ -62,12 +67,11 @@ class FraggleBox extends Component {
 
 function mapStateToProps(state) {
   return {
-      setStageColor: nglLoadActions.setStageColor,
   }
 }
 const mapDispatchToProps = {
-    setUuid: nglLoadActions.setUuid,
+    setUuid: apiActions.setUuid,
+    setLatestSession: apiActions.setLatestSession,
 }
-
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FraggleBox))
