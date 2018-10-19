@@ -133,7 +133,7 @@ export class SessionManagement extends React.Component {
             const csrfToken = this.getCookie("csrftoken");
             var fullState = {"state": store};
             var TITLE = 'need to define title';
-            var userId = DJANGO_CONTEXT["username"];
+            var userId = DJANGO_CONTEXT["pk"];
             if (this.state.saveType == "sessionNew") {
                 const uuidv4 = require('uuid/v4');
                 var formattedState = {
