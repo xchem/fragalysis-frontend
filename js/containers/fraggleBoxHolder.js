@@ -18,6 +18,7 @@ import ModalLoadingScreen from "../components/modalLoadingScreen";
 import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
 import HotspotList from "../components/hotspotList";
+import {BrowserBomb} from "../components/browserBombModal";
 
 class FraggleBox extends Component {
 
@@ -60,6 +61,7 @@ class FraggleBox extends Component {
                 <ModalLoadingScreen/>
                 <ModalStateSave/>
                 <ModalErrorMessage/>
+                <BrowserBomb/>
           </Row>
         )
     }

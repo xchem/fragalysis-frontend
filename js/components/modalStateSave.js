@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Tooltip, OverlayTrigger, ButtonToolbar} from 'react-bootstrap';
+import {Tooltip, OverlayTrigger, ButtonToolbar, Row} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -70,34 +70,34 @@ export class ModalStateSave extends Component {
         );
         var urlToCopy = "";
         var information = "";
-        var text = "";
         if (this.state.fraggleBoxLoc != undefined) {
             if (this.props.savingState == "savingSnapshot") {
                 urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
-                information = "A snapshot of the current point in time has been saved and can ";
-                text = ". This snapshot cannot be overwritten.";
+                information = "A permanent, fixed snapshot of the current state has been saved ";
             } else if (this.props.savingState == "savingSession") {
                 urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
-                information = "A new session has been generated and can ";
-                text = ". The session can be overwritten.";
+                information = "A new session has been generated ";
             } else if (this.props.savingState == "overwritingSession") {
                 urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
-                information = "Your session has been updated and can still ";
-                text = ". This has overwritten the session record.";
+                information = "Your session has been overwritten and remains ";
             }
             return (
                 <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
-                    <strong>
-                        {information} be viewed <a href={urlToCopy}>here </a>{text}
-                    </strong>
-                    <ButtonToolbar>
-                        <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
-                            <Clipboard option-container="modal" data-clipboard-text={urlToCopy}
-                                       button-title="Copy me!">Copy link</Clipboard>
-                        </OverlayTrigger>
-                        <button onClick={this.openFraggleLink}>Open in new tab</button>
-                        <button onClick={this.closeModal}>Close</button>
-                    </ButtonToolbar>
+                    <Row>
+                        <strong>
+                            {information} be viewed <a href={urlToCopy}>here.</a>
+                        </strong>
+                    </Row>
+                    <Row>
+                        <ButtonToolbar>
+                            <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
+                                <Clipboard option-container="modal" data-clipboard-text={urlToCopy}
+                                           button-title="Copy me!">Copy link</Clipboard>
+                            </OverlayTrigger>
+                            <button onClick={this.openFraggleLink}>Open in new tab</button>
+                            <button onClick={this.closeModal}>Close</button>
+                        </ButtonToolbar>
+                    </Row>
                 </ReactModal>
             );
         } else {

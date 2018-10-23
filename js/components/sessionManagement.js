@@ -13,7 +13,6 @@ import {getStore} from "../containers/globalStore";
 import * as selectionActions from "../actions/selectionActions";
 import {withRouter} from "react-router-dom";
 
-
 const override = css`
     display: block;
     margin: 0 auto;
@@ -31,8 +30,10 @@ export class SessionManagement extends React.Component {
         this.newSession = this.newSession.bind(this);
         this.saveSession = this.saveSession.bind(this);
         this.newSnapshot = this.newSnapshot.bind(this);
+        this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.state = {
-            saveType: ""
+            saveType: "",
+            sessionName: "",
         };
     }
 
@@ -60,6 +61,14 @@ export class SessionManagement extends React.Component {
     saveSession(){
         this.setState(prevState => ({saveType: "sessionSave"}));
         this.postToServer();
+    }
+
+    handleSessionNaming(e){
+        if (e.keyCode === 13) {
+            var newSessionName = e.target.value;
+            console.log('submit new session name ' + newSessionName);
+            // this.props.setSessionName(newSessionName);
+        }
     }
 
     newSnapshot(){
@@ -132,7 +141,9 @@ export class SessionManagement extends React.Component {
             var store = JSON.stringify(getStore().getState());
             const csrfToken = this.getCookie("csrftoken");
             var fullState = {"state": store};
-            var TITLE = 'need to define title';
+            const timeOptions = {year:'numeric', month:'numeric', day:'numeric', hour: 'numeric', minute: 'numeric',
+            second: 'numeric', hour12: false,}
+            var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
             var userId = DJANGO_CONTEXT["pk"];
             if (this.state.saveType == "sessionNew") {
                 const uuidv4 = require('uuid/v4');
@@ -209,28 +220,33 @@ export class SessionManagement extends React.Component {
 
     render() {
         const {pathname} = this.props.location;
-        var button = ""
+        var urlToCopy = "testing";
+        if (this.props.latestSession != undefined) {
+            urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+        }
+        var buttons = "";
         if (pathname != "/viewer/react/landing") {
             if (this.props.latestSession == undefined) {
-                button = <div>
+                buttons = <div>
+                    <ButtonToolbar>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New session</Button>
+                        <Button bsSize="sm" bsStyle="success" disabled>Overwrite and View Session Info</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
+                    </ButtonToolbar>
                     <Row>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New session</Button>
-                    <Button bsSize="sm" bsStyle="success" disabled>Save session</Button>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
-                    </Row>
-                    <Row>
-                    <p>Currently no active session.</p>
+                        <p>Currently no active session.</p>
                     </Row>
                 </div>
             } else {
-                button = <div>
+                buttons = <div>
                     <Row>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New Session</Button>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Save Session</Button>
-                    <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New Session</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Overwrite and View Session Info</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
                     </Row>
                     <Row>
-                    <p>Session: {this.props.latestSession}, author: tbd</p>
+                        {/*<input id="renameSession" style={{ width:100 }} defaultValue={this.state.sessionName} onKeyDown={ this.handleSessionNaming }></input>*/}
+                        <p>Session: {this.props.latestSession}, author: tbd</p>
                     </Row>
                 </div>
             }
@@ -239,7 +255,7 @@ export class SessionManagement extends React.Component {
             return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={(this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting"))}/>
         } else {
             return <ButtonToolbar>
-                {button}
+                {buttons}
             </ButtonToolbar>
         }
     }

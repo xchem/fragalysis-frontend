@@ -53,7 +53,7 @@ export class ModalErrorMessage extends React.Component {
                 <ReactModal isOpen={this.props.savingState} style={customStyles}>
                     <div>
                         <h3>Error occurred during state saving. Please contact Fragalysis support!</h3>
-                        <Button bsSize="large" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
                     </div>
                 </ReactModal>
             );

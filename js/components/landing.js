@@ -5,6 +5,7 @@ import {Col, Row} from "react-bootstrap";
 import React from "react";
 import {connect} from "react-redux";
 import TargetList from "./targetList";
+import {BrowserBomb} from "./browserBombModal";
 
 export class Welcome extends React.Component {
     constructor(props) {
@@ -34,6 +35,7 @@ export class Welcome extends React.Component {
                       <TargetList key="TARGLIST"/>
                   </div>
               </Col>
+                <BrowserBomb/>
           </Row>
         )
     }

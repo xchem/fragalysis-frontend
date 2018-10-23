@@ -20,6 +20,7 @@ import * as apiActions from "../actions/apiActions";
 import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
 import {withRouter} from "react-router-dom";
+import {BrowserBomb} from "../components/browserBombModal";
 
 class Preview extends Component {
 
@@ -86,6 +87,7 @@ class Preview extends Component {
                 <ModalStateSave/>
                 <ModalErrorMessage/>
                 <ModalTargetUnrecognised/>
+                <BrowserBomb/>
             </Row>
         )
     }
