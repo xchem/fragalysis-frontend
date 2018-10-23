@@ -11,14 +11,15 @@ import TargetList from "./targetList";
 import SessionManagement from "./sessionManagement";
 import {ErrorReport} from "./errorReport";
 
-
 class Header extends React.Component {
-
     constructor(props) {
         super(props)
         this.getTargetList = this.getTargetList.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
+        this.openXchem = this.openXchem.bind(this);
+        this.openDiamond = this.openDiamond.bind(this);
+        this.openSgc = this.openSgc.bind(this);
     }
 
     getViewUrl(pk, get_view) {
@@ -30,7 +31,7 @@ class Header extends React.Component {
     generateTargetObject(targetData) {
         // Now deal with this target
         var prot_to_load = targetData.protein_set[0]
-        if(prot_to_load!=undefined) {
+        if (prot_to_load != undefined) {
             var out_object = {
                 "name": "PROTEIN_" + prot_to_load.toString(),
                 "prot_url": this.getViewUrl(prot_to_load, "prot_from_pk"),
@@ -43,62 +44,76 @@ class Header extends React.Component {
 
     getTargetList() {
         var newArray = []
-        for(var key in this.props.target_id_list){
-        newArray.push(this.props.target_id_list[key].title)
+        for (var key in this.props.target_id_list) {
+            newArray.push(this.props.target_id_list[key].title)
         }
         return newArray;
     }
-
 
     selectTarget(option) {
         this.props.history.push("/viewer/react/preview/target/" + option)
     }
 
-  render() {
-      var landing = "/viewer/react/landing";
-      var login = "/accounts/login"
-      var logout = "/accounts/logout"
-      var new_ele;
-      var username = DJANGO_CONTEXT["username"];
-      if (username=="NOT_LOGGED_IN"){
-          new_ele =  <NavItem eventKey={1} href={login}>
-              <h5> Login </h5>
-          </NavItem>
-      }
-      else{
-          new_ele = <NavItem eventKey={1} href={logout}>
-              <h5><b>Hello {username}!</b> Logout.</h5>
-          </NavItem>
-      }
+    openXchem() {
+        window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html'
+    }
 
-    return <Navbar>
-          <Navbar.Header>
-              <Navbar.Brand>
-                  <h4>
-                      <a  href={landing}>FragalysisHome</a>
-                  </h4>
-              </Navbar.Brand>
-          </Navbar.Header>
-        <Nav pullLeft>
-            {new_ele}
-            <NavItem>
-                <SessionManagement/>
+    openDiamond() {
+        window.location.href = 'https://www.diamond.ac.uk/Home.html'
+    }
+
+    openSgc() {
+        window.location.href = 'https://www.sgc.ox.ac.uk/'
+    }
+
+    render() {
+        var landing = "/viewer/react/landing";
+        var login = "/accounts/login"
+        var logout = "/accounts/logout"
+        var new_ele;
+        var username = DJANGO_CONTEXT["username"];
+        if (username == "NOT_LOGGED_IN") {
+            new_ele = <NavItem eventKey={1} href={login}>
+                <h5> Login </h5>
             </NavItem>
-        </Nav>
-        <Nav pullRight>
-            <NavItem>
-                <ErrorReport />
+        }
+        else {
+            new_ele = <NavItem eventKey={1} href={logout}>
+                <h5><b>Hello {username}!</b> Logout.</h5>
             </NavItem>
-        </Nav>
-        <TargetList key="TARGLIST" render={false}/>
-      </Navbar>
-  }
+        }
+
+        return <Navbar>
+            <Navbar.Header>
+                <Navbar.Brand>
+                    <h4>
+                        <a href={landing}>FragalysisHome</a>
+                    </h4>
+                </Navbar.Brand>
+            </Navbar.Header>
+            <Nav pullLeft>
+                {new_ele}
+                <NavItem>
+                    <SessionManagement/>
+                </NavItem>
+            </Nav>
+            <Nav pullRight>
+                <NavItem>
+                    <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/>
+                    <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={this.openDiamond}/>
+                    <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={this.openSgc}/>
+                    <ErrorReport/>
+                </NavItem>
+            </Nav>
+            <TargetList key="TARGLIST" render={false}/>
+        </Navbar>
+    }
 }
 
 function mapStateToProps(state) {
-  return {
-      target_id_list: state.apiReducers.present.target_id_list,
-  }
+    return {
+        target_id_list: state.apiReducers.present.target_id_list,
+    }
 }
 const mapDispatchToProps = {
 }
