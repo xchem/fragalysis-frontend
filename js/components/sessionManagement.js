@@ -220,9 +220,7 @@ export class SessionManagement extends React.Component {
 
     render() {
         const {pathname} = this.props.location;
-        var urlToCopy = "testing";
         if (this.props.latestSession != undefined) {
-            urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
         }
         var buttons = "";
         if (pathname != "/viewer/react/landing") {
