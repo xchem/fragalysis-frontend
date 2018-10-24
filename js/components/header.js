@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem} from "react-bootstrap";
+import {Navbar, Nav, NavItem, Row} from "react-bootstrap";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter} from "react-router-dom";
@@ -20,6 +20,7 @@ class Header extends React.Component {
         this.openXchem = this.openXchem.bind(this);
         this.openDiamond = this.openDiamond.bind(this);
         this.openSgc = this.openSgc.bind(this);
+        this.showFunders = this.showFunders.bind(this);
     }
 
     getViewUrl(pk, get_view) {
@@ -66,6 +67,10 @@ class Header extends React.Component {
         window.location.href = 'https://www.sgc.ox.ac.uk/'
     }
 
+    showFunders() {
+        window.location.href = "/viewer/react/funders"
+    }
+
     render() {
         var landing = "/viewer/react/landing";
         var login = "/accounts/login"
@@ -86,9 +91,7 @@ class Header extends React.Component {
         return <Navbar>
             <Navbar.Header>
                 <Navbar.Brand>
-                    <h4>
-                        <a href={landing}>FragalysisHome</a>
-                    </h4>
+                        <h4><a href={landing}>FragalysisHome</a></h4>
                 </Navbar.Brand>
             </Navbar.Header>
             <Nav pullLeft>
@@ -99,10 +102,15 @@ class Header extends React.Component {
             </Nav>
             <Nav pullRight>
                 <NavItem>
-                    <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/>
-                    <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={this.openDiamond}/>
-                    <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={this.openSgc}/>
-                    <ErrorReport/>
+                    <Row>
+                        <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/>
+                        <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={this.openDiamond}/>
+                        <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={this.openSgc}/>
+                        <ErrorReport/>
+                    </Row>
+                    <Row>
+                        <p onClick={this.showFunders}>Supported by...</p>
+                    </Row>
                 </NavItem>
             </Nav>
             <TargetList key="TARGLIST" render={false}/>

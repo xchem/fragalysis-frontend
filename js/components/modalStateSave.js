@@ -85,7 +85,7 @@ export class ModalStateSave extends Component {
                 <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
                     <Row>
                         <strong>
-                            {information} be viewed <a href={urlToCopy}>here.</a>
+                            {information}<a href={urlToCopy}>here.</a>
                         </strong>
                     </Row>
                     <Row>
