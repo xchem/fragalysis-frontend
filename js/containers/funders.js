@@ -27,53 +27,62 @@ class Funders extends Component {
     openWt() {window.location.href = 'https://wellcome.ac.uk/'}
 
     render() {
-        var rowHeight = window.innerHeight * 0.25.toString() + "px";
-
+        var rowHeight = window.innerHeight * 0.28.toString() + "px";
+        var padHeight = window.innerHeight * 0.1.toString() + "px";
+        var logoWidth = window.innerWidth * 0.16.toString();
         return (
             <div>
                 <Grid fluid>
-                    <Row>
-                        <h1></h1>
+                    <Row style={{height: padHeight}}>
                     </Row>
-                    <Row>
+                    <Row style={{height: rowHeight}}>
                         <Col xs={4} md={4}>
-                            <img src={require('../img/xchemLogo.png')} width="170" height="75" onClick={this.openXchem}/>
+                            <div className="text-center">
+                                <img src={require('../img/xchemLogo.png')} width={logoWidth} onClick={this.openXchem}/>
+                            </div>
                         </Col>
                         <Col xs={4} md={4}>
-                            <img src={require('../img/dlsLogo.png')} width="200" height="63" onClick={this.openDls}/>
+                            <div className="text-center">
+                                <img src={require('../img/dlsLogo.png')} width={logoWidth} onClick={this.openDls}/>
+                            </div>
                         </Col>
-                        <Col xs={4} md={4} className="pull-right">
-                            <img src={require('../img/sgcLogo.png')} width="209" height="99" onClick={this.openSgc}/>
+                        <Col xs={4} md={4}>
+                            <div className="text-center">
+                                <img src={require('../img/sgcLogo.png')} width={logoWidth} onClick={this.openSgc}/>
+                            </div>
                         </Col>
                     </Row>
-                    <Row>
-                        <h1></h1>
-                    </Row>
-                    <Row>
+                    <Row style={{height: rowHeight}}>
                         <Col xs={2} md={2}>
                         </Col>
                         <Col xs={4} md={4}>
-                            <img src={require('../img/mrcLogo.png')} width="213" height="94" onClick={this.openMrc}/>
+                            <div className="text-center">
+                                <img src={require('../img/mrcLogo.png')} width={logoWidth} onClick={this.openMrc}/>
+                            </div>
                         </Col>
                         <Col xs={4} md={4}>
-                            <img src={require('../img/wtLogo.png')} width="176" height="55" onClick={this.openWt}/>
+                            <div className="text-center">
+                                <img src={require('../img/wtLogo.png')} width={logoWidth} onClick={this.openWt}/>
+                            </div>
                         </Col>
                         <Col xs={2} md={2}>
                         </Col>
                     </Row>
-                    <Row>
-                        <h1></h1>
-                    </Row>
-                    <Row>
+                    <Row style={{height: rowHeight}}>
                         <Col xs={4} md={4}>
-                            <img src={require('../img/inextLogo.png')} width="135" height="90"
-                                 onClick={this.openInext}/>
+                            <div className="text-center">
+                                <img src={require('../img/inextLogo.png')} width={logoWidth} onClick={this.openInext}/>
+                            </div>
                         </Col>
                         <Col xs={4} md={4}>
-                            <img src={require('../img/jffLogo.jpg')} width="175" height="82" onClick={this.openJff}/>
+                            <div className="text-center">
+                                <img src={require('../img/jffLogo.jpg')} width={logoWidth} onClick={this.openJff}/>
+                            </div>
                         </Col>
-                        <Col xs={4} md={4} className="pull-right">
-                            <img src={require('../img/nfLogo.png')} width="176" height="71" onClick={this.openNf}/>
+                        <Col xs={4} md={4}>
+                            <div className="text-center">
+                                <img src={require('../img/nfLogo.png')} width={logoWidth} onClick={this.openNf}/>
+                            </div>
                         </Col>
                     </Row>
                 </Grid>

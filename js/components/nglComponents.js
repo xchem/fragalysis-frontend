@@ -156,6 +156,9 @@ export class NGLView extends React.Component {
 
     componentDidUpdate() {
         this.renderDisplay();
+        if (this.props.targetOnName != undefined) {
+            document.title = this.props.targetOnName + ": Fragalysis"
+        }
     }
 
     showSphere(stage, input_dict, object_name) {
@@ -501,6 +504,7 @@ function mapStateToProps(state) {
       loadingState: state.nglReducers.present.loadingState,
       stageColor: state.nglReducers.present.stageColor,
       this_vector_list: state.selectionReducers.present.this_vector_list,
+      targetOnName: state.apiReducers.present.target_on_name,
   }
 }
 const mapDispatchToProps = {

@@ -26,7 +26,7 @@ function getInitialState(){
         orientationToSet: {},
     loadingState: true,
         nglProtStyle: "cartoon",
-        stageColor: "black"
+        stageColor: "white"
     }
 }
 

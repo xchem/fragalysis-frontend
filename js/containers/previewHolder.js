@@ -112,5 +112,4 @@ const mapDispatchToProps = {
     setErrorMessage: apiActions.setErrorMessage,
 }
 
-
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Preview))

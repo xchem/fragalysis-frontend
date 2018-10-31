@@ -16,7 +16,7 @@ const INITIALSTATE = {
     hydrogen: true,
     orientationToSet: {},
     loadingState: true,
-    stageColor: 'black',
+    stageColor: 'white',
     nglProtStyle: 'cartoon'
 }
 

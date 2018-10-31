@@ -27,9 +27,11 @@ import {
     SET_LATEST_SESSION,
     SET_LATEST_SNAPSHOT,
     SET_SESSION_ID,
+    SET_SESSION_ID_LIST,
     SET_ERROR_MESSAGE,
     SET_TARGET_UNRECOGNISED,
     SET_UUID,
+    SET_USER_ID,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -231,6 +233,14 @@ export const setSessionId = function (id) {
     }
 }
 
+export const setSessionIdList = function (input_json) {
+    console.log("ACTIONS: session list " + input_json);
+    return {
+        type: SET_SESSION_ID_LIST,
+        sessionIdList: input_json
+    };
+}
+
 export const setErrorMessage = function (errorMessage) {
     console.log("ACTIONS: errorMessage is " + errorMessage)
     return {
@@ -252,6 +262,14 @@ export const setUuid = function (uuid){
     return {
         type: SET_UUID,
         uuid: uuid,
+    }
+}
+
+export const setUserId = function (user_id){
+    console.log("ACTIONS: Set userId " + user_id);
+    return {
+        type: SET_USER_ID,
+        user_id: user_id,
     }
 }
 

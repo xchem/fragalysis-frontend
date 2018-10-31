@@ -30,6 +30,8 @@ const INITIALSTATE = {
     targetUnrecognised: undefined,
     uuid: "UNSET",
     sessionId: undefined,
+    sessionIdList: [],
+    user_id: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -169,6 +171,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 sessionId: action.sessionId
             });
 
+        case actions.SET_SESSION_ID_LIST:
+            return Object.assign({}, state, {
+                sessionIdList: action.sessionIdList
+            });
+
         case actions.SET_ERROR_MESSAGE:
             return Object.assign({}, state, {
                 errorMessage: action.errorMessage
@@ -182,6 +189,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_UUID:
             return Object.assign({}, state, {
                 uuid: action.uuid
+            });
+
+        case actions.SET_USER_ID:
+            return Object.assign({}, state, {
+                user_id: action.user_id
             });
 
         case actions.RELOAD_API_STATE:
