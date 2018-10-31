@@ -33,6 +33,8 @@ function getInitialState(){
        errorMessage: undefined,
        targetUnrecognised: undefined,
        uuid: "UNSET",
+       sessionIdList: [],
+       user_id: undefined,
    }
 }
 
@@ -76,6 +78,8 @@ describe('API Redcuer', () => {
         errorMessage: undefined,
         targetUnrecognised: undefined,
         uuid: "UNSET",
+        sessionIdList: [],
+        user_id: undefined,
     })
       expect(apiReducers(undefined, {
           type: types.LOAD_TARGETS
@@ -107,6 +111,9 @@ describe('API Redcuer', () => {
               errorMessage: undefined,
               targetUnrecognised: undefined,
               uuid: "UNSET",
+              sessionIdList: [],
+              user_id: undefined,
+
           }
       )
   })
@@ -142,6 +149,8 @@ describe('API Redcuer', () => {
             errorMessage: undefined,
             targetUnrecognised: undefined,
             uuid: "UNSET",
+            sessionIdList: [],
+            user_id: undefined,
         }
     )
       expect(apiReducers(undefined, {
@@ -176,6 +185,8 @@ describe('API Redcuer', () => {
           errorMessage: undefined,
           targetUnrecognised: undefined,
           uuid: "UNSET",
+          sessionIdList: [],
+          user_id: undefined,
       }
     )
   })
@@ -212,6 +223,8 @@ describe('API Redcuer', () => {
             errorMessage: undefined,
             targetUnrecognised: undefined,
             uuid: "UNSET",
+            sessionIdList: [],
+            user_id: undefined,
         }
     )
       expect(apiReducers(undefined, {
@@ -245,6 +258,8 @@ describe('API Redcuer', () => {
           errorMessage: undefined,
           targetUnrecognised: undefined,
           uuid: "UNSET",
+          sessionIdList: [],
+          user_id: undefined,
       }
     )
   })

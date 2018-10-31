@@ -30,6 +30,8 @@ const INITIALSTATE = {
     targetUnrecognised: undefined,
     uuid: "UNSET",
     sessionId: undefined,
+    sessionIdList: [],
+    user_id: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -169,6 +171,22 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 sessionId: action.sessionId
             });
 
+        case actions.SET_SESSION_ID_LIST:
+            var sessionSummary = [];
+            for (var key in action.sessionIdList) {
+                sessionSummary.push({
+                    id:action.sessionIdList[key].id,
+                    uuid:action.sessionIdList[key].uuid,
+                    title:action.sessionIdList[key].title,
+                    created:action.sessionIdList[key].created,
+                    user_id:action.sessionIdList[key].user_id,
+                    target_on_name:JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers.present.target_on_name
+                });
+            }
+            return Object.assign({}, state, {
+                sessionIdList: sessionSummary
+            });
+
         case actions.SET_ERROR_MESSAGE:
             return Object.assign({}, state, {
                 errorMessage: action.errorMessage
@@ -182,6 +200,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_UUID:
             return Object.assign({}, state, {
                 uuid: action.uuid
+            });
+
+        case actions.SET_USER_ID:
+            return Object.assign({}, state, {
+                user_id: action.user_id
             });
 
         case actions.RELOAD_API_STATE:

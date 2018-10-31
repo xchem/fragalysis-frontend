@@ -220,15 +220,13 @@ export class SessionManagement extends React.Component {
 
     render() {
         const {pathname} = this.props.location;
-        if (this.props.latestSession != undefined) {
-        }
         var buttons = "";
-        if (pathname != "/viewer/react/landing") {
+        if (pathname != "/viewer/react/landing" && pathname !="/viewer/react/funders" && pathname !="/viewer/react/sessions") {
             if (this.props.latestSession == undefined) {
                 buttons = <div>
                     <ButtonToolbar>
                         <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New session</Button>
-                        <Button bsSize="sm" bsStyle="success" disabled>Overwrite and View Session Info</Button>
+                        <Button bsSize="sm" bsStyle="success" disabled>Overwrite/View Session</Button>
                         <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
                     </ButtonToolbar>
                     <Row>
@@ -239,7 +237,7 @@ export class SessionManagement extends React.Component {
                 buttons = <div>
                     <Row>
                         <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New Session</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Overwrite and View Session Info</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Overwrite/View Session</Button>
                         <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
                     </Row>
                     <Row>

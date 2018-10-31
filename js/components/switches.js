@@ -10,6 +10,7 @@ import FraggleBox from "../containers/fraggleBoxHolder";
 import Preview from "../containers/previewHolder";
 import Funders from "../containers/funders";
 import Landing from "../containers/landingHolder";
+import Sessions from "../containers/sessionHolder";
 import {Route, Switch} from "react-router-dom";
 
 class Switches extends Component {
@@ -25,6 +26,8 @@ class Switches extends Component {
                 <Route exact path="/viewer/react/tindspect" component={Tindspect}/>
                 <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox}/>
                 <Route path="/viewer/react/snapshot/:snapshotUuid" component={FraggleBox}/>
+                <Route exact path="/viewer/react/sessions" component={Sessions}/>
+                <Route exact path="/viewer/react/tindspect" component={Tindspect}/>
             </Switch>
         </div>
     }

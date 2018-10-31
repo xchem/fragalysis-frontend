@@ -75,18 +75,21 @@ class TargetList extends GenericList {
 
     handleOptionChange(changeEvent) {
         this.props.setObjectOn(changeEvent.target.value);
-
     }
+
     render() {
         if (this.props.render==false){
             return null;
         }
         else if (this.props != undefined && this.props.object_list) {
-            return <ListGroup>
-                {
-                this.props.object_list.map((data) => (this.render_method(data)))
-                 }
-            </ListGroup>;
+            return <div>
+                <h3>Target List:</h3>
+                <ListGroup>
+                    {
+                        this.props.object_list.map((data) => (this.render_method(data)))
+                    }
+                </ListGroup>
+            </div>
         }
         else {
             return (<FillMe />)
