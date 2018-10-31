@@ -20,7 +20,7 @@ class SessionList extends GenericList {
     render_method(data) {
         var fragglebox = "/viewer/react/fragglebox/" + data.uuid;
         return <ListGroupItem key={data.id}>
-            <Link to={fragglebox}>{data.title}</Link>
+            <p>Title: <Link to={fragglebox}>{data.title}</Link>, Target: {data.target_on_name}</p>
         </ListGroupItem>
     }
 
@@ -30,6 +30,7 @@ class SessionList extends GenericList {
     }
 
     render() {
+        const userPk = DJANGO_CONTEXT["pk"]
         const {pathname} = this.props.location;
         if (this.props != undefined && this.props.object_list) {
             if (pathname != "/viewer/react/sessions") {

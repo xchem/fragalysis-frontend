@@ -234,7 +234,7 @@ export const setSessionId = function (id) {
 }
 
 export const setSessionIdList = function (input_json) {
-    console.log("ACTIONS: session list " + input_json);
+    console.log("ACTIONS: sessionList summary written to state");
     return {
         type: SET_SESSION_ID_LIST,
         sessionIdList: input_json

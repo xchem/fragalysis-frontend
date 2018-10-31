@@ -172,8 +172,19 @@ export default function apiReducers(state = INITIALSTATE, action) {
             });
 
         case actions.SET_SESSION_ID_LIST:
+            var sessionSummary = [];
+            for (var key in action.sessionIdList) {
+                sessionSummary.push({
+                    id:action.sessionIdList[key].id,
+                    uuid:action.sessionIdList[key].uuid,
+                    title:action.sessionIdList[key].title,
+                    created:action.sessionIdList[key].created,
+                    user_id:action.sessionIdList[key].user_id,
+                    target_on_name:JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers.present.target_on_name
+                });
+            }
             return Object.assign({}, state, {
-                sessionIdList: action.sessionIdList
+                sessionIdList: sessionSummary
             });
 
         case actions.SET_ERROR_MESSAGE:
