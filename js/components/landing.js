@@ -26,10 +26,13 @@ export class Welcome extends React.Component {
         return (
             <Row>
                 <Col xs={3} md={3}>
-                    <div>
+                    <Row>
                         <h1>Welcome to Fragalysis{"\n"}</h1>
                         {text_div}
-                    </div>
+                    </Row>
+                    <Row>
+                        <p>An overview of target status (only accessible within Diamond) is available <a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">here</a></p>
+                    </Row>
                 </Col>
                 <Col xs={4} md={4}>
                     <div>

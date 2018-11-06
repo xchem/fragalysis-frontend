@@ -225,9 +225,9 @@ export class SessionManagement extends React.Component {
             if (this.props.latestSession == undefined) {
                 buttons = <div>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New session</Button>
-                        <Button bsSize="sm" bsStyle="success" disabled>Overwrite/View Session</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save As...</Button>
+                        <Button bsSize="sm" bsStyle="success" disabled>Save</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share</Button>
                     </ButtonToolbar>
                     <Row>
                         <p>Currently no active session.</p>
@@ -235,11 +235,11 @@ export class SessionManagement extends React.Component {
                 </div>
             } else {
                 buttons = <div>
-                    <Row>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>New Session</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Overwrite/View Session</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>New snapshot</Button>
-                    </Row>
+                    <ButtonToolbar>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save As...</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Save</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share</Button>
+                    </ButtonToolbar>
                     <Row>
                         {/*<input id="renameSession" style={{ width:100 }} defaultValue={this.state.sessionName} onKeyDown={ this.handleSessionNaming }></input>*/}
                         <p>Session: {this.props.latestSession}, author: tbd</p>
@@ -264,6 +264,7 @@ function mapStateToProps(state) {
       uuid: state.apiReducers.present.uuid,
       latestSession: state.apiReducers.present.latestSession,
       sessionId: state.apiReducers.present.sessionId,
+      sessionTitle: state.apiReducers.present.sessionTitle,
   }
 }
 const mapDispatchToProps = {

@@ -31,6 +31,7 @@ const INITIALSTATE = {
     uuid: "UNSET",
     sessionId: undefined,
     sessionIdList: [],
+    sessionTitle: undefined,
     user_id: undefined,
 }
 
@@ -156,14 +157,19 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 savingState: action.savingState
             });
 
+        case actions.SET_LATEST_SNAPSHOT:
+            return Object.assign({}, state, {
+                latestSnapshot: action.latestSnapshot
+            });
+
         case actions.SET_LATEST_SESSION:
             return Object.assign({}, state, {
                 latestSession: action.latestSession
             });
 
-        case actions.SET_LATEST_SNAPSHOT:
+        case actions.SET_SESSION_TITLE:
             return Object.assign({}, state, {
-                latestSnapshot: action.latestSnapshot
+                sessionTitle: action.sessionTitle
             });
 
         case actions.SET_SESSION_ID:

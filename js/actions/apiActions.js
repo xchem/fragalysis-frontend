@@ -24,8 +24,9 @@ import {
     SET_DUCK_YANK_DATA,
     RELOAD_API_STATE,
     SET_SAVING_STATE,
-    SET_LATEST_SESSION,
     SET_LATEST_SNAPSHOT,
+    SET_LATEST_SESSION,
+    SET_SESSION_TITLE,
     SET_SESSION_ID,
     SET_SESSION_ID_LIST,
     SET_ERROR_MESSAGE,
@@ -209,6 +210,14 @@ export const setSavingState = function (savingState) {
     };
 }
 
+export const setLatestSnapshot = function (uuid) {
+    console.log("ACTIONS: latest state snapshot is " + uuid)
+    return {
+        type: SET_LATEST_SNAPSHOT,
+        latestSnapshot: uuid
+    }
+}
+
 export const setLatestSession = function (uuid) {
     console.log("ACTIONS: latest session uuid is " + uuid)
     return {
@@ -217,11 +226,11 @@ export const setLatestSession = function (uuid) {
     }
 }
 
-export const setLatestSnapshot = function (uuid) {
-    console.log("ACTIONS: latest state snapshot is " + uuid)
+export const setSessionTitle = function (sessionTitle) {
+    console.log("ACTIONS: set session title to " + sessionTitle)
     return {
-        type: SET_LATEST_SNAPSHOT,
-        latestSnapshot: uuid
+        type: SET_SESSION_TITLE,
+        sessionTitle: sessionTitle
     }
 }
 

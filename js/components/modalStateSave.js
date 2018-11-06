@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Tooltip, OverlayTrigger, ButtonToolbar, Row} from 'react-bootstrap';
+import {Tooltip, OverlayTrigger, ButtonToolbar, Row, Col, Button} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -30,9 +30,12 @@ const customStyles = {
 export class ModalStateSave extends Component {
     constructor(props) {
         super(props);
+        this.openFraggleLink = this.openFraggleLink.bind(this);
+        this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
-        this.state = {fraggleBoxLoc: undefined}
-        this.openFraggleLink = this.openFraggleLink.bind(this)
+        this.state = {
+            fraggleBoxLoc: undefined,
+        };
     }
 
     openFraggleLink() {
@@ -43,6 +46,13 @@ export class ModalStateSave extends Component {
         } else if (this.props.savingState == "savingSession" || this.props.savingState == "overwritingSession") {
             url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
             window.open(url);
+        }
+    }
+
+    handleSessionNaming(e){
+        if (e.keyCode === 13) {
+            console.log('submit new session name ' + e.target.value);
+            this.props.setSessionTitle(e.target.value);
         }
     }
 
@@ -81,12 +91,32 @@ export class ModalStateSave extends Component {
                 urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
                 information = "Your session has been overwritten and remains ";
             }
+            if (this.props.savingState == "overwritingSession") {
+                // Session address:
+            } else {
+
+            }
             return (
                 <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
+                    <Col xs={1} md={1}>
+                    </Col>
+                    <Col xs={10} md={10}>
+                    <Row>
+                        <p></p>
+                    </Row>
+                    <Row>
+                        <input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.state.sessionTitle} onKeyDown={this.handleSessionNaming}></input>
+                    </Row>
+                    <Row>
+                        <p></p>
+                    </Row>
                     <Row>
                         <strong>
                             {information}<a href={urlToCopy}>here.</a>
                         </strong>
+                    </Row>
+                    <Row>
+                        <p></p>
                     </Row>
                     <Row>
                         <ButtonToolbar>
@@ -94,10 +124,15 @@ export class ModalStateSave extends Component {
                                 <Clipboard option-container="modal" data-clipboard-text={urlToCopy}
                                            button-title="Copy me!">Copy link</Clipboard>
                             </OverlayTrigger>
+                            <h3 style={{display: "inline"}}> </h3>
                             <button onClick={this.openFraggleLink}>Open in new tab</button>
+                            <h3 style={{display: "inline"}}> </h3>
                             <button onClick={this.closeModal}>Close</button>
                         </ButtonToolbar>
                     </Row>
+                    </Col>
+                    <Col xs={1} md={1}>
+                    </Col>
                 </ReactModal>
             );
         } else {
@@ -111,11 +146,13 @@ function mapStateToProps(state) {
         savingState: state.apiReducers.present.savingState,
         latestSession: state.apiReducers.present.latestSession,
         latestSnapshot: state.apiReducers.present.latestSnapshot,
+        sessionTitle: state.apiReducers.present.sessionTitle,
     }
 }
 
 const mapDispatchToProps = {
     setSavingState: apiActions.setSavingState,
+    setSessionTitle: apiActions.setSessionTitle,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalStateSave);

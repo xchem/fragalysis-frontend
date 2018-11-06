@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { Row, Well, Button} from 'react-bootstrap';
+import { Row, Well, Button, ButtonToolbar} from 'react-bootstrap';
 import React from 'react';
 import {connect} from "react-redux";
 import CompoundView from "./compoundView";
@@ -133,8 +133,10 @@ class CompoundList extends React.Component {
             totArray.push(<Row style={molStyle} key={"CMPD_ROW"}>{retArray}</Row>)
             return <Well>
                 <h3><b>{this.props.querying ? "Loading...." : mol_string }</b></h3>
-                <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                <ButtonToolbar>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                </ButtonToolbar>
                 <div>{totArray}</div>
             </Well>
         }
