@@ -10,3 +10,5 @@ export const PANDDA_SITE = 'PANDDASITE';
 export const PANDDA_EVENT = 'PANDDAEVENT';
 export const HOTSPOT = 'HOTSPOT';
 export const SESSIONS = 'SESSIONS';
+export const PROPOSALS = 'PROPOSALS';
+export const PROPOSALTARGETS = 'PROPOSALTARGETS';

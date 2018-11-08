@@ -221,7 +221,7 @@ export class SessionManagement extends React.Component {
     render() {
         const {pathname} = this.props.location;
         var buttons = "";
-        if (pathname != "/viewer/react/landing" && pathname !="/viewer/react/funders" && pathname !="/viewer/react/sessions") {
+        if (pathname != "/viewer/react/landing" && pathname !="/viewer/react/funders" && pathname !="/viewer/react/sessions" && pathname != "viewer/react/targetmanagement") {
             if (this.props.latestSession == undefined) {
                 buttons = <div>
                     <ButtonToolbar>
