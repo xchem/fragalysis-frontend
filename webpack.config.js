@@ -3,7 +3,8 @@ const webpack = require('webpack');
 const BundleTracker = require('webpack-bundle-tracker');
 const CompressionPlugin = require("compression-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+// const HtmlWebpackPlugin = require("html-webpack-plugin");
+// const WebappWebpackPlugin = require("webapp-webpack-plugin");
 
 module.exports = {
   context: __dirname,
@@ -16,11 +17,6 @@ module.exports = {
   },
 
   plugins: [
-      new CopyWebpackPlugin([{
-          from: path.resolve(__dirname, './js/src'),
-          to: path.resolve(__dirname, '../build'),
-      }
-      ]),
       new BundleTracker({filename: './webpack-stats.json', trackAssets:true}),
       new UglifyJsPlugin({
           uglifyOptions: {
@@ -29,10 +25,30 @@ module.exports = {
               ie8: false,
               output: {
                   comments: false
-              },
-          }
+              }
+          },
       }
-    ),
+      ),
+      // new HtmlWebpackPlugin(),
+      // new WebappWebpackPlugin({
+      //     logo: './js/img/favicon.png',
+      //     favicons: {
+      //         appName: 'Fragalysis',
+      //         appDescription: 'XChem fragment screening follow up selection interface',
+      //         developerName: 'RicGillams',
+      //         background: '#ddd',
+      //         icons: {
+      //             android: false,
+      //             appleIcon: false,
+      //             appleStartup: false,
+      //             coast: false,
+      //             favicons: true,
+      //             firefox: true,
+      //             windows: false,
+      //             yandex: false,
+      //         }
+      //     }
+      // })
   ],
 
   module: {

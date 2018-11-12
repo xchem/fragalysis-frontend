@@ -24,7 +24,6 @@ const customStyles = {
         transform: 'translate(-50%, -50%)',
         border: '10px solid #7a7a7a'
     }
-
 };
 
 export class ModalStateSave extends Component {
@@ -35,6 +34,7 @@ export class ModalStateSave extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.state = {
             fraggleBoxLoc: undefined,
+            snapshotLoc: undefined,
         };
     }
 
@@ -58,6 +58,7 @@ export class ModalStateSave extends Component {
 
     closeModal() {
         this.setState(prevState => ({fraggleBoxLoc: undefined}));
+        this.setState(prevState => ({snapshotLoc: undefined}));
         this.props.setSavingState("UNSET");
     }
 
@@ -66,11 +67,11 @@ export class ModalStateSave extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.latestSession != undefined) {
-            this.setState(prevState => ({fraggleBoxLoc: nextProps.latestSession}))
+        if (nextProps.latestSession != undefined || nextProps.latestSnapshot != undefined) {
+            this.setState(prevState => ({fraggleBoxLoc: nextProps.latestSession}));
+            this.setState(prevState => ({snapshotLoc: nextProps.latestSnapshot}));
         }
     }
-
 
     render() {
         const tooltip = (
@@ -80,16 +81,22 @@ export class ModalStateSave extends Component {
         );
         var urlToCopy = "";
         var information = "";
-        if (this.state.fraggleBoxLoc != undefined) {
+        var linkSection;
+        if (this.state.fraggleBoxLoc != undefined || this.state.snapshotLoc != undefined) {
             if (this.props.savingState == "savingSnapshot") {
-                urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
-                information = "A permanent, fixed snapshot of the current state has been saved ";
+                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
+                var linkSection = <Row><strong>"A permanent, fixed snapshot of the current state has been saved:"<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             } else if (this.props.savingState == "savingSession") {
-                urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
-                information = "A new session has been generated ";
+                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+                var linkSection = <Row><strong>"A new session has been generated:"<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             } else if (this.props.savingState == "overwritingSession") {
-                urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
-                information = "Your session has been overwritten and remains ";
+                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+                var linkSection = <Row><strong>"Your session has been overwritten and remains:"<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
+            }
+            if (this.props.savingState == "overwritingSession") {
+                // Session address:
+            } else {
+
             }
             if (this.props.savingState == "overwritingSession") {
                 // Session address:
@@ -110,10 +117,9 @@ export class ModalStateSave extends Component {
                     <Row>
                         <p></p>
                     </Row>
+                        {linkSection}
                     <Row>
-                        <strong>
-                            {information}<a href={urlToCopy}>here.</a>
-                        </strong>
+                        <p></p>
                     </Row>
                     <Row>
                         <p></p>

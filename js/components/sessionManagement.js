@@ -221,13 +221,13 @@ export class SessionManagement extends React.Component {
     render() {
         const {pathname} = this.props.location;
         var buttons = "";
-        if (pathname != "/viewer/react/landing" && pathname !="/viewer/react/funders" && pathname !="/viewer/react/sessions" && pathname != "viewer/react/targetmanagement") {
+        if (pathname != "/viewer/react/landing" && pathname != "/viewer/react/funders" && pathname != "/viewer/react/sessions" && pathname != "/viewer/react/targetmanagement") {
             if (this.props.latestSession == undefined) {
                 buttons = <div>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save As...</Button>
-                        <Button bsSize="sm" bsStyle="success" disabled>Save</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share</Button>
+                        <Button bsSize="sm" bsStyle="success" disabled>Save Session</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save Session As...</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share Snapshot</Button>
                     </ButtonToolbar>
                     <Row>
                         <p>Currently no active session.</p>
@@ -236,9 +236,9 @@ export class SessionManagement extends React.Component {
             } else {
                 buttons = <div>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save As...</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Save</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Save Session</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save Session As...</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share Snapshot</Button>
                     </ButtonToolbar>
                     <Row>
                         {/*<input id="renameSession" style={{ width:100 }} defaultValue={this.state.sessionName} onKeyDown={ this.handleSessionNaming }></input>*/}
