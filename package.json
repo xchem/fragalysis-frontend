@@ -40,7 +40,7 @@
     "jszip": "^3.1.5",
     "lodash": "^4.17.5",
     "logrocket": "^0.6.17",
-    "ngl": "^0.10.4",
+    "ngl": "2.0.0-dev.33",
     "nprogress": "^0.2.0",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.4",

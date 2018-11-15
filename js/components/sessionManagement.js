@@ -22,32 +22,46 @@ const override = css`
 export class SessionManagement extends React.Component {
     constructor(props) {
         super(props);
+        this.getCookie = this.getCookie.bind(this);
         this.updateFraggleBox = this.updateFraggleBox.bind(this);
         this.deployErrorModal = this.deployErrorModal.bind(this);
         this.postToServer = this.postToServer.bind(this);
         this.handleJson = this.handleJson.bind(this);
-        this.getCookie = this.getCookie.bind(this);
         this.newSession = this.newSession.bind(this);
         this.saveSession = this.saveSession.bind(this);
         this.newSnapshot = this.newSnapshot.bind(this);
-        this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.state = {
             saveType: "",
-            sessionName: "",
+            latestSession: "",
+            sessionId: ""
         };
+    }
+
+    getCookie(name) {
+        if (!document.cookie) {
+            return null;
+        }
+        const xsrfCookies = document.cookie.split(';')
+            .map(c => c.trim())
+            .filter(c => c.startsWith(name + '='));
+        if (xsrfCookies.length === 0) {
+            return null;
+        }
+        return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     }
 
     updateFraggleBox(myJson){
         if (this.state.saveType == "sessionNew") {
-            this.props.setLatestSession(JSON.stringify(myJson.uuid));
-            this.props.setSessionId(JSON.stringify(myJson.id));
+            this.props.setLatestSession(myJson.uuid);
+            this.props.setSessionId(myJson.id);
+            this.props.setSessionTitle(myJson.title);
             this.setState(prevState => ({saveType: ""}));
             this.props.setSavingState("savingSession");
         } else if (this.state.saveType == "sessionSave") {
             this.setState(prevState => ({saveType: ""}));
             this.props.setSavingState("overwritingSession");
         } else if (this.state.saveType == "snapshotNew") {
-            this.props.setLatestSnapshot(JSON.stringify(myJson.uuid));
+            this.props.setLatestSnapshot(myJson.uuid);
             this.setState(prevState => ({saveType: ""}));
             this.props.setSavingState("savingSnapshot");
         }
@@ -61,14 +75,6 @@ export class SessionManagement extends React.Component {
     saveSession(){
         this.setState(prevState => ({saveType: "sessionSave"}));
         this.postToServer();
-    }
-
-    handleSessionNaming(e){
-        if (e.keyCode === 13) {
-            var newSessionName = e.target.value;
-            console.log('submit new session name ' + newSessionName);
-            // this.props.setSessionName(newSessionName);
-        }
     }
 
     newSnapshot(){
@@ -86,24 +92,12 @@ export class SessionManagement extends React.Component {
         }
     }
 
-    getCookie(name) {
-        if (!document.cookie) {
-            return null;
-        }
-        const xsrfCookies = document.cookie.split(';')
-            .map(c => c.trim())
-            .filter(c => c.startsWith(name + '='));
-        if (xsrfCookies.length === 0) {
-            return null;
-        }
-        return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-    }
-
     handleJson(myJson){
         if(myJson.scene==undefined){
             return;
         }
         var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        // this.props.setSessionTitle(myJson.title);
         // saveStore(jsonOfView)
         this.props.reloadApiState(jsonOfView.apiReducers.present);
         this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
@@ -119,6 +113,7 @@ export class SessionManagement extends React.Component {
         this.props.selectVector(jsonOfView.selectionReducers.present.currentVector);
         this.props.setStageColor(jsonOfView.nglReducers.present.stageColor);
         this.props.setCompoundClasses(jsonOfView.selectionReducers.present.compoundClasses);
+        this.props.setSessionId(jsonOfView.apiReducers.present.sessionId);
     };
 
     componentDidUpdate() {
@@ -128,13 +123,14 @@ export class SessionManagement extends React.Component {
                 .then(function(response) {
                     return response.json();
                 }).then(json => this.handleJson(json.results[0]))
+            this.props.setUuid("UNSET");
         }
         for (var key in this.props.nglOrientations){
             if(this.props.nglOrientations[key]=="REFRESH") {
                 hasBeenRefreshed = false;
             }
             if(this.props.nglOrientations[key]=="STARTED"){
-                hasBeenRefreshed = false
+                hasBeenRefreshed = false;
             }
         }
         if (hasBeenRefreshed==true) {
@@ -145,6 +141,7 @@ export class SessionManagement extends React.Component {
             second: 'numeric', hour12: false,}
             var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
             var userId = DJANGO_CONTEXT["pk"];
+            hasBeenRefreshed = false;
             if (this.state.saveType == "sessionNew") {
                 const uuidv4 = require('uuid/v4');
                 var formattedState = {
@@ -169,15 +166,12 @@ export class SessionManagement extends React.Component {
                     this.deployErrorModal(error);
                 });
             } else if (this.state.saveType == "sessionSave") {
-                var uuid = this.props.latestSession.slice(1, -1);
+                var uuid = this.props.latestSession;
                 var formattedState = {
-                    uuid: uuid,
-                    title: TITLE,
-                    user_id: userId,
                     scene: JSON.stringify(JSON.stringify(fullState))
                 };
                 fetch("/api/viewscene/" + JSON.parse(this.props.sessionId), {
-                    method: "put",
+                    method: "PATCH",
                     headers: {
                         'X-CSRFToken': csrfToken,
                         'Accept': 'application/json',
@@ -241,8 +235,7 @@ export class SessionManagement extends React.Component {
                         <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share Snapshot</Button>
                     </ButtonToolbar>
                     <Row>
-                        {/*<input id="renameSession" style={{ width:100 }} defaultValue={this.state.sessionName} onKeyDown={ this.handleSessionNaming }></input>*/}
-                        <p>Session: {this.props.latestSession}, author: tbd</p>
+                        <p>Session: {this.props.sessionTitle}</p>
                     </Row>
                 </div>
             }
@@ -281,5 +274,7 @@ const mapDispatchToProps = {
     setStageColor: nglLoadActions.setStageColor,
     setCompoundClasses: selectionActions.setCompoundClasses,
     setSessionId: apiActions.setSessionId,
+    setUuid: apiActions.setUuid,
+    setSessionTitle: apiActions.setSessionTitle,
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionManagement));

@@ -22,13 +22,15 @@ const customStyles = {
         bottom: 'auto',
         marginRight: '-20%',
         transform: 'translate(-50%, -50%)',
-        border: '10px solid #7a7a7a'
+        border: '10px solid #7a7a7a',
+        width: '60%'
     }
 };
 
 export class ModalStateSave extends Component {
     constructor(props) {
         super(props);
+        this.getCookie = this.getCookie.bind(this);
         this.openFraggleLink = this.openFraggleLink.bind(this);
         this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
@@ -38,21 +40,52 @@ export class ModalStateSave extends Component {
         };
     }
 
+    getCookie(name) {
+        if (!document.cookie) {
+            return null;
+        }
+        const xsrfCookies = document.cookie.split(';')
+            .map(c => c.trim())
+            .filter(c => c.startsWith(name + '='));
+        if (xsrfCookies.length === 0) {
+            return null;
+        }
+        return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    }
+
     openFraggleLink() {
         var url = "";
         if (this.props.savingState == "savingSnapshot") {
-            url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
+            url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot;
             window.open(url);
         } else if (this.props.savingState == "savingSession" || this.props.savingState == "overwritingSession") {
-            url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
+            url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession;
             window.open(url);
         }
     }
 
     handleSessionNaming(e){
         if (e.keyCode === 13) {
-            console.log('submit new session name ' + e.target.value);
-            this.props.setSessionTitle(e.target.value);
+            var title = e.target.value;
+            console.log('submit new session name ' + title);
+            this.props.setSessionTitle(title);
+            const csrfToken = this.getCookie("csrftoken");
+            var uuid = this.props.latestSession;
+            var formattedState = {
+                uuid: uuid,
+                title: title,
+            };
+            fetch("/api/viewscene/" + JSON.parse(this.props.sessionId), {
+                    method: "PATCH",
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formattedState)
+                }).catch((error) => {
+                    this.props.setErrorMessage(error);
+                });
         }
     }
 
@@ -80,28 +113,21 @@ export class ModalStateSave extends Component {
             </Tooltip>
         );
         var urlToCopy = "";
-        var information = "";
-        var linkSection;
+        var sessionRename = "";
+        var linkSection = "";
         if (this.state.fraggleBoxLoc != undefined || this.state.snapshotLoc != undefined) {
             if (this.props.savingState == "savingSnapshot") {
-                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot.slice(1, -1);
-                var linkSection = <Row><strong>"A permanent, fixed snapshot of the current state has been saved:"<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
+                var sessionRename =<Row></Row>
+                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot;
+                var linkSection = <Row><strong>A permanent, fixed snapshot of the current state has been saved:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             } else if (this.props.savingState == "savingSession") {
-                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
-                var linkSection = <Row><strong>"A new session has been generated:"<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
+                var sessionRename = <Row><input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.props.sessionTitle} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To overwrite session name, enter new title above and press enter.</sup></Row>
+                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession;
+                var linkSection = <Row><strong>A new session has been generated:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             } else if (this.props.savingState == "overwritingSession") {
-                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession.slice(1, -1);
-                var linkSection = <Row><strong>"Your session has been overwritten and remains:"<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
-            }
-            if (this.props.savingState == "overwritingSession") {
-                // Session address:
-            } else {
-
-            }
-            if (this.props.savingState == "overwritingSession") {
-                // Session address:
-            } else {
-
+                var sessionRename = <Row><input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.props.sessionTitle} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To overwrite session name, enter new title above and press enter.</sup></Row>
+                var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession;
+                var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             }
             return (
                 <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
@@ -111,9 +137,7 @@ export class ModalStateSave extends Component {
                     <Row>
                         <p></p>
                     </Row>
-                    <Row>
-                        <input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.state.sessionTitle} onKeyDown={this.handleSessionNaming}></input>
-                    </Row>
+                        {sessionRename}
                     <Row>
                         <p></p>
                     </Row>
@@ -153,12 +177,14 @@ function mapStateToProps(state) {
         latestSession: state.apiReducers.present.latestSession,
         latestSnapshot: state.apiReducers.present.latestSnapshot,
         sessionTitle: state.apiReducers.present.sessionTitle,
+        sessionId: state.apiReducers.present.sessionId,
     }
 }
 
 const mapDispatchToProps = {
     setSavingState: apiActions.setSavingState,
     setSessionTitle: apiActions.setSessionTitle,
+    setErrorMessage: apiActions.setErrorMessage,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalStateSave);

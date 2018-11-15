@@ -31,7 +31,7 @@ export class Welcome extends React.Component {
                         {text_div}
                     </Row>
                     <Row>
-                        <p>An overview of target status (only accessible within Diamond) is available <a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">here</a></p>
+                        <p><a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">Target status overview</a> (only accessible within Diamond)</p>
                     </Row>
                 </Col>
                 <Col xs={4} md={4}>

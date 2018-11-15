@@ -38,6 +38,11 @@ export class GenericList extends React.Component {
     getUrl() {
         // This should be defined by type
         var base_url = window.location.protocol + "//" + window.location.host
+        if (DJANGO_CONTEXT["pk"] != undefined) {
+            var userId = DJANGO_CONTEXT["pk"].toString()
+        } else {
+            var userId = null;
+        }
         // Set the version
         base_url += "/api/"
         var get_params = {}
@@ -86,7 +91,7 @@ export class GenericList extends React.Component {
             }
         }
         else if (this.list_type == listTypes.SESSIONS) {
-            base_url += "viewscene/"
+            base_url += "viewscene/?user_id="+ userId
             if (this.props.project_id != undefined) {
                 get_params.project_id = this.props.project_id
             }

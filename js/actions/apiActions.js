@@ -29,6 +29,7 @@ import {
     SET_SESSION_TITLE,
     SET_SESSION_ID,
     SET_SESSION_ID_LIST,
+    UPDATE_SESSION_ID_LIST,
     SET_ERROR_MESSAGE,
     SET_TARGET_UNRECOGNISED,
     SET_UUID,
@@ -250,6 +251,14 @@ export const setSessionIdList = function (input_json) {
     };
 }
 
+export const updateSessionIdList = function (input_json) {
+    console.log("ACTIONS: sessionList summary written to state");
+    return {
+        type: UPDATE_SESSION_ID_LIST,
+        sessionIdList: input_json,
+    };
+}
+
 export const setErrorMessage = function (errorMessage) {
     console.log("ACTIONS: errorMessage is " + errorMessage)
     return {
@@ -293,7 +302,9 @@ export const reloadApiState = function (apiReducers) {
         mol_group_on: apiReducers.mol_group_on,
         hotspot_list: apiReducers.hotspot_list,
         hotspot_on: apiReducers.hotspot_on,
-        app_on: apiReducers.app_on
+        app_on: apiReducers.app_on,
+        sessionId: apiReducers.sessionId,
+        sessionTitle: apiReducers.sessionTitle,
     }
 }
 

@@ -79,6 +79,7 @@ class Header extends React.Component {
         var new_ele;
         var navbarBrand;
         var username = DJANGO_CONTEXT["username"];
+
         if (username == "NOT_LOGGED_IN") {
             new_ele = <NavItem eventKey={1} href={login}>
                 <Button> Login </Button>
@@ -89,13 +90,14 @@ class Header extends React.Component {
                 <h5><b>Hello {username}</b> Logout.</h5>
             </NavItem>
         }
+
         if (document.location.host.startsWith("fragalysis.diamond") !== true) {
             navbarBrand = <Navbar.Brand>
                 <Row>
                     <h4><a href={landing}>Fragalysis <b>DEVELOPMENT </b></a></h4>
                 </Row>
                 <Row>
-                    <p>Please use: <a href={prodLanding}>production site</a></p>
+                    <p>Please use: <a href={prodLanding} data-toggle='tooltip' title="https://fragalysis.diamond.ac.uk">production site</a></p>
                 </Row>
             </Navbar.Brand>
         } else {
@@ -103,6 +105,7 @@ class Header extends React.Component {
                 <h4><a href={landing}>FragalysisHome</a></h4>
             </Navbar.Brand>
         }
+
         return <Navbar>
             <Navbar.Header>
                 {navbarBrand}
