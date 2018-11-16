@@ -221,6 +221,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 to_query_prot: action.item.to_query_prot,
                 to_query_sdf_info: action.item.to_query_sdf_info,
                 currentVector: action.item.currentVector,
+                compoundClasses: action.item.compoundClasses,
             });
 
         // Cases like: @@redux/INIT

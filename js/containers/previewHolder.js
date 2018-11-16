@@ -95,19 +95,11 @@ class Preview extends Component {
 
 function mapStateToProps(state) {
   return {
-      this_vector_list: state.selectionReducers.present.this_vector_list,
-      to_query: state.selectionReducers.present.to_query,
-      highlightedCompound: state.selectionReducers.present.highlightedCompound,
-      currentVector: state.selectionReducers.present.currentVector,
-      currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
       targetIdList: state.apiReducers.present.target_id_list,
   }
 }
 const mapDispatchToProps = {
     setTargetOn: apiActions.setTargetOn,
-    setHighlighted: selectionActions.setHighlighted,
-    appendToBuyList: selectionActions.appendToBuyList,
-    removeFromToBuyList: selectionActions.removeFromToBuyList,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
     setErrorMessage: apiActions.setErrorMessage,
 }
