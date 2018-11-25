@@ -201,27 +201,28 @@ export default function selectionReducers(state = INITIALSTATE, action) {
             })
 
         case actions.RELOAD_SELECTION_STATE:
-            var input_mol_key = action.currentVector;
             var this_vector_list = []
-            for (var key in  state.to_select){
-                if (key.split("_")[0]==input_mol_key){
-                    this_vector_list[key] = state.to_select[key]
+            for (var key in action.savedSelectionReducers.to_select){
+                if (key.split("_")[0]==action.savedSelectionReducers.currentVector){
+                    this_vector_list[key] = action.savedSelectionReducers.to_select[key]
                 }
             }
             return  Object.assign({}, state, {
                 this_vector_list: this_vector_list,
-                fragmentDisplayList: new Set(action.item.fragmentDisplayList),
-                complexList: new Set(action.item.complexList),
-                vectorOnList: new Set(action.item.vectorOnList),
-                to_query: action.item.to_query,
-                vector_list: action.item.vector_list,
-                to_select: action.item.to_select,
-                to_buy_list: action.item.to_buy_list,
-                to_query_pk: action.item.to_query_pk,
-                to_query_prot: action.item.to_query_prot,
-                to_query_sdf_info: action.item.to_query_sdf_info,
-                currentVector: action.item.currentVector,
-                compoundClasses: action.item.compoundClasses,
+                fragmentDisplayList: new Set(action.savedSelectionReducers.fragmentDisplayList),
+                complexList: new Set(action.savedSelectionReducers.complexList),
+                vectorOnList: new Set(action.savedSelectionReducers.vectorOnList),
+                to_query: action.savedSelectionReducers.to_query,
+                vector_list: action.savedSelectionReducers.vector_list,
+                to_select: action.savedSelectionReducers.to_select,
+                to_buy_list: action.savedSelectionReducers.to_buy_list,
+                to_query_pk: action.savedSelectionReducers.to_query_pk,
+                to_query_prot: action.savedSelectionReducers.to_query_prot,
+                to_query_sdf_info: action.savedSelectionReducers.to_query_sdf_info,
+                currentVector: action.savedSelectionReducers.currentVector,
+                compoundClasses: action.savedSelectionReducers.compoundClasses,
+                currentCompoundClass: action.savedSelectionReducers.currentCompoundClass,
+                highlightedCompound: action.savedSelectionReducers.highlightedCompound,
             });
 
         // Cases like: @@redux/INIT

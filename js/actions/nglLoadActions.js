@@ -14,7 +14,8 @@ import {
     SET_NGL_ORIENTATION,
     SET_LOADING_STATE,
     SET_STAGE_COLOR,
-    SET_NGL_PROT_STYLE
+    SET_NGL_PROT_STYLE,
+    REDEPLOY_VECTORS,
 } from "./actonTypes";
 
 
@@ -127,4 +128,12 @@ export const setNglProtStyle = function (nglProtStyle) {
         type: SET_NGL_PROT_STYLE,
         nglProtStyle: nglProtStyle
     };
+}
+
+export const redeployVectors = function (objectsWereInView) {
+    console.log("ACTIONS: " + objectsWereInView);
+    return {
+        type: REDEPLOY_VECTORS,
+        objectsWereInView: objectsWereInView
+    }
 }

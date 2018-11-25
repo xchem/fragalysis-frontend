@@ -17,6 +17,7 @@ export const SET_WATER = 'SET_WATER';
 export const SET_HYDROGEN = 'SET_HYDROGEN';
 export const SET_STAGE_COLOR = 'SET_STAGE_COLOR';
 export const SET_NGL_PROT_STYLE = 'SET_NGL_PROT_STYLE';
+export const REDEPLOY_VECTORS = 'REDEPLOY_VECTORS';
 // Target, Site, Molecule, Protein, Compound
 export const LOAD_TARGETS = 'LOAD_TARGETS';
 export const LOAD_PROTEINS = 'LOAD_PROTEINS';

@@ -35,6 +35,7 @@ import {
     SET_UUID,
     SET_USER_ID,
 } from "./actonTypes";
+import * as actions from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -297,14 +298,22 @@ export const reloadApiState = function (apiReducers) {
         type: RELOAD_API_STATE,
         target_on_name: apiReducers.target_on_name,
         target_on: apiReducers.target_on,
+        target_id: apiReducers.target_id,
         molecule_list: apiReducers.molecule_list,
         mol_group_list: apiReducers.mol_group_list,
         mol_group_on: apiReducers.mol_group_on,
         hotspot_list: apiReducers.hotspot_list,
         hotspot_on: apiReducers.hotspot_on,
         app_on: apiReducers.app_on,
-        sessionId: apiReducers.sessionId,
-        sessionTitle: apiReducers.sessionTitle,
+        sessionIdList: apiReducers.sessionIdList,
+        latestSession: apiReducers.latestSession,
+        project_id: apiReducers.project_id,
+        group_id: apiReducers.group_id,
+        group_type: apiReducers.group_type,
+        pandda_event_on: apiReducers.pandda_event_on,
+        pandda_site_on: apiReducers.pandda_site_on,
+        pandda_event_list: apiReducers.pandda_event_list,
+        pandda_site_list: apiReducers.pandda_site_list,
     }
 }
 

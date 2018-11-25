@@ -48,7 +48,6 @@ class SessionList extends GenericList {
 
     handleSessionNaming(e) {
         if (e.keyCode === 13) {
-            // this.props.clearSessionIdList();
             var id = e.target.id;
             var title = e.target.value;
             this.renameStateSession(id, title);
@@ -172,7 +171,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-    clearSessionIdList: apiActions.clearSessionIdList,
     setObjectList: apiActions.setSessionIdList,
     updateSessionIdList: apiActions.updateSessionIdList,
 }

@@ -196,17 +196,17 @@ export default function apiReducers(state = INITIALSTATE, action) {
 
         case actions.UPDATE_SESSION_ID_LIST:
             var sessionSummary = [];
-                for (var key in action.sessionIdList) {
-                    sessionSummary.push({
-                        id: action.sessionIdList[key].id,
-                        uuid: action.sessionIdList[key].uuid,
-                        title: action.sessionIdList[key].title,
-                        created: action.sessionIdList[key].created,
-                        modified: action.sessionIdList[key].modified,
-                        user_id: action.sessionIdList[key].user_id,
-                        target_on_name: action.sessionIdList[key].target_on_name
-                    });
-                }
+            for (var key in action.sessionIdList) {
+                sessionSummary.push({
+                    id: action.sessionIdList[key].id,
+                    uuid: action.sessionIdList[key].uuid,
+                    title: action.sessionIdList[key].title,
+                    created: action.sessionIdList[key].created,
+                    modified: action.sessionIdList[key].modified,
+                    user_id: action.sessionIdList[key].user_id,
+                    target_on_name: action.sessionIdList[key].target_on_name
+                });
+            }
             return Object.assign({}, state, {
                 sessionIdList: sessionSummary
             });
@@ -232,23 +232,25 @@ export default function apiReducers(state = INITIALSTATE, action) {
             });
 
         case actions.RELOAD_API_STATE:
-            var target_on_name = undefined;
-            for(var ind in state.target_id_list){
-                if(state.target_id_list[ind].id==action.target_on){
-                    target_on_name = state.target_id_list[ind].title;
-                }
-            }
             return Object.assign({}, state, {
-                target_on_name: target_on_name,
+                project_id: action.project_id,
+                target_on_name: action.target_on_name,
                 target_on: action.target_on,
+                target_id: action.target_id,
+                group_id: action.group_id,
+                group_type: action.group_type,
                 molecule_list: action.molecule_list,
                 mol_group_list: action.mol_group_list,
                 mol_group_on: action.mol_group_on,
                 hotspot_list: action.hotspot_list,
                 hotspot_on: action.hotspot_on,
                 app_on: action.app_on,
-                sessionId: action.sessionId,
-                sessionTitle: action.sessionTitle,
+                sessionIdList: action.sessionIdList,
+                pandda_event_on: action.pandda_event_on,
+                pandda_site_on: action.pandda_site_on,
+                pandda_event_list: action.pandda_event_list,
+                pandda_site_list: action.pandda_site_list,
+                latestSession: action.latestSession,
             });
 
         // Cases like: @@redux/INIT

@@ -16,7 +16,6 @@ class MolGroupList extends GenericList {
         super(props);
         this.list_type = listType.MOLGROUPS;
         this.generateObject = this.generateObject.bind(this)
-
     }
     render() {
         return null;

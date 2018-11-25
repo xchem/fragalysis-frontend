@@ -47,15 +47,17 @@ class CompoundList extends React.Component {
 
     selectAll() {
         for(var key in this.props.thisVectorList) {
-            for (var index in this.props.thisVectorList[key]){
-                for (var fUCompound in this.props.thisVectorList[key][index]) {
-                    var thisObj = {
-                        smiles: this.props.thisVectorList[key][index][fUCompound].end,
-                        vector: this.props.thisVectorList[key].vector.split("_")[0],
-                        mol: this.props.to_query,
-                        class: parseInt(this.props.currentCompoundClass)
+            for (var index in this.props.thisVectorList[key]) {
+                if (index != "vector") {
+                    for (var fUCompound in this.props.thisVectorList[key][index]) {
+                        var thisObj = {
+                            smiles: this.props.thisVectorList[key][index][fUCompound].end,
+                            vector: this.props.thisVectorList[key].vector.split("_")[0],
+                            mol: this.props.to_query,
+                            class: parseInt(this.props.currentCompoundClass)
+                        }
+                        this.props.appendToBuyList(thisObj);
                     }
-                    this.props.appendToBuyList(thisObj);
                 }
             }
         }

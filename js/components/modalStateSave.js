@@ -32,11 +32,13 @@ export class ModalStateSave extends Component {
         super(props);
         this.getCookie = this.getCookie.bind(this);
         this.openFraggleLink = this.openFraggleLink.bind(this);
+        this.getTitle = this.getTitle.bind(this);
         this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.state = {
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
+            title: undefined,
         };
     }
 
@@ -62,6 +64,25 @@ export class ModalStateSave extends Component {
             url = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession;
             window.open(url);
         }
+    }
+
+    getTitle() {
+        var _this = this;
+        fetch("/api/viewscene/?uuid=" + this.props.latestSession, {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).catch((error) => {
+            this.props.setErrorMessage(error);
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            var getTitle = myJson.results[JSON.stringify(0)].title;
+            _this.props.setSessionTitle(getTitle);
+            return getTitle;
+        }).then(getTitle => this.setState(prevState => ({title: getTitle})))
     }
 
     handleSessionNaming(e){
@@ -92,6 +113,7 @@ export class ModalStateSave extends Component {
     closeModal() {
         this.setState(prevState => ({fraggleBoxLoc: undefined}));
         this.setState(prevState => ({snapshotLoc: undefined}));
+        this.setState(prevState => ({title: undefined}));
         this.props.setSavingState("UNSET");
     }
 
@@ -121,11 +143,17 @@ export class ModalStateSave extends Component {
                 var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot;
                 var linkSection = <Row><strong>A permanent, fixed snapshot of the current state has been saved:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             } else if (this.props.savingState == "savingSession") {
-                var sessionRename = <Row><input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.props.sessionTitle} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To overwrite session name, enter new title above and press enter.</sup></Row>
+                if (this.state.title == undefined) {
+                    this.getTitle();
+                }
+                var sessionRename = <Row> <input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.state.title} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To overwrite session name, enter new title above and press enter.</sup></Row>
                 var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession;
                 var linkSection = <Row><strong>A new session has been generated:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             } else if (this.props.savingState == "overwritingSession") {
-                var sessionRename = <Row><input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.props.sessionTitle} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To overwrite session name, enter new title above and press enter.</sup></Row>
+                if (this.state.title == undefined) {
+                    this.getTitle();
+                }
+                var sessionRename = <Row> <input id="sessionRename" key="sessionRename" style={{ width:300 }} defaultValue={this.state.title} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To overwrite session name, enter new title above and press enter.</sup></Row>
                 var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + this.props.latestSession;
                 var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             }

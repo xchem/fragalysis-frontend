@@ -17,7 +17,6 @@ import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
 import ModalTargetUnrecognised from "../components/modalTargetUnrecognised";
 import * as apiActions from "../actions/apiActions";
-import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
 import {withRouter} from "react-router-dom";
 import {BrowserBomb} from "../components/browserBombModal";
