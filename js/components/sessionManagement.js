@@ -122,7 +122,6 @@ export class SessionManagement extends React.Component {
         this.props.setSessionTitle(myJson.title);
         this.props.setSessionId(myJson.id);
         this.restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
-        this.props.setMolGroupOn(jsonOfView.apiReducers.present.mol_group_on);
     };
 
     restoreOrientation(myOrientDict) {
