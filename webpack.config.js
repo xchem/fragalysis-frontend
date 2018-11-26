@@ -3,8 +3,6 @@ const webpack = require('webpack');
 const BundleTracker = require('webpack-bundle-tracker');
 const CompressionPlugin = require("compression-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-// const HtmlWebpackPlugin = require("html-webpack-plugin");
-// const WebappWebpackPlugin = require("webapp-webpack-plugin");
 
 module.exports = {
   context: __dirname,
