@@ -261,7 +261,7 @@ class SummaryView extends React.Component{
                     <h5>Number series explored: <b>{this.state.num_series}</b></h5>
                     <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Export to CSV</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Download CSV (Chrome)</Button>
                         <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                     </ButtonToolbar>
                     <h5>Selected Interaction: <b>{interaction_select}</b></h5>

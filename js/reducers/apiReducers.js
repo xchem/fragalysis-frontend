@@ -24,6 +24,7 @@ const INITIALSTATE = {
     hotspot_on: undefined,
     hotspot_list: [],
     savingState: "UNSET",
+    seshListSaving: true,
     latestSession: undefined,
     latestSnapshot: undefined,
     errorMessage: undefined,
@@ -155,6 +156,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_SAVING_STATE:
             return Object.assign({}, state, {
                 savingState: action.savingState
+            });
+
+        case actions.SET_SESH_LIST_SAVING:
+            return Object.assign({}, state, {
+                seshListSaving: action.seshListSaving
             });
 
         case actions.SET_LATEST_SNAPSHOT:

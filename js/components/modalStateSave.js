@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Tooltip, OverlayTrigger, ButtonToolbar, Row, Col, Button} from 'react-bootstrap';
+import {Tooltip, OverlayTrigger, ButtonToolbar, Row, Col} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -129,11 +129,7 @@ export class ModalStateSave extends Component {
     }
 
     render() {
-        const tooltip = (
-            <Tooltip id="tooltip">
-                <strong>Copied!</strong>
-            </Tooltip>
-        );
+        const tooltip = (<Tooltip id="tooltip"><strong>Copied!</strong></Tooltip>);
         var urlToCopy = "";
         var sessionRename = "";
         var linkSection = "";
@@ -159,38 +155,28 @@ export class ModalStateSave extends Component {
             }
             return (
                 <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
-                    <Col xs={1} md={1}>
-                    </Col>
+                    <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
-                    <Row>
-                        <p></p>
-                    </Row>
+                        <Row><p></p></Row>
                         {sessionRename}
-                    <Row>
-                        <p></p>
-                    </Row>
+                        <Row><p></p></Row>
                         {linkSection}
-                    <Row>
-                        <p></p>
-                    </Row>
-                    <Row>
-                        <p></p>
-                    </Row>
-                    <Row>
-                        <ButtonToolbar>
-                            <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
-                                <Clipboard option-container="modal" data-clipboard-text={urlToCopy}
+                        <Row><p></p></Row>
+                        <Row><p></p></Row>
+                        <Row>
+                            <ButtonToolbar>
+                                <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
+                                    <Clipboard option-container="modal" data-clipboard-text={urlToCopy}
                                            button-title="Copy me!">Copy link</Clipboard>
-                            </OverlayTrigger>
-                            <h3 style={{display: "inline"}}> </h3>
-                            <button onClick={this.openFraggleLink}>Open in new tab</button>
-                            <h3 style={{display: "inline"}}> </h3>
-                            <button onClick={this.closeModal}>Close</button>
-                        </ButtonToolbar>
-                    </Row>
+                                </OverlayTrigger>
+                                <h3 style={{display: "inline"}}> </h3>
+                                <button onClick={this.openFraggleLink}>Open in new tab</button>
+                                <h3 style={{display: "inline"}}> </h3>
+                                <button onClick={this.closeModal}>Close</button>
+                            </ButtonToolbar>
+                        </Row>
                     </Col>
-                    <Col xs={1} md={1}>
-                    </Col>
+                    <Col xs={1} md={1}></Col>
                 </ReactModal>
             );
         } else {

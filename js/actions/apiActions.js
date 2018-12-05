@@ -24,6 +24,7 @@ import {
     SET_DUCK_YANK_DATA,
     RELOAD_API_STATE,
     SET_SAVING_STATE,
+    SET_SESH_LIST_SAVING,
     SET_LATEST_SNAPSHOT,
     SET_LATEST_SESSION,
     SET_SESSION_TITLE,
@@ -209,6 +210,14 @@ export const setSavingState = function (savingState) {
     return {
         type: SET_SAVING_STATE,
         savingState: savingState
+    };
+}
+
+export const setSeshListSaving = function (seshListSaving) {
+    console.log("ACTIONS: setting saving state to " + seshListSaving);
+    return {
+        type: SET_SESH_LIST_SAVING,
+        seshListSaving: seshListSaving
     };
 }
 

@@ -2,13 +2,22 @@
  * Created by ricgillams on 29/10/2018.
  */
 
-import {ListGroupItem, ListGroup, Row, Col, Button} from "react-bootstrap";
+import {ListGroupItem, ListGroup, Row, Col, ButtonTooltip, OverlayTrigger, ButtonToolbar, Tooltip} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import {withRouter, Link} from "react-router-dom";
+import Clipboard from 'react-clipboard.js';
+import { css } from 'react-emotion';
+import { RingLoader } from 'react-spinners';
+
+const override = css`
+    display: block;
+    margin: 0 auto;
+    border-color: red;
+`;
 
 class SessionList extends GenericList {
     constructor(props) {
@@ -72,6 +81,7 @@ class SessionList extends GenericList {
     }
 
     deleteStateSession(id) {
+        var _this = this
         let currentSessionList = this.props.object_list;
         for (var session in currentSessionList) {
             if (currentSessionList[session].id === id) {
@@ -79,6 +89,10 @@ class SessionList extends GenericList {
             }
         }
         this.props.updateSessionIdList(currentSessionList)
+        if (this.props.object_list.length == 23) {
+            this.props.setSeshListSaving(true)
+            window.location.reload();
+        }
     }
 
     deleteSession(id) {
@@ -97,8 +111,17 @@ class SessionList extends GenericList {
 
     renderDeleteButton(data) {
         var _this = this;
-        var deleteButton = <Button bsStyle="danger" bsSize="xsmall" onClick={function onClick() {_this.deleteSession(data.id)}} >Delete</Button>
+        var deleteButton = <button onClick={function onClick() {_this.deleteSession(data.id)}} >Delete</button>
         return deleteButton;
+    }
+
+    renderCopyUrlButton(data) {
+        const tooltip = (<Tooltip id="tooltip"><strong>Copied!</strong></Tooltip>);
+        var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/fragglebox/" + data.uuid;
+        var copyButton = <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
+            <Clipboard option-container="modal" data-clipboard-text={urlToCopy} button-title="Copy URL">Copy link</Clipboard>
+        </OverlayTrigger>
+        return copyButton;
     }
 
     render_method(data) {
@@ -109,9 +132,9 @@ class SessionList extends GenericList {
                 <Row>
                     <Col xs={3} md={3}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{this.props.object_list[this.props.object_list.findIndex(x => x.id==data.id)].title}</Link></p></Row></Col>
                     <Col xs={3} md={3}><Row></Row><p></p><Row><p>Last modified on {data.modified.slice(0,10)} at {data.modified.slice(11,19)}</p></Row></Col>
-                    <Col xs={2} md={2}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
+                    <Col xs={1} md={1}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
                     <Col xs={3} md={3}><input id={data.id} key="sessRnm" style={{width: 250}} defaultValue={data.title} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To rename, type new title & press enter.</sup></Col>
-                    <Col xs={1} md={1}>{this.renderDeleteButton(data)}</Col>
+                    <Col xs={2} md={2}><ButtonToolbar>{this.renderCopyUrlButton(data)} {this.renderDeleteButton(data)}</ButtonToolbar></Col>
                 </Row>
             </ListGroupItem>
         } else {
@@ -131,35 +154,48 @@ class SessionList extends GenericList {
 
     render() {
         const {pathname} = this.props.location;
-        if (this.props != undefined && this.props.object_list) {
-            if (DJANGO_CONTEXT["username"] == "NOT_LOGGED_IN") {
-                return <h3>Please log in to view session history.</h3>
-            } else if (this.props.object_list.length == 0) {
-                return <div><h3>You do not own any sessions!</h3><p>Proceed to a target to generate sessions.</p></div>
-            } else {
-                if (pathname != "/viewer/react/sessions") {
-                    return <div>
-                        <h3>Session List:</h3>
-                        <ListGroup>
-                            {
-                                this.props.object_list.slice(0, 10).map((data) => (this.render_method(data)))
-                            }
-                        </ListGroup>
-                        <p>Full list and session management here: <a href="/viewer/react/sessions">Sessions</a></p>
-                    </div>;
-                } else {
-                    return <div>
-                        <h3>Session List:</h3>
-                        <ListGroup>
-                            {
-                                this.props.object_list.map((data) => (this.render_method(data)))
-                            }
-                        </ListGroup>
-                    </div>;
-                }
-            }
+        var sessionListTitle;
+        if (this.props.object_list.length != 0 && this.props.object_list.length <= 10){
+            sessionListTitle = <h3>Session List:</h3>
+        } else if (this.props.object_list.length > 10 && this.props.object_list.length < 24){
+            sessionListTitle = <h3>Session count: {this.props.object_list.length}/24.</h3>
+        } else if (this.props.object_list.length >= 24){
+            sessionListTitle = <h3>You have reached session limit (24), please delete old <a href="/viewer/react/sessions">sessions</a>!</h3>
+        }
+         if (this.props.seshListSaving == true) {
+            return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={(this.props.seshListSaving == true)}/>
         } else {
-            return null;
+             if (this.props != undefined && this.props.object_list) {
+                 if (DJANGO_CONTEXT["username"] == "NOT_LOGGED_IN") {
+                     return <h3>Please log in to view session history.</h3>
+                 } else if (this.props.object_list.length == 0) {
+                     return <div><h3>You do not own any sessions!</h3><p>Proceed to a target to generate sessions.</p>
+                     </div>
+                 } else {
+                     if (pathname != "/viewer/react/sessions") {
+                         return <div>
+                             {sessionListTitle}
+                             <ListGroup>
+                                 {
+                                     this.props.object_list.slice(0, 10).map((data) => (this.render_method(data)))
+                                 }
+                             </ListGroup>
+                             <p>Full list and session management here: <a href="/viewer/react/sessions">Sessions</a></p>
+                         </div>;
+                     } else {
+                         return <div>
+                             {sessionListTitle}
+                             <ListGroup>
+                                 {
+                                     this.props.object_list.map((data) => (this.render_method(data)))
+                                 }
+                             </ListGroup>
+                         </div>;
+                     }
+                 }
+             } else {
+                 return null;
+             }
         }
     }
 }
@@ -167,12 +203,14 @@ class SessionList extends GenericList {
 function mapStateToProps(state) {
     return {
         object_list: state.apiReducers.present.sessionIdList,
+        seshListSaving: state.apiReducers.present.seshListSaving,
     }
 }
 
 const mapDispatchToProps = {
     setObjectList: apiActions.setSessionIdList,
     updateSessionIdList: apiActions.updateSessionIdList,
+    setSeshListSaving: apiActions.setSeshListSaving,
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionList));

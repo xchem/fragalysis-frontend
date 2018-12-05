@@ -14,12 +14,13 @@ import NGLView from "../components/nglComponents";
 import NglViewerControls from "../components/nglViewerControls";
 import {withRouter} from "react-router-dom";
 import * as apiActions from "../actions/apiActions";
+import * as nglLoadActions from "../actions/nglLoadActions";
+import ModalTargetUnrecognised from "../components/modalTargetUnrecognised";
 import ModalLoadingScreen from "../components/modalLoadingScreen";
 import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
 import HotspotList from "../components/hotspotList";
-import {BrowserBomb} from "../components/browserBombModal";
-// import {ModalTargetUnrecognised} from "../components/modalTargetUnrecognised";
+import BrowserBomb from "../components/browserBombModal";
 
 class FraggleBox extends Component {
 
@@ -36,12 +37,12 @@ class FraggleBox extends Component {
             var snapshotUuid = this.props.match.params.snapshotUuid;
             this.props.setUuid(snapshotUuid);
         }
-        // this.updateTarget();
     }
 
     render() {
         var screenHeight= window.innerHeight*0.75.toString()+"px"
         var molListHeight= window.innerHeight*0.5.toString()+"px"
+
         return (
             <Row >
                 <Col xs={0} md={0}>
@@ -61,10 +62,10 @@ class FraggleBox extends Component {
                     <CompoundList />
                     <HotspotList />
                 </Col>
+                <ModalTargetUnrecognised/>
                 <ModalLoadingScreen/>
                 <ModalStateSave/>
                 <ModalErrorMessage/>
-                {/*<ModalTargetUnrecognised/>*/}
                 <BrowserBomb/>
           </Row>
         )
@@ -73,11 +74,16 @@ class FraggleBox extends Component {
 
 function mapStateToProps(state) {
   return {
+      targetOnName: state.apiReducers.present.target_on_name,
+      targetIdList: state.apiReducers.present.target_id_list,
+      targetUnrecognised: state.apiReducers.present.targetUnrecognised,
   }
 }
 const mapDispatchToProps = {
     setUuid: apiActions.setUuid,
     setLatestSession: apiActions.setLatestSession,
+    setTargetUnrecognised: apiActions.setTargetUnrecognised,
+    setLoadingState: nglLoadActions.setLoadingState,
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FraggleBox))

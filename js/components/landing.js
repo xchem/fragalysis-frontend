@@ -25,7 +25,8 @@ export class Welcome extends React.Component {
         }
         return (
             <Row>
-                <Col xs={3} md={3}>
+                <Col xs={1} md={1}></Col>
+                <Col xs={2} md={2}>
                     <Row>
                         <h1>Welcome to Fragalysis{"\n"}</h1>
                         {text_div}

@@ -94,10 +94,11 @@ export class GenericList extends React.Component {
             base_url += "viewscene/?user_id="+ userId
             if (this.props.project_id != undefined) {
                 get_params.project_id = this.props.project_id
+                this.props.setSeshListSaving(true);
             }
         }
         else {
-            console.log("DEFUALT")
+            console.log("DEFAULT")
         }
         var url = new URL(base_url)
         Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
@@ -112,6 +113,7 @@ export class GenericList extends React.Component {
     processResults(json) {
         var results = json.results;
         this.afterPush(results)
+        if (this.list_type == listTypes.SESSIONS && this.props.seshListSaving == true) {this.props.setSeshListSaving(false)}
         return results;
     }
 
@@ -124,7 +126,9 @@ export class GenericList extends React.Component {
                     response => response.json(),
                     error => console.log('An error occurred.', error)
                 )
-                .then(json => this.props.setObjectList(this.processResults(json)))
+                .then(
+                    json => this.props.setObjectList(this.processResults(json))
+                )
         }
         this.old_url = url.toString();
     }

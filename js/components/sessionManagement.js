@@ -41,11 +41,45 @@ export class SessionManagement extends React.Component {
         this.redeployVectors = this.redeployVectors.bind(this);
         this.generateNextUuid = this.generateNextUuid.bind(this);
         this.getSessionDetails = this.getSessionDetails.bind(this);
+        this.checkTarget = this.checkTarget.bind(this);
+        this.reloadSession = this.reloadSession.bind(this);
         this.state = {
             saveType: "",
             nextUuid: "",
             newSessionFlag: 0,
         };
+    }
+
+    checkTarget(myJson) {
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        var target = jsonOfView.apiReducers.present.target_on_name
+        var targetUnrecognised = true;
+        for (var i in this.props.targetIdList) {
+            if (target == this.props.targetIdList[i].title) {
+                targetUnrecognised = false;
+            }
+        }
+        if (targetUnrecognised == true) {
+            this.props.setLoadingState(false);
+        }
+        this.props.setTargetUnrecognised(targetUnrecognised);
+        if (targetUnrecognised == false) {
+            this.reloadSession(myJson)
+        }
+    }
+
+    reloadSession(myJson) {
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        this.props.reloadApiState(jsonOfView.apiReducers.present);
+        this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
+        this.props.setStageColor(jsonOfView.nglReducers.present.stageColor);
+        this.restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
+        if (jsonOfView.selectionReducers.present.vectorOnList.length != 0) {
+            var url = window.location.protocol + "//" + window.location.host + '/api/vector/' + jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] + "/"
+            this.redeployVectors(url);
+        }
+        this.props.setSessionTitle(myJson.title);
+        this.props.setSessionId(myJson.id);
     }
 
     getCookie(name) {
@@ -106,22 +140,11 @@ export class SessionManagement extends React.Component {
         }
     }
 
-    handleJson(myJson){
-        if(myJson.scene==undefined){
+    handleJson(myJson) {
+        if (myJson.scene == undefined) {
             return;
         }
-        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-        this.props.reloadApiState(jsonOfView.apiReducers.present);
-        this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
-        this.props.setStageColor(jsonOfView.nglReducers.present.stageColor);
-        this.restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
-        if (jsonOfView.selectionReducers.present.vectorOnList.length != 0){
-            var url = window.location.protocol + "//" + window.location.host + '/api/vector/' + jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] + "/"
-            this.redeployVectors(url);
-        }
-        this.props.setSessionTitle(myJson.title);
-        this.props.setSessionId(myJson.id);
-        this.restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
+        this.checkTarget(myJson);
     };
 
     restoreOrientation(myOrientDict) {
@@ -254,6 +277,8 @@ export class SessionManagement extends React.Component {
         if (hasBeenRefreshed==true) {
             var store = JSON.stringify(getStore().getState());
             const csrfToken = this.getCookie("csrftoken");
+            const timeOptions = {year:'numeric', month:'numeric', day:'numeric', hour: 'numeric', minute: 'numeric',
+            second: 'numeric', hour12: false,}
             var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
             var userId = DJANGO_CONTEXT["pk"];
             var stateObject = JSON.parse(store);
@@ -261,8 +286,6 @@ export class SessionManagement extends React.Component {
             var newApiObject = Object.assign(stateObject.apiReducers, {present: newPresentObject});
             var newStateObject = Object.assign(JSON.parse(store), {apiReducers: newApiObject});
             var fullState = {state: JSON.stringify(newStateObject)};
-            const timeOptions = {year:'numeric', month:'numeric', day:'numeric', hour: 'numeric', minute: 'numeric',
-            second: 'numeric', hour12: false,}
             hasBeenRefreshed = false;
             if (this.state.saveType == "sessionNew" && this.state.newSessionFlag == 1) {
                 this.setState(prevState => ({newSessionFlag: 0}));
@@ -311,7 +334,7 @@ export class SessionManagement extends React.Component {
                 const uuidv4 = require('uuid/v4');
                 var formattedState = {
                     uuid: uuidv4(),
-                    title: TITLE,
+                    title: "undefined",
                     user_id: userId,
                     scene: JSON.stringify(JSON.stringify(fullState))
                 };
@@ -338,7 +361,7 @@ export class SessionManagement extends React.Component {
         const {pathname} = this.props.location;
         var buttons = "";
         if (pathname != "/viewer/react/landing" && pathname != "/viewer/react/funders" && pathname != "/viewer/react/sessions" && pathname != "/viewer/react/targetmanagement") {
-            if (this.props.sessionTitle == undefined) {
+            if (this.props.sessionTitle == undefined || this.props.sessionTitle == "undefined") {
                 buttons = <div>
                     <ButtonToolbar>
                         <Button bsSize="sm" bsStyle="success" disabled>Save Session</Button>
@@ -380,6 +403,7 @@ function mapStateToProps(state) {
       latestSession: state.apiReducers.present.latestSession,
       sessionId: state.apiReducers.present.sessionId,
       sessionTitle: state.apiReducers.present.sessionTitle,
+      targetIdList: state.apiReducers.present.target_id_list,
   }
 }
 
@@ -401,5 +425,7 @@ const mapDispatchToProps = {
     setVectorList: selectionActions.setVectorList,
     setBondColorMap: selectionActions.setBondColorMap,
     setMolGroupOn: apiActions.setMolGroupOn,
+    setTargetUnrecognised: apiActions.setTargetUnrecognised,
+    setLoadingState: nglLoadActions.setLoadingState,
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionManagement));
