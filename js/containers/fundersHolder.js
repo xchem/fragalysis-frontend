@@ -5,7 +5,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Row, Col, Grid} from "react-bootstrap";
 
-class Funders extends Component {
+class FundersHolder extends Component {
 
     constructor(props) {
         super(props)
@@ -95,4 +95,4 @@ function mapStateToProps(state) {
   return { }
 }
 
-export default connect(mapStateToProps)(Funders)
+export default connect(mapStateToProps)(FundersHolder)

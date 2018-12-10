@@ -24,6 +24,7 @@ const INITIALSTATE = {
     hotspot_on: undefined,
     hotspot_list: [],
     savingState: "UNSET",
+    seshListSaving: true,
     latestSession: undefined,
     latestSnapshot: undefined,
     errorMessage: undefined,
@@ -31,6 +32,7 @@ const INITIALSTATE = {
     uuid: "UNSET",
     sessionId: undefined,
     sessionIdList: [],
+    sessionTitle: undefined,
     user_id: undefined,
 }
 
@@ -79,7 +81,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 isFetching: false,
                 error: action.error
             });
-        
+
         case actions.SET_TARGET_ID_LIST:
             return Object.assign({}, state, {
                 target_id_list: action.target_id_list
@@ -87,8 +89,8 @@ export default function apiReducers(state = INITIALSTATE, action) {
 
         case actions.SET_TARGET_ON:
             var target_on_name = undefined;
-            for(var ind in state.target_id_list){
-                if(state.target_id_list[ind].id==action.target_on){
+            for (var ind in state.target_id_list) {
+                if (state.target_id_list[ind].id == action.target_on) {
                     target_on_name = state.target_id_list[ind].title;
                 }
             }
@@ -156,14 +158,24 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 savingState: action.savingState
             });
 
-        case actions.SET_LATEST_SESSION:
+        case actions.SET_SESH_LIST_SAVING:
             return Object.assign({}, state, {
-                latestSession: action.latestSession
+                seshListSaving: action.seshListSaving
             });
 
         case actions.SET_LATEST_SNAPSHOT:
             return Object.assign({}, state, {
                 latestSnapshot: action.latestSnapshot
+            });
+
+        case actions.SET_LATEST_SESSION:
+            return Object.assign({}, state, {
+                latestSession: action.latestSession
+            });
+
+        case actions.SET_SESSION_TITLE:
+            return Object.assign({}, state, {
+                sessionTitle: action.sessionTitle
             });
 
         case actions.SET_SESSION_ID:
@@ -175,12 +187,30 @@ export default function apiReducers(state = INITIALSTATE, action) {
             var sessionSummary = [];
             for (var key in action.sessionIdList) {
                 sessionSummary.push({
-                    id:action.sessionIdList[key].id,
-                    uuid:action.sessionIdList[key].uuid,
-                    title:action.sessionIdList[key].title,
-                    created:action.sessionIdList[key].created,
-                    user_id:action.sessionIdList[key].user_id,
-                    target_on_name:JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers.present.target_on_name
+                    id: action.sessionIdList[key].id,
+                    uuid: action.sessionIdList[key].uuid,
+                    title: action.sessionIdList[key].title,
+                    created: action.sessionIdList[key].created,
+                    modified: action.sessionIdList[key].modified,
+                    user_id: action.sessionIdList[key].user_id,
+                    target_on_name: JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers.present.target_on_name
+                });
+            }
+            return Object.assign({}, state, {
+                sessionIdList: sessionSummary
+            });
+
+        case actions.UPDATE_SESSION_ID_LIST:
+            var sessionSummary = [];
+            for (var key in action.sessionIdList) {
+                sessionSummary.push({
+                    id: action.sessionIdList[key].id,
+                    uuid: action.sessionIdList[key].uuid,
+                    title: action.sessionIdList[key].title,
+                    created: action.sessionIdList[key].created,
+                    modified: action.sessionIdList[key].modified,
+                    user_id: action.sessionIdList[key].user_id,
+                    target_on_name: action.sessionIdList[key].target_on_name
                 });
             }
             return Object.assign({}, state, {
@@ -208,21 +238,25 @@ export default function apiReducers(state = INITIALSTATE, action) {
             });
 
         case actions.RELOAD_API_STATE:
-            var target_on_name = undefined;
-            for(var ind in state.target_id_list){
-                if(state.target_id_list[ind].id==action.target_on){
-                    target_on_name = state.target_id_list[ind].title;
-                }
-            }
             return Object.assign({}, state, {
-                target_on_name: target_on_name,
+                project_id: action.project_id,
+                target_on_name: action.target_on_name,
                 target_on: action.target_on,
+                target_id: action.target_id,
+                group_id: action.group_id,
+                group_type: action.group_type,
                 molecule_list: action.molecule_list,
                 mol_group_list: action.mol_group_list,
                 mol_group_on: action.mol_group_on,
                 hotspot_list: action.hotspot_list,
                 hotspot_on: action.hotspot_on,
-                app_on: action.app_on
+                app_on: action.app_on,
+                sessionIdList: action.sessionIdList,
+                pandda_event_on: action.pandda_event_on,
+                pandda_site_on: action.pandda_site_on,
+                pandda_event_list: action.pandda_event_list,
+                pandda_site_list: action.pandda_site_list,
+                latestSession: action.latestSession,
             });
 
         // Cases like: @@redux/INIT

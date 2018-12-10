@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import {Row, Well} from "react-bootstrap";
+import {Row, Well, Button} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -10,6 +10,7 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
+import DownloadPdb from "./downloadPdb";
 
 class MoleculeList extends GenericList {
 
@@ -32,26 +33,27 @@ class MoleculeList extends GenericList {
                 {
                     this.props.object_list.map((data)  => <MoleculeView height={imgSize} width={imgSize} key={data.id} data={data}/>)
                 }
-                </Row></Well>;
+                </Row>
+                <Row><DownloadPdb/></Row>
+            </Well>;
         }
         else {
             return null;
         }
     }
-
 }
 function mapStateToProps(state) {
   return {
       group_type: state.apiReducers.present.group_type,
       target_on: state.apiReducers.present.target_on,
       mol_group_on: state.apiReducers.present.mol_group_on,
-      object_list: state.apiReducers.present.molecule_list
+      object_list: state.apiReducers.present.molecule_list,
   }
 }
 const mapDispatchToProps = {
     setObjectList: apiActions.setMoleculeList,
     deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject
+    loadObject: nglLoadActions.loadObject,
 
 }
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);

@@ -16,7 +16,7 @@ const INITIALSTATE = {
     hydrogen: true,
     orientationToSet: {},
     loadingState: true,
-    stageColor: 'white',
+    stageColor: 'black',
     nglProtStyle: 'cartoon'
 }
 
@@ -166,7 +166,19 @@ export default function nglReducers(state = INITIALSTATE, action) {
                 nglProtStyle: action.nglProtStyle
             });
 
+        case actions.REDEPLOY_VECTORS:
+            var vectorList = [];
+            for (var object in action.objectsWereInView) {
+                if (action.objectsWereInView[object].OBJECT_TYPE == "ARROW" || action.objectsWereInView[object].OBJECT_TYPE == "CYLINDER"){
+                    vectorList.push(action.objectsWereInView[object]);
+                }
+            }
+            return Object.assign({}, state, {
+                objectsToLoad: vectorList
+            });
+
             // Cases like: @@redux/INIT
+
         default:
             return state;
     }

@@ -24,15 +24,19 @@ import {
     SET_DUCK_YANK_DATA,
     RELOAD_API_STATE,
     SET_SAVING_STATE,
-    SET_LATEST_SESSION,
+    SET_SESH_LIST_SAVING,
     SET_LATEST_SNAPSHOT,
+    SET_LATEST_SESSION,
+    SET_SESSION_TITLE,
     SET_SESSION_ID,
     SET_SESSION_ID_LIST,
+    UPDATE_SESSION_ID_LIST,
     SET_ERROR_MESSAGE,
     SET_TARGET_UNRECOGNISED,
     SET_UUID,
     SET_USER_ID,
 } from "./actonTypes";
+import * as actions from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);
@@ -209,6 +213,22 @@ export const setSavingState = function (savingState) {
     };
 }
 
+export const setSeshListSaving = function (seshListSaving) {
+    console.log("ACTIONS: setting saving state to " + seshListSaving);
+    return {
+        type: SET_SESH_LIST_SAVING,
+        seshListSaving: seshListSaving
+    };
+}
+
+export const setLatestSnapshot = function (uuid) {
+    console.log("ACTIONS: latest state snapshot is " + uuid)
+    return {
+        type: SET_LATEST_SNAPSHOT,
+        latestSnapshot: uuid
+    }
+}
+
 export const setLatestSession = function (uuid) {
     console.log("ACTIONS: latest session uuid is " + uuid)
     return {
@@ -217,11 +237,11 @@ export const setLatestSession = function (uuid) {
     }
 }
 
-export const setLatestSnapshot = function (uuid) {
-    console.log("ACTIONS: latest state snapshot is " + uuid)
+export const setSessionTitle = function (sessionTitle) {
+    console.log("ACTIONS: set session title to " + sessionTitle)
     return {
-        type: SET_LATEST_SNAPSHOT,
-        latestSnapshot: uuid
+        type: SET_SESSION_TITLE,
+        sessionTitle: sessionTitle
     }
 }
 
@@ -238,6 +258,14 @@ export const setSessionIdList = function (input_json) {
     return {
         type: SET_SESSION_ID_LIST,
         sessionIdList: input_json
+    };
+}
+
+export const updateSessionIdList = function (input_json) {
+    console.log("ACTIONS: sessionList summary written to state");
+    return {
+        type: UPDATE_SESSION_ID_LIST,
+        sessionIdList: input_json,
     };
 }
 
@@ -279,12 +307,22 @@ export const reloadApiState = function (apiReducers) {
         type: RELOAD_API_STATE,
         target_on_name: apiReducers.target_on_name,
         target_on: apiReducers.target_on,
+        target_id: apiReducers.target_id,
         molecule_list: apiReducers.molecule_list,
         mol_group_list: apiReducers.mol_group_list,
         mol_group_on: apiReducers.mol_group_on,
         hotspot_list: apiReducers.hotspot_list,
         hotspot_on: apiReducers.hotspot_on,
-        app_on: apiReducers.app_on
+        app_on: apiReducers.app_on,
+        sessionIdList: apiReducers.sessionIdList,
+        latestSession: apiReducers.latestSession,
+        project_id: apiReducers.project_id,
+        group_id: apiReducers.group_id,
+        group_type: apiReducers.group_type,
+        pandda_event_on: apiReducers.pandda_event_on,
+        pandda_site_on: apiReducers.pandda_site_on,
+        pandda_event_list: apiReducers.pandda_event_list,
+        pandda_site_list: apiReducers.pandda_site_list,
     }
 }
 

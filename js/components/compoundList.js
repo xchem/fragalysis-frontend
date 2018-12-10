@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { Row, Well, Button} from 'react-bootstrap';
+import { Row, Well, Button, ButtonToolbar} from 'react-bootstrap';
 import React from 'react';
 import {connect} from "react-redux";
 import CompoundView from "./compoundView";
@@ -46,15 +46,19 @@ class CompoundList extends React.Component {
     }
 
     selectAll() {
-        for(var key in this.props.this_vector_list) {
-            for (var index in this.props.this_vector_list[key]){
-                var thisObj = {
-                    smiles: this.props.this_vector_list[key][index],
-                    vector: key.split("_")[0],
-                    mol: this.props.to_query,
-                    class:parseInt(this.props.currentCompoundClass)
+        for(var key in this.props.thisVectorList) {
+            for (var index in this.props.thisVectorList[key]) {
+                if (index != "vector") {
+                    for (var fUCompound in this.props.thisVectorList[key][index]) {
+                        var thisObj = {
+                            smiles: this.props.thisVectorList[key][index][fUCompound].end,
+                            vector: this.props.thisVectorList[key].vector.split("_")[0],
+                            mol: this.props.to_query,
+                            class: parseInt(this.props.currentCompoundClass)
+                        }
+                        this.props.appendToBuyList(thisObj);
+                    }
                 }
-                this.props.appendToBuyList(thisObj);
             }
         }
     }
@@ -114,9 +118,9 @@ class CompoundList extends React.Component {
             totArray.push(<input id="5" key="CLASS_5" style={{ width:100 }} defaultValue={this.state.compoundClasses[5]} onKeyDown={ this.handleClassNaming }></input>)
             totArray.push(<p key={"breakdown"}><br/></p>)
             var retArray = [];
-            for(var key in this.props.this_vector_list){
-                var vector_smi = this.props.this_vector_list[key]["vector"]
-                var change_list = this.props.this_vector_list[key]["addition"]
+            for(var key in this.props.thisVectorList){
+                var vector_smi = this.props.thisVectorList[key]["vector"]
+                var change_list = this.props.thisVectorList[key]["addition"]
                 for (var ele in change_list){
                     var data_transfer = change_list[ele]
                     var input_data = {}
@@ -133,8 +137,10 @@ class CompoundList extends React.Component {
             totArray.push(<Row style={molStyle} key={"CMPD_ROW"}>{retArray}</Row>)
             return <Well>
                 <h3><b>{this.props.querying ? "Loading...." : mol_string }</b></h3>
-                <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
-                <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                <ButtonToolbar>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>Select All</Button>
+                    <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>Clear Selection</Button>
+                </ButtonToolbar>
                 <div>{totArray}</div>
             </Well>
         }
@@ -146,7 +152,7 @@ class CompoundList extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      this_vector_list: state.selectionReducers.present.this_vector_list,
+      thisVectorList: state.selectionReducers.present.this_vector_list,
       to_query: state.selectionReducers.present.to_query,
       compoundClasses: state.selectionReducers.present.compoundClasses,
       currentCompoundClass: state.selectionReducers.present.currentCompoundClass,

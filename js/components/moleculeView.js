@@ -119,7 +119,6 @@ class MoleculeView extends GenericView {
         return nglObject;
     }
 
-
     generateBondColorMap(inputDict){
         var out_d = {}
         for(var key in inputDict){
@@ -182,7 +181,6 @@ class MoleculeView extends GenericView {
             }
         }
     }
-
 
     render() {
         const svg_image = <SVGInline svg={this.state.img_data}/>;

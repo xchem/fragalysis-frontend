@@ -17,7 +17,6 @@ import ModalStateSave from "../components/modalStateSave";
 import ModalErrorMessage from "../components/modalErrorDisplay";
 import ModalTargetUnrecognised from "../components/modalTargetUnrecognised";
 import * as apiActions from "../actions/apiActions";
-import * as selectionActions from "../actions/selectionActions";
 import fetch from "cross-fetch";
 import {withRouter} from "react-router-dom";
 import {BrowserBomb} from "../components/browserBombModal";
@@ -63,8 +62,8 @@ class Preview extends Component {
     }
 
     render() {
-        var screenHeight= window.innerHeight*0.75.toString()+"px"
-        var molListHeight= window.innerHeight*0.5.toString()+"px"
+        var screenHeight= window.innerHeight*0.7.toString()+"px"
+        var molListHeight= window.innerHeight*0.45.toString()+"px"
         return (
             <Row>
                 <Col xs={0} md={0}>
@@ -95,19 +94,11 @@ class Preview extends Component {
 
 function mapStateToProps(state) {
   return {
-      this_vector_list: state.selectionReducers.present.this_vector_list,
-      to_query: state.selectionReducers.present.to_query,
-      highlightedCompound: state.selectionReducers.present.highlightedCompound,
-      currentVector: state.selectionReducers.present.currentVector,
-      currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
       targetIdList: state.apiReducers.present.target_id_list,
   }
 }
 const mapDispatchToProps = {
     setTargetOn: apiActions.setTargetOn,
-    setHighlighted: selectionActions.setHighlighted,
-    appendToBuyList: selectionActions.appendToBuyList,
-    removeFromToBuyList: selectionActions.removeFromToBuyList,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
     setErrorMessage: apiActions.setErrorMessage,
 }

@@ -38,7 +38,7 @@ export class BrowserBomb extends React.Component {
         if (typeof InstallTrigger !== 'undefined'){
             this.setState(prevState => ({currentBrowser: "Firefox should be supported"}));
             this.setState(prevState => ({notSupported: false}));
-        } else if (!!window.chrome && !!window.chrome.webstore){
+        } else if (!!window.chrome){
             this.setState(prevState => ({currentBrowser: "Chrome should be supported"}))
             this.setState(prevState => ({notSupported: false}));
         } else {

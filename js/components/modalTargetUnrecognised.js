@@ -50,27 +50,39 @@ export class ModalTargetUnrecognised extends React.Component {
     }
 
     render() {
-        if (this.state.targetListLength == 0) {
-            return (
-                <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
-                    <div>
-                        <h3>The target was not recognised and there are no other available targets.</h3>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
-                        <ErrorReport />
-                    </div>
-                </ReactModal>
-            );
+        var request = <h3></h3>
+        if (DJANGO_CONTEXT["username"] == "NOT_LOGGED_IN") {
+            request = <h3>Please<a className="inline" href="/accounts/login"> sign in</a>, or select a target:</h3>
         } else {
-            return (
-                <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
-                    <div>
-                        <h3>Target was not recognised. <br/> Please select a target:</h3>
-                        <TargetList key="TARGLIST"/>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
-                        <ErrorReport/>
-                    </div>
-                </ReactModal>
-            );
+            request = <h3>Please select a target:</h3>
+        }
+        if (this.props.targetUnrecognised == true) {
+            if (this.state.targetListLength == 0) {
+                return (
+                    <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
+                        <div>
+                            <h3>The target was not recognised and there are no other available targets.</h3>
+                            <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                            <ErrorReport/>
+                        </div>
+                    </ReactModal>
+                );
+            } else {
+                return (
+                    <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
+                        <div>
+                            <h3>Target was not recognised or you do not have authentication to access
+                                target. <br/></h3>
+                            {request}
+                            <TargetList key="TARGLIST"/>
+                            <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
+                            <ErrorReport/>
+                        </div>
+                    </ReactModal>
+                );
+            }
+        } else {
+            return null;
         }
     }
 }

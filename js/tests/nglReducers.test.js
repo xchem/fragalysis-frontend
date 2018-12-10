@@ -13,20 +13,20 @@ function getInitialState(){
         objectsToLoad: {},
         objectsToDelete: {},
         objectsInView: {},
-        objectsLoading:{},
+        objectsLoading: {},
         nglOrientations: {},
         // Set the basic things about NGL
         visible: true,
         interactions: true,
         color: "blue",
-      style: "xstick",
-      spin: false,
-      water: true,
-      hydrogen: true,
+        style: "xstick",
+        spin: false,
+        water: true,
+        hydrogen: true,
         orientationToSet: {},
-    loadingState: true,
+        loadingState: true,
         nglProtStyle: "cartoon",
-        stageColor: "white"
+        stageColor: "black"
     }
 }
 

@@ -274,7 +274,7 @@ export class NGLView extends React.Component {
             console.log("START OR END UNDEFINED FOR CYLINDER" + input_dict.toString())
             return;
         }
-        var shape = new Shape( object_name );
+        var shape = new Shape( object_name, { disableImpostor: true } );
         shape.addCylinder(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
         shapeComp.addRepresentation("buffer");
@@ -288,7 +288,7 @@ export class NGLView extends React.Component {
             console.log("START OR END UNDEFINED FOR ARROW " + input_dict.toString())
             return;
         }
-        var shape = new Shape( object_name );
+        var shape = new Shape( object_name, { disableImpostor: true } );
         shape.addArrow(input_dict.start,input_dict.end, colour, radius);
         var shapeComp = stage.addComponentFromObject(shape);
         shapeComp.addRepresentation("buffer");

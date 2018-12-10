@@ -25,11 +25,15 @@ export class Welcome extends React.Component {
         }
         return (
             <Row>
-                <Col xs={3} md={3}>
-                    <div>
+                <Col xs={1} md={1}></Col>
+                <Col xs={2} md={2}>
+                    <Row>
                         <h1>Welcome to Fragalysis{"\n"}</h1>
                         {text_div}
-                    </div>
+                    </Row>
+                    <Row>
+                        <p><a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">Target status overview</a> (only accessible within Diamond)</p>
+                    </Row>
                 </Col>
                 <Col xs={4} md={4}>
                     <div>

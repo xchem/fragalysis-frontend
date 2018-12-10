@@ -195,10 +195,10 @@ export const setHighlighted = function (item){
     }
 }
 
-export const reloadSelectionState = function (item){
-    console.log("RELOAD STATE: " + item)
+export const reloadSelectionState = function (savedSelectionReducers){
+    console.log("RELOAD STATE: " + savedSelectionReducers)
     return {
         type: RELOAD_SELECTION_STATE,
-        item: item
+        savedSelectionReducers: savedSelectionReducers
     }
 }

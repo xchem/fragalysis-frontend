@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem, Row} from "react-bootstrap";
+import {Navbar, Nav, NavItem, Row, Button} from "react-bootstrap";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter} from "react-router-dom";
@@ -73,26 +73,42 @@ class Header extends React.Component {
 
     render() {
         var landing = "/viewer/react/landing";
+        var prodLanding = "https://fragalysis.diamond.ac.uk/viewer/react/landing";
         var login = "/accounts/login"
         var logout = "/accounts/logout"
         var new_ele;
+        var navbarBrand;
         var username = DJANGO_CONTEXT["username"];
+
         if (username == "NOT_LOGGED_IN") {
             new_ele = <NavItem eventKey={1} href={login}>
-                <h5> Login </h5>
+                <Button> Login </Button>
             </NavItem>
         }
         else {
             new_ele = <NavItem eventKey={1} href={logout}>
-                <h5><b>Hello {username}!</b> Logout.</h5>
+                <h5><b>Hello {username}</b> Logout.</h5>
             </NavItem>
+        }
+
+        if (document.location.host.startsWith("fragalysis.diamond") !== true) {
+            navbarBrand = <Navbar.Brand>
+                <Row>
+                    <h4><a href={landing}>Fragalysis <b>DEVELOPMENT </b></a></h4>
+                </Row>
+                <Row>
+                    <p>Please use: <a href={prodLanding} data-toggle='tooltip' title="https://fragalysis.diamond.ac.uk">production site</a></p>
+                </Row>
+            </Navbar.Brand>
+        } else {
+            navbarBrand = <Navbar.Brand>
+                <h4><a href={landing}>FragalysisHome</a></h4>
+            </Navbar.Brand>
         }
 
         return <Navbar>
             <Navbar.Header>
-                <Navbar.Brand>
-                        <h4><a href={landing}>FragalysisHome</a></h4>
-                </Navbar.Brand>
+                {navbarBrand}
             </Navbar.Header>
             <Nav pullLeft>
                 {new_ele}
@@ -103,10 +119,7 @@ class Header extends React.Component {
             <Nav pullRight>
                 <NavItem>
                     <Row>
-                        <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/>
-                        <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={this.openDiamond}/>
-                        <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={this.openSgc}/>
-                        <ErrorReport/>
+                        <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/> <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={this.openDiamond}/> <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={this.openSgc}/> <ErrorReport/>
                     </Row>
                     <Row>
                         <p onClick={this.showFunders}>Supported by...</p>
