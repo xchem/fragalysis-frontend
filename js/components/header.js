@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import {Navbar, Nav, NavItem, Row, Button} from "react-bootstrap";
+import {Navbar, Nav, NavItem, Row, Button, Col} from "react-bootstrap";
 import {connect} from "react-redux";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import {withRouter} from "react-router-dom";
@@ -97,7 +97,8 @@ class Header extends React.Component {
                     <h4><a href={landing}>Fragalysis <b>DEVELOPMENT </b></a></h4>
                 </Row>
                 <Row>
-                    <p>Please use: <a href={prodLanding} data-toggle='tooltip' title="https://fragalysis.diamond.ac.uk">production site</a></p>
+                    <p>Please use: <a href={prodLanding} data-toggle='tooltip' title="https://fragalysis.diamond.ac.uk">production
+                        site</a></p>
                 </Row>
             </Navbar.Brand>
         } else {
@@ -106,26 +107,32 @@ class Header extends React.Component {
             </Navbar.Brand>
         }
 
-        return <Navbar>
-            <Navbar.Header>
-                {navbarBrand}
-            </Navbar.Header>
-            <Nav pullLeft>
-                {new_ele}
-                <NavItem>
-                    <SessionManagement/>
-                </NavItem>
-            </Nav>
-            <Nav pullRight>
-                <NavItem>
-                    <Row>
-                        <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/> <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={this.openDiamond}/> <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={this.openSgc}/> <ErrorReport/>
-                    </Row>
-                    <Row>
-                        <p onClick={this.showFunders}>Supported by...</p>
-                    </Row>
-                </NavItem>
-            </Nav>
+        return <Navbar fluid>
+            <Col xs={1} md={1}></Col>
+            <Col xs={11} md={11}>
+                <Navbar.Header>
+                    {navbarBrand}
+                </Navbar.Header>
+                <Nav pullLeft>
+                    {new_ele}
+                    <NavItem>
+                        <SessionManagement/>
+                    </NavItem>
+                </Nav>
+                <Nav pullRight>
+                    <NavItem>
+                        <Row>
+                            <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={this.openXchem}/>
+                            <img src={require('../img/dlsLogo.png')} width="100" height="31"
+                                 onClick={this.openDiamond}/> <img src={require('../img/sgcLogo.png')} width="65"
+                                                                   height="31" onClick={this.openSgc}/> <ErrorReport/>
+                        </Row>
+                        <Row>
+                            <p onClick={this.showFunders}>Supported by...</p>
+                        </Row>
+                    </NavItem>
+                </Nav>
+            </Col>
             <TargetList key="TARGLIST" render={false}/>
         </Navbar>
     }

@@ -36,13 +36,13 @@ export class BrowserBomb extends React.Component {
 
     checkBrowser(){
         if (typeof InstallTrigger !== 'undefined'){
-            this.setState(prevState => ({currentBrowser: "Firefox should be supported"}));
+            this.setState(prevState => ({currentBrowser: "Firefox should be supported, please report error. We aim to support "}));
             this.setState(prevState => ({notSupported: false}));
         } else if (!!window.chrome){
-            this.setState(prevState => ({currentBrowser: "Chrome should be supported"}))
+            this.setState(prevState => ({currentBrowser: "Chrome should be supported, please report error. We aim to support "}))
             this.setState(prevState => ({notSupported: false}));
         } else {
-            this.setState(prevState => ({currentBrowser: "This browser may not perform properly. Please consider using Firefox or Chrome."}))
+            this.setState(prevState => ({currentBrowser: "This browser is not supported by Fragalysis, please consider moving to"}))
             this.setState(prevState => ({notSupported: true}));
         }
     }
@@ -56,17 +56,11 @@ export class BrowserBomb extends React.Component {
         this.checkBrowser()
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.errorMessage != undefined){
-            this.setState(prevState => ({errorMessage: nextProps.errorMessage}))
-        }
-    }
-
     render() {
         return (
             <ReactModal isOpen={this.state.notSupported} style={customStyles}>
                 <div>
-                    <h4>This browser is not supported by Fragalysis, please consider moving to
+                    <h4>{this.state.currentBrowser}
                     <a href="https://www.google.com/chrome/"> Google Chrome</a> or <a href="https://www.mozilla.org/en-GB/firefox/">Mozilla Firefox.</a></h4>
                     <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
                 </div>

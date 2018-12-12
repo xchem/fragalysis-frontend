@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import {Row, Well, Button} from "react-bootstrap";
+import {Row, Well} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -10,7 +10,6 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
-import DownloadPdb from "./downloadPdb";
 
 class MoleculeList extends GenericList {
 
@@ -34,7 +33,6 @@ class MoleculeList extends GenericList {
                     this.props.object_list.map((data)  => <MoleculeView height={imgSize} width={imgSize} key={data.id} data={data}/>)
                 }
                 </Row>
-                <Row><DownloadPdb/></Row>
             </Well>;
         }
         else {
