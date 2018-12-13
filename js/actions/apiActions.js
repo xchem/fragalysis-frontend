@@ -36,7 +36,6 @@ import {
     SET_UUID,
     SET_USER_ID,
 } from "./actonTypes";
-import * as actions from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
     console.log("ACTIONS: " + project_id);

@@ -50,11 +50,10 @@ export class ModalTargetUnrecognised extends React.Component {
     }
 
     render() {
-        var request = <h3></h3>
         if (DJANGO_CONTEXT["username"] == "NOT_LOGGED_IN") {
-            request = <h3>Please<a className="inline" href="/accounts/login"> sign in</a>, or select a target:</h3>
+            var request = <h3>Please<a className="inline" href="/accounts/login"> sign in</a>, or select a target:</h3>
         } else {
-            request = <h3>Please select a target:</h3>
+            var request = <h3>Please select a target:</h3>
         }
         if (this.props.targetUnrecognised == true) {
             if (this.state.targetListLength == 0) {
