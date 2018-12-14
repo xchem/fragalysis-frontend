@@ -6,7 +6,7 @@ import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as apiActions from "../actions/apiActions";
-import {Button,  ButtonToolbar, Row} from "react-bootstrap";
+import {Button,  ButtonToolbar, Row, Col} from "react-bootstrap";
 import { css } from 'react-emotion';
 import { RingLoader } from 'react-spinners';
 import {getStore} from "../containers/globalStore";
@@ -14,6 +14,7 @@ import * as selectionActions from "../actions/selectionActions";
 import {withRouter} from "react-router-dom";
 import * as listTypes from "./listTypes";
 import * as nglObjectTypes from "./nglObjectTypes";
+import DownloadPdb from "./downloadPdb";
 
 const override = css`
     display: block;
@@ -286,7 +287,6 @@ export class SessionManagement extends React.Component {
             var newApiObject = Object.assign(stateObject.apiReducers, {present: newPresentObject});
             var newStateObject = Object.assign(JSON.parse(store), {apiReducers: newApiObject});
             var fullState = {state: JSON.stringify(newStateObject)};
-            hasBeenRefreshed = false;
             if (this.state.saveType == "sessionNew" && this.state.newSessionFlag == 1) {
                 this.setState(prevState => ({newSessionFlag: 0}));
                 var formattedState = {
@@ -311,7 +311,6 @@ export class SessionManagement extends React.Component {
                     this.deployErrorModal(error);
                 });
             } else if (this.state.saveType == "sessionSave") {
-                var uuid = this.props.latestSession;
                 var formattedState = {
                     scene: JSON.stringify(JSON.stringify(fullState))
                 };
@@ -362,27 +361,29 @@ export class SessionManagement extends React.Component {
         var buttons = "";
         if (pathname != "/viewer/react/landing" && pathname != "/viewer/react/funders" && pathname != "/viewer/react/sessions" && pathname != "/viewer/react/targetmanagement") {
             if (this.props.sessionTitle == undefined || this.props.sessionTitle == "undefined") {
-                buttons = <div>
+                buttons = <Col>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" disabled>Save Session</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save Session As...</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share Snapshot</Button>
+                        <Button bsSize="sm" bsStyle="info" disabled>Save Session</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>Save Session As...</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>Share Snapshot</Button>
+                        <DownloadPdb/>
                     </ButtonToolbar>
                     <Row>
                         <p>Currently no active session.</p>
                     </Row>
-                </div>
+                </Col>
             } else {
-                buttons = <div>
+                buttons = <Col>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.saveSession}>Save Session</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSession}>Save Session As...</Button>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.newSnapshot}>Share Snapshot</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.saveSession}>Save Session</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>Save Session As...</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>Share Snapshot</Button>
+                        <DownloadPdb/>
                     </ButtonToolbar>
                     <Row>
                         <p>Session: {this.props.sessionTitle}</p>
                     </Row>
-                </div>
+                </Col>
             }
         }
         if (this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")) {

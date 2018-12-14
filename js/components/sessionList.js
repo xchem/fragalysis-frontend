@@ -2,7 +2,7 @@
  * Created by ricgillams on 29/10/2018.
  */
 
-import {ListGroupItem, ListGroup, Row, Col, ButtonTooltip, OverlayTrigger, ButtonToolbar, Tooltip} from "react-bootstrap";
+import {ListGroupItem, ListGroup, Row, Col, OverlayTrigger, ButtonToolbar, Tooltip} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -81,7 +81,6 @@ class SessionList extends GenericList {
     }
 
     deleteStateSession(id) {
-        var _this = this
         let currentSessionList = this.props.object_list;
         for (var session in currentSessionList) {
             if (currentSessionList[session].id === id) {
