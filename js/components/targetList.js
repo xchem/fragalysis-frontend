@@ -10,7 +10,7 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglObjectTypes from "../components/nglObjectTypes";
-    import {withRouter, Link} from "react-router-dom";
+import {withRouter, Link} from "react-router-dom";
 
 class TargetList extends GenericList {
     constructor(props) {
@@ -24,9 +24,19 @@ class TargetList extends GenericList {
 
     render_method(data) {
         var preview = "/viewer/react/preview/target/" + data.title;
-        return <ListGroupItem key={data.id} >
-            <Link to={preview}>{data.title}</Link>
-        </ListGroupItem>
+        var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
+        var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
+        if (sgcUploaded.includes(data.title)) {
+            return <ListGroupItem key={data.id}>
+                <Link to={preview} styles={{float: 'left'}}>{data.title}</Link>
+                <p style={{display: 'inline'}}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                <a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a>
+            </ListGroupItem>
+        } else {
+            return <ListGroupItem key={data.id}>
+                <Link to={preview} styles={{float: 'left'}}>{data.title}</Link>
+            </ListGroupItem>
+        }
     }
 
     checkForTargetChange() {
