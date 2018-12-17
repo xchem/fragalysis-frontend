@@ -2,7 +2,7 @@
  * Created by abradley on 13/03/2018.
  */
 
-import {ListGroupItem, ListGroup} from "react-bootstrap";
+import {ListGroupItem, ListGroup, Row, Col} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -28,12 +28,16 @@ class TargetList extends GenericList {
         var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
         if (sgcUploaded.includes(data.title)) {
             return <ListGroupItem key={data.id}>
-                <Link to={preview} styles={{float: 'left'}}>{data.title}</Link>
-                <a href={sgcUrl} target="new" styles={{float: 'right'}}> (Open SGC summary)</a>
+                <Row>
+                    <Col xs={7} md={7}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                    <Col xs={5} md={5}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}> (Open SGC summary)</a></p></Row></Col>
+                </Row>
             </ListGroupItem>
         } else {
             return <ListGroupItem key={data.id}>
-                <Link to={preview} styles={{float: 'left'}}>{data.title}</Link>
+                <Row>
+                    <Col xs={12} md={12}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                </Row>
             </ListGroupItem>
         }
     }
