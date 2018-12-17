@@ -15,8 +15,10 @@ class DownloadPdb extends React.Component {
     }
 
     async handlePdbDownload() {
-        var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?limit=1000&?target_id=" + this.props.targetOn.toString();
-        var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?limit=1000&?target_id=" + this.props.targetOn.toString();
+        // var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?limit=1000&?target_id=" + this.props.targetOn.toString();
+        // var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?limit=1000&?target_id=" + this.props.targetOn.toString();
+        var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?target_id=" + this.props.targetOn.toString();
+        var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?target_id=" + this.props.targetOn.toString();
         const protResponse = await fetch(proteinsUrl);
         const protJson = await protResponse.json();
         const protInfo = protJson.results;
