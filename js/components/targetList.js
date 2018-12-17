@@ -29,8 +29,8 @@ class TargetList extends GenericList {
         if (sgcUploaded.includes(data.title)) {
             return <ListGroupItem key={data.id}>
                 <Link to={preview} styles={{float: 'left'}}>{data.title}</Link>
-                <p style={{display: 'inline'}}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                <a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a>
+                <p style={{display: 'inline'}}>&nbsp</p>
+                <a href={sgcUrl} target="new" styles={{float: 'right'}}> (Open SGC summary)</a>
             </ListGroupItem>
         } else {
             return <ListGroupItem key={data.id}>
