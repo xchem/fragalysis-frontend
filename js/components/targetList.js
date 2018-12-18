@@ -2,7 +2,7 @@
  * Created by abradley on 13/03/2018.
  */
 
-import {ListGroupItem, ListGroup} from "react-bootstrap";
+import {ListGroupItem, ListGroup, Row, Col} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -10,7 +10,7 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglObjectTypes from "../components/nglObjectTypes";
-    import {withRouter, Link} from "react-router-dom";
+import {withRouter, Link} from "react-router-dom";
 
 class TargetList extends GenericList {
     constructor(props) {
@@ -24,9 +24,24 @@ class TargetList extends GenericList {
 
     render_method(data) {
         var preview = "/viewer/react/preview/target/" + data.title;
-        return <ListGroupItem key={data.id} >
-            <Link to={preview}>{data.title}</Link>
-        </ListGroupItem>
+        var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
+        var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
+        if (sgcUploaded.includes(data.title)) {
+            return <ListGroupItem key={data.id}>
+                <Row>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={7} md={7}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                    <Col xs={4} md={4}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a></p></Row></Col>
+                </Row>
+            </ListGroupItem>
+        } else {
+            return <ListGroupItem key={data.id}>
+                <Row>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={11} md={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                </Row>
+            </ListGroupItem>
+        }
     }
 
     checkForTargetChange() {

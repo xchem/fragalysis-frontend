@@ -139,8 +139,9 @@ class SessionList extends GenericList {
         } else {
             return <ListGroupItem key={data.id}>
                 <Row>
+                    <Col xs={1} md={1}></Col>
                     <Col xs={8} md={8}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{data.title}</Link></p></Row></Col>
-                    <Col xs={4} md={4}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
+                    <Col xs={3} md={3}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
                 </Row>
             </ListGroupItem>
         }
