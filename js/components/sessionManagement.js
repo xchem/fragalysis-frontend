@@ -252,7 +252,7 @@ export class SessionManagement extends React.Component {
         }).then(function (response) {
             return response.json();
         }).then(function (myJson) {
-            var title = myJson.results[JSON.stringify(0)].title;
+            var title = myJson[JSON.stringify(0)].title;
             return title;
         }).then(title => this.props.setSessionTitle(title))
     }
@@ -264,7 +264,7 @@ export class SessionManagement extends React.Component {
             fetch("/api/viewscene/?uuid="+this.props.uuid)
                 .then(function(response) {
                     return response.json();
-                }).then(json => this.handleJson(json.results[0]))
+                }).then(json => this.handleJson(json[0]))
             this.props.setUuid("UNSET");
         }
         for (var key in this.props.nglOrientations){

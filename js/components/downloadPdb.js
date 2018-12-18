@@ -33,7 +33,7 @@ class DownloadPdb extends React.Component {
             var molGroupUrl = window.location.protocol + "//" + window.location.host + "/api/molecules/?prot_id=" + pdbInfo[0].id;
             const molResponse = await fetch(molGroupUrl);
             const molJson = await molResponse.json();
-            const sdfData = molJson.results[0].sdf_info;
+            const sdfData = molJson[0].sdf_info;
             totFolder.file(pdbCode + ".pdb", pdbData);
             totFolder.file(pdbCode + ".sdf", sdfData);
         }
