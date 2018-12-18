@@ -36,7 +36,7 @@ class HotspotList extends GenericList {
             }
         })
         var myJson = await response.json();
-        this.setState(prevState => ({hsCount: myJson.count}));
+        this.setState(prevState => ({hsCount: Object.keys(myJson).length}));
         }
     }
 
