@@ -15,27 +15,22 @@ class DownloadPdb extends React.Component {
     }
 
     async handlePdbDownload() {
-        var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdb/?target_id=" + this.props.targetOn.toString();
+        var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?target_id=" + this.props.targetOn.toString();
         var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?target_id=" + this.props.targetOn.toString();
         const protResponse = await fetch(proteinsUrl);
         const protJson = await protResponse.json();
-        const protInfo = protJson.results;
+        const protInfo = protJson;
         const pdbResponse = await fetch(protPdbUrl);
         const pdbJson = await pdbResponse.json();
-        const pdbInfo = pdbJson.results;
+        const pdbInfo = pdbJson;
         var zip = new JSZip();
         const timeOptions = {year: 'numeric', month: 'short', day: '2-digit'};
         var fName = this.props.targetOnName + "_allPdb_" + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now()).replace(/\s/g, '-');
         var totFolder = zip.folder(fName);
         for (var structure in protInfo) {
-            var pdbData = pdbInfo[structure].pdb_data;
+            var pdbData = pdbInfo[structure].bound_pdb_data;
             var pdbCode = protInfo[structure].code;
-            var molGroupUrl = window.location.protocol + "//" + window.location.host + "/api/molecules/?prot_id=" + pdbInfo[0].id;
-            const molResponse = await fetch(molGroupUrl);
-            const molJson = await molResponse.json();
-            const sdfData = molJson.results[0].sdf_info;
             totFolder.file(pdbCode + ".pdb", pdbData);
-            totFolder.file(pdbCode + ".sdf", sdfData);
         }
         const content = await zip.generateAsync({type: "blob"});
         FileSaver.saveAs(content, fName + ".zip");
