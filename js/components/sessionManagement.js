@@ -118,7 +118,7 @@ export class SessionManagement extends React.Component {
             fetch("/api/viewscene/?uuid="+this.props.uuid)
                 .then(function(response) {
                     return response.json();
-                }).then(json => this.handleJson(json.results[0]))
+                }).then(json => this.handleJson(json[0]))
         }
         for (var key in this.props.nglOrientations){
             if(this.props.nglOrientations[key]=="REFRESH") {

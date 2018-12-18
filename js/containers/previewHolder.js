@@ -47,7 +47,7 @@ class Preview extends Component {
         this.props.setTargetUnrecognised(targetUnrecognised);
         fetch(window.location.protocol + "//" + window.location.host+"/api/targets/?title="+target)
             .then(response => response.json())
-            .then(json => this.props.setTargetOn(json["results"][0].id))
+            .then(json => this.props.setTargetOn(json[0].id))
             .catch((error) => {
                     this.deployErrorModal(error);
                 })
