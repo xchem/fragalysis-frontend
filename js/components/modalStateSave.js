@@ -79,7 +79,7 @@ export class ModalStateSave extends Component {
         }).then(function (response) {
             return response.json();
         }).then(function (myJson) {
-            var getTitle = myJson.results[JSON.stringify(0)].title;
+            var getTitle = myJson[JSON.stringify(0)].title;
             _this.props.setSessionTitle(getTitle);
             return getTitle;
         }).then(getTitle => this.setState(prevState => ({title: getTitle})))

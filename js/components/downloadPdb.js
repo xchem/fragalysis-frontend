@@ -19,10 +19,10 @@ class DownloadPdb extends React.Component {
         var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?target_id=" + this.props.targetOn.toString();
         const protResponse = await fetch(proteinsUrl);
         const protJson = await protResponse.json();
-        const protInfo = protJson.results;
+        const protInfo = protJson;
         const pdbResponse = await fetch(protPdbUrl);
         const pdbJson = await pdbResponse.json();
-        const pdbInfo = pdbJson.results;
+        const pdbInfo = pdbJson;
         var zip = new JSZip();
         const timeOptions = {year: 'numeric', month: 'short', day: '2-digit'};
         var fName = this.props.targetOnName + "_allPdb_" + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now()).replace(/\s/g, '-');
