@@ -20,6 +20,9 @@ module.exports = {
           uglifyOptions:
           {
             ecma: 7,
+            parallel: true,
+            mangle: true,
+            compress: false,
             keep_fnames: true,
             ie8: false,
             output: {
