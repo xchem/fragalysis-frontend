@@ -11,23 +11,23 @@ class RefinementOutcome extends React.Component{
 
     constructor(props) {
         super(props);
-        var base_url = window.location.protocol + "//" + window.location.host
+        var base_url = window.location.protocol + "//" + window.location.host;
         this.base_url = base_url;
         this.getUrl = this.getUrl.bind(this);
         this.state = {refinementOutcome: undefined}
     }
 
     getUrl() {
-        var get_view = "/api/molannotation/?mol_id=" + this.props.data.id.toString()
+        var get_view = "/api/molannotation/?mol_id=" + this.props.data.id.toString();
         return new URL(this.base_url + get_view)
     }
 
     convertJson(input_json){
-        var results = input_json["results"]
+        var results = input_json["results"];
         for (var index in results){
             var result = results[index];
             if (result["annotation_type"]=="ligand_confidence"){
-                var result_text = result["annotation_text"]
+                var result_text = result["annotation_text"];
                 var int_conf = parseInt(result_text);
             }
         }
