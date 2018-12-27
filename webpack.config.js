@@ -12,7 +12,7 @@ module.exports = {
       path: path.resolve('./bundles'),
       filename: "[name]-[hash].js",
   },
-    
+
   stats: {
       // Configure the console output
       errorDetails: true, //this does show errors
