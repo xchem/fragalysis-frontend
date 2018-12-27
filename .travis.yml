@@ -3,7 +3,7 @@ node_js:
   - "8"
 script:
   - npm install && npm test
-after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    npm run-script build;
-    fi
+#after_success:
+#  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+#    npm run-script build;
+#    fi
