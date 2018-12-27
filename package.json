@@ -5,9 +5,9 @@
   "main": "webpack.config.js",
   "scripts": {
     "test": "jest",
-    "build": "webpack --config webpack.config.js --progress --colors --mode production",
-    "watch": "webpack --config webpack.config.js --watch",
-    "dev": "webpack --config webpack.config.js --mode development --watch"
+    "build": "node --max_old_space_size=4096 node_modules/.bin/webpack --config webpack.config.js --progress --colors --mode production",
+    "watch": "node --max_old_space_size=4096 node_modules/.bin/webpack --config webpack.config.js --watch",
+    "dev": "node --max_old_space_size=4096 node_modules/.bin/webpack --config webpack.config.js --mode development --watch"
   },
   "jest": {
     "testEnvironment": "node"
