@@ -6,7 +6,20 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = {
 
   optimization: {
-      minimizer: [new TerserPlugin()]
+      minimizer: [new TerserPlugin({
+          terserOptions:
+          {
+            ecma: 7,
+            parallel: true,
+            mangle: true,
+            compress: false,
+            keep_fnames: true,
+            ie8: false,
+            output: {
+              comments: false
+            }
+          },
+        })]
   },
 
   context: __dirname,
