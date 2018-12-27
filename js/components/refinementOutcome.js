@@ -23,7 +23,7 @@ class RefinementOutcome extends React.Component{
     }
 
     convertJson(input_json){
-        var results = input_json
+        var results = input_json["results"]
         for (var index in results){
             var result = results[index];
             if (result["annotation_type"]=="ligand_confidence"){

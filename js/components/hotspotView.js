@@ -83,12 +83,12 @@ class HotspotView extends React.Component {
             return response.json();
         }).then(function (myJson) {
             var hotspotObject = {
-                "name": "HOTSPOT_" + myJson[0].prot_id.toString() + mapType + isoLevel,
-                "hotUrl": myJson[0].map_info.replace("http:",window.location.protocol),
+                "name": "HOTSPOT_" + myJson.results[0].prot_id.toString() + mapType + isoLevel,
+                "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
                 "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
-                "map_type": myJson[0].map_type.toString(),
-                "fragment": myJson[0].prot_id.toString(),
+                "map_type": myJson.results[0].map_type.toString(),
+                "fragment": myJson.results[0].prot_id.toString(),
                 "isoLevel": isoLevel,
                 "opacity": opacity,
                 "disablePicking": true
