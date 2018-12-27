@@ -1,9 +1,14 @@
 const path = require("path");
 const webpack = require('webpack');
-const BundleTracker = require('webpack-bundle-tracker');
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const BundleTracker = require("webpack-bundle-tracker");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
+
+  optimization: {
+      minimizer: [new TerserPlugin()]
+  },
+
   context: __dirname,
 
   entry: './js/index',
@@ -23,22 +28,7 @@ module.exports = {
 
   plugins: [
     new BundleTracker({filename: './webpack-stats.json', trackAssets:true}),
-    new UglifyJsPlugin(
-        {
-          uglifyOptions:
-          {
-            ecma: 7,
-            parallel: true,
-            mangle: true,
-            compress: false,
-            keep_fnames: true,
-            ie8: false,
-            output: {
-              comments: false
-            }
-          },
-        }
-    ),
+
   ],
 
   module: {

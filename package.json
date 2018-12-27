@@ -5,9 +5,9 @@
   "main": "webpack.config.js",
   "scripts": {
     "test": "jest",
-    "build": "node --max_old_space_size=8192 node_modules/.bin/webpack --config webpack.config.js --progress --colors --mode production",
-    "watch": "node --max_old_space_size=8192 node_modules/.bin/webpack --config webpack.config.js --watch",
-    "dev": "node --max_old_space_size=8192 node_modules/.bin/webpack --config webpack.config.js --mode development --watch"
+    "build": "webpack --config webpack.config.js --progress --mode production",
+    "watch": "webpack --config webpack.config.js --watch",
+    "dev": "webpack --config webpack.config.js --mode development --watch"
   },
   "jest": {
     "testEnvironment": "node"
@@ -77,7 +77,7 @@
     "jest": "^23.6.0",
     "jsdom": "^11.11.0",
     "jshint": "^2.9.5",
-    "uglifyjs-webpack-plugin": "2.0.1",
+    "terser-webpack-plugin": "^1.2.0",
     "webpack": "^4.20.0",
     "webpack-bundle-tracker": "^0.3.0",
     "webpack-cli": "^3.1.1"
