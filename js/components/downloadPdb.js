@@ -7,14 +7,26 @@ import {connect} from "react-redux";
 import {Button, ButtonToolbar} from "react-bootstrap";
 import fetch from "cross-fetch";
 import FileSaver from "file-saver";
+import { css } from 'react-emotion';
+import { RingLoader } from 'react-spinners';
+
+const override = css`
+    display: block;
+    margin: 0 auto;
+    border-color: red;
+`;
 
 class DownloadPdb extends React.Component {
     constructor(props) {
         super(props);
         this.handlePdbDownload = this.handlePdbDownload.bind(this);
+        this.state = {
+            "downloading": false
+        }
     }
 
     async handlePdbDownload() {
+        this.setState({"downloading": true});
         var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?target_id=" + this.props.targetOn.toString();
         var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?target_id=" + this.props.targetOn.toString();
         const protResponse = await fetch(proteinsUrl);
@@ -34,11 +46,14 @@ class DownloadPdb extends React.Component {
         }
         const content = await zip.generateAsync({type: "blob"});
         FileSaver.saveAs(content, fName + ".zip");
+        this.setState({"downloading": false});
     }
 
     render() {
         if (this.props.targetOnName == undefined) {
             return <Button bsSize="sm" bsStyle="warning" onClick={this.handlePdbDownload}>loading...</Button>
+        } else if (this.state.downloading == true) {
+            return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={(this.state.downloading == true)}/>
         } else {
             return <Button bsSize="sm" bsStyle="warning"
                            onClick={this.handlePdbDownload}>Download {this.props.targetOnName.toString()} structures</Button>

@@ -29,16 +29,14 @@ class TargetList extends GenericList {
         if (sgcUploaded.includes(data.title)) {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={7} md={7}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
-                    <Col xs={4} md={4}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a></p></Row></Col>
+                    <Col xs={5} sm={5} mdOffset={1} md={5} lg={6}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                    <Col xs={7} sm={7} md={6} lg={5}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a></p></Row></Col>
                 </Row>
             </ListGroupItem>
         } else {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={11} md={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                    <Col xs={12} sm={12} mdOffset={1} md={11} lg={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
                 </Row>
             </ListGroupItem>
         }
