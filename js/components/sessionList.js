@@ -140,8 +140,8 @@ class SessionList extends GenericList {
             return <ListGroupItem key={data.id}>
                 <Row>
                     <Col xs={1} md={1}></Col>
-                    <Col xs={8} md={8}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{data.title}</Link></p></Row></Col>
-                    <Col xs={3} md={3}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
+                    <Col xs={6} md={7}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{data.title}</Link></p></Row></Col>
+                    <Col xs={5} md={4}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
                 </Row>
             </ListGroupItem>
         }
@@ -155,12 +155,10 @@ class SessionList extends GenericList {
     render() {
         const {pathname} = this.props.location;
         var sessionListTitle;
-        if (this.props.object_list.length != 0 && this.props.object_list.length <= 10){
+        if (this.props.object_list.length != 0 && this.props.object_list.length <= 15){
             sessionListTitle = <h3>Session List:</h3>
-        } else if (this.props.object_list.length > 10 && this.props.object_list.length < 24){
-            sessionListTitle = <h3>Session count: {this.props.object_list.length}/24.</h3>
-        } else if (this.props.object_list.length >= 24){
-            sessionListTitle = <h3>You have reached session limit (24), please delete old <a href="/viewer/react/sessions">sessions</a>!</h3>
+        } else if (this.props.object_list.length > 15){
+            sessionListTitle = <h3>You have {this.props.object_list.length} sessions. Please consider deleting old/unused <a href="/viewer/react/sessions">sessions</a> to improve performance.</h3>
         }
          if (this.props.seshListSaving == true) {
             return <RingLoader className={override} sizeUnit={"px"} size={30} color={'#7B36D7'} loading={(this.props.seshListSaving == true)}/>
