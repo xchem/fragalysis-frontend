@@ -37,7 +37,7 @@ class TargetList extends GenericList {
         } else {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xs={1} md={1}></Col>
+                    <Col xs={0} md={0} lg={1}></Col>
                     <Col xs={11} md={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
                 </Row>
             </ListGroupItem>
