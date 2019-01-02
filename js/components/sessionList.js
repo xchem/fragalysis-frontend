@@ -156,7 +156,7 @@ class SessionList extends GenericList {
         var sessionListTitle;
         if (this.props.object_list.length != 0 && this.props.object_list.length <= 15 || this.props.location != "/viewer/react/sessions"){
             sessionListTitle = <h3>Session List:</h3>
-        } else if (this.props.object_list.length > 25){
+        } else if (this.props.object_list.length > 10){
             sessionListTitle = <h3>You have {this.props.object_list.length} sessions. Please consider deleting old/unused <a href="/viewer/react/sessions">sessions</a> to improve performance.</h3>
         }
          if (this.props.seshListSaving == true) {
