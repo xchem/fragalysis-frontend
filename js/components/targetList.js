@@ -29,7 +29,7 @@ class TargetList extends GenericList {
         if (sgcUploaded.includes(data.title)) {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xs={0} md={0} lg={1}></Col>
+                    <Col xs={0} md={1} lg={1}></Col>
                     <Col xs={6} md={7} lg={7}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
                     <Col xs={6} md={5} lg={4}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a></p></Row></Col>
                 </Row>
@@ -37,8 +37,8 @@ class TargetList extends GenericList {
         } else {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xs={0} md={0} lg={1}></Col>
-                    <Col xs={11} md={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                    <Col xs={0} md={1} lg={1}></Col>
+                    <Col xs={12} md={11} lg={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
                 </Row>
             </ListGroupItem>
         }
