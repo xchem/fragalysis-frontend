@@ -129,18 +129,17 @@ class SessionList extends GenericList {
         if (pathname == "/viewer/react/sessions") {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xsHidden smHidden mdHidden lg={1}></Col>
-                    <Col xs={3} md={3} lg={3}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{this.props.object_list[this.props.object_list.findIndex(x => x.id==data.id)].title}</Link></p></Row></Col>
-                    <Col xs={3} md={3} lg={3}><Row></Row><p></p><Row><p>Last modified on {data.modified.slice(0,10)} at {data.modified.slice(11,19)}</p></Row></Col>
-                    <Col xs={1} md={1} lg={1}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
-                    <Col xs={3} md={3} lg={2}><input id={data.id} key="sessRnm" style={{width: 250}} defaultValue={data.title} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To rename, type new title & press enter.</sup></Col>
-                    <Col xs={2} md={2} lg={2}><ButtonToolbar>{this.renderCopyUrlButton(data)} {this.renderDeleteButton(data)}</ButtonToolbar></Col>
+                    <Col xs={3} md={3}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{this.props.object_list[this.props.object_list.findIndex(x => x.id==data.id)].title}</Link></p></Row></Col>
+                    <Col xs={3} md={3}><Row></Row><p></p><Row><p>Last modified on {data.modified.slice(0,10)} at {data.modified.slice(11,19)}</p></Row></Col>
+                    <Col xs={1} md={1}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
+                    <Col xs={3} md={3}><input id={data.id} key="sessRnm" style={{width: 250}} defaultValue={data.title} onKeyDown={this.handleSessionNaming}></input><sup><br></br>To rename, type new title & press enter.</sup></Col>
+                    <Col xs={2} md={2}><ButtonToolbar>{this.renderCopyUrlButton(data)} {this.renderDeleteButton(data)}</ButtonToolbar></Col>
                 </Row>
             </ListGroupItem>
         } else {
             return <ListGroupItem key={data.id}>
                 <Row>
-                    <Col xs={0} sm={0} md={0} lg={1}></Col>
+                    <Col xsHidden smHidden mdHidden lg={1}></Col>
                     <Col xs={12} sm={12} md={6} lg={7}><Row></Row><p></p><Row><p>Title: <Link to={fragglebox}>{data.title}</Link></p></Row></Col>
                     <Col xsHidden smHidden md={6} lg={4}><Row></Row><p></p><Row><p>Target: {data.target_on_name}</p></Row></Col>
                 </Row>
