@@ -26,7 +26,7 @@ class DownloadPdb extends React.Component {
     }
 
     async handlePdbDownload() {
-        this.setState({"downloading": true});
+        // this.setState({"downloading": true});
         var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?target_id=" + this.props.targetOn.toString();
         var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?target_id=" + this.props.targetOn.toString();
         const protResponse = await fetch(proteinsUrl);
@@ -46,7 +46,7 @@ class DownloadPdb extends React.Component {
         }
         const content = await zip.generateAsync({type: "blob"});
         FileSaver.saveAs(content, fName + ".zip");
-        this.setState({"downloading": false});
+        // this.setState({"downloading": false});
     }
 
     render() {
