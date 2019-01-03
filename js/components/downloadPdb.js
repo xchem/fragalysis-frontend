@@ -7,6 +7,14 @@ import {connect} from "react-redux";
 import {Button} from "react-bootstrap";
 import fetch from "cross-fetch";
 import FileSaver from "file-saver";
+import { css } from 'react-emotion';
+import { RingLoader } from 'react-spinners';
+
+const override = css`
+    display: block;
+    margin: 0 auto;
+    border-color: red;
+`;
 
 class DownloadPdb extends React.Component {
     constructor(props) {
