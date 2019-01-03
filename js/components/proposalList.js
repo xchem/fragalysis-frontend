@@ -7,7 +7,8 @@ import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
 import * as listType from "./listTypes";
-import {withRouter, Link} from "react-router-dom";
+import {withRouter} from "react-router-dom";
+// import {withRouter, Link} from "react-router-dom";
 
 class ProposalList extends GenericList {
     constructor(props) {
