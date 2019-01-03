@@ -362,32 +362,24 @@ export class SessionManagement extends React.Component {
         if (pathname != "/viewer/react/landing" && pathname != "/viewer/react/funders" && pathname != "/viewer/react/sessions" && pathname != "/viewer/react/targetmanagement") {
             if (this.props.sessionTitle == undefined || this.props.sessionTitle == "undefined") {
                 buttons = <Col>
-                    <Col xs={9}>
-                        <ButtonToolbar>
-                            <Button bsSize="sm" bsStyle="info" disabled>Save Session</Button>
-                            <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>Save Session As...</Button>
-                            <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>Share Snapshot</Button>
-                        </ButtonToolbar>
-                    </Col>
-                    <Col xs={3}>
-                         <DownloadPdb/>
-                    </Col>
+                    <ButtonToolbar>
+                        <Button bsSize="sm" bsStyle="info" disabled>Save Session</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>Save Session As...</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>Share Snapshot</Button>
+                        <DownloadPdb/>
+                    </ButtonToolbar>
                     <Row>
                         <p>Currently no active session.</p>
                     </Row>
                 </Col>
             } else {
                 buttons = <Col>
-                    <Col xs={9}>
-                        <ButtonToolbar>
-                            <Button bsSize="sm" bsStyle="info" onClick={this.saveSession}>Save Session</Button>
-                            <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>Save Session As...</Button>
-                            <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>Share Snapshot</Button>
-                        </ButtonToolbar>
-                    </Col>
-                    <Col xs={3}>
+                    <ButtonToolbar>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.saveSession}>Save Session</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>Save Session As...</Button>
+                        <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>Share Snapshot</Button>
                         <DownloadPdb/>
-                    </Col>
+                    </ButtonToolbar>
                     <Row>
                         <p>Session: {this.props.sessionTitle}</p>
                     </Row>
