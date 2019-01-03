@@ -4,7 +4,7 @@
 import React from "react";
 import JSZip from "jszip";
 import {connect} from "react-redux";
-import {Button, ButtonToolbar} from "react-bootstrap";
+import {Button} from "react-bootstrap";
 import fetch from "cross-fetch";
 import FileSaver from "file-saver";
 
@@ -12,9 +12,13 @@ class DownloadPdb extends React.Component {
     constructor(props) {
         super(props);
         this.handlePdbDownload = this.handlePdbDownload.bind(this);
+        this.state = {
+            "downloading": false
+        }
     }
 
     async handlePdbDownload() {
+        this.setState({"downloading": true});
         var protPdbUrl = window.location.protocol + "//" + window.location.host + "/api/protpdbbound/?target_id=" + this.props.targetOn.toString();
         var proteinsUrl = window.location.protocol + "//" + window.location.host + "/api/proteins/?target_id=" + this.props.targetOn.toString();
         const protResponse = await fetch(proteinsUrl);
@@ -34,11 +38,14 @@ class DownloadPdb extends React.Component {
         }
         const content = await zip.generateAsync({type: "blob"});
         FileSaver.saveAs(content, fName + ".zip");
+        this.setState({"downloading": false});
     }
 
     render() {
         if (this.props.targetOnName == undefined) {
-            return <Button bsSize="sm" bsStyle="warning" onClick={this.handlePdbDownload}>loading...</Button>
+            return <Button bsSize="sm" bsStyle="warning" disabled>Loading...</Button>
+        } else if (this.state.downloading == true) {
+            return <Button bsSize="sm" bsStyle="warning" disabled>Downloading...</Button>
         } else {
             return <Button bsSize="sm" bsStyle="warning"
                            onClick={this.handlePdbDownload}>Download {this.props.targetOnName.toString()} structures</Button>
