@@ -30,11 +30,20 @@ class DownloadPdb extends React.Component {
         var zip = new JSZip();
         const timeOptions = {year: 'numeric', month: 'short', day: '2-digit'};
         var fName = this.props.targetOnName + "_allPdb_" + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now()).replace(/\s/g, '-');
+        var readmeRequired = false;
         var totFolder = zip.folder(fName);
         for (var structure in protInfo) {
-            var pdbData = pdbInfo[structure].bound_pdb_data;
-            var pdbCode = protInfo[structure].code;
-            totFolder.file(pdbCode + ".pdb", pdbData);
+            if (pdbInfo[structure].bound_pdb_data == null){
+                readmeRequired = true;
+            } else {
+                var pdbData = pdbInfo[structure].bound_pdb_data;
+                var pdbCode = protInfo[structure].code;
+                totFolder.file(pdbCode + ".pdb", pdbData);
+            }
+        }
+        var readmeText = "Structures may be missing if they were not processed through the XChem pipeline. We are working to resolve this. Please contact support if this persists.";
+        if (readmeRequired == true) {
+            totFolder.file("README", readmeText);
         }
         const content = await zip.generateAsync({type: "blob"});
         FileSaver.saveAs(content, fName + ".zip");
