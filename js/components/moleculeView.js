@@ -198,6 +198,7 @@ class MoleculeView extends GenericView {
                         <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
                         <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
                         <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={4}>e- density</ToggleButton>
                     </ToggleButtonGroup>
                 </ButtonToolbar>
             </div>
