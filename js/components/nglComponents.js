@@ -39,6 +39,8 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
         this.showEvent = this.showEvent.bind(this);
+        this.showEDensity = this.showEDensity.bind(this);
+        this.showHotspot = this.showHotspot.bind(this);
         this.updateOrientation = this.updateOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
@@ -424,7 +426,6 @@ export class NGLView extends React.Component {
             this.data_dict[listType].oldGroupOn = onGroup;
         }
     }
-
 
     /**
      * Function to deal with the logic of showing molecules
