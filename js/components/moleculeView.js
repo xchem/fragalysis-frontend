@@ -306,7 +306,7 @@ class MoleculeView extends GenericView {
 
     generateEDensityObject() {
         // Get the URL
-        var eDensityQuery = "?code=" + this.props.data.protein_code.toString();
+        var eDensityQuery = "?code=" + this.props.data.protein_code;
         fetch("/api/proteins/" + eDensityQuery, {
             method: "get",
             headers: {
@@ -321,7 +321,7 @@ class MoleculeView extends GenericView {
                 "map_info": JSON.parse(response._bodyInit).results[0].map_info
             }
             return nglObject;
-        }).then(nglObject => this.handleHotspot(nglObject, loadState))
+        })
     }
 
     newOption(new_value) {
