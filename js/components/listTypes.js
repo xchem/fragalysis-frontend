@@ -11,4 +11,5 @@ export const PANDDA_EVENT = 'PANDDAEVENT';
 export const HOTSPOT = 'HOTSPOT';
 export const SESSIONS = 'SESSIONS';
 export const PROPOSALS = 'PROPOSALS';
-export const PROPOSALTARGETS = 'PROPOSALTARGETS';
+export const PROPOSAL_TARGETS = 'PROPOSAL_TARGETS';
+export const E_DENSITY = 'E_DENSITY';

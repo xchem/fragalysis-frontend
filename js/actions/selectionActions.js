@@ -17,6 +17,9 @@ import {
     SET_COMPLEX_LIST,
     APPEND_COMPLEX_LIST,
     REMOVE_FROM_COMPLEX_LIST,
+    SET_E_DENSITY_LIST,
+    APPEND_E_DENSITY_LIST,
+    REMOVE_FROM_E_DENSITY_LIST,
     SET_VECTOR_ON_LIST,
     APPEND_VECTOR_ON_LIST,
     REMOVE_FROM_VECTOR_ON_LIST,
@@ -143,6 +146,30 @@ export const removeFromComplexList = function (item){
     console.log("ACTIONS: "+ item)
     return {
         type: REMOVE_FROM_COMPLEX_LIST,
+        item: item
+    }
+}
+
+export const setEDensityList = function (eDensityList){
+    console.log("ACTIONS: "+ eDensityList)
+    return {
+        type: SET_E_DENSITY_LIST,
+        complexList: eDensityList
+    }
+}
+
+export const appendEDensityList = function (item){
+    console.log("ACTIONS: "+ item)
+    return {
+        type: APPEND_E_DENSITY_LIST,
+        item: item
+    }
+}
+
+export const removeFromEDensityList = function (item){
+    console.log("ACTIONS: "+ item)
+    return {
+        type: REMOVE_FROM_E_DENSITY_LIST,
         item: item
     }
 }

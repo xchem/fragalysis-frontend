@@ -25,6 +25,9 @@ class MoleculeView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
+        this.onEDensity = this.onEDensity.bind(this);
+        this.newOption = this.newOption.bind(this);
+        this.generateEventMapObject = this.generateEventMapObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
@@ -158,6 +161,7 @@ class MoleculeView extends GenericView {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
+        var eDensityOn = this.props.eDensityList.has(this.props.data.id);
         var value_list = []
         if(complexOn){
             value_list.push(1)
@@ -167,6 +171,9 @@ class MoleculeView extends GenericView {
         }
         if(this.props.to_query==this.props.data.smiles){
             value_list.push(3)
+        }
+        if (eDensityOn){
+            value_list.push(4)
         }
         this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
     }
@@ -198,7 +205,7 @@ class MoleculeView extends GenericView {
                         <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
                         <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
                         <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={4}>e- map</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={4}>Event</ToggleButton>
                     </ToggleButtonGroup>
                 </ButtonToolbar>
             </div>
@@ -277,14 +284,58 @@ class MoleculeView extends GenericView {
         }
     }
 
+    onEDensity(new_list = undefined) {
+        if(new_list!=undefined) {
+            this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
+        }
+        else{
+            this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+        }
+        if(this.state.eDensityOn){
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject()))
+            this.props.removeFromEDensityList(this.generateMolId())
+        }
+        else{
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject()))
+            this.props.appendEDensityList(this.generateMolId())
+        }
+    }
+
+    generateEventMapObject(data) {
+        // Get the data
+        var nglObject = {
+            "name": "EVENTLOAD" + "_" + data.id.toString(),
+            "OBJECT_TYPE":nglObjectTypes.EVENTMAP,
+            "map_info": data.small_map_info,
+            "xtal": data.xtal,
+            "lig_id": data.lig_id,
+            "pdb_info": data.pdb_info
+        }
+        return nglObject;
+    }
+
+    newOption(new_value) {
+        for (var index in this.props.object_list){
+            if(this.props.object_list[index].id==new_value){
+                // Build the map
+                this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject(this.props.object_list[index])))
+            }
+            else if(this.props.object_list[index].id==this.props.object_on){
+                this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject(this.props.object_list[index])))
+            }
+        }
+    }
+
+
 }
 function mapStateToProps(state) {
-  return {
-      to_query: state.selectionReducers.present.to_query,
-      vector_list: state.selectionReducers.present.vector_list,
-      complexList: state.selectionReducers.present.complexList,
-      fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-  }
+    return {
+        to_query: state.selectionReducers.present.to_query,
+        vector_list: state.selectionReducers.present.vector_list,
+        complexList: state.selectionReducers.present.complexList,
+        eDensityList: state.selectionReducers.present.eDensityList,
+        fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
+    }
 }
 const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
@@ -297,6 +348,8 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     appendComplexList: selectionActions.appendComplexList,
     removeFromComplexList: selectionActions.removeFromComplexList,
+    appendEDensityList: selectionActions.appendEDensityList,
+    removeFromEDensityList: selectionActions.removeFromEDensityList,
     appendVectorOnList: selectionActions.appendVectorOnList,
     removeFromVectorOnList: selectionActions.removeFromVectorOnList,
     appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,

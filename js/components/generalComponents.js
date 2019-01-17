@@ -97,6 +97,12 @@ export class GenericList extends React.Component {
                 this.props.setSeshListSaving(true);
             }
         }
+        else if (this.list_type == listTypes.E_DENSITY) {
+            if (this.props.target_on != undefined) {
+                base_url += "proteins/"
+                get_params.target_id = this.props.target_on
+            }
+        }
         else {
             console.log("DEFAULT")
         }
@@ -189,7 +195,8 @@ export class GenericView extends React.Component {
             '</svg>',
             value: [],
             vectorOn: false,
-            complexOn: false
+            complexOn: false,
+            eDensityOn:false
         }
         this.selected_style = {
             width: (props.width + 5).toString() + 'px',

@@ -7,7 +7,7 @@ import PanddaSiteList from "../components/panddaSiteList";
 import PanddaSlider from "../components/panddaSlider";
 import EventSlider from "../components/eventSlider";
 
-class Tindspect extends Component {
+class Fragspect extends Component {
 
     constructor(props) {
         super(props)
@@ -36,4 +36,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(Tindspect)
+export default connect(mapStateToProps)(Fragspect)
