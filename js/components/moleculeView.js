@@ -155,6 +155,9 @@ class MoleculeView extends GenericView {
         if (changed.indexOf(3)>-1){
             this.onVector(new_list);
         }
+        if (changed.indexOf(4)>-1){
+            this.onEDensity(new_list);
+        }
     }
 
     componentDidMount() {
