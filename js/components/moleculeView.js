@@ -319,9 +319,6 @@ class MoleculeView extends GenericView {
                 "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
                 "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
                 "map_info": JSON.parse(response._bodyInit).results[0].map_info,
-                "xtal": data.xtal,
-                "lig_id": data.lig_id,
-                "pdb_info": data.pdb_info
             }
             return nglObject;
         }).then(nglObject => this.handleHotspot(nglObject, loadState))

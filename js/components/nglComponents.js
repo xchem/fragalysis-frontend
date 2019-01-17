@@ -52,7 +52,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
-        this.function_dict[nglObjectTypes.E_DENSITY] = this.showEvent
+        this.function_dict[nglObjectTypes.E_DENSITY] = this.showEDensity
         this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
@@ -245,6 +245,30 @@ export class NGLView extends React.Component {
             comp.autoView("LIG");
         });
 
+        stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
+            var surfFofc = comp.addRepresentation('surface', {
+                color: 'mediumseagreen',
+                isolevel: 3,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            })
+            var surfFofcNeg = comp.addRepresentation('surface', {
+                color: 'tomato',
+                isolevel: 3,
+                negateIsolevel: true,
+                boxSize: 10,
+                useWorker: false,
+                contour: true,
+                opaqueBack: false,
+                isolevelScroll: false
+            })
+        });
+    }
+
+    showEDensity(stage, input_dict, object_name) {
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
             var surfFofc = comp.addRepresentation('surface', {
                 color: 'mediumseagreen',
