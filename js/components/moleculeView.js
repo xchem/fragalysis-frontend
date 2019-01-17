@@ -304,17 +304,29 @@ class MoleculeView extends GenericView {
         }
     }
 
-    generateEventMapObject(data) {
-        // Get the data
-        var nglObject = {
-            "name": "EVENTLOAD" + "_" + data.id.toString(),
-            "OBJECT_TYPE":nglObjectTypes.EVENTMAP,
-            "map_info": data.small_map_info,
-            "xtal": data.xtal,
-            "lig_id": data.lig_id,
-            "pdb_info": data.pdb_info
-        }
-        return nglObject;
+    generateEventMapObject() {
+        // Get the URL
+        var eDensityQuery = "?code=" + this.props.data.protein_code.toString();
+        fetch("/api/proteins/" + eDensityQuery, {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            // Get the data
+            var nglObject = {
+                "name": "EVENTLOAD" + "_" + data.id.toString(),
+                "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+                "map_info": data.small_map_info,
+                "xtal": data.xtal,
+                "lig_id": data.lig_id,
+                "pdb_info": data.pdb_info
+            }
+            return nglObject;
+        }).then(nglObject => this.handleHotspot(nglObject, loadState))
     }
 
     newOption(new_value) {
