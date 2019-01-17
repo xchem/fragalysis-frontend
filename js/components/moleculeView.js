@@ -317,7 +317,7 @@ class MoleculeView extends GenericView {
             // Get the data
             var nglObject = {
                 "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-                "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
                 "map_info": JSON.parse(response._bodyInit).results[0].map_info,
                 "xtal": data.xtal,
                 "lig_id": data.lig_id,
