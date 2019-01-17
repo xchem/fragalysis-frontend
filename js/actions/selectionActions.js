@@ -154,7 +154,7 @@ export const setEDensityList = function (eDensityList){
     console.log("ACTIONS: "+ eDensityList)
     return {
         type: SET_E_DENSITY_LIST,
-        complexList: eDensityList
+        eDensityList: eDensityList
     }
 }
 

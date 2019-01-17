@@ -27,7 +27,7 @@ class MoleculeView extends GenericView {
         this.onComplex = this.onComplex.bind(this);
         this.onEDensity = this.onEDensity.bind(this);
         this.newOption = this.newOption.bind(this);
-        this.generateEventMapObject = this.generateEventMapObject.bind(this);
+        this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
@@ -295,16 +295,16 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject()))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject()))
             this.props.removeFromEDensityList(this.generateMolId())
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject()))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject()))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
 
-    generateEventMapObject() {
+    generateEDensityObject() {
         // Get the URL
         var eDensityQuery = "?code=" + this.props.data.protein_code.toString();
         fetch("/api/proteins/" + eDensityQuery, {
@@ -318,7 +318,7 @@ class MoleculeView extends GenericView {
             var nglObject = {
                 "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
                 "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-                "map_info": JSON.parse(response._bodyInit).results[0].map_info,
+                "map_info": JSON.parse(response._bodyInit).results[0].map_info
             }
             return nglObject;
         }).then(nglObject => this.handleHotspot(nglObject, loadState))
@@ -328,10 +328,10 @@ class MoleculeView extends GenericView {
         for (var index in this.props.object_list){
             if(this.props.object_list[index].id==new_value){
                 // Build the map
-                this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject(this.props.object_list[index])))
+                this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.props.object_list[index])))
             }
             else if(this.props.object_list[index].id==this.props.object_on){
-                this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEventMapObject(this.props.object_list[index])))
+                this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.props.object_list[index])))
             }
         }
     }

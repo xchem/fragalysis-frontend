@@ -270,19 +270,9 @@ export class NGLView extends React.Component {
 
     showEDensity(stage, input_dict, object_name) {
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
-            var surfFofc = comp.addRepresentation('surface', {
+            var surf2Fofc = comp.addRepresentation('surface', {
                 color: 'mediumseagreen',
                 isolevel: 3,
-                boxSize: 10,
-                useWorker: false,
-                contour: true,
-                opaqueBack: false,
-                isolevelScroll: false
-            })
-            var surfFofcNeg = comp.addRepresentation('surface', {
-                color: 'tomato',
-                isolevel: 3,
-                negateIsolevel: true,
                 boxSize: 10,
                 useWorker: false,
                 contour: true,
