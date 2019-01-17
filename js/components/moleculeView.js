@@ -314,11 +314,13 @@ class MoleculeView extends GenericView {
                 'Content-Type': 'application/json'
             }
         }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
             // Get the data
             var nglObject = {
                 "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
                 "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-                "map_info": JSON.parse(response._bodyInit).results[0].map_info
+                "map_info": myJson.results[0].map_info
             }
             return nglObject;
         })
