@@ -172,10 +172,10 @@ class MoleculeView extends GenericView {
         if(this.props.to_query==this.props.data.smiles){
             value_list.push(3)
         }
-        if (eDensityOn){
+        if(eDensityOn){
             value_list.push(4)
         }
-        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
+        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn, eDensityOn: eDensityOn}))
     }
 
     componentWillReceiveProps(nextProps){
