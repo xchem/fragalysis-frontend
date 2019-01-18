@@ -9,6 +9,7 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
 import * as selectionActions from "../actions/selectionActions";
+import * as apiActions from "../actions/apiActions";
 import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
@@ -313,6 +314,8 @@ class MoleculeView extends GenericView {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
+        }).catch((error) => {
+            this.props.setErrorMessage(error);
         }).then(function (response) {
             return response.json();
         }).then(function (myJson) {
@@ -366,6 +369,7 @@ const mapDispatchToProps = {
     removeFromVectorOnList: selectionActions.removeFromVectorOnList,
     appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
     removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
+    setErrorMessage: apiActions.setErrorMessage,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeView);
