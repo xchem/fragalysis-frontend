@@ -28,6 +28,7 @@ class MoleculeView extends GenericView {
         this.onComplex = this.onComplex.bind(this);
         this.onEDensity = this.onEDensity.bind(this);
         this.newOption = this.newOption.bind(this);
+        this.generateEDensityUrl = this.generateEDensityUrl.bind(this);
         this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
@@ -289,6 +290,7 @@ class MoleculeView extends GenericView {
     }
 
     onEDensity(new_list = undefined) {
+        var eDensityUrl = generateEDensityUrl()
         if(new_list!=undefined) {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
         }
@@ -296,18 +298,18 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject()))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(eDensityUrl)))
             this.props.removeFromEDensityList(this.generateMolId())
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject()))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(eDensityUrl)))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
 
-    generateEDensityObject() {
-        // Get the URL
+    generateEDensityUrl() {
         var eDensityQuery = "?code=" + this.props.data.protein_code;
+        var eDensityUrl = ""
         fetch("/api/proteins/" + eDensityQuery, {
             method: "get",
             headers: {
@@ -319,29 +321,20 @@ class MoleculeView extends GenericView {
         }).then(function (response) {
             return response.json();
         }).then(function (myJson) {
+            eDensityUrl = myJson.results[0].map_info
+        });
+        return eDensityUrl
+    }
+
+    generateEDensityObject(eDensityUrl) {
             // Get the data
-            var nglObject = {
-                "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-                "map_info": myJson.results[0].map_info
-            }
-            return nglObject;
-        })
-    }
-
-    newOption(new_value) {
-        for (var index in this.props.object_list){
-            if(this.props.object_list[index].id==new_value){
-                // Build the map
-                this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.props.object_list[index])))
-            }
-            else if(this.props.object_list[index].id==this.props.object_on){
-                this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.props.object_list[index])))
-            }
+        var nglObject = {
+            "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+            "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+            "map_info": eDensityUrl
         }
+        return nglObject;
     }
-
-
 }
 function mapStateToProps(state) {
     return {
