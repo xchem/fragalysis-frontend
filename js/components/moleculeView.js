@@ -308,7 +308,7 @@ class MoleculeView extends GenericView {
     generateEDensityUrl() {
         var eDensityQuery = "?code=" + this.props.data.protein_code;
         var eDensityUrl = ""
-        fetch("/api/proteins/" + eDensityQuery, {
+        fetch(window.location.protocol + "//" + window.location.host+"/api/proteins/"+eDensityQuery, {
             method: "get",
             headers: {
                 'Accept': 'application/json',
