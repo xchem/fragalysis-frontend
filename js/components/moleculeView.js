@@ -27,7 +27,6 @@ class MoleculeView extends GenericView {
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
         this.onEDensity = this.onEDensity.bind(this);
-        this.newOption = this.newOption.bind(this);
         this.generateEDensityUrl = this.generateEDensityUrl.bind(this);
         this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
