@@ -312,10 +312,13 @@ class MoleculeView extends GenericView {
                 error => console.log('An error occurred.', error)
             )
             .then(
-                json => this.handleVector(json["vectors"])
-                return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
+                const returner = function(json) {
+                    return json.results[0].map_info
+                }
+                returner()
             )
     }
+        // return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
 
     generateEDensityObject(eDensityUrl) {
             // Get the data
