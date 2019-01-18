@@ -296,11 +296,11 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.getEDensityUrl()))
             this.props.removeFromEDensityList(this.generateMolId())
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.getEDensityUrl()))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
@@ -312,11 +312,9 @@ class MoleculeView extends GenericView {
                 error => console.log('An error occurred.', error)
             )
             .then(
-                const returner = function(json) {
-                    return json.results[0].map_info
-                }
-                returner()
+                json => this.generateEDensityObject(json.results[0].map_info)
             )
+
     }
         // return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
 
@@ -325,7 +323,7 @@ class MoleculeView extends GenericView {
         var nglObject = {
             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-            "map_info": this.getEDensityUrl(),
+            "map_info": eDensityUrl,
         };
         return nglObject;
     }
