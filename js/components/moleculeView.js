@@ -27,7 +27,7 @@ class MoleculeView extends GenericView {
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
         this.onEDensity = this.onEDensity.bind(this);
-        this.generateEDensityUrl = this.generateEDensityUrl.bind(this);
+        this.getEDensityUrl = this.getEDensityUrl.bind(this);
         this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
@@ -296,24 +296,18 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityUrl()))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             this.props.removeFromEDensityList(this.generateMolId())
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityUrl()))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
 
-    generateEDensityUrl() {
-        var eDensityQuery = "?code=" + this.props.data.protein_code;
-        const urlGenerator = async () => {
-            const response = await fetch(window.location.protocol + "//" + window.location.host + "/api/proteins/" + eDensityQuery);
-            const json = await response.json();
-        };
-        urlGenerator();
-        // var eDensityUrl = json.results[0].map_info;
-        // eDensityUrl => this.generateEDensityObject(eDensityUrl);
+    getEDensityUrl() {
+        return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
+        // return new URL(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code + "/")
     }
 
     generateEDensityObject(eDensityUrl) {
@@ -321,7 +315,7 @@ class MoleculeView extends GenericView {
         var nglObject = {
             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-            "map_info": eDensityUrl
+            "map_info": this.getEDensityUrl(),
         };
         return nglObject;
     }
