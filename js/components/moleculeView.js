@@ -289,7 +289,6 @@ class MoleculeView extends GenericView {
     }
 
     onEDensity(new_list = undefined) {
-        var eDensityUrl = this.generateEDensityUrl()
         if(new_list!=undefined) {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
         }
@@ -297,11 +296,11 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(eDensityUrl)))
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityUrl()))
             this.props.removeFromEDensityList(this.generateMolId())
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(eDensityUrl)))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityUrl()))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
@@ -321,8 +320,8 @@ class MoleculeView extends GenericView {
             return response.json();
         }).then(function (myJson) {
             eDensityUrl = myJson.results[0].map_info
-        });
-        return eDensityUrl
+            return eDensityUrl
+        }).then(eDensityUrl => this.generateEDensityObject(eDensityUrl));
     }
 
     generateEDensityObject(eDensityUrl) {
@@ -331,7 +330,7 @@ class MoleculeView extends GenericView {
             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
             "map_info": eDensityUrl
-        }
+        };
         return nglObject;
     }
 }
