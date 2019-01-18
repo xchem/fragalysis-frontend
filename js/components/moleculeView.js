@@ -306,8 +306,15 @@ class MoleculeView extends GenericView {
     }
 
     getEDensityUrl() {
-        return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
-        // return new URL(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code + "/")
+        fetch (this.base_url + '/api/proteins/?code=' + this.props.data.protein_code + "/")
+            .then(
+                response => response.json(),
+                error => console.log('An error occurred.', error)
+            )
+            .then(
+                json => this.handleVector(json["vectors"])
+                return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
+            )
     }
 
     generateEDensityObject(eDensityUrl) {
