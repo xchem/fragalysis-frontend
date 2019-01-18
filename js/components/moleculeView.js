@@ -312,7 +312,8 @@ class MoleculeView extends GenericView {
                 error => console.log('An error occurred.', error)
             )
             .then(
-                json => this.generateEDensityObject(json.results[0].map_info)
+                this.generateEDensityObject("http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz")
+                // json => this.generateEDensityObject(json.results[0].map_info)
             )
 
     }
