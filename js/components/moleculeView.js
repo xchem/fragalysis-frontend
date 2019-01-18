@@ -289,7 +289,7 @@ class MoleculeView extends GenericView {
     }
 
     onEDensity(new_list = undefined) {
-        var eDensityUrl = generateEDensityUrl()
+        var eDensityUrl = this.generateEDensityUrl()
         if(new_list!=undefined) {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
         }
