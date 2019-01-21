@@ -39,7 +39,8 @@ class TargetList extends GenericList {
     }
 
     render_method(data) {
-        const ownTargetList = this.fetchOwnTargetList();
+        var _this = this;
+        const ownTargetList = _this.fetchOwnTargetList();
         var preview = "/viewer/react/preview/target/" + data.title;
         var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
         var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
