@@ -10,6 +10,7 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglObjectTypes from "../components/nglObjectTypes";
+import fetch from "cross-fetch";
 import {withRouter, Link} from "react-router-dom";
 
 class TargetList extends GenericList {
@@ -19,10 +20,26 @@ class TargetList extends GenericList {
         this.render_method = this.render_method.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
+        this.fetchOwnTargetList = this.fetchOwnTargetList.bind(this);
         this.origTarget = -1;
     }
 
+    fetchOwnTargetList() {
+        fetch(window.location.protocol + "//" + window.location.host+"/viewer/open_targets/", {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).catch((error) => {
+            this.props.setErrorMessage(error);
+        }).then(function (response) {
+            return response.json();
+        })
+    }
+
     render_method(data) {
+        var ownTargetList = this.fetchOwnTargetList();
         var preview = "/viewer/react/preview/target/" + data.title;
         var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
         var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
