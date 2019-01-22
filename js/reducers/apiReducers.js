@@ -7,6 +7,7 @@ const INITIALSTATE = {
     project_id: undefined,
     target_id: undefined,
     target_id_list: [],
+    ownTargetIdList: [],
     mol_group_list: [],
     molecule_list: [],
     duck_yank_data: {},
@@ -85,6 +86,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_TARGET_ID_LIST:
             return Object.assign({}, state, {
                 target_id_list: action.target_id_list
+            });
+
+        case actions.SET_OWN_TARGET_ID_LIST:
+            return Object.assign({}, state, {
+                ownTargetIdList: action.ownTargetIdList
             });
 
         case actions.SET_TARGET_ON:

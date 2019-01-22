@@ -4,12 +4,12 @@
 import apiReducers from "../reducers/apiReducers";
 import * as types from "../actions/actonTypes";
 
-
 function getInitialState(){
    return {
        project_id: undefined,
        target_id: undefined,
        target_id_list: [],
+       own_target_id_list: [],
        mol_group_list: [],
        molecule_list: [],
        duck_yank_data: {},
@@ -40,7 +40,6 @@ function getInitialState(){
    }
 }
 
-
 describe('API Redcuer', () => {
     it('should return the initial state', () => {
         expect(apiReducers(undefined, {})).toEqual(
@@ -57,6 +56,7 @@ describe('API Redcuer', () => {
             project_id: 1,
             target_id: undefined,
             target_id_list: [],
+            own_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -92,6 +92,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: undefined,
             target_id_list: [],
+            own_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -130,6 +131,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: undefined,
             target_id_list: [],
+            own_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -167,6 +169,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: undefined,
             target_id_list: [],
+            own_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -214,6 +217,7 @@ describe('API Redcuer', () => {
             pandda_site_list: [],
             app_on: "PREVIEW",
             target_id_list: [],
+            own_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -242,6 +246,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: 1,
             target_id_list: [],
+            own_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},

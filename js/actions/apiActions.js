@@ -5,6 +5,7 @@ import {
     LOAD_TARGETS,
     SET_TARGET_ON,
     SET_TARGET_ID_LIST,
+    SET_OWN_TARGET_ID_LIST,
     SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST,
     SET_MOL_GROUP_ON,
@@ -59,6 +60,14 @@ export const setTargetIdList = function (input_json) {
     return {
         type: SET_TARGET_ID_LIST,
         target_id_list: input_json
+    };
+}
+
+export const setOwnTargetIdList = function (input_json) {
+    console.log("ACTIONS: " + input_json);
+    return {
+        type: SET_OWN_TARGET_ID_LIST,
+        ownTargetIdList: input_json
     };
 }
 

@@ -17,25 +17,41 @@ class TargetList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.TARGET;
+        this.beforePush = this.beforePush.bind(this);
+        this.afterPush = this.afterPush.bind(this);
+        this.processResults = this.processResults.bind(this);
+        this.fetchOwnTargetList = this.fetchOwnTargetList.bind(this);
         this.render_method = this.render_method.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
-        this.fetchOwnTargetList = this.fetchOwnTargetList.bind(this);
         this.origTarget = -1;
     }
 
+    beforePush() {
+    }
+
+    afterPush(data){
+    }
+
+    processResults(json){
+        var results = json.results;
+        this.afterPush(results)
+        return results;
+    }
+
     fetchOwnTargetList() {
+        this.beforePush();
         fetch(window.location.protocol + "//" + window.location.host+"/viewer/open_targets/", {
             method: "get",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-        }).catch((error) => {
-            this.props.setErrorMessage(error);
         }).then(function (response) {
             return response.json();
-        })
+        }).then(
+            json => this.props.setOwnTargetIdList(this.processResults(json))
+        )
     }
 
     render_method(data) {
@@ -134,7 +150,8 @@ function mapStateToProps(state) {
       objectsInView: state.nglReducers.present.objectsInView,
       object_list: state.apiReducers.present.target_id_list,
       object_on: state.apiReducers.present.target_on,
-      nglProtStyle: state.nglReducers.present.nglProtStyle
+      nglProtStyle: state.nglReducers.present.nglProtStyle,
+      ownTargetIdList: state.apiReducers.present.ownTargetIdList
   }
 }
 const mapDispatchToProps = {
@@ -142,6 +159,7 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     setObjectOn: apiActions.setTargetOn,
     setMoleculeList: apiActions.setMoleculeList,
-    setObjectList: apiActions.setTargetIdList
+    setObjectList: apiActions.setTargetIdList,
+    setOwnTargetIdList: apiActions.setOwnTargetIdList,
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TargetList));
