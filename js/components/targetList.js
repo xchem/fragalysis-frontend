@@ -19,7 +19,7 @@ class TargetList extends GenericList {
         this.list_type = listType.TARGET;
         this.beforePush = this.beforePush.bind(this);
         this.afterPush = this.afterPush.bind(this);
-        this.processResults = this.processResults.bind(this);
+        this.processOpenTargets = this.processOpenTargets.bind(this);
         this.fetchOpenTargetList = this.fetchOpenTargetList.bind(this);
         this.ownTargetRenderMethod = this.ownTargetRenderMethod.bind(this);
         this.openTargetRenderMethod = this.openTargetRenderMethod.bind(this);
@@ -34,7 +34,7 @@ class TargetList extends GenericList {
     afterPush(data){
     }
 
-    processResults(json){
+    processOpenTargets(json){
         var results = json.target_names;
         this.afterPush(results)
         return results;
@@ -51,7 +51,7 @@ class TargetList extends GenericList {
         }).then(function (response) {
             return response.json();
         }).then(
-            json => this.props.setOpenTargetIdList(this.processResults(json))
+            json => this.props.setOpenTargetIdList(this.processOpenTargets(json))
         )
     }
 
