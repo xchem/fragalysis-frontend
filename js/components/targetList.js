@@ -17,7 +17,6 @@ class TargetList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.TARGET;
-        this.beforePush = this.beforePush.bind(this);
         this.afterPush = this.afterPush.bind(this);
         this.processOpenTargets = this.processOpenTargets.bind(this);
         this.fetchOpenTargetList = this.fetchOpenTargetList.bind(this);
@@ -26,9 +25,6 @@ class TargetList extends GenericList {
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
         this.origTarget = -1;
-    }
-
-    beforePush() {
     }
 
     afterPush(data){
@@ -41,7 +37,6 @@ class TargetList extends GenericList {
     }
 
     fetchOpenTargetList() {
-        this.beforePush();
         fetch(window.location.protocol + "//" + window.location.host+"/viewer/open_targets/", {
             method: "get",
             headers: {
