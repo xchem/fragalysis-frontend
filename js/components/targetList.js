@@ -139,6 +139,10 @@ class TargetList extends GenericList {
         return undefined;
     }
 
+    componentWillMount() {
+        this.fetchOpenTargetList()
+    }
+
     componentDidMount() {
         this.loadFromServer();
         setInterval(this.loadFromServer,50);
