@@ -51,7 +51,7 @@ class TargetList extends GenericList {
     }
 
     ownTargetRenderMethod(data) {
-        if (this.props.openTargetIdList == []){
+        if (this.props.openTargetIdList.length != 0){
             this.fetchOpenTargetList();
         }
         var preview = "/viewer/react/preview/target/" + data.title;
