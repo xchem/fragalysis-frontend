@@ -56,10 +56,11 @@ class TargetList extends GenericList {
     }
 
     ownTargetRenderMethod(data) {
+        this.fetchOpenTargetList();
         var preview = "/viewer/react/preview/target/" + data.title;
         var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
         var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
-        if (this.props.openTargetIdList.includes(data.title) == false) {
+        if (this.props.openTargetIdList.includes(data.title) === false) {
             if (sgcUploaded.includes(data.title)) {
                 return <ListGroupItem key={data.id}>
                     <Row>
@@ -78,6 +79,7 @@ class TargetList extends GenericList {
     }
 
     openTargetRenderMethod(data) {
+        this.fetchOpenTargetList();
         var preview = "/viewer/react/preview/target/" + data.title;
         var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
         var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
