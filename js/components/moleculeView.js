@@ -305,19 +305,33 @@ class MoleculeView extends GenericView {
         }
     }
 
-    getEDensityUrl() {
-        fetch (this.base_url + '/api/proteins/?code=' + this.props.data.protein_code + "/")
-            .then(
-                response => response.json(),
-                error => console.log('An error occurred.', error)
-            )
-            .then(
-                this.generateEDensityObject("http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/pdbs/TBXTA-x0773_1_apo_sSKGYWD.pdb")
-                // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz")
-                // json => this.generateEDensityObject(json.results[0].map_info)
-            )
 
+
+    afterPush(data){
     }
+
+    processEDensityUrl(json){
+        var results = json.results[0].map_info;
+        this.afterPush(results)
+        return results;
+    }
+
+    getEDensityUrl() {
+        fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code + "/", {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then(function (response) {
+            return response.json();
+        }).then(
+            json => this.generateEDensityObject(this.processEDensityUrl(json))
+        )
+    }
+        // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/pdbs/TBXTA-x0773_1_apo_sSKGYWD.pdb")
+        // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz")
+        // json => this.generateEDensityObject(json.results[0].map_info)
         // return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
 
     generateEDensityObject(eDensityUrl) {

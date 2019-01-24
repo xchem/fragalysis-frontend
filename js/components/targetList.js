@@ -159,7 +159,7 @@ class TargetList extends GenericList {
         }
         else if (this.props != undefined && this.props.object_list) {
             return <div>
-                <h3>Target List:</h3>
+                <h3>Target List</h3>
                 <ListGroup>
                     {
                         this.props.object_list.map((data) => (this.ownTargetRenderMethod(data)))
