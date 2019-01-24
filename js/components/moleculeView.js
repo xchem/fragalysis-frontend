@@ -316,7 +316,7 @@ class MoleculeView extends GenericView {
     }
 
     getEDensityUrl() {
-        fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code + "/", {
+        fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code, {
             method: "get",
             headers: {
                 'Accept': 'application/json',
