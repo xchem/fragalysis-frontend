@@ -305,8 +305,6 @@ class MoleculeView extends GenericView {
         }
     }
 
-
-
     afterPush(data){
     }
 
