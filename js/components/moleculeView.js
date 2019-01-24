@@ -300,6 +300,7 @@ class MoleculeView extends GenericView {
             this.props.removeFromEDensityList(this.generateMolId())
         }
         else{
+            console.log(this.getEDensityUrl())
             this.props.loadObject(Object.assign({display_div: "major_view"}, this.getEDensityUrl()))
             this.props.appendEDensityList(this.generateMolId())
         }

@@ -211,8 +211,7 @@ export class NGLView extends React.Component {
             comp.autoView("ligand");
             stage.setFocus(focus_var);
     };
-
-
+    
     showComplex(stage, input_dict, object_name) {
         var stringBlob = new Blob( [ input_dict.sdf_info ], { type: 'text/plain'} );
         Promise.all([
