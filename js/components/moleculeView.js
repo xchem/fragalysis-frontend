@@ -297,7 +297,8 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
+            this.props.eDensityList.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
             this.props.removeFromEDensityList(this.generateMolId());
         }
         else{
