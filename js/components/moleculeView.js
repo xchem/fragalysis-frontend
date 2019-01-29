@@ -35,7 +35,10 @@ class MoleculeView extends GenericView {
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.colourToggle = this.getRandomColor();
-    }
+        this.state = {
+            eDensityUrl: undefined
+            };
+        }
 
     getViewUrl(get_view) {
         return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
@@ -293,7 +296,7 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
         }
         else{
-            this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
+            this.setState(prevState => ({eDensityOn: !prevState.eDensityOn}))
         }
         if(this.state.eDensityOn){
             this.props.deleteObject(Object.assign({display_div: "major_view"}, this.getEDensityUrl()))
@@ -301,7 +304,7 @@ class MoleculeView extends GenericView {
         }
         else{
             console.log(this.getEDensityUrl())
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.getEDensityUrl()))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, generateEDensityObject(this.getEDensityUrl())))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
@@ -312,7 +315,7 @@ class MoleculeView extends GenericView {
     processEDensityUrl(json){
         var results = json.results[0].map_info;
         this.afterPush(results)
-        return results;
+        this.setState(prevState => ({eDensityUrl: results}))
     }
 
     getEDensityUrl() {
@@ -325,7 +328,7 @@ class MoleculeView extends GenericView {
         }).then(function (response) {
             return response.json();
         }).then(
-            json => this.generateEDensityObject(this.processEDensityUrl(json))
+            json => this.processEDensityUrl(json)
         )
     }
         // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/pdbs/TBXTA-x0773_1_apo_sSKGYWD.pdb")
