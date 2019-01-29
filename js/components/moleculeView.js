@@ -289,7 +289,7 @@ class MoleculeView extends GenericView {
         }
     }
 
-    onEDensity(new_list = undefined) {
+    onEDensity(new_list=undefined) {
         if(new_list!=undefined) {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
         }
@@ -335,13 +335,23 @@ class MoleculeView extends GenericView {
         // return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
 
     generateEDensityObject(eDensityUrl) {
-            // Get the data
-        var nglObject = {
-            "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-            "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-            "map_info": eDensityUrl,
-        };
-        return nglObject;
+        fetch(eDensityUrl, {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            var eDensityObject = {
+                "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+                "mapUrl": response,
+                "display_div": "major_view",
+                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+                "map_type": "electonDensity",
+                "map_info": response
+            }
+            return eDensityObject;
+        }).then(eDensityObject => this.handleEDensity(eDensityObject))
     }
 }
 function mapStateToProps(state) {
