@@ -297,13 +297,13 @@ class MoleculeView extends GenericView {
             this.setState(prevState => ({eDensityOn: !prevState.eDensityOn}))
         }
         if(this.state.eDensityOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.getEDensityUrl()))
-            this.props.removeFromEDensityList(this.generateMolId())
+            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
+            this.props.removeFromEDensityList(this.generateMolId());
         }
         else{
             console.log(this.getEDensityUrl())
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)))
-            this.props.appendEDensityList(this.generateMolId())
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
+            this.props.appendEDensityList(this.generateMolId());
         }
     }
 
