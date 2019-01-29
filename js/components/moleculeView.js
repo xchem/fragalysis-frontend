@@ -35,9 +35,7 @@ class MoleculeView extends GenericView {
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.colourToggle = this.getRandomColor();
-        this.state = {
-            eDensityUrl: undefined
-            };
+        this.eDensityUrl = undefined
         }
 
     getViewUrl(get_view) {
@@ -314,8 +312,8 @@ class MoleculeView extends GenericView {
 
     processEDensityUrl(json){
         var results = json.results[0].map_info;
-        this.afterPush(results)
-        this.setState(prevState => ({eDensityUrl: results}))
+        this.afterPush(results);
+        this.eDensityUrl = results;
     }
 
     getEDensityUrl() {
