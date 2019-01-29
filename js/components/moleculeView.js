@@ -302,7 +302,7 @@ class MoleculeView extends GenericView {
         }
         else{
             console.log(this.getEDensityUrl())
-            this.props.loadObject(Object.assign({display_div: "major_view"}, generateEDensityObject(this.getEDensityUrl())))
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)))
             this.props.appendEDensityList(this.generateMolId())
         }
     }
