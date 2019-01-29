@@ -351,9 +351,18 @@ class MoleculeView extends GenericView {
                 "map_info": response
             }
             return eDensityObject;
-        }).then(eDensityObject => this.handleEDensity(eDensityObject))
+        }).then(eDensityObject => this.handleEDensity(eDensityObject, "load"))
+    }
+
+    handleEDensity(eDensityObject, loadState){
+        if (loadState === 'load'){
+            this.props.loadObject(eDensityObject);
+        } else if (loadState === 'unload'){
+            this.props.deleteObject(eDensityObject);
+        }
     }
 }
+
 function mapStateToProps(state) {
     return {
         to_query: state.selectionReducers.present.to_query,
