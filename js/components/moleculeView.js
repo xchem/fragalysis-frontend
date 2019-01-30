@@ -31,7 +31,7 @@ class MoleculeView extends GenericView {
         this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
-        this.base_url = base_url.replace("http:",window.location.protocol);
+        this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.colourToggle = this.getRandomColor();
@@ -310,8 +310,7 @@ class MoleculeView extends GenericView {
             // this.props.removeFromEDensityList(this.props.data.id);
         }
         else{
-            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject("https://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/NUDT7A_Crude-x1232_1_pandda.map_FQaQev4.gz")));
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
             this.props.appendEDensityList(this.generateMolId());
         }
     }
@@ -320,7 +319,7 @@ class MoleculeView extends GenericView {
     }
 
     processEDensityUrl(json){
-        var results = json.results[0].map_info;
+        var results = json.results[0].map_info.replace("http:",window.location.protocol);
         this.afterPush(results);
         this.eDensityUrl = results;
     }
