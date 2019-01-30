@@ -348,9 +348,9 @@ class MoleculeView extends GenericView {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
-            }
+            },
         }).then(function (response) {
-            var eDensityObject = {
+            const eDensityObject = {
                 "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
                 "mapUrl": response,
                 "display_div": "major_view",
