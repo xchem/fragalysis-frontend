@@ -311,7 +311,7 @@ class MoleculeView extends GenericView {
         }
         else{
             // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject("http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/NUDT7A_Crude-x1232_1_pandda.map_FQaQev4.gz")));
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject("https://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/NUDT7A_Crude-x1232_1_pandda.map_FQaQev4.gz")));
             this.props.appendEDensityList(this.generateMolId());
         }
     }
