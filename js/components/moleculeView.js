@@ -162,6 +162,10 @@ class MoleculeView extends GenericView {
         }
     }
 
+    componentWillMount() {
+        this.getEDensityUrl()
+    }
+
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
