@@ -30,7 +30,7 @@ class MoleculeView extends GenericView {
         this.getEDensityUrl = this.getEDensityUrl.bind(this);
         this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        var base_url = window.location.protocol + "//" + window.location.host
+        var base_url = "https://" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
