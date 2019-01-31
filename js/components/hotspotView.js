@@ -106,21 +106,21 @@ class HotspotView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    // buttonRender(strength, type) {
-    //     var _this = this;
-    //     var button = React.createElement(Toggle, {
-    //         onClick: function onClick() {_this.onHotspot(strength, type)},
-    //         on: React.createElement('p', null, strength + ' ' + type + ' on'),
-    //         off: React.createElement('p', null, strength + ' ' + type + ' Off'),
-    //         size: 'lg',
-    //         onstyle: this.state.hsParams[type].buttonStyle,
-    //         offstyle: this.state.hsParams[type].buttonStyle,
-    //         active: this.state.hsDict[type][strength]
-    //     });
-    //     return button;
-    // }
-
     buttonRender(strength, type) {
+        var _this = this;
+        var button = React.createElement(Toggle, {
+            onClick: function onClick() {_this.onHotspot(strength, type)},
+            on: React.createElement('p', null, strength + ' ' + type + ' on'),
+            off: React.createElement('p', null, strength + ' ' + type + ' Off'),
+            size: 'lg',
+            onstyle: this.state.hsParams[type].buttonStyle,
+            offstyle: this.state.hsParams[type].buttonStyle,
+            active: this.state.hsDict[type][strength]
+        });
+        return button;
+    }
+
+     buttonRender(strength, type) {
         var button = <ToggleButton bsSize="sm" bsStyle="info" onClick={this.onHotspot(strength, type)}>{strength} {type}</ToggleButton>;
         return button;
     }

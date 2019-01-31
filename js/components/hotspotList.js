@@ -42,11 +42,11 @@ class HotspotList extends GenericList {
     }
 
     componentWillReceiveProps(nextProps){
-        this.updateCount(nextProps);
+        // this.updateCount(nextProps);
     }
 
     componentDidMount(){
-        this.updateCount(this.props);
+        // this.updateCount(this.props);
     }
 
     render() {
