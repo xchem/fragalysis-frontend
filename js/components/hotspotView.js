@@ -2,7 +2,7 @@
  * Created by ricgillams on 05/07/2018.
  */
 
-import {Col, Row, Image, Panel, Grid, Button} from "react-bootstrap";
+import {Col, Row, Image, Panel, Grid, ToggleButton} from "react-bootstrap";
 import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
@@ -108,7 +108,7 @@ class HotspotView extends React.Component {
 
     buttonRender(strength, type) {
         var _this = this;
-        var button = React.createElement(Button, {
+        var button = React.createElement(ToggleButton, {
             onClick: function onClick() {_this.onHotspot(strength, type)},
             on: React.createElement('p', null, strength + ' ' + type + ' on'),
             off: React.createElement('p', null, strength + ' ' + type + ' Off'),
