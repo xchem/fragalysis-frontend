@@ -319,7 +319,9 @@ class MoleculeView extends GenericView {
     }
 
     processEDensityUrl(json){
-        var results = json.results[0].map_info.replace("http:",window.location.protocol);
+        if (json.results[0].map_info != undefined) {
+            var results = json.results[0].map_info.replace("http:", window.location.protocol);
+        }
         this.afterPush(results);
         this.eDensityUrl = results;
     }

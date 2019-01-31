@@ -25,7 +25,6 @@ class HotspotList extends GenericList {
         this.props.setObjectOn(new_value);
     }
 
-
      async updateCount(props){
         if(props.object_list != undefined && props.object_list.length>0){
         var response = await fetch("/api/hotspots/?map_type=DO&prot_id=" + props.object_list[0].prot_id.toString(), {
@@ -44,14 +43,12 @@ class HotspotList extends GenericList {
         this.updateCount(nextProps);
     }
 
-
     componentDidMount(){
         this.updateCount(this.props);
     }
 
-
     render() {
-        if (this.props.hsCount > 0) {
+        if (this.state.hsCount > 0) {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
@@ -63,7 +60,6 @@ class HotspotList extends GenericList {
             return null;
         }
     }
-
 }
 function mapStateToProps(state) {
   return {
