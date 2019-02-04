@@ -20,7 +20,7 @@ class FragspectList extends GenericList {
         this.state = {
             fsCount: undefined,
             confidenceState: ["low", "medium", "high"],
-            depoStatus: [1, 2, 3, 4, 5]
+            depositionStatus: [1, 2, 3, 4, 5]
         };
     }
 

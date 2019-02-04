@@ -30,6 +30,7 @@ class HotspotList extends GenericList {
      async updateCount(props){
         if(props.object_list != undefined && props.object_list.length>0){
         var response = await fetch("/api/hotspots/?map_type=DO&prot_id=" + props.object_list[0].prot_id.toString(), {
+            //consider "target_id=" + props.target_id
             method: "get",
             headers: {
                 'Accept': 'application/json',
@@ -65,7 +66,8 @@ class HotspotList extends GenericList {
 }
 function mapStateToProps(state) {
   return {
-      object_list: state.apiReducers.present.molecule_list
+      object_list: state.apiReducers.present.molecule_list,
+      target_id: state.apiReducers.present.target_id,
   }
 }
 const mapDispatchToProps = {
