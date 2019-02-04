@@ -6,7 +6,7 @@ import React, {Component} from "react";
 import Header from "./header";
 import {ErrorView} from "./errorComponent";
 import TargetManagement from "../containers/targetManagementHolder";
-import Fragspect from "../containers/FragspectHolder";
+import Fragspect from "../containers/fragspectHolder";
 import Landing from "../containers/landingHolder";
 import Preview from "../containers/previewHolder";
 import Sessions from "../containers/sessionHolder";
