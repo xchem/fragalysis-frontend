@@ -18,7 +18,7 @@ class FragspectList extends GenericList {
         this.list_type = listType.MOLECULE;
         this.updateCount = this.updateCount.bind(this);
         this.state = {
-            fsCount: undefined,
+            // fsCount: undefined,
             confidenceState: [
                 {1: "low"},
                 {2: "medium"},
@@ -65,39 +65,39 @@ class FragspectList extends GenericList {
         this.props.setObjectOn(new_value);
     }
 
-     async updateCount(props){
-        if(props.object_list != undefined && props.object_list.length>0){
-        var response = await fetch("/api/hotspots/?map_type=DO&target_id=5", {
-            method: "get",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        var myJson = await response.json();
-        this.setState(prevState => ({fsCount: myJson.count}));
-        }
-    }
-
-    componentWillReceiveProps(nextProps){
-        this.updateCount(nextProps);
-    }
-
-    componentDidMount(){
-        this.updateCount(this.props);
-    }
+    //  async updateCount(props){
+    //     if(props.object_list != undefined && props.object_list.length>0){
+    //     var response = await fetch("/api/hotspots/?map_type=DO&target_id=5", {
+    //         method: "get",
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         }
+    //     })
+    //     var myJson = await response.json();
+    //     this.setState(prevState => ({fsCount: myJson.count}));
+    //     }
+    // }
+    //
+    // componentWillReceiveProps(nextProps){
+    //     this.updateCount(nextProps);
+    // }
+    //
+    // componentDidMount(){
+    //     this.updateCount(this.props);
+    // }
 
     render() {
-        if (this.state.fsCount > 0) {
+        // if (this.state.fsCount > 0) {
             return <Well><Row style={molStyle}>
                 {
                     this.state.fragspectObjects.map((data) => <FragspectView key={data.fragId} data={data}/>)
                 }
             </Row></Well>;
-        }
-        else {
-            return null;
-        }
+        // }
+        // else {
+        //     return null;
+        // }
     }
 }
 function mapStateToProps(state) {
