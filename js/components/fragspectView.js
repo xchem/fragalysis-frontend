@@ -53,6 +53,19 @@ class FragspectView extends React.Component {
                 "donor": {"abbreviation": "DO", "buttonStyle": "primary"},
                 "acceptor": {"abbreviation": "AC", "buttonStyle": "danger"},
                 "apolar": {"abbreviation": "AP", "buttonStyle": "warning"}
+            },
+            "confidenceState": {
+                1: "low",
+                2: "medium",
+                3: "high"
+            },
+            "depositionStatus": {
+                0: "PanDDA",
+                1: "In Refinement",
+                2: "Refined",
+                3: "CompChem Ready",
+                4: "Deposition Ready",
+                5: "Deposited"
             }
         }
     }
@@ -66,9 +79,16 @@ class FragspectView extends React.Component {
     }
 
     colorToggle() {
-        var colorList = ['#EFCDB8', '#CC6666', '#FF6E4A', '#78DBE2', '#1F75FE', '#FAE7B5', '#FDBCB4',
-            '#C5E384', '#95918C', '#F75394', '#80DAEB', '#ADADD6']
-        return {backgroundColor: colorList[this.props.data.id % colorList.length]};
+        var colorDict = [
+            '#95918C',
+            '#EFCDB8',
+            '#CC6666',
+            '#ADADD6',
+            '#78DBE2',
+            '#1F75FE',
+            '#C5E384'
+        ];
+        return {backgroundColor: colorDict[this.props.data.id]};
     }
 
     fetchHotspotUrl(mapType, protId, loadState, isoLevel, opacity) {
@@ -128,25 +148,25 @@ class FragspectView extends React.Component {
     render() {
         return <div>
             <Grid>
-                <Col xs={3} md={3}>
+                <Col xs={2} md={2}>
                     <Panel style={this.colorToggle()}>
                         <Image src={this.img_url+"&dummy=png"} responsive rounded />
                     </Panel>
                 </Col>
-                <Col xs={3} md={3}>
-                    <Row> {this.buttonRender("Tepid", "donor")} </Row>
-                    <Row> {this.buttonRender("Tepid", "acceptor")} </Row>
-                    <Row> {this.buttonRender("Tepid", "apolar")} </Row>
-                </Col>
-                <Col xs={3} md={3}>
-                    <Row> {this.buttonRender("Warm", "donor")} </Row>
-                    <Row> {this.buttonRender("Warm", "acceptor")} </Row>
-                    <Row> {this.buttonRender("Warm", "apolar")} </Row>
-                </Col>
-                <Col xs={3} md={3}>
-                    <Row> {this.buttonRender("Hot", "donor")} </Row>
-                    <Row> {this.buttonRender("Hot", "acceptor")} </Row>
-                    <Row> {this.buttonRender("Hot", "apolar")} </Row>
+                <Col xs={10} md={10}>
+                    {/*<Row> {this.buttonRender("Tepid", "donor")} </Row>*/}
+                    {/*<Row> {this.buttonRender("Tepid", "acceptor")} </Row>*/}
+                    {/*<Row> {this.buttonRender("Tepid", "apolar")} </Row>*/}
+                {/*</Col>*/}
+                {/*<Col xs={3} md={3}>*/}
+                    {/*<Row> {this.buttonRender("Warm", "donor")} </Row>*/}
+                    {/*<Row> {this.buttonRender("Warm", "acceptor")} </Row>*/}
+                    {/*<Row> {this.buttonRender("Warm", "apolar")} </Row>*/}
+                {/*</Col>*/}
+                {/*<Col xs={3} md={3}>*/}
+                    {/*<Row> {this.buttonRender("Hot", "donor")} </Row>*/}
+                    {/*<Row> {this.buttonRender("Hot", "acceptor")} </Row>*/}
+                    {/*<Row> {this.buttonRender("Hot", "apolar")} </Row>*/}
                 </Col>
             </Grid>
         </div>

@@ -19,8 +19,44 @@ class FragspectList extends GenericList {
         this.updateCount = this.updateCount.bind(this);
         this.state = {
             fsCount: undefined,
-            confidenceState: ["low", "medium", "high"],
-            depositionStatus: [1, 2, 3, 4, 5]
+            confidenceState: [
+                {1: "low"},
+                {2: "medium"},
+                {3: "high"}
+                ],
+            depositionStatus: [
+                {0: "PanDDA"},
+                {1: "In Refinement"},
+                {2: "Refined"},
+                {3: "CompChem Ready"},
+                {4: "Deposition ready"},
+                {5: "Deposited"}
+                ],
+            fragspectObjects: [
+                {
+                    "fragId": 49,
+                    "code": "NUDT7A_Crude-x0005_1",
+                    "map_type": "AC",
+                    "target_id": 5,
+                    "prot_id": 8657,
+                    "map_info": "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "deposition_status": 3,
+                    "confidence": 3,
+                    "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1"
+
+                },
+                {
+                    "frag_id": 50,
+                    "code": "NUDT7A_Crude-x1232_1",
+                    "map_type": "eDensity",
+                    "target_id": 5,
+                    "prot_id": 8657,
+                    "map_info": "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "deposition_status": 4,
+                    "confidence": 2,
+                    "smiles": "O=C(Nc1cccnc1)c1ccccc1F"
+                },
+            ]
         };
     }
 
@@ -55,7 +91,7 @@ class FragspectList extends GenericList {
         if (this.state.fsCount > 0) {
             return <Well><Row style={molStyle}>
                 {
-                    this.props.object_list.map((data) => <FragspectView key={data.id} data={data}/>)
+                    this.state.fragspectObjects.map((data) => <FragspectView key={data.fragId} data={data}/>)
                 }
             </Row></Well>;
         }
