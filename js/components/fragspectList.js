@@ -16,7 +16,7 @@ class FragspectList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
-        this.updateCount = this.updateCount.bind(this);
+        // this.updateCount = this.updateCount.bind(this);
         this.state = {
             // fsCount: undefined,
             confidenceState: [
