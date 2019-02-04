@@ -7,18 +7,20 @@ import React from "react";
 import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
-import HotspotView from "./hotspotView";
+import FragspectView from "./hotspotView";
 
 const molStyle = {height: "250px",
     overflow:"scroll"}
-class HotspotList extends GenericList {
+class FragspectList extends GenericList {
 
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
         this.updateCount = this.updateCount.bind(this);
         this.state = {
-            hsCount: undefined
+            fsCount: undefined,
+            confidenceState: ["low", "medium", "high"],
+            depoStatus: [1, 2, 3, 4, 5]
         };
     }
 
@@ -29,7 +31,7 @@ class HotspotList extends GenericList {
 
      async updateCount(props){
         if(props.object_list != undefined && props.object_list.length>0){
-        var response = await fetch("/api/hotspots/?map_type=DO&prot_id=" + props.object_list[0].prot_id.toString(), {
+        var response = await fetch("/api/hotspots/?map_type=DO&target_id=5", {
             method: "get",
             headers: {
                 'Accept': 'application/json',
@@ -37,24 +39,23 @@ class HotspotList extends GenericList {
             }
         })
         var myJson = await response.json();
-        this.setState(prevState => ({hsCount: myJson.count}));
+        this.setState(prevState => ({fsCount: myJson.count}));
         }
     }
 
     componentWillReceiveProps(nextProps){
-        // this.updateCount(nextProps);
+        this.updateCount(nextProps);
     }
 
     componentDidMount(){
-        // this.updateCount(this.props);
+        this.updateCount(this.props);
     }
 
     render() {
-        if (this.state.hsCount > 0) {
-            console.log(this.props.message)
+        if (this.state.fsCount > 0) {
             return <Well><Row style={molStyle}>
                 {
-                    this.props.object_list.map((data) => <HotspotView key={data.id} data={data}/>)
+                    this.props.object_list.map((data) => <FragspectView key={data.id} data={data}/>)
                 }
             </Row></Well>;
         }
@@ -72,4 +73,4 @@ const mapDispatchToProps = {
     setObjectList: apiActions.setMoleculeList,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HotspotList);
+export default connect(mapStateToProps, mapDispatchToProps)(FragspectList);

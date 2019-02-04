@@ -11,7 +11,7 @@ import Toggle from "react-bootstrap-toggle";
 import fetch from "cross-fetch";
 import $ from "jquery";
 
-class HotspotView extends React.Component {
+class FragspectView extends React.Component {
 
     constructor(props) {
         super(props);
@@ -163,4 +163,4 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HotspotView);
+export default connect(mapStateToProps, mapDispatchToProps)(FragspectView);

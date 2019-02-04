@@ -13,3 +13,4 @@ export const SESSIONS = 'SESSIONS';
 export const PROPOSALS = 'PROPOSALS';
 export const PROPOSAL_TARGETS = 'PROPOSAL_TARGETS';
 export const E_DENSITY = 'E_DENSITY';
+export const FRAGSPECT = 'FRAGSPECT';
