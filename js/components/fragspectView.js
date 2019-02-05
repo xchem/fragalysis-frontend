@@ -90,7 +90,7 @@ class FragspectView extends React.Component {
             '#1F75FE',
             '#C5E384'
         ];
-        return {backgroundColor: colorDict[this.props.data.id]};
+        return {backgroundColor: colorDict[this.props.data.deposition_status]};
     }
 
     convertDeposition() {
