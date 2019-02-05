@@ -9,8 +9,6 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import FragspectView from "./fragspectView";
 
-const molStyle = {height: "250px",
-    overflow:"scroll"}
 class FragspectList extends GenericList {
 
     constructor(props) {
@@ -88,7 +86,7 @@ class FragspectList extends GenericList {
 
     render() {
         // if (this.state.fsCount > 0) {
-            return <Well><Row style={molStyle}>
+            return <Well><Row>
                 {
                     this.state.fragspectObjects.map((data) => <FragspectView key={data.fragId} data={data}/>)
                 }
