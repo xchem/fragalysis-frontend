@@ -175,6 +175,9 @@ class FragspectView extends React.Component {
                 <Col xs={1} md={1}>
                     <p>{this.props.data.resolution} Å</p>
                 </Col>
+                <Col xs={1} md={1}>
+                    <p>{this.props.data.space_group} /n {this.props.data.cell_dimensions} /n {this.props.data.cell_angles}</p>
+                </Col>
                 <Col xs={2} md={2}>
                 </Col>
             </Grid>

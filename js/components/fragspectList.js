@@ -43,7 +43,10 @@ class FragspectList extends GenericList {
                     "deposition_status": 3,
                     "confidence": 3,
                     "resolution": 2.1,
-                    "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1"
+                    "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
+                    "space_group": "C 1 2 1",
+                    "cell_dimensions": "102, 45. 60",
+                    "cell_angles": "90. 90, 90"
                 },
                 {
                     "frag_id": 50,
@@ -57,7 +60,10 @@ class FragspectList extends GenericList {
                     "deposition_status": 4,
                     "confidence": 2,
                     "resolution": 1.5,
-                    "smiles": "O=C(Nc1cccnc1)c1ccccc1F"
+                    "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
+                    "space_group": "C 1 2 1",
+                    "cell_dimensions": "102, 45. 60",
+                    "cell_angles": "90. 90, 90"
                 },
             ]
         };
