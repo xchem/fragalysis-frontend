@@ -159,19 +159,23 @@ class FragspectView extends React.Component {
         return <div>
             <Grid>
                 <Col xs={2} md={2}>
+                    <p>{this.props.data.code}</p>
+                </Col>
+                <Col xs={2} md={2}>
                     <Panel style={this.colorToggle()}>
                         <Image src={this.img_url+"&dummy=png"} responsive rounded />
                     </Panel>
                 </Col>
                 <Col xs={2} md={2}>
-                <p>{this.convertDeposition()}</p>
+                    <p>{this.convertDeposition()}</p>
                 </Col>
                 <Col xs={2} md={2}>
-                <p>{this.convertConfidence()}</p>
+                    <p>{this.convertConfidence()}</p>
                 </Col>
-                <Col xs={3} md={3}>
+                <Col xs={1} md={1}>
+                    <p>{this.props.data.resolution} Å</p>
                 </Col>
-                <Col xs={3} md={3}>
+                <Col xs={2} md={2}>
                 </Col>
             </Grid>
         </div>

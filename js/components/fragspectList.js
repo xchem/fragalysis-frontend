@@ -34,23 +34,29 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 49,
                     "code": "NUDT7A_Crude-x0005_1",
-                    "map_type": "AC",
+                    "lig_id": "LIG-D1",
                     "target_id": 5,
                     "prot_id": 8657,
-                    "map_info": "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
                     "deposition_status": 3,
                     "confidence": 3,
+                    "resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1"
                 },
                 {
                     "frag_id": 50,
                     "code": "NUDT7A_Crude-x1232_1",
-                    "map_type": "eDensity",
+                    "lig_id": "LIG-D1",
                     "target_id": 5,
                     "prot_id": 8657,
-                    "map_info": "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
                     "deposition_status": 4,
                     "confidence": 2,
+                    "resolution": 1.5,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F"
                 },
             ]
