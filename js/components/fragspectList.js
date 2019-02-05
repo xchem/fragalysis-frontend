@@ -75,8 +75,9 @@ class FragspectList extends GenericList {
     render() {
         return <Well>
             <Row>
+                <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}><h3 class="text-center">Crystal ID</h3></Col>
-                <Col xs={2} md={2}><h3 class="text-center">Structure</h3></Col>
+                <Col xs={1} md={1}><h3 class="text-center">Structure</h3></Col>
                 <Col xs={2} md={2}><h3 class="text-center">XChem status</h3></Col>
                 <Col xs={1} md={1}><h3 class="text-center">Resolution</h3></Col>
                 <Col xs={2} md={2}><h3 class="text-center">Confidence</h3></Col>
