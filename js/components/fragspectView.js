@@ -156,7 +156,7 @@ class FragspectView extends React.Component {
     }
 
     render() {
-        return <div>
+        return <Row>
                 <Col xs={2} md={2}>
                     <p>{this.props.data.code}</p>
                 </Col>
@@ -181,7 +181,7 @@ class FragspectView extends React.Component {
                 </Col>
                 <Col xs={2} md={2}>
                 </Col>
-        </div>
+        </Row>
     }
 }
 

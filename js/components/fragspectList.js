@@ -83,9 +83,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}><p>SPG / dimensions</p></Col>
                 <Col xs={2} md={2}><p>Misc</p></Col>
             </Row>
-            <Row>
-                {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
-            </Row>
+            {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
         </Well>;
     }
 }
