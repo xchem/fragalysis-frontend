@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Row, Col} from "react-bootstrap";
-import NGLView from "../components/nglComponents";
 import FragspectList from "../components/fragspectList";
 
 class Fragspect extends Component {
@@ -11,9 +10,10 @@ class Fragspect extends Component {
     }
 
     render() {
+        var screenHeight= window.innerHeight*0.7.toString()+"px"
         return (
             <Row>
-                <FragspectList/>
+                <FragspectList height={screenHeight} style={{overflow: scroll}}/>
             </Row>
         )
     }
