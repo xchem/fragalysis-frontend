@@ -17,6 +17,8 @@ class FragspectView extends React.Component {
         super(props);
         this.onHotspot = this.onHotspot.bind(this);
         this.colorToggle = this.colorToggle.bind(this);
+        this.convertDeposition = this.convertDeposition.bind(this);
+        this.convertConfidence = this.convertConfidence.bind(this);
         this.handleHotspot = this.handleHotspot.bind(this);
         this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
@@ -54,7 +56,7 @@ class FragspectView extends React.Component {
                 "acceptor": {"abbreviation": "AC", "buttonStyle": "danger"},
                 "apolar": {"abbreviation": "AP", "buttonStyle": "warning"}
             },
-            "confidenceState": {
+            "confidenceStatus": {
                 1: "low",
                 2: "medium",
                 3: "high"
@@ -89,6 +91,14 @@ class FragspectView extends React.Component {
             '#C5E384'
         ];
         return {backgroundColor: colorDict[this.props.data.id]};
+    }
+
+    convertDeposition() {
+        return this.state.depositionStatus[this.props.data.deposition_status];
+    }
+
+    convertConfidence() {
+        return this.state.confidenceStatus[this.props.data.confidence];
     }
 
     fetchHotspotUrl(mapType, protId, loadState, isoLevel, opacity) {
@@ -153,20 +163,15 @@ class FragspectView extends React.Component {
                         <Image src={this.img_url+"&dummy=png"} responsive rounded />
                     </Panel>
                 </Col>
-                <Col xs={10} md={10}>
-                    {/*<Row> {this.buttonRender("Tepid", "donor")} </Row>*/}
-                    {/*<Row> {this.buttonRender("Tepid", "acceptor")} </Row>*/}
-                    {/*<Row> {this.buttonRender("Tepid", "apolar")} </Row>*/}
-                {/*</Col>*/}
-                {/*<Col xs={3} md={3}>*/}
-                    {/*<Row> {this.buttonRender("Warm", "donor")} </Row>*/}
-                    {/*<Row> {this.buttonRender("Warm", "acceptor")} </Row>*/}
-                    {/*<Row> {this.buttonRender("Warm", "apolar")} </Row>*/}
-                {/*</Col>*/}
-                {/*<Col xs={3} md={3}>*/}
-                    {/*<Row> {this.buttonRender("Hot", "donor")} </Row>*/}
-                    {/*<Row> {this.buttonRender("Hot", "acceptor")} </Row>*/}
-                    {/*<Row> {this.buttonRender("Hot", "apolar")} </Row>*/}
+                <Col xs={2} md={2}>
+                <p>this.convertDeposition()</p>
+                </Col>
+                <Col xs={2} md={2}>
+                <p>this.convertConfidence()</p>
+                </Col>
+                <Col xs={3} md={3}>
+                </Col>
+                <Col xs={3} md={3}>
                 </Col>
             </Grid>
         </div>
