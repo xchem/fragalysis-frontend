@@ -88,7 +88,7 @@ class FragspectList extends GenericList {
         // if (this.state.fsCount > 0) {
             return <Well><Row>
                 {
-                    this.state.fragspectObjects.map((data) => <FragspectView key={data.fragId} data={data}/>)
+                    this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)
                 }
             </Row></Well>;
         // }
