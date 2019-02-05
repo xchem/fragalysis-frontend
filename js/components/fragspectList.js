@@ -85,16 +85,11 @@ class FragspectList extends GenericList {
     // }
 
     render() {
-        // if (this.state.fsCount > 0) {
-            return <Well><Row>
-                {
-                    this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)
-                }
-            </Row></Well>;
-        // }
-        // else {
-        //     return null;
-        // }
+        return <Well>
+            <Row>
+                {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
+            </Row>
+        </Well>;
     }
 }
 function mapStateToProps(state) {
