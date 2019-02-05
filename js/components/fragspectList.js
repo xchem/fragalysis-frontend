@@ -14,9 +14,7 @@ class FragspectList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
-        // this.updateCount = this.updateCount.bind(this);
         this.state = {
-            // fsCount: undefined,
             confidenceState: [
                 {1: "low"},
                 {2: "medium"},
@@ -45,7 +43,7 @@ class FragspectList extends GenericList {
                     "resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
                     "space_group": "C 1 2 1",
-                    "cell_dimensions": "102, 45. 60",
+                    "cell_dimensions": "102, 45, 60",
                     "cell_angles": "90. 90, 90"
                 },
                 {
@@ -74,30 +72,17 @@ class FragspectList extends GenericList {
         this.props.setObjectOn(new_value);
     }
 
-    //  async updateCount(props){
-    //     if(props.object_list != undefined && props.object_list.length>0){
-    //     var response = await fetch("/api/hotspots/?map_type=DO&target_id=5", {
-    //         method: "get",
-    //         headers: {
-    //             'Accept': 'application/json',
-    //             'Content-Type': 'application/json'
-    //         }
-    //     })
-    //     var myJson = await response.json();
-    //     this.setState(prevState => ({fsCount: myJson.count}));
-    //     }
-    // }
-    //
-    // componentWillReceiveProps(nextProps){
-    //     this.updateCount(nextProps);
-    // }
-    //
-    // componentDidMount(){
-    //     this.updateCount(this.props);
-    // }
-
     render() {
         return <Well>
+            <Row>
+                <Col xs={2} md={2}><p>Crystal ID</p></Col>
+                <Col xs={2} md={2}><p>Structure</p></Col>
+                <Col xs={2} md={2}><p>XChem status</p></Col>
+                <Col xs={1} md={1}><p>Resolution</p></Col>
+                <Col xs={2} md={2}><p>Confidence</p></Col>
+                <Col xs={1} md={1}><p>SPG / dimensions</p></Col>
+                <Col xs={2} md={2}><p>Misc</p></Col>
+            </Row>
             <Row>
                 {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
             </Row>

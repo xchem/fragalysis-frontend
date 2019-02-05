@@ -169,11 +169,11 @@ class FragspectView extends React.Component {
                 <Col xs={2} md={2}>
                     <p>{this.convertDeposition()}</p>
                 </Col>
-                <Col xs={2} md={2}>
-                    <p>{this.convertConfidence()}</p>
-                </Col>
                 <Col xs={1} md={1}>
                     <p>{this.props.data.resolution} Å</p>
+                </Col>
+                <Col xs={2} md={2}>
+                    <p>{this.convertConfidence()}</p>
                 </Col>
                 <Col xs={1} md={1}>
                     <p>{this.props.data.space_group}</p>
