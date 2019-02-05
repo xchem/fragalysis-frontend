@@ -62,8 +62,8 @@ class FragspectList extends GenericList {
                     "resolution": 1.5,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
                     "space_group": "C 1 2 1",
-                    "cell_dimensions": "102, 45. 60",
-                    "cell_angles": "90. 90, 90"
+                    "cell_dimensions": "102, 45, 60",
+                    "cell_angles": "90, 90, 90"
                 },
             ]
         };
