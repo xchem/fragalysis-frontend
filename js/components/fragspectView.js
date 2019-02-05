@@ -23,7 +23,7 @@ class FragspectView extends React.Component {
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
-            "img_type": "png",
+            "img_type": "jpg",
             "smiles": props.data.smiles
         }
         Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
