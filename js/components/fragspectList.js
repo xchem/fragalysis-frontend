@@ -75,13 +75,13 @@ class FragspectList extends GenericList {
     render() {
         return <Well>
             <Row>
-                <Col xs={2} md={2}><h3>Crystal ID</h3></Col>
+                <Col xs={2} md={2}><h3 class="text-center">Crystal ID</h3></Col>
                 <Col xs={2} md={2}><h3 class="text-center">Structure</h3></Col>
-                <Col xs={2} md={2}><h3>XChem status</h3></Col>
-                <Col xs={1} md={1}><h3>Resolution</h3></Col>
-                <Col xs={2} md={2}><h3>Confidence</h3></Col>
-                <Col xs={1} md={1}><h3>SPG / dimensions</h3></Col>
-                <Col xs={2} md={2}><h3>Misc</h3></Col>
+                <Col xs={2} md={2}><h3 class="text-center">XChem status</h3></Col>
+                <Col xs={1} md={1}><h3 class="text-center">Resolution</h3></Col>
+                <Col xs={2} md={2}><h3 class="text-center">Confidence</h3></Col>
+                <Col xs={1} md={1}><h3 class="text-center">SPG / dimensions</h3></Col>
+                <Col xs={2} md={2}><h3 class="text-center">Misc</h3></Col>
             </Row>
             {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
         </Well>;

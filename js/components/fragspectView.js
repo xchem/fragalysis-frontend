@@ -157,27 +157,29 @@ class FragspectView extends React.Component {
 
     render() {
         return <Row>
-                <Col xs={2} md={2}>
-                    <p>{this.props.data.code}</p>
+            <Col xs={1} md={1}>
+            </Col>
+            <Col xs={2} md={2}>
+                <p class="text-center">{this.props.data.code}</p>
+            </Col>
+            <Col xs={1} md={1}>
+                <Panel style={this.colorToggle()}>
+                    <Image src={this.img_url+"&dummy=png"} responsive rounded />
+                </Panel>
+            </Col>
+            <Col xs={2} md={2}>
+                <p>{this.convertDeposition()}</p>
+            </Col>
+            <Col xs={1} md={1}>
+                    <p class="text-center">{this.props.data.resolution} Å</p>
                 </Col>
                 <Col xs={2} md={2}>
-                    <Panel style={this.colorToggle()}>
-                        <Image src={this.img_url+"&dummy=png"} responsive rounded />
-                    </Panel>
-                </Col>
-                <Col xs={2} md={2}>
-                    <p>{this.convertDeposition()}</p>
+                    <p class="text-center">{this.convertConfidence()}</p>
                 </Col>
                 <Col xs={1} md={1}>
-                    <p>{this.props.data.resolution} Å</p>
-                </Col>
-                <Col xs={2} md={2}>
-                    <p>{this.convertConfidence()}</p>
-                </Col>
-                <Col xs={1} md={1}>
-                    <p>{this.props.data.space_group}</p>
-                    <p>{this.props.data.cell_dimensions}</p>
-                    <p>{this.props.data.cell_angles}</p>
+                    <p class="text-center">{this.props.data.space_group}</p>
+                    <p class="text-center">{this.props.data.cell_dimensions}</p>
+                    <p class="text-center">{this.props.data.cell_angles}</p>
                 </Col>
                 <Col xs={2} md={2}>
                 </Col>
