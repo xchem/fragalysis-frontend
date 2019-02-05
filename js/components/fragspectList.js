@@ -187,9 +187,9 @@ class FragspectList extends GenericList {
 
     radioButtonRender(type, value, status) {
         if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
         } else if (type == "Deposition") {
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" onClick={this.depoFilterChange(value)}>{value}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4} onClick={this.depoFilterChange(value)}>{value}: {status}</ToggleButton>;
         }
         return button;
     }
