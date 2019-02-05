@@ -7,7 +7,7 @@ import React from "react";
 import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
-import FragspectView from "./hotspotView";
+import FragspectView from "./fragspectView";
 
 const molStyle = {height: "250px",
     overflow:"scroll"}
@@ -43,7 +43,6 @@ class FragspectList extends GenericList {
                     "deposition_status": 3,
                     "confidence": 3,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1"
-
                 },
                 {
                     "frag_id": 50,
