@@ -62,12 +62,13 @@ class FragspectView extends React.Component {
                 3: "high"
             },
             "depositionStatus": {
-                0: "PanDDA",
-                1: "In Refinement",
-                2: "Refined",
-                3: "CompChem Ready",
-                4: "Deposition Ready",
-                5: "Deposited"
+                1: "Analysis Pending",
+                2: "PanDDA Model",
+                3: "In Refinement",
+                4: "CompChem Ready",
+                5: "Deposition Ready",
+                6: "Deposited",
+                7: "Analysed and Rejected"
             }
         }
     }
@@ -83,12 +84,13 @@ class FragspectView extends React.Component {
     colorToggle() {
         var colorDict = [
             '#95918C',
-            '#EFCDB8',
             '#CC6666',
+            '#EFCDB8',
+            '#da97e2',
             '#ADADD6',
-            '#78DBE2',
-            '#1F75FE',
-            '#C5E384'
+            '#7d9dfe',
+            '#70e072',
+            '#95918C'
         ];
         return {backgroundColor: colorDict[this.props.data.deposition_status]};
     }
