@@ -187,9 +187,11 @@ class FragspectList extends GenericList {
 
     radioButtonRender(type, value, status) {
         if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
+            // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Deposition") {
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4} onClick={this.depoFilterChange(value)}>{value}: {status}</ToggleButton>;
+            // var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4} onClick={this.depoFilterChange(value)}>{value}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4}>{value}: {status}</ToggleButton>;
         }
         return button;
     }
@@ -199,29 +201,29 @@ class FragspectList extends GenericList {
             <Row height="100px">
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
-                    {/*<ToggleButtonGroup vertical block type="checkbox" value="confFilter">*/}
-                        {/*{this.radioButtonRender("Confidence", 1, "Low")}*/}
-                        {/*{this.radioButtonRender("Confidence", 2, "Medium")}*/}
-                        {/*{this.radioButtonRender("Confidence", 3, "High")}*/}
+                    <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
+                        {this.radioButtonRender("Confidence", 1, "Low")}
+                        {this.radioButtonRender("Confidence", 2, "Medium")}
+                        {this.radioButtonRender("Confidence", 3, "High")}
                         <p>Confidence filter: {this.state.confidenceFilter.toString()}</p>
-                    {/*</ToggleButtonGroup>*/}
+                    </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
-                    {/*<ToggleButtonGroup vertical block type="checkbox" value="depoFilter">*/}
-                        {/*{this.radioButtonRender("Deposition", 1, "Analysis Pending")}*/}
-                        {/*{this.radioButtonRender("Deposition", 2, "PanDDA Model")}*/}
-                        {/*{this.radioButtonRender("Deposition", 3, "In Refinement")}*/}
+                    <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
+                        {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
+                        {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
+                        {this.radioButtonRender("Deposition", 3, "In Refinement")}
                         <p>Confidence filter: {this.state.depositionFilter.toString()}</p>
-                    {/*</ToggleButtonGroup>*/}
+                    </ToggleButtonGroup>
                 </Col>
                 <Col xs={3} md={3}>
-                    {/*<ToggleButtonGroup vertical block type="checkbox" value="depoFilter2">*/}
-                        {/*{this.radioButtonRender("Deposition", 4, "CompChem Ready")}*/}
-                        {/*{this.radioButtonRender("Deposition", 5, "Deposition Ready")}*/}
-                        {/*{this.radioButtonRender("Deposition", 6, "Deposited")}*/}
-                        {/*{this.radioButtonRender("Deposition", 7, "Analysed and Rejected")}*/}
-                    {/*</ToggleButtonGroup>*/}
+                    <ToggleButtonGroup vertical block type="checkbox" value="depoFilter2">
+                        {this.radioButtonRender("Deposition", 4, "CompChem Ready")}
+                        {this.radioButtonRender("Deposition", 5, "Deposition Ready")}
+                        {this.radioButtonRender("Deposition", 6, "Deposited")}
+                        {this.radioButtonRender("Deposition", 7, "Analysed and Rejected")}
+                    </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
             </Row>
