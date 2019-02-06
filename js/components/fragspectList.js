@@ -205,7 +205,7 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Confidence", 1, "Low")}
                         {this.radioButtonRender("Confidence", 2, "Medium")}
                         {this.radioButtonRender("Confidence", 3, "High")}
-                        <p>Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                        <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
@@ -214,7 +214,7 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
                         {this.radioButtonRender("Deposition", 3, "In Refinement")}
-                        <p>Deposition filter: {this.state.depositionFilter.toString()}</p>
+                        <p class="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={3} md={3}>
@@ -226,6 +226,8 @@ class FragspectList extends GenericList {
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
+            </Row>
+            <Row height="20px">
             </Row>
             <Row>
                 <Col xs={1} md={1}></Col>
