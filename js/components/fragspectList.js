@@ -198,7 +198,7 @@ class FragspectList extends GenericList {
 
     render() {
         return <Well>
-            <Row height="100px">
+            <Row height="200px">
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
