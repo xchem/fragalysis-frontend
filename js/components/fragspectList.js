@@ -115,7 +115,7 @@ class FragspectList extends GenericList {
                     "deposition_status": 4,
                     "confidence": 2,
                     "resolution": 2.2,
-                    "smiles": "",
+                    "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 79",
                     "cell_angles": "79, 81, 75"
