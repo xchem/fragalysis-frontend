@@ -214,7 +214,7 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
                         {this.radioButtonRender("Deposition", 3, "In Refinement")}
-                        <p>Confidence filter: {this.state.depositionFilter.toString()}</p>
+                        <p>Deposition filter: {this.state.depositionFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={3} md={3}>
