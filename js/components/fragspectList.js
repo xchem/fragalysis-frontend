@@ -37,14 +37,20 @@ class FragspectList extends GenericList {
             fragspectObjects: [
                 {
                     "fragId": 49,
+                    "crystal": "NUDT7A_Crude-x0005",
+                    "site_number": "1",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x0005_1",
                     "lig_id": "LIG-D1",
                     "target_id": 5,
                     "prot_id": 8657,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 1,
+                    "crystal_status": 1,
+                    "site_status": 2,
                     "confidence": 3,
                     "resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
@@ -54,14 +60,20 @@ class FragspectList extends GenericList {
                 },
                 {
                     "frag_id": 50,
+                    "crystal": "NUDT7A_Crude-x2415",
+                    "site_number": "3",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x1232_1",
                     "lig_id": "LIG-D1",
                     "target_id": 5,
                     "prot_id": 8652,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 5,
+                    "crystal_status": 5,
+                    "site_status": 2,
                     "confidence": 2,
                     "resolution": 1.5,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
@@ -71,14 +83,20 @@ class FragspectList extends GenericList {
                 },
                 {
                     "fragId": 51,
+                    "crystal": "NUDT7A_Crude-x2415",
+                    "site_number": "1",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x0142_2",
                     "lig_id": "LIG-E1",
                     "target_id": 5,
                     "prot_id": 8651,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 3,
+                    "crystal_status": 3,
+                    "site_status": 2,
                     "confidence": 1,
                     "resolution": 1.4,
                     "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
@@ -88,14 +106,21 @@ class FragspectList extends GenericList {
                 },
                 {
                     "fragId": 52,
+                    "crystal": "NUDT7A_Crude-x2415",
+                    "site_number": "2",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x2415_3",
                     "lig_id": "LIG-E1",
                     "target_id": 5,
                     "prot_id": 8657,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 2,
+                    "crystal_status": 2,
+                    "site_status": 2,
+                    "site_status": 2,
                     "confidence": 3,
                     "resolution": 1.8,
                     "smiles":"O=C(O)c1ccc(Br)nc1",
@@ -105,14 +130,20 @@ class FragspectList extends GenericList {
                 },
                 {
                     "fragId": 53,
+                    "crystal": "NUDT7A_Crude-x1647",
+                    "site_number": "1",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x1647_1",
                     "lig_id": "LIG-D1",
                     "target_id": 5,
                     "prot_id": 8658,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 4,
+                    "crystal_status": 4,
+                    "site_status": 2,
                     "confidence": 2,
                     "resolution": 2.2,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
@@ -122,14 +153,20 @@ class FragspectList extends GenericList {
                 },
                 {
                     "fragId": 54,
+                    "crystal": "NUDT7A_Crude-x0245",
+                    "site_number": "1",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x0245_3",
                     "lig_id": "LIG-D1",
                     "target_id": 5,
                     "prot_id": 8752,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 7,
+                    "crystal_status": 7,
+                    "site_status": 2,
                     "confidence": 3,
                     "resolution": 1.8,
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
@@ -139,14 +176,20 @@ class FragspectList extends GenericList {
                 },
                 {
                     "fragId": 55,
+                    "crystal": "NUDT7A_Crude-x0526",
+                    "site_number": "1",
+                    "event_number": "1",
                     "code": "NUDT7A_Crude-x0526_3",
                     "lig_id": "LIG-E1",
                     "target_id": 5,
                     "prot_id": 8655,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
+                    "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "deposition_status": 6,
+                    "crystal_status": 6,
+                    "site_status": 2,
                     "confidence": 3,
                     "resolution": 2.5,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
@@ -186,7 +229,10 @@ class FragspectList extends GenericList {
     }
 
     radioButtonRender(type, value, status) {
-        if (type == "Confidence") {
+        if (type == "Site") {
+            // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value}>{type}: {value}</ToggleButton>;
+        } else if (type == "Confidence") {
             // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Deposition") {
@@ -199,17 +245,21 @@ class FragspectList extends GenericList {
     render() {
         return <Well>
             <Row height="200px">
-                <Col xs={2} md={2}></Col>
+                <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
+                    <h4 class="text-center">Confidence Filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
-                        {this.radioButtonRender("Confidence", 1, "Low")}
-                        {this.radioButtonRender("Confidence", 2, "Medium")}
-                        {this.radioButtonRender("Confidence", 3, "High")}
+                        {this.radioButtonRender("Site", 1, "active")}
+                        {this.radioButtonRender("Site", 2, "active")}
+                        {this.radioButtonRender("Site", 3, "active")}
+                        {this.radioButtonRender("Site", 4, "active")}
+                        {this.radioButtonRender("Site", 5, "active")}
                         <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={2} md={2}></Col>
                 <Col xs={2} md={2}>
+                    <h4 className="text-right">Site Filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
@@ -225,7 +275,16 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Deposition", 7, "Analysed and Rejected")}
                     </ToggleButtonGroup>
                 </Col>
-                <Col xs={2} md={2}></Col>
+                <Col xs={1} md={1}></Col>
+                <Col xs={2} md={2}>
+                    <h4 class="text-center">Site Selector</h4>
+                    <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
+                        {this.radioButtonRender("Confidence", 1, "Low")}
+                        {this.radioButtonRender("Confidence", 2, "Medium")}
+                        {this.radioButtonRender("Confidence", 3, "High")}
+                        <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                    </ToggleButtonGroup>
+                </Col>
             </Row>
             <Row height="20px">
                 <p> - </p>

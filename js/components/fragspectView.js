@@ -92,11 +92,11 @@ class FragspectView extends React.Component {
             '#70e072',
             '#95918C'
         ];
-        return {backgroundColor: colorDict[this.props.data.deposition_status]};
+        return {backgroundColor: colorDict[this.props.data.crystal_status]};
     }
 
     convertDeposition() {
-        return this.state.depositionStatus[this.props.data.deposition_status];
+        return this.state.depositionStatus[this.props.data.crystal_status];
     }
 
     convertConfidence() {
@@ -162,7 +162,7 @@ class FragspectView extends React.Component {
             <Col xs={1} md={1}>
             </Col>
             <Col xs={2} md={2}>
-                <p class="text-center">{this.props.data.code}</p>
+                <p class="text-center">{this.props.data.crystal}</p>
             </Col>
             <Col xs={1} md={1}>
                 <Panel style={this.colorToggle()}>
