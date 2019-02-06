@@ -199,8 +199,8 @@ class FragspectList extends GenericList {
     render() {
         return <Well>
             <Row height="200px">
-                <Col xs={1} md={1}></Col>
-                <Col xs={3} md={3}>
+                <Col xs={2} md={2}></Col>
+                <Col xs={2} md={2}>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
                         {this.radioButtonRender("Confidence", 1, "Low")}
                         {this.radioButtonRender("Confidence", 2, "Medium")}
@@ -208,8 +208,8 @@ class FragspectList extends GenericList {
                         <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
-                <Col xs={1} md={1}></Col>
-                <Col xs={3} md={3}>
+                <Col xs={2} md={2}></Col>
+                <Col xs={2} md={2}>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
@@ -217,7 +217,7 @@ class FragspectList extends GenericList {
                         <p class="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
-                <Col xs={3} md={3}>
+                <Col xs={2} md={2}>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter2">
                         {this.radioButtonRender("Deposition", 4, "CompChem Ready")}
                         {this.radioButtonRender("Deposition", 5, "Deposition Ready")}
@@ -225,10 +225,11 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Deposition", 7, "Analysed and Rejected")}
                     </ToggleButtonGroup>
                 </Col>
-                <Col xs={1} md={1}></Col>
+                <Col xs={2} md={2}></Col>
             </Row>
             <Row height="20px">
-                <p> </p>
+                <p> - </p>
+                <h3></h3>
             </Row>
             <Row>
                 <Col xs={1} md={1}></Col>
