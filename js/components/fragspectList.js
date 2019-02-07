@@ -273,10 +273,12 @@ class FragspectList extends GenericList {
 
     generateTableRows() {
         for (event in this.state.fragspectObjects) {
+            var rows = []
             if (this.state.fragspectObjects[event].target_name == "NUDT5A") {
-                <FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>
+                rows.push(<FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>)
             }
         }
+        return rows
     }
 
     componentWillMount(){
