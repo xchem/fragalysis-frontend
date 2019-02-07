@@ -164,7 +164,7 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.props.data.crystal}</p>
             </Col>
             <Col xs={1} md={1}>
-                <p className="text-center">{this.props.data.site}</p>
+                <p className="text-center">{this.props.data.site_number.toString()}</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.lig_id}</p>
@@ -178,7 +178,7 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.convertDeposition()}</p>
             </Col>
             <Col xs={1} md={1}>
-                    <p className="text-center">{this.props.data.resolution} Å</p>
+                    <p className="text-center">{this.props.data.resolution.toString()} Å</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.convertConfidence()}</p>
