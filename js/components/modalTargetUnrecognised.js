@@ -21,7 +21,7 @@ const customStyles = {
         right: 'auto',
         bottom: '0%',
         marginRight: '-20%',
-        transform: 'translate(-50%, 10%)',
+        transform: 'translate(-50%, 1%)',
         border: '10px solid #7a7a7a'
     }
 };
