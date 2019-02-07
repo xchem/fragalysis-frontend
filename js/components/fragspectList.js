@@ -197,7 +197,7 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 55,
                     "crystal": "NUDT5A-x0526",
-                    "site_number": 32,
+                    "site_number": 4,
                     "event_number": 1,
                     "code": "NUDT5A-x0526_3",
                     "lig_id": "LIG-E1",
