@@ -275,7 +275,7 @@ class FragspectList extends GenericList {
                     <Col xs={1} md={1}></Col>
                     <Col xs={2} md={2}><h4 className="text-center">Site selector</h4></Col>
                     <Col xs={1} md={1}></Col>
-                    <Col xs={4} md={4}><h4 className="text-right">XChem status filter</h4></Col>
+                    <Col xs={4} md={4}><h4 className="text-center">XChem status filter</h4></Col>
                     <Col xs={1} md={1}></Col>
                     <Col xs={2} md={2}><h4 className="text-center">Confidence filter</h4></Col>
                     <Col xs={1} md={1}></Col>
