@@ -32,8 +32,8 @@ class FragspectList extends GenericList {
         this.generateTableRows = this.generateTableRows.bind(this);
         this.state = {
             maximumSiteNumber: 0,
-            confidenceFilter: [1,2,3],
-            depositionFilter: [1,2,3,4,5,6,7],
+            confidenceFilter: [1,2],
+            depositionFilter: [3,4,5],
             siteFilter: [],
             confidenceState: [
                 {1: "low"},
@@ -272,13 +272,13 @@ class FragspectList extends GenericList {
     }
 
     generateTableRows() {
+        var rows = [];
         for (event in this.state.fragspectObjects) {
-            var rows = []
-            if (this.state.fragspectObjects[event].target_name == "NUDT5A") {
+            if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) && this.state.depositionFilter.includes(this.state.fragspectObjects[event].confidence)) {
                 rows.push(<FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>)
             }
         }
-        return rows
+        return rows;
     }
 
     componentWillMount(){
