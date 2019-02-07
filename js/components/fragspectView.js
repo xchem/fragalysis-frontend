@@ -57,9 +57,9 @@ class FragspectView extends React.Component {
                 "apolar": {"abbreviation": "AP", "buttonStyle": "warning"}
             },
             "confidenceStatus": {
-                1: "low",
-                2: "medium",
-                3: "high"
+                1: "Low",
+                2: "Medium",
+                3: "High"
             },
             "depositionStatus": {
                 1: "Analysis Pending",

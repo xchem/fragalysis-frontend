@@ -251,7 +251,7 @@ class FragspectList extends GenericList {
     siteButtonGenerator(){
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.radioButtonRender("Site", i, "active"));
+            buttons.push(this.radioButtonRender("Site", i, "active" + i.toString()));
         }
         return buttons;
     }
