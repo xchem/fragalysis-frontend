@@ -84,12 +84,12 @@ class FragspectView extends React.Component {
     colorToggle() {
         var colorDict = [
             '#95918C',
-            '#CC6666',
-            '#EFCDB8',
-            '#da97e2',
-            '#ADADD6',
-            '#7d9dfe',
-            '#70e072',
+            '#cc9998',
+            '#efd1c1',
+            '#dba3e2',
+            '#beaed6',
+            '#a5bdfe',
+            '#a8e0ac',
             '#95918C'
         ];
         return {backgroundColor: colorDict[this.props.data.crystal_status]};
@@ -159,10 +159,15 @@ class FragspectView extends React.Component {
 
     render() {
         return <Row>
-            <Col xs={1} md={1}>
-            </Col>
+            <Col xs={1} md={1}></Col>
             <Col xs={2} md={2}>
-                <p class="text-center">{this.props.data.crystal}</p>
+                <p class="text-center; font-weight:bold">{this.props.data.crystal}</p>
+            </Col>
+            <Col xs={1} md={1}>
+                <p className="text-center">{this.props.data.site}</p>
+            </Col>
+            <Col xs={1} md={1}>
+                <p class="text-center">{this.props.data.lig_id}</p>
             </Col>
             <Col xs={1} md={1}>
                 <Panel style={this.colorToggle()}>
@@ -170,21 +175,20 @@ class FragspectView extends React.Component {
                 </Panel>
             </Col>
             <Col xs={2} md={2}>
-                <p class="text-center">{this.convertDeposition()}</p>
+                <p class="text-center; font-weight:bold">{this.convertDeposition()}</p>
             </Col>
             <Col xs={1} md={1}>
                     <p class="text-center">{this.props.data.resolution} Å</p>
-                </Col>
-                <Col xs={2} md={2}>
-                    <p class="text-center">{this.convertConfidence()}</p>
-                </Col>
-                <Col xs={1} md={1}>
-                    <p class="text-center">{this.props.data.space_group}</p>
-                    <p class="text-center">{this.props.data.cell_dimensions}</p>
-                    <p class="text-center">{this.props.data.cell_angles}</p>
-                </Col>
-                <Col xs={2} md={2}>
-                </Col>
+            </Col>
+            <Col xs={1} md={1}>
+                <p class="text-center">{this.convertConfidence()}</p>
+            </Col>
+            <Col xs={1} md={1}>
+                <p class="text-center">{this.props.data.space_group}</p>
+                <p class="text-center">{this.props.data.cell_dimensions}</p>
+                <p class="text-center">{this.props.data.cell_angles}</p>
+            </Col>
+            <Col xs={1} md={1}></Col>
         </Row>
     }
 }

@@ -16,8 +16,10 @@ class FragspectList extends GenericList {
         this.list_type = listType.MOLECULE;
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
+        this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.radioButtonRender = this.radioButtonRender.bind(this);
         this.state = {
+            maximumSiteNumber: 4,
             confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
             confidenceState: [
@@ -228,6 +230,12 @@ class FragspectList extends GenericList {
         }
     }
 
+    siteButtonGenerator(){
+        for (var i = 0; i < this.state.maximumSiteNumber; i++) {
+            this.radioButtonRender("Site", i, "active");
+        }
+    }
+
     radioButtonRender(type, value, status) {
         if (type == "Site") {
             // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
@@ -244,10 +252,10 @@ class FragspectList extends GenericList {
 
     render() {
         return <Well>
-            <Row height="200px">
+            <Row height="200px" style={{overflow: scroll}}>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 class="text-center">Confidence Filter</h4>
+                    <h4 class="text-center">Site selector</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
                         {this.radioButtonRender("Site", 1, "active")}
                         {this.radioButtonRender("Site", 2, "active")}
@@ -257,7 +265,7 @@ class FragspectList extends GenericList {
                         <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
-                <Col xs={2} md={2}></Col>
+                <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
                     <h4 className="text-right">Site Filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
@@ -293,12 +301,14 @@ class FragspectList extends GenericList {
             <Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}><h4 class="text-center">Crystal ID</h4></Col>
+                <Col xs={1} md={1}><h4 class="text-center">Site</h4></Col>
+                <Col xs={1} md={1}><h4 class="text-center">Ligand ID</h4></Col>
                 <Col xs={1} md={1}><h4 class="text-center">Structure</h4></Col>
                 <Col xs={2} md={2}><h4 class="text-center">XChem status</h4></Col>
                 <Col xs={1} md={1}><h4 class="text-center">Resolution</h4></Col>
-                <Col xs={2} md={2}><h4 class="text-center">Confidence</h4></Col>
+                <Col xs={1} md={1}><h4 class="text-center">Confidence</h4></Col>
                 <Col xs={1} md={1}><h4 class="text-center">SPG and</h4><h4 className="text-center">dimensions</h4></Col>
-                <Col xs={2} md={2}><h4 class="text-center">Spider plot</h4><h4 className="text-center">e- density snapshot</h4></Col>
+                <Col xs={1} md={1}><h4 class="text-center">Spider plot</h4></Col>
             </Row>
             {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
         </Well>;
