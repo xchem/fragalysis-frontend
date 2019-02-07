@@ -16,12 +16,12 @@ const customStyles = {
         backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
     content : {
-        top: '80%',
+        top: '20%',
         left: '50%',
         right: 'auto',
         bottom: '0%',
         marginRight: '-20%',
-        transform: 'translate(-40%, -50%)',
+        transform: 'translate(-50%, -40%)',
         border: '10px solid #7a7a7a'
     }
 };
