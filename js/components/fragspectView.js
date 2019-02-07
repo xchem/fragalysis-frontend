@@ -96,7 +96,7 @@ class FragspectView extends React.Component {
     }
 
     convertDeposition() {
-        return this.props.data.crystal_status.toString() + '. ' + this.state.depositionStatus[this.props.data.crystal_status];
+        return this.props.data.event_status.toString() + '. ' + this.state.depositionStatus[this.props.data.event_status];
     }
 
     convertConfidence() {
