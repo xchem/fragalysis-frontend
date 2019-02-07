@@ -161,7 +161,7 @@ class FragspectView extends React.Component {
         return <Row>
             <Col xs={1} md={1}></Col>
             <Col xs={2} md={2}>
-                <p class="text-center; font-weight:bold">{this.props.data.crystal}</p>
+                <p class="text-center" style="font-weight:bold">{this.props.data.crystal}</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.site}</p>
@@ -175,7 +175,7 @@ class FragspectView extends React.Component {
                 </Panel>
             </Col>
             <Col xs={2} md={2}>
-                <p class="text-center; font-weight:bold">{this.convertDeposition()}</p>
+                <p class="text-center" style="font-weight:bold">{this.convertDeposition()}</p>
             </Col>
             <Col xs={1} md={1}>
                     <p class="text-center">{this.props.data.resolution} Å</p>

@@ -9,6 +9,20 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import FragspectView from "./fragspectView";
 
+const customStyles = {
+    divider: {
+        background: #e0e0e0,
+        width: 1px,
+        content: "",
+        display: block,
+        position: absolute,
+        top: 0,
+        bottom: 0,
+        right: 0,
+        minHeight: "70px"
+    }
+}
+
 class FragspectList extends GenericList {
 
     constructor(props) {
@@ -256,7 +270,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
                     <h4 class="text-center">Site selector</h4>
-                    <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
+                    <ToggleButtonGroup vertical block type="checkbox" value="siteSelector">
                         {this.radioButtonRender("Site", 1, "active")}
                         {this.radioButtonRender("Site", 2, "active")}
                         {this.radioButtonRender("Site", 3, "active")}
@@ -267,7 +281,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 className="text-right">Site Filter</h4>
+                    <h4 className="text-right">XChem status filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
@@ -276,6 +290,7 @@ class FragspectList extends GenericList {
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={2} md={2}>
+                    <h4 className="text-right"> </h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter2">
                         {this.radioButtonRender("Deposition", 4, "CompChem Ready")}
                         {this.radioButtonRender("Deposition", 5, "Deposition Ready")}
@@ -285,7 +300,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 class="text-center">Site Selector</h4>
+                    <h4 class="text-center">Confidence filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
                         {this.radioButtonRender("Confidence", 1, "Low")}
                         {this.radioButtonRender("Confidence", 2, "Medium")}
@@ -294,10 +309,7 @@ class FragspectList extends GenericList {
                     </ToggleButtonGroup>
                 </Col>
             </Row>
-            <Row height="20px">
-                <p> - </p>
-                <h3></h3>
-            </Row>
+            <Row style={customStyles}></Row>
             <Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}><h4 class="text-center">Crystal ID</h4></Col>
