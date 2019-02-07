@@ -252,8 +252,6 @@ class FragspectList extends GenericList {
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
             buttons.push(this.radioButtonRender("Site", i, "active"));
-            var newStateFilter = this.state.stateFilter.push(i)
-            this.setState(prevState => ({stateFilter: newStateFilter}))
         }
         return buttons;
     }
@@ -270,6 +268,14 @@ class FragspectList extends GenericList {
             var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4}>{value}: {status}</ToggleButton>;
         }
         return button;
+    }
+
+    componentWillMount(){
+        var newStateFilter = this.state.stateFilter.splice();
+        for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
+            newStateFilter.push(i);
+        }
+        this.setState(prevState => ({stateFilter: newStateFilter}))
     }
 
     render() {
