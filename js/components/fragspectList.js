@@ -32,8 +32,8 @@ class FragspectList extends GenericList {
         this.generateTableRows = this.generateTableRows.bind(this);
         this.state = {
             maximumSiteNumber: 0,
-            confidenceFilter: [1,2],
-            depositionFilter: [3,4,5],
+            confidenceFilter: [1,2,3],
+            depositionFilter: [1,2,3,4,5,6,7],
             siteFilter: [],
             confidenceState: [
                 {1: "low"},
