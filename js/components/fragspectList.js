@@ -313,7 +313,7 @@ class FragspectList extends GenericList {
                     </ToggleButtonGroup>
                 </Col>
             </Row>
-            <Row style={customStyles}></Row>
+            {/*<Row style={customStyles}></Row>*/}
             <Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}><h4 className="text-center">Crystal ID</h4></Col>
