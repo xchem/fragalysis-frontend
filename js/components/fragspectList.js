@@ -290,11 +290,6 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}>
                     <ToggleButtonGroup vertical block type="checkbox" value="siteSelector">
                         {this.siteButtonGenerator()}
-                        [{this.radioButtonRender("Site", 1, "active")},
-                        {this.radioButtonRender("Site", 2, "active")},
-                        {this.radioButtonRender("Site", 3, "active")},
-                        {this.radioButtonRender("Site", 4, "active")},
-                        {this.radioButtonRender("Site", 5, "active")},]
                         <p className="text-center">Site filter: {this.state.stateFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
