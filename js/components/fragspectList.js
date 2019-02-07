@@ -262,10 +262,10 @@ class FragspectList extends GenericList {
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
         } else if (type == "Confidence") {
             // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value +20}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Deposition") {
             // var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4} onClick={this.depoFilterChange(value)}>{value}: {status}</ToggleButton>;
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 10}>{value}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {status}</ToggleButton>;
         }
         return button;
     }
