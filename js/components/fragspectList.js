@@ -33,6 +33,7 @@ class FragspectList extends GenericList {
             maximumSiteNumber: 4,
             confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
+            stateFilter: [],
             confidenceState: [
                 {1: "low"},
                 {2: "medium"},
@@ -136,7 +137,7 @@ class FragspectList extends GenericList {
                     "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
                     "crystal_status": 2,
-                    "event_status": 3,
+                    "event_status": 4,
                     "confidence": 3,
                     "resolution": 1.8,
                     "smiles":"O=C(O)c1ccc(Br)nc1",
@@ -160,7 +161,7 @@ class FragspectList extends GenericList {
                     "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
                     "crystal_status": 4,
-                    "event_status": 4,
+                    "event_status": 5,
                     "confidence": 2,
                     "resolution": 2.2,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
@@ -184,7 +185,7 @@ class FragspectList extends GenericList {
                     "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
                     "crystal_status": 7,
-                    "event_status": 5,
+                    "event_status": 6,
                     "confidence": 3,
                     "resolution": 1.8,
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
@@ -208,7 +209,7 @@ class FragspectList extends GenericList {
                     "2d_view_png": "media/spideys/MURD-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
                     "crystal_status": 6,
-                    "event_status": 6,
+                    "event_status": 7,
                     "confidence": 3,
                     "resolution": 2.5,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
@@ -248,8 +249,10 @@ class FragspectList extends GenericList {
     }
 
     siteButtonGenerator(){
-        for (var i = 0; i < this.state.maximumSiteNumber; i++) {
+        for (var i = 1; i < this.state.maximumSiteNumber; i++) {
             this.radioButtonRender("Site", i, "active");
+            var newStateFilter = this.state.stateFilter.append(i)
+            this.setState(prevState => ({stateFilter: newStateFilter}))
         }
     }
 
@@ -287,7 +290,7 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Site", 3, "active")}
                         {this.radioButtonRender("Site", 4, "active")}
                         {this.radioButtonRender("Site", 5, "active")}
-                        <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                        <p className="text-center">Confidence filter: {this.state.stateFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>

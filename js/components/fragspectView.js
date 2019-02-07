@@ -92,7 +92,7 @@ class FragspectView extends React.Component {
             '#3288bd',
             '#95918C'
         ];
-        return {backgroundColor: colorDict[this.props.data.crystal_status]};
+        return {backgroundColor: colorDict[this.props.data.event_status]};
     }
 
     convertDeposition() {
