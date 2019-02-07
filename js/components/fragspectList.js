@@ -249,11 +249,13 @@ class FragspectList extends GenericList {
     }
 
     siteButtonGenerator(){
+        var buttons = [];
         for (var i = 1; i < this.state.maximumSiteNumber; i++) {
-            this.radioButtonRender("Site", i, "active");
+            buttons.append(this.radioButtonRender("Site", i, "active"));
             var newStateFilter = this.state.stateFilter.append(i)
             this.setState(prevState => ({stateFilter: newStateFilter}))
         }
+        return buttons;
     }
 
     radioButtonRender(type, value, status) {
@@ -287,6 +289,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
                     <ToggleButtonGroup vertical block type="checkbox" value="siteSelector">
+                        {this.siteButtonGenerator()}
                         [{this.radioButtonRender("Site", 1, "active")},
                         {this.radioButtonRender("Site", 2, "active")},
                         {this.radioButtonRender("Site", 3, "active")},
