@@ -33,7 +33,7 @@ class FragspectList extends GenericList {
             maximumSiteNumber: 0,
             confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
-            stateFilter: [],
+            siteFilter: [],
             confidenceState: [
                 {1: "low"},
                 {2: "medium"},
@@ -76,7 +76,7 @@ class FragspectList extends GenericList {
                 {
                     "frag_id": 50,
                     "crystal": "NUDT7A-x2415",
-                    "site_number": "3",
+                    "site_number": "5",
                     "event_number": "1",
                     "code": "NUDT7A-x1232_1",
                     "lig_id": "LIG-D1",
@@ -278,11 +278,11 @@ class FragspectList extends GenericList {
             }
         }
         this.setState(prevState => ({maximumSiteNumber: maxSite}))
-        var newStateFilter = this.state.stateFilter.splice();
+        var newsiteFilter = this.state.siteFilter.splice();
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            newStateFilter.push(i);
+            newsiteFilter.push(i);
         }
-        this.setState(prevState => ({stateFilter: newStateFilter}))
+        this.setState(prevState => ({siteFilter: newsiteFilter}))
     }
 
     render() {
@@ -303,7 +303,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}>
                     <ToggleButtonGroup vertical block type="checkbox" value="siteSelector">
                         {this.siteButtonGenerator()}
-                        <p className="text-center">Site filter: {this.state.stateFilter.toString()}</p>
+                        <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
