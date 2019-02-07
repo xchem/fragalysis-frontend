@@ -28,7 +28,7 @@ class FragspectList extends GenericList {
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
-        this.radioButtonRender = this.radioButtonRender.bind(this);
+        this.buttonRender = this.buttonRender.bind(this);
         this.generateTableRows = this.generateTableRows.bind(this);
         this.state = {
             maximumSiteNumber: 0,
@@ -252,12 +252,12 @@ class FragspectList extends GenericList {
     siteButtonGenerator(){
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.radioButtonRender("Site", i, "active" + i.toString()));
+            buttons.push(this.buttonRender("Site", i, "active" + i.toString()));
         }
         return buttons;
     }
 
-    radioButtonRender(type, value, status) {
+    buttonRender(type, value, status) {
         if (type == "Site") {
             // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
@@ -323,27 +323,27 @@ class FragspectList extends GenericList {
                 <Col xs={3} md={3}>
                     <Col xs={6} md={6}>
                         <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
-                            {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
-                            {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
-                            {this.radioButtonRender("Deposition", 3, "In Refinement")}
+                            {this.buttonRender("Deposition", 1, "Analysis Pending")}
+                            {this.buttonRender("Deposition", 2, "PanDDA Model")}
+                            {this.buttonRender("Deposition", 3, "In Refinement")}
                             <p className="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
                         </ToggleButtonGroup>
                     </Col>
                     <Col xs={6} md={6}>
                         <ToggleButtonGroup vertical block type="checkbox" value="depoFilter2">
-                            {this.radioButtonRender("Deposition", 4, "CompChem Ready")}
-                            {this.radioButtonRender("Deposition", 5, "Deposition Ready")}
-                            {this.radioButtonRender("Deposition", 6, "Deposited")}
-                            {this.radioButtonRender("Deposition", 7, "Analysed and Rejected")}
+                            {this.buttonRender("Deposition", 4, "CompChem Ready")}
+                            {this.buttonRender("Deposition", 5, "Deposition Ready")}
+                            {this.buttonRender("Deposition", 6, "Deposited")}
+                            {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
                             </ToggleButtonGroup>
                     </Col>
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
-                        {this.radioButtonRender("Confidence", 1, "Low")}
-                        {this.radioButtonRender("Confidence", 2, "Medium")}
-                        {this.radioButtonRender("Confidence", 3, "High")}
+                        {this.buttonRender("Confidence", 1, "Low")}
+                        {this.buttonRender("Confidence", 2, "Medium")}
+                        {this.buttonRender("Confidence", 3, "High")}
                         <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
