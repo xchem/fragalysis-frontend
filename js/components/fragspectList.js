@@ -270,10 +270,18 @@ class FragspectList extends GenericList {
 
     render() {
         return <Well>
-            <Row height="200px" style={{overflow: scroll}}>
+            <Row height="50px" style={{overflow: scroll}}>
+                <Row>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={2} md={2}><h4 className="text-center">Site selector</h4></Col>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={4} md={4}><h4 className="text-right">XChem status filter</h4></Col>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={2} md={2}><h4 className="text-center">Confidence filter</h4></Col>
+                    <Col xs={1} md={1}></Col>
+                </Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 className="text-center">Site selector</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="siteSelector">
                         {this.radioButtonRender("Site", 1, "active")}
                         {this.radioButtonRender("Site", 2, "active")}
@@ -285,7 +293,6 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 className="text-right">XChem status filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter">
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
@@ -304,7 +311,6 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 className="text-center">Confidence filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
                         {this.radioButtonRender("Confidence", 1, "Low")}
                         {this.radioButtonRender("Confidence", 2, "Medium")}
@@ -312,6 +318,7 @@ class FragspectList extends GenericList {
                         <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
+                <Col xs={1} md={1}></Col>
             </Row>
             {/*<Row style={customStyles}></Row>*/}
             <Row>
