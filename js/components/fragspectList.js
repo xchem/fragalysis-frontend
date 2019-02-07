@@ -282,7 +282,7 @@ class FragspectList extends GenericList {
         for (var i = 1; i <= maxSite; i++) {
             newSiteFilter.push(i);
         }
-        this.setState(prevState => ({siteFilter: newsiteFilter}))
+        this.setState(prevState => ({siteFilter: newSiteFilter}))
     }
 
     render() {
