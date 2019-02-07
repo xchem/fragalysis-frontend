@@ -197,7 +197,7 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 55,
                     "crystal": "NUDT5A-x0526",
-                    "site_number": 1,
+                    "site_number": 32,
                     "event_number": 1,
                     "code": "NUDT5A-x0526_3",
                     "lig_id": "LIG-E1",
@@ -349,7 +349,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <p className="text-center">Event view</p>
+                    <p className="text-center">Event review</p>
                 </Col>
                 <Col xs={1} md={1}></Col>
             </Row>

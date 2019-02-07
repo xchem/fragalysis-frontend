@@ -138,7 +138,7 @@ class FragspectView extends React.Component {
         this.fetchHotspotUrl(this.state.hsParams[type].abbreviation, this.props.data.prot_id, load_var, this.state.hsParams[strength].contour, this.state.hsParams[strength].opacity)
     }
 
-    buttonRender(strength, type) {
+    hotspotButtonRender(strength, type) {
         var _this = this;
         var button = React.createElement(Toggle, {
             onClick: function onClick() {_this.onHotspot(strength, type)},
