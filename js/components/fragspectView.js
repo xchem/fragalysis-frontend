@@ -84,19 +84,19 @@ class FragspectView extends React.Component {
     colorToggle() {
         var colorDict = [
             '#95918C',
-            '#cc9998',
-            '#efd1c1',
-            '#dba3e2',
-            '#beaed6',
-            '#a5bdfe',
-            '#a8e0ac',
+            '#d53e4f',
+            '#fc8d59',
+            '#fee08b',
+            '#e6f598',
+            '#99d594',
+            '#3288bd',
             '#95918C'
         ];
         return {backgroundColor: colorDict[this.props.data.crystal_status]};
     }
 
     convertDeposition() {
-        return this.props.data.crystal_status.toString() + this.state.depositionStatus[this.props.data.crystal_status];
+        return this.props.data.crystal_status.toString() + '. ' + this.state.depositionStatus[this.props.data.crystal_status];
     }
 
     convertConfidence() {
