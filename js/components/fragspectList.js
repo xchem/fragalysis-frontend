@@ -273,14 +273,14 @@ class FragspectList extends GenericList {
             <Row height="200px" style={{overflow: scroll}}>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 class="text-center">Site selector</h4>
+                    <h4 className="text-center">Site selector</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="siteSelector">
                         {this.radioButtonRender("Site", 1, "active")}
                         {this.radioButtonRender("Site", 2, "active")}
                         {this.radioButtonRender("Site", 3, "active")}
                         {this.radioButtonRender("Site", 4, "active")}
                         {this.radioButtonRender("Site", 5, "active")}
-                        <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                        <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
@@ -290,7 +290,7 @@ class FragspectList extends GenericList {
                         {this.radioButtonRender("Deposition", 1, "Analysis Pending")}
                         {this.radioButtonRender("Deposition", 2, "PanDDA Model")}
                         {this.radioButtonRender("Deposition", 3, "In Refinement")}
-                        <p class="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
+                        <p className="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={2} md={2}>
@@ -304,12 +304,12 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <h4 class="text-center">Confidence filter</h4>
+                    <h4 className="text-center">Confidence filter</h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="confFilter">
                         {this.radioButtonRender("Confidence", 1, "Low")}
                         {this.radioButtonRender("Confidence", 2, "Medium")}
                         {this.radioButtonRender("Confidence", 3, "High")}
-                        <p class="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                        <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
             </Row>
