@@ -148,7 +148,7 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 53,
                     "crystal": "NUDT7A-x1647",
-                    "site_number": "1",
+                    "site_number": "12",
                     "event_number": "1",
                     "code": "NUDT7A-x1647_1",
                     "lig_id": "LIG-D1",
@@ -278,9 +278,9 @@ class FragspectList extends GenericList {
             }
         }
         this.setState(prevState => ({maximumSiteNumber: maxSite}))
-        var newsiteFilter = this.state.siteFilter.splice();
-        for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            newsiteFilter.push(i);
+        var newSiteFilter = this.state.siteFilter.splice();
+        for (var i = 1; i <= maxSite; i++) {
+            newSiteFilter.push(i);
         }
         this.setState(prevState => ({siteFilter: newsiteFilter}))
     }
