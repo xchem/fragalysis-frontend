@@ -273,8 +273,8 @@ class FragspectList extends GenericList {
     componentWillMount(){
         var maxSite = 1;
         for (var event in this.state.fragspectObjects){
-            if (this.state.fragspectObjects[event].site_number > maxSite) {
-                maxSite = this.state.fragspectObjects[event].site_number
+            if (parseInt(this.state.fragspectObjects[event].site_number) > maxSite) {
+                maxSite = parseInt(this.state.fragspectObjects[event].site_number);
             }
         }
         this.setState(prevState => ({maximumSiteNumber: maxSite}))
