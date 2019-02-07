@@ -11,15 +11,15 @@ import FragspectView from "./fragspectView";
 
 const customStyles = {
     divider: {
-        background: #e0e0e0,
-        width: 1px,
-        content: "",
-        display: block,
-        position: absolute,
+        background: '#e0e0e0',
+        width: '1px',
+        content: '',
+        display: 'block',
+        position: 'absolute',
         top: 0,
         bottom: 0,
         right: 0,
-        minHeight: "70px"
+        minHeight: '70px'
     }
 }
 
