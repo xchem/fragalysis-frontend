@@ -252,7 +252,7 @@ class FragspectList extends GenericList {
         var buttons = [];
         for (var i = 1; i < this.state.maximumSiteNumber; i++) {
             buttons.append(this.radioButtonRender("Site", i, "active"));
-            var newStateFilter = this.state.stateFilter.append(i)
+            var newStateFilter = this.state.stateFilter.push(i)
             this.setState(prevState => ({stateFilter: newStateFilter}))
         }
         return buttons;
