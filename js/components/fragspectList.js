@@ -9,16 +9,16 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import FragspectView from "./fragspectView";
 
-const customStyles = {
-    divider: {
-        background: '#e0e0e0',
-        width: '1px',
-        content: '',
-        display: 'block',
-        position: 'absolute',
-        minHeight: '70px'
-    }
-}
+// const customStyles = {
+//     divider: {
+//         background: '#e0e0e0',
+//         width: '1px',
+//         content: '',
+//         display: 'block',
+//         position: 'absolute',
+//         minHeight: '70px'
+//     }
+// }
 
 class FragspectList extends GenericList {
 
