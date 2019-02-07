@@ -29,6 +29,7 @@ class FragspectList extends GenericList {
         this.depoFilterChange = this.depoFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.radioButtonRender = this.radioButtonRender.bind(this);
+        this.generateTableRows = this.generateTableRows.bind(this);
         this.state = {
             maximumSiteNumber: 0,
             confidenceFilter: [1,2,3],
@@ -148,7 +149,7 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 53,
                     "crystal": "NUDT7A-x1647",
-                    "site_number": "12",
+                    "site_number": "4",
                     "event_number": "1",
                     "code": "NUDT7A-x1647_1",
                     "lig_id": "LIG-D1",
@@ -270,6 +271,14 @@ class FragspectList extends GenericList {
         return button;
     }
 
+    generateTableRows() {
+        for (event in this.state.fragspectObjects) {
+            if (this.state.fragspectObjects[event].target_name == "NUDT5A") {
+                <FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>
+            }
+        }
+    }
+
     componentWillMount(){
         var maxSite = 1;
         for (var event in this.state.fragspectObjects){
@@ -353,7 +362,8 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">SPG and cell</h4></Col>
             </Row>
-            {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
+            {this.generateTableRows()}
+            {/*{this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}*/}
         </Well>;
     }
 }
