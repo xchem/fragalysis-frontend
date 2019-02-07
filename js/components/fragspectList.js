@@ -301,7 +301,6 @@ class FragspectList extends GenericList {
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={2} md={2}>
-                    <h4 className="text-right"> </h4>
                     <ToggleButtonGroup vertical block type="checkbox" value="depoFilter2">
                         {this.radioButtonRender("Deposition", 4, "CompChem Ready")}
                         {this.radioButtonRender("Deposition", 5, "Deposition Ready")}
