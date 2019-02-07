@@ -16,9 +16,6 @@ const customStyles = {
         content: '',
         display: 'block',
         position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
         minHeight: '70px'
     }
 }
