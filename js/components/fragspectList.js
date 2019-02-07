@@ -50,13 +50,13 @@ class FragspectList extends GenericList {
             fragspectObjects: [
                 {
                     "fragId": 49,
-                    "crystal": "NUDT7A_Crude-x0005",
+                    "crystal": "NUDT5A_Crude-x0005",
                     "site_number": "1",
                     "event_number": "1",
-                    "code": "NUDT7A_Crude-x0005_1",
+                    "code": "NUDT5A_Crude-x0005_1",
                     "lig_id": "LIG-D1",
-                    "target_name": "NUDT7A",
-                    "target_id": 5,
+                    "target_name": "NUDT5A",
+                    "target_id": 6,
                     "prot_id": 8657,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
@@ -195,13 +195,13 @@ class FragspectList extends GenericList {
                 },
                 {
                     "fragId": 55,
-                    "crystal": "NUDT7A_Crude-x0526",
+                    "crystal": "NUDT5A_Crude-x0526",
                     "site_number": "1",
                     "event_number": "1",
-                    "code": "NUDT7A_Crude-x0526_3",
+                    "code": "NUDT5A_Crude-x0526_3",
                     "lig_id": "LIG-E1",
-                    "target_name": "NUDT7A",
-                    "target_id": 5,
+                    "target_name": "NUDT5A",
+                    "target_id": 6,
                     "prot_id": 8655,
                     "event_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
                     "sigmaa_map_info": "media/maps/MURD-x0349_acceptor_ebBZqDc.ccp4",
@@ -321,16 +321,16 @@ class FragspectList extends GenericList {
             </Row>
             {/*<Row style={customStyles}></Row>*/}
             <Row>
-                <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}><h4 className="text-center">Crystal ID</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Site</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Ligand ID</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Structure</h4></Col>
-                <Col xs={2} md={2}><h4 className="text-center">XChem status</h4></Col>
-                <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
+                <Col xs={2} md={2}><h4 className="text-center">Status</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Confidence</h4></Col>
-                <Col xs={1} md={1}><h4 className="text-center">SPG and</h4><h4 className="text-center">dimensions</h4></Col>
-                <Col xs={1} md={1}><h4 className="text-center">Spider plot</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Density</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Spider</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">SPG and cell</h4></Col>
             </Row>
             {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
         </Well>;

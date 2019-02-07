@@ -96,7 +96,7 @@ class FragspectView extends React.Component {
     }
 
     convertDeposition() {
-        return this.state.depositionStatus[this.props.data.crystal_status];
+        return this.props.data.crystal_status.toString() + this.state.depositionStatus[this.props.data.crystal_status];
     }
 
     convertConfidence() {
@@ -159,7 +159,6 @@ class FragspectView extends React.Component {
 
     render() {
         return <Row>
-            <Col xs={1} md={1}></Col>
             <Col xs={2} md={2}>
                 <p className="text-center"><b>{this.props.data.crystal}</b></p>
             </Col>
@@ -178,17 +177,18 @@ class FragspectView extends React.Component {
                 <p className="text-center"><b>{this.convertDeposition()}</b></p>
             </Col>
             <Col xs={1} md={1}>
-                    <p className="text-center">{this.props.data.resolution.toString()} Å</p>
-            </Col>
-            <Col xs={1} md={1}>
                 <p className="text-center">{this.convertConfidence()}</p>
+            </Col>
+            <Col xs={1} md={1}></Col>
+            <Col xs={1} md={1}></Col>
+            <Col xs={1} md={1}>
+                    <p className="text-center">{this.props.data.resolution.toString()} Å</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.space_group}</p>
                 <p className="text-center">{this.props.data.cell_dimensions}</p>
                 <p className="text-center">{this.props.data.cell_angles}</p>
             </Col>
-            <Col xs={1} md={1}></Col>
         </Row>
     }
 }
