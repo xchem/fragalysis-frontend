@@ -309,15 +309,15 @@ class FragspectList extends GenericList {
             <Row style={customStyles}></Row>
             <Row>
                 <Col xs={1} md={1}></Col>
-                <Col xs={2} md={2}><h4 class="text-center">Crystal ID</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">Site</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">Ligand ID</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">Structure</h4></Col>
-                <Col xs={2} md={2}><h4 class="text-center">XChem status</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">Resolution</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">Confidence</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">SPG and</h4><h4 className="text-center">dimensions</h4></Col>
-                <Col xs={1} md={1}><h4 class="text-center">Spider plot</h4></Col>
+                <Col xs={2} md={2}><h4 className="text-center">Crystal ID</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Site</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Ligand ID</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Structure</h4></Col>
+                <Col xs={2} md={2}><h4 className="text-center">XChem status</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Confidence</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">SPG and</h4><h4 className="text-center">dimensions</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Spider plot</h4></Col>
             </Row>
             {this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}
         </Well>;

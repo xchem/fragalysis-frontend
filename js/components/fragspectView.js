@@ -161,13 +161,13 @@ class FragspectView extends React.Component {
         return <Row>
             <Col xs={1} md={1}></Col>
             <Col xs={2} md={2}>
-                <p class="text-center" style="font-weight:bold">{this.props.data.crystal}</p>
+                <p className="text-center" style="font-weight:bold">{this.props.data.crystal}</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.site}</p>
             </Col>
             <Col xs={1} md={1}>
-                <p class="text-center">{this.props.data.lig_id}</p>
+                <p className="text-center">{this.props.data.lig_id}</p>
             </Col>
             <Col xs={1} md={1}>
                 <Panel style={this.colorToggle()}>
@@ -175,18 +175,18 @@ class FragspectView extends React.Component {
                 </Panel>
             </Col>
             <Col xs={2} md={2}>
-                <p class="text-center" style="font-weight:bold">{this.convertDeposition()}</p>
+                <p className="text-center" style="font-weight:bold">{this.convertDeposition()}</p>
             </Col>
             <Col xs={1} md={1}>
-                    <p class="text-center">{this.props.data.resolution} Å</p>
+                    <p className="text-center">{this.props.data.resolution} Å</p>
             </Col>
             <Col xs={1} md={1}>
-                <p class="text-center">{this.convertConfidence()}</p>
+                <p className="text-center">{this.convertConfidence()}</p>
             </Col>
             <Col xs={1} md={1}>
-                <p class="text-center">{this.props.data.space_group}</p>
-                <p class="text-center">{this.props.data.cell_dimensions}</p>
-                <p class="text-center">{this.props.data.cell_angles}</p>
+                <p className="text-center">{this.props.data.space_group}</p>
+                <p className="text-center">{this.props.data.cell_dimensions}</p>
+                <p className="text-center">{this.props.data.cell_angles}</p>
             </Col>
             <Col xs={1} md={1}></Col>
         </Row>
