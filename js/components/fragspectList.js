@@ -53,8 +53,8 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 49,
                     "crystal": "NUDT5A-x0005",
-                    "site_number": "1",
-                    "event_number": "1",
+                    "site_number": 1,
+                    "event_number": 1,
                     "code": "NUDT5A-x0005_1",
                     "lig_id": "LIG-D1",
                     "target_name": "NUDT5A",
@@ -77,8 +77,8 @@ class FragspectList extends GenericList {
                 {
                     "frag_id": 50,
                     "crystal": "NUDT7A-x2415",
-                    "site_number": "5",
-                    "event_number": "1",
+                    "site_number": 5,
+                    "event_number": 1,
                     "code": "NUDT7A-x1232_1",
                     "lig_id": "LIG-D1",
                     "target_name": "NUDT7A",
@@ -101,8 +101,8 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 51,
                     "crystal": "NUDT7A-x2415",
-                    "site_number": "1",
-                    "event_number": "1",
+                    "site_number": 1,
+                    "event_number": 1,
                     "code": "NUDT7A-x0142_2",
                     "lig_id": "LIG-E1",
                     "target_name": "NUDT7A",
@@ -125,8 +125,8 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 52,
                     "crystal": "NUDT7A-x2415",
-                    "site_number": "2",
-                    "event_number": "1",
+                    "site_number": 2,
+                    "event_number": 1,
                     "code": "NUDT7A-x2415_3",
                     "lig_id": "LIG-E1",
                     "target_name": "NUDT7A",
@@ -149,8 +149,8 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 53,
                     "crystal": "NUDT7A-x1647",
-                    "site_number": "4",
-                    "event_number": "1",
+                    "site_number": 4,
+                    "event_number": 1,
                     "code": "NUDT7A-x1647_1",
                     "lig_id": "LIG-D1",
                     "target_name": "NUDT7A",
@@ -173,8 +173,8 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 54,
                     "crystal": "NUDT7A-x0245",
-                    "site_number": "1",
-                    "event_number": "1",
+                    "site_number": 1,
+                    "event_number": 1,
                     "code": "NUDT7A-x0245_3",
                     "lig_id": "LIG-D1",
                     "target_name": "NUDT7A",
@@ -197,8 +197,8 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 55,
                     "crystal": "NUDT5A-x0526",
-                    "site_number": "1",
-                    "event_number": "1",
+                    "site_number": 1,
+                    "event_number": 1,
                     "code": "NUDT5A-x0526_3",
                     "lig_id": "LIG-E1",
                     "target_name": "NUDT5A",
@@ -286,8 +286,8 @@ class FragspectList extends GenericList {
     componentWillMount(){
         var maxSite = 1;
         for (var event in this.state.fragspectObjects){
-            if (parseInt(this.state.fragspectObjects[event].site_number) > maxSite) {
-                maxSite = parseInt(this.state.fragspectObjects[event].site_number);
+            if (this.state.fragspectObjects[event].site_number > maxSite) {
+                maxSite = this.state.fragspectObjects[event].site_number;
             }
         }
         this.setState(prevState => ({maximumSiteNumber: maxSite}))
