@@ -274,7 +274,9 @@ class FragspectList extends GenericList {
     generateTableRows() {
         var rows = [];
         for (event in this.state.fragspectObjects) {
-            if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) && this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status)) {
+            if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
+                this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                 rows.push(<FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>)
             }
         }
