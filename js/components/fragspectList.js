@@ -236,40 +236,40 @@ class FragspectList extends GenericList {
         // }
     }
 
-    confFilterChange(value){
-        var confValue = value - 7;
-        if (this.state.confidenceFilter.includes(confValue)){
-            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
-        } else {
-            var newConfFilter = this.state.confidenceFilter.slice();
-            newConfFilter.push(confValue);
-            newConfFilter.sort();
-            this.setState(prevState => ({confidenceFilter: newConfFilter}));
-        }
-    }
-
-    depoFilterChange(value){
-        if (this.state.depositionFilter.includes(value)){
-            this.setState(prevState => ({depositionFilter: prevState.depositionFilter.filter(depo => depo != value)}))
-        } else {
-            var newDepoFilter = this.state.depositionFilter.slice();
-            newDepoFilter.push(value);
-            newDepoFilter.sort();
-            this.setState(prevState => ({depositionFilter: newDepoFilter}));
-        }
-    }
-
-    siteFilterChange(value){
-        var siteValue = value - 10;
-        if (this.state.siteFilter.includes(siteValue)){
-            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
-        } else {
-            var newSiteFilter = this.state.siteFilter.slice();
-            newSiteFilter.push(siteValue);
-            newSiteFilter.sort();
-            this.setState(prevState => ({siteFilter: newSiteFilter}));
-        }
-    }
+    // confFilterChange(value){
+    //     var confValue = value - 7;
+    //     if (this.state.confidenceFilter.includes(confValue)){
+    //         this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
+    //     } else {
+    //         var newConfFilter = this.state.confidenceFilter.slice();
+    //         newConfFilter.push(confValue);
+    //         newConfFilter.sort();
+    //         this.setState(prevState => ({confidenceFilter: newConfFilter}));
+    //     }
+    // }
+    //
+    // depoFilterChange(value){
+    //     if (this.state.depositionFilter.includes(value)){
+    //         this.setState(prevState => ({depositionFilter: prevState.depositionFilter.filter(depo => depo != value)}))
+    //     } else {
+    //         var newDepoFilter = this.state.depositionFilter.slice();
+    //         newDepoFilter.push(value);
+    //         newDepoFilter.sort();
+    //         this.setState(prevState => ({depositionFilter: newDepoFilter}));
+    //     }
+    // }
+    //
+    // siteFilterChange(value){
+    //     var siteValue = value - 10;
+    //     if (this.state.siteFilter.includes(siteValue)){
+    //         this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
+    //     } else {
+    //         var newSiteFilter = this.state.siteFilter.slice();
+    //         newSiteFilter.push(siteValue);
+    //         newSiteFilter.sort();
+    //         this.setState(prevState => ({siteFilter: newSiteFilter}));
+    //     }
+    // }
 
     siteButtonGenerator(){
         var buttons = [];
