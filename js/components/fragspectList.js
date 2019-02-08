@@ -317,19 +317,19 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({siteFilter: newSiteFilter}))
     }
 
-    componentDidMount() {
-        var filtersOn = [];
-        for (var d in this.state.depositionFilter){
-            filtersOn.push(this.state.depositionFilter[d])
-        }
-        for (var c in this.state.confidenceFilter){
-            filtersOn.push(this.state.confidenceFilter[c]+7)
-        }
-        for (var s in this.state.siteFilter){
-            filtersOn.push(this.state.siteFilter[s]+10)
-        }
-        this.setState(prevState => ({buttonsDepressed: filtersOn}))
-    }
+    // componentDidMount() {
+    //     var filtersOn = [];
+    //     for (var d in this.state.depositionFilter){
+    //         filtersOn.push(this.state.depositionFilter[d])
+    //     }
+    //     for (var c in this.state.confidenceFilter){
+    //         filtersOn.push(this.state.confidenceFilter[c]+7)
+    //     }
+    //     for (var s in this.state.siteFilter){
+    //         filtersOn.push(this.state.siteFilter[s]+10)
+    //     }
+    //     this.setState(prevState => ({buttonsDepressed: filtersOn}))
+    // }
 
     render() {
         return <Well>
