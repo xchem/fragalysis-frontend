@@ -230,18 +230,19 @@ class FragspectList extends GenericList {
         if (value <= 7) {
             this.depoFilterChange(value);
         } else if (value <= 10) {
-            this.confFilterChange(value - 7);
+            this.confFilterChange(value);
         } else {
-            this.siteFilterChange(value - 10);
+            this.siteFilterChange(value);
         }
     }
 
     confFilterChange(value){
-        if (this.state.confidenceFilter.includes(value)){
-            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != value)}))
+        var confValue = confValue - 7;
+        if (this.state.confidenceFilter.includes(confValue)){
+            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
         } else {
             var newConfFilter = this.state.confidenceFilter.slice();
-            newConfFilter.push(value);
+            newConfFilter.push(confValue);
             newConfFilter.sort();
             this.setState(prevState => ({confidenceFilter: newConfFilter}));
         }
@@ -259,11 +260,12 @@ class FragspectList extends GenericList {
     }
 
     siteFilterChange(value){
-        if (this.state.siteFilter.includes(value)){
-            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != value)}))
+        var siteValue = value - 10;
+        if (this.state.siteFilter.includes(siteValue)){
+            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
         } else {
             var newSiteFilter = this.state.siteFilter.slice();
-            newSiteFilter.push(value);
+            newSiteFilter.push(siteValue);
             newSiteFilter.sort();
             this.setState(prevState => ({siteFilter: newSiteFilter}));
         }
