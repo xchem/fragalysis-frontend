@@ -28,6 +28,7 @@ class FragspectList extends GenericList {
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
+        this.siteFilterChange = this.siteFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
         this.generateTableRows = this.generateTableRows.bind(this);
@@ -226,6 +227,13 @@ class FragspectList extends GenericList {
 
     handleFilterChange(value) {
         console.log(value)
+        if (value <= 7) {
+            this.depoFilterChange(value);
+        } else if (value <= 10) {
+            this.confFilterChange(value);
+        } else {
+            this.siteFilterChange(value);
+        }
     }
 
     confFilterChange(value){
@@ -247,6 +255,17 @@ class FragspectList extends GenericList {
             newDepoFilter.push(value);
             newDepoFilter.sort();
             this.setState(prevState => ({depositionFilter: newDepoFilter}));
+        }
+    }
+
+    siteFilterChange(value){
+        if (this.state.siteFilter.includes(value)){
+            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != value)}))
+        } else {
+            var newSiteFilter = this.state.siteFilter.slice();
+            newSiteFilter.push(value);
+            newSiteFilter.sort();
+            this.setState(prevState => ({siteFilter: newSiteFilter}));
         }
     }
 
@@ -326,7 +345,7 @@ class FragspectList extends GenericList {
                 </Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         {this.siteButtonGenerator()}
                         <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                     </ToggleButtonGroup>
@@ -334,7 +353,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 1, "Analysis Pending")}
                             {this.buttonRender("Deposition", 2, "PanDDA Model")}
                             {this.buttonRender("Deposition", 3, "In Refinement")}
@@ -342,7 +361,7 @@ class FragspectList extends GenericList {
                         </ToggleButtonGroup>
                     </Col>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 4, "CompChem Ready")}
                             {this.buttonRender("Deposition", 5, "Deposition Ready")}
                             {this.buttonRender("Deposition", 6, "Deposited")}
@@ -352,7 +371,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         {this.buttonRender("Confidence", 8, "Low")}
                         {this.buttonRender("Confidence", 9, "Medium")}
                         {this.buttonRender("Confidence", 10, "High")}
