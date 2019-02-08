@@ -230,9 +230,9 @@ class FragspectList extends GenericList {
         if (value <= 7) {
             this.depoFilterChange(value);
         } else if (value <= 10) {
-            this.confFilterChange(value);
+            this.confFilterChange(value - 7);
         } else {
-            this.siteFilterChange(value);
+            this.siteFilterChange(value - 10);
         }
     }
 
@@ -272,7 +272,7 @@ class FragspectList extends GenericList {
     siteButtonGenerator(){
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.buttonRender("Site", i+10, "active" + i.toString()));
+            buttons.push(this.buttonRender("Site", i+10, i));
         }
         return buttons;
     }
@@ -283,7 +283,7 @@ class FragspectList extends GenericList {
         } else if (type == "Confidence") {
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {this.state.confidenceState[status]}</ToggleButton>;
         }
         return button;
     }
@@ -372,9 +372,9 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        {this.buttonRender("Confidence", 8, "Low")}
-                        {this.buttonRender("Confidence", 9, "Medium")}
-                        {this.buttonRender("Confidence", 10, "High")}
+                        {this.buttonRender("Confidence", 8, 1)}
+                        {this.buttonRender("Confidence", 9, 2)}
+                        {this.buttonRender("Confidence", 10, 3)}
                         <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                     </ToggleButtonGroup>
                 </Col>
