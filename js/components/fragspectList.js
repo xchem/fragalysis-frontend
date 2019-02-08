@@ -227,13 +227,13 @@ class FragspectList extends GenericList {
 
     handleFilterChange(value) {
         console.log(value)
-        if (value <= 7) {
-            this.depoFilterChange(value);
-        } else if (value <= 10) {
-            this.confFilterChange(value);
-        } else {
-            this.siteFilterChange(value);
-        }
+        // if (value <= 7) {
+        //     this.depoFilterChange(value);
+        // } else if (value <= 10) {
+        //     this.confFilterChange(value);
+        // } else {
+        //     this.siteFilterChange(value);
+        // }
     }
 
     confFilterChange(value){
