@@ -26,9 +26,9 @@ class FragspectList extends GenericList {
         super(props);
         this.list_type = listType.MOLECULE;
         this.handleFilterChange = this.handleFilterChange.bind(this);
-        this.confFilterChange = this.confFilterChange.bind(this);
-        this.depoFilterChange = this.depoFilterChange.bind(this);
-        this.siteFilterChange = this.siteFilterChange.bind(this);
+        // this.confFilterChange = this.confFilterChange.bind(this);
+        // this.depoFilterChange = this.depoFilterChange.bind(this);
+        // this.siteFilterChange = this.siteFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
         this.generateTableRows = this.generateTableRows.bind(this);
