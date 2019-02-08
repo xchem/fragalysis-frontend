@@ -319,7 +319,7 @@ class FragspectList extends GenericList {
         for (var s in this.state.siteFilter){
             filtersOn.push(this.state.siteFilter[s]+10)
         }
-        this.setState(prevState => ({value: filtersOn, complexOn: complexOn, isToggleOn: thisToggleOn, eDensityOn: eDensityOn}))
+        this.setState(prevState => ({buttonsDepressed: filtersOn}))
     }
 
     render() {
