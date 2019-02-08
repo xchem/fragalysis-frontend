@@ -25,6 +25,7 @@ class FragspectList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
+        this.handleFilterChange = this.handleFilterChange.bind(this);
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
@@ -33,7 +34,7 @@ class FragspectList extends GenericList {
         this.state = {
             maximumSiteNumber: 0,
             confidenceFilter: [1,2,3],
-            depositionFilter: [1,2,5,6,7],
+            depositionFilter: [1,2,3,4,5,6,7],
             siteFilter: [],
             buttonsDepressed: [],
             confidenceState: [
@@ -223,16 +224,9 @@ class FragspectList extends GenericList {
         };
     }
 
-    handleOptionChange(changeEvent) {
-        const new_value = changeEvent.target.value;
-        this.props.setObjectOn(new_value);
+    handleFilterChange(value) {
+        console.log(value)
     }
-
-
-
-
-
-
 
     confFilterChange(value){
         if (this.state.confidenceFilter.includes(value)){
@@ -266,13 +260,10 @@ class FragspectList extends GenericList {
 
     buttonRender(type, value, status) {
         if (type == "Deposition") {
-            // var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value + 4} onClick={this.depoFilterChange(value)}>{value}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {status}</ToggleButton>;
         } else if (type == "Confidence") {
-            // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Site") {
-            // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} onClick={this.confFilterChange(value)}>{type}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
         }
         return button;
@@ -306,10 +297,7 @@ class FragspectList extends GenericList {
     }
 
     componentDidMount() {
-        // determine which numbered filters should be on using the numbering system 1-10+n outlinied in labbook.
         var filtersOn = [];
-        // filtersOn needs to be combined with statusFilter and confidenceFilter filtered(?) with +7 and siteFilter with +10
-        // this replaces the if statements below.
         for (var d in this.state.depositionFilter){
             filtersOn.push(this.state.depositionFilter[d])
         }
@@ -338,7 +326,7 @@ class FragspectList extends GenericList {
                 </Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
                         {this.siteButtonGenerator()}
                         <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                     </ToggleButtonGroup>
@@ -346,7 +334,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
                             {this.buttonRender("Deposition", 1, "Analysis Pending")}
                             {this.buttonRender("Deposition", 2, "PanDDA Model")}
                             {this.buttonRender("Deposition", 3, "In Refinement")}
@@ -354,7 +342,7 @@ class FragspectList extends GenericList {
                         </ToggleButtonGroup>
                     </Col>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
                             {this.buttonRender("Deposition", 4, "CompChem Ready")}
                             {this.buttonRender("Deposition", 5, "Deposition Ready")}
                             {this.buttonRender("Deposition", 6, "Deposited")}
@@ -364,7 +352,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleChange}>
                         {this.buttonRender("Confidence", 8, "Low")}
                         {this.buttonRender("Confidence", 9, "Medium")}
                         {this.buttonRender("Confidence", 10, "High")}
