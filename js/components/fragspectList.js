@@ -33,7 +33,7 @@ class FragspectList extends GenericList {
         this.state = {
             maximumSiteNumber: 0,
             confidenceFilter: [1,2,3],
-            depositionFilter: [1,2,3,4,5,6,7],
+            depositionFilter: [1,2,5,6,7],
             siteFilter: [],
             buttonsDepressed: [],
             confidenceState: [
