@@ -285,7 +285,7 @@ class FragspectList extends GenericList {
         } else if (type == "Confidence") {
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {this.state.confidenceState[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value}>{type}: {this.state.confidenceState[status]}</ToggleButton>;
         }
         return button;
     }
