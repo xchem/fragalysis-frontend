@@ -275,7 +275,7 @@ class FragspectList extends GenericList {
     siteButtonGenerator(){
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.buttonRender("Site", i+10, "active" + i.toString()));
+            buttons.push(this.buttonRender("Site", i+10, i));
         }
         return buttons;
     }
@@ -288,7 +288,7 @@ class FragspectList extends GenericList {
             // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} key={"conf"+value.toString()}>{type}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
         }
         return button;
     }
