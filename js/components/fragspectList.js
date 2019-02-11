@@ -238,12 +238,12 @@ class FragspectList extends GenericList {
     }
 
     confFilterChange(value){
-        var confValue = value - 7;
-        if (this.state.confidenceFilter.includes(confValue)){
-            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
+        // var confValue = value - 7;
+        if (this.state.confidenceFilter.includes(value)){
+            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != value)}))
         } else {
             var newConfFilter = this.state.confidenceFilter.slice();
-            newConfFilter.push(confValue);
+            newConfFilter.push(value);
             newConfFilter.sort();
             this.setState(prevState => ({confidenceFilter: newConfFilter}));
         }
@@ -261,12 +261,12 @@ class FragspectList extends GenericList {
     }
 
     siteFilterChange(value){
-        var siteValue = value - 10;
-        if (this.state.siteFilter.includes(siteValue)){
-            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
+        // var siteValue = value - 10;
+        if (this.state.siteFilter.includes(value)){
+            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != value)}))
         } else {
             var newSiteFilter = this.state.siteFilter.slice();
-            newSiteFilter.push(siteValue);
+            newSiteFilter.push(value);
             newSiteFilter.sort();
             this.setState(prevState => ({siteFilter: newSiteFilter}));
         }
@@ -275,18 +275,21 @@ class FragspectList extends GenericList {
     siteButtonGenerator(){
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.buttonRender("Site", i+10, i));
+            buttons.push(this.buttonRender("Site", i+10, "active" + i.toString()));
         }
         return buttons;
     }
 
     buttonRender(type, value, status) {
         if (type == "Deposition") {
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value} key={"depo"+value.toString()}>{value}: {status}</ToggleButton>;
+            // var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value} key={"depo"+value.toString()}>{value}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {status}</ToggleButton>;
         } else if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} key={"conf"+value.toString()}>{type}: {status}</ToggleButton>;
+            // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} key={"conf"+value.toString()}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {status}</ToggleButton>;
         } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+value.toString()}>{type}: {this.state.confidenceState[status]}</ToggleButton>;
+            // var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+value.toString()}>{type}: {this.state.confidenceState[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
         }
         return button;
     }
