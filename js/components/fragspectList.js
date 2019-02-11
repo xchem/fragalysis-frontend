@@ -39,11 +39,13 @@ class FragspectList extends GenericList {
             siteFilter: [],
             buttonsDepressed: [],
             "confidenceStatus": {
-                1: "low",
-                2: "medium",
-                3: "high"
+                1: "Low",
+                2: "Medium",
+                3: "High",
+                4: "Not viewed",
+                5: "Interesting",
+                6: "Discard"
                 },
-            // add not viewed, interesting, discard
             "depositionStatus": {
                 1: "Analysis Pending",
                 2: "PanDDA Model",
