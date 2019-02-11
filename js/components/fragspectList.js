@@ -26,9 +26,9 @@ class FragspectList extends GenericList {
         super(props);
         this.list_type = listType.MOLECULE;
         this.handleFilterChange = this.handleFilterChange.bind(this);
-        // this.confFilterChange = this.confFilterChange.bind(this);
-        // this.depoFilterChange = this.depoFilterChange.bind(this);
-        // this.siteFilterChange = this.siteFilterChange.bind(this);
+        this.confFilterChange = this.confFilterChange.bind(this);
+        this.depoFilterChange = this.depoFilterChange.bind(this);
+        this.siteFilterChange = this.siteFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
         this.generateTableRows = this.generateTableRows.bind(this);
@@ -43,6 +43,7 @@ class FragspectList extends GenericList {
                 {2: "medium"},
                 {3: "high"}
                 ],
+            // add not viewed, interesting, discard
             depositionStatus: [
                 {1: "Analysis Pending"},
                 {2: "PanDDA Model"},
@@ -227,49 +228,49 @@ class FragspectList extends GenericList {
 
     handleFilterChange(value) {
         console.log(value)
-        // if (value <= 7) {
-        //     this.depoFilterChange(value);
-        // } else if (value <= 10) {
-        //     this.confFilterChange(value);
-        // } else {
-        //     this.siteFilterChange(value);
-        // }
+        if (value <= 7) {
+            this.depoFilterChange(value);
+        } else if (value <= 10) {
+            this.confFilterChange(value);
+        } else {
+            this.siteFilterChange(value);
+        }
     }
 
-    // confFilterChange(value){
-    //     var confValue = value - 7;
-    //     if (this.state.confidenceFilter.includes(confValue)){
-    //         this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
-    //     } else {
-    //         var newConfFilter = this.state.confidenceFilter.slice();
-    //         newConfFilter.push(confValue);
-    //         newConfFilter.sort();
-    //         this.setState(prevState => ({confidenceFilter: newConfFilter}));
-    //     }
-    // }
-    //
-    // depoFilterChange(value){
-    //     if (this.state.depositionFilter.includes(value)){
-    //         this.setState(prevState => ({depositionFilter: prevState.depositionFilter.filter(depo => depo != value)}))
-    //     } else {
-    //         var newDepoFilter = this.state.depositionFilter.slice();
-    //         newDepoFilter.push(value);
-    //         newDepoFilter.sort();
-    //         this.setState(prevState => ({depositionFilter: newDepoFilter}));
-    //     }
-    // }
-    //
-    // siteFilterChange(value){
-    //     var siteValue = value - 10;
-    //     if (this.state.siteFilter.includes(siteValue)){
-    //         this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
-    //     } else {
-    //         var newSiteFilter = this.state.siteFilter.slice();
-    //         newSiteFilter.push(siteValue);
-    //         newSiteFilter.sort();
-    //         this.setState(prevState => ({siteFilter: newSiteFilter}));
-    //     }
-    // }
+    confFilterChange(value){
+        var confValue = value - 7;
+        if (this.state.confidenceFilter.includes(confValue)){
+            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
+        } else {
+            var newConfFilter = this.state.confidenceFilter.slice();
+            newConfFilter.push(confValue);
+            newConfFilter.sort();
+            this.setState(prevState => ({confidenceFilter: newConfFilter}));
+        }
+    }
+
+    depoFilterChange(value){
+        if (this.state.depositionFilter.includes(value)){
+            this.setState(prevState => ({depositionFilter: prevState.depositionFilter.filter(depo => depo != value)}))
+        } else {
+            var newDepoFilter = this.state.depositionFilter.slice();
+            newDepoFilter.push(value);
+            newDepoFilter.sort();
+            this.setState(prevState => ({depositionFilter: newDepoFilter}));
+        }
+    }
+
+    siteFilterChange(value){
+        var siteValue = value - 10;
+        if (this.state.siteFilter.includes(siteValue)){
+            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
+        } else {
+            var newSiteFilter = this.state.siteFilter.slice();
+            newSiteFilter.push(siteValue);
+            newSiteFilter.sort();
+            this.setState(prevState => ({siteFilter: newSiteFilter}));
+        }
+    }
 
     siteButtonGenerator(){
         var buttons = {};
@@ -317,19 +318,19 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({siteFilter: newSiteFilter}))
     }
 
-    // componentDidMount() {
-    //     var filtersOn = [];
-    //     for (var d in this.state.depositionFilter){
-    //         filtersOn.push(this.state.depositionFilter[d])
-    //     }
-    //     for (var c in this.state.confidenceFilter){
-    //         filtersOn.push(this.state.confidenceFilter[c]+7)
-    //     }
-    //     for (var s in this.state.siteFilter){
-    //         filtersOn.push(this.state.siteFilter[s]+10)
-    //     }
-    //     this.setState(prevState => ({buttonsDepressed: filtersOn}))
-    // }
+    componentDidMount() {
+        var filtersOn = [];
+        for (var d in this.state.depositionFilter){
+            filtersOn.push(this.state.depositionFilter[d])
+        }
+        for (var c in this.state.confidenceFilter){
+            filtersOn.push(this.state.confidenceFilter[c]+7)
+        }
+        for (var s in this.state.siteFilter){
+            filtersOn.push(this.state.siteFilter[s]+10)
+        }
+        this.setState(prevState => ({buttonsDepressed: filtersOn}))
+    }
 
     render() {
         return <Well>
