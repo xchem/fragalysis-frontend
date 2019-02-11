@@ -394,7 +394,7 @@ class FragspectList extends GenericList {
                         </ToggleButtonGroup>
                     </Col>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 4, "CompChem Ready")}
                             {this.buttonRender("Deposition", 5, "Deposition Ready")}
                             {this.buttonRender("Deposition", 6, "Deposited")}
