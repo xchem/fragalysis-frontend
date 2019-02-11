@@ -395,12 +395,13 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}><h4 className="text-center">Site</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Ligand ID</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Structure</h4></Col>
-                <Col xs={2} md={2}><h4 className="text-center">Status</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Status</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Confidence</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Density</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Spider</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">SPG and cell</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Comment</h4></Col>
             </Row>
             {this.generateTableRows()}
             {/*{this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}*/}

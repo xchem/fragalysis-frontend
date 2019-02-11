@@ -92,7 +92,7 @@ class FragspectView extends React.Component {
                     <Image src={this.img_url+"&dummy=png"} responsive rounded />
                 </Panel>
             </Col>
-            <Col xs={2} md={2}>
+            <Col xs={1} md={1}>
                 <p className="text-center"><b>{this.convertDeposition()}</b></p>
             </Col>
             <Col xs={1} md={1}>
@@ -108,6 +108,7 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.props.data.cell_dimensions}</p>
                 <p className="text-center">{this.props.data.cell_angles}</p>
             </Col>
+            <Col xs={1} md={1}></Col>
         </Row>
     }
 }
