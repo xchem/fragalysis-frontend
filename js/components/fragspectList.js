@@ -38,11 +38,11 @@ class FragspectList extends GenericList {
             depositionFilter: [1,2,3,4,5,6,7],
             siteFilter: [],
             buttonsDepressed: [],
-            confidenceState: [
-                {1: "low"},
-                {2: "medium"},
-                {3: "high"}
-                ],
+            confidenceState: {
+                1: "low",
+                2: "medium",
+                3: "high"
+                },
             // add not viewed, interesting, discard
             depositionStatus: [
                 {1: "Analysis Pending"},
