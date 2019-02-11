@@ -254,14 +254,14 @@ class FragspectList extends GenericList {
         var confValue = value - 7;
         if (this.state.confidenceFilter.includes(confValue)){
             this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
-            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != confValue)}))
+            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
         } else {
             var newConfFilter = this.state.confidenceFilter.slice();
             newConfFilter.push(confValue);
             newConfFilter.sort();
             this.setState(prevState => ({confidenceFilter: newConfFilter}));
             var newButtonsDepressed = this.state.buttonsDepressed.slice();
-            newButtonsDepressed.push(confValue);
+            newButtonsDepressed.push(value);
             newButtonsDepressed.sort();
             this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
@@ -287,14 +287,14 @@ class FragspectList extends GenericList {
         var siteValue = value - 10;
         if (this.state.siteFilter.includes(siteValue)){
             this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
-            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != siteValue)}))
+            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
         } else {
             var newSiteFilter = this.state.siteFilter.slice();
             newSiteFilter.push(siteValue);
             newSiteFilter.sort();
             this.setState(prevState => ({siteFilter: newSiteFilter}));
             var newButtonsDepressed = this.state.buttonsDepressed.slice();
-            newButtonsDepressed.push(siteValue);
+            newButtonsDepressed.push(value);
             newButtonsDepressed.sort();
             this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
