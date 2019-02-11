@@ -38,13 +38,13 @@ class FragspectList extends GenericList {
             depositionFilter: [1,2,3,4,5,6,7],
             siteFilter: [],
             buttonsDepressed: [],
-            confidenceStatus: {
+            "confidenceStatus": {
                 1: "low",
                 2: "medium",
                 3: "high"
                 },
             // add not viewed, interesting, discard
-            depositionStatus: {
+            "depositionStatus": {
                 1: "Analysis Pending",
                 2: "PanDDA Model",
                 3: "In Refinement",
@@ -283,10 +283,10 @@ class FragspectList extends GenericList {
     buttonRender(type, value, status) {
         if (type == "Deposition") {
             // var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value} key={"depo"+value.toString()}>{value}: {status}</ToggleButton>;
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus.[value]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
             // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} key={"conf"+value.toString()}>{type}: {status}</ToggleButton>;
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus.[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Site") {
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {value}</ToggleButton>;
         }
