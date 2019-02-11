@@ -227,48 +227,76 @@ class FragspectList extends GenericList {
     }
 
     handleFilterChange(value) {
-        console.log(value)
-        if (value <= 7) {
-            this.depoFilterChange(value);
-        } else if (value <= 10) {
-            this.confFilterChange(value);
+        var oldBDState = this.state.buttonsDepressed;
+        var newBDState = value.slice();
+        var removed = oldBDState.filter(function(i) {return value.indexOf(i)<0;})[0]
+        var added = value.filter(function(i) {return oldBDState.indexOf(i)<0;})[0]
+        if (added == undefined) {
+            if (removed <= 7) {
+                this.depoFilterChange(removed);
+            } else if (removed <= 10) {
+                this.confFilterChange(removed);
+            } else {
+                this.siteFilterChange(removed);
+            }
         } else {
-            this.siteFilterChange(value);
+            if (added <= 7) {
+                this.depoFilterChange(added);
+            } else if (added <= 10) {
+                this.confFilterChange(added);
+            } else {
+                this.siteFilterChange(added);
+            }
         }
     }
 
     confFilterChange(value){
-        // var confValue = value - 7;
-        if (this.state.confidenceFilter.includes(value)){
-            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != value)}))
+        var confValue = value - 7;
+        if (this.state.confidenceFilter.includes(confValue)){
+            this.setState(prevState => ({confidenceFilter: prevState.confidenceFilter.filter(conf => conf != confValue)}))
+            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != confValue)}))
         } else {
             var newConfFilter = this.state.confidenceFilter.slice();
-            newConfFilter.push(value);
+            newConfFilter.push(confValue);
             newConfFilter.sort();
             this.setState(prevState => ({confidenceFilter: newConfFilter}));
+            var newButtonsDepressed = this.state.buttonsDepressed.slice();
+            newButtonsDepressed.push(confValue);
+            newButtonsDepressed.sort();
+            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
     }
 
     depoFilterChange(value){
         if (this.state.depositionFilter.includes(value)){
             this.setState(prevState => ({depositionFilter: prevState.depositionFilter.filter(depo => depo != value)}))
+            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
         } else {
             var newDepoFilter = this.state.depositionFilter.slice();
             newDepoFilter.push(value);
             newDepoFilter.sort();
             this.setState(prevState => ({depositionFilter: newDepoFilter}));
+            var newButtonsDepressed = this.state.buttonsDepressed.slice();
+            newButtonsDepressed.push(value);
+            newButtonsDepressed.sort();
+            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
     }
 
     siteFilterChange(value){
-        // var siteValue = value - 10;
-        if (this.state.siteFilter.includes(value)){
-            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != value)}))
+        var siteValue = value - 10;
+        if (this.state.siteFilter.includes(siteValue)){
+            this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
+            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != siteValue)}))
         } else {
             var newSiteFilter = this.state.siteFilter.slice();
-            newSiteFilter.push(value);
+            newSiteFilter.push(siteValue);
             newSiteFilter.sort();
             this.setState(prevState => ({siteFilter: newSiteFilter}));
+            var newButtonsDepressed = this.state.buttonsDepressed.slice();
+            newButtonsDepressed.push(siteValue);
+            newButtonsDepressed.sort();
+            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
     }
 
