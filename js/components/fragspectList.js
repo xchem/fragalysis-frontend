@@ -38,7 +38,7 @@ class FragspectList extends GenericList {
             confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
             siteFilter: [],
-            buttonsDepressed: [],
+            buttonsDepressed: [1001],
             "confidenceStatus": {
                 1: "Low",
                 2: "Medium",
@@ -450,6 +450,7 @@ class FragspectList extends GenericList {
                         <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
                     </ToggleButtonGroup>
                     <p className="text-center">{this.state.view}</p>
+                    <p className="text-center">Butts: {this.state.buttonsDepressed.toString()}</p>
                 </Col>
                 <Col xs={1} md={1}></Col>
             </Row>
