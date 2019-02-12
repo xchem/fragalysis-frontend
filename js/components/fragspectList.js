@@ -333,11 +333,11 @@ class FragspectList extends GenericList {
 
     buttonRender(type, value, status) {
         if (type == "Deposition") {
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={!value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={!value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={!value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
         }
         return button;
     }
@@ -445,8 +445,8 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={!1001} key={"view:eventReview"}>Event Review</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={!1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
