@@ -253,10 +253,12 @@ class FragspectList extends GenericList {
             if (added > 1000) {
                 if (added == 1001) {
                     this.setState(prevState => ({view: "Event Review"}))
-                    this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != 1002)}))
+                    var remove = 1002;
+                    this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != remove)}))
                 } else if (added == 1002) {
                     this.setState(prevState => ({view: "Crystal Review"}))
-                    this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != 1001)}))
+                    var remove = 1001;
+                    this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != remove)}))
                 }
                 var newButtonsDepressed = this.state.buttonsDepressed.slice();
                 newButtonsDepressed.push(added);
