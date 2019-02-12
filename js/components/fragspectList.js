@@ -31,8 +31,6 @@ class FragspectList extends GenericList {
         this.siteFilterChange = this.siteFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
-        this.generateEventReviewRows = this.generateEventReviewRows.bind(this);
-        this.generateCrystalReviewRows = this.generateCrystalReviewRows.bind(this);
         this.state = {
             view: "Event Review",
             crystalList: [],
@@ -335,33 +333,17 @@ class FragspectList extends GenericList {
 
     generateRows() {
         if (this.state.view == "Event Review") {
-            this.generateEventReviewRows()
+            var rows = [];
+            for (event in this.state.fragspectObjects) {
+                if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
+                    this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                    this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
+                    rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
+                                             data={this.state.fragspectObjects[event]}/>)
+                }
+            }
         }
         else {
-            this.generateCrystalReviewRows()
-        }
-    }
-
-    generateEventReviewRows() {
-        var rows = [];
-        for (event in this.state.fragspectObjects) {
-            if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
-                this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
-                this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
-                rows.push(<FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>)
-            }
-        }
-        return rows;
-    }
-
-    generateCrystalReviewRows() {
-        var rows = [];
-        for (event in this.state.fragspectObjects) {
-            if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
-                this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
-                this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
-                rows.push(<FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>)
-            }
         }
         return rows;
     }
