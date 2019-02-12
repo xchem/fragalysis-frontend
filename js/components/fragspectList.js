@@ -333,11 +333,11 @@ class FragspectList extends GenericList {
 
     buttonRender(type, value, status) {
         if (type == "Deposition") {
-            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={!value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={!value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={!value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
         }
         return button;
     }
@@ -409,7 +409,7 @@ class FragspectList extends GenericList {
                 </Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         {this.siteButtonGenerator()}
                         <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                     </ToggleButtonGroup>
@@ -417,7 +417,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 1, "Analysis Pending")}
                             {this.buttonRender("Deposition", 2, "PanDDA Model")}
                             {this.buttonRender("Deposition", 3, "In Refinement")}
@@ -425,7 +425,7 @@ class FragspectList extends GenericList {
                         </ToggleButtonGroup>
                     </Col>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 4, "CompChem Ready")}
                             {this.buttonRender("Deposition", 5, "Deposition Ready")}
                             {this.buttonRender("Deposition", 6, "Deposited")}
@@ -435,7 +435,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         {this.buttonRender("Confidence", 8, 1)}
                         {this.buttonRender("Confidence", 9, 2)}
                         {this.buttonRender("Confidence", 10, 3)}
@@ -444,9 +444,9 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
+                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={!1001} key={"view:eventReview"}>Event Review</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={!1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
