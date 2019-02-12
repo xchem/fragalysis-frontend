@@ -364,8 +364,8 @@ class FragspectList extends GenericList {
         var maxSite = 1;
         var crystalList = [];
         for (var event in this.state.fragspectObjects){
-            if (crystalList.includes(this.state.fragspectObjects.crystal) == false) {
-                crystalList.push(this.state.fragspectObjects.crystal)
+            if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
+                crystalList.push(this.state.fragspectObjects[event].crystal)
             }
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
@@ -381,7 +381,7 @@ class FragspectList extends GenericList {
     }
 
     componentDidMount() {
-        var filtersOn = [];
+        var filtersOn = [1001];
         for (var d in this.state.depositionFilter){
             filtersOn.push(this.state.depositionFilter[d])
         }
