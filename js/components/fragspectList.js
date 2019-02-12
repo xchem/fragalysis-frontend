@@ -31,8 +31,11 @@ class FragspectList extends GenericList {
         this.siteFilterChange = this.siteFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
-        this.generateTableRows = this.generateTableRows.bind(this);
+        this.generateEventReviewRows = this.generateEventReviewRows.bind(this);
+        this.generateCrystalReviewRows = this.generateCrystalReviewRows.bind(this);
         this.state = {
+            view: "Event Review",
+            crystalList: [],
             maximumSiteNumber: 0,
             confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
@@ -78,7 +81,8 @@ class FragspectList extends GenericList {
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
-                    "cell_angles": "90, 90, 120"
+                    "cell_angles": "90, 90, 120",
+                    "comments": "Fragspect is amazing."
                 },
                 {
                     "frag_id": 50,
@@ -102,7 +106,8 @@ class FragspectList extends GenericList {
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
                     "space_group": "P 1",
                     "cell_dimensions": "48, 59, 79",
-                    "cell_angles": "79, 82, 76"
+                    "cell_angles": "79, 82, 76",
+                    "comments": "This is magnificent."
                 },
                 {
                     "fragId": 51,
@@ -126,7 +131,8 @@ class FragspectList extends GenericList {
                     "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 80 ",
-                    "cell_angles": "79, 81, 75"
+                    "cell_angles": "79, 81, 75",
+                    "comments": "Fragspect rocks."
                 },
                 {
                     "fragId": 52,
@@ -150,7 +156,8 @@ class FragspectList extends GenericList {
                     "smiles":"O=C(O)c1ccc(Br)nc1",
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
-                    "cell_angles": "90, 90, 90"
+                    "cell_angles": "90, 90, 90",
+                    "comments": "Ric for president."
                 },
                 {
                     "fragId": 53,
@@ -174,7 +181,8 @@ class FragspectList extends GenericList {
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 79",
-                    "cell_angles": "79, 81, 75"
+                    "cell_angles": "79, 81, 75",
+                    "comments": "This is magnificent."
                 },
                 {
                     "fragId": 54,
@@ -198,7 +206,8 @@ class FragspectList extends GenericList {
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
-                    "cell_angles": "90, 90, 120"
+                    "cell_angles": "90, 90, 120",
+                    "comments": "This is magnificent."
                 },
                 {
                     "fragId": 55,
@@ -222,7 +231,8 @@ class FragspectList extends GenericList {
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
-                    "cell_angles": "90, 90, 90"
+                    "cell_angles": "90, 90, 90",
+                    "comments": "This is magnificent."
                 }
             ]
         };
@@ -323,7 +333,28 @@ class FragspectList extends GenericList {
         return button;
     }
 
-    generateTableRows() {
+    generateRows() {
+        if (this.state.view == "Event Review") {
+            this.generateEventReviewRows()
+        }
+        else {
+            this.generateCrystalReviewRows()
+        }
+    }
+
+    generateEventReviewRows() {
+        var rows = [];
+        for (event in this.state.fragspectObjects) {
+            if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
+                this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
+                rows.push(<FragspectView key={this.state.fragspectObjects[event].code} data={this.state.fragspectObjects[event]}/>)
+            }
+        }
+        return rows;
+    }
+
+    generateCrystalReviewRows() {
         var rows = [];
         for (event in this.state.fragspectObjects) {
             if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
@@ -337,12 +368,17 @@ class FragspectList extends GenericList {
 
     componentWillMount(){
         var maxSite = 1;
+        var crystalList = [];
         for (var event in this.state.fragspectObjects){
+            if (crystalList.includes(this.state.fragspectObjects.crystal) == false) {
+                crystalList.push(this.state.fragspectObjects.crystal)
+            }
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
             }
         }
-        this.setState(prevState => ({maximumSiteNumber: maxSite}))
+        this.setState(prevState => ({crystalList: crystalList}));
+        this.setState(prevState => ({maximumSiteNumber: maxSite}));
         var newSiteFilter = this.state.siteFilter.splice();
         for (var i = 1; i <= maxSite; i++) {
             newSiteFilter.push(i);
@@ -415,7 +451,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <p className="text-center">Event review</p>
+                    <p className="text-center">{this.state.view}</p>
                 </Col>
                 <Col xs={1} md={1}></Col>
             </Row>
@@ -431,10 +467,9 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}><h4 className="text-center">Spider</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">SPG and cell</h4></Col>
-                <Col xs={1} md={1}><h4 className="text-center">Comment</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Comments</h4></Col>
             </Row>
-            {this.generateTableRows()}
-            {/*{this.state.fragspectObjects.map((data) => <FragspectView key={data.code} data={data}/>)}*/}
+            {this.generateRows()}
         </Well>;
     }
 }

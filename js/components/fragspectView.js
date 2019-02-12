@@ -14,7 +14,6 @@ class FragspectView extends React.Component {
         this.colorToggle = this.colorToggle.bind(this);
         this.convertDeposition = this.convertDeposition.bind(this);
         this.convertConfidence = this.convertConfidence.bind(this);
-        this.buttonRender = this.buttonRender.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
@@ -24,18 +23,13 @@ class FragspectView extends React.Component {
         Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
         this.key = "mol_image"
         this.state = {
-            "hsParams": {
-                "Tepid": {"opacity": 0.2, "contour": 10},
-                "Warm": {"opacity": 0.4, "contour": 14},
-                "Hot": {"opacity": 0.6, "contour": 17},
-                "donor": {"abbreviation": "DO", "buttonStyle": "primary"},
-                "acceptor": {"abbreviation": "AC", "buttonStyle": "danger"},
-                "apolar": {"abbreviation": "AP", "buttonStyle": "warning"}
-            },
             "confidenceStatus": {
                 1: "Low",
                 2: "Medium",
-                3: "High"
+                3: "High",
+                4: "Not viewed",
+                5: "Interesting",
+                6: "Discard"
             },
             "depositionStatus": {
                 1: "Analysis Pending",
@@ -71,11 +65,6 @@ class FragspectView extends React.Component {
         return this.state.confidenceStatus[this.props.data.confidence];
     }
 
-     buttonRender(strength, type) {
-        var button = <ToggleButton bsSize="sm" bsStyle="info" onClick={this.onHotspot(strength, type)}>{strength} {type}</ToggleButton>;
-        return button;
-    }
-
     render() {
         return <Row>
             <Col xs={2} md={2}>
@@ -108,7 +97,9 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.props.data.cell_dimensions}</p>
                 <p className="text-center">{this.props.data.cell_angles}</p>
             </Col>
-            <Col xs={1} md={1}></Col>
+            <Col xs={1} md={1}>
+
+            </Col>
         </Row>
     }
 }
