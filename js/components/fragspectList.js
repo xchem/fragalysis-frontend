@@ -40,6 +40,7 @@ class FragspectList extends GenericList {
             siteFilter: [],
             buttonsDepressed: [1001],
             "confidenceStatus": {
+                0: "No Ligand placed",
                 1: "Low",
                 2: "Medium",
                 3: "High",
@@ -80,7 +81,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
                     "cell_angles": "90, 90, 120",
-                    "comments": "Fragspect is amazing."
+                    "event_comment": "Fragspect is amazing."
                 },
                 {
                     "frag_id": 50,
@@ -105,7 +106,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell_dimensions": "48, 59, 79",
                     "cell_angles": "79, 82, 76",
-                    "comments": "This is magnificent."
+                    "event_comment": "This is magnificent."
                 },
                 {
                     "fragId": 51,
@@ -130,7 +131,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 80 ",
                     "cell_angles": "79, 81, 75",
-                    "comments": "Fragspect rocks."
+                    "event_comment": "Fragspect rocks."
                 },
                 {
                     "fragId": 52,
@@ -155,7 +156,7 @@ class FragspectList extends GenericList {
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
                     "cell_angles": "90, 90, 90",
-                    "comments": "Ric for president."
+                    "event_comment": "Ric for president."
                 },
                 {
                     "fragId": 53,
@@ -180,7 +181,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 79",
                     "cell_angles": "79, 81, 75",
-                    "comments": "This is magnificent."
+                    "event_comment": "This is magnificent."
                 },
                 {
                     "fragId": 54,
@@ -205,7 +206,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
                     "cell_angles": "90, 90, 120",
-                    "comments": "This is magnificent."
+                    "event_comment": "This is magnificent."
                 },
                 {
                     "fragId": 55,
@@ -230,7 +231,7 @@ class FragspectList extends GenericList {
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
                     "cell_angles": "90, 90, 90",
-                    "comments": "This is magnificent."
+                    "event_comment": "This is magnificent."
                 }
             ]
         };
@@ -260,9 +261,7 @@ class FragspectList extends GenericList {
                     var newButtonsDepressed = this.state.buttonsDepressed.filter(butt => butt != 1001);
                     this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}))
                 }
-                // var newButtonsDepressed = this.state.buttonsDepressed.slice();
                 newButtonsDepressed.push(added);
-                newButtonsDepressed.sort();
                 this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
             } else if (added <= 7) {
                 this.depoFilterChange(added);
@@ -334,10 +333,8 @@ class FragspectList extends GenericList {
 
     buttonRender(type, value, status) {
         if (type == "Deposition") {
-            // var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value} key={"depo"+value.toString()}>{value}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
-            // var button = <ToggleButton bsSize="sm" bsStyle="info" value={value} key={"conf"+value.toString()}>{type}: {status}</ToggleButton>;
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Site") {
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
@@ -412,7 +409,7 @@ class FragspectList extends GenericList {
                 </Row>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         {this.siteButtonGenerator()}
                         <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                     </ToggleButtonGroup>
@@ -420,7 +417,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={3} md={3}>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 1, "Analysis Pending")}
                             {this.buttonRender("Deposition", 2, "PanDDA Model")}
                             {this.buttonRender("Deposition", 3, "In Refinement")}
@@ -428,7 +425,7 @@ class FragspectList extends GenericList {
                         </ToggleButtonGroup>
                     </Col>
                     <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                             {this.buttonRender("Deposition", 4, "CompChem Ready")}
                             {this.buttonRender("Deposition", 5, "Deposition Ready")}
                             {this.buttonRender("Deposition", 6, "Deposited")}
@@ -438,7 +435,7 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={2} md={2}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         {this.buttonRender("Confidence", 8, 1)}
                         {this.buttonRender("Confidence", 9, 2)}
                         {this.buttonRender("Confidence", 10, 3)}
@@ -447,12 +444,10 @@ class FragspectList extends GenericList {
                 </Col>
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                    <ToggleButtonGroup vertical block type="checkbox" value={!this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
                         <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
                     </ToggleButtonGroup>
-                    <p className="text-center">{this.state.view}</p>
-                    <p className="text-center">Butts: {this.state.buttonsDepressed.toString()}</p>
                 </Col>
                 <Col xs={1} md={1}></Col>
             </Row>
