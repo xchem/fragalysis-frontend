@@ -77,7 +77,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 1,
                     "event_status": 1,
                     "confidence": 3,
-                    "resolution": 2.1,
+                    "event_resolution": 2.1,
+                    "crystal_resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
@@ -102,7 +103,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 5,
                     "event_status": 2,
                     "confidence": 2,
-                    "resolution": 1.5,
+                    "event_resolution": 1.5,
+                    "crystal_resolution": 1.4,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
                     "space_group": "P 1",
                     "cell_dimensions": "48, 59, 79",
@@ -127,7 +129,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 3,
                     "event_status": 3,
                     "confidence": 1,
-                    "resolution": 1.4,
+                    "event_resolution": 1.4,
+                    "crystal_resolution": 1.4,
                     "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 80 ",
@@ -152,7 +155,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 2,
                     "event_status": 4,
                     "confidence": 3,
-                    "resolution": 1.8,
+                    "event_resolution": 1.8,
+                    "crystal_resolution": 1.4,
                     "smiles":"O=C(O)c1ccc(Br)nc1",
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
@@ -177,7 +181,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 4,
                     "event_status": 5,
                     "confidence": 2,
-                    "resolution": 2.2,
+                    "event_resolution": 2.2,
+                    "crystal_resolution": 2.2,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 79",
@@ -202,7 +207,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 7,
                     "event_status": 6,
                     "confidence": 3,
-                    "resolution": 1.8,
+                    "event_resolution": 1.8,
+                    "crystal_resolution": 1.8,
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
@@ -227,7 +233,8 @@ class FragspectList extends GenericList {
                     "crystal_status": 6,
                     "event_status": 7,
                     "confidence": 3,
-                    "resolution": 2.5,
+                    "event_resolution": 2.5,
+                    "crystal_resolution": 2.5,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
@@ -361,11 +368,11 @@ class FragspectList extends GenericList {
                 rows.push(
                     <Row key={"crystal"+crystal.toString()}>
                         <Col xs={2} md={2}>
-                            <h2><b>Crystal: {this.state.crystalList[crystal]}</b></h2>
+                            <h3><b>Crystal: {this.state.crystalList[crystal]}</b></h3>
                         </Col>
                         <Col xs={7} md={7}></Col>
                         <Col xs={2} md={2}>
-                            <h4><b>{this.state.crystalDict[crystal].resolution}</b></h4>
+                            <h4 className="text-center"><b>{this.state.crystalDict[crystal].resolution}</b></h4>
                         </Col>
                         <Col xs={2} md={2}></Col>
                     </Row>
@@ -391,7 +398,7 @@ class FragspectList extends GenericList {
         for (var event in this.state.fragspectObjects){
             if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
                 crystalList.push(this.state.fragspectObjects[event].crystal);
-                crystalDict.push({"name": this.state.fragspectObjects[event].crystal, "resolution": this.state.fragspectObjects[event].resolution})
+                crystalDict.push({"name": this.state.fragspectObjects[event].crystal, "resolution": this.state.fragspectObjects[event].crystal_resolution})
             }
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
