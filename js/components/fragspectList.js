@@ -345,7 +345,7 @@ class FragspectList extends GenericList {
     generateRows() {
         if (this.state.view == "Event Review") {
             var rows = [];
-            for (event in this.state.fragspectObjects) {
+            for (var event in this.state.fragspectObjects) {
                 if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
                     this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
                     this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
@@ -356,12 +356,9 @@ class FragspectList extends GenericList {
         }
         else {
             var rows = [];
-            for (crystal in this.state.crystalList) {
-                rows.push(<Row>
-                    <Col xs={2} md={2}><h4>Crystal: {crystal}</h4></Col>
-                    <Col xs={10} md={10}></Col>
-                </Row>)
-                for (event in this.state.fragspectObjects) {
+            for (var crystal in this.state.crystalList) {
+                rows.push(<Row><Col xs={2} md={2}><h4>Crystal: {crystal}</h4></Col><Col xs={10} md={10}></Col></Row>)
+                for (var event in this.state.fragspectObjects) {
                     if (this.state.fragspectObjects[event].crystal == crystal &&
                         this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
                         this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
