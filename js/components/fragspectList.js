@@ -250,7 +250,7 @@ class FragspectList extends GenericList {
                 this.siteFilterChange(removed);
             }
         } else {
-            if (added < 1000) {
+            if (added > 1000) {
                 if (added == 1001) {
                     this.setState(prevState => ({view: "Event Review"}))
                     this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != 1002)}))
