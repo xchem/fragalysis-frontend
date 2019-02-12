@@ -34,6 +34,7 @@ class FragspectList extends GenericList {
         this.state = {
             view: "Event Review",
             crystalList: [],
+            crystalDict: [],
             maximumSiteNumber: 0,
             confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
@@ -357,7 +358,18 @@ class FragspectList extends GenericList {
         else {
             var rows = [];
             for (var crystal in this.state.crystalList) {
-                rows.push(<Row key={"crystal"+crystal.toString()}><Col xs={2} md={2}><h4>Crystal: {this.state.crystalList[crystal]}</h4></Col><Col xs={10} md={10}></Col></Row>)
+                rows.push(
+                    <Row key={"crystal"+crystal.toString()}>
+                        <Col xs={2} md={2}>
+                            <h2><b>Crystal: {this.state.crystalList[crystal]}</b></h2>
+                        </Col>
+                        <Col xs={7} md={7}></Col>
+                        <Col xs={2} md={2}>
+                            <h4><b>{this.state.crystalDict[crystal].resolution}</b></h4>
+                        </Col>
+                        <Col xs={2} md={2}></Col>
+                    </Row>
+                );
                 for (var event in this.state.fragspectObjects) {
                     if (this.state.fragspectObjects[event].crystal == this.state.crystalList[crystal] &&
                         this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
@@ -375,16 +387,19 @@ class FragspectList extends GenericList {
     componentWillMount(){
         var maxSite = 1;
         var crystalList = [];
+        var crystalDict = [];
         for (var event in this.state.fragspectObjects){
             if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
-                crystalList.push(this.state.fragspectObjects[event].crystal)
+                crystalList.push(this.state.fragspectObjects[event].crystal);
+                crystalDict.push({"name": this.state.fragspectObjects[event].crystal, "resolution": this.state.fragspectObjects[event].resolution})
             }
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
             }
         }
-        crystalList.sort();
+        // crystalList.sort();
         this.setState(prevState => ({crystalList: crystalList}));
+        this.setState(prevState => ({crystalDict: crystalDict}));
         this.setState(prevState => ({maximumSiteNumber: maxSite}));
         var newSiteFilter = this.state.siteFilter.splice();
         for (var i = 1; i <= maxSite; i++) {

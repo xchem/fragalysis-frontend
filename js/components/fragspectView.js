@@ -98,7 +98,7 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.props.data.cell_angles}</p>
             </Col>
             <Col xs={1} md={1}>
-
+                <input id={this.props.data.fragId} key="sessRnm" style={{width: 250}} defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>
             </Col>
         </Row>
     }
