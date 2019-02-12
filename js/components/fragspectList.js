@@ -357,7 +357,7 @@ class FragspectList extends GenericList {
         else {
             var rows = [];
             for (var crystal in this.state.crystalList) {
-                rows.push(<Row><Col xs={2} md={2}><h4>Crystal: {crystal}</h4></Col><Col xs={10} md={10}></Col></Row>)
+                rows.push(<Row key={"crystal"+crystal.toString()}><Col xs={2} md={2}><h4>Crystal: {this.crystalList[crystal]}</h4></Col><Col xs={10} md={10}></Col></Row>)
                 for (var event in this.state.fragspectObjects) {
                     if (this.state.fragspectObjects[event].crystal == crystal &&
                         this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
