@@ -250,10 +250,18 @@ class FragspectList extends GenericList {
                 this.siteFilterChange(removed);
             }
         } else {
-            if (added == 1001) {
-                this.setState(prevState => ({view: "Event Review"}))
-            } else if (added == 1002){
-                this.setState(prevState => ({view: "Crystal Review"}))
+            if (added < 1000) {
+                if (added == 1001) {
+                    this.setState(prevState => ({view: "Event Review"}))
+                    this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != 1002)}))
+                } else if (added == 1002) {
+                    this.setState(prevState => ({view: "Crystal Review"}))
+                    this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != 1001)}))
+                }
+                var newButtonsDepressed = this.state.buttonsDepressed.slice();
+                newButtonsDepressed.push(added);
+                newButtonsDepressed.sort();
+                this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
             } else if (added <= 7) {
                 this.depoFilterChange(added);
             } else if (added <= 10) {
@@ -438,8 +446,8 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}></Col>
                 <Col xs={1} md={1}>
                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>;
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>;
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
                     </ToggleButtonGroup>
                     <p className="text-center">{this.state.view}</p>
                 </Col>
