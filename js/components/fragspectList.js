@@ -371,8 +371,8 @@ class FragspectList extends GenericList {
                             <h3><b>Crystal: {this.state.crystalList[crystal]}</b></h3>
                         </Col>
                         <Col xs={7} md={7}></Col>
-                        <Col xs={2} md={2}>
-                            <h4 className="text-center"><b>{this.state.crystalDict[crystal].resolution}</b></h4>
+                        <Col xs={1} md={1}>
+                            <h4 className="text-center"><b>{this.state.crystalDict[crystal].resolution.toString()} Å</b></h4>
                         </Col>
                         <Col xs={2} md={2}></Col>
                     </Row>
