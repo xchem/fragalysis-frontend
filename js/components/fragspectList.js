@@ -355,6 +355,22 @@ class FragspectList extends GenericList {
             }
         }
         else {
+            var rows = [];
+            for (crystal in this.state.crystalList) {
+                rows.push(<Row>
+                    <Col xs={2} md={2}><h4>Crystal: {crystal}</h4></Col>
+                    <Col xs={10} md={10}></Col>
+                </Row>)
+                for (event in this.state.fragspectObjects) {
+                    if (this.state.fragspectObjects[event].crystal == crystal &&
+                        this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
+                        this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                        this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
+                        rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
+                                                 data={this.state.fragspectObjects[event]}/>)
+                    }
+                }
+            }
         }
         return rows;
     }
@@ -370,6 +386,7 @@ class FragspectList extends GenericList {
                 maxSite = this.state.fragspectObjects[event].site_number;
             }
         }
+        crystalList.sort();
         this.setState(prevState => ({crystalList: crystalList}));
         this.setState(prevState => ({maximumSiteNumber: maxSite}));
         var newSiteFilter = this.state.siteFilter.splice();
