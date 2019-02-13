@@ -349,7 +349,7 @@ class FragspectList extends GenericList {
     }
 
     interestFilterChange(value){
-        var interestValue = value - 10;
+        var interestValue = value - 11;
         if (this.state.interestFilter.includes(interestValue)){
             this.setState(prevState => ({interestFilter: prevState.interestFilter.filter(int => int != interestValue)}))
             this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
