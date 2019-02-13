@@ -549,8 +549,8 @@ class FragspectList extends GenericList {
                         <Col xs={2} md={2}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                {this.buttonRender("Interesting", 11, 1)}
-                                {this.buttonRender("Interesting", 12, 2)}
+                                {this.buttonRender("Interesting", 11, 0)}
+                                {this.buttonRender("Interesting", 12, 1)}
                                 <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
                             </ToggleButtonGroup>
                         </Col>
