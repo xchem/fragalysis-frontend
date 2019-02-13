@@ -29,6 +29,7 @@ class FragspectList extends GenericList {
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
         this.siteFilterChange = this.siteFilterChange.bind(this);
+        this.interestFilterChange = this.interestFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
         this.state = {
@@ -36,8 +37,9 @@ class FragspectList extends GenericList {
             crystalList: [],
             crystalDict: [],
             maximumSiteNumber: 0,
-            confidenceFilter: [1,2,3],
             depositionFilter: [1,2,3,4,5,6,7],
+            confidenceFilter: [1,2,3],
+            interestFilter: [0,1],
             siteFilter: [],
             buttonsDepressed: [1001],
             "confidenceStatus": {
@@ -57,6 +59,10 @@ class FragspectList extends GenericList {
                 5: "Deposition Ready",
                 6: "Deposited",
                 7: "Analysed and Rejected"
+            },
+            "interestingStatus": {
+                0: "Not interesting",
+                1: "Interesting"
             },
             fragspectObjects: [
                 {
@@ -83,7 +89,8 @@ class FragspectList extends GenericList {
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
                     "cell_angles": "90, 90, 120",
-                    "event_comment": "Fragspect is amazing."
+                    "event_comment": "Fragspect is amazing.",
+                    "interesting": "0"
                 },
                 {
                     "frag_id": 50,
@@ -109,7 +116,8 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell_dimensions": "48, 59, 79",
                     "cell_angles": "79, 82, 76",
-                    "event_comment": "This is magnificent."
+                    "event_comment": "This is magnificent.",
+                    "interesting": 1
                 },
                 {
                     "fragId": 51,
@@ -135,7 +143,8 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 80 ",
                     "cell_angles": "79, 81, 75",
-                    "event_comment": "Fragspect rocks."
+                    "event_comment": "Fragspect rocks.",
+                    "interesting": 1
                 },
                 {
                     "fragId": 52,
@@ -161,7 +170,8 @@ class FragspectList extends GenericList {
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
                     "cell_angles": "90, 90, 90",
-                    "event_comment": "Ric for president."
+                    "event_comment": "Ric for president.",
+                    "interesting": 1
                 },
                 {
                     "fragId": 53,
@@ -187,7 +197,8 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell_dimensions": "49, 59, 79",
                     "cell_angles": "79, 81, 75",
-                    "event_comment": "This is magnificent."
+                    "event_comment": "This is magnificent.",
+                    "interesting": 1
                 },
                 {
                     "fragId": 54,
@@ -213,7 +224,8 @@ class FragspectList extends GenericList {
                     "space_group": "P 3 2 1",
                     "cell_dimensions": "125, 125, 41",
                     "cell_angles": "90, 90, 120",
-                    "event_comment": "This is magnificent."
+                    "event_comment": "This is magnificent.",
+                    "interesting": 1
                 },
                 {
                     "fragId": 55,
@@ -239,7 +251,8 @@ class FragspectList extends GenericList {
                     "space_group": "C 1 2 1",
                     "cell_dimensions": "102, 45, 60",
                     "cell_angles": "90, 90, 90",
-                    "event_comment": "This is magnificent."
+                    "event_comment": "This is magnificent.",
+                    "interesting": 0
                 }
             ]
         };
@@ -255,6 +268,8 @@ class FragspectList extends GenericList {
                 this.depoFilterChange(removed);
             } else if (removed <= 10) {
                 this.confFilterChange(removed);
+            } else if (removed <= 12) {
+                this.interestFilterChange(removed);
             } else {
                 this.siteFilterChange(removed);
             }
@@ -275,6 +290,8 @@ class FragspectList extends GenericList {
                 this.depoFilterChange(added);
             } else if (added <= 10) {
                 this.confFilterChange(added);
+            } else if (added <= 12) {
+                this.interestFilterChange(added);
             } else {
                 this.siteFilterChange(added);
             }
@@ -315,7 +332,7 @@ class FragspectList extends GenericList {
     }
 
     siteFilterChange(value){
-        var siteValue = value - 10;
+        var siteValue = value - 12;
         if (this.state.siteFilter.includes(siteValue)){
             this.setState(prevState => ({siteFilter: prevState.siteFilter.filter(site => site != siteValue)}))
             this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
@@ -331,10 +348,27 @@ class FragspectList extends GenericList {
         }
     }
 
+    interestFilterChange(value){
+        var interestValue = value - 10;
+        if (this.state.interestFilter.includes(interestValue)){
+            this.setState(prevState => ({interestFilter: prevState.interestFilter.filter(int => int != intValue)}))
+            this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
+        } else {
+            var newInterestFilter = this.state.interestFilter.slice();
+            newInterestFilter.push(interestValue);
+            newInterestFilter.sort();
+            this.setState(prevState => ({interestFilter: newInterestFilter}));
+            var newButtonsDepressed = this.state.buttonsDepressed.slice();
+            newButtonsDepressed.push(value);
+            newButtonsDepressed.sort();
+            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        }
+    }
+
     siteButtonGenerator(){
         var buttons = [];
         for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.buttonRender("Site", i+10, i));
+            buttons.push(this.buttonRender("Site", i+12, i));
         }
         return buttons;
     }
@@ -346,6 +380,8 @@ class FragspectList extends GenericList {
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Site") {
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
+        } else if (type == "Interesting") {
+            var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestingStatus[status]}</ToggleButton>;
         }
         return button;
     }
@@ -356,6 +392,7 @@ class FragspectList extends GenericList {
             for (var event in this.state.fragspectObjects) {
                 if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
                     this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                    this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting) &&
                     this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                     rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
                                              data={this.state.fragspectObjects[event]}/>)
@@ -385,6 +422,7 @@ class FragspectList extends GenericList {
                     if (this.state.fragspectObjects[event].crystal == this.state.crystalList[crystal] &&
                         this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
                         this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                        this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting) &&
                         this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                         rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
                                                  data={this.state.fragspectObjects[event]}/>)
@@ -431,8 +469,11 @@ class FragspectList extends GenericList {
         for (var c in this.state.confidenceFilter){
             filtersOn.push(this.state.confidenceFilter[c]+7)
         }
+        for (var f in this.interestFilter){
+            filtersOn.push(this.state.interestFilter[f]+10)
+        }
         for (var s in this.state.siteFilter){
-            filtersOn.push(this.state.siteFilter[s]+10)
+            filtersOn.push(this.state.siteFilter[s]+12)
         }
         this.setState(prevState => ({buttonsDepressed: filtersOn}))
     }
@@ -441,63 +482,71 @@ class FragspectList extends GenericList {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
                 <Row>
-                    <Col xs={1} md={1}></Col>
                     <Col xs={1} md={1}><h4 className="text-center">Site selector</h4></Col>
                     <Col xs={1} md={1}></Col>
-                    <Col xs={3} md={3}><h4 className="text-center">Status filter</h4></Col>
+                    <Col xs={4} md={4}><h4 className="text-center">Status filter</h4></Col>
                     <Col xs={1} md={1}></Col>
-                    <Col xs={2} md={2}><h4 className="text-center">Confidence filter</h4></Col>
+                    <Col xs={1} md={1}><h4 className="text-center">Confidence filter</h4></Col>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={1} md={1}><h4 className="text-center">Interesting</h4></Col>
                     <Col xs={1} md={1}></Col>
                     <Col xs={1} md={1}><h4 className="text-center">View</h4></Col>
-                    <Col xs={1} md={1}></Col>
                 </Row>
-                <Col xs={1} md={1}></Col>
-                <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        {this.siteButtonGenerator()}
-                        <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
-                    </ToggleButtonGroup>
-                </Col>
-                <Col xs={1} md={1}></Col>
-                <Col xs={3} md={3}>
-                    <Col xs={6} md={6}>
+                <Row>
+                    <Col xs={1} md={1}>
                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                            {this.buttonRender("Deposition", 1, "Analysis Pending")}
-                            {this.buttonRender("Deposition", 2, "PanDDA Model")}
-                            {this.buttonRender("Deposition", 3, "In Refinement")}
-                            <p className="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
+                            {this.siteButtonGenerator()}
+                            <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                         </ToggleButtonGroup>
                     </Col>
-                    <Col xs={6} md={6}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                            {this.buttonRender("Deposition", 4, "CompChem Ready")}
-                            {this.buttonRender("Deposition", 5, "Deposition Ready")}
-                            {this.buttonRender("Deposition", 6, "Deposited")}
-                            {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={4} md={4}>
+                        <Col xs={6} md={6}>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Deposition", 1, "Analysis Pending")}
+                                {this.buttonRender("Deposition", 2, "PanDDA Model")}
+                                {this.buttonRender("Deposition", 3, "In Refinement")}
+                                <p className="text-center">Deposition filter: {this.state.depositionFilter.toString()}</p>
                             </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={6} md={6}>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Deposition", 4, "CompChem Ready")}
+                                {this.buttonRender("Deposition", 5, "Deposition Ready")}
+                                {this.buttonRender("Deposition", 6, "Deposited")}
+                                {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
+                            </ToggleButtonGroup>
+                        </Col>
                     </Col>
-                </Col>
-                <Col xs={1} md={1}></Col>
-                <Col xs={2} md={2}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        {this.buttonRender("Confidence", 8, 1)}
-                        {this.buttonRender("Confidence", 9, 2)}
-                        {this.buttonRender("Confidence", 10, 3)}
-                        <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
-                    </ToggleButtonGroup>
-                </Col>
-                <Col xs={1} md={1}></Col>
-                <Col xs={1} md={1}>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
-                    </ToggleButtonGroup>
-                </Col>
-                <Col xs={1} md={1}></Col>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={1} md={1}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                            {this.buttonRender("Confidence", 8, 1)}
+                            {this.buttonRender("Confidence", 9, 2)}
+                            {this.buttonRender("Confidence", 10, 3)}
+                            <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                        </ToggleButtonGroup>
+                    </Col>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={1} md={1}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                            {this.buttonRender("Interesting", 11, 1)}
+                            {this.buttonRender("Interesting", 12, 2)}
+                            <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                        </ToggleButtonGroup>
+                    </Col>
+                    <Col xs={1} md={1}></Col>
+                    <Col xs={1} md={1}>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                            <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
+                            <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Col>
+                </Row>
             </Row>
             {/*<Row style={customStyles}></Row>*/}
             <Row>
-                <Col xs={2} md={2}><h4 className="text-center">Crystal ID</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Crystal ID</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Site</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Ligand ID</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Structure</h4></Col>
@@ -508,6 +557,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}><h4 className="text-center">Resolution</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">SPG and cell</h4></Col>
                 <Col xs={1} md={1}><h4 className="text-center">Comments</h4></Col>
+                <Col xs={1} md={1}><h4 className="text-center">Interesting?</h4></Col>
             </Row>
             {this.generateRows()}
         </Well>;
