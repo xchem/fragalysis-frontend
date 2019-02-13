@@ -90,7 +90,7 @@ class FragspectList extends GenericList {
                     "cell_dimensions": "125, 125, 41",
                     "cell_angles": "90, 90, 120",
                     "event_comment": "Fragspect is amazing.",
-                    "interesting": "0"
+                    "interesting": 0
                 },
                 {
                     "frag_id": 50,
@@ -551,7 +551,7 @@ class FragspectList extends GenericList {
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 {this.buttonRender("Interesting", 11, 0)}
                                 {this.buttonRender("Interesting", 12, 1)}
-                                <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                                <p className="text-center">Interest filter: {this.state.interestFilter.toString()}</p>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={2} md={2}></Col>
