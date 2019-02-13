@@ -370,7 +370,11 @@ class FragspectList extends GenericList {
                         <Col xs={2} md={2}>
                             <h3><b>Crystal: {this.state.crystalList[crystal]}</b></h3>
                         </Col>
-                        <Col xs={7} md={7}></Col>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={1} md={1}>
+                            <h4 className="text-center"><b>{this.state.crystalDict[crystal].status.toString()}. {this.state.depositionStatus[this.state.crystalDict[crystal].status]}</b></h4>
+                        </Col>
+                        <Col xs={3} md={3}></Col>
                         <Col xs={1} md={1}>
                             <h4 className="text-center"><b>{this.state.crystalDict[crystal].resolution.toString()} Å</b></h4>
                         </Col>
@@ -398,7 +402,11 @@ class FragspectList extends GenericList {
         for (var event in this.state.fragspectObjects){
             if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
                 crystalList.push(this.state.fragspectObjects[event].crystal);
-                crystalDict.push({"name": this.state.fragspectObjects[event].crystal, "resolution": this.state.fragspectObjects[event].crystal_resolution})
+                crystalDict.push({
+                    "name": this.state.fragspectObjects[event].crystal,
+                    "resolution": this.state.fragspectObjects[event].crystal_resolution,
+                    "status": this.state.fragspectObjects[event].crystal_status
+                })
             }
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
