@@ -351,7 +351,7 @@ class FragspectList extends GenericList {
     interestFilterChange(value){
         var interestValue = value - 10;
         if (this.state.interestFilter.includes(interestValue)){
-            this.setState(prevState => ({interestFilter: prevState.interestFilter.filter(int => int != intValue)}))
+            this.setState(prevState => ({interestFilter: prevState.interestFilter.filter(int => int != interestValue)}))
             this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(dep => dep != value)}))
         } else {
             var newInterestFilter = this.state.interestFilter.slice();
@@ -482,24 +482,39 @@ class FragspectList extends GenericList {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
                 <Row>
-                    <Col xs={1} md={1}><h4 className="text-center">Site selector</h4></Col>
-                    <Col xs={1} md={1}></Col>
+                    <Col xs={2} md={2}>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={6} md={6}><h4 className="text-center">Site selector</h4></Col>
+                        <Col xs={3} md={3}></Col>
+                    </Col>
                     <Col xs={4} md={4}><h4 className="text-center">Status filter</h4></Col>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={1} md={1}><h4 className="text-center">Confidence filter</h4></Col>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={1} md={1}><h4 className="text-center">Interesting</h4></Col>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={1} md={1}><h4 className="text-center">View</h4></Col>
+                    <Col xs={2} md={2}>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={8} md={8}><h4 className="text-center">Confidence filter</h4></Col>
+                        <Col xs={1} md={1}></Col>
+                    </Col>
+                    <Col xs={2} md={2}>
+                        <Col xs={2} md={2}></Col>
+                        <Col xs={8} md={8}><h4 className="text-center">Interesting</h4></Col>
+                        <Col xs={2} md={2}></Col>
+                    </Col>
+                    <Col xs={2} md={2}>
+                        <Col xs={1} md={1}></Col>
+                        <Col xs={8} md={8}><h4 className="text-center">View</h4></Col>
+                        <Col xs={3} md={3}></Col>
+                    </Col>
                 </Row>
                 <Row>
-                    <Col xs={1} md={1}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                            {this.siteButtonGenerator()}
-                            <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
-                        </ToggleButtonGroup>
+                    <Col xs={2} md={2}>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={6} md={6}>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.siteButtonGenerator()}
+                                <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={3} md={3}></Col>
                     </Col>
-                    <Col xs={1} md={1}></Col>
                     <Col xs={4} md={4}>
                         <Col xs={6} md={6}>
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
@@ -518,29 +533,38 @@ class FragspectList extends GenericList {
                             </ToggleButtonGroup>
                         </Col>
                     </Col>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={1} md={1}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                            {this.buttonRender("Confidence", 8, 1)}
-                            {this.buttonRender("Confidence", 9, 2)}
-                            {this.buttonRender("Confidence", 10, 3)}
-                            <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
-                        </ToggleButtonGroup>
+                    <Col xs={2} md={2}>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={8} md={8}>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Confidence", 8, 1)}
+                                {this.buttonRender("Confidence", 9, 2)}
+                                {this.buttonRender("Confidence", 10, 3)}
+                                <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={1} md={1}></Col>
                     </Col>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={1} md={1}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                            {this.buttonRender("Interesting", 11, 1)}
-                            {this.buttonRender("Interesting", 12, 2)}
-                            <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
-                        </ToggleButtonGroup>
+                    <Col xs={2} md={2}>
+                        <Col xs={2} md={2}></Col>
+                        <Col xs={8} md={8}>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Interesting", 11, 1)}
+                                {this.buttonRender("Interesting", 12, 2)}
+                                <p className="text-center">Confidence filter: {this.state.confidenceFilter.toString()}</p>
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={2} md={2}></Col>
                     </Col>
-                    <Col xs={1} md={1}></Col>
-                    <Col xs={1} md={1}>
-                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                            <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
-                            <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
-                        </ToggleButtonGroup>
+                    <Col xs={2} md={2}>
+                        <Col xs={1} md={1}></Col>
+                        <Col xs={8} md={8}>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={3} md={3}></Col>
                     </Col>
                 </Row>
             </Row>
