@@ -265,7 +265,7 @@ class FragspectList extends GenericList {
                     var newButtonsDepressed = this.state.buttonsDepressed.filter(butt => butt != 1002);
                     this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}))
                 } else if (added == 1002) {
-                    this.setState(prevState => ({view: "Crystal Review"}))
+                    this.setState(prevState => ({view: "Deposition Review"}))
                     var newButtonsDepressed = this.state.buttonsDepressed.filter(butt => butt != 1001);
                     this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}))
                 }
@@ -482,7 +482,7 @@ class FragspectList extends GenericList {
                 <Col xs={1} md={1}>
                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                         <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:crystalReview"}>Crystal Review</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
                     </ToggleButtonGroup>
                 </Col>
                 <Col xs={1} md={1}></Col>
