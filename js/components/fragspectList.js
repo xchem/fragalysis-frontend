@@ -551,7 +551,9 @@ class FragspectList extends GenericList {
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 {this.buttonRender("Interesting", 11, 0)}
                                 {this.buttonRender("Interesting", 12, 1)}
-                                <p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestingStatus[key])}</p>
+                                {/*<p className="text-center">Interest filter: {this.state.interestFilter.toString()}</p>*/}
+                                {/*<p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestingStatus[key])}</p>*/}
+                                <p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestingStatus[key].toString())}</p>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={2} md={2}></Col>
