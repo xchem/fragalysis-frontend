@@ -27,6 +27,7 @@ class FragspectList extends GenericList {
         this.list_type = listType.MOLECULE;
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.showAll = this.showAll.bind(this);
+        this.showSome = this.showSome.bind(this);
         this.hideAll = this.hideAll.bind(this);
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
@@ -38,7 +39,6 @@ class FragspectList extends GenericList {
             view: "Event Review",
             crystalList: [],
             crystalDict: [],
-            siteList: [],
             maximumSiteNumber: 0,
             buttonList: [],
             depositionFilter: [1,2,3,4,5,6,7],
@@ -55,6 +55,7 @@ class FragspectList extends GenericList {
                 // 5: "Interesting",
                 // 6: "Discard"
                 },
+            "siteList": {},
             "depositionStatus": {
                 1: "Analysis Pending",
                 2: "PanDDA Model",
@@ -283,6 +284,7 @@ class FragspectList extends GenericList {
                 else if (added == 1012){this.hideAll("siteList", 12)}
                 else if (added == 1021){this.showAll("depositionStatus", 0)}
                 else if (added == 1022){this.hideAll("depositionStatus", 0)}
+                else if (added == 1023){this.showSome("deposition", [4,5,6], [1,2,3,7])}
                 else if (added == 1031){this.showAll("confidenceStatus", 7)}
                 else if (added == 1032){this.hideAll("confidenceStatus", 7)}
                 else if (added == 1041){this.showAll("interestStatus", 10)}
@@ -332,7 +334,7 @@ class FragspectList extends GenericList {
         console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
         for (var item in itemList) {
-            var buttonNumber = item + offset;
+            var buttonNumber = parseInt(item) + offset;
             if (newButtonsDepressed.includes(buttonNumber) == false) {
                 newButtonsDepressed.push(buttonNumber)
             }
@@ -341,7 +343,27 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
-    hideAll(type){
+    showSome(type, selectOn, selectOff){
+        if (type == "depositionStatus") {
+            var itemList = this.state.depositionStatus;
+            var offset = 0;
+            var filter = this.state.depositionFilter;
+        }
+        var newButtonsDepressed = this.state.buttonsDepressed.slice();
+        for (var on in selectOn) {
+            var buttonNumber = parseInt(on) + offset;
+            if (newButtonsDepressed.includes(buttonNumber) == false) {
+                newButtonsDepressed.push(buttonNumber)
+            }
+        }
+        for (var off in selectOff) {
+            var buttonNumber = parseInt(off) + offset;
+            var newButtonsDepressed = newbuttonsDepressed.filter(butt => butt != buttonNumber);
+        }
+        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+    }
+
+    hideAll(type, offset){
         if (type == "depositionStatus"){
             var itemList = this.state.depositionStatus;
             // var offset = 0;
@@ -507,10 +529,11 @@ class FragspectList extends GenericList {
     }
 
     componentWillMount(){
-        var siteList =[];
+        var siteList = {};
         var maxSite = 1;
         var crystalList = [];
         var crystalDict = [];
+        var siteNumber;
         var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
         for (var event in this.state.fragspectObjects){
             if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
@@ -521,7 +544,8 @@ class FragspectList extends GenericList {
                     "status": this.state.fragspectObjects[event].crystal_status
                 })
             }
-            siteList.push(this.state.fragspectObjects[event].site_number);
+            siteNumber = this.state.fragspectObjects[event].site_number
+            siteList.assign({siteNumber: "Site"});
             buttonList.push(this.state.fragspectObjects[event].site_number + 12)
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
@@ -561,8 +585,8 @@ class FragspectList extends GenericList {
                 <Row>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
-                        <Col xs={6} md={6}><h4 className="text-center">Site selector</h4></Col>
-                        <Col xs={3} md={3}></Col>
+                        <Col xs={8} md={8}><h4 className="text-center">Site selector</h4></Col>
+                        <Col xs={1} md={1}></Col>
                     </Col>
                     <Col xs={4} md={4}><h4 className="text-center">Status filter</h4></Col>
                     <Col xs={2} md={2}>
@@ -584,21 +608,21 @@ class FragspectList extends GenericList {
                 <Row>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
-                        <Col xs={6} md={6}>
+                        <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1011}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1012}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="primary" value={1011}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="secondary" value={1012}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
-                        <Col xs={3} md={3}></Col>
+                        <Col xs={1} md={1}></Col>
                     </Col>
                     <Col xs={4} md={4}>
                         <Col xs={1} md={1}></Col>
                         <Col xs={4} md={10}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1021}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1023}>Show CC+</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1022}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="success" value={1021}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="outline-warning" value={1023}>Show CC+</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="outline-danger" value={1022}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -607,8 +631,8 @@ class FragspectList extends GenericList {
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1031}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1032}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="info" value={1031}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="light" value={1032}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -617,8 +641,8 @@ class FragspectList extends GenericList {
                         <Col xs={2} md={2}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1041}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="warning" value={1042}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="dark" value={1041}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="link" value={1042}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={2} md={2}></Col>
@@ -628,13 +652,13 @@ class FragspectList extends GenericList {
                 <Row>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
-                        <Col xs={6} md={6}>
+                        <Col xs={8} md={8}>
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 {this.siteButtonGenerator()}
                                 <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
                             </ToggleButtonGroup>
                         </Col>
-                        <Col xs={3} md={3}></Col>
+                        <Col xs={1} md={1}></Col>
                     </Col>
                     <Col xs={4} md={4}>
                         <Col xs={6} md={6}>
