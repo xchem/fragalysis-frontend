@@ -280,15 +280,15 @@ class FragspectList extends GenericList {
             }
         } else {
             if (added >1010) {
-                if (added == 1011){this.showAll("site", 12)}
-                else if (added == 1012){this.hideAll("site", 12)}
-                else if (added == 1021){this.showAll("deposition", 0)}
-                else if (added == 1022){this.hideAll("deposition", 0)}
-                else if (added == 1023){this.showSome("deposition", {4: "CCR", 5: "DR", 6: "D"}, {1: "AP", 2: "PM", 3: "IR", 7: "AnR"}, 0)}
-                else if (added == 1031){this.showAll("confidence", 7)}
-                else if (added == 1032){this.hideAll("confidence", 7)}
-                else if (added == 1041){this.showAll("interest", 11)}
-                else if (added == 1042){this.hideAll("interest", 11)}
+                if (added == 1011){this.showAll("site", 12, added)}
+                else if (added == 1012){this.hideAll("site", 12, added)}
+                else if (added == 1021){this.showAll("deposition", 0, added)}
+                else if (added == 1022){this.hideAll("deposition", 0, added)}
+                else if (added == 1023){this.showSome("deposition", {4: "CCR", 5: "DR", 6: "D"}, {1: "AP", 2: "PM", 3: "IR", 7: "AnR"}, 0, added)}
+                else if (added == 1031){this.showAll("confidence", 7, added)}
+                else if (added == 1032){this.hideAll("confidence", 7, added)}
+                else if (added == 1041){this.showAll("interest", 11, added)}
+                else if (added == 1042){this.hideAll("interest", 11, added)}
             } else if (added > 1000) {
                 if (added == 1001) {
                     this.setState(prevState => ({view: "Event Review"}));
@@ -313,36 +313,44 @@ class FragspectList extends GenericList {
         }
     }
 
-    showAll(type, offset){
+    showAll(type, offset, trigger){
         if (type == "deposition"){
             var itemList = this.state.depositionStatus;
             // var offset = 0;
-            var filter = this.state.depositionFilter;
+            var filter = this.state.depositionFilter.slice();
         } else if (type == "confidence"){
             var itemList = this.state.confidenceStatus;
             // var offset = 7;
-            var filter = this.state.confidenceFilter;
+            var filter = this.state.confidenceFilter.slice();
         } else if (type == "interest"){
             var itemList = this.state.interestStatus;
             // var offset = 11;
-            var filter = this.state.interestFilter;
+            var filter = this.state.interestFilter.slice();
         }  else if (type == "site") {
             var itemList = this.state.siteList;
-            var filter = this.state.interestFilter;
+            var filter = this.state.interestFilter.slice();
         }
         console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
         for (var item in itemList) {
             var buttonNumber = parseInt(item) + offset;
+            if (filter.includes(item) == false) {
+                filter.push(item);
+            }
             if (newButtonsDepressed.includes(buttonNumber) == false) {
                 newButtonsDepressed.push(buttonNumber)
             }
+            newButtonsDepressed.push(trigger);
             console.log(item, buttonNumber);
         }
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        if (type == "site"){this.setState(prevState => ({siteFilter: filter}))}
+        else if (type == "deposition"){this.setState(prevState => ({depositionFilter: filter}))}
+        else if (type == "confidence"){this.setState(prevState => ({confidenceFilter: filter}))}
+        else if (type == "interest"){this.setState(prevState => ({interestFilter: filter}))};
     }
 
-    showSome(type, selectOn, selectOff, offset){
+    showSome(type, selectOn, selectOff, offset, trigger){
         if (type == "deposition") {
             var filter = this.state.depositionFilter;
         }
@@ -362,7 +370,7 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
-    hideAll(type, offset){
+    hideAll(type, offset, trigger){
         if (type == "deposition"){
             var itemList = this.state.depositionStatus;
             var filter = this.state.depositionFilter;
