@@ -608,8 +608,8 @@ class FragspectList extends GenericList {
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="primary" value={1011}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="secondary" value={1012}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="success" value={1011}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="success" value={1012}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -618,9 +618,9 @@ class FragspectList extends GenericList {
                         <Col xs={1} md={1}></Col>
                         <Col xs={4} md={10}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="success" value={1021}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="outline-warning" value={1023}>Show CC+</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="outline-danger" value={1022}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="warning" value={1021}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="warning" value={1023}>Show CC+</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="danger" value={1022}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -630,7 +630,7 @@ class FragspectList extends GenericList {
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={1031}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="light" value={1032}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="default" value={1032}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -639,7 +639,7 @@ class FragspectList extends GenericList {
                         <Col xs={2} md={2}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="dark" value={1041}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="primary" value={1041}>Show all</ToggleButton>
                                 <ToggleButton bsSize="sm" bsStyle="link" value={1042}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
