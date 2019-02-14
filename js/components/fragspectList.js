@@ -26,6 +26,8 @@ class FragspectList extends GenericList {
         super(props);
         this.list_type = listType.MOLECULE;
         this.handleFilterChange = this.handleFilterChange.bind(this);
+        this.showAll = this.showAll.bind(this);
+        this.hideAll = this.hideAll.bind(this);
         this.confFilterChange = this.confFilterChange.bind(this);
         this.depoFilterChange = this.depoFilterChange.bind(this);
         this.siteFilterChange = this.siteFilterChange.bind(this);
@@ -36,20 +38,22 @@ class FragspectList extends GenericList {
             view: "Event Review",
             crystalList: [],
             crystalDict: [],
+            siteList: [],
             maximumSiteNumber: 0,
+            buttonList: [],
             depositionFilter: [1,2,3,4,5,6,7],
             confidenceFilter: [1,2,3],
             interestFilter: [0,1],
             siteFilter: [],
-            buttonsDepressed: [1001],
+            buttonsDepressed: [1001, 1011, 1021, 1031, 1041],
             "confidenceStatus": {
-                0: "No Ligand placed",
+                // 0: "No Ligand placed",
                 1: "Low",
                 2: "Medium",
                 3: "High",
-                4: "Not viewed",
-                5: "Interesting",
-                6: "Discard"
+                // 4: "Not viewed",
+                // 5: "Interesting",
+                // 6: "Discard"
                 },
             "depositionStatus": {
                 1: "Analysis Pending",
@@ -60,7 +64,7 @@ class FragspectList extends GenericList {
                 6: "Deposited",
                 7: "Analysed and Rejected"
             },
-            "interestingStatus": {
+            "interestStatus": {
                 0: "Not interesting",
                 1: "Interesting"
             },
@@ -95,7 +99,7 @@ class FragspectList extends GenericList {
                 {
                     "frag_id": 50,
                     "crystal": "NUDT7A-x2415",
-                    "site_number": 5,
+                    "site_number": 6,
                     "event_number": 1,
                     "code": "NUDT7A-x1232_1",
                     "lig_id": "LIG-D1",
@@ -176,7 +180,7 @@ class FragspectList extends GenericList {
                 {
                     "fragId": 53,
                     "crystal": "NUDT7A-x1647",
-                    "site_number": 4,
+                    "site_number": 3,
                     "event_number": 1,
                     "code": "NUDT7A-x1647_1",
                     "lig_id": "LIG-D1",
@@ -274,15 +278,24 @@ class FragspectList extends GenericList {
                 this.siteFilterChange(removed);
             }
         } else {
-            if (added > 1000) {
+            if (added >1010) {
+                if (added == 1011){this.showAll("siteList", 12)}
+                else if (added == 1012){this.hideAll("siteList", 12)}
+                else if (added == 1021){this.showAll("depositionStatus", 0)}
+                else if (added == 1022){this.hideAll("depositionStatus", 0)}
+                else if (added == 1031){this.showAll("confidenceStatus", 7)}
+                else if (added == 1032){this.hideAll("confidenceStatus", 7)}
+                else if (added == 1041){this.showAll("interestStatus", 10)}
+                else if (added == 1042){this.hideAll("interestStatus", 10)}
+            } else if (added > 1000) {
                 if (added == 1001) {
-                    this.setState(prevState => ({view: "Event Review"}))
+                    this.setState(prevState => ({view: "Event Review"}));
                     var newButtonsDepressed = this.state.buttonsDepressed.filter(butt => butt != 1002);
-                    this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}))
+                    this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
                 } else if (added == 1002) {
-                    this.setState(prevState => ({view: "Deposition Review"}))
+                    this.setState(prevState => ({view: "Deposition Review"}));
                     var newButtonsDepressed = this.state.buttonsDepressed.filter(butt => butt != 1001);
-                    this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}))
+                    this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
                 }
                 newButtonsDepressed.push(added);
                 this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
@@ -296,6 +309,66 @@ class FragspectList extends GenericList {
                 this.siteFilterChange(added);
             }
         }
+    }
+
+    showAll(type, offset){
+        if (type == "depositionStatus"){
+            var itemList = this.state.depositionStatus;
+            // var offset = 0;
+            var filter = this.state.depositionFilter;
+        } else if (type == "confidenceStatus"){
+            var itemList = this.state.confidenceStatus;
+            // var offset = 7;
+            var filter = this.state.confidenceFilter;
+        } else if (type == "interestStatus"){
+            var itemList = this.state.interestStatus;
+            // var offset = 10;
+            var filter = this.state.interestFilter;
+        }  else if (type == "siteList") {
+            var itemList = this.state.siteList;
+            // var offset = 12;
+            var filter = this.state.interestFilter;
+        }
+        console.log(type);
+        var newButtonsDepressed = this.state.buttonsDepressed.slice();
+        for (var item in itemList) {
+            var buttonNumber = item + offset;
+            if (newButtonsDepressed.includes(buttonNumber) == false) {
+                newButtonsDepressed.push(buttonNumber)
+            }
+            console.log(item, buttonNumber);
+        }
+        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+    }
+
+    hideAll(type){
+        if (type == "depositionStatus"){
+            var itemList = this.state.depositionStatus;
+            // var offset = 0;
+            var filter = this.state.depositionFilter;
+        } else if (type == "confidenceStatus"){
+            var itemList = this.state.confidenceStatus;
+            // var offset = 7;
+            var filter = this.state.confidenceFilter;
+        } else if (type == "interestStatus"){
+            var itemList = this.state.interestStatus;
+            // var offset = 10;
+            var filter = this.state.interestFilter;
+        }  else if (type == "siteList") {
+            var itemList = this.state.siteList;
+            // var offset = 12;
+            var filter = this.state.interestFilter;
+        }
+        console.log(type);
+        var newButtonsDepressed = this.state.buttonsDepressed.slice();
+        for (var item in itemList) {
+            var buttonNumber = item + offset;
+            if (newButtonsDepressed.includes(buttonNumber)) {
+                var newButtonsDepressed = newButtonsDepressed.filter(butt => butt != buttonNumber);
+            }
+            console.log(item, buttonNumber);
+        }
+        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     confFilterChange(value){
@@ -381,7 +454,7 @@ class FragspectList extends GenericList {
         } else if (type == "Site") {
             var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
         } else if (type == "Interesting") {
-            var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestingStatus[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestStatus[status]}</ToggleButton>;
         }
         return button;
     }
@@ -434,9 +507,11 @@ class FragspectList extends GenericList {
     }
 
     componentWillMount(){
+        var siteList =[];
         var maxSite = 1;
         var crystalList = [];
         var crystalDict = [];
+        var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
         for (var event in this.state.fragspectObjects){
             if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
                 crystalList.push(this.state.fragspectObjects[event].crystal);
@@ -446,6 +521,8 @@ class FragspectList extends GenericList {
                     "status": this.state.fragspectObjects[event].crystal_status
                 })
             }
+            siteList.push(this.state.fragspectObjects[event].site_number);
+            buttonList.push(this.state.fragspectObjects[event].site_number + 12)
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
             }
@@ -458,24 +535,24 @@ class FragspectList extends GenericList {
         for (var i = 1; i <= maxSite; i++) {
             newSiteFilter.push(i);
         }
-        this.setState(prevState => ({siteFilter: newSiteFilter}))
+        this.setState(prevState => ({siteFilter: newSiteFilter}));
     }
 
     componentDidMount() {
         var filtersOn = [1001];
         for (var d in this.state.depositionFilter){
-            filtersOn.push(this.state.depositionFilter[d])
+            filtersOn.push(this.state.depositionFilter[d]);
         }
         for (var c in this.state.confidenceFilter){
-            filtersOn.push(this.state.confidenceFilter[c]+7)
+            filtersOn.push(this.state.confidenceFilter[c]+7);
         }
         for (var f in this.interestFilter){
-            filtersOn.push(this.state.interestFilter[f]+10)
+            filtersOn.push(this.state.interestFilter[f]+10);
         }
         for (var s in this.state.siteFilter){
-            filtersOn.push(this.state.siteFilter[s]+12)
+            filtersOn.push(this.state.siteFilter[s]+12);
         }
-        this.setState(prevState => ({buttonsDepressed: filtersOn}))
+        this.setState(prevState => ({buttonsDepressed: filtersOn}));
     }
 
     render() {
@@ -503,6 +580,50 @@ class FragspectList extends GenericList {
                         <Col xs={8} md={8}><h4 className="text-center">View</h4></Col>
                         <Col xs={3} md={3}></Col>
                     </Col>
+                </Row>
+                <Row>
+                    <Col xs={2} md={2}>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={6} md={6}>
+                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Site", 1011, 1001)}
+                                {this.buttonRender("Site", 1012, 1000)}
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={3} md={3}></Col>
+                    </Col>
+                    <Col xs={4} md={4}>
+                        <Col xs={1} md={1}></Col>
+                        <Col xs={4} md={10}>
+                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Deposition", 1021, 1001)}
+                                {this.buttonRender("Deposition", 1022, 1000)}
+                                {this.buttonRender("Deposition", 1023, 1002)}
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={1} md={1}></Col>
+                    </Col>
+                    <Col xs={2} md={2}>
+                        <Col xs={3} md={3}></Col>
+                        <Col xs={8} md={8}>
+                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Confidence", 1031, 1001)}
+                                {this.buttonRender("Confidence", 1032, 1000)}
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={1} md={1}></Col>
+                    </Col>
+                    <Col xs={2} md={2}>
+                        <Col xs={2} md={2}></Col>
+                        <Col xs={8} md={8}>
+                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.buttonRender("Interesting", 1041, 1001)}
+                                {this.buttonRender("Interesting", 1042, 1000)}
+                            </ToggleButtonGroup>
+                        </Col>
+                        <Col xs={2} md={2}></Col>
+                    </Col>
+                    <Col xs={2} md={2}></Col>
                 </Row>
                 <Row>
                     <Col xs={2} md={2}>
@@ -551,9 +672,8 @@ class FragspectList extends GenericList {
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 {this.buttonRender("Interesting", 11, 0)}
                                 {this.buttonRender("Interesting", 12, 1)}
-                                {/*<p className="text-center">Interest filter: {this.state.interestFilter.toString()}</p>*/}
-                                {/*<p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestingStatus[key])}</p>*/}
-                                <p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestingStatus[key].toString())}</p>
+                                <p className="text-center">Interest filter: {this.state.interestFilter.toString()}</p>
+                                {/*<p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestStatus[key])}</p>*/}
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={2} md={2}></Col>
