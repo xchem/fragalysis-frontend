@@ -533,7 +533,6 @@ class FragspectList extends GenericList {
         var maxSite = 1;
         var crystalList = [];
         var crystalDict = [];
-        var siteNumber;
         var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
         for (var event in this.state.fragspectObjects){
             if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
@@ -544,8 +543,7 @@ class FragspectList extends GenericList {
                     "status": this.state.fragspectObjects[event].crystal_status
                 })
             }
-            siteNumber = this.state.fragspectObjects[event].site_number
-            siteList.assign({siteNumber: "Site"});
+            siteList[this.state.fragspectObjects[event].site_number] = "Site" + this.state.fragspectObjects[event].site_number.toString();
             buttonList.push(this.state.fragspectObjects[event].site_number + 12)
             if (this.state.fragspectObjects[event].site_number > maxSite) {
                 maxSite = this.state.fragspectObjects[event].site_number;
