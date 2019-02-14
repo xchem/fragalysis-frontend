@@ -284,7 +284,7 @@ class FragspectList extends GenericList {
                 else if (added == 1012){this.hideAll("site", 12)}
                 else if (added == 1021){this.showAll("deposition", 0)}
                 else if (added == 1022){this.hideAll("deposition", 0)}
-                else if (added == 1023){this.showSome("deposition", [4,5,6], [1,2,3,7], 0)}
+                else if (added == 1023){this.showSome("deposition", {4: "CCR", 5: "DR", 6: "D"}, {1: "AP", 2: "PM", 3: "IR", 7: "AnR"}, 0)}
                 else if (added == 1031){this.showAll("confidence", 7)}
                 else if (added == 1032){this.hideAll("confidence", 7)}
                 else if (added == 1041){this.showAll("interest", 11)}
@@ -379,7 +379,7 @@ class FragspectList extends GenericList {
         console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
         for (var item in itemList) {
-            var buttonNumber = item + offset;
+            var buttonNumber = parseInt(item) + offset;
             if (newButtonsDepressed.includes(buttonNumber)) {
                 newButtonsDepressed.filter(butt => butt != buttonNumber);
             }
