@@ -469,12 +469,12 @@ class FragspectList extends GenericList {
     }
 
     buttonRender(type, value, status) {
-        if (type == "Deposition") {
+        if (type == "Site") {
+            var button = <ToggleButton bsSize="sm" bsStyle="primary" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
+        } else if (type == "Deposition") {
             var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
-        } else if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="danger" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
         } else if (type == "Interesting") {
             var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestStatus[status]}</ToggleButton>;
         }
@@ -608,8 +608,8 @@ class FragspectList extends GenericList {
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="success" value={1011}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="success" value={1012}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="primary" value={1011}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="primary" value={1012}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -620,7 +620,7 @@ class FragspectList extends GenericList {
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 <ToggleButton bsSize="sm" bsStyle="warning" value={1021}>Show all</ToggleButton>
                                 <ToggleButton bsSize="sm" bsStyle="warning" value={1023}>Show CC+</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="danger" value={1022}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="warning" value={1022}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -630,7 +630,7 @@ class FragspectList extends GenericList {
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                 <ToggleButton bsSize="sm" bsStyle="info" value={1031}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="default" value={1032}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="info" value={1032}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
@@ -639,8 +639,8 @@ class FragspectList extends GenericList {
                         <Col xs={2} md={2}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="primary" value={1041}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="link" value={1042}>Hide all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="success" value={1041}>Show all</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="success" value={1042}>Hide all</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={2} md={2}></Col>
