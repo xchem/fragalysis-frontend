@@ -280,15 +280,15 @@ class FragspectList extends GenericList {
             }
         } else {
             if (added >1010) {
-                if (added == 1011){this.showAll("siteList", 12)}
-                else if (added == 1012){this.hideAll("siteList", 12)}
-                else if (added == 1021){this.showAll("depositionStatus", 0)}
-                else if (added == 1022){this.hideAll("depositionStatus", 0)}
-                else if (added == 1023){this.showSome("deposition", [4,5,6], [1,2,3,7])}
-                else if (added == 1031){this.showAll("confidenceStatus", 7)}
-                else if (added == 1032){this.hideAll("confidenceStatus", 7)}
-                else if (added == 1041){this.showAll("interestStatus", 10)}
-                else if (added == 1042){this.hideAll("interestStatus", 10)}
+                if (added == 1011){this.showAll("site", 12)}
+                else if (added == 1012){this.hideAll("site", 12)}
+                else if (added == 1021){this.showAll("deposition", 0)}
+                else if (added == 1022){this.hideAll("deposition", 0)}
+                else if (added == 1023){this.showSome("deposition", [4,5,6], [1,2,3,7], 0)}
+                else if (added == 1031){this.showAll("confidence", 7)}
+                else if (added == 1032){this.hideAll("confidence", 7)}
+                else if (added == 1041){this.showAll("interest", 11)}
+                else if (added == 1042){this.hideAll("interest", 11)}
             } else if (added > 1000) {
                 if (added == 1001) {
                     this.setState(prevState => ({view: "Event Review"}));
@@ -314,21 +314,20 @@ class FragspectList extends GenericList {
     }
 
     showAll(type, offset){
-        if (type == "depositionStatus"){
+        if (type == "deposition"){
             var itemList = this.state.depositionStatus;
             // var offset = 0;
             var filter = this.state.depositionFilter;
-        } else if (type == "confidenceStatus"){
+        } else if (type == "confidence"){
             var itemList = this.state.confidenceStatus;
             // var offset = 7;
             var filter = this.state.confidenceFilter;
-        } else if (type == "interestStatus"){
+        } else if (type == "interest"){
             var itemList = this.state.interestStatus;
-            // var offset = 10;
+            // var offset = 11;
             var filter = this.state.interestFilter;
-        }  else if (type == "siteList") {
+        }  else if (type == "site") {
             var itemList = this.state.siteList;
-            // var offset = 12;
             var filter = this.state.interestFilter;
         }
         console.log(type);
@@ -343,10 +342,8 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
-    showSome(type, selectOn, selectOff){
-        if (type == "depositionStatus") {
-            var itemList = this.state.depositionStatus;
-            var offset = 0;
+    showSome(type, selectOn, selectOff, offset){
+        if (type == "deposition") {
             var filter = this.state.depositionFilter;
         }
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
@@ -358,27 +355,25 @@ class FragspectList extends GenericList {
         }
         for (var off in selectOff) {
             var buttonNumber = parseInt(off) + offset;
-            var newButtonsDepressed = newbuttonsDepressed.filter(butt => butt != buttonNumber);
+            if (newButtonsDepressed.includes(buttonNumber)) {
+                newButtonsDepressed.filter(butt => butt != buttonNumber);
+            }
         }
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     hideAll(type, offset){
-        if (type == "depositionStatus"){
+        if (type == "deposition"){
             var itemList = this.state.depositionStatus;
-            // var offset = 0;
             var filter = this.state.depositionFilter;
-        } else if (type == "confidenceStatus"){
+        } else if (type == "confidence"){
             var itemList = this.state.confidenceStatus;
-            // var offset = 7;
             var filter = this.state.confidenceFilter;
-        } else if (type == "interestStatus"){
+        } else if (type == "interest"){
             var itemList = this.state.interestStatus;
-            // var offset = 10;
             var filter = this.state.interestFilter;
-        }  else if (type == "siteList") {
+        }  else if (type == "site") {
             var itemList = this.state.siteList;
-            // var offset = 12;
             var filter = this.state.interestFilter;
         }
         console.log(type);
@@ -386,7 +381,7 @@ class FragspectList extends GenericList {
         for (var item in itemList) {
             var buttonNumber = item + offset;
             if (newButtonsDepressed.includes(buttonNumber)) {
-                var newButtonsDepressed = newButtonsDepressed.filter(butt => butt != buttonNumber);
+                newButtonsDepressed.filter(butt => butt != buttonNumber);
             }
             console.log(item, buttonNumber);
         }
@@ -704,8 +699,8 @@ class FragspectList extends GenericList {
                         <Col xs={1} md={1}></Col>
                         <Col xs={8} md={8}>
                             <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="danger" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="danger" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="dark" value={1001} key={"view:eventReview"}>Event Review</ToggleButton>
+                                <ToggleButton bsSize="sm" bsStyle="dark" value={1002} key={"view:depositionReview"}>Deposition Review</ToggleButton>
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={3} md={3}></Col>
