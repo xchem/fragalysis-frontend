@@ -46,6 +46,7 @@ class FragspectList extends GenericList {
             interestFilter: [0,1],
             siteFilter: [],
             buttonsDepressed: [1001, 1011, 1021, 1031, 1041],
+            "siteList": {},
             "confidenceStatus": {
                 // 0: "No Ligand placed",
                 1: "Low",
@@ -55,7 +56,6 @@ class FragspectList extends GenericList {
                 // 5: "Interesting",
                 // 6: "Discard"
                 },
-            "siteList": {},
             "depositionStatus": {
                 1: "Analysis Pending",
                 2: "PanDDA Model",
@@ -367,22 +367,23 @@ class FragspectList extends GenericList {
                 newButtonsDepressed.filter(butt => butt != buttonNumber);
             }
         }
+        newButtonsDepressed.push(trigger);
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     hideAll(type, offset, trigger){
         if (type == "deposition"){
             var itemList = this.state.depositionStatus;
-            var filter = this.state.depositionFilter;
+            var filter = this.state.depositionFilter.slice();
         } else if (type == "confidence"){
             var itemList = this.state.confidenceStatus;
-            var filter = this.state.confidenceFilter;
+            var filter = this.state.confidenceFilter.slice();
         } else if (type == "interest"){
             var itemList = this.state.interestStatus;
-            var filter = this.state.interestFilter;
+            var filter = this.state.interestFilter.slice();
         }  else if (type == "site") {
             var itemList = this.state.siteList;
-            var filter = this.state.interestFilter;
+            var filter = this.state.interestFilter.slice();
         }
         console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
@@ -393,6 +394,7 @@ class FragspectList extends GenericList {
             }
             console.log(item, buttonNumber);
         }
+        newButtonsDepressed.push(trigger);
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
@@ -571,7 +573,7 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({crystalList: crystalList}));
         this.setState(prevState => ({crystalDict: crystalDict}));
         this.setState(prevState => ({maximumSiteNumber: maxSite}));
-        this.setState(prevState => ({siteDict: siteDict}));
+        this.setState(prevState => ({siteList: siteDict}));
         var newSiteFilter = this.state.siteFilter.splice();
         for (var i = 1; i <= maxSite; i++) {
             newSiteFilter.push(i);
