@@ -390,7 +390,7 @@ class FragspectList extends GenericList {
                 newButtonsDepressed.splice(newButtonsDepressed.indexOf(buttonNumber), 1)
             }
             if (filter.includes(parseInt(off))) {
-                filter.splice(filter.indexOf(off), 1)
+                filter.splice(filter.indexOf(parseInt(off)), 1)
             }
         }
         newButtonsDepressed.push(trigger);
