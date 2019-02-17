@@ -46,7 +46,6 @@ class FragspectList extends GenericList {
             interestFilter: [0,1],
             siteFilter: [],
             buttonsDepressed: [1001, 1011, 1021, 1031, 1041],
-            "siteList": {},
             "confidenceStatus": {
                 // 0: "No Ligand placed",
                 1: "Low",
@@ -56,6 +55,7 @@ class FragspectList extends GenericList {
                 // 5: "Interesting",
                 // 6: "Discard"
                 },
+            "siteList": {},
             "depositionStatus": {
                 1: "Analysis Pending",
                 2: "PanDDA Model",
@@ -573,7 +573,7 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({crystalList: crystalList}));
         this.setState(prevState => ({crystalDict: crystalDict}));
         this.setState(prevState => ({maximumSiteNumber: maxSite}));
-        this.setState(prevState => ({siteList: siteDict}));
+        this.setState(prevState => ({siteDict: siteDict}));
         var newSiteFilter = this.state.siteFilter.splice();
         for (var i = 1; i <= maxSite; i++) {
             newSiteFilter.push(i);
