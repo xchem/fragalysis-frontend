@@ -360,17 +360,17 @@ class FragspectList extends GenericList {
             if (newButtonsDepressed.includes(buttonNumber) == false) {
                 newButtonsDepressed.push(buttonNumber)
             }
-            if (filter.includes(parseInt(item)) == false) {
-                filter.push(parseInt(item));
+            if (filter.includes(parseInt(on)) == false) {
+                filter.push(parseInt(on));
             }
         }
         for (var off in selectOff) {
             var buttonNumber = parseInt(off) + offset;
             if (newButtonsDepressed.includes(buttonNumber)) {
-                newButtonsDepressed.filter(butt => butt != buttonNumber);
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(buttonNumber), 1)
             }
-            if (filter.includes(parseInt(item))) {
-                filter.filter(filt => filt != parseInt(item));
+            if (filter.includes(parseInt(off))) {
+                filter.splice(filter.indexOf(off), 1)
             }
         }
         newButtonsDepressed.push(trigger);
@@ -391,7 +391,7 @@ class FragspectList extends GenericList {
             var filter = this.state.interestFilter.slice();
         }  else if (type == "site") {
             var itemList = this.state.siteList;
-            var filter = this.state.interestFilter.slice();
+            var filter = this.state.siteFilter.slice();
         }
         console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
@@ -401,7 +401,7 @@ class FragspectList extends GenericList {
                 newButtonsDepressed.filter(butt => butt != buttonNumber);
             }
             if (filter.includes(parseInt(item))) {
-                filter.filter(filt => filt != parseInt(item));
+                filter.splice(filter.indexOf(item), 1)
             }
         }
         newButtonsDepressed.push(trigger);
