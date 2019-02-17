@@ -334,8 +334,8 @@ class FragspectList extends GenericList {
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
         for (var item in itemList) {
             var buttonNumber = parseInt(item) + offset;
-            if (filter.includes(item) == false) {
-                filter.push(item);
+            if (filter.includes(parseInt(item)) == false) {
+                filter.push(parseInt(item));
             }
             if (newButtonsDepressed.includes(buttonNumber) == false) {
                 newButtonsDepressed.push(buttonNumber)
@@ -391,6 +391,9 @@ class FragspectList extends GenericList {
             var buttonNumber = parseInt(item) + offset;
             if (newButtonsDepressed.includes(buttonNumber)) {
                 newButtonsDepressed.filter(butt => butt != buttonNumber);
+            }
+            if (filter.includes(parseInt(item))) {
+                filter.filter(filt => filt != parseInt(item));
             }
             console.log(item, buttonNumber);
         }
@@ -717,7 +720,6 @@ class FragspectList extends GenericList {
                                 {this.buttonRender("Interesting", 11, 0)}
                                 {this.buttonRender("Interesting", 12, 1)}
                                 <p className="text-center">Interest filter: {this.state.interestFilter.toString()}</p>
-                                {/*<p className="text-center">Interest filter: {this.state.interestFilter.forEach(key => this.state.interestStatus[key])}</p>*/}
                             </ToggleButtonGroup>
                         </Col>
                         <Col xs={2} md={2}></Col>
