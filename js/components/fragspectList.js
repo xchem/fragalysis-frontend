@@ -400,8 +400,8 @@ class FragspectList extends GenericList {
             if (this.state.buttonsDepressed.includes(1021)) {
                 this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1021)}))
             }
-            if (this.state.buttonsDepressed.includes(1023)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1023)}))
+            if (this.state.buttonsDepressed.includes(1022)) {
+                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1022)}))
             }
             this.setState(prevState => ({depositionFilter: filter}))
         }
@@ -441,8 +441,8 @@ class FragspectList extends GenericList {
             }
             this.setState(prevState => ({siteFilter: filter}))
         } else if (type == "deposition"){
-            if (this.state.buttonsDepressed.includes(1022)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1022)}))
+            if (this.state.buttonsDepressed.includes(1023)) {
+                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1023)}))
             }
             if (this.state.buttonsDepressed.includes(1021)) {
                 this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1021)}))
