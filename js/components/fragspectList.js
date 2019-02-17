@@ -426,7 +426,7 @@ class FragspectList extends GenericList {
         for (var item in itemList) {
             var buttonNumber = parseInt(item) + offset;
             if (newButtonsDepressed.includes(buttonNumber)) {
-                newButtonsDepressed.filter(butt => butt != buttonNumber);
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(buttonNumber),1);
             }
             if (filter.includes(parseInt(item))) {
                 filter.splice(filter.indexOf(item), 1)
@@ -434,31 +434,31 @@ class FragspectList extends GenericList {
         }
         newButtonsDepressed.push(trigger);
         console.log(filter, newButtonsDepressed);
-        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         if (type == "site"){
             if (this.state.buttonsDepressed.includes(1011)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1011)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1011),1);
             }
             this.setState(prevState => ({siteFilter: filter}))
         } else if (type == "deposition"){
-            if (this.state.buttonsDepressed.includes(1023)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1023)}))
-            }
             if (this.state.buttonsDepressed.includes(1021)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1021)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1021),1);
+            }
+            if (this.state.buttonsDepressed.includes(1023)) {
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1023),1);
             }
             this.setState(prevState => ({depositionFilter: filter}))
         } else if (type == "confidence"){
             if (this.state.buttonsDepressed.includes(1031)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1031)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1031),1);
             }
             this.setState(prevState => ({confidenceFilter: filter}))
         } else if (type == "interest"){
             if (this.state.buttonsDepressed.includes(1041)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1041)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1041),1);
             }
             this.setState(prevState => ({interestFilter: filter}))
         };
+        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     confFilterChange(value){
