@@ -340,9 +340,9 @@ class FragspectList extends GenericList {
             if (newButtonsDepressed.includes(buttonNumber) == false) {
                 newButtonsDepressed.push(buttonNumber)
             }
-            newButtonsDepressed.push(trigger);
-            console.log(item, buttonNumber);
         }
+        newButtonsDepressed.push(trigger);
+        console.log(filter, newButtonsDepressed);
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         if (type == "site"){this.setState(prevState => ({siteFilter: filter}))}
         else if (type == "deposition"){this.setState(prevState => ({depositionFilter: filter}))}
@@ -360,15 +360,23 @@ class FragspectList extends GenericList {
             if (newButtonsDepressed.includes(buttonNumber) == false) {
                 newButtonsDepressed.push(buttonNumber)
             }
+            if (filter.includes(parseInt(item)) == false) {
+                filter.push(parseInt(item));
+            }
         }
         for (var off in selectOff) {
             var buttonNumber = parseInt(off) + offset;
             if (newButtonsDepressed.includes(buttonNumber)) {
                 newButtonsDepressed.filter(butt => butt != buttonNumber);
             }
+            if (filter.includes(parseInt(item))) {
+                filter.filter(filt => filt != parseInt(item));
+            }
         }
         newButtonsDepressed.push(trigger);
+        console.log(filter, newButtonsDepressed);
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        if (type == "deposition"){this.setState(prevState => ({depositionFilter: filter}))}
     }
 
     hideAll(type, offset, trigger){
@@ -395,10 +403,14 @@ class FragspectList extends GenericList {
             if (filter.includes(parseInt(item))) {
                 filter.filter(filt => filt != parseInt(item));
             }
-            console.log(item, buttonNumber);
         }
         newButtonsDepressed.push(trigger);
+        console.log(filter, newButtonsDepressed);
         this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        if (type == "site"){this.setState(prevState => ({siteFilter: filter}))}
+        else if (type == "deposition"){this.setState(prevState => ({depositionFilter: filter}))}
+        else if (type == "confidence"){this.setState(prevState => ({confidenceFilter: filter}))}
+        else if (type == "interest"){this.setState(prevState => ({interestFilter: filter}))};
     }
 
     confFilterChange(value){
