@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Row, Col} from "react-bootstrap";
 import FragspectList from "../components/fragspectList";
+import ModalFragspectEventView from "./modalFragspectEventView";
 
 class Fragspect extends Component {
 
@@ -14,6 +15,7 @@ class Fragspect extends Component {
         return (
             <Row>
                 <FragspectList height={screenHeight} style={{overflow: scroll}}/>
+                <ModalFragspectEventView/>
             </Row>
         )
     }

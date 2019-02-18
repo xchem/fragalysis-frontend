@@ -35,6 +35,7 @@ const INITIALSTATE = {
     sessionIdList: [],
     sessionTitle: undefined,
     user_id: undefined,
+    fragspectModalState: "open"
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -263,6 +264,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 pandda_event_list: action.pandda_event_list,
                 pandda_site_list: action.pandda_site_list,
                 latestSession: action.latestSession,
+            });
+
+        case actions.SET_FRAGSPECT_MODAL_STATE:
+            return Object.assign({}, state, {
+                fragspectModalState: action.fragspectModalState
             });
 
         // Cases like: @@redux/INIT

@@ -330,7 +330,6 @@ class FragspectList extends GenericList {
             var itemList = this.state.siteList;
             var filter = this.state.siteFilter.slice();
         }
-        console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
         for (var item in itemList) {
             var buttonNumber = parseInt(item) + offset;
@@ -421,7 +420,6 @@ class FragspectList extends GenericList {
             var itemList = this.state.siteList;
             var filter = this.state.siteFilter.slice();
         }
-        console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
         for (var item in itemList) {
             var buttonNumber = parseInt(item) + offset;
@@ -433,7 +431,6 @@ class FragspectList extends GenericList {
             }
         }
         newButtonsDepressed.push(trigger);
-        console.log(filter, newButtonsDepressed);
         if (type == "site"){
             if (this.state.buttonsDepressed.includes(1011)) {
                 newButtonsDepressed.splice(newButtonsDepressed.indexOf(1011),1);

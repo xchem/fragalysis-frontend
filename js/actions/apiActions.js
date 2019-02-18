@@ -334,6 +334,14 @@ export const reloadApiState = function (apiReducers) {
     }
 }
 
+export const setFragspectModalState = function (fragspectModalState) {
+    console.log("ACTIONS: fragspect modal to " + fragspectModalState);
+    return {
+        type: SET_FRAGSPECT_MODAL_STATE,
+        fragspectModalState: fragspectModalState
+    };
+}
+
 export function renderData(element_type, div_id) {
 
 }
