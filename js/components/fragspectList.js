@@ -342,32 +342,32 @@ class FragspectList extends GenericList {
             }
         }
         newButtonsDepressed.push(trigger);
-        console.log(filter, newButtonsDepressed);
-        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        filter.sort();
         if (type == "site"){
             if (this.state.buttonsDepressed.includes(1012)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1012)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1012),1);
             }
             this.setState(prevState => ({siteFilter: filter}))
         } else if (type == "deposition"){
             if (this.state.buttonsDepressed.includes(1022)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1022)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1022),1);
             }
             if (this.state.buttonsDepressed.includes(1023)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1023)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1023),1);
             }
             this.setState(prevState => ({depositionFilter: filter}))
         } else if (type == "confidence") {
             if (this.state.buttonsDepressed.includes(1032)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1032)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1032),1);
             }
             this.setState(prevState => ({confidenceFilter: filter}))
         } else if (type == "interest"){
             if (this.state.buttonsDepressed.includes(1042)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1042)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1042),1);
             }
             this.setState(prevState => ({interestFilter: filter}))
         };
+        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     showSome(type, selectOn, selectOff, offset, trigger){
@@ -599,7 +599,7 @@ class FragspectList extends GenericList {
                         </Col>
                         <Col xs={2} md={2}></Col>
                         <Col xs={2} md={2}>
-                            <h4 className="text-center"><b>{this.state.crystalDict[crystal].status.toString()}. {this.state.depositionStatus[this.state.crystalDict[crystal].status]}</b></h4>
+                            <h4><b>{this.state.crystalDict[crystal].status.toString()}. {this.state.depositionStatus[this.state.crystalDict[crystal].status]}</b></h4>
                         </Col>
                         <Col xs={2} md={2}></Col>
                         <Col xs={1} md={1}>
