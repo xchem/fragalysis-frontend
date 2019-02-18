@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Tooltip, OverlayTrigger, ButtonToolbar, Row, Col} from 'react-bootstrap';
+import {Button, Row, Col} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import Clipboard from 'react-clipboard.js';
 
@@ -154,26 +154,15 @@ export class ModalFragspectEventView extends Component {
         //         var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
         //     }
             return (
-                <ReactModal isOpen={(this.props.fragspectModalState == "open")} style={customStyles}>
+                <ReactModal isOpen={this.props.fragspectModalState.startsWith("open")} style={customStyles}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row><p></p></Row>
-                        {/*{sessionRename}*/}
-                        <Row><p></p></Row>
-                        {/*{linkSection}*/}
                         <Row><p></p></Row>
                         <Row><p></p></Row>
                         <Row>
-                            <ButtonToolbar>
-                                {/*<OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>*/}
-                                    {/*<Clipboard option-container="modal" data-clipboard-text={urlToCopy}*/}
-                                           {/*button-title="Copy me!">Copy link</Clipboard>*/}
-                                {/*</OverlayTrigger>*/}
-                                {/*<h3 style={{display: "inline"}}> </h3>*/}
-                                {/*<button onClick={this.openFraggleLink}>Open in new tab</button>*/}
                                 <h3>Testing modal</h3>
-                                <button onClick={this.closeModal}>Close</button>
-                            </ButtonToolbar>
+                                <Button onClick={this.closeModal}>Close</Button>
                         </Row>
                     </Col>
                     <Col xs={1} md={1}></Col>
@@ -188,18 +177,11 @@ export class ModalFragspectEventView extends Component {
 function mapStateToProps(state) {
     return {
         fragspectModalState: state.apiReducers.present.fragspectModalState,
-        // savingState: state.apiReducers.present.savingState,
-        // latestSession: state.apiReducers.present.latestSession,
-        // latestSnapshot: state.apiReducers.present.latestSnapshot,
-        // sessionTitle: state.apiReducers.present.sessionTitle,
-        // sessionId: state.apiReducers.present.sessionId,
     }
 }
 
 const mapDispatchToProps = {
     setFragspectModalState: apiActions.setFragspectModalState,
-    // setSessionTitle: apiActions.setSessionTitle,
-    // setErrorMessage: apiActions.setErrorMessage,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalFragspectEventView);
