@@ -185,7 +185,7 @@ export class ModalFragspectEventView extends Component {
         // var urlToCopy = "";
         // var sessionRename = "";
         // var linkSection = "";
-        if (this.state.fragspectModalState == "open") {
+        if (this.state.fragspectModalState == "open" && this.state.fragspectModalState != undefined) {
         //     if (this.props.savingState == "savingSnapshot") {
         //         var sessionRename =<Row></Row>
         //         var urlToCopy = window.location.protocol + "//" + window.location.hostname + "/viewer/react/snapshot/" + this.props.latestSnapshot;

@@ -36,6 +36,7 @@ const INITIALSTATE = {
     sessionTitle: undefined,
     user_id: undefined,
     fragspectModalState: "closed",
+    fragspectModalContents: undefined,
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
