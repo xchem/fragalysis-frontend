@@ -35,7 +35,7 @@ export class ModalFragspectEventView extends Component {
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.state = {
-            fragspectModalOpen: "open",
+            fragspectModalState: "open",
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
@@ -154,7 +154,7 @@ export class ModalFragspectEventView extends Component {
         //         var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
         //     }
             return (
-                <ReactModal isOpen={this.state.fragspectModalState == "open"} style={customStyles}>
+                <ReactModal isOpen={(this.state.fragspectModalState == "open")} style={customStyles}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row><p></p></Row>
