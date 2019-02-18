@@ -328,7 +328,7 @@ class FragspectList extends GenericList {
             var filter = this.state.interestFilter.slice();
         }  else if (type == "site") {
             var itemList = this.state.siteList;
-            var filter = this.state.interestFilter.slice();
+            var filter = this.state.siteFilter.slice();
         }
         console.log(type);
         var newButtonsDepressed = this.state.buttonsDepressed.slice();
