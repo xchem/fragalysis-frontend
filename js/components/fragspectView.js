@@ -105,7 +105,7 @@ class FragspectView extends React.Component {
             "event_comment": this.props.data.event_comment,
             "interesting": this.props.data.interesting
         }
-        this.props.setFragspectModalState(fragspectObject);
+        this.props.setFragspectModalContents(fragspectObject);
     }
 
     render() {
@@ -162,6 +162,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
     setFragspectModalState: apiActions.setFragspectModalState,
+    setFragspectModalContents: apiActions.setFragspectModalContents,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FragspectView);
