@@ -28,17 +28,70 @@ const customStyles = {
 export class ModalFragspectEventView extends Component {
     constructor(props) {
         super(props);
+        this.colorToggle = this.colorToggle.bind(this);
+        this.convertDeposition = this.convertDeposition.bind(this);
+        this.convertConfidence = this.convertConfidence.bind(this);
         this.getCookie = this.getCookie.bind(this);
         // this.openFraggleLink = this.openFraggleLink.bind(this);
         // this.getTitle = this.getTitle.bind(this);
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        var base_url = window.location.protocol + "//" + window.location.host;
+        this.img_url = new URL(base_url + '/viewer/img_from_smiles/');
+        var get_params = {
+            "img_type": "png",
+            "smiles": props.data.smiles
+        };
+        Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]));
+        this.key = "mol_image";
         this.state = {
-            // fragspectModalState: "open",
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
+            "confidenceStatus": {
+                1: "Low",
+                2: "Medium",
+                3: "High",
+                4: "Not viewed",
+                5: "Interesting",
+                6: "Discard"
+            },
+            "depositionStatus": {
+                1: "Analysis Pending",
+                2: "PanDDA Model",
+                3: "In Refinement",
+                4: "CompChem Ready",
+                5: "Deposition Ready",
+                6: "Deposited",
+                7: "Analysed and Rejected"
+            },
+            "interestingStatus": {
+                0: "No",
+                1: "Yes"
+            }
         };
+    }
+
+    colorToggle() {
+        var colorDict = [
+            '#95918C',
+            '#d53e4f',
+            '#fc8d59',
+            '#fee08b',
+            '#e6f598',
+            '#99d594',
+            '#3288bd',
+            '#95918C'
+        ];
+        return {backgroundColor: colorDict[this.props.data.event_status]};
+    }
+
+    convertDeposition() {
+        return this.props.data.event_status.toString() + '. ' + this.state.depositionStatus[this.props.data.event_status];
+    }
+
+    convertConfidence() {
+        return this.state.confidenceStatus[this.props.data.confidence];
     }
 
     getCookie(name) {
@@ -156,11 +209,41 @@ export class ModalFragspectEventView extends Component {
                 <ReactModal isOpen={this.props.fragspectModalState.startsWith("open")} style={customStyles}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
-                        <Row><p></p></Row>
-                        <Row><p></p></Row>
-                        <Row><p></p></Row>
                         <Row>
-                                <h3>Testing modal</h3>
+                            <p className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></p>
+                        </Row>
+                        <Row>
+                            <p className="text-center">{this.props.fragspectModalContents.site_number.toString()}</p>
+                        </Row>
+                        <Row>
+                            <p className="text-center">{this.props.fragspectModalContents.lig_id}</p>
+                        </Row>
+                        <Row>
+                            <Panel style={this.colorToggle()}>
+                                <Image src={this.img_url+"&dummy=png"} responsive rounded />
+                            </Panel>
+                        </Row>
+                        <Row>
+                            <p className="text-center"><b>{this.convertDeposition()}</b></p>
+                        </Row>
+                        <Row>
+                            <p className="text-center">{this.convertConfidence()}</p>
+                        </Row>
+                        <Row>
+                            <p className="text-center">{this.props.fragspectModalContents.event_resolution.toString()} Å</p>
+                        </Row>
+                        <Row>
+                            <p className="text-center">{this.props.fragspectModalContents.space_group}</p>
+                            <p className="text-center">{this.props.fragspectModalContents.cell_dimensions}</p>
+                            <p className="text-center">{this.props.fragspectModalContents.cell_angles}</p>
+                        </Row>
+                        <Row>
+                            <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                        </Row>
+                        <Row>
+                            <p className="text-center"><b>{this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</b></p>
+                        </Row>
+                        <Row>
                                 <Button onClick={this.closeModal}>Close</Button>
                         </Row>
                     </Col>
