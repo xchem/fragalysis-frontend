@@ -2,7 +2,7 @@
  * Created by ricgillams on 04/02/2019.
  */
 
-import {Col, Row, Image, Panel, Grid, ToggleButton} from "react-bootstrap";
+import {Col, Row, Image, Panel, Grid, ToggleButton, ButtonToolbar} from "react-bootstrap";
 import React from "react";
 import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
