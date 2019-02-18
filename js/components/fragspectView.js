@@ -5,7 +5,8 @@
 import {Col, Row, Image, Panel, Grid, ToggleButton} from "react-bootstrap";
 import React from "react";
 import {connect} from "react-redux";
-import * as nglLoadActions from "../actions/nglLoadActions";
+import * as apiActions from "../actions/apiActions";
+import apiReducers from "../reducers/apiReducers";
 
 class FragspectView extends React.Component {
 
@@ -91,7 +92,11 @@ class FragspectView extends React.Component {
             <Col xs={1} md={1}>
                 <p className="text-center">{this.convertConfidence()}</p>
             </Col>
-            <Col xs={1} md={1}></Col>
+            <Col xs={1} md={1}>
+                <ButtonToolbar>
+                    <button onClick={this.props.setFragspectModalState("open")}>Open</button>
+                </ButtonToolbar>
+            </Col>
             <Col xs={1} md={1}></Col>
             <Col xs={1} md={1}>
                     <p className="text-center">{this.props.data.event_resolution.toString()} Å</p>
@@ -113,12 +118,12 @@ class FragspectView extends React.Component {
 
 function mapStateToProps(state) {
   return {
+      fragspectModalState: apiReducers.present.fragspectModalState,
   }
 }
 
 const mapDispatchToProps = {
-    deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject
+    setFragspectModalState: apiActions.setFragspectModalState,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FragspectView);
