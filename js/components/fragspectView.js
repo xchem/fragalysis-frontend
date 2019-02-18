@@ -118,7 +118,7 @@ class FragspectView extends React.Component {
 
 function mapStateToProps(state) {
   return {
-      fragspectModalState: apiReducers.present.fragspectModalState,
+      fragspectModalState: state.apiReducers.present.fragspectModalState,
   }
 }
 
