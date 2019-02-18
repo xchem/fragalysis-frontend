@@ -113,7 +113,7 @@ export class ModalFragspectEventView extends Component {
         // this.setState(prevState => ({fraggleBoxLoc: undefined}));
         // this.setState(prevState => ({snapshotLoc: undefined}));
         // this.setState(prevState => ({title: undefined}));
-        this.props.setFragspectState("closed");
+        this.props.setFragspectModalState("closed");
     }
 
     componentWillMount() {
