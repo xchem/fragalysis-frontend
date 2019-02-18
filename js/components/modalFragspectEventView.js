@@ -35,7 +35,7 @@ export class ModalFragspectEventView extends Component {
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.state = {
-            fragspectModalState: "open",
+            // fragspectModalState: "open",
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
@@ -114,9 +114,9 @@ export class ModalFragspectEventView extends Component {
         // this.setState(prevState => ({fraggleBoxLoc: undefined}));
         // this.setState(prevState => ({snapshotLoc: undefined}));
         // this.setState(prevState => ({title: undefined}));
-        this.setState(prevState => ({fragspectModalState: "closed"}));
+        // this.setState(prevState => ({fragspectModalState: "closed"}));
         console.log("closing fragspect modal");
-        // this.props.setFragspectModalState("closed");
+        this.props.setFragspectModalState("closed");
     }
 
     componentWillMount() {
@@ -154,7 +154,7 @@ export class ModalFragspectEventView extends Component {
         //         var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
         //     }
             return (
-                <ReactModal isOpen={(this.state.fragspectModalState == "open")} style={customStyles}>
+                <ReactModal isOpen={(this.props.fragspectModalState == "open")} style={customStyles}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row><p></p></Row>
