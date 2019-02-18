@@ -40,7 +40,7 @@ export class ModalFragspectEventView extends Component {
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/');
         var get_params = {
             "img_type": "png",
-            "smiles": props.data.smiles
+            "smiles": this.props.fragspectModalContents.smiles
         };
         Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]));
         this.key = "mol_image";
