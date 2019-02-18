@@ -394,17 +394,17 @@ class FragspectList extends GenericList {
             }
         }
         newButtonsDepressed.push(trigger);
-        console.log(filter, newButtonsDepressed);
-        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        filter.sort();
         if (type == "deposition"){
             if (this.state.buttonsDepressed.includes(1021)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1021)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1021), 1)
             }
             if (this.state.buttonsDepressed.includes(1022)) {
-                this.setState(prevState => ({buttonsDepressed: prevState.buttonsDepressed.filter(butt => butt != 1022)}))
+                newButtonsDepressed.splice(newButtonsDepressed.indexOf(1022), 1)
             }
             this.setState(prevState => ({depositionFilter: filter}))
         }
+        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     hideAll(type, offset, trigger){
@@ -558,7 +558,6 @@ class FragspectList extends GenericList {
     siteButtonGenerator(){
         var buttons = [];
         for (var i in this.state.siteList){
-        // for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
             buttons.push(this.buttonRender("Site", parseInt(i)+12, parseInt(i)));
         }
         return buttons;
@@ -651,8 +650,8 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({maximumSiteNumber: maxSite}));
         this.setState(prevState => ({siteList: siteDict}));
         var newSiteFilter = this.state.siteFilter.splice();
-        for (var i = 1; i <= maxSite; i++) {
-            newSiteFilter.push(i);
+        for (var i in siteDict) {
+            newSiteFilter.push(parseInt(i));
         }
         this.setState(prevState => ({siteFilter: newSiteFilter}));
     }
