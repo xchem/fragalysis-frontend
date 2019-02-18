@@ -37,6 +37,7 @@ import {
     SET_UUID,
     SET_USER_ID,
     SET_FRAGSPECT_MODAL_STATE,
+    SET_FRAGSPECT_MODAL_CONTENTS,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -340,6 +341,14 @@ export const setFragspectModalState = function (fragspectModalState) {
     return {
         type: SET_FRAGSPECT_MODAL_STATE,
         fragspectModalState: fragspectModalState
+    };
+}
+
+export const setFragspectModalContents = function (fragspectModalContents) {
+    console.log("ACTIONS: fragspect modal to " + fragspectModalContents);
+    return {
+        type: SET_FRAGSPECT_MODAL_CONTENTS,
+        fragspectModalContents: fragspectModalContents
     };
 }
 

@@ -271,6 +271,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 fragspectModalState: action.fragspectModalState
             });
 
+        case actions.SET_FRAGSPECT_MODAL_CONTENTS:
+            return Object.assign({}, state, {
+                fragspectModalContents: action.fragspectModalContents
+            });
+
         // Cases like: @@redux/INIT
         default:
             return state;

@@ -16,6 +16,7 @@ class FragspectView extends React.Component {
         this.convertDeposition = this.convertDeposition.bind(this);
         this.convertConfidence = this.convertConfidence.bind(this);
         this.openModal = this.openModal.bind(this);
+        this.updateModalData = this.updateModalData.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
@@ -72,7 +73,39 @@ class FragspectView extends React.Component {
     }
 
     openModal(){
-        this.props.setFragspectModalState("open")
+        this.updateModalData();
+        this.props.setFragspectModalState("open");
+    }
+
+    updateModalData() {
+        var fragspectObject = {
+            "fragId": this.props.data.fragId,
+            "crystal": this.props.data.crystal,
+            "site_number": this.props.data.site_number,
+            "event_number": this.props.data.event_number,
+            "code": this.props.data.code,
+            "lig_id": this.props.data.lig_id,
+            "target_name": this.props.data.target_name,
+            "target_id": this.props.data.target_id,
+            "prot_id": this.props.data.prot_id,
+            "event_map_info": this.props.data.event_map_info,
+            "sigmaa_map_info": this.props.data.sigmaa_map_info,
+            "spider_plot_info": this.props.data.spider_plot_info,
+            "two_d_density_map": this.props.data.two_d_density_map,
+            "pandda_model_found": this.props.data.pandda_model_found,
+            "crystal_status": this.props.data.crystal_status,
+            "event_status": this.props.data.event_status,
+            "confidence": this.props.data.confidence,
+            "event_resolution": this.props.data.event_resolution,
+            "crystal_resolution": this.props.data.crystal_resolution,
+            "smiles": this.props.data.smiles,
+            "space_group": this.props.data.space_group,
+            "cell_dimensions": this.props.data.cell_dimensions,
+            "cell_angles": this.props.data.cell_angles,
+            "event_comment": this.props.data.event_comment,
+            "interesting": this.props.data.interesting
+        }
+        this.props.setFragspectModalState(fragspectObject);
     }
 
     render() {

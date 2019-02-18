@@ -7,7 +7,6 @@ import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button, Row, Col} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
-import Clipboard from 'react-clipboard.js';
 
 const customStyles = {
     overlay : {
@@ -177,6 +176,7 @@ export class ModalFragspectEventView extends Component {
 function mapStateToProps(state) {
     return {
         fragspectModalState: state.apiReducers.present.fragspectModalState,
+        fragspectModalContents: state.apiReducers.present.fragspectModalContents,
     }
 }
 
