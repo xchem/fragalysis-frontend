@@ -177,9 +177,9 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={1} md={1}></Col>
                 </ReactModal>
             );
-        } else {
-            return null;
-        }
+        // } else {
+        //     return null;
+        // }
     }
 }
 
