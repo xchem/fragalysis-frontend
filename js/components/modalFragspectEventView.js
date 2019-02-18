@@ -163,7 +163,7 @@ export class ModalFragspectEventView extends Component {
             "smiles": smiles
         }
         Object.keys(get_params).forEach(key => img_url.searchParams.append(key, get_params[key]))
-        key = "mol_image"
+        var key = "mol_image"
         return <Image src={img_url+"&dummy=png"} responsive rounded />
     }
 
