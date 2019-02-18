@@ -35,6 +35,7 @@ export class ModalFragspectEventView extends Component {
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.state = {
+            fragspectModalOpen: "closed",
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
@@ -113,7 +114,8 @@ export class ModalFragspectEventView extends Component {
         // this.setState(prevState => ({fraggleBoxLoc: undefined}));
         // this.setState(prevState => ({snapshotLoc: undefined}));
         // this.setState(prevState => ({title: undefined}));
-        console.log("closing");
+        this.setState(prevState => ({fragspectModalState: "closed"}));
+        console.log("closing fragspect modal");
         this.props.setFragspectModalState("closed");
     }
 
@@ -122,10 +124,9 @@ export class ModalFragspectEventView extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        // if (nextProps.latestSession != undefined || nextProps.latestSnapshot != undefined) {
-        //     this.setState(prevState => ({fraggleBoxLoc: nextProps.latestSession}));
-        //     this.setState(prevState => ({snapshotLoc: nextProps.latestSnapshot}));
-        // }
+        if (nextProps.fragspectModalState == "open") {
+            this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
+        }
     }
 
     render() {
@@ -153,7 +154,7 @@ export class ModalFragspectEventView extends Component {
         //         var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
         //     }
             return (
-                <ReactModal isOpen={this.props.fragspectModalState == "open"} style={customStyles}>
+                <ReactModal isOpen={this.state.fragspectModalState == "open"} style={customStyles}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row><p></p></Row>
@@ -171,7 +172,7 @@ export class ModalFragspectEventView extends Component {
                                 {/*<h3 style={{display: "inline"}}> </h3>*/}
                                 {/*<button onClick={this.openFraggleLink}>Open in new tab</button>*/}
                                 <h3>Testing modal</h3>
-                                <button onClick={this.closeModal()}>Close</button>
+                                <button onClick={this.closeModal}>Close</button>
                             </ButtonToolbar>
                         </Row>
                     </Col>
