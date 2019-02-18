@@ -36,14 +36,7 @@ export class ModalFragspectEventView extends Component {
         // this.getTitle = this.getTitle.bind(this);
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
-        var base_url = window.location.protocol + "//" + window.location.host;
-        this.img_url = new URL(base_url + '/viewer/img_from_smiles/');
-        var get_params = {
-            "img_type": "png",
-            "smiles": props.fragspectModalContents.smiles
-        }
-        Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
-        this.key = "mol_image"
+        this.generateMolImage = this.generateMolImage.bind(this);
         this.state = {
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
@@ -162,6 +155,18 @@ export class ModalFragspectEventView extends Component {
     //     }
     // }
 
+    generateMolImage(smiles) {
+        var base_url = window.location.protocol + "//" + window.location.host;
+        var img_url = new URL(base_url + '/viewer/img_from_smiles/');
+        var get_params = {
+            "img_type": "png",
+            "smiles": smiles
+        }
+        Object.keys(get_params).forEach(key => img_url.searchParams.append(key, get_params[key]))
+        key = "mol_image"
+        return <Image src={img_url+"&dummy=png"} responsive rounded />
+    }
+
     closeModal() {
         // this.setState(prevState => ({fraggleBoxLoc: undefined}));
         // this.setState(prevState => ({snapshotLoc: undefined}));
@@ -220,7 +225,7 @@ export class ModalFragspectEventView extends Component {
                         </Row>
                         <Row>
                             <Panel style={this.colorToggle()}>
-                                <Image src={this.img_url+"&dummy=png"} responsive rounded />
+                                {this.generateMolImage(this.props.fragspectModalContents.smiles)}
                             </Panel>
                         </Row>
                         <Row>
