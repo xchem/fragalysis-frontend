@@ -35,7 +35,7 @@ export class ModalFragspectEventView extends Component {
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.state = {
-            fragspectModalOpen: "closed",
+            fragspectModalOpen: "open",
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
@@ -116,7 +116,7 @@ export class ModalFragspectEventView extends Component {
         // this.setState(prevState => ({title: undefined}));
         this.setState(prevState => ({fragspectModalState: "closed"}));
         console.log("closing fragspect modal");
-        this.props.setFragspectModalState("closed");
+        // this.props.setFragspectModalState("closed");
     }
 
     componentWillMount() {
@@ -130,7 +130,6 @@ export class ModalFragspectEventView extends Component {
     }
 
     render() {
-        var _this = this;
         // var urlToCopy = "";
         // var sessionRename = "";
         // var linkSection = "";
@@ -173,7 +172,7 @@ export class ModalFragspectEventView extends Component {
                                 {/*<h3 style={{display: "inline"}}> </h3>*/}
                                 {/*<button onClick={this.openFraggleLink}>Open in new tab</button>*/}
                                 <h3>Testing modal</h3>
-                                <button onClick={_this.closeModal}>Close</button>
+                                <button onClick={this.closeModal}>Close</button>
                             </ButtonToolbar>
                         </Row>
                     </Col>
