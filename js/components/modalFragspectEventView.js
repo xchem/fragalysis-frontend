@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Button, Row, Col} from 'react-bootstrap';
+import {Button, Row, Col, Image, Panel} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 
 const customStyles = {
