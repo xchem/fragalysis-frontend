@@ -15,6 +15,7 @@ class FragspectView extends React.Component {
         this.colorToggle = this.colorToggle.bind(this);
         this.convertDeposition = this.convertDeposition.bind(this);
         this.convertConfidence = this.convertConfidence.bind(this);
+        this.openModal = this.openModal.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.img_url = new URL(base_url + '/viewer/img_from_smiles/')
         var get_params = {
@@ -70,6 +71,10 @@ class FragspectView extends React.Component {
         return this.state.confidenceStatus[this.props.data.confidence];
     }
 
+    openModal(){
+        this.props.setFragspectModalState("open")
+    }
+
     render() {
         return <Row>
             <Col xs={1} md={1}>
@@ -94,7 +99,7 @@ class FragspectView extends React.Component {
             </Col>
             <Col xs={1} md={1}>
                 <ButtonToolbar>
-                    <button onClick={this.props.setFragspectModalState("open")}>Open</button>
+                    <button onClick={this.openModal}>Open</button>
                 </ButtonToolbar>
             </Col>
             <Col xs={1} md={1}></Col>
