@@ -77,15 +77,15 @@ export class ModalFragspectEventView extends Component {
             '#3288bd',
             '#95918C'
         ];
-        return {backgroundColor: colorDict[this.props.data.event_status]};
+        return {backgroundColor: colorDict[this.props.fragspectModalContents.event_status]};
     }
 
     convertDeposition() {
-        return this.props.data.event_status.toString() + '. ' + this.state.depositionStatus[this.props.data.event_status];
+        return this.props.fragspectModalContents.event_status.toString() + '. ' + this.state.depositionStatus[this.props.fragspectModalContents.event_status];
     }
 
     convertConfidence() {
-        return this.state.confidenceStatus[this.props.data.confidence];
+        return this.state.confidenceStatus[this.props.fragspectModalContents.confidence];
     }
 
     getCookie(name) {
