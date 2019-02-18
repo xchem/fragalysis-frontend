@@ -170,7 +170,7 @@ export class ModalFragspectEventView extends Component {
                                 {/*<h3 style={{display: "inline"}}> </h3>*/}
                                 {/*<button onClick={this.openFraggleLink}>Open in new tab</button>*/}
                                 <h3>Testing modal</h3>
-                                <button onClick={this.closeModal()}>Close</button>
+                                <button onClick={() => this.closeModal()}>Close</button>
                             </ButtonToolbar>
                         </Row>
                     </Col>
