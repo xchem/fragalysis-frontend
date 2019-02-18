@@ -35,7 +35,7 @@ const INITIALSTATE = {
     sessionIdList: [],
     sessionTitle: undefined,
     user_id: undefined,
-    fragspectModalState: "open"
+    fragspectModalState: "closed",
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
