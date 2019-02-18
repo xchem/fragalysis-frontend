@@ -557,8 +557,9 @@ class FragspectList extends GenericList {
 
     siteButtonGenerator(){
         var buttons = [];
-        for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
-            buttons.push(this.buttonRender("Site", i+12, i));
+        for (var i in this.state.siteList){
+        // for (var i = 1; i <= this.state.maximumSiteNumber; i++) {
+            buttons.push(this.buttonRender("Site", parseInt(i)+12, parseInt(i)));
         }
         return buttons;
     }
