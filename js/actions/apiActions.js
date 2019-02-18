@@ -36,6 +36,7 @@ import {
     SET_TARGET_UNRECOGNISED,
     SET_UUID,
     SET_USER_ID,
+    SET_FRAGSPECT_MODAL_STATE,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
