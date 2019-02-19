@@ -244,9 +244,6 @@ export class ModalFragspectEventView extends Component {
                             </Col>
                             {/*<p className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></p>*/}
                         </Row>
-                        <Row>
-                            <Button onClick={this.closeModal}>Close</Button>
-                        </Row>
                         {/*<Row>*/}
                             {/*<p className="text-center">{this.props.fragspectModalContents.site_number.toString()}</p>*/}
                         {/*</Row>*/}
