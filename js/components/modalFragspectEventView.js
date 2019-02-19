@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Button, Row, Col, Image, Panel, ToggleButtonGroup} from 'react-bootstrap';
+import {Button, Row, Col, Image, Panel, ToggleButtonGroup, ToggleButton} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 
 const customStyles = {
@@ -165,6 +165,19 @@ export class ModalFragspectEventView extends Component {
         Object.keys(get_params).forEach(key => img_url.searchParams.append(key, get_params[key]))
         var key = "mol_image"
         return <Image src={img_url+"&dummy=png"} responsive rounded />
+    }
+
+    buttonRender(type, value, status) {
+        if (type == "Site") {
+            var button = <ToggleButton bsSize="sm" bsStyle="primary" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
+        } else if (type == "Deposition") {
+            var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
+        } else if (type == "Confidence") {
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
+        } else if (type == "Interesting") {
+            var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestStatus[status]}</ToggleButton>;
+        }
+        return button;
     }
 
     closeModal() {
