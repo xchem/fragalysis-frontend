@@ -8,6 +8,12 @@ import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import apiReducers from "../reducers/apiReducers";
 
+const customStyles = {
+    blackFont: {
+        color: '#FFFFFF'
+    }
+}
+
 class FragspectView extends React.Component {
 
     constructor(props) {
@@ -124,7 +130,7 @@ class FragspectView extends React.Component {
             </Col>
             <Col xs={1} md={1}>
                 <Panel style={this.colorToggle()}>
-                    <p className="text-center"><b>{this.convertDeposition()}</b></p>
+                    <p className="text-center" style={customStyles}><b>{this.convertDeposition()}</b></p>
                 </Panel>
             </Col>
             <Col xs={1} md={1}>

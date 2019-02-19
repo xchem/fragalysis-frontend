@@ -716,7 +716,7 @@ class FragspectList extends GenericList {
                             <div class="text-center">
                                 <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                     <ToggleButton bsSize="sm" bsStyle="warning" value={1021}>Show all</ToggleButton>
-                                    <ToggleButton bsSize="sm" bsStyle="warning" value={1023}>Show CC+</ToggleButton>
+                                    <ToggleButton bsSize="sm" bsStyle="warning" value={1023}>Show Comp. Chem. and above</ToggleButton>
                                     <ToggleButton bsSize="sm" bsStyle="warning" value={1022}>Hide all</ToggleButton>
                                 </ToggleButtonGroup>
                             </div>
