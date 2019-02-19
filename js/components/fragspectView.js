@@ -129,7 +129,7 @@ class FragspectView extends React.Component {
             </Col>
             <Col xs={1} md={1}>
                 <Panel style={this.colorToggle()}>
-                    <p className="text-center" style={"color: red"}><b>{this.convertDeposition()}</b></p>
+                    <p className="text-center" style={{"color: red"}><b>{this.convertDeposition()}</b></p>
                 </Panel>
             </Col>
             <Col xs={1} md={1}>
