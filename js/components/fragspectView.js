@@ -142,7 +142,8 @@ class FragspectView extends React.Component {
             </Col>
             <Col xs={1} md={1}></Col>
             <Col xs={1} md={1}>
-                    <p className="text-center">{this.props.data.event_resolution.toString()} Å</p>
+                <p> </p>
+                <p className="text-center">{this.props.data.event_resolution.toString()} Å</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.space_group}</p>

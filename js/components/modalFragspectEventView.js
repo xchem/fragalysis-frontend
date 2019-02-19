@@ -5,7 +5,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactModal from "react-modal";
-import {Button, Row, Col, Image, Panel} from 'react-bootstrap';
+import {Button, Row, Col, Image, Panel, ToggleButtonGroup} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 
 const customStyles = {
@@ -230,20 +230,53 @@ export class ModalFragspectEventView extends Component {
                             <Col xs={5} md={5}>
                                 <p>Crystal status: {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
                                 <p>Event status: {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
-
+                                <Col xs={6} md={6}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                        {this.buttonRender("Deposition", 1, "Analysis Pending")}
+                                        {this.buttonRender("Deposition", 2, "PanDDA Model")}
+                                        {this.buttonRender("Deposition", 3, "In Refinement")}
+                                    </ToggleButtonGroup>
+                                </Col>
+                                <Col xs={6} md={6}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                        {this.buttonRender("Deposition", 4, "CompChem Ready")}
+                                        {this.buttonRender("Deposition", 5, "Deposition Ready")}
+                                        {this.buttonRender("Deposition", 6, "Deposited")}
+                                        {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
+                                        </ToggleButtonGroup>
+                                </Col>
                                 <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
-
+                                <Col xs={2} md={2}></Col>
+                                <Col xs={8} md={8}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                        {this.buttonRender("Confidence", 8, 1)}
+                                        {this.buttonRender("Confidence", 9, 2)}
+                                        {this.buttonRender("Confidence", 10, 3)}
+                                    </ToggleButtonGroup>
+                                </Col>
+                                <Col xs={2} md={2}></Col>
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
-                                <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
-                                <Row>
-                                    <Button onClick={this.closeModal}>Close</Button>
-                                </Row>
+                                <Col xs={2} md={2}></Col>
+                                <Col xs={8} md={8}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                        {this.buttonRender("Interesting", 11, 0)}
+                                        {this.buttonRender("Interesting", 12, 1)}
+                                    </ToggleButtonGroup>
+                                </Col>
+                                <Col xs={2} md={2}></Col>
                             </Col>
                             <Col xs={5} md={5}>
                                 {this.generateMolImage("NCl")}
                             </Col>
-                            {/*<p className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></p>*/}
                         </Row>
+                        <Row>
+                            <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                        </Row>
+                        <Row>
+                            <Button onClick={this.closeModal}>Close</Button>
+                        </Row>
+                            {/*<p className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></p>*/}
+
                         {/*<Row>*/}
                             {/*<p className="text-center">{this.props.fragspectModalContents.site_number.toString()}</p>*/}
                         {/*</Row>*/}
@@ -275,7 +308,6 @@ export class ModalFragspectEventView extends Component {
                         {/*<Row>*/}
                             {/*<p className="text-center"><b>{this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</b></p>*/}
                         {/*</Row>*/}
-
                     </Col>
                     <Col xs={1} md={1}></Col>
                 </ReactModal>
