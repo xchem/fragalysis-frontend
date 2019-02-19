@@ -120,9 +120,7 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.props.data.lig_id}</p>
             </Col>
             <Col xs={1} md={1}>
-                <Panel style={this.colorToggle()}>
                     <Image src={this.img_url+"&dummy=png"} responsive rounded />
-                </Panel>
             </Col>
             <Col xs={1} md={1}>
                 <Panel style={this.colorToggle()}>
