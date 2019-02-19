@@ -235,11 +235,17 @@ export class ModalFragspectEventView extends Component {
 
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                 <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                                <Row>
+                                    <Button onClick={this.closeModal}>Close</Button>
+                                </Row>
                             </Col>
                             <Col xs={5} md={5}>
                                 {this.generateMolImage("NCl")}
                             </Col>
                             {/*<p className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></p>*/}
+                        </Row>
+                        <Row>
+                            <Button onClick={this.closeModal}>Close</Button>
                         </Row>
                         {/*<Row>*/}
                             {/*<p className="text-center">{this.props.fragspectModalContents.site_number.toString()}</p>*/}
@@ -272,9 +278,7 @@ export class ModalFragspectEventView extends Component {
                         {/*<Row>*/}
                             {/*<p className="text-center"><b>{this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</b></p>*/}
                         {/*</Row>*/}
-                        {/*<Row>*/}
-                                {/*<Button onClick={this.closeModal}>Close</Button>*/}
-                        {/*</Row>*/}
+
                     </Col>
                     <Col xs={1} md={1}></Col>
                 </ReactModal>
