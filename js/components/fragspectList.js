@@ -701,10 +701,12 @@ class FragspectList extends GenericList {
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}>
-                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                <ToggleButton bsSize="sm" bsStyle="primary" value={1011}>Show all</ToggleButton>
-                                <ToggleButton bsSize="sm" bsStyle="primary" value={1012}>Hide all</ToggleButton>
-                            </ToggleButtonGroup>
+                            <div class="text-center">
+                                <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                    <ToggleButton bsSize="sm" bsStyle="primary" value={1011}>Show all</ToggleButton>
+                                    <ToggleButton bsSize="sm" bsStyle="primary" value={1012}>Hide all</ToggleButton>
+                                </ToggleButtonGroup>
+                            </div>
                         </Col>
                         <Col xs={1} md={1}></Col>
                     </Col>
