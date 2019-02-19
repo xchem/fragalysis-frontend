@@ -701,7 +701,7 @@ class FragspectList extends GenericList {
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}>
-                            <div class="text-center">
+                            <div classname="text-center">
                                 <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                     <ToggleButton bsSize="sm" bsStyle="primary" value={1011}>Show all</ToggleButton>
                                     <ToggleButton bsSize="sm" bsStyle="primary" value={1012}>Hide all</ToggleButton>
@@ -713,7 +713,7 @@ class FragspectList extends GenericList {
                     <Col xs={4} md={4}>
                         <Col xs={1} md={1}></Col>
                         <Col xs={4} md={10}>
-                            <div class="text-center">
+                            <div classname="text-center">
                                 <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                     <ToggleButton bsSize="sm" bsStyle="warning" value={1021}>Show all</ToggleButton>
                                     <ToggleButton bsSize="sm" bsStyle="warning" value={1023}>Show Comp. Chem. and above</ToggleButton>
