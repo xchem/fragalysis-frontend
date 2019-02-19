@@ -109,7 +109,7 @@ class FragspectView extends React.Component {
     }
 
     render() {
-        return <Row>
+        return <Row className="show-grid" float="center">
             <Col xs={1} md={1}>
                 <p className="text-center"><b>{this.props.data.crystal}</b></p>
             </Col>
