@@ -749,16 +749,15 @@ class FragspectList extends GenericList {
                     </Col>
                     <Col xs={2} md={2}></Col>
                 </Row>
+                <Row></Row>
                 <Row>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}>
-                            <div className="text-center">
-                                <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
-                                    {this.siteButtonGenerator()}
-                                    <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
-                                </ToggleButtonGroup>
-                            </div>
+                            <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                {this.siteButtonGenerator()}
+                                <p className="text-center">Site filter: {this.state.siteFilter.toString()}</p>
+                            </ToggleButtonGroup>
                         </Col>
                         <Col xs={1} md={1}></Col>
                     </Col>
