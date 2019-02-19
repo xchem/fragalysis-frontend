@@ -288,39 +288,6 @@ export class ModalFragspectEventView extends Component {
                         <Row>
                             <Button onClick={this.closeModal}>Close</Button>
                         </Row>
-                            {/*<p className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></p>*/}
-
-                        {/*<Row>*/}
-                            {/*<p className="text-center">{this.props.fragspectModalContents.site_number.toString()}</p>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<p className="text-center">{this.props.fragspectModalContents.lig_id}</p>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<Panel style={this.colorToggle()}>*/}
-                                {/*{this.generateMolImage(this.props.fragspectModalContents.smiles)}*/}
-                            {/*</Panel>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<p className="text-center"><b>{this.convertDeposition()}</b></p>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<p className="text-center">{this.convertConfidence()}</p>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<p className="text-center">{this.props.fragspectModalContents.event_resolution.toString()} Å</p>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<p className="text-center">{this.props.fragspectModalContents.space_group}</p>*/}
-                            {/*<p className="text-center">{this.props.fragspectModalContents.cell_dimensions}</p>*/}
-                            {/*<p className="text-center">{this.props.fragspectModalContents.cell_angles}</p>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>*/}
-                        {/*</Row>*/}
-                        {/*<Row>*/}
-                            {/*<p className="text-center"><b>{this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</b></p>*/}
-                        {/*</Row>*/}
                     </Col>
                     <Col xs={1} md={1}></Col>
                 </ReactModal>
