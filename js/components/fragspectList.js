@@ -749,7 +749,7 @@ class FragspectList extends GenericList {
                     </Col>
                     <Col xs={2} md={2}></Col>
                 </Row>
-                <Row></Row>
+                <Row><p> </p></Row>
                 <Row>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
