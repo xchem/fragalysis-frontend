@@ -263,7 +263,7 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row>
-                            <Col xs={7} md={7}>
+                            <Col xs={6} md={6}>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
                                 <p> </p>
                                 <Col xs={6} md={6}><h3 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h3></Col>
@@ -271,65 +271,77 @@ export class ModalFragspectEventView extends Component {
                                 <p> </p>
                                 <p className="text-center">Space group: {this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} ({this.props.fragspectModalContents.cell_angles})</p>
                             </Col>
-                            <Col xs={2} md={2}>
-                                {this.generateMolImage(this.props.fragspectModalContents.smiles)}
+                            <Col xs={6} md={6}>
+                                <Col xs={3} md={3}></Col>
+                                <Col xs={6} md={6}>
+                                    {this.generateMolImage(this.props.fragspectModalContents.smiles)}
+                                </Col>
+                                <Col xs={3} md={3}></Col>
                             </Col>
-                            <Col xs={1} md={1}></Col>
                         </Row>
                         <Row>
                             <Col xs={5} md={5}>
-                                <p> </p>
-                                <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
-                                <p> </p>
-                                <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
-                                <Col xs={6} md={6}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                        {this.buttonRender("Deposition", 1, "Analysis Pending")}
-                                        {this.buttonRender("Deposition", 2, "PanDDA Model")}
-                                        {this.buttonRender("Deposition", 3, "In Refinement")}
-                                    </ToggleButtonGroup>
-                                </Col>
-                                <Col xs={6} md={6}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                        {this.buttonRender("Deposition", 4, "CompChem Ready")}
-                                        {this.buttonRender("Deposition", 5, "Deposition Ready")}
-                                        {this.buttonRender("Deposition", 6, "Deposited")}
-                                        {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
-                                    </ToggleButtonGroup>
-                                </Col>
-                                <p> </p>
-                                <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
-                                <Col xs={2} md={2}></Col>
-                                <Col xs={8} md={8}>
-                                    <div className="text-center">
-                                        <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                            {this.buttonRender("Confidence", 8, 1)}
-                                            {this.buttonRender("Confidence", 9, 2)}
-                                            {this.buttonRender("Confidence", 10, 3)}
+                                <Row>
+                                    <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
+                                </Row>
+                                <Row>
+                                    <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
+                                </Row>
+                                <Row>
+                                    <Col xs={6} md={6}>
+                                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                            {this.buttonRender("Deposition", 1, "Analysis Pending")}
+                                            {this.buttonRender("Deposition", 2, "PanDDA Model")}
+                                            {this.buttonRender("Deposition", 3, "In Refinement")}
                                         </ToggleButtonGroup>
-                                    </div>
-                                </Col>
-                                <Col xs={2} md={2}></Col>
-                                <p> </p>
-                                <p> </p>
-                                <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
-                                <Col xs={2} md={2}></Col>
-                                <Col xs={8} md={8}>
-                                    <div className="text-center">
-                                        <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                            {this.buttonRender("Interesting", 11, 0)}
-                                            {this.buttonRender("Interesting", 12, 1)}
+                                    </Col>
+                                    <Col xs={6} md={6}>
+                                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                            {this.buttonRender("Deposition", 4, "CompChem Ready")}
+                                            {this.buttonRender("Deposition", 5, "Deposition Ready")}
+                                            {this.buttonRender("Deposition", 6, "Deposited")}
+                                            {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
                                         </ToggleButtonGroup>
-                                    </div>
-                                </Col>
-                                <Col xs={2} md={2}></Col>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
+                                </Row>
+                                <Row>
+                                    <Col xs={2} md={2}></Col>
+                                    <Col xs={8} md={8}>
+                                        <div className="text-center">
+                                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                                {this.buttonRender("Confidence", 8, 1)}
+                                                {this.buttonRender("Confidence", 9, 2)}
+                                                {this.buttonRender("Confidence", 10, 3)}
+                                            </ToggleButtonGroup>
+                                        </div>
+                                    </Col>
+                                    <Col xs={2} md={2}></Col>
+                                </Row>
+                                <Row>
+                                    <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
+                                    <Col xs={2} md={2}></Col>
+                                    <Col xs={8} md={8}>
+                                        <div className="text-center">
+                                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                                {this.buttonRender("Interesting", 11, 0)}
+                                                {this.buttonRender("Interesting", 12, 1)}
+                                            </ToggleButtonGroup>
+                                        </div>
+                                    </Col>
+                                    <Col xs={2} md={2}></Col>
+                                </Row>
                             </Col>
-                            <Col xs={5} md={5}>
-                                {this.generateMolImage("NCl")}
+                            <Col xs={7} md={7}>
+                                <div className="text-center">
+                                    {this.generateMolImage("NCl")}
+                                </div>
                             </Col>
                         </Row>
                         <Row>
-                            <p className="inline"> </p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                            <p className="inline">{" "}</p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
                         </Row>
                         <Row>
                             <p> </p>

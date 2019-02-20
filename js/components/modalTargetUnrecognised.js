@@ -58,7 +58,7 @@ export class ModalTargetUnrecognised extends React.Component {
         if (this.props.targetUnrecognised == true) {
             if (this.state.targetListLength == 0) {
                 return (
-                    <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
+                    <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles} onRequestClose={this.closeModal}>
                         <div>
                             <h3>The target was not recognised and there are no other available targets.</h3>
                             <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>Close</Button>
@@ -68,7 +68,7 @@ export class ModalTargetUnrecognised extends React.Component {
                 );
             } else {
                 return (
-                    <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
+                    <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles} onRequestClose={this.closeModal}>
                         <div>
                             <h3>Target was not recognised or you do not have authentication to access
                                 target. <br/></h3>
