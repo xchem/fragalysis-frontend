@@ -267,7 +267,8 @@ export class ModalFragspectEventView extends Component {
                                 <p> </p>
                                 <Col xs={6} md={6}><h3 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h3></Col>
                                 <Col xs={6} md={6}><h3 className="text-center">Site: {this.props.fragspectModalContents.site_number}</h3></Col>
-                                <p className="text-center">{this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} {this.props.fragspectModalContents.cell_angles}</p>
+                                <p> </p>
+                                <p className="text-center">Space group: {this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} ({this.props.fragspectModalContents.cell_angles})</p>
                             </Col>
                             <Col xs={2} md={2}>
                                 {this.generateMolImage(this.props.fragspectModalContents.smiles)}
@@ -329,6 +330,7 @@ export class ModalFragspectEventView extends Component {
                             <p className="inline"> </p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
                         </Row>
                         <Row>
+                            <p> </p>
                             <Button onClick={this.closeModal}>Close</Button>
                         </Row>
                     </Col>
