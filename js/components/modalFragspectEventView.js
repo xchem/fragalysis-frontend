@@ -264,9 +264,10 @@ export class ModalFragspectEventView extends Component {
                         <Row>
                             <Col xs={7} md={7}>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
-                                <Col xs={6} md={6}><h3>Target: {this.props.fragspectModalContents.target_name}</h3></Col>
-                                <Col xs={6} md={6}><h3>Site: {this.props.fragspectModalContents.site_number}</h3></Col>
-                                <p>{this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} {this.props.fragspectModalContents.cell_angles}</p>
+                                <p> </p>
+                                <Col xs={6} md={6}><h3 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h3></Col>
+                                <Col xs={6} md={6}><h3 className="text-center">Site: {this.props.fragspectModalContents.site_number}</h3></Col>
+                                <p className="text-center">{this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} {this.props.fragspectModalContents.cell_angles}</p>
                             </Col>
                             <Col xs={2} md={2}>
                                 {this.generateMolImage(this.props.fragspectModalContents.smiles)}
@@ -275,7 +276,9 @@ export class ModalFragspectEventView extends Component {
                         </Row>
                         <Row>
                             <Col xs={5} md={5}>
+                                <p> </p>
                                 <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
+                                <p> </p>
                                 <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
                                 <Col xs={6} md={6}>
                                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
@@ -292,6 +295,7 @@ export class ModalFragspectEventView extends Component {
                                         {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
                                     </ToggleButtonGroup>
                                 </Col>
+                                <p> </p>
                                 <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
@@ -304,6 +308,7 @@ export class ModalFragspectEventView extends Component {
                                     </div>
                                 </Col>
                                 <Col xs={2} md={2}></Col>
+                                <p> </p>
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
@@ -321,7 +326,7 @@ export class ModalFragspectEventView extends Component {
                             </Col>
                         </Row>
                         <Row>
-                            <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                            <p className="inline"> </p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
                         </Row>
                         <Row>
                             <Button onClick={this.closeModal}>Close</Button>
