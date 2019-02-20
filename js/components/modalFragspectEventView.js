@@ -264,30 +264,30 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row>
-                            <Col xs={6} md={6}>
+                            <Col xs={5} md={5}>
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
-                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <Col xs={6} md={6}><h2 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h2></Col>
                                     <Col xs={6} md={6}><h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2></Col>
                                 </Row>
-                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <h3 className="text-center">Space group: {this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} ({this.props.fragspectModalContents.cell_angles})</h3>
                             </Col>
-                            <Col xs={6} md={6}>
-                                <Col xs={3} md={3}></Col>
-                                <Col xs={6} md={6}>
-                                    {this.generateMolImage(this.props.fragspectModalContents.smiles)}
-                                </Col>
-                                <Col xs={3} md={3}></Col>
+                            <Col xs={2} md={2}></Col>
+                            <Col xs={3} md={3}>
+                                {this.generateMolImage(this.props.fragspectModalContents.smiles)}
                             </Col>
+                            <Col xs={2} md={2}></Col>
                         </Row>
+                        <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                         <Row>
                             <Col xs={5} md={5}>
                                 <Row>
                                     <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
                                 </Row>
+                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
                                 </Row>
@@ -308,6 +308,7 @@ export class ModalFragspectEventView extends Component {
                                         </ToggleButtonGroup>
                                     </Col>
                                 </Row>
+                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 </Row>
@@ -324,6 +325,7 @@ export class ModalFragspectEventView extends Component {
                                     </Col>
                                     <Col xs={2} md={2}></Col>
                                 </Row>
+                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                     <Col xs={2} md={2}></Col>
@@ -348,7 +350,7 @@ export class ModalFragspectEventView extends Component {
                             <p className="inline">{" "}</p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
                         </Row>
                         <Row>
-                            <p> </p>
+                            <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                             <Button onClick={this.closeModal}>Close</Button>
                         </Row>
                     </Col>
