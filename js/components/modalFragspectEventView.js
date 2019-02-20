@@ -16,10 +16,10 @@ const customStyles = {
     content : {
         top: '5%',
         left: '5%',
-        right: '5%',
+        right: '95%',
         bottom: '5%',
         marginRight: '-20%',
-        transform: 'translate(-20%, -0%)',
+        transform: 'translate(20%, -0%)',
         border: '10px solid #7a7a7a',
         width: '60%'
     }
