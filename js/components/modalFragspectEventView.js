@@ -28,6 +28,7 @@ const customStyles = {
 export class ModalFragspectEventView extends Component {
     constructor(props) {
         super(props);
+        this.handleStatusChange = this.handleStatusChange.bind(this);
         this.colorToggle = this.colorToggle.bind(this);
         this.convertDeposition = this.convertDeposition.bind(this);
         this.convertConfidence = this.convertConfidence.bind(this);
@@ -62,8 +63,33 @@ export class ModalFragspectEventView extends Component {
                 0: "No",
                 1: "Yes"
             },
-            "buttonsDepressed": []
+            "buttonsDepressed": [1,8,11]
         };
+    }
+
+    handleStatusChange(value) {
+        var newButtonsDepressed = this.state.buttonsDepressed.slice();
+        var added = value.filter(function(i) {return newButtonsDepressed.indexOf(i)<0;})[0]
+        if (added == undefined) {
+            console.log("handleStatusChange has not detected a change!")
+        } else {
+            if (added <= 7) {
+                var oldStatus = newButtonsDepressed.find(function (element) {
+                    return element <=7;
+                });
+            } else if (added <= 10) {
+                var oldStatus = newButtonsDepressed.find(function (element) {
+                    return element > 7 && element <= 10;
+                });
+            } else {
+                var oldStatus = newButtonsDepressed.find(function (element) {
+                    return element > 10;
+                });
+            }
+            newButtonsDepressed.splice(newButtonsDepressed.indexOf(oldStatus), 1);
+            newButtonsDepressed.push(value);
+            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+        }
     }
 
     colorToggle() {
@@ -245,14 +271,14 @@ export class ModalFragspectEventView extends Component {
                                 <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
                                 <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
                                 <Col xs={6} md={6}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                         {this.buttonRender("Deposition", 1, "Analysis Pending")}
                                         {this.buttonRender("Deposition", 2, "PanDDA Model")}
                                         {this.buttonRender("Deposition", 3, "In Refinement")}
                                     </ToggleButtonGroup>
                                 </Col>
                                 <Col xs={6} md={6}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                         {this.buttonRender("Deposition", 4, "CompChem Ready")}
                                         {this.buttonRender("Deposition", 5, "Deposition Ready")}
                                         {this.buttonRender("Deposition", 6, "Deposited")}
@@ -262,7 +288,7 @@ export class ModalFragspectEventView extends Component {
                                 <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                         {this.buttonRender("Confidence", 8, 1)}
                                         {this.buttonRender("Confidence", 9, 2)}
                                         {this.buttonRender("Confidence", 10, 3)}
@@ -272,7 +298,7 @@ export class ModalFragspectEventView extends Component {
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
+                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                         {this.buttonRender("Interesting", 11, 0)}
                                         {this.buttonRender("Interesting", 12, 1)}
                                     </ToggleButtonGroup>
