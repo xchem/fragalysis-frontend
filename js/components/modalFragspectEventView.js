@@ -61,7 +61,8 @@ export class ModalFragspectEventView extends Component {
             "interestingStatus": {
                 0: "No",
                 1: "Yes"
-            }
+            },
+            "buttonsDepressed": []
         };
     }
 
@@ -241,8 +242,8 @@ export class ModalFragspectEventView extends Component {
                         </Row>
                         <Row>
                             <Col xs={5} md={5}>
-                                <p>Crystal status: {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
-                                <p>Event status: {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
+                                <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
+                                <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
                                 <Col xs={6} md={6}>
                                     <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleFilterChange}>
                                         {this.buttonRender("Deposition", 1, "Analysis Pending")}
@@ -256,7 +257,7 @@ export class ModalFragspectEventView extends Component {
                                         {this.buttonRender("Deposition", 5, "Deposition Ready")}
                                         {this.buttonRender("Deposition", 6, "Deposited")}
                                         {this.buttonRender("Deposition", 7, "Analysed and Rejected")}
-                                        </ToggleButtonGroup>
+                                    </ToggleButtonGroup>
                                 </Col>
                                 <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 <Col xs={2} md={2}></Col>
