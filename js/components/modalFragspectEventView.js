@@ -308,7 +308,7 @@ export class ModalFragspectEventView extends Component {
                                         </ToggleButtonGroup>
                                     </Col>
                                 </Row>
-                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 </Row>
@@ -325,7 +325,7 @@ export class ModalFragspectEventView extends Component {
                                     </Col>
                                     <Col xs={2} md={2}></Col>
                                 </Row>
-                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                     <Col xs={2} md={2}></Col>
@@ -346,6 +346,7 @@ export class ModalFragspectEventView extends Component {
                                 </div>
                             </Col>
                         </Row>
+                        <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                         <Row>
                             <p className="inline">{" "}</p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
                         </Row>
