@@ -202,7 +202,7 @@ export class ModalFragspectEventView extends Component {
         } else if (type == "Confidence") {
             var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Interesting") {
-            var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestStatus[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestingStatus[status]}</ToggleButton>;
         }
         return button;
     }
