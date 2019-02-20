@@ -87,7 +87,7 @@ export class ModalFragspectEventView extends Component {
                 });
             }
             newButtonsDepressed.splice(newButtonsDepressed.indexOf(oldStatus), 1);
-            newButtonsDepressed.push(value);
+            newButtonsDepressed.push(added);
             this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
     }
