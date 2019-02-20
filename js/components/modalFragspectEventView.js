@@ -265,7 +265,7 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={10} md={10}>
                         <Row>
                             <Col xs={6} md={6}>
-                                <Row style={{height: rowHeight}}></Row>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
                                 <p> </p>
                                 <Col xs={6} md={6}><h3 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h3></Col>
