@@ -19,7 +19,7 @@ const customStyles = {
         right: '10%',
         bottom: '10%',
         marginRight: '-20%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translate(-0%, -0%)',
         border: '10px solid #7a7a7a',
         width: '60%'
     }
