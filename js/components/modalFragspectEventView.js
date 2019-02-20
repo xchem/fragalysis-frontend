@@ -267,11 +267,13 @@ export class ModalFragspectEventView extends Component {
                             <Col xs={6} md={6}>
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
-                                <p> </p>
-                                <Col xs={6} md={6}><h3 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h3></Col>
-                                <Col xs={6} md={6}><h3 className="text-center">Site: {this.props.fragspectModalContents.site_number}</h3></Col>
-                                <p> </p>
-                                <p className="text-center">Space group: {this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} ({this.props.fragspectModalContents.cell_angles})</p>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                <Row>
+                                    <Col xs={6} md={6}><h2 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h2></Col>
+                                    <Col xs={6} md={6}><h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2></Col>
+                                </Row>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                <h3 className="text-center">Space group: {this.props.fragspectModalContents.space_group} {this.props.fragspectModalContents.cell_dimensions} ({this.props.fragspectModalContents.cell_angles})</h3>
                             </Col>
                             <Col xs={6} md={6}>
                                 <Col xs={3} md={3}></Col>
