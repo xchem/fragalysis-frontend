@@ -19,7 +19,7 @@ const customStyles = {
         right: '95%',
         bottom: '5%',
         marginRight: '-20%',
-        transform: 'translate(20%, -0%)',
+        transform: 'translate(50%, -0%)',
         border: '10px solid #7a7a7a',
         width: '60%'
     }
@@ -258,7 +258,7 @@ export class ModalFragspectEventView extends Component {
         //         var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
         //     }
             return (
-                <ReactModal isOpen={this.props.fragspectModalState.startsWith("open")} style={customStyles}>
+                <ReactModal isOpen={this.props.fragspectModalState.startsWith("open")} style={customStyles} onRequestClose={this.closeModal} shouldCloseOnOverlayClick={true}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row>
