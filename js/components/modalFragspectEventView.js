@@ -295,20 +295,24 @@ export class ModalFragspectEventView extends Component {
                                 <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
-                                    <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                        {this.buttonRender("Confidence", 8, 1)}
-                                        {this.buttonRender("Confidence", 9, 2)}
-                                        {this.buttonRender("Confidence", 10, 3)}
-                                    </ToggleButtonGroup>
+                                    <div className="text-center">
+                                        <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                            {this.buttonRender("Confidence", 8, 1)}
+                                            {this.buttonRender("Confidence", 9, 2)}
+                                            {this.buttonRender("Confidence", 10, 3)}
+                                        </ToggleButtonGroup>
+                                    </div>
                                 </Col>
                                 <Col xs={2} md={2}></Col>
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
-                                    <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                        {this.buttonRender("Interesting", 11, 0)}
-                                        {this.buttonRender("Interesting", 12, 1)}
-                                    </ToggleButtonGroup>
+                                    <div className="text-center">
+                                        <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                            {this.buttonRender("Interesting", 11, 0)}
+                                            {this.buttonRender("Interesting", 12, 1)}
+                                        </ToggleButtonGroup>
+                                    </div>
                                 </Col>
                                 <Col xs={2} md={2}></Col>
                             </Col>
