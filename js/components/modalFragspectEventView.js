@@ -16,12 +16,13 @@ const customStyles = {
     content : {
         top: '5%',
         left: '5%',
-        right: 'auto',
-        bottom: 'auto',
+        right: '5%',
+        bottom: '5%',
         marginRight: '-20%',
-        transform: 'translate(-45%, -0%)',
+        transform: 'translate(0%, 0%)',
         border: '10px solid #7a7a7a',
-        width: '90%'
+        width: '90%',
+        height:'90%'
     }
 };
 
