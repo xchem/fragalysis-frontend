@@ -63,7 +63,8 @@ export class ModalFragspectEventView extends Component {
                 0: "No",
                 1: "Yes"
             },
-            "buttonsDepressed": []
+            "buttonsDepressed": [],
+            "initiated": 0
         };
     }
 
@@ -195,12 +196,10 @@ export class ModalFragspectEventView extends Component {
     }
 
     buttonRender(type, value, status) {
-        if (type == "Site") {
-            var button = <ToggleButton bsSize="sm" bsStyle="primary" value={value} key={"site"+ value.toString()}>{type}: {status}</ToggleButton>;
-        } else if (type == "Deposition") {
+        if (type == "Deposition") {
             var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{this.state.confidenceStatus[status]}</ToggleButton>;
         } else if (type == "Interesting") {
             var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestingStatus[status]}</ToggleButton>;
         }
@@ -223,11 +222,14 @@ export class ModalFragspectEventView extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
             this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
-            var newButtonsDepressed = [];
-            newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
-            newButtonsDepressed.push(nextProps.fragspectModalContents.confidence + 7);
-            newButtonsDepressed.push(nextProps.fragspectModalContents.interestingStatus + 11);
-            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+            if (this.state.initiated == 0) {
+                var newButtonsDepressed = [];
+                newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
+                newButtonsDepressed.push(nextProps.fragspectModalContents.confidence + 7);
+                newButtonsDepressed.push(nextProps.fragspectModalContents.interesting + 11);
+                this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
+                this.setState(prevState => ({initiated: 1}));
+            }
         }
     }
 
@@ -293,7 +295,7 @@ export class ModalFragspectEventView extends Component {
                                 <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                    <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                         {this.buttonRender("Confidence", 8, 1)}
                                         {this.buttonRender("Confidence", 9, 2)}
                                         {this.buttonRender("Confidence", 10, 3)}
@@ -303,7 +305,7 @@ export class ModalFragspectEventView extends Component {
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                 <Col xs={2} md={2}></Col>
                                 <Col xs={8} md={8}>
-                                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                    <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                         {this.buttonRender("Interesting", 11, 0)}
                                         {this.buttonRender("Interesting", 12, 1)}
                                     </ToggleButtonGroup>
