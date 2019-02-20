@@ -14,12 +14,12 @@ const customStyles = {
         backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
     content : {
-        top: '50%',
-        left: '50%',
+        top: '20%',
+        left: '20%',
         right: 'auto',
         bottom: 'auto',
         marginRight: '-20%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translate(-10%, -10%)',
         border: '10px solid #7a7a7a',
         width: '60%'
     }
@@ -309,6 +309,7 @@ export class ModalFragspectEventView extends Component {
                                     </div>
                                 </Col>
                                 <Col xs={2} md={2}></Col>
+                                <p> </p>
                                 <p> </p>
                                 <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
                                 <Col xs={2} md={2}></Col>
