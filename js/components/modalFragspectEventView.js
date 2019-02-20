@@ -63,7 +63,7 @@ export class ModalFragspectEventView extends Component {
                 0: "No",
                 1: "Yes"
             },
-            "buttonsDepressed": [1,8,11]
+            "buttonsDepressed": []
         };
     }
 
@@ -224,9 +224,9 @@ export class ModalFragspectEventView extends Component {
         if (nextProps.fragspectModalState == "open") {
             this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
             var newButtonsDepressed = [];
-            newButtonsDepressed.push(this.props.fragspectModalContents.event_status);
-            newButtonsDepressed.push(this.props.fragspectModalContents.confidence + 7);
-            newButtonsDepressed.push(this.props.fragspectModalContents.interestingStatus + 10);
+            newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
+            newButtonsDepressed.push(nextProps.fragspectModalContents.confidence + 7);
+            newButtonsDepressed.push(nextProps.fragspectModalContents.interestingStatus + 10);
             this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
     }
