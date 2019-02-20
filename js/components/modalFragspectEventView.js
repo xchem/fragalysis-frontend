@@ -218,16 +218,16 @@ export class ModalFragspectEventView extends Component {
 
     componentWillMount() {
         ReactModal.setAppElement('body');
-        var newButtonsDepressed = [];
-        newButtonsDepressed.push(this.props.fragspectModalContents.event_status);
-        newButtonsDepressed.push(this.props.fragspectModalContents.confidence + 7);
-        newButtonsDepressed.push(this.props.fragspectModalContents.interestingStatus + 10);
-        this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
             this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
+            var newButtonsDepressed = [];
+            newButtonsDepressed.push(this.props.fragspectModalContents.event_status);
+            newButtonsDepressed.push(this.props.fragspectModalContents.confidence + 7);
+            newButtonsDepressed.push(this.props.fragspectModalContents.interestingStatus + 10);
+            this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
         }
     }
 
