@@ -238,6 +238,7 @@ export class ModalFragspectEventView extends Component {
         // var urlToCopy = "";
         // var sessionRename = "";
         // var linkSection = "";
+        var rowHeight = window.innerHeight * 0.1.toString() + "px";
         if (this.props.fragspectModalContents != undefined) {
         //     if (this.props.savingState == "savingSnapshot") {
         //         var sessionRename =<Row></Row>
@@ -264,6 +265,7 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={10} md={10}>
                         <Row>
                             <Col xs={6} md={6}>
+                                <Row style={{height: rowHeight}}></Row>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
                                 <p> </p>
                                 <Col xs={6} md={6}><h3 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h3></Col>
