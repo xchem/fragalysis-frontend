@@ -662,7 +662,7 @@ class FragspectList extends GenericList {
         for (var c in this.state.confidenceFilter){
             filtersOn.push(this.state.confidenceFilter[c]+7);
         }
-        for (var f in this.interestFilter){
+        for (var f in this.state.interestFilter){
             filtersOn.push(this.state.interestFilter[f]+11);
         }
         for (var s in this.state.siteFilter){
