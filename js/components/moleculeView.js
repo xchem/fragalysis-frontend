@@ -354,7 +354,7 @@ class MoleculeView extends GenericView {
     //     }).then(function (response) {
     //         var eDensityObject = {
     //             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-    //             "mapUrl": eDensityUrl,
+    //             "map_url": eDensityUrl,
     //             "display_div": "major_view",
     //             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
     //             "map_type": "electonDensity",
@@ -367,7 +367,7 @@ class MoleculeView extends GenericView {
     generateEDensityObject(eDensityUrl, loadState) {
         var eDensityObject = {
             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-            "mapUrl": eDensityUrl,
+            "map_url": eDensityUrl,
             "display_div": "major_view",
             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
             "map_type": "electonDensity"
