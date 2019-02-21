@@ -271,7 +271,7 @@ export class NGLView extends React.Component {
 
     showEDensity(stage, input_dict, object_name) {
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "gz"}).then(function (comp) {
-            var surf2Fofc = comp.addRepresentation('surface', {
+            var surfFofc = comp.addRepresentation('surface', {
                 color: 'mediumseagreen',
                 isolevel: 3,
                 boxSize: 10,
