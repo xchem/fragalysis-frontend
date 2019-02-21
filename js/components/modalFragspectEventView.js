@@ -281,7 +281,6 @@ export class ModalFragspectEventView extends Component {
                             </Col>
                             <Col xs={2} md={2}></Col>
                         </Row>
-                        <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                         <Row>
                             <Col xs={5} md={5}>
                                 <Row>
