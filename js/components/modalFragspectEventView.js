@@ -273,7 +273,7 @@ export class ModalFragspectEventView extends Component {
                                     <Col xs={6} md={6}><h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2></Col>
                                 </Row>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                <p className="text-center">Space group: {this.props.fragspectModalContents.space_group}. Unit cell: {this.props.data.cell.split(' ')[0]}, {this.props.data.cell.split(' ')[1]}, {this.props.data.cell.split(' ')[2]} ({this.props.data.cell.split(' ')[3]}, {this.props.data.cell.split(' ')[4]}, {this.props.data.cell.split(' ')[5]})</p>
+                                <p className="text-center">Space group: {this.props.fragspectModalContents.space_group}. Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.data.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
                             </Col>
                             <Col xs={2} md={2}></Col>
                             <Col xs={3} md={3}>
