@@ -309,34 +309,25 @@ export class ModalFragspectEventView extends Component {
                                 </Row>
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
-                                    <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
-                                </Row>
-                                <Row>
-                                    <Col xs={2} md={2}></Col>
-                                    <Col xs={8} md={8}>
-                                        <div className="text-center">
+                                    <Col xs={6} md={6}>
+                                        <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
+                                        <Row>
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                                 {this.buttonRender("Confidence", 8, 1)}
                                                 {this.buttonRender("Confidence", 9, 2)}
                                                 {this.buttonRender("Confidence", 10, 3)}
                                             </ToggleButtonGroup>
-                                        </div>
+                                        </Row>
                                     </Col>
-                                    <Col xs={2} md={2}></Col>
-                                </Row>
-                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
-                                <Row>
-                                    <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
-                                    <Col xs={2} md={2}></Col>
-                                    <Col xs={8} md={8}>
-                                        <div className="text-center">
+                                    <Col xs={6} md={6}>
+                                        <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
+                                        <Row>
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                                 {this.buttonRender("Interesting", 11, 0)}
                                                 {this.buttonRender("Interesting", 12, 1)}
                                             </ToggleButtonGroup>
-                                        </div>
+                                        </Row>
                                     </Col>
-                                    <Col xs={2} md={2}></Col>
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
