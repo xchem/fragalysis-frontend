@@ -105,8 +105,7 @@ class FragspectView extends React.Component {
             "crystal_resolution": this.props.data.crystal_resolution,
             "smiles": this.props.data.smiles,
             "space_group": this.props.data.space_group,
-            "cell_dimensions": this.props.data.cell_dimensions,
-            "cell_angles": this.props.data.cell_angles,
+            "cell": this.props.data.cell,
             "event_comment": this.props.data.event_comment,
             "interesting": this.props.data.interesting
         }
@@ -147,8 +146,8 @@ class FragspectView extends React.Component {
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.space_group}</p>
-                <p className="text-center">{this.props.data.cell_dimensions}</p>
-                <p className="text-center">{this.props.data.cell_angles}</p>
+                <p className="text-center">{this.props.data.cell.split(' ')[0]}, {this.props.data.cell.split(' ')[1]}, {this.props.data.cell.split(' ')[2]}</p>
+                <p className="text-center">{this.props.data.cell.split(' ')[3]}, {this.props.data.cell.split(' ')[4]}, {this.props.data.cell.split(' ')[5]}</p>
             </Col>
             <Col xs={1} md={1}>
                 <input id={this.props.data.fragId} key="comment" defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>

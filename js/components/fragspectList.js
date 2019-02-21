@@ -92,8 +92,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
                     "space_group": "P 3 2 1",
-                    "cell_dimensions": "125, 125, 41",
-                    "cell_angles": "90, 90, 120",
+                    "cell": "125 125 41 90 90 120",
                     "event_comment": "Fragspect is amazing.",
                     "interesting": 0
                 },
@@ -119,8 +118,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 1.4,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
                     "space_group": "P 1",
-                    "cell_dimensions": "48, 59, 79",
-                    "cell_angles": "79, 82, 76",
+                    "cell": "48 59 79 79 82 76",
                     "event_comment": "This is magnificent.",
                     "interesting": 1
                 },
@@ -146,8 +144,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 1.4,
                     "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
                     "space_group": "P 1",
-                    "cell_dimensions": "49, 59, 80 ",
-                    "cell_angles": "79, 81, 75",
+                    "cell": "49 59 80 79 81 75",
                     "event_comment": "Fragspect rocks.",
                     "interesting": 1
                 },
@@ -173,8 +170,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 1.4,
                     "smiles":"O=C(O)c1ccc(Br)nc1",
                     "space_group": "C 1 2 1",
-                    "cell_dimensions": "102, 45, 60",
-                    "cell_angles": "90, 90, 90",
+                    "cell": "102 45 60 90 90 90",
                     "event_comment": "Ric for president.",
                     "interesting": 1
                 },
@@ -200,8 +196,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 2.2,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "P 1",
-                    "cell_dimensions": "49, 59, 79",
-                    "cell_angles": "79, 81, 75",
+                    "cell": "49 59 79 79 81 75",
                     "event_comment": "This is magnificent.",
                     "interesting": 1
                 },
@@ -227,8 +222,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 1.8,
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
                     "space_group": "P 3 2 1",
-                    "cell_dimensions": "125, 125, 41",
-                    "cell_angles": "90, 90, 120",
+                    "cell": "125 125 41 90 90 120",
                     "event_comment": "This is magnificent.",
                     "interesting": 1
                 },
@@ -254,8 +248,7 @@ class FragspectList extends GenericList {
                     "crystal_resolution": 2.5,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
                     "space_group": "C 1 2 1",
-                    "cell_dimensions": "102, 45, 60",
-                    "cell_angles": "90, 90, 90",
+                    "cell": "102, 45, 60 90 90 90",
                     "event_comment": "This is magnificent.",
                     "interesting": 0
                 }
