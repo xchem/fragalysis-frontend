@@ -344,37 +344,37 @@ class MoleculeView extends GenericView {
         // json => this.generateEDensityObject(json.results[0].map_info)
         // return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
 
-    generateEDensityObject(eDensityUrl, loadState) {
-        fetch(eDensityUrl, {
-            method: "get",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        }).then(function (response) {
-            var eDensityObject = {
-                "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-                "mapUrl": eDensityUrl,
-                "display_div": "major_view",
-                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-                "map_type": "electonDensity",
-                "map_info": response
-            }
-            return eDensityObject;
-        }).then(eDensityObject => this.handleEDensity(eDensityObject, loadState))
-    }
-
     // generateEDensityObject(eDensityUrl, loadState) {
-    //     var eDensityObject = {
-    //         "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-    //         "mapUrl": eDensityUrl,
-    //         "display_div": "major_view",
-    //         "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-    //         "map_type": "electonDensity"
-    //     }
-    //     return eDensityObject;
-    //     eDensityObject => this.handleEDensity(eDensityObject, loadState)
+    //     fetch(eDensityUrl, {
+    //         method: "get",
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         },
+    //     }).then(function (response) {
+    //         var eDensityObject = {
+    //             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+    //             "mapUrl": eDensityUrl,
+    //             "display_div": "major_view",
+    //             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+    //             "map_type": "electonDensity",
+    //             "map_info": response
+    //         }
+    //         return eDensityObject;
+    //     }).then(eDensityObject => this.handleEDensity(eDensityObject, loadState))
     // }
+
+    generateEDensityObject(eDensityUrl, loadState) {
+        var eDensityObject = {
+            "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+            "mapUrl": eDensityUrl,
+            "display_div": "major_view",
+            "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+            "map_type": "electonDensity"
+        }
+        return eDensityObject;
+        eDensityObject => this.handleEDensity(eDensityObject, loadState)
+    }
 
     handleEDensity(eDensityObject, loadState){
         if (loadState === 'load'){
