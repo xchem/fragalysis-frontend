@@ -66,8 +66,8 @@ class FragspectList extends GenericList {
                 7: "Analysed and Rejected"
             },
             "interestStatus": {
-                0: "Not interesting",
-                1: "Interesting"
+                false: "Not interesting",
+                true: "Interesting"
             },
             fragspectObjects: [
                 {
@@ -94,7 +94,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 3 2 1",
                     "cell": "125 125 41 90 90 120",
                     "event_comment": "Fragspect is amazing.",
-                    "interesting": 0
+                    "interesting": false
                 },
                 {
                     "frag_id": 50,
@@ -120,7 +120,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell": "48 59 79 79 82 76",
                     "event_comment": "This is magnificent.",
-                    "interesting": 1
+                    "interesting": true
                 },
                 {
                     "fragId": 51,
@@ -146,7 +146,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell": "49 59 80 79 81 75",
                     "event_comment": "Fragspect rocks.",
-                    "interesting": 1
+                    "interesting": true
                 },
                 {
                     "fragId": 52,
@@ -172,7 +172,7 @@ class FragspectList extends GenericList {
                     "space_group": "C 1 2 1",
                     "cell": "102 45 60 90 90 90",
                     "event_comment": "Ric for president.",
-                    "interesting": 1
+                    "interesting": true
                 },
                 {
                     "fragId": 53,
@@ -198,7 +198,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 1",
                     "cell": "49 59 79 79 81 75",
                     "event_comment": "This is magnificent.",
-                    "interesting": 1
+                    "interesting": true
                 },
                 {
                     "fragId": 54,
@@ -224,7 +224,7 @@ class FragspectList extends GenericList {
                     "space_group": "P 3 2 1",
                     "cell": "125 125 41 90 90 120",
                     "event_comment": "This is magnificent.",
-                    "interesting": 1
+                    "interesting": true
                 },
                 {
                     "fragId": 55,
@@ -250,7 +250,7 @@ class FragspectList extends GenericList {
                     "space_group": "C 1 2 1",
                     "cell": "102, 45, 60 90 90 90",
                     "event_comment": "This is magnificent.",
-                    "interesting": 0
+                    "interesting": false
                 }
             ]
         };

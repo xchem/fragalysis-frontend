@@ -62,8 +62,8 @@ export class ModalFragspectEventView extends Component {
                 7: "Analysed and Rejected"
             },
             "interestingStatus": {
-                0: "No",
-                1: "Yes"
+                false: "No",
+                true: "Yes"
             },
             "buttonsDepressed": [],
             "initiated": 0
@@ -265,24 +265,23 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row>
-                            <Col xs={5} md={5}>
-                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                            <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
+                            <Col xs={5} md={5}>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                <Row>
+                                <Col xs={6} md={6}>
                                     <Col xs={6} md={6}><h2 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h2></Col>
                                     <Col xs={6} md={6}><h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2></Col>
-                                </Row>
+                                </Col>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                <p className="text-center">Space group: {this.props.fragspectModalContents.space_group}. Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
+                                <p>Space group: {this.props.fragspectModalContents.space_group}.</p>
+                                <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
                             </Col>
                             <Col xs={2} md={2}></Col>
                             <Col xs={3} md={3}>
                                 {this.generateMolImage(this.props.fragspectModalContents.smiles)}
                             </Col>
                             <Col xs={2} md={2}></Col>
-                        </Row>
-                        <Row>
                             <Col xs={5} md={5}>
                                 <Row>
                                     <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
@@ -322,12 +321,10 @@ export class ModalFragspectEventView extends Component {
                                     </Col>
                                     <Col xs={6} md={6}>
                                         <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
-                                        <Row>
-                                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                                {this.buttonRender("Interesting", 11, 0)}
-                                                {this.buttonRender("Interesting", 12, 1)}
-                                            </ToggleButtonGroup>
-                                        </Row>
+                                        <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                            {this.buttonRender("Interesting", 11, 0)}
+                                            {this.buttonRender("Interesting", 12, 1)}
+                                        </ToggleButtonGroup>
                                     </Col>
                                 </Row>
                             </Col>
