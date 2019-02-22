@@ -357,7 +357,7 @@ class MoleculeView extends GenericView {
     //             "map_url": eDensityUrl,
     //             "display_div": "major_view",
     //             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-    //             "map_type": "electonDensity",
+    //             "map_type": "electronDensity",
     //             "map_info": response
     //         }
     //         return eDensityObject;
@@ -370,7 +370,7 @@ class MoleculeView extends GenericView {
             "map_url": eDensityUrl,
             "display_div": "major_view",
             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-            "map_type": "electonDensity"
+            "map_type": "electronDensity"
         }
         return eDensityObject;
         eDensityObject => this.handleEDensity(eDensityObject, loadState)

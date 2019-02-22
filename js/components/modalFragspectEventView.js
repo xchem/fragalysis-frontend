@@ -7,6 +7,7 @@ import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button, Row, Col, Image, Panel, ToggleButtonGroup, ToggleButton} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
+import NGLView from "../components/nglComponents";
 
 const customStyles = {
     overlay : {
@@ -331,9 +332,7 @@ export class ModalFragspectEventView extends Component {
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
-                                <div className="text-center">
-                                    {this.generateMolImage("NCl")}
-                                </div>
+                                <NGLView div_id="fragspect" height={window.innerHeight*0.7.toString()+"px"}/>
                             </Col>
                         </Row>
                         <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
