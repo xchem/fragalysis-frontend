@@ -49,8 +49,8 @@ class FragspectView extends React.Component {
                 7: "Analysed and Rejected"
             },
             "interestingStatus": {
-                false: "No",
-                true: "Yes"
+                0: "No",
+                1: "Yes"
             }
         }
     }
