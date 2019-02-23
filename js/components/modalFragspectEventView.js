@@ -265,26 +265,25 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row>
-                            <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
+                            <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
+                            <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
+                            <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                             <Col xs={5} md={5}>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Col xs={6} md={6}>
-                                    <h2 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h2>
-                                    <h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2>
+                                    <h2>Target: {this.props.fragspectModalContents.target_name}</h2>
+                                    <h2>Site {this.props.fragspectModalContents.site_number}</h2>
                                     <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                     <p>Space group: {this.props.fragspectModalContents.space_group}.</p>
                                     <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
+                                    <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
                                 </Col>
                                 <Col xs={6} md={6}>
                                     {this.generateMolImage(this.props.fragspectModalContents.smiles)}
                                 </Col>
-                                <Row>
-                                    <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
-                                </Row>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
-                                    <p>Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</p>
+                                    <h3 className="text-center">Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</h3>
                                 </Row>
                                 <Row>
                                     <Col xs={6} md={6}>
@@ -306,35 +305,37 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <Col xs={6} md={6}>
-                                        <p>Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</p>
-                                        <Row>
+                                        <h3 className="text-center">Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</h3>
+                                        <div className="text-center">
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                                 {this.buttonRender("Confidence", 8, 1)}
                                                 {this.buttonRender("Confidence", 9, 2)}
                                                 {this.buttonRender("Confidence", 10, 3)}
                                             </ToggleButtonGroup>
-                                        </Row>
+                                        </div>
                                     </Col>
                                     <Col xs={6} md={6}>
-                                        <p>Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</p>
-                                        <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
-                                            {this.buttonRender("Interesting", 11, 0)}
-                                            {this.buttonRender("Interesting", 12, 1)}
-                                        </ToggleButtonGroup>
+                                        <h3 className="text-center">Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</h3>
+                                        <div className="text-center">
+                                            <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
+                                                {this.buttonRender("Interesting", 11, 0)}
+                                                {this.buttonRender("Interesting", 12, 1)}
+                                            </ToggleButtonGroup>
+                                        </div>
                                     </Col>
+                                </Row>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                <Row>
+                                    <p className="inline">{" "}</p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                                </Row>
+                                <Row>
+                                    <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                    <Button onClick={this.closeModal}>Close</Button>
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
                                 <NGLView div_id="fragspect" height={window.innerHeight*0.7.toString()+"px"}/>
                             </Col>
-                        </Row>
-                        <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
-                        <Row>
-                            <p className="inline">{" "}</p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
-                        </Row>
-                        <Row>
-                            <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
-                            <Button onClick={this.closeModal}>Close</Button>
                         </Row>
                     </Col>
                     <Col xs={1} md={1}></Col>
