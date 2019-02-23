@@ -153,7 +153,7 @@ class FragspectView extends React.Component {
                 <input id={this.props.data.fragId} key="comment" defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>
             </Col>
             <Col xs={1} md={1}>
-                <p className="text-center"><b>{this.state.interestingStatus[this.props.data.interesting == "true" ? 1 : 0]}</b></p>
+                <p className="text-center"><b>{this.state.interestingStatus[this.props.data.interesting == true ? 1 : 0]}</b></p>
             </Col>
         </Row>
     }

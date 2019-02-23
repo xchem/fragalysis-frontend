@@ -572,7 +572,7 @@ class FragspectList extends GenericList {
             for (var event in this.state.fragspectObjects) {
                 if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
                     this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
-                    this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == "true" ? 1 : 0) &&
+                    this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
                     this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                     rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
                                              data={this.state.fragspectObjects[event]}/>)
@@ -602,7 +602,7 @@ class FragspectList extends GenericList {
                     if (this.state.fragspectObjects[event].crystal == this.state.crystalList[crystal] &&
                         this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
                         this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
-                        this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == "true" ? 1 : 0) &&
+                        this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
                         this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                         rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
                                                  data={this.state.fragspectObjects[event]}/>)
