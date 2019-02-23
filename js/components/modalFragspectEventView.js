@@ -270,19 +270,15 @@ export class ModalFragspectEventView extends Component {
                             <Col xs={5} md={5}>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Col xs={6} md={6}>
-                                    <Col xs={6} md={6}><h2 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h2></Col>
-                                    <Col xs={6} md={6}><h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2></Col>
+                                    <h2 className="text-center">Target: {this.props.fragspectModalContents.target_name}</h2>
+                                    <h2 className="text-center">Site {this.props.fragspectModalContents.site_number}</h2>
+                                    <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
+                                    <p>Space group: {this.props.fragspectModalContents.space_group}.</p>
+                                    <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
                                 </Col>
-                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                <p>Space group: {this.props.fragspectModalContents.space_group}.</p>
-                                <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
-                            </Col>
-                            <Col xs={2} md={2}></Col>
-                            <Col xs={3} md={3}>
-                                {this.generateMolImage(this.props.fragspectModalContents.smiles)}
-                            </Col>
-                            <Col xs={2} md={2}></Col>
-                            <Col xs={5} md={5}>
+                                <Col xs={6} md={6}>
+                                    {this.generateMolImage(this.props.fragspectModalContents.smiles)}
+                                </Col>
                                 <Row>
                                     <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
                                 </Row>
