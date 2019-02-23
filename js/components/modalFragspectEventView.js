@@ -284,8 +284,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <h3 className="text-center">Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</h3>
-                                </Row>
-                                <Row>
+                                    <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <Col xs={6} md={6}>
                                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                             {this.buttonRender("Deposition", 1, "Analysis Pending")}
@@ -302,10 +301,11 @@ export class ModalFragspectEventView extends Component {
                                         </ToggleButtonGroup>
                                     </Col>
                                 </Row>
-                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
+                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <Col xs={6} md={6}>
                                         <h3 className="text-center">Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</h3>
+                                        <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                         <div className="text-center">
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                                 {this.buttonRender("Confidence", 8, 1)}
@@ -316,6 +316,7 @@ export class ModalFragspectEventView extends Component {
                                     </Col>
                                     <Col xs={6} md={6}>
                                         <h3 className="text-center">Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</h3>
+                                        <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                         <div className="text-center">
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
                                                 {this.buttonRender("Interesting", 11, 0)}
@@ -326,10 +327,12 @@ export class ModalFragspectEventView extends Component {
                                 </Row>
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
-                                    <p className="inline">{" "}</p><input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                                    <div className="text-center">
+                                    <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                                    </div>
                                 </Row>
+                                <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
-                                    <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                     <Button onClick={this.closeModal}>Close</Button>
                                 </Row>
                             </Col>
