@@ -35,9 +35,9 @@ class FragspectView extends React.Component {
                 1: "Low",
                 2: "Medium",
                 3: "High",
-                4: "Not viewed",
-                5: "Interesting",
-                6: "Discard"
+                // 4: "Not viewed",
+                // 5: "Interesting",
+                // 6: "Discard"
             },
             "depositionStatus": {
                 1: "Analysis Pending",
@@ -153,7 +153,7 @@ class FragspectView extends React.Component {
                 <input id={this.props.data.fragId} key="comment" defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>
             </Col>
             <Col xs={1} md={1}>
-                <p className="text-center"><b>{this.state.interestingStatus[this.props.data.interesting]}</b></p>
+                <p className="text-center"><b>{this.state.interestingStatus[this.props.data.interesting == "true" ? 1 : 0]}</b></p>
             </Col>
         </Row>
     }
