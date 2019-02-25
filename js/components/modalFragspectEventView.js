@@ -7,6 +7,7 @@ import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button, Row, Col, Image, Panel, ToggleButtonGroup, ToggleButton} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
+import NGLSpectView from "../components/nglSpectView";
 import NGLView from "../components/nglComponents";
 
 const customStyles = {
@@ -269,11 +270,12 @@ export class ModalFragspectEventView extends Component {
                             <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
                             <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                             <Col xs={5} md={5}>
-                                <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Col xs={6} md={6}>
-                                    <h2>Target: {this.props.fragspectModalContents.target_name}</h2>
-                                    <h2>Site {this.props.fragspectModalContents.site_number}</h2>
                                     <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
+                                    <h2>Target: {this.props.fragspectModalContents.target_name}</h2>
+                                    <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
+                                    <h2>Site {this.props.fragspectModalContents.site_number}</h2>
+                                    <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <p>Space group: {this.props.fragspectModalContents.space_group}.</p>
                                     <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
                                     <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
@@ -337,7 +339,8 @@ export class ModalFragspectEventView extends Component {
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
-                                <NGLView div_id="fragspect" height={window.innerHeight*0.7.toString()+"px"}/>
+                                <NGLSpectView div_id="fragspectModal" height={window.innerHeight*0.7.toString()+"px"}/>
+                                {/*<NGLView div_id="fragspect" height={window.innerHeight*0.7.toString()+"px"}/>*/}
                             </Col>
                         </Row>
                     </Col>
