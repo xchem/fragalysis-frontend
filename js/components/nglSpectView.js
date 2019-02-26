@@ -254,47 +254,6 @@ export class NGLSpectView extends React.Component {
             }
         });
 
-        var loadStructureButton = this.createFileButton("load structure", {
-                accept: ".pdb,.cif,.ent,.gz",
-                onchange: function (e) {
-                    if (e.target.files[0]) {
-                        this.exampleSelect.value = ""
-                        this.loadStructure(e.target.files[0])
-                    }
-                }
-            },
-            {top: "12px", left: "12px"}
-        );
-
-        this.addElement(loadStructureButton);
-
-        var load2fofcButton = this.createFileButton("load 2fofc", {
-                accept: ".map,.ccp4,.brix,.dsn6,.mrc,.gz",
-                onchange: function (e) {
-                    if (e.target.files[0]) {
-                        this.load2fofc(e.target.files[0])
-                    }
-                }
-            },
-            {top: "36px", left: "12px"}
-        );
-
-        this.addElement(load2fofcButton);
-
-        var loadFofcButton = this.createFileButton("load fofc", {
-                accept: ".map,.ccp4,.brix,.dsn6,.mrc,.gz",
-                onchange: function (e) {
-                    if (e.target.files[0]) {
-                        loadFofc(e.target.files[0])
-                    }
-                }
-            },
-            {top: "60px", left: "12px"}
-        );
-
-        this.addElement(loadFofcButton);
-
-
         var exampleSelect = this.createSelect([
                 ["", "load example"],
                 ["3ek3", "3ek3"],
@@ -563,8 +522,47 @@ export class NGLSpectView extends React.Component {
         DatasourceRegistry.add("data", new StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
         // _ngl.DatasourceRegistry._dict.data.baseUrl
 
-                return <div style={{height: this.height}} id={this.div_id}>
-           </div>
+        var loadStructureButton = this.createFileButton("load structure", {
+                accept: ".pdb,.cif,.ent,.gz",
+                onchange: function (e) {
+                    if (e.target.files[0]) {
+                        this.exampleSelect.value = ""
+                        this.loadStructure(e.target.files[0])
+                    }
+                }
+            },
+            {top: "12px", left: "12px"}
+        );
+
+        this.addElement(loadStructureButton);
+
+        var load2fofcButton = this.createFileButton("load 2fofc", {
+                accept: ".map,.ccp4,.brix,.dsn6,.mrc,.gz",
+                onchange: function (e) {
+                    if (e.target.files[0]) {
+                        this.load2fofc(e.target.files[0])
+                    }
+                }
+            },
+            {top: "36px", left: "12px"}
+        );
+
+        this.addElement(load2fofcButton);
+
+        var loadFofcButton = this.createFileButton("load fofc", {
+                accept: ".map,.ccp4,.brix,.dsn6,.mrc,.gz",
+                onchange: function (e) {
+                    if (e.target.files[0]) {
+                        loadFofc(e.target.files[0])
+                    }
+                }
+            },
+            {top: "60px", left: "12px"}
+        );
+
+        this.addElement(loadFofcButton);
+
+        return <div style={{height: this.height}} id={this.div_id}></div>
     }
 }
 
