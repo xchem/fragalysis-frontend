@@ -254,29 +254,29 @@ export class NGLSpectView extends React.Component {
             }
         });
 
-        var exampleSelect = this.createSelect([
-                ["", "load example"],
-                ["3ek3", "3ek3"],
-                ["3nzd", "3nzd"],
-                ["1lee", "1lee"]
-            ], {
-                onchange: function (e) {
-                    var id = e.target.value
-                    this.loadExample(id).then(function () {
-                        if (id === "3nzd") {
-                            seleInput.value = "NDP"
-                        } else if (id === "1lee") {
-                            seleInput.value = "R36 and (.C28 or .N1)"
-                        }
-                        this.applySele(seleInput.value)
-                    })
-                }
-            },
-            {top: "84px", left: "12px"}
-        );
-
-
-        this.addElement(exampleSelect);
+        // var exampleSelect = this.createSelect([
+        //         ["", "load example"],
+        //         ["3ek3", "3ek3"],
+        //         ["3nzd", "3nzd"],
+        //         ["1lee", "1lee"]
+        //     ], {
+        //         onchange: function (e) {
+        //             var id = e.target.value
+        //             this.loadExample(id).then(function () {
+        //                 if (id === "3nzd") {
+        //                     seleInput.value = "NDP"
+        //                 } else if (id === "1lee") {
+        //                     seleInput.value = "R36 and (.C28 or .N1)"
+        //                 }
+        //                 this.applySele(seleInput.value)
+        //             })
+        //         }
+        //     },
+        //     {top: "84px", left: "12px"}
+        // );
+        //
+        //
+        // this.addElement(exampleSelect);
 
         var seleText = this.createElement("span", {
                 innerText: "center selection",
