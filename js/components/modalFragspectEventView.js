@@ -222,7 +222,7 @@ export class ModalFragspectEventView extends Component {
     }
 
     generateTargetObject() {
-        if(JSON.stringify(prot_to_load)!=JSON.stringify(undefined)) {
+        if(JSON.stringify(this.props.targetOn)!=JSON.stringify(undefined)) {
             var out_object = {
                 "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
                 "prot_url": this.props.boundPdbUrl,
@@ -375,6 +375,7 @@ function mapStateToProps(state) {
     return {
         fragspectModalState: state.apiReducers.present.fragspectModalState,
         fragspectModalContents: state.apiReducers.present.fragspectModalContents,
+        targetOn: state.apiReducers.present.target_on
     }
 }
 
