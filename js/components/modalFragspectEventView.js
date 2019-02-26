@@ -222,7 +222,7 @@ export class ModalFragspectEventView extends Component {
     }
 
     generateTargetObject() {
-        if(JSON.stringify(this.props.targetOn)!=JSON.stringify(undefined)) {
+        // if(JSON.stringify(this.props.targetOn)!=JSON.stringify(undefined)) {
             var out_object = {
                 "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
                 "prot_url": this.props.boundPdbUrl,
@@ -230,8 +230,8 @@ export class ModalFragspectEventView extends Component {
                 "nglProtStyle": this.props.nglProtStyle
             }
             return out_object
-        }
-        return undefined;
+        // }
+        // return undefined;
     }
 
     componentWillMount() {
