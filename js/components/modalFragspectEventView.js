@@ -7,10 +7,10 @@ import {connect} from "react-redux";
 import ReactModal from "react-modal";
 import {Button, Row, Col, Image, Panel, ToggleButtonGroup, ToggleButton} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
-// import NGLSpectView from "../components/nglSpectView";
-import NGLView from "../components/nglComponents";
 import * as nglObjectTypes from "../components/nglObjectTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
+// import NGLSpectView from "../components/nglSpectView";
+import NGLView from "../components/nglComponents";
 
 const customStyles = {
     overlay : {
@@ -241,7 +241,12 @@ export class ModalFragspectEventView extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
             this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
-            var targObject = this.generateTargetObject();
+            var targObject = {
+                "name": "PROTEIN_" + nextProps.fragspectModalContents.target_id.toString(),
+                "prot_url": nextProps.targetOn,
+                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
+                "nglProtStyle": nextProps.nglProtStyle
+            }
             this.props.loadObject(Object.assign({}, targObject, {display_div: "fragspect", name: targObject.name+"_SPECT"}));
             if (this.state.initiated == 0) {
                 var newButtonsDepressed = [];
@@ -375,7 +380,8 @@ function mapStateToProps(state) {
     return {
         fragspectModalState: state.apiReducers.present.fragspectModalState,
         fragspectModalContents: state.apiReducers.present.fragspectModalContents,
-        targetOn: state.apiReducers.present.target_on
+        targetOn: state.apiReducers.present.target_on,
+        nglProtStyle: state.nglReducers.present.nglProtStyle
     }
 }
 

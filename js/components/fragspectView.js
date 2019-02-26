@@ -89,7 +89,7 @@ class FragspectView extends React.Component {
                     this.deployErrorModal(error);
                 })
     }
-
+    
     updateModalData() {
         var fragspectObject = {
             "fragId": this.props.data.fragId,
