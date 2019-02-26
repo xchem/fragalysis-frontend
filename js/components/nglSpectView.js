@@ -432,29 +432,29 @@ export class NGLSpectView extends React.Component {
 
         this.addElement(screenshotButton);
 
-        var scrollSelect = this.createSelect([
-                ["2fofc", "scroll 2fofc"],
-                ["fofc", "scroll fofc"],
-                ["both", "scroll both"]
-            ], {
-                onchange: function (e) {
-                    var v = e.target.value;
-                    if (v === "2fofc") {
-                        this.scroll2fofc = true,
-                            this.scrollFofc = false
-                    } else if (v === "fofc") {
-                        this.scroll2fofc = false,
-                            this.scrollFofc = true
-                    } else if (v === "both") {
-                        this.scroll2fofc = true,
-                            this.scrollFofc = true
-                    }
-                }
-            },
-            {top: "306px", left: "12px"}
-        );
-
-        this.addElement(scrollSelect)
+        // var scrollSelect = this.createSelect([
+        //         ["2fofc", "scroll 2fofc"],
+        //         ["fofc", "scroll fofc"],
+        //         ["both", "scroll both"]
+        //     ], {
+        //         onchange: function (e) {
+        //             var v = e.target.value;
+        //             if (v === "2fofc") {
+        //                 this.scroll2fofc = true,
+        //                     this.scrollFofc = false
+        //             } else if (v === "fofc") {
+        //                 this.scroll2fofc = false,
+        //                     this.scrollFofc = true
+        //             } else if (v === "both") {
+        //                 this.scroll2fofc = true,
+        //                     this.scrollFofc = true
+        //             }
+        //         }
+        //     },
+        //     {top: "306px", left: "12px"}
+        // );
+        //
+        // this.addElement(scrollSelect)
 
         var loadEdmapText = this.createElement("span", {
                 innerText: "load edmap for pdb id",
