@@ -9,6 +9,8 @@ import {Button, Row, Col, Image, Panel, ToggleButtonGroup, ToggleButton} from 'r
 import * as apiActions from "../actions/apiActions";
 // import NGLSpectView from "../components/nglSpectView";
 import NGLView from "../components/nglComponents";
+import * as nglObjectTypes from "../components/nglObjectTypes";
+import * as nglLoadActions from "../actions/nglLoadActions";
 
 const customStyles = {
     overlay : {
@@ -40,6 +42,7 @@ export class ModalFragspectEventView extends Component {
         // this.getTitle = this.getTitle.bind(this);
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
         this.state = {
             fraggleBoxLoc: undefined,
@@ -218,6 +221,19 @@ export class ModalFragspectEventView extends Component {
         this.props.setFragspectModalState("closed");
     }
 
+    generateTargetObject() {
+        if(JSON.stringify(prot_to_load)!=JSON.stringify(undefined)) {
+            var out_object = {
+                "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
+                "prot_url": this.props.boundPdbUrl,
+                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
+                "nglProtStyle": this.props.nglProtStyle
+            }
+            return out_object
+        }
+        return undefined;
+    }
+
     componentWillMount() {
         ReactModal.setAppElement('body');
     }
@@ -225,6 +241,8 @@ export class ModalFragspectEventView extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
             this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
+            var targObject = this.generateTargetObject();
+            this.props.loadObject(Object.assign({}, targObject, {display_div: "fragspect", name: targObject.name+"_SPECT"}));
             if (this.state.initiated == 0) {
                 var newButtonsDepressed = [];
                 newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
@@ -362,6 +380,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
     setFragspectModalState: apiActions.setFragspectModalState,
+    loadObject: nglLoadActions.loadObject,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalFragspectEventView);

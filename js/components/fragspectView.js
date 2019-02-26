@@ -31,6 +31,8 @@ class FragspectView extends React.Component {
         Object.keys(get_params).forEach(key => this.img_url.searchParams.append(key, get_params[key]))
         this.key = "mol_image"
         this.state = {
+            "boundPdbUrl": undefined,
+            "eDensityMapUrl": undefined,
             "confidenceStatus": {
                 1: "Low",
                 2: "Medium",
@@ -82,7 +84,7 @@ class FragspectView extends React.Component {
         this.props.setFragspectModalState("open");
         fetch(window.location.protocol + "//" + window.location.host+"/api/proteins/?code="+this.props.data.code)
             .then(response => response.json())
-            .then(json => this.props.setTargetOn(json["results"][0].id))
+            .then(json => this.props.setTargetOn(json["results"][0].bound_info))
             .catch((error) => {
                     this.deployErrorModal(error);
                 })
@@ -167,8 +169,8 @@ class FragspectView extends React.Component {
 }
 
 function mapStateToProps(state) {
-  return {
-      fragspectModalState: state.apiReducers.present.fragspectModalState,
+    return {
+        fragspectModalState: state.apiReducers.present.fragspectModalState,
   }
 }
 
