@@ -315,55 +315,55 @@ export class NGLSpectView extends React.Component {
 
         this.addElement(seleInput);
 
-        var surfaceSelect = this.createSelect([
-                    ["contour", "contour"],
-                    ["wireframe", "wireframe"],
-                    ["smooth", "smooth"],
-                    ["flat", "flat"]
-                ], {
-                    onchange: function (e) {
-                        var v = e.target.value
-                        var p
-                        if (v === "contour") {
-                            p = {
-                                contour: true,
-                                flatShaded: false,
-                                opacity: 1,
-                                metalness: 0,
-                                wireframe: false
-                            }
-                        } else if (v === "wireframe") {
-                            p = {
-                                contour: false,
-                                flatShaded: false,
-                                opacity: 1,
-                                metalness: 0,
-                                wireframe: true
-                            }
-                        } else if (v === "smooth") {
-                            p = {
-                                contour: false,
-                                flatShaded: false,
-                                opacity: 0.5,
-                                metalness: 0,
-                                wireframe: false
-                            }
-                        } else if (v === "flat") {
-                            p = {
-                                contour: false,
-                                flatShaded: true,
-                                opacity: 0.5,
-                                metalness: 0.2,
-                                wireframe: false
-                            }
-                        }
-                        this.stage.getRepresentationsByName("surface").setParameters(p)
-                    }
-                },
-                {top: "170px", left: "12px"}
-            );
-
-        this.addElement(surfaceSelect);
+        // var surfaceSelect = this.createSelect([
+        //             ["contour", "contour"],
+        //             ["wireframe", "wireframe"],
+        //             ["smooth", "smooth"],
+        //             ["flat", "flat"]
+        //         ], {
+        //             onchange: function (e) {
+        //                 var v = e.target.value
+        //                 var p
+        //                 if (v === "contour") {
+        //                     p = {
+        //                         contour: true,
+        //                         flatShaded: false,
+        //                         opacity: 1,
+        //                         metalness: 0,
+        //                         wireframe: false
+        //                     }
+        //                 } else if (v === "wireframe") {
+        //                     p = {
+        //                         contour: false,
+        //                         flatShaded: false,
+        //                         opacity: 1,
+        //                         metalness: 0,
+        //                         wireframe: true
+        //                     }
+        //                 } else if (v === "smooth") {
+        //                     p = {
+        //                         contour: false,
+        //                         flatShaded: false,
+        //                         opacity: 0.5,
+        //                         metalness: 0,
+        //                         wireframe: false
+        //                     }
+        //                 } else if (v === "flat") {
+        //                     p = {
+        //                         contour: false,
+        //                         flatShaded: true,
+        //                         opacity: 0.5,
+        //                         metalness: 0.2,
+        //                         wireframe: false
+        //                     }
+        //                 }
+        //                 this.stage.getRepresentationsByName("surface").setParameters(p)
+        //             }
+        //         },
+        //         {top: "170px", left: "12px"}
+        //     );
+        //
+        // this.addElement(surfaceSelect);
 
         var toggle2fofcButton = this.createElement("input", {
                 type: "button",
