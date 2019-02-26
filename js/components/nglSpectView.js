@@ -2,7 +2,7 @@
  * Created by rgillams on 25/02/2019.
  */
 
-import {Stage, Shape, concatStructures, Selection, DatasourceRegistry} from "ngl";
+import {Stage, Shape, concatStructures, Selection, DatasourceRegistry, StaticDatasource} from "ngl";
 import React from "react";
 import {connect} from "react-redux";
 
@@ -41,7 +41,7 @@ export class NGLSpectView extends React.Component {
     }
 
     getData() {
-        this.nglData = new DatasourceRegistry.add("data", new NGL.StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
+        this.nglData = new DatasourceRegistry.add("data", new StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
     }
 
     addElement(el) {
@@ -245,7 +245,7 @@ export class NGLSpectView extends React.Component {
     }
 
     render() {
-        DatasourceRegistry.add("data", new NGL.StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
+        DatasourceRegistry.add("data", new StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
 
         var loadStructureButton = this.createFileButton("load structure", {
                 accept: ".pdb,.cif,.ent,.gz",
