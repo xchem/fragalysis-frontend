@@ -16,7 +16,6 @@ export class NGLSpectView extends React.Component {
         this.focus_var = 95;
         this.stage = undefined;
         this.orientationToSet = {};
-        this.renderDisplay = this.renderDisplay.bind(this);
         this.getData = this.getData.bind(this);
         this.addElement = this.addElement.bind(this);
         this.createElement = this.createElement.bind(this);
@@ -530,7 +529,7 @@ export class NGLSpectView extends React.Component {
 
         this.addElement(isolevelFofcText)
         this.addElement(isolevelFofcText)
-        
+
         var fileStructureText = this.createElement("span", {
             innerText: "structure file: none"
         }, {bottom: "52px", right: "12px", color: "lightgrey"})
