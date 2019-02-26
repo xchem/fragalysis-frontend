@@ -8,7 +8,7 @@ import ReactModal from "react-modal";
 import {Button, Row, Col, Image, Panel, ToggleButtonGroup, ToggleButton} from 'react-bootstrap';
 import * as apiActions from "../actions/apiActions";
 import NGLSpectView from "../components/nglSpectView";
-import NGLView from "../components/nglComponents";
+// import NGLView from "../components/nglComponents";
 
 const customStyles = {
     overlay : {
