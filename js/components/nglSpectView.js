@@ -254,7 +254,7 @@ export class NGLSpectView extends React.Component {
             }
         });
 
-        var dict = [{"": "load example"}, {"3ek3": "3ek3"}, {"3nzd": "3nzd"}, {"1lee": "1lee"}];
+        var dict = ["": "load example", "3ek3": "3ek3", "3nzd": "3nzd", "1lee": "1lee"];
         var exampleSelect = this.createSelect(dict,
             {
                 onchange: function (e) {
