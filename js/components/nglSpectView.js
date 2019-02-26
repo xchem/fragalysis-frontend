@@ -241,16 +241,18 @@ export class NGLSpectView extends React.Component {
             local_stage.handleResize();
         }, false);
         // this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.stage.mouseControls.add("scroll", this.isolevelScroll)
         this.stage.setParameters({cameraType: "orthographic", mousePreset: "coot"});
-    }
-
-    componentDidUpdate(){
-    }
-
-    render() {
-        DatasourceRegistry.add("data", new StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
-        // _ngl.DatasourceRegistry._dict.data.baseUrl
+        this.stage.mouseControls.add("scroll", this.isolevelScroll)
+        this.stage.mouseControls.add("scroll", function () {
+            if (this.surf2fofc) {
+                var level2fofc = this.surf2fofc.getParameters().isolevel.toFixed(1)
+                isolevel2fofcText.innerText = "2fofc level: " + level2fofc + "\u03C3"
+            }
+            if (this.surfFofc) {
+                var levelFofc = this.surfFofc.getParameters().isolevel.toFixed(1)
+                isolevelFofcText.innerText = "fofc level: " + levelFofc + "\u03C3"
+            }
+        });
 
         var loadStructureButton = this.createFileButton("load structure", {
                 accept: ".pdb,.cif,.ent,.gz",
@@ -552,19 +554,16 @@ export class NGLSpectView extends React.Component {
         }, {bottom: "12px", right: "12px", color: "lightgrey"})
 
         this.addElement(fileFofcText)
+    }
 
-        this.stage.mouseControls.add("scroll", function () {
-            if (this.surf2fofc) {
-                var level2fofc = this.surf2fofc.getParameters().isolevel.toFixed(1)
-                isolevel2fofcText.innerText = "2fofc level: " + level2fofc + "\u03C3"
-            }
-            if (this.surfFofc) {
-                var levelFofc = this.surfFofc.getParameters().isolevel.toFixed(1)
-                isolevelFofcText.innerText = "fofc level: " + levelFofc + "\u03C3"
-            }
-        })
+    componentDidUpdate(){
+    }
 
-        return <div style={{height: this.height}} id={this.div_id}>
+    render() {
+        DatasourceRegistry.add("data", new StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
+        // _ngl.DatasourceRegistry._dict.data.baseUrl
+
+                return <div style={{height: this.height}} id={this.div_id}>
            </div>
     }
 }
