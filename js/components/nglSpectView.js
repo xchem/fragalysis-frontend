@@ -234,7 +234,7 @@ export class NGLSpectView extends React.Component {
     }
 
     componentDidMount() {
-        // this.stage = new Stage(this.div_id);
+        this.stage = new Stage(this.div_id);
         // Handle window resizing
         var local_stage = this.stage;
         window.addEventListener("resize", function (event) {
