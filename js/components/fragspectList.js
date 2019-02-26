@@ -80,7 +80,7 @@ class FragspectList extends GenericList {
                     "target_name": "NUDT21A",
                     "target_id": 6,
                     "prot_id": 8657,
-                    "prot_url": "media/pdbs/NUDT21A-x0266_1_bound.pdb",
+                    "prot_url": "media/pdbs/NUDT21A-x0266_1_apo.pdb",
                     "event_map_info": "media/maps/NUDT21A-x0266_1_pandda.map",
                     "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
                     "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
