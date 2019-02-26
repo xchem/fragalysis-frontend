@@ -93,6 +93,7 @@ class FragspectView extends React.Component {
             "target_name": this.props.data.target_name,
             "target_id": this.props.data.target_id,
             "prot_id": this.props.data.prot_id,
+            "prot_url": this.props.data.prot_url,
             "event_map_info": this.props.data.event_map_info,
             "sigmaa_map_info": this.props.data.sigmaa_map_info,
             "spider_plot_info": this.props.data.spider_plot_info,
