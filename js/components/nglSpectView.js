@@ -229,8 +229,12 @@ export class NGLSpectView extends React.Component {
         return Promise.all(pl)
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.stage = new Stage(this.div_id);
+    }
+
+    componentDidMount() {
+        // this.stage = new Stage(this.div_id);
         // Handle window resizing
         var local_stage = this.stage;
         window.addEventListener("resize", function (event) {
@@ -246,6 +250,7 @@ export class NGLSpectView extends React.Component {
 
     render() {
         DatasourceRegistry.add("data", new StaticDatasource("//cdn.rawgit.com/arose/ngl/v2.0.0-dev.32/data/"));
+        // _ngl.DatasourceRegistry._dict.data.baseUrl
 
         var loadStructureButton = this.createFileButton("load structure", {
                 accept: ".pdb,.cif,.ent,.gz",
