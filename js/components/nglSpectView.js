@@ -271,8 +271,8 @@ export class NGLSpectView extends React.Component {
         //     },
         //     {top: "84px", left: "12px"}
         // );
-
-        this.addElement(exampleSelect);
+        //
+        // this.addElement(exampleSelect);
 
         var seleText = this.createElement("span", {
                 innerText: "center selection",
