@@ -319,15 +319,13 @@ export class ModalFragspectEventView extends Component {
     }
 
     componentDidMount() {
-        if (this.props.fragspectModalState.startsWith("open")) {
-            this.loadDensity()
-        }
+        this.loadDensity()
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
             if (this.state.initiated == 0) {
-                this.loadDensity()
+                // this.loadDensity()
                 var newButtonsDepressed = [];
                 newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
                 newButtonsDepressed.push(nextProps.fragspectModalContents.confidence + 7);
