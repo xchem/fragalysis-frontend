@@ -43,6 +43,8 @@ export class ModalFragspectEventView extends Component {
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.loadProtein = this.loadProtein.bind(this);
         this.handleProtein = this.handleProtein.bind(this);
+        this.loadDensity = this.loadDensity.bind(this);
+        this.handleDensity = this.handleDensity.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
@@ -256,11 +258,38 @@ export class ModalFragspectEventView extends Component {
                 "display_div": "fragspect"
             };
             return proteinObject;
-        }).then(proteinObject => this.handleProtein(proteinObject))
+        // }).then(proteinObject => this.handleProtein(proteinObject))
+        }).then(proteinObject => this.props.loadObject(proteinObject))
     }
 
     handleProtein(proteinObject){
         this.props.loadObject(proteinObject);
+    }
+
+    loadDensity() {
+        var densityQuery = "?code=" + this.props.fragspectModalContents.code;
+        var targetId = this.props.fragspectModalContents.target_id.toString();
+        fetch("/api/proteins/" + densityQuery, {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            var densityObject = {
+                "name": "DENSITY_" + targetId,
+                "prot_url": myJson.results[0].map_info.replace("http:",window.location.protocol),
+                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+                "display_div": "fragspect"
+            };
+            return densityObject;
+        }).then(densityObject => this.handleDensity(densityObject))
+    }
+
+    handleDensity(densityObject){
+        this.props.loadObject(densityObject);
     }
 
     componentWillMount() {
@@ -381,6 +410,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row>
                                     <Button onClick={this.closeModal}>Close</Button>
                                     <Button onClick={this.loadProtein}>Load Protein</Button>
+                                    <Button onClick={this.loadDensity}>Load Density</Button>
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
