@@ -379,7 +379,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <Button onClick={this.closeModal}>Close</Button>
-                                    <Button onClick={this.loadProtein}>Load Protein</Button>
+                                    {/*<Button onClick={this.loadProtein}>Load Protein</Button>*/}
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
@@ -401,7 +401,6 @@ function mapStateToProps(state) {
     return {
         fragspectModalState: state.apiReducers.present.fragspectModalState,
         fragspectModalContents: state.apiReducers.present.fragspectModalContents,
-        targetOn: state.apiReducers.present.target_on,
         nglProtStyle: state.nglReducers.present.nglProtStyle
     }
 }
