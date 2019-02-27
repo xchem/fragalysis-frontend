@@ -283,10 +283,10 @@ export class ModalFragspectEventView extends Component {
                 "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
                 "display_div": "fragspect",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
-                "map_type": "AC",
+                "map_type": "AP",
                 "fragment": "4780",
-                "isoLevel": 3,
-                "opacity": 0.5,
+                "isoLevel": 1,
+                "opacity": 0.9,
                 "disablePicking": true
             };
             return densityObject;
