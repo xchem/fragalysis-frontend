@@ -42,6 +42,7 @@ export class ModalFragspectEventView extends Component {
         // this.getTitle = this.getTitle.bind(this);
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.loadProtein = this.loadProtein.bind(this);
+        this.handleProtein = this.handleProtein.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
@@ -253,8 +254,12 @@ export class ModalFragspectEventView extends Component {
                 "nglProtStyle": nextProps.nglProtStyle,
                 "display_div": "fragspect"
             };
-            return hotspotObject;
-        }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
+            return proteinObject;
+        }).then(proteinObject => this.handleProtein(proteinObject))
+    }
+
+    handleProtein(proteinObject){
+        this.props.loadObject(proteinObject);
     }
 
     componentWillMount() {
