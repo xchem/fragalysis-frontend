@@ -238,6 +238,7 @@ export class ModalFragspectEventView extends Component {
 
     loadProtein() {
         var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
+        var targetId = this.props.fragspectModalContents.target_id.toString();
         fetch("/api/proteins/" + proteinQuery, {
             method: "get",
             headers: {
@@ -248,10 +249,10 @@ export class ModalFragspectEventView extends Component {
             return response.json();
         }).then(function (myJson) {
             var proteinObject = {
-                "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
+                "name": "PROTEIN_" + targetId,
                 "prot_url": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
                 "OBJECT_TYPE": nglObjectTypes.PROTEIN,
-                "nglProtStyle": nextProps.nglProtStyle,
+                "nglProtStyle": "cartoon",
                 "display_div": "fragspect"
             };
             return proteinObject;
