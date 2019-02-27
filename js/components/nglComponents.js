@@ -251,7 +251,7 @@ export class NGLView extends React.Component {
         });
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
             var surf2Fofc = comp.addRepresentation('surface', {
-                color: 'deeporchid',
+                color: '#5900ff',
                 isolevel: 3,
                 boxSize: 15,
                 useWorker: false,
