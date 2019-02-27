@@ -249,28 +249,48 @@ export class NGLView extends React.Component {
             })
             comp.autoView("LIG");
         });
-
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
-            var surfFofc = comp.addRepresentation('surface', {
-                color: 'mediumseagreen',
+            var surf2Fofc = comp.addRepresentation('surface', {
+                color: 'deeporchid',
                 isolevel: 3,
-                boxSize: 10,
+                boxSize: 15,
                 useWorker: false,
                 contour: true,
                 opaqueBack: false,
                 isolevelScroll: true
             })
-            var surfFofcNeg = comp.addRepresentation('surface', {
-                color: 'tomato',
-                isolevel: 3,
-                negateIsolevel: true,
-                boxSize: 10,
-                useWorker: false,
-                contour: true,
-                opaqueBack: false,
-                isolevelScroll: false
-            })
+        // stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
+        //     var surfFofc = comp.addRepresentation('surface', {
+        //         color: 'mediumseagreen',
+        //         isolevel: 3,
+        //         boxSize: 15,
+        //         useWorker: false,
+        //         contour: true,
+        //         opaqueBack: false,
+        //         isolevelScroll: true
+        //     })
+        //     var surfFofcNeg = comp.addRepresentation('surface', {
+        //         color: 'tomato',
+        //         isolevel: 3,
+        //         negateIsolevel: true,
+        //         boxSize: 15,
+        //         useWorker: false,
+        //         contour: true,
+        //         opaqueBack: false,
+        //         isolevelScroll: false
+        //     })
         });
+        // FUNCTIONS TO INSERT TEXT AT BOTTOM OF NGL VIEWER WITH CONTOUR LEVEL - NOT TESTED AND REQUIRES WORK
+        // createElement(name, properties, style) {
+        // var el = document.createElement(name);
+        // Object.assign(el, properties);
+        // Object.assign(el.style, style);
+        // return el;
+        // }
+        // var isolevelFofcText = createElement("span", {}, { bottom: "12px", left: "12px", color: "lightgrey" })
+        //     this.stage.addElement(isolevelFofcText)
+        //     comp.surfFofc.getParameters().isolevel.toFixed(1)
+        //     isolevelFofcText.innerText = "fofc level: " + levelFofc + "\u03C3"
     }
 
     showEDensity(stage, input_dict, object_name) {
