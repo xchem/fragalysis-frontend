@@ -280,7 +280,7 @@ export class ModalFragspectEventView extends Component {
         }).then(function (myJson) {
             var densityObject = {
                 "name": "HOTSPOT_" + targetId,
-                "hotUrl": "https://fragalysis.apps.xchem.diamond.ac.uk/media/maps/MURD-x0349_apolar_bERY5JJ.ccp4",
+                "hotUrl": "media/maps/MURD-x0349_apolar_bERY5JJ.ccp4",
                 // "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
                 "display_div": "fragspect",
                 "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
