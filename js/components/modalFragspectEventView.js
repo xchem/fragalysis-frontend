@@ -319,7 +319,9 @@ export class ModalFragspectEventView extends Component {
     }
 
     componentDidMount() {
-        this.loadDensity()
+        if (this.props.fragspectModalState.startsWith("open")) {
+            this.loadDensity()
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -333,6 +335,10 @@ export class ModalFragspectEventView extends Component {
                 this.setState(prevState => ({initiated: 1}));
             }
         }
+    }
+
+    componentWillUnmount(){
+        console.log("unmounting modal")
     }
 
     render() {
