@@ -129,6 +129,9 @@ export class NGLView extends React.Component {
         window.addEventListener("resize", function (event) {
            local_stage.handleResize();
         }, false);
+        if (this.div_id == "fragspect") {
+            this.stage.setParameters({cameraType: "orthographic", mousePreset: "coot"})
+        }
         this.stage.mouseControls.add("clickPick-left",this.showPick);
         this.props.setOrientation(
                 this.div_id,
