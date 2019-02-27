@@ -84,7 +84,7 @@ class FragspectView extends React.Component {
         this.props.setFragspectModalState("open");
         fetch(window.location.protocol + "//" + window.location.host+"/api/proteins/?code="+this.props.data.code)
             .then(response => response.json())
-            .then(json => this.props.setTargetOn(json["results"][0].pdd_info))
+            .then(json => this.props.setTargetOn(json["results"][0].pdb_info))
             .catch((error) => {
                     this.deployErrorModal(error);
                 })
