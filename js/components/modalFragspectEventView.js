@@ -443,7 +443,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row>
                                     <Button onClick={this.closeModal}>Close</Button>
                                     {/*<Button onClick={this.loadProtein}>Load Protein</Button>*/}
-                                    {/*<Button onClick={this.loadDensity}>Load Density</Button>*/}
+                                    <Button bsStyle="primary" onClick={this.loadDensity}>Load Density</Button>
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
