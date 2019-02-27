@@ -318,6 +318,10 @@ export class ModalFragspectEventView extends Component {
         ReactModal.setAppElement('body');
     }
 
+    componentDidMount() {
+        this.loadDensity()
+    }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
             if (this.state.initiated == 0) {
@@ -431,8 +435,8 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <Button onClick={this.closeModal}>Close</Button>
-                                    <Button onClick={this.loadProtein}>Load Protein</Button>
-                                    <Button onClick={this.loadDensity}>Load Density</Button>
+                                    {/*<Button onClick={this.loadProtein}>Load Protein</Button>*/}
+                                    {/*<Button onClick={this.loadDensity}>Load Density</Button>*/}
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
