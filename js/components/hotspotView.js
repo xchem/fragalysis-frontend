@@ -92,7 +92,7 @@ class HotspotView extends React.Component {
                 "isoLevel": isoLevel,
                 "opacity": opacity,
                 "disablePicking": true
-            }
+            };
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
     }

@@ -41,6 +41,7 @@ export class ModalFragspectEventView extends Component {
         // this.openFraggleLink = this.openFraggleLink.bind(this);
         // this.getTitle = this.getTitle.bind(this);
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
+        this.loadProtein = this.loadProtein.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
@@ -234,20 +235,34 @@ export class ModalFragspectEventView extends Component {
         // return undefined;
     }
 
+    loadProtein() {
+        var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
+        fetch("/api/hotspots/" + hotspotQuery, {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            var proteinObject = {
+                "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
+                "prot_url": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
+                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
+                "nglProtStyle": nextProps.nglProtStyle,
+                "display_div": "fragspect"
+            };
+            return hotspotObject;
+        }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
+    }
+
     componentWillMount() {
         ReactModal.setAppElement('body');
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.fragspectModalState == "open") {
-            this.setState(prevState => ({fragspectModalState: nextProps.fragspectModalState}));
-            var targObject = {
-                "name": "PROTEIN_" + nextProps.fragspectModalContents.target_id.toString(),
-                "prot_url": nextProps.targetOn,
-                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
-                "nglProtStyle": nextProps.nglProtStyle
-            }
-            this.props.loadObject(Object.assign({}, targObject, {display_div: "fragspect", name: targObject.name+"_SPECT"}));
             if (this.state.initiated == 0) {
                 var newButtonsDepressed = [];
                 newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
@@ -359,6 +374,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <Button onClick={this.closeModal}>Close</Button>
+                                    <Button onClick={this.loadProtein}>Load Protein</Button>
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
