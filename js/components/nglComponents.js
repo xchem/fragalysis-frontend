@@ -223,7 +223,8 @@ export class NGLView extends React.Component {
 
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation('line', {});
+            comp.addRepresentation('line', {colorValue: "yellow", multipleBond: "offset", bondSpacing: 1.1, linewidth: 6});
+            comp.addRepresentation("point", {colorValue: "yellow", sizeAttenuation: false, pointSize: 6, alphaTest: 1, useTexture: true});
             var selection = new Selection("LIG");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
