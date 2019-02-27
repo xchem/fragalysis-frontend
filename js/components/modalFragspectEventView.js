@@ -279,13 +279,18 @@ export class ModalFragspectEventView extends Component {
             return response.json();
         }).then(function (myJson) {
             var densityObject = {
-                "name": "DENSITY_" + targetId,
-                "prot_url": myJson.results[0].map_info.replace("http:",window.location.protocol),
-                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-                "display_div": "fragspect"
+                "name": "HOTSPOT_" + targetId,
+                "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
+                "display_div": "fragspect",
+                "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
+                "map_type": "AC",
+                "fragment": "4780",
+                "isoLevel": 3,
+                "opacity": 0.5,
+                "disablePicking": true
             };
             return densityObject;
-        }).then(densityObject => this.handleDensity(densityObject))
+        }).then(densityObject => this.props.loadObject(densityObject))
     }
 
     handleDensity(densityObject){
