@@ -254,7 +254,7 @@ export class NGLView extends React.Component {
                 useWorker: false,
                 contour: true,
                 opaqueBack: false,
-                isolevelScroll: false
+                isolevelScroll: true
             })
             var surfFofcNeg = comp.addRepresentation('surface', {
                 color: 'tomato',
