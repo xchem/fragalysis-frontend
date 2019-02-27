@@ -42,9 +42,7 @@ export class ModalFragspectEventView extends Component {
         // this.getTitle = this.getTitle.bind(this);
         // this.handleSessionNaming = this.handleSessionNaming.bind(this);
         this.loadProtein = this.loadProtein.bind(this);
-        this.handleProtein = this.handleProtein.bind(this);
         this.loadDensity = this.loadDensity.bind(this);
-        this.handleDensity = this.handleDensity.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
@@ -262,13 +260,10 @@ export class ModalFragspectEventView extends Component {
         }).then(proteinObject => this.props.loadObject(proteinObject))
     }
 
-    handleProtein(proteinObject){
-        this.props.loadObject(proteinObject);
-    }
-
     loadDensity() {
         var densityQuery = "?code=" + this.props.fragspectModalContents.code;
         var targetId = this.props.fragspectModalContents.target_id.toString();
+        var ligId = this.props.fragspectModalContents.lig_id.toString();
         fetch("/api/proteins/" + densityQuery, {
             method: "get",
             headers: {
@@ -279,24 +274,45 @@ export class ModalFragspectEventView extends Component {
             return response.json();
         }).then(function (myJson) {
             var densityObject = {
-                "name": "HOTSPOT_" + targetId,
-                "hotUrl": "media/maps/MURD-x0349_apolar_bERY5JJ.ccp4",
-                // "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
-                "display_div": "fragspect",
-                "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
-                "map_type": "AP",
-                "fragment": "4780",
-                "isoLevel": 1,
-                "opacity": 0.9,
-                "disablePicking": true
+                "name": "EVENTLOAD_" + targetId,
+                "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+                "map_info": myJson.results[0].map_info.replace("http:",window.location.protocol),
+                "xtal": targetId,
+                "lig_id": ligId,
+                "pdb_info": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
+                "display_div": "fragspect"
             };
             return densityObject;
         }).then(densityObject => this.props.loadObject(densityObject))
     }
 
-    handleDensity(densityObject){
-        this.props.loadObject(densityObject);
-    }
+    // loadDensity() {
+    //     var densityQuery = "?code=" + this.props.fragspectModalContents.code;
+    //     var targetId = this.props.fragspectModalContents.target_id.toString();
+    //     fetch("/api/proteins/" + densityQuery, {
+    //         method: "get",
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         }
+    //     }).then(function (response) {
+    //         return response.json();
+    //     }).then(function (myJson) {
+    //         var densityObject = {
+    //             "name": "HOTSPOT_" + targetId,
+    //             // "hotUrl": "https://fragalysis.apps.xchem.diamond.ac.uk/media/maps/MURD-x0349_apolar_bERY5JJ.ccp4",
+    //             "hotUrl": myJson.results[0].map_info.replace("http:",window.location.protocol),
+    //             "display_div": "fragspect",
+    //             "OBJECT_TYPE": nglObjectTypes.HOTSPOT,
+    //             "map_type": "AP",
+    //             "fragment": "4780",
+    //             "isoLevel": 1,
+    //             "opacity": 0.9,
+    //             "disablePicking": true
+    //         };
+    //         return densityObject;
+    //     }).then(densityObject => this.props.loadObject(densityObject))
+    // }
 
     componentWillMount() {
         ReactModal.setAppElement('body');
