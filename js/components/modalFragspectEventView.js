@@ -238,7 +238,7 @@ export class ModalFragspectEventView extends Component {
 
     loadProtein() {
         var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
-        fetch("/api/hotspots/" + hotspotQuery, {
+        fetch("/api/proteins/" + proteinQuery, {
             method: "get",
             headers: {
                 'Accept': 'application/json',
