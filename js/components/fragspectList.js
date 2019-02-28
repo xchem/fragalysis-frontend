@@ -102,7 +102,7 @@ class FragspectList extends GenericList {
                     "crystal": "DCP2B-x0016",
                     "site_number": 1,
                     "event_number": 1,
-                    "code": "DCP2B-x0016",
+                    "code": "DCP2B-x0016_1",
                     "lig_id": "EDO",
                     "target_name": "DCP2B",
                     "target_id": 1,
