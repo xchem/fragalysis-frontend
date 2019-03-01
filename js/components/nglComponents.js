@@ -252,6 +252,8 @@ export class NGLView extends React.Component {
             })
             comp.autoView("HOH");
             // comp.autoView("LIG");
+            var z = stage.viewer.camera.position.z
+            stage.setFocus(100 - Math.abs(z / 10))
         });
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
             var surf2Fofc = comp.addRepresentation('surface', {
