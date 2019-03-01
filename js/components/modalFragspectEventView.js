@@ -321,7 +321,7 @@ export class ModalFragspectEventView extends Component {
 
     componentDidMount() {
         if (this.props.fragspectModalContents != undefined){
-            this.loadDensity()
+            // this.loadDensity()
         }
     }
 
@@ -456,12 +456,13 @@ export class ModalFragspectEventView extends Component {
                                     <h3>Mouse Controls</h3>
                                 </Row>
                                 <Col xs={4} md={4}>
-                                    <p>left button: rotate</p>
+                                    <p>left button and drag: rotate</p>
                                     <p>scroll wheel: change electron density contour</p>
+                                    <p>press scroll wheel and drag: translate</p>
                                 </Col>
                                 <Col xs={4} md={4}>
-                                    <p>press scroll wheel: translate</p>
                                     <p>right button: zoom</p>
+                                    <p>Ctrl + right button: change depth of clipping</p>
                                 </Col>
                                 <Col xs={4} md={4}></Col>
                             </Col>
