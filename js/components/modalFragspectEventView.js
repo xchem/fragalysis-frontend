@@ -448,8 +448,23 @@ export class ModalFragspectEventView extends Component {
                                 </Row>
                             </Col>
                             <Col xs={7} md={7}>
+                                <Row>
                                 {/*<NGLSpectView div_id="fragspectModal" height={window.innerHeight*0.7.toString()+"px"}/>*/}
                                 <NGLView div_id="fragspect" height={window.innerHeight*0.7.toString()+"px"}/>
+                                </Row>
+                                <Row>
+                                    <h3>Mouse Controls</h3>
+                                </Row>
+                                <Row>
+                                    <Col xs={6} md={6}>
+                                        <p>left button: rotate</p>
+                                        <p>scroll wheel: change electron density contour</p>
+                                    </Col>
+                                    <Col xs={6} md={6}>
+                                        <p>press scroll wheel: translate</p>
+                                        <p>right button: zoom</p>
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     </Col>
