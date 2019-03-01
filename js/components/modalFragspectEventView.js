@@ -463,7 +463,8 @@ function mapStateToProps(state) {
     return {
         fragspectModalState: state.apiReducers.present.fragspectModalState,
         fragspectModalContents: state.apiReducers.present.fragspectModalContents,
-        nglProtStyle: state.nglReducers.present.nglProtStyle
+        nglProtStyle: state.nglReducers.present.nglProtStyle,
+        objectsInView: state.nglReducers.present.objectsInView
     }
 }
 
