@@ -228,7 +228,8 @@ export class NGLView extends React.Component {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
             comp.addRepresentation('line', {colorValue: "yellow", multipleBond: "offset", bondSpacing: 1.1, linewidth: 6});
             comp.addRepresentation("point", {colorValue: "yellow", sizeAttenuation: false, pointSize: 6, alphaTest: 1, useTexture: true});
-            var selection = new Selection("LIG");
+            // var selection = new Selection("LIG");
+            var selection = new Selection("HOH");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
             var atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
@@ -239,15 +240,18 @@ export class NGLView extends React.Component {
                 weakHydrogenBond: true,
                 maxHbondDonPlaneAngle: 35,
                 linewidth: 1,
-                sele: sele2 + " or LIG"
+                sele: sele2 + " or HOH"
+                // sele: sele2 + " or LIG"
             });
             comp.addRepresentation("line", {
                 sele: sele1
             })
             comp.addRepresentation("ball+stick", {
-                sele: "LIG"
+                sele: "HOH"
+                // sele: "LIG"
             })
-            comp.autoView("LIG");
+            comp.autoView("HOH");
+            // comp.autoView("LIG");
         });
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
             var surf2Fofc = comp.addRepresentation('surface', {
