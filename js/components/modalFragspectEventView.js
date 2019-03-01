@@ -40,13 +40,15 @@ export class ModalFragspectEventView extends Component {
         this.getCookie = this.getCookie.bind(this);
         // this.openFraggleLink = this.openFraggleLink.bind(this);
         // this.getTitle = this.getTitle.bind(this);
-        // this.handleSessionNaming = this.handleSessionNaming.bind(this);
+        this.handleDensity = this.handleDensity.bind(this);
         this.loadProtein = this.loadProtein.bind(this);
         this.loadDensity = this.loadDensity.bind(this);
+        this.handleDensity = this.handleDensity.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
         this.state = {
+            loadedObjects: {},
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
@@ -284,7 +286,18 @@ export class ModalFragspectEventView extends Component {
                 "display_div": "fragspect"
             };
             return densityObject;
-        }).then(densityObject => this.props.loadObject(densityObject))
+        }).then(densityObject => this.handleDensity(densityObject));
+    }
+
+    handleDensity(densityObject){
+        if (this.state.loadedObjects.includes(densityObject)){
+            this.props.deleteObject(densityObject);
+        } else {
+            var loadedObjects = this.state.loadedObjects;
+            var newLoadedObjects = Object.assign(loadedObjects, densityObject);
+            this.setState(prevState => ({loadedObjects: newLoadedObjects}));
+            this.props.loadObject(densityObject);
+        }
     }
 
     // loadDensity() {
