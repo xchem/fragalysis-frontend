@@ -215,11 +215,9 @@ export class ModalFragspectEventView extends Component {
     }
 
     closeModal() {
-        // this.setState(prevState => ({fraggleBoxLoc: undefined}));
-        // this.setState(prevState => ({snapshotLoc: undefined}));
-        // this.setState(prevState => ({title: undefined}));
         // this.setState(prevState => ({fragspectModalState: "closed"}));
         console.log("closing fragspect modal");
+        // this.props.deleteObject()
         this.props.setFragspectModalState("closed");
     }
 
@@ -472,6 +470,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     setFragspectModalState: apiActions.setFragspectModalState,
     loadObject: nglLoadActions.loadObject,
+    deleteObject: nglLoadActions.deleteObject
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalFragspectEventView);
