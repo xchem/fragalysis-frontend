@@ -455,16 +455,15 @@ export class ModalFragspectEventView extends Component {
                                 <Row>
                                     <h3>Mouse Controls</h3>
                                 </Row>
-                                <Row>
-                                    <Col xs={6} md={6}>
-                                        <p>left button: rotate</p>
-                                        <p>scroll wheel: change electron density contour</p>
-                                    </Col>
-                                    <Col xs={6} md={6}>
-                                        <p>press scroll wheel: translate</p>
-                                        <p>right button: zoom</p>
-                                    </Col>
-                                </Row>
+                                <Col xs={4} md={4}>
+                                    <p>left button: rotate</p>
+                                    <p>scroll wheel: change electron density contour</p>
+                                </Col>
+                                <Col xs={4} md={4}>
+                                    <p>press scroll wheel: translate</p>
+                                    <p>right button: zoom</p>
+                                </Col>
+                                <Col xs={4} md={4}></Col>
                             </Col>
                         </Row>
                     </Col>
