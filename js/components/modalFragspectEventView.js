@@ -217,8 +217,11 @@ export class ModalFragspectEventView extends Component {
     closeModal() {
         // this.setState(prevState => ({fragspectModalState: "closed"}));
         console.log("closing fragspect modal");
-        // this.props.deleteObject()
+        for (var nglObj in this.props.objectsInView){
+            this.props.deleteObject(nglObj);
+        }
         this.props.setFragspectModalState("closed");
+
     }
 
     generateTargetObject() {
