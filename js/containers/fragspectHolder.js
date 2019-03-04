@@ -11,6 +11,8 @@ class Fragspect extends Component {
 
     constructor(props) {
         super(props)
+        this.updateTarget = this.updateTarget.bind(this)
+        this.setTarget = this.setTarget.bind(this)
     }
 
     updateTarget(){
@@ -27,10 +29,18 @@ class Fragspect extends Component {
         // this.props.setTargetUnrecognised(targetUnrecognised);
         fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+target)
             .then(response => response.json())
-            .then(json => this.props.setTargetOn(json["results"][0].target_name))
+            .then(json => this.setTarget(json))
             .catch((error) => {
                     // this.deployErrorModal(error);
                 })
+    }
+
+    setTarget(json) {
+        if (json.count == 0) {
+            console.log("no events for this target found")
+        } else {
+            this.props.setTargetOn(json["results"][0].target_name);
+        }
     }
 
     componentDidMount() {
