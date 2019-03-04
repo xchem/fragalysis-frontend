@@ -7,12 +7,15 @@ import {connect} from "react-redux";
 import TargetList from "./targetList";
 import SessionList from "./sessionList";
 import {BrowserBomb} from "./browserBombModal";
-import { Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export class Welcome extends React.Component {
     constructor(props) {
         super(props);
         this.handleFragspectLaunch = this.handleFragspectLaunch.bind(this);
+         this.state = {
+             "fragspectTarget": "undefined",
+             "fragspectAddress": "undefined"
     }
 
     handleFragspectLaunch(e) {
@@ -20,8 +23,8 @@ export class Welcome extends React.Component {
             var target = e.target.value;
             var fragspectAddress = "/viewer/react/fragspect/target/" + e.target.value;
             console.log('launch fragspect ' + target);
-            this.context.router.history.push(fragspectAddress)
-            // return <Redirect to={fragspectAddress}/>
+            this.setState(prevState => ({fragspectTarget: fragspectAddress}));
+            this.setState(prevState => ({fragspectAddress: target}));
         }
     }
 
@@ -47,6 +50,7 @@ export class Welcome extends React.Component {
                         <h2>Fragspect launcher{"\n"}</h2>
                         <h3>Insert target name and press enter to launch Fragspect*:</h3>
                         <input id="fragspect_launch" key="fragspectLauncher" style={{width: 250}} defaultValue="insert target name here" onKeyDown={this.handleFragspectLaunch}></input>
+                        <p><Link to={this.state.fragspectAddress}>{this.state.fragspectTarget}</Link></p>
                         <p>*this is only available to users who are registered for the visit in question.</p>
                         <p>Please ensure you are logged in and contact a beamline scientist, with the details of the target and visit, if you believe you should be included on a visit.</p>
                     </Row>
