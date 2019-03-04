@@ -682,10 +682,10 @@ class FragspectList extends GenericList {
     }
 
     componentDidMount() {
-        if (this.props.match.params.target != undefined) {
-            var target = this.props.match.params.target;
-            this.setState(prevState => ({target: target}));
-        }
+        // if (this.props.match.params.target != undefined) {
+        //     var target = this.props.match.params.target;
+        //     this.setState(prevState => ({target: target}));
+        // }
         //should write something to check if all or none of a certain filter is on and then highlight all or none box
         var filtersOn = [1001, 1011, 1021, 1031, 1041];
         for (var d in this.state.depositionFilter){
@@ -707,7 +707,7 @@ class FragspectList extends GenericList {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
                 <Row>
-                    <h1 className="text-center">{this.state.target}</h1>
+                    <h1 className="text-center">{this.props.target_on}</h1>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}><h4 className="text-center">Site selector</h4></Col>
