@@ -19,8 +19,9 @@ export class Welcome extends React.Component {
         if (e.keyCode === 13) {
             var target = e.target.value;
             var fragspectAddress = "/viewer/react/fragspect/target/" + e.target.value;
-            console.log('launch fragspect' + target);
-            return <Redirect to={fragspectAddress}/>
+            console.log('launch fragspect ' + target);
+            this.context.router.history.push(fragspectAddress)
+            // return <Redirect to={fragspectAddress}/>
         }
     }
 
