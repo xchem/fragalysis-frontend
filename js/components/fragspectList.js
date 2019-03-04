@@ -36,6 +36,7 @@ class FragspectList extends GenericList {
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
         this.state = {
+            target: undefined,
             view: "Event Review",
             crystalList: [],
             crystalDict: [],
@@ -288,6 +289,13 @@ class FragspectList extends GenericList {
                 }
             ]
         };
+    }
+
+    componentDidMount(){
+        if (this.props.match.params.target != undefined) {
+            var target = this.props.match.params.target;
+            this.setState(prevState => ({target: target}));
+        }
     }
 
     handleFilterChange(value) {
@@ -702,6 +710,7 @@ class FragspectList extends GenericList {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
                 <Row>
+                    <h1 className="text-center">{this.state.target}</h1>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}><h4 className="text-center">Site selector</h4></Col>
