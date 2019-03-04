@@ -291,13 +291,6 @@ class FragspectList extends GenericList {
         };
     }
 
-    componentDidMount(){
-        if (this.props.match.params.target != undefined) {
-            var target = this.props.match.params.target;
-            this.setState(prevState => ({target: target}));
-        }
-    }
-
     handleFilterChange(value) {
         var oldBDState = this.state.buttonsDepressed;
         var removed = oldBDState.filter(function(i) {return value.indexOf(i)<0;})[0]
@@ -689,6 +682,10 @@ class FragspectList extends GenericList {
     }
 
     componentDidMount() {
+        if (this.props.match.params.target != undefined) {
+            var target = this.props.match.params.target;
+            this.setState(prevState => ({target: target}));
+        }
         //should write something to check if all or none of a certain filter is on and then highlight all or none box
         var filtersOn = [1001, 1011, 1021, 1031, 1041];
         for (var d in this.state.depositionFilter){
