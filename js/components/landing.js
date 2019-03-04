@@ -13,9 +13,10 @@ export class Welcome extends React.Component {
     constructor(props) {
         super(props);
         this.handleFragspectLaunch = this.handleFragspectLaunch.bind(this);
-         this.state = {
-             "fragspectTarget": "undefined",
-             "fragspectAddress": "undefined"
+        this.state = {
+            "fragspectTarget": "undefined",
+            "fragspectAddress": "undefined"
+        }
     }
 
     handleFragspectLaunch(e) {
