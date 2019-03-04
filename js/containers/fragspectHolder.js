@@ -53,7 +53,9 @@ class Fragspect extends Component {
 }
 
 function mapStateToProps(state) {
-    return {}
+    return {
+        target_on: state.apiReducers.present.target_on
+    }
 }
 const mapDispatchToProps = {
     setTargetOn: apiActions.setTargetOn,

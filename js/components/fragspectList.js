@@ -867,9 +867,10 @@ class FragspectList extends GenericList {
     }
 }
 function mapStateToProps(state) {
-  return {
-      object_list: state.apiReducers.present.molecule_list
-  }
+    return {
+        object_list: state.apiReducers.present.molecule_list,
+        target_on: state.apiReducers.present.target_on
+    }
 }
 const mapDispatchToProps = {
     setObjectList: apiActions.setMoleculeList,
