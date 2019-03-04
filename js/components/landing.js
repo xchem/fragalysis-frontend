@@ -48,16 +48,17 @@ export class Welcome extends React.Component {
                     </Row>
                     <Row style={{height: window.innerHeight * 0.1.toString() + "px"}}></Row>
                     <Row>
-                        <h2>Fragspect launcher{"\n"}</h2>
-                        <h3>Insert target name and press enter to launch Fragspect*:</h3>
-                        <input id="fragspect_launch" key="fragspectLauncher" style={{width: 250}} defaultValue="insert target name here" onKeyDown={this.handleFragspectLaunch}></input>
+                        <h1>Fragspect launcher{"\n"}</h1>
+                        <h3>Insert target name and press enter to generate Fragspect link below*:</h3>
+                        <input id="fragspect_launch" key="fragspectLauncher" style={{width: 250}} defaultValue="" onKeyDown={this.handleFragspectLaunch}></input>
                         <p><Link to={this.state.fragspectAddress}>{this.state.fragspectTarget}</Link></p>
-                        <p>*this is only available to users who are registered for the visit in question.</p>
-                        <p>Please ensure you are logged in and contact a beamline scientist, with the details of the target and visit, if you believe you should be included on a visit.</p>
+                        <p>*this is only available to users who are registered for the visit in question. Please ensure you are logged in. </p>
+                        <p>If you do not have access and you believe you should, please contact a beamline scientist, with the details of the target and visit.</p>
                     </Row>
                     <Row style={{height: window.innerHeight * 0.1.toString() + "px"}}></Row>
                     <Row>
-                        <p><a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">Target status overview</a> (only accessible within Diamond)</p>
+                        <h1>Target overview</h1>
+                        <p><a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">Click here to launch</a> (only accessible within Diamond)</p>
                     </Row>
                 </Col>
                 <Col xs={4} md={4}>
