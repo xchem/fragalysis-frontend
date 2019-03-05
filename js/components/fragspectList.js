@@ -55,7 +55,7 @@ class FragspectList extends GenericList {
                 // "0 - No Ligand placed": 0,
                 "Low": 1 ,
                 "Medium": 2,
-                "High": 3,
+                "High": 3
                 // 4: "Not viewed",
                 // 5: "Interesting",
                 // 6: "Discard"
@@ -92,7 +92,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "1",
                     "event_status": 1,
-                    "confidence": 3,
+                    "confidence": "High",
                     "event_resolution": 2.1,
                     "crystal_resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
@@ -119,7 +119,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "4",
                     "event_status": 4,
-                    "confidence": 2,
+                    "confidence": "Medium",
                     "event_resolution": 2.2,
                     "crystal_resolution": 2.2,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
@@ -146,7 +146,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "5",
                     "event_status": 2,
-                    "confidence": 2,
+                    "confidence": "Medium",
                     "event_resolution": 1.5,
                     "crystal_resolution": 1.4,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
@@ -173,7 +173,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "3",
                     "event_status": 3,
-                    "confidence": 1,
+                    "confidence": "Low",
                     "event_resolution": 1.4,
                     "crystal_resolution": 1.4,
                     "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
@@ -200,7 +200,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "2",
                     "event_status": 4,
-                    "confidence": 3,
+                    "confidence": "High",
                     "event_resolution": 1.8,
                     "crystal_resolution": 1.4,
                     "smiles":"O=C(O)c1ccc(Br)nc1",
@@ -227,7 +227,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "4",
                     "event_status": 5,
-                    "confidence": 2,
+                    "confidence": "Low",
                     "event_resolution": 2.2,
                     "crystal_resolution": 2.2,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
@@ -254,7 +254,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "7",
                     "event_status": 6,
-                    "confidence": 3,
+                    "confidence": "High",
                     "event_resolution": 1.8,
                     "crystal_resolution": 1.8,
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
@@ -281,7 +281,7 @@ class FragspectList extends GenericList {
                     "pandda_model_found": true,
                     "crystal_status": "6",
                     "event_status": 7,
-                    "confidence": 3,
+                    "confidence": "High",
                     "event_resolution": 2.5,
                     "crystal_resolution": 2.5,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
@@ -655,7 +655,7 @@ class FragspectList extends GenericList {
         if (this.state.view == "Event Review") {
             var rows = [];
             for (var event in this.state.fragspectObjects) {
-                if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
+                if (this.state.confidenceFilter.includes(this.state.confidenceStatus[this.state.fragspectObjects[event].confidence]) &&
                     this.state.depositionFilter.includes(parseInt(this.state.fragspectObjects[event].crystal_status)) &&
                     this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
                     this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
