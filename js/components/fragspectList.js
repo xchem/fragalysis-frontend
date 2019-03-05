@@ -724,6 +724,7 @@ class FragspectList extends GenericList {
         if (this.props.fragspectTarget != undefined) {
             document.title = this.props.fragspectTarget + ": Fragspect"
         }
+        this.fetchEvents()
     }
 
     render() {
