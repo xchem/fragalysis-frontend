@@ -733,36 +733,36 @@ class FragspectList extends GenericList {
         this.fetchEvents()
         // if (this.props.fragspectTarget != undefined) {
         // } else {}
-        var siteDict = {};
-        var maxSite = 1;
-        var crystalList = [];
-        var crystalDict = [];
-        var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
-        for (var event in this.props.fragspectEvents){
-            if (crystalList.includes(this.props.fragspectEvents[event].crystal) == false) {
-                crystalList.push(this.props.fragspectEvents[event].crystal);
-                crystalDict.push({
-                    "name": this.props.fragspectEvents[event].crystal,
-                    "resolution": this.props.fragspectEvents[event].crystal_resolution,
-                    "status": this.props.fragspectEvents[event].crystal_status
-                })
-            }
-            siteDict[this.props.fragspectEvents[event].site_number] = "Site" + this.props.fragspectEvents[event].site_number.toString();
-            buttonList.push(this.props.fragspectEvents[event].site_number + 12)
-            if (this.props.fragspectEvents[event].site_number > maxSite) {
-                maxSite = this.props.fragspectEvents[event].site_number;
-            }
-        }
-        // crystalList.sort();
-        this.setState(prevState => ({crystalList: crystalList}));
-        this.setState(prevState => ({crystalDict: crystalDict}));
-        this.setState(prevState => ({maximumSiteNumber: maxSite}));
-        this.setState(prevState => ({siteList: siteDict}));
-        var newSiteFilter = this.state.siteFilter.splice();
-        for (var i in siteDict) {
-            newSiteFilter.push(parseInt(i));
-        }
-        this.setState(prevState => ({siteFilter: newSiteFilter}));
+        // var siteDict = {};
+        // var maxSite = 1;
+        // var crystalList = [];
+        // var crystalDict = [];
+        // var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
+        // for (var event in this.props.fragspectEvents){
+        //     if (crystalList.includes(this.props.fragspectEvents[event].crystal) == false) {
+        //         crystalList.push(this.props.fragspectEvents[event].crystal);
+        //         crystalDict.push({
+        //             "name": this.props.fragspectEvents[event].crystal,
+        //             "resolution": this.props.fragspectEvents[event].crystal_resolution,
+        //             "status": this.props.fragspectEvents[event].crystal_status
+        //         })
+        //     }
+        //     siteDict[this.props.fragspectEvents[event].site_number] = "Site" + this.props.fragspectEvents[event].site_number.toString();
+        //     buttonList.push(this.props.fragspectEvents[event].site_number + 12)
+        //     if (this.props.fragspectEvents[event].site_number > maxSite) {
+        //         maxSite = this.props.fragspectEvents[event].site_number;
+        //     }
+        // }
+        // // crystalList.sort();
+        // this.setState(prevState => ({crystalList: crystalList}));
+        // this.setState(prevState => ({crystalDict: crystalDict}));
+        // this.setState(prevState => ({maximumSiteNumber: maxSite}));
+        // this.setState(prevState => ({siteList: siteDict}));
+        // var newSiteFilter = this.state.siteFilter.splice();
+        // for (var i in siteDict) {
+        //     newSiteFilter.push(parseInt(i));
+        // }
+        // this.setState(prevState => ({siteFilter: newSiteFilter}));
     }
 
     componentDidMount() {
