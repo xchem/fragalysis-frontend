@@ -41,7 +41,7 @@ export class ModalFragspectEventView extends Component {
         // this.openFraggleLink = this.openFraggleLink.bind(this);
         // this.getTitle = this.getTitle.bind(this);
         this.handleDensity = this.handleDensity.bind(this);
-        this.loadProtein = this.loadProtein.bind(this);
+        // this.loadProtein = this.loadProtein.bind(this);
         this.loadDensity = this.loadDensity.bind(this);
         this.handleDensity = this.handleDensity.bind(this);
         this.closeModal = this.closeModal.bind(this);
