@@ -704,19 +704,19 @@ class FragspectList extends GenericList {
         var crystalList = [];
         var crystalDict = [];
         var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
-        for (var event in props.fragspectEvents){
-            if (crystalList.includes(props.fragspectEvents[event].crystal) == false) {
-                crystalList.push(props.fragspectEvents[event].crystal);
+        for (var event in props){
+            if (crystalList.includes(props[event].crystal) == false) {
+                crystalList.push(props[event].crystal);
                 crystalDict.push({
-                    "name": props.fragspectEvents[event].crystal,
-                    "resolution": props.fragspectEvents[event].crystal_resolution,
-                    "status": props.fragspectEvents[event].crystal_status
+                    "name": props[event].crystal,
+                    "resolution": props[event].crystal_resolution,
+                    "status": props[event].crystal_status
                 })
             }
-            siteDict[props.fragspectEvents[event].site_number] = "Site" + props.fragspectEvents[event].site_number.toString();
-            buttonList.push(props.fragspectEvents[event].site_number + 12)
-            if (props.fragspectEvents[event].site_number > maxSite) {
-                maxSite = props.fragspectEvents[event].site_number;
+            siteDict[props[event].site_number] = "Site" + props[event].site_number.toString();
+            buttonList.push(props[event].site_number + 12)
+            if (props[event].site_number > maxSite) {
+                maxSite = props[event].site_number;
             }
         }
         // crystalList.sort();
