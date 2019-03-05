@@ -4,7 +4,7 @@ import {Row, Col} from "react-bootstrap";
 import FragspectList from "../components/fragspectList";
 import ModalFragspectEventView from "../components/modalFragspectEventView";
 // import ModalStateSave from "../components/modalStateSave";
-import {withRouter} from "react-router-dom";
+// import {withRouter} from "react-router-dom";
 import * as apiActions from "../actions/apiActions";
 
 class Fragspect extends Component {
@@ -15,37 +15,9 @@ class Fragspect extends Component {
         this.setTarget = this.setTarget.bind(this)
     }
 
-    updateTarget(){
-        var target = this.props.match.params.target;
-        // Get from the REST API
-        // if (this.props.targetIdList.length != 0) {
-        //     var targetUnrecognised = true;
-        //     for (var i in this.props.targetIdList) {
-        //         if (target == this.props.targetIdList[i].title) {
-        //             targetUnrecognised = false;
-        //         }
-        //     }
-        // }
-        // this.props.setTargetUnrecognised(targetUnrecognised);
-        fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+target)
-            .then(response => response.json())
-            .then(json => this.setTarget(json))
-            .catch((error) => {
-                    // this.deployErrorModal(error);
-                })
-    }
-
-    setTarget(json) {
-        if (json.count == 0) {
-            console.log("no events for this target found")
-        } else {
-            this.props.setFragspectTarget(json["results"][0].target_name);
-        }
-    }
-
-    componentWillMount() {
-        this.updateTarget()
-    }
+    // componentWillMount() {
+        // this.updateTarget()
+    // }
 
     // componentDidMount() {
     //     this.updateTarget()
@@ -76,4 +48,4 @@ const mapDispatchToProps = {
     // setTargetUnrecognised: apiActions.setTargetUnrecognised,
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Fragspect))
+export default connect(mapStateToProps, mapDispatchToProps)(Fragspect)

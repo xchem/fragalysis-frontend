@@ -8,6 +8,7 @@ import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import FragspectView from "./fragspectView";
+import {withRouter} from "react-router-dom";
 
 // const customStyles = {
 //     divider: {
@@ -292,17 +293,47 @@ class FragspectList extends GenericList {
         };
     }
 
-    setEvents(json){
-        this.setState(prevState => ({fragspectObjects: json.results}));
-    }
+    // updateTarget(){
+    //     var target = this.props.match.params.target;
+    //     // Get from the REST API
+    //     // if (this.props.targetIdList.length != 0) {
+    //     //     var targetUnrecognised = true;
+    //     //     for (var i in this.props.targetIdList) {
+    //     //         if (target == this.props.targetIdList[i].title) {
+    //     //             targetUnrecognised = false;
+    //     //         }
+    //     //     }
+    //     // }
+    //     // this.props.setTargetUnrecognised(targetUnrecognised);
+    //     fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+target)
+    //         .then(response => response.json())
+    //         .then(json => this.setTarget(json))
+    //         .catch((error) => {
+    //                 // this.deployErrorModal(error);
+    //             })
+    // }
+
+    // setTarget(json) {
+    //     if (json.count == 0) {
+    //         console.log("no events for this target found")
+    //     } else {
+    //         this.props.setFragspectTarget(json["results"][0].target_name);
+    //     }
+    // }
 
     fetchEvents(){
-        fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+this.props.fragspectTarget)
+        var target = this.props.match.params.target;
+        fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+target)
             .then(response => response.json())
             .then(json => this.setEvents(json))
             .catch((error) => {
                     // this.deployErrorModal(error);
                 })
+    }
+
+    setEvents(json){
+        this.props.setFragspectTarget(json["results"][0].target_name);
+        this.setState(prevState => ({fragspectObjects: json.results}));
     }
 
     handleFilterChange(value) {
@@ -898,6 +929,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     setObjectList: apiActions.setMoleculeList,
+    setFragspectTarget: apiActions.setFragspectTarget,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FragspectList);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FragspectList));
