@@ -264,7 +264,6 @@ export class ModalFragspectEventView extends Component {
     }
 
     loadDensity() {
-
         //
         // var loaderQuery = this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // fetch(window.location.protocol + "//" + window.location.host + "/api/proteins/?code=" + loaderQuery)
@@ -274,7 +273,6 @@ export class ModalFragspectEventView extends Component {
         //     .catch((error) => {
         //         // this.deployErrorModal(error);
         //     })
-
         var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
         var targetId = this.props.fragspectModalContents.crystal;
