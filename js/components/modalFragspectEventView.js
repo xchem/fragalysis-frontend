@@ -238,30 +238,30 @@ export class ModalFragspectEventView extends Component {
         // }
         // return undefined;
     }
-
-    loadProtein() {
-        var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
-        var targetId = this.props.fragspectModalContents.target_id.toString();
-        fetch("/api/proteins/" + proteinQuery, {
-            method: "get",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        }).then(function (response) {
-            return response.json();
-        }).then(function (myJson) {
-            var proteinObject = {
-                "name": "PROTEIN_" + targetId,
-                "prot_url": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
-                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
-                "nglProtStyle": "cartoon",
-                "display_div": "fragspect"
-            };
-            return proteinObject;
-        // }).then(proteinObject => this.handleProtein(proteinObject))
-        }).then(proteinObject => this.props.loadObject(proteinObject))
-    }
+    //
+    // loadProtein() {
+    //     var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
+    //     var targetId = this.props.fragspectModalContents.target_id.toString();
+    //     fetch("/api/proteins/" + proteinQuery, {
+    //         method: "get",
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         }
+    //     }).then(function (response) {
+    //         return response.json();
+    //     }).then(function (myJson) {
+    //         var proteinObject = {
+    //             "name": "PROTEIN_" + targetId,
+    //             "prot_url": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
+    //             "OBJECT_TYPE": nglObjectTypes.PROTEIN,
+    //             "nglProtStyle": "cartoon",
+    //             "display_div": "fragspect"
+    //         };
+    //         return proteinObject;
+    //     // }).then(proteinObject => this.handleProtein(proteinObject))
+    //     }).then(proteinObject => this.props.loadObject(proteinObject))
+    // }
 
     loadDensity() {
         //
@@ -275,7 +275,7 @@ export class ModalFragspectEventView extends Component {
         //     })
         var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
-        var targetId = this.props.fragspectModalContents.crystal;
+        var crystal = this.props.fragspectModalContents.crystal;
         var ligId = this.props.fragspectModalContents.lig_id.toString();
         fetch("/api/proteins/" + densityQuery, {
             method: "get",
@@ -287,10 +287,10 @@ export class ModalFragspectEventView extends Component {
             return response.json();
         }).then(function (myJson) {
             var densityObject = {
-                "name": "EVENTLOAD_" + targetId,
+                "name": "EVENTLOAD_" + crystal,
                 "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
                 "map_info": myJson.results[0].map_info.replace("http:",window.location.protocol),
-                "xtal": targetId,
+                "xtal": crystal,
                 "lig_id": ligId,
                 "pdb_info": myJson.results[0].bound_info.replace("http:",window.location.protocol),
                 "display_div": "fragspect"
