@@ -327,6 +327,7 @@ class FragspectList extends GenericList {
         fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+target)
             .then(response => response.json())
             .then(json => this.setEvents(json))
+            // .then(this.initialiseButtons(json.results))
             .catch((error) => {
                     // this.deployErrorModal(error);
                 })
@@ -336,6 +337,7 @@ class FragspectList extends GenericList {
         this.props.setFragspectTarget(json["results"][0].target_name);
         this.setState(prevState => ({fragspectObjects: json.results}));
         this.props.setFragspectEvents(json.results);
+        this.initialiseButtons(json.results)
         // component.forceUpdate();
     }
 
