@@ -696,25 +696,25 @@ class FragspectList extends GenericList {
         return rows;
     }
 
-    initialiseButtons(){
+    initialiseButtons(props){
         var siteDict = {};
         var maxSite = 1;
         var crystalList = [];
         var crystalDict = [];
         var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
-        for (var event in this.props.fragspectEvents){
-            if (crystalList.includes(this.props.fragspectEvents[event].crystal) == false) {
-                crystalList.push(this.props.fragspectEvents[event].crystal);
+        for (var event in props.fragspectEvents){
+            if (crystalList.includes(props.fragspectEvents[event].crystal) == false) {
+                crystalList.push(props.fragspectEvents[event].crystal);
                 crystalDict.push({
-                    "name": this.props.fragspectEvents[event].crystal,
-                    "resolution": this.props.fragspectEvents[event].crystal_resolution,
-                    "status": this.props.fragspectEvents[event].crystal_status
+                    "name": props.fragspectEvents[event].crystal,
+                    "resolution": props.fragspectEvents[event].crystal_resolution,
+                    "status": props.fragspectEvents[event].crystal_status
                 })
             }
-            siteDict[this.props.fragspectEvents[event].site_number] = "Site" + this.props.fragspectEvents[event].site_number.toString();
-            buttonList.push(this.props.fragspectEvents[event].site_number + 12)
-            if (this.props.fragspectEvents[event].site_number > maxSite) {
-                maxSite = this.props.fragspectEvents[event].site_number;
+            siteDict[props.fragspectEvents[event].site_number] = "Site" + props.fragspectEvents[event].site_number.toString();
+            buttonList.push(props.fragspectEvents[event].site_number + 12)
+            if (props.fragspectEvents[event].site_number > maxSite) {
+                maxSite = props.fragspectEvents[event].site_number;
             }
         }
         // crystalList.sort();
@@ -794,9 +794,9 @@ class FragspectList extends GenericList {
         }
     }
 
-    componentWillReceiveProps(){
+    componentWillReceiveProps(nextProps){
         // this.fetchEvents();
-        this.initialiseButtons();
+        this.initialiseButtons(nextProps);
         console.log("new events")
     }
 
