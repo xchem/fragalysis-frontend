@@ -92,7 +92,7 @@ class FragspectView extends React.Component {
 
     updateModalData() {
         var fragspectObject = {
-            "fragId": this.props.data.fragId,
+            "id": this.props.data.id,
             "crystal": this.props.data.crystal,
             "site_number": this.props.data.site_number,
             "event_number": this.props.data.event_number,
@@ -113,7 +113,7 @@ class FragspectView extends React.Component {
             "event_resolution": this.props.data.event_resolution,
             "crystal_resolution": this.props.data.crystal_resolution,
             "smiles": this.props.data.smiles,
-            "space_group": this.props.data.space_group,
+            "spacegroup": this.props.data.spacegroup,
             "cell": this.props.data.cell,
             "event_comment": this.props.data.event_comment,
             "interesting": this.props.data.interesting
@@ -154,12 +154,12 @@ class FragspectView extends React.Component {
                 <p className="text-center">{this.props.data.event_resolution.toString()} Å</p>
             </Col>
             <Col xs={1} md={1}>
-                <p className="text-center">{this.props.data.space_group}</p>
+                <p className="text-center">{this.props.data.spacegroup}</p>
                 <p className="text-center">{this.props.data.cell.split(' ')[0]}, {this.props.data.cell.split(' ')[1]}, {this.props.data.cell.split(' ')[2]}</p>
                 <p className="text-center">{this.props.data.cell.split(' ')[3]}, {this.props.data.cell.split(' ')[4]}, {this.props.data.cell.split(' ')[5]}</p>
             </Col>
             <Col xs={1} md={1}>
-                <input id={this.props.data.fragId} key="comment" defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                <input id={this.props.data.id} key="comment" defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center"><b>{this.state.interestingStatus[this.props.data.interesting == true ? 1 : 0]}</b></p>

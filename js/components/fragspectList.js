@@ -73,7 +73,7 @@ class FragspectList extends GenericList {
             },
             fragspectObjects: [
                 {
-                    "fragId": 49,
+                    "id": 49,
                     "crystal": "NUDT21A-x0266",
                     "site_number": 1,
                     "event_number": 1,
@@ -94,13 +94,13 @@ class FragspectList extends GenericList {
                     "event_resolution": 2.1,
                     "crystal_resolution": 2.1,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
-                    "space_group": "P 3 2 1",
+                    "spacegroup": "P 3 2 1",
                     "cell": "125 125 41 90 90 120",
                     "event_comment": "Fragspect is amazing.",
                     "interesting": false
                 },
                 {
-                    "fragId": 48,
+                    "id": 48,
                     "crystal": "DCP2B-x0016",
                     "site_number": 1,
                     "event_number": 1,
@@ -121,7 +121,7 @@ class FragspectList extends GenericList {
                     "event_resolution": 2.2,
                     "crystal_resolution": 2.2,
                     "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
-                    "space_group": "P 1",
+                    "spacegroup": "P 1",
                     "cell": "140 95 41 90 90 120",
                     "event_comment": "Funky naming.",
                     "interesting": true
@@ -148,13 +148,13 @@ class FragspectList extends GenericList {
                     "event_resolution": 1.5,
                     "crystal_resolution": 1.4,
                     "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
-                    "space_group": "P 1",
+                    "spacegroup": "P 1",
                     "cell": "48 59 79 79 82 76",
                     "event_comment": "This is magnificent.",
                     "interesting": true
                 },
                 {
-                    "fragId": 51,
+                    "id": 51,
                     "crystal": "NUDT7A-x2415",
                     "site_number": 1,
                     "event_number": 1,
@@ -175,13 +175,13 @@ class FragspectList extends GenericList {
                     "event_resolution": 1.4,
                     "crystal_resolution": 1.4,
                     "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
-                    "space_group": "P 1",
+                    "spacegroup": "P 1",
                     "cell": "49 59 80 79 81 75",
                     "event_comment": "Fragspect rocks.",
                     "interesting": true
                 },
                 {
-                    "fragId": 52,
+                    "id": 52,
                     "crystal": "NUDT7A-x2415",
                     "site_number": 2,
                     "event_number": 1,
@@ -202,13 +202,13 @@ class FragspectList extends GenericList {
                     "event_resolution": 1.8,
                     "crystal_resolution": 1.4,
                     "smiles":"O=C(O)c1ccc(Br)nc1",
-                    "space_group": "C 1 2 1",
+                    "spacegroup": "C 1 2 1",
                     "cell": "102 45 60 90 90 90",
                     "event_comment": "Ric for president.",
                     "interesting": true
                 },
                 {
-                    "fragId": 53,
+                    "id": 53,
                     "crystal": "NUDT7A-x1647",
                     "site_number": 3,
                     "event_number": 1,
@@ -229,13 +229,13 @@ class FragspectList extends GenericList {
                     "event_resolution": 2.2,
                     "crystal_resolution": 2.2,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
-                    "space_group": "P 1",
+                    "spacegroup": "P 1",
                     "cell": "49 59 79 79 81 75",
                     "event_comment": "This is magnificent.",
                     "interesting": true
                 },
                 {
-                    "fragId": 54,
+                    "id": 54,
                     "crystal": "NUDT7A-x0245",
                     "site_number": 1,
                     "event_number": 1,
@@ -256,13 +256,13 @@ class FragspectList extends GenericList {
                     "event_resolution": 1.8,
                     "crystal_resolution": 1.8,
                     "smiles": "O=C(Nc1ccon1)c1ccccc1F",
-                    "space_group": "P 3 2 1",
+                    "spacegroup": "P 3 2 1",
                     "cell": "125 125 41 90 90 120",
                     "event_comment": "This is magnificent.",
                     "interesting": true
                 },
                 {
-                    "fragId": 55,
+                    "id": 55,
                     "crystal": "NUDT5A-x0526",
                     "site_number": 4,
                     "event_number": 1,
@@ -283,7 +283,7 @@ class FragspectList extends GenericList {
                     "event_resolution": 2.5,
                     "crystal_resolution": 2.5,
                     "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
-                    "space_group": "C 1 2 1",
+                    "spacegroup": "C 1 2 1",
                     "cell": "102, 45, 60 90 90 90",
                     "event_comment": "This is magnificent.",
                     "interesting": false
@@ -663,9 +663,9 @@ class FragspectList extends GenericList {
     }
 
     componentWillMount(){
-        if (this.props.fragspectTarget != undefined) {
+        // if (this.props.fragspectTarget != undefined) {
             this.fetchEvents()
-        }
+        // } else {}
         var siteDict = {};
         var maxSite = 1;
         var crystalList = [];
@@ -704,6 +704,7 @@ class FragspectList extends GenericList {
         //     this.setState(prevState => ({target: target}));
         // }
         //should write something to check if all or none of a certain filter is on and then highlight all or none box
+        // this.fetchEvents()
         var filtersOn = [1001, 1011, 1021, 1031, 1041];
         for (var d in this.state.depositionFilter){
             filtersOn.push(this.state.depositionFilter[d]);
@@ -724,7 +725,6 @@ class FragspectList extends GenericList {
         if (this.props.fragspectTarget != undefined) {
             document.title = this.props.fragspectTarget + ": Fragspect"
         }
-        this.fetchEvents()
     }
 
     render() {

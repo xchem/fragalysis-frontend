@@ -43,13 +43,17 @@ class Fragspect extends Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.updateTarget()
     }
 
-    componentDidUpdate(){
-        this.updateTarget()
-    }
+    // componentDidMount() {
+    //     this.updateTarget()
+    // }
+    //
+    // componentDidUpdate(){
+    //     this.updateTarget()
+    // }
 
     render() {
         var screenHeight= window.innerHeight*0.7.toString()+"px"
