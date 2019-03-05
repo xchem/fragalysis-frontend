@@ -277,7 +277,7 @@ export class ModalFragspectEventView extends Component {
 
         var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
-        var targetId = this.props.fragspectModalContents.target_id.toString();
+        var targetId = this.props.fragspectModalContents.crystal;
         var ligId = this.props.fragspectModalContents.lig_id.toString();
         fetch("/api/proteins/" + densityQuery, {
             method: "get",
