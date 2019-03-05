@@ -39,6 +39,7 @@ import {
     SET_FRAGSPECT_MODAL_STATE,
     SET_FRAGSPECT_MODAL_CONTENTS,
     SET_FRAGSPECT_TARGET,
+    SET_FRAGSPECT_EVENTS,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -358,6 +359,14 @@ export const setFragspectTarget = function (fragspectTarget){
     return {
         type: SET_FRAGSPECT_TARGET,
         fragspectTarget: fragspectTarget
+    }
+}
+
+export const setFragspectEvents = function (fragspectEvents){
+    console.log("ACTIONS: Fragspect event set")
+    return {
+        type: SET_FRAGSPECT_TARGET,
+        fragspectEvents: fragspectEvents
     }
 }
 

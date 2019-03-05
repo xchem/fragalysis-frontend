@@ -72,225 +72,224 @@ class FragspectList extends GenericList {
                 0: "Not interesting",
                 1: "Interesting"
             },
-            fragspectObjects: undefined,
-            // fragspectObjects: [
-            //     {
-            //         "id": 49,
-            //         "crystal": "NUDT21A-x0266",
-            //         "site_number": 1,
-            //         "event_number": 1,
-            //         "code": "NUDT21A-x0266_1",
-            //         "lig_id": "LIG-D1",
-            //         "target_name": "NUDT21A",
-            //         "target_id": 6,
-            //         "prot_id": 8657,
-            //         "prot_url": "media/pdbs/NUDT21A-x0266_1_apo.pdb",
-            //         "event_map_info": "media/maps/NUDT21A-x0266_1_pandda.map",
-            //         "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 1,
-            //         "event_status": 1,
-            //         "confidence": 3,
-            //         "event_resolution": 2.1,
-            //         "crystal_resolution": 2.1,
-            //         "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
-            //         "spacegroup": "P 3 2 1",
-            //         "cell": "125 125 41 90 90 120",
-            //         "event_comment": "Fragspect is amazing.",
-            //         "interesting": false
-            //     },
-            //     {
-            //         "id": 48,
-            //         "crystal": "DCP2B-x0016",
-            //         "site_number": 1,
-            //         "event_number": 1,
-            //         "code": "DCP2B-x0016_1",
-            //         "lig_id": "EDO",
-            //         "target_name": "DCP2B",
-            //         "target_id": 1,
-            //         "prot_id": 4654,
-            //         "prot_url": "media/pdbs/DCP2B-x0016_1_apo_dU9LpzY.pdb",
-            //         "event_map_info": "media/maps/DCP2B-x0016_1_pandda.map_sjD2vVe.gz",
-            //         "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 4,
-            //         "event_status": 4,
-            //         "confidence": 2,
-            //         "event_resolution": 2.2,
-            //         "crystal_resolution": 2.2,
-            //         "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
-            //         "spacegroup": "P 1",
-            //         "cell": "140 95 41 90 90 120",
-            //         "event_comment": "Funky naming.",
-            //         "interesting": true
-            //     },
-            //     {
-            //         "frag_id": 50,
-            //         "crystal": "NUDT7A-x2415",
-            //         "site_number": 6,
-            //         "event_number": 1,
-            //         "code": "NUDT7A-x1232_1",
-            //         "lig_id": "LIG-D1",
-            //         "target_name": "NUDT7A",
-            //         "target_id": 5,
-            //         "prot_id": 8652,
-            //         "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
-            //         "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 5,
-            //         "event_status": 2,
-            //         "confidence": 2,
-            //         "event_resolution": 1.5,
-            //         "crystal_resolution": 1.4,
-            //         "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
-            //         "spacegroup": "P 1",
-            //         "cell": "48 59 79 79 82 76",
-            //         "event_comment": "This is magnificent.",
-            //         "interesting": true
-            //     },
-            //     {
-            //         "id": 51,
-            //         "crystal": "NUDT7A-x2415",
-            //         "site_number": 1,
-            //         "event_number": 1,
-            //         "code": "NUDT7A-x0142_2",
-            //         "lig_id": "LIG-E1",
-            //         "target_name": "NUDT7A",
-            //         "target_id": 5,
-            //         "prot_id": 8651,
-            //         "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
-            //         "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 3,
-            //         "event_status": 3,
-            //         "confidence": 1,
-            //         "event_resolution": 1.4,
-            //         "crystal_resolution": 1.4,
-            //         "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
-            //         "spacegroup": "P 1",
-            //         "cell": "49 59 80 79 81 75",
-            //         "event_comment": "Fragspect rocks.",
-            //         "interesting": true
-            //     },
-            //     {
-            //         "id": 52,
-            //         "crystal": "NUDT7A-x2415",
-            //         "site_number": 2,
-            //         "event_number": 1,
-            //         "code": "NUDT7A-x2415_3",
-            //         "lig_id": "LIG-E1",
-            //         "target_name": "NUDT7A",
-            //         "target_id": 5,
-            //         "prot_id": 8657,
-            //         "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
-            //         "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 2,
-            //         "event_status": 4,
-            //         "confidence": 3,
-            //         "event_resolution": 1.8,
-            //         "crystal_resolution": 1.4,
-            //         "smiles":"O=C(O)c1ccc(Br)nc1",
-            //         "spacegroup": "C 1 2 1",
-            //         "cell": "102 45 60 90 90 90",
-            //         "event_comment": "Ric for president.",
-            //         "interesting": true
-            //     },
-            //     {
-            //         "id": 53,
-            //         "crystal": "NUDT7A-x1647",
-            //         "site_number": 3,
-            //         "event_number": 1,
-            //         "code": "NUDT7A-x1647_1",
-            //         "lig_id": "LIG-D1",
-            //         "target_name": "NUDT7A",
-            //         "target_id": 5,
-            //         "prot_id": 8658,
-            //         "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
-            //         "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 4,
-            //         "event_status": 5,
-            //         "confidence": 2,
-            //         "event_resolution": 2.2,
-            //         "crystal_resolution": 2.2,
-            //         "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
-            //         "spacegroup": "P 1",
-            //         "cell": "49 59 79 79 81 75",
-            //         "event_comment": "This is magnificent.",
-            //         "interesting": true
-            //     },
-            //     {
-            //         "id": 54,
-            //         "crystal": "NUDT7A-x0245",
-            //         "site_number": 1,
-            //         "event_number": 1,
-            //         "code": "NUDT7A-x0245_3",
-            //         "lig_id": "LIG-D1",
-            //         "target_name": "NUDT7A",
-            //         "target_id": 5,
-            //         "prot_id": 8752,
-            //         "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
-            //         "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 7,
-            //         "event_status": 6,
-            //         "confidence": 3,
-            //         "event_resolution": 1.8,
-            //         "crystal_resolution": 1.8,
-            //         "smiles": "O=C(Nc1ccon1)c1ccccc1F",
-            //         "spacegroup": "P 3 2 1",
-            //         "cell": "125 125 41 90 90 120",
-            //         "event_comment": "This is magnificent.",
-            //         "interesting": true
-            //     },
-            //     {
-            //         "id": 55,
-            //         "crystal": "NUDT5A-x0526",
-            //         "site_number": 4,
-            //         "event_number": 1,
-            //         "code": "NUDT5A-x0526_3",
-            //         "lig_id": "LIG-E1",
-            //         "target_name": "NUDT5A",
-            //         "target_id": 6,
-            //         "prot_id": 8655,
-            //         "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
-            //         "event_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
-            //         "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
-            //         "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
-            //         "pandda_model_found": true,
-            //         "crystal_status": 6,
-            //         "event_status": 7,
-            //         "confidence": 3,
-            //         "event_resolution": 2.5,
-            //         "crystal_resolution": 2.5,
-            //         "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
-            //         "spacegroup": "C 1 2 1",
-            //         "cell": "102, 45, 60 90 90 90",
-            //         "event_comment": "This is magnificent.",
-            //         "interesting": false
-            //     }
-            // ]
+            fragspectObjects: [
+                {
+                    "id": 49,
+                    "crystal": "NUDT21A-x0266",
+                    "site_number": 1,
+                    "event_number": 1,
+                    "code": "NUDT21A-x0266_1",
+                    "lig_id": "LIG-D1",
+                    "target_name": "NUDT21A",
+                    "target_id": 6,
+                    "prot_id": 8657,
+                    "prot_url": "media/pdbs/NUDT21A-x0266_1_apo.pdb",
+                    "event_map_info": "media/maps/NUDT21A-x0266_1_pandda.map",
+                    "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 1,
+                    "event_status": 1,
+                    "confidence": 3,
+                    "event_resolution": 2.1,
+                    "crystal_resolution": 2.1,
+                    "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
+                    "spacegroup": "P 3 2 1",
+                    "cell": "125 125 41 90 90 120",
+                    "event_comment": "Fragspect is amazing.",
+                    "interesting": false
+                },
+                {
+                    "id": 48,
+                    "crystal": "DCP2B-x0016",
+                    "site_number": 1,
+                    "event_number": 1,
+                    "code": "DCP2B-x0016_1",
+                    "lig_id": "EDO",
+                    "target_name": "DCP2B",
+                    "target_id": 1,
+                    "prot_id": 4654,
+                    "prot_url": "media/pdbs/DCP2B-x0016_1_apo_dU9LpzY.pdb",
+                    "event_map_info": "media/maps/DCP2B-x0016_1_pandda.map_sjD2vVe.gz",
+                    "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 4,
+                    "event_status": 4,
+                    "confidence": 2,
+                    "event_resolution": 2.2,
+                    "crystal_resolution": 2.2,
+                    "smiles": "O=C(O)c1ccc(Cl)c(Cl)c1",
+                    "spacegroup": "P 1",
+                    "cell": "140 95 41 90 90 120",
+                    "event_comment": "Funky naming.",
+                    "interesting": true
+                },
+                {
+                    "frag_id": 50,
+                    "crystal": "NUDT7A-x2415",
+                    "site_number": 6,
+                    "event_number": 1,
+                    "code": "NUDT7A-x1232_1",
+                    "lig_id": "LIG-D1",
+                    "target_name": "NUDT7A",
+                    "target_id": 5,
+                    "prot_id": 8652,
+                    "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
+                    "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 5,
+                    "event_status": 2,
+                    "confidence": 2,
+                    "event_resolution": 1.5,
+                    "crystal_resolution": 1.4,
+                    "smiles": "O=C(Nc1cccnc1)c1ccccc1F",
+                    "spacegroup": "P 1",
+                    "cell": "48 59 79 79 82 76",
+                    "event_comment": "This is magnificent.",
+                    "interesting": true
+                },
+                {
+                    "id": 51,
+                    "crystal": "NUDT7A-x2415",
+                    "site_number": 1,
+                    "event_number": 1,
+                    "code": "NUDT7A-x0142_2",
+                    "lig_id": "LIG-E1",
+                    "target_name": "NUDT7A",
+                    "target_id": 5,
+                    "prot_id": 8651,
+                    "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
+                    "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 3,
+                    "event_status": 3,
+                    "confidence": 1,
+                    "event_resolution": 1.4,
+                    "crystal_resolution": 1.4,
+                    "smiles": "COc1ccc(CC(=O)Nc2cccc(Cl)c2)cc1",
+                    "spacegroup": "P 1",
+                    "cell": "49 59 80 79 81 75",
+                    "event_comment": "Fragspect rocks.",
+                    "interesting": true
+                },
+                {
+                    "id": 52,
+                    "crystal": "NUDT7A-x2415",
+                    "site_number": 2,
+                    "event_number": 1,
+                    "code": "NUDT7A-x2415_3",
+                    "lig_id": "LIG-E1",
+                    "target_name": "NUDT7A",
+                    "target_id": 5,
+                    "prot_id": 8657,
+                    "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
+                    "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 2,
+                    "event_status": 4,
+                    "confidence": 3,
+                    "event_resolution": 1.8,
+                    "crystal_resolution": 1.4,
+                    "smiles":"O=C(O)c1ccc(Br)nc1",
+                    "spacegroup": "C 1 2 1",
+                    "cell": "102 45 60 90 90 90",
+                    "event_comment": "Ric for president.",
+                    "interesting": true
+                },
+                {
+                    "id": 53,
+                    "crystal": "NUDT7A-x1647",
+                    "site_number": 3,
+                    "event_number": 1,
+                    "code": "NUDT7A-x1647_1",
+                    "lig_id": "LIG-D1",
+                    "target_name": "NUDT7A",
+                    "target_id": 5,
+                    "prot_id": 8658,
+                    "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
+                    "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 4,
+                    "event_status": 5,
+                    "confidence": 2,
+                    "event_resolution": 2.2,
+                    "crystal_resolution": 2.2,
+                    "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
+                    "spacegroup": "P 1",
+                    "cell": "49 59 79 79 81 75",
+                    "event_comment": "This is magnificent.",
+                    "interesting": true
+                },
+                {
+                    "id": 54,
+                    "crystal": "NUDT7A-x0245",
+                    "site_number": 1,
+                    "event_number": 1,
+                    "code": "NUDT7A-x0245_3",
+                    "lig_id": "LIG-D1",
+                    "target_name": "NUDT7A",
+                    "target_id": 5,
+                    "prot_id": 8752,
+                    "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
+                    "event_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 7,
+                    "event_status": 6,
+                    "confidence": 3,
+                    "event_resolution": 1.8,
+                    "crystal_resolution": 1.8,
+                    "smiles": "O=C(Nc1ccon1)c1ccccc1F",
+                    "spacegroup": "P 3 2 1",
+                    "cell": "125 125 41 90 90 120",
+                    "event_comment": "This is magnificent.",
+                    "interesting": true
+                },
+                {
+                    "id": 55,
+                    "crystal": "NUDT5A-x0526",
+                    "site_number": 4,
+                    "event_number": 1,
+                    "code": "NUDT5A-x0526_3",
+                    "lig_id": "LIG-E1",
+                    "target_name": "NUDT5A",
+                    "target_id": 6,
+                    "prot_id": 8655,
+                    "prot_url": "media/maps/NUDT7A-x0349_acceptor_ebBZqDc.pdb",
+                    "event_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
+                    "sigmaa_map_info": "media/maps/NUDT5A-x0349_acceptor_ebBZqDc.ccp4",
+                    "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
+                    "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
+                    "pandda_model_found": true,
+                    "crystal_status": 6,
+                    "event_status": 7,
+                    "confidence": 3,
+                    "event_resolution": 2.5,
+                    "crystal_resolution": 2.5,
+                    "smiles": "Cc1cc(NC(=O)Cc2cccc(O)c2)no1",
+                    "spacegroup": "C 1 2 1",
+                    "cell": "102, 45, 60 90 90 90",
+                    "event_comment": "This is magnificent.",
+                    "interesting": false
+                }
+            ]
         };
     }
 
@@ -335,7 +334,8 @@ class FragspectList extends GenericList {
     setEvents(json){
         this.props.setFragspectTarget(json["results"][0].target_name);
         this.setState(prevState => ({fragspectObjects: json.results}));
-        component.forceUpdate();
+        this.props.setFragspectEvents(json.results);
+        // component.forceUpdate();
     }
 
     handleFilterChange(value) {
@@ -651,13 +651,13 @@ class FragspectList extends GenericList {
     generateRows() {
         if (this.state.view == "Event Review") {
             var rows = [];
-            for (var event in this.state.fragspectObjects) {
-                if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
-                    this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
-                    this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
-                    this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
-                    rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
-                                             data={this.state.fragspectObjects[event]}/>)
+            for (var event in this.props.fragspectEvents) {
+                if (this.state.confidenceFilter.includes(this.props.fragspectEvents[event].confidence) &&
+                    this.state.depositionFilter.includes(this.props.fragspectEvents[event].event_status) &&
+                    this.state.interestFilter.includes(this.props.fragspectEvents[event].interesting == true ? 1 : 0) &&
+                    this.state.siteFilter.includes(this.props.fragspectEvents[event].site_number)) {
+                    rows.push(<FragspectView key={this.props.fragspectEvents[event].code}
+                                             data={this.props.fragspectEvents[event]}/>)
                 }
             }
         }
@@ -680,14 +680,14 @@ class FragspectList extends GenericList {
                         <Col xs={3} md={3}></Col>
                     </Row>
                 );
-                for (var event in this.state.fragspectObjects) {
-                    if (this.state.fragspectObjects[event].crystal == this.state.crystalList[crystal] &&
-                        this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
-                        this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
-                        this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
-                        this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
-                        rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
-                                                 data={this.state.fragspectObjects[event]}/>)
+                for (var event in this.props.fragspectEvents) {
+                    if (this.props.fragspectEvents[event].crystal == this.state.crystalList[crystal] &&
+                        this.state.confidenceFilter.includes(this.props.fragspectEvents[event].confidence) &&
+                        this.state.depositionFilter.includes(this.props.fragspectEvents[event].event_status) &&
+                        this.state.interestFilter.includes(this.props.fragspectEvents[event].interesting == true ? 1 : 0) &&
+                        this.state.siteFilter.includes(this.props.fragspectEvents[event].site_number)) {
+                        rows.push(<FragspectView key={this.props.fragspectEvents[event].code}
+                                                 data={this.props.fragspectEvents[event]}/>)
                     }
                 }
             }
@@ -704,19 +704,19 @@ class FragspectList extends GenericList {
         var crystalList = [];
         var crystalDict = [];
         var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
-        for (var event in this.state.fragspectObjects){
-            if (crystalList.includes(this.state.fragspectObjects[event].crystal) == false) {
-                crystalList.push(this.state.fragspectObjects[event].crystal);
+        for (var event in this.props.fragspectEvents){
+            if (crystalList.includes(this.props.fragspectEvents[event].crystal) == false) {
+                crystalList.push(this.props.fragspectEvents[event].crystal);
                 crystalDict.push({
-                    "name": this.state.fragspectObjects[event].crystal,
-                    "resolution": this.state.fragspectObjects[event].crystal_resolution,
-                    "status": this.state.fragspectObjects[event].crystal_status
+                    "name": this.props.fragspectEvents[event].crystal,
+                    "resolution": this.props.fragspectEvents[event].crystal_resolution,
+                    "status": this.props.fragspectEvents[event].crystal_status
                 })
             }
-            siteDict[this.state.fragspectObjects[event].site_number] = "Site" + this.state.fragspectObjects[event].site_number.toString();
-            buttonList.push(this.state.fragspectObjects[event].site_number + 12)
-            if (this.state.fragspectObjects[event].site_number > maxSite) {
-                maxSite = this.state.fragspectObjects[event].site_number;
+            siteDict[this.props.fragspectEvents[event].site_number] = "Site" + this.props.fragspectEvents[event].site_number.toString();
+            buttonList.push(this.props.fragspectEvents[event].site_number + 12)
+            if (this.props.fragspectEvents[event].site_number > maxSite) {
+                maxSite = this.props.fragspectEvents[event].site_number;
             }
         }
         // crystalList.sort();
@@ -932,6 +932,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     // setObjectList: apiActions.setMoleculeList,
     setFragspectTarget: apiActions.setFragspectTarget,
+    setFragspectEvents: apiActions.setFragspectEvents,
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FragspectList));
