@@ -37,6 +37,7 @@ class FragspectList extends GenericList {
         this.interestFilterChange = this.interestFilterChange.bind(this);
         this.siteButtonGenerator = this.siteButtonGenerator.bind(this);
         this.buttonRender = this.buttonRender.bind(this);
+        this.initialiseButtons = this.initialiseButtons.bind(this);
         this.state = {
             target: undefined,
             view: "Event Review",
@@ -695,7 +696,7 @@ class FragspectList extends GenericList {
         return rows;
     }
 
-    intialiseButtons(){
+    initialiseButtons(){
         var siteDict = {};
         var maxSite = 1;
         var crystalList = [];
