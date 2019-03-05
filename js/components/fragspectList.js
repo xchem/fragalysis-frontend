@@ -711,7 +711,7 @@ class FragspectList extends GenericList {
                 crystalDict.push({
                     "name": props[event].crystal,
                     "resolution": props[event].crystal_resolution,
-                    "status": props[event].parseInt(crystal_status)
+                    "status": props[event].crystal_status
                 })
             }
             siteDict[props[event].site_number] = "Site" + props[event].site_number.toString();
