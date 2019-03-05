@@ -37,6 +37,9 @@ function getInitialState(){
        sessionIdList: [],
        sessionTitle: undefined,
        user_id: undefined,
+       fragspectModalState: "closed",
+       fragspectModalContents: undefined,
+       fragspectTarget: undefined
    }
 }
 
@@ -84,6 +87,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
         expect(apiReducers(undefined, {
                 type: types.LOAD_TARGETS
@@ -120,6 +126,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
     })
     it('should handle LOAD_MOL_GROUPS', () => {
@@ -159,6 +168,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
         expect(apiReducers(undefined, {
                 type: types.LOAD_MOL_GROUPS,
@@ -197,6 +209,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
     })
     it('should handle LOAD_MOLECULES', () => {
@@ -237,6 +252,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
         expect(apiReducers(undefined, {
                 type: types.LOAD_MOLECULES,
@@ -274,6 +292,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
     })
 })

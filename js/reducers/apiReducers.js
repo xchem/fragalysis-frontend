@@ -37,6 +37,7 @@ const INITIALSTATE = {
     user_id: undefined,
     fragspectModalState: "closed",
     fragspectModalContents: undefined,
+    fragspectTarget: undefined
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -275,6 +276,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_FRAGSPECT_MODAL_CONTENTS:
             return Object.assign({}, state, {
                 fragspectModalContents: action.fragspectModalContents
+            });
+
+        case actions.SET_FRAGSPECT_TARGET:
+            return Object.assign({}, state, {
+                fragspectTarget: action.fragspectTarget,
             });
 
         // Cases like: @@redux/INIT

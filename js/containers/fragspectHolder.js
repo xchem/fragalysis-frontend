@@ -39,7 +39,7 @@ class Fragspect extends Component {
         if (json.count == 0) {
             console.log("no events for this target found")
         } else {
-            this.props.setTargetOn(json["results"][0].target_name);
+            this.props.setFragspectTarget(json["results"][0].target_name);
         }
     }
 
@@ -64,13 +64,12 @@ class Fragspect extends Component {
 
 function mapStateToProps(state) {
     return {
-        target_on: state.apiReducers.present.target_on
+        fragspectTarget: state.apiReducers.present.fragspectTarget
     }
 }
 const mapDispatchToProps = {
-    setTargetOn: apiActions.setTargetOn,
-    setTargetUnrecognised: apiActions.setTargetUnrecognised,
-    setErrorMessage: apiActions.setErrorMessage,
+    setFragspectTarget: apiActions.setFragspectTarget,
+    // setTargetUnrecognised: apiActions.setTargetUnrecognised,
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Fragspect))

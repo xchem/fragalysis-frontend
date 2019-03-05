@@ -38,6 +38,7 @@ import {
     SET_USER_ID,
     SET_FRAGSPECT_MODAL_STATE,
     SET_FRAGSPECT_MODAL_CONTENTS,
+    SET_FRAGSPECT_TARGET,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -350,6 +351,14 @@ export const setFragspectModalContents = function (fragspectModalContents) {
         type: SET_FRAGSPECT_MODAL_CONTENTS,
         fragspectModalContents: fragspectModalContents
     };
+}
+
+export const setFragspectTarget = function (fragspectTarget){
+    console.log("ACTIONS: "+ fragspectTarget)
+    return {
+        type: SET_FRAGSPECT_TARGET,
+        fragspectTarget: fragspectTarget
+    }
 }
 
 export function renderData(element_type, div_id) {
