@@ -98,21 +98,11 @@ class FragspectView extends React.Component {
             "crystal": this.props.data.crystal,
             "site_number": this.props.data.site_number,
             "event_number": this.props.data.event_number,
-            "code": this.props.data.code,
             "lig_id": this.props.data.lig_id,
             "target_name": this.props.data.target_name,
-            "target_id": this.props.data.target_id,
-            "prot_id": this.props.data.prot_id,
-            "prot_url": this.props.data.prot_url,
-            "event_map_info": this.props.data.event_map_info,
-            "sigmaa_map_info": this.props.data.sigmaa_map_info,
-            "spider_plot_info": this.props.data.spider_plot_info,
-            "two_d_density_map": this.props.data.two_d_density_map,
-            "pandda_model_found": this.props.data.pandda_model_found,
             "crystal_status": this.props.data.crystal_status,
             "event_status": this.props.data.event_status,
             "confidence": this.props.data.confidence,
-            "event_resolution": this.props.data.event_resolution,
             "crystal_resolution": this.props.data.crystal_resolution,
             "smiles": this.props.data.smiles,
             "spacegroup": this.props.data.spacegroup,
@@ -120,8 +110,30 @@ class FragspectView extends React.Component {
             "event_comment": this.props.data.event_comment,
             "interesting": this.props.data.interesting
         }
-        this.props.setFragspectModalContents(fragspectObject);
+        // var notAccessibleFragspectObject = {
+        //     "code": this.props.data.code,
+        //     "target_id": this.props.data.target_id,
+        //     "prot_id": this.props.data.prot_id,
+        //     "prot_url": this.props.data.prot_url,
+        //     "event_map_info": this.props.data.event_map_info,
+        //     "sigmaa_map_info": this.props.data.sigmaa_map_info,
+        //     "spider_plot_info": this.props.data.spider_plot_info,
+        //     "two_d_density_map": this.props.data.two_d_density_map,
+        //     "pandda_model_found": this.props.data.pandda_model_found,
+        //     "event_resolution": this.props.data.event_resolution,
+        // }
     }
+
+    // setLoader(json) {
+    //
+    //     fragspectObject.push()
+    //     this.props.setFragspectTarget(json["results"][0].target_name);
+    //     this.setState(prevState => ({fragspectObjects: json.results}));
+    //     this.props.setFragspectEvents(json.results);
+    //     this.initialiseButtons(json.results)
+    //     // component.forceUpdate();
+    //     this.props.setFragspectModalContents(fragspectObject);
+    // }
 
     render() {
         return <Row className="show-grid" float="center">

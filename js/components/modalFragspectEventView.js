@@ -264,7 +264,19 @@ export class ModalFragspectEventView extends Component {
     }
 
     loadDensity() {
-        var densityQuery = "?code=" + this.props.fragspectModalContents.code;
+
+        //
+        // var loaderQuery = this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
+        // fetch(window.location.protocol + "//" + window.location.host + "/api/proteins/?code=" + loaderQuery)
+        //     .then(response => response.json())
+        //     .then(json => this.setLoader(json))
+        //     // .then(this.initialiseButtons(json.results))
+        //     .catch((error) => {
+        //         // this.deployErrorModal(error);
+        //     })
+
+        var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
+        // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
         var targetId = this.props.fragspectModalContents.target_id.toString();
         var ligId = this.props.fragspectModalContents.lig_id.toString();
         fetch("/api/proteins/" + densityQuery, {
@@ -282,7 +294,7 @@ export class ModalFragspectEventView extends Component {
                 "map_info": myJson.results[0].map_info.replace("http:",window.location.protocol),
                 "xtal": targetId,
                 "lig_id": ligId,
-                "pdb_info": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
+                "pdb_info": myJson.results[0].bound_info.replace("http:",window.location.protocol),
                 "display_div": "fragspect"
             };
             return densityObject;
