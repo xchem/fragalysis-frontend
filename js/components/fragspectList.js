@@ -795,7 +795,7 @@ class FragspectList extends GenericList {
     }
 
     componentWillReceiveProps(){
-        this.fetchEvents();
+        // this.fetchEvents();
         this.initialiseButtons();
         console.log("new events")
     }
