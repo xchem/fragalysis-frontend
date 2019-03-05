@@ -703,11 +703,17 @@ class FragspectList extends GenericList {
         this.setState(prevState => ({buttonsDepressed: filtersOn}));
     }
 
+    componentDidUpdate(){
+        if (this.props.fragspectTarget != undefined) {
+            document.title = this.props.fragspectTarget + ": Fragspect"
+        }
+    }
+
     render() {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
                 <Row>
-                    <h1 className="text-center">{this.props.fragspectTarget}</h1>
+                    <h2 className="text-center">{"Fragspect: " + this.props.fragspectTarget}</h2>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}><h4 className="text-center">Site selector</h4></Col>
