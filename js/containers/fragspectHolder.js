@@ -11,8 +11,6 @@ class Fragspect extends Component {
 
     constructor(props) {
         super(props)
-        this.updateTarget = this.updateTarget.bind(this)
-        this.setTarget = this.setTarget.bind(this)
     }
 
     // componentWillMount() {
