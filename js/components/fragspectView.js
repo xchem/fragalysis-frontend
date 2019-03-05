@@ -124,38 +124,38 @@ class FragspectView extends React.Component {
     }
 
     render() {
-        return <Row className="show-grid" float="center" onClick={this.openModal}>
-            <Col xs={1} md={1}>
+        return <Row className="show-grid" float="center">
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p className="text-center"><b>{this.props.data.crystal}</b></p>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p className="text-center">{this.props.data.site_number.toString()}</p>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p className="text-center">{this.props.data.lig_id}</p>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                     <Image src={this.img_url+"&dummy=png"} responsive rounded onClick={this.openModal}/>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <Panel style={this.colorToggle()}>
                     <p className="text-center" style={{color: 'black'}}><b>{this.convertDeposition()}</b></p>
                 </Panel>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p className="text-center">{this.props.data.confidence}</p>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <ButtonToolbar>
                     <button onClick={this.openModal}>Open</button>
                 </ButtonToolbar>
             </Col>
-            <Col xs={1} md={1}></Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}></Col>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p> </p>
                 <p className="text-center">{this.props.data.crystal_resolution} Å</p>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p className="text-center">{this.props.data.spacegroup}</p>
                 <p className="text-center">{this.props.data.cell.split(' ')[0]}, {this.props.data.cell.split(' ')[1]}, {this.props.data.cell.split(' ')[2]}</p>
                 <p className="text-center">{this.props.data.cell.split(' ')[3]}, {this.props.data.cell.split(' ')[4]}, {this.props.data.cell.split(' ')[5]}</p>
@@ -163,7 +163,7 @@ class FragspectView extends React.Component {
             <Col xs={1} md={1}>
                 <input id={this.props.data.id} key="comment" defaultValue={this.props.data.event_comment} onKeyDown={this.handleSessionNaming}></input>
             </Col>
-            <Col xs={1} md={1}>
+            <Col xs={1} md={1} onClick={this.openModal}>
                 <p className="text-center"><b>{this.state.interestingStatus[this.props.data.interesting == true ? 1 : 0]}</b></p>
             </Col>
         </Row>
