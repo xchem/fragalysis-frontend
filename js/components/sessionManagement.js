@@ -359,7 +359,7 @@ export class SessionManagement extends React.Component {
     render() {
         const {pathname} = this.props.location;
         var buttons = "";
-        if (pathname != "/viewer/react/landing" && pathname != "/viewer/react/funders" && pathname != "/viewer/react/sessions" && pathname != "/viewer/react/targetmanagement" && pathname != "/viewer/react/fragspect") {
+        if (pathname != "/viewer/react/landing" && pathname != "/viewer/react/funders" && pathname != "/viewer/react/sessions" && pathname != "/viewer/react/targetmanagement" && pathname.startsWith("/viewer/react/fragspect") != true) {
             if (this.props.sessionTitle == undefined || this.props.sessionTitle == "undefined") {
                 buttons = <Col>
                     <ButtonToolbar>
