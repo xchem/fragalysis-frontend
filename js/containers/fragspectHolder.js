@@ -4,7 +4,7 @@ import {Row, Col} from "react-bootstrap";
 import FragspectList from "../components/fragspectList";
 import ModalFragspectEventView from "../components/modalFragspectEventView";
 // import ModalStateSave from "../components/modalStateSave";
-// import {withRouter} from "react-router-dom";
+
 import * as apiActions from "../actions/apiActions";
 
 class Fragspect extends Component {
@@ -12,18 +12,6 @@ class Fragspect extends Component {
     constructor(props) {
         super(props)
     }
-
-    // componentWillMount() {
-        // this.updateTarget()
-    // }
-
-    // componentDidMount() {
-    //     this.updateTarget()
-    // }
-    //
-    // componentDidUpdate(){
-    //     this.updateTarget()
-    // }
 
     render() {
         var screenHeight= window.innerHeight*0.7.toString()+"px"
@@ -38,11 +26,9 @@ class Fragspect extends Component {
 
 function mapStateToProps(state) {
     return {
-        fragspectTarget: state.apiReducers.present.fragspectTarget
     }
 }
 const mapDispatchToProps = {
-    setFragspectTarget: apiActions.setFragspectTarget,
     // setTargetUnrecognised: apiActions.setTargetUnrecognised,
 }
 

@@ -334,6 +334,7 @@ class FragspectList extends GenericList {
     setEvents(json){
         this.props.setFragspectTarget(json["results"][0].target_name);
         this.setState(prevState => ({fragspectObjects: json.results}));
+        component.forceUpdate();
     }
 
     handleFilterChange(value) {
@@ -694,8 +695,8 @@ class FragspectList extends GenericList {
     }
 
     componentWillMount(){
+        this.fetchEvents()
         // if (this.props.fragspectTarget != undefined) {
-            this.fetchEvents()
         // } else {}
         var siteDict = {};
         var maxSite = 1;
@@ -923,12 +924,12 @@ class FragspectList extends GenericList {
 }
 function mapStateToProps(state) {
     return {
-        object_list: state.apiReducers.present.molecule_list,
+        // object_list: state.apiReducers.present.molecule_list,
         fragspectTarget: state.apiReducers.present.fragspectTarget
     }
 }
 const mapDispatchToProps = {
-    setObjectList: apiActions.setMoleculeList,
+    // setObjectList: apiActions.setMoleculeList,
     setFragspectTarget: apiActions.setFragspectTarget,
 }
 
