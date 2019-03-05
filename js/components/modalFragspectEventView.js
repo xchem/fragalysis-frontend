@@ -36,7 +36,6 @@ export class ModalFragspectEventView extends Component {
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.colorToggle = this.colorToggle.bind(this);
         this.convertDeposition = this.convertDeposition.bind(this);
-        this.convertConfidence = this.convertConfidence.bind(this);
         this.getCookie = this.getCookie.bind(this);
         // this.openFraggleLink = this.openFraggleLink.bind(this);
         // this.getTitle = this.getTitle.bind(this);
@@ -119,10 +118,6 @@ export class ModalFragspectEventView extends Component {
 
     convertDeposition() {
         return this.props.fragspectModalContents.event_status.toString() + '. ' + this.state.depositionStatus[this.props.fragspectModalContents.event_status];
-    }
-
-    convertConfidence() {
-        return this.state.confidenceStatus[this.props.fragspectModalContents.confidence];
     }
 
     getCookie(name) {
