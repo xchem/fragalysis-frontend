@@ -45,7 +45,7 @@ export class ModalFragspectEventView extends Component {
         this.loadDensity = this.loadDensity.bind(this);
         this.handleDensity = this.handleDensity.bind(this);
         this.closeModal = this.closeModal.bind(this);
-        this.generateTargetObject = this.generateTargetObject.bind(this);
+        // this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
         this.state = {
             loadedObjects: {},
@@ -226,18 +226,18 @@ export class ModalFragspectEventView extends Component {
 
     }
 
-    generateTargetObject() {
-        // if(JSON.stringify(this.props.targetOn)!=JSON.stringify(undefined)) {
-            var out_object = {
-                "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
-                "prot_url": this.props.boundPdbUrl,
-                "OBJECT_TYPE": nglObjectTypes.PROTEIN,
-                "nglProtStyle": this.props.nglProtStyle
-            }
-            return out_object
-        // }
-        // return undefined;
-    }
+    // generateTargetObject() {
+    //     // if(JSON.stringify(this.props.targetOn)!=JSON.stringify(undefined)) {
+    //         var out_object = {
+    //             "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
+    //             "prot_url": this.props.boundPdbUrl,
+    //             "OBJECT_TYPE": nglObjectTypes.PROTEIN,
+    //             "nglProtStyle": this.props.nglProtStyle
+    //         }
+    //         return out_object
+    //     // }
+    //     // return undefined;
+    // }
     //
     // loadProtein() {
     //     var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
@@ -273,10 +273,10 @@ export class ModalFragspectEventView extends Component {
         //     .catch((error) => {
         //         // this.deployErrorModal(error);
         //     })
-        var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
+        var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
         var crystal = this.props.fragspectModalContents.crystal;
-        var ligId = this.props.fragspectModalContents.lig_id.toString();
+        var ligId = this.props.fragspectModalContents.lig_id;
         fetch("/api/proteins/" + densityQuery, {
             method: "get",
             headers: {
@@ -397,25 +397,25 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={10} md={10}>
                         <Row>
                             <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
-                            <h1 className="text-center"><b>{this.props.fragspectModalContents.code}</b></h1>
+                            <h1 className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></h1>
                             <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                             <Col xs={5} md={5}>
                                 <Col xs={6} md={6}>
                                     <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                    <h2>Target: {this.props.fragspectModalContents.target_name}</h2>
+                                    <h2>Target: {this.props.fragspectModalContents.crystal}</h2>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <h2>Site {this.props.fragspectModalContents.site_number}</h2>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <p>Space group: {this.props.fragspectModalContents.spacegroup}.</p>
                                     <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
-                                    <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
+                                    <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[parseInt(this.props.fragspectModalContents.crystal_status)]}</p>
                                 </Col>
                                 <Col xs={6} md={6}>
                                     {this.generateMolImage(this.props.fragspectModalContents.smiles)}
                                 </Col>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
-                                    <h3 className="text-center">Event status: {this.props.fragspectModalContents.event_status}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</h3>
+                                    <h3 className="text-center">Event status: {this.props.fragspectModalContents.event_status.toSt}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</h3>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <Col xs={6} md={6}>
                                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
@@ -436,7 +436,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
                                     <Col xs={6} md={6}>
-                                        <h3 className="text-center">Confidence: {this.state.confidenceStatus[this.props.fragspectModalContents.confidence]}</h3>
+                                        <h3 className="text-center">Confidence: {this.props.fragspectModalContents.confidence}</h3>
                                         <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                         <div className="text-center">
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
@@ -460,7 +460,7 @@ export class ModalFragspectEventView extends Component {
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>
                                 <Row>
                                     <div className="text-center">
-                                    <input id={this.props.fragspectModalContents.fragId} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
+                                    <input id={this.props.fragspectModalContents.id} key="comment" defaultValue={this.props.fragspectModalContents.event_comment} onKeyDown={this.handleSessionNaming}></input>
                                     </div>
                                 </Row>
                                 <Row style={{height: window.innerHeight * 0.05.toString() + "px"}}></Row>

@@ -110,6 +110,7 @@ class FragspectView extends React.Component {
             "event_comment": this.props.data.event_comment,
             "interesting": this.props.data.interesting
         }
+        this.props.setFragspectModalContents(fragspectObject);
         // var notAccessibleFragspectObject = {
         //     "code": this.props.data.code,
         //     "target_id": this.props.data.target_id,
