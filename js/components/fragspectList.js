@@ -760,6 +760,10 @@ class FragspectList extends GenericList {
         }
     }
 
+    componentWillReceiveProps(){
+        console.log("new events")
+    }
+
     render() {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
@@ -926,7 +930,8 @@ class FragspectList extends GenericList {
 function mapStateToProps(state) {
     return {
         // object_list: state.apiReducers.present.molecule_list,
-        fragspectTarget: state.apiReducers.present.fragspectTarget
+        fragspectTarget: state.apiReducers.present.fragspectTarget,
+        fragspectEvents: state.apiReducers.present.fragspectEvents
     }
 }
 const mapDispatchToProps = {
