@@ -51,6 +51,7 @@ class FragspectList extends GenericList {
             siteFilter: [],
             buttonsDepressed: [1001, 1011, 1021, 1031, 1041],
             "siteList": {},
+            "confidenceOptions": {1:"Low",2:"Medium",3:"High"},
             "confidenceStatus": {
                 "null": 1,
                 "0 - No Ligand placed": 1,
