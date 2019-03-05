@@ -21,8 +21,7 @@ class Switches extends Component {
             <ErrorView></ErrorView>
             <Switch>
                 <Route exact path="/viewer/react/targetmanagement" component={TargetManagement}/>
-                <Route exact path="/viewer/react/fragspect" component={Fragspect}/>
-                <Route exact path="/viewer/react/fragspect/target/:target" component={Fragspect}/>
+                <Route exact path="/viewer/react/fragspect/:target" component={Fragspect}/>
                 <Route exact path="/viewer/react/landing" component={Landing}/>
                 <Route exact path="/viewer/react/preview" component={Preview}/>
                 <Route exact path="/viewer/react/preview/target/:target" component={Preview}/>

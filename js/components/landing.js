@@ -22,7 +22,7 @@ export class Welcome extends React.Component {
     handleFragspectLaunch(e) {
         if (e.keyCode === 13) {
             var target = e.target.value;
-            var fragspectAddress = "/viewer/react/fragspect/target/" + e.target.value;
+            var fragspectAddress = "/viewer/react/fragspect/" + e.target.value;
             console.log('launch fragspect ' + target);
             this.setState(prevState => ({fragspectTarget: target}));
             this.setState(prevState => ({fragspectAddress: fragspectAddress}));
