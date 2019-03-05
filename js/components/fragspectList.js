@@ -182,7 +182,7 @@ class FragspectList extends GenericList {
             // var offset = 0;
             var filter = this.state.depositionFilter.slice();
         } else if (type == "confidence"){
-            var itemList = this.state.confidenceStatus;
+            var itemList = this.state.confidenceOptions;
             // var offset = 7;
             var filter = this.state.confidenceFilter.slice();
         } else if (type == "interest"){
@@ -274,7 +274,7 @@ class FragspectList extends GenericList {
             var itemList = this.state.depositionStatus;
             var filter = this.state.depositionFilter.slice();
         } else if (type == "confidence"){
-            var itemList = this.state.confidenceStatus;
+            var itemList = this.state.confidenceOptions;
             var filter = this.state.confidenceFilter.slice();
         } else if (type == "interest"){
             var itemList = this.state.interestStatus;
