@@ -52,10 +52,10 @@ class FragspectList extends GenericList {
             buttonsDepressed: [1001, 1011, 1021, 1031, 1041],
             "siteList": {},
             "confidenceStatus": {
-                // 0: "No Ligand placed",
-                1: "Low",
-                2: "Medium",
-                3: "High",
+                // "0 - No Ligand placed": 0,
+                "Low": 1 ,
+                "Medium": 2,
+                "High": 3,
                 // 4: "Not viewed",
                 // 5: "Interesting",
                 // 6: "Discard"
@@ -90,7 +90,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 1,
+                    "crystal_status": "1",
                     "event_status": 1,
                     "confidence": 3,
                     "event_resolution": 2.1,
@@ -117,7 +117,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 4,
+                    "crystal_status": "4",
                     "event_status": 4,
                     "confidence": 2,
                     "event_resolution": 2.2,
@@ -144,7 +144,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 5,
+                    "crystal_status": "5",
                     "event_status": 2,
                     "confidence": 2,
                     "event_resolution": 1.5,
@@ -171,7 +171,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 3,
+                    "crystal_status": "3",
                     "event_status": 3,
                     "confidence": 1,
                     "event_resolution": 1.4,
@@ -198,7 +198,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 2,
+                    "crystal_status": "2",
                     "event_status": 4,
                     "confidence": 3,
                     "event_resolution": 1.8,
@@ -225,7 +225,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 4,
+                    "crystal_status": "4",
                     "event_status": 5,
                     "confidence": 2,
                     "event_resolution": 2.2,
@@ -252,7 +252,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT7A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 7,
+                    "crystal_status": "7",
                     "event_status": 6,
                     "confidence": 3,
                     "event_resolution": 1.8,
@@ -279,7 +279,7 @@ class FragspectList extends GenericList {
                     "spider_plot_info": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
                     "two_d_density_map": "media/spideys/NUDT5A-x0349_acceptor_ebBZqDc.png",
                     "pandda_model_found": true,
-                    "crystal_status": 6,
+                    "crystal_status": "6",
                     "event_status": 7,
                     "confidence": 3,
                     "event_resolution": 2.5,
@@ -656,7 +656,7 @@ class FragspectList extends GenericList {
             var rows = [];
             for (var event in this.state.fragspectObjects) {
                 if (this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
-                    this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                    this.state.depositionFilter.includes(parseInt(this.state.fragspectObjects[event].crystal_status)) &&
                     this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
                     this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                     rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
@@ -686,7 +686,7 @@ class FragspectList extends GenericList {
                 for (var event in this.state.fragspectObjects) {
                     if (this.state.fragspectObjects[event].crystal == this.state.crystalList[crystal] &&
                         this.state.confidenceFilter.includes(this.state.fragspectObjects[event].confidence) &&
-                        this.state.depositionFilter.includes(this.state.fragspectObjects[event].event_status) &&
+                        this.state.depositionFilter.includes(parseInt(this.state.fragspectObjects[event].event_status)) &&
                         this.state.interestFilter.includes(this.state.fragspectObjects[event].interesting == true ? 1 : 0) &&
                         this.state.siteFilter.includes(this.state.fragspectObjects[event].site_number)) {
                         rows.push(<FragspectView key={this.state.fragspectObjects[event].code}
@@ -710,7 +710,7 @@ class FragspectList extends GenericList {
                 crystalDict.push({
                     "name": props[event].crystal,
                     "resolution": props[event].crystal_resolution,
-                    "status": props[event].crystal_status
+                    "status": props[event].parseInt(crystal_status)
                 })
             }
             siteDict[props[event].site_number] = "Site" + props[event].site_number.toString();
