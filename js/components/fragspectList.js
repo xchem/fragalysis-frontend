@@ -796,11 +796,11 @@ class FragspectList extends GenericList {
         }
     }
 
-    componentWillReceiveProps(nextProps){
-        // this.fetchEvents();
-        this.initialiseButtons(nextProps);
-        console.log("new events")
-    }
+    // componentWillReceiveProps(nextProps){
+    //     // this.fetchEvents();
+    //     this.initialiseButtons(nextProps);
+    //     console.log("new events")
+    // }
 
     render() {
         return <Well>
