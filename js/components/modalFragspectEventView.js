@@ -396,7 +396,7 @@ export class ModalFragspectEventView extends Component {
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <h2>Site {this.props.fragspectModalContents.site_number}</h2>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
-                                    <p>Space group: {this.props.fragspectModalContents.space_group}.</p>
+                                    <p>Space group: {this.props.fragspectModalContents.spacegroup}.</p>
                                     <p>Unit cell: {this.props.fragspectModalContents.cell.split(' ')[0]}, {this.props.fragspectModalContents.cell.split(' ')[1]}, {this.props.fragspectModalContents.cell.split(' ')[2]} ({this.props.fragspectModalContents.cell.split(' ')[3]}, {this.props.fragspectModalContents.cell.split(' ')[4]}, {this.props.fragspectModalContents.cell.split(' ')[5]})</p>
                                     <p>Crystal status: {this.props.fragspectModalContents.crystal_status}. {this.state.depositionStatus[this.props.fragspectModalContents.crystal_status]}</p>
                                 </Col>
