@@ -25,6 +25,7 @@ class FragspectList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
+        this.fetchEvents = this.fetchEvents.bind(this);
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.showAll = this.showAll.bind(this);
         this.showSome = this.showSome.bind(this);
@@ -289,6 +290,19 @@ class FragspectList extends GenericList {
                 }
             ]
         };
+    }
+
+    setEvents(json){
+        this.setState(prevState => ({fragspectObjects: json.results}));
+    }
+
+    fetchEvents(){
+        fetch(window.location.protocol + "//" + window.location.host+"/xcdb/fragspect/?crystal__target__target_name__iexact="+this.props.fragspectTarget)
+            .then(response => response.json())
+            .then(json => this.setEvents(json))
+            .catch((error) => {
+                    // this.deployErrorModal(error);
+                })
     }
 
     handleFilterChange(value) {
@@ -649,6 +663,9 @@ class FragspectList extends GenericList {
     }
 
     componentWillMount(){
+        if (this.props.fragspectTarget != undefined) {
+            this.fetchEvents()
+        }
         var siteDict = {};
         var maxSite = 1;
         var crystalList = [];
