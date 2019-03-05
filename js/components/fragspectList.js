@@ -428,7 +428,7 @@ class FragspectList extends GenericList {
         } else if (type == "Deposition") {
             var button = <ToggleButton bsSize="sm" bsStyle="warning" value={value}>{value}: {this.state.depositionStatus[value]}</ToggleButton>;
         } else if (type == "Confidence") {
-            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: {this.state.confidenceStatus[status]}</ToggleButton>;
+            var button = <ToggleButton bsSize="sm" bsStyle="info" value={value}>{type}: status}</ToggleButton>;
         } else if (type == "Interesting") {
             var button = <ToggleButton bsSize="sm" bsStyle="success" value={value} key={"interesting"+ value.toString()}>{this.state.interestStatus[status]}</ToggleButton>;
         }
@@ -517,38 +517,6 @@ class FragspectList extends GenericList {
 
     componentWillMount(){
         this.fetchEvents()
-        // if (this.props.fragspectTarget != undefined) {
-        // } else {}
-        // var siteDict = {};
-        // var maxSite = 1;
-        // var crystalList = [];
-        // var crystalDict = [];
-        // var buttonList = [1,2,3,4,5,6,7,8,9,10,11,12,1001,1002,1011,1012,1021,1022,1023,1031,1032,1041,1042];
-        // for (var event in this.props.fragspectEvents){
-        //     if (crystalList.includes(this.props.fragspectEvents[event].crystal) == false) {
-        //         crystalList.push(this.props.fragspectEvents[event].crystal);
-        //         crystalDict.push({
-        //             "name": this.props.fragspectEvents[event].crystal,
-        //             "resolution": this.props.fragspectEvents[event].crystal_resolution,
-        //             "status": this.props.fragspectEvents[event].crystal_status
-        //         })
-        //     }
-        //     siteDict[this.props.fragspectEvents[event].site_number] = "Site" + this.props.fragspectEvents[event].site_number.toString();
-        //     buttonList.push(this.props.fragspectEvents[event].site_number + 12)
-        //     if (this.props.fragspectEvents[event].site_number > maxSite) {
-        //         maxSite = this.props.fragspectEvents[event].site_number;
-        //     }
-        // }
-        // // crystalList.sort();
-        // this.setState(prevState => ({crystalList: crystalList}));
-        // this.setState(prevState => ({crystalDict: crystalDict}));
-        // this.setState(prevState => ({maximumSiteNumber: maxSite}));
-        // this.setState(prevState => ({siteList: siteDict}));
-        // var newSiteFilter = this.state.siteFilter.splice();
-        // for (var i in siteDict) {
-        //     newSiteFilter.push(parseInt(i));
-        // }
-        // this.setState(prevState => ({siteFilter: newSiteFilter}));
     }
 
     componentDidMount() {
