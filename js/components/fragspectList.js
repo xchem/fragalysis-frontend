@@ -654,13 +654,13 @@ class FragspectList extends GenericList {
     generateRows() {
         if (this.state.view == "Event Review") {
             var rows = [];
-            for (var event in this.props.fragspectEvents) {
-                if (this.state.confidenceFilter.includes(this.props.fragspectEvents[event].confidence) &&
-                    this.state.depositionFilter.includes(this.props.fragspectEvents[event].event_status) &&
-                    this.state.interestFilter.includes(this.props.fragspectEvents[event].interesting == true ? 1 : 0) &&
-                    this.state.siteFilter.includes(this.props.fragspectEvents[event].site_number)) {
-                    rows.push(<FragspectView key={this.props.fragspectEvents[event].code}
-                                             data={this.props.fragspectEvents[event]}/>)
+            for (var event in this.state.fragspectEvents) {
+                if (this.state.confidenceFilter.includes(this.state.fragspectEvents[event].confidence) &&
+                    this.state.depositionFilter.includes(this.state.fragspectEvents[event].event_status) &&
+                    this.state.interestFilter.includes(this.state.fragspectEvents[event].interesting == true ? 1 : 0) &&
+                    this.state.siteFilter.includes(this.state.fragspectEvents[event].site_number)) {
+                    rows.push(<FragspectView key={this.state.fragspectEvents[event].code}
+                                             data={this.state.fragspectEvents[event]}/>)
                 }
             }
         }
@@ -683,14 +683,14 @@ class FragspectList extends GenericList {
                         <Col xs={3} md={3}></Col>
                     </Row>
                 );
-                for (var event in this.props.fragspectEvents) {
-                    if (this.props.fragspectEvents[event].crystal == this.state.crystalList[crystal] &&
-                        this.state.confidenceFilter.includes(this.props.fragspectEvents[event].confidence) &&
-                        this.state.depositionFilter.includes(this.props.fragspectEvents[event].event_status) &&
-                        this.state.interestFilter.includes(this.props.fragspectEvents[event].interesting == true ? 1 : 0) &&
-                        this.state.siteFilter.includes(this.props.fragspectEvents[event].site_number)) {
-                        rows.push(<FragspectView key={this.props.fragspectEvents[event].code}
-                                                 data={this.props.fragspectEvents[event]}/>)
+                for (var event in this.state.fragspectEvents) {
+                    if (this.state.fragspectEvents[event].crystal == this.state.crystalList[crystal] &&
+                        this.state.confidenceFilter.includes(this.state.fragspectEvents[event].confidence) &&
+                        this.state.depositionFilter.includes(this.state.fragspectEvents[event].event_status) &&
+                        this.state.interestFilter.includes(this.state.fragspectEvents[event].interesting == true ? 1 : 0) &&
+                        this.state.siteFilter.includes(this.state.fragspectEvents[event].site_number)) {
+                        rows.push(<FragspectView key={this.state.fragspectEvents[event].code}
+                                                 data={this.state.fragspectEvents[event]}/>)
                     }
                 }
             }
