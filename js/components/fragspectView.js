@@ -34,9 +34,11 @@ class FragspectView extends React.Component {
             "boundPdbUrl": undefined,
             "eDensityMapUrl": undefined,
             "confidenceStatus": {
-                1: "Low",
-                2: "Medium",
-                3: "High",
+                "null": 1,
+                "0 - No Ligand placed": 1,
+                "Low": 1 ,
+                "Medium": 2,
+                "High": 3
                 // 4: "Not viewed",
                 // 5: "Interesting",
                 // 6: "Discard"
@@ -141,7 +143,7 @@ class FragspectView extends React.Component {
                 </Panel>
             </Col>
             <Col xs={1} md={1}>
-                <p className="text-center">{this.convertConfidence()}</p>
+                <p className="text-center">{this.props.data.confidence}</p>
             </Col>
             <Col xs={1} md={1}>
                 <ButtonToolbar>
@@ -151,7 +153,7 @@ class FragspectView extends React.Component {
             <Col xs={1} md={1}></Col>
             <Col xs={1} md={1}>
                 <p> </p>
-                <p className="text-center">{this.props.data.event_resolution} Å</p>
+                <p className="text-center">{this.props.data.crystal_resolution} Å</p>
             </Col>
             <Col xs={1} md={1}>
                 <p className="text-center">{this.props.data.spacegroup}</p>

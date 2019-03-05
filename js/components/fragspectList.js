@@ -807,7 +807,6 @@ class FragspectList extends GenericList {
         return <Well>
             <Row height="50px" style={{overflow: scroll}}>
                 <Row>
-                    <h2 className="text-center">{"Fragspect: " + this.props.fragspectTarget}</h2>
                     <Col xs={2} md={2}>
                         <Col xs={3} md={3}></Col>
                         <Col xs={8} md={8}><h4 className="text-center">Site selector</h4></Col>
