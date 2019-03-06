@@ -393,12 +393,12 @@ export class ModalFragspectEventView extends Component {
                     <Col xs={10} md={10}>
                         <Row>
                             <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
-                            <h1 className="text-center"><b>{this.props.fragspectModalContents.crystal}</b></h1>
+                            <h1 className="text-center"><b>{this.props.fragspectModalContents.crystal}_{this.props.fragspectModalContents.site_number.toString()}_{this.props.fragspectModalContents.event_number.toString()}</b></h1>
                             <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                             <Col xs={5} md={5}>
                                 <Col xs={6} md={6}>
                                     <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
-                                    <h2>Target: {this.props.fragspectModalContents.crystal}</h2>
+                                    <h2>Crystal: {this.props.fragspectModalContents.crystal}</h2>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <h2>Site {this.props.fragspectModalContents.site_number}</h2>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
@@ -411,7 +411,7 @@ export class ModalFragspectEventView extends Component {
                                 </Col>
                                 <Row style={{height: window.innerHeight * 0.02.toString() + "px"}}></Row>
                                 <Row>
-                                    <h3 className="text-center">Event status: {this.props.fragspectModalContents.event_status.toSt}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</h3>
+                                    <h3 className="text-center">Event status: {this.props.fragspectModalContents.event_status.toString()}. {this.state.depositionStatus[this.props.fragspectModalContents.event_status]}</h3>
                                     <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                     <Col xs={6} md={6}>
                                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
@@ -443,7 +443,7 @@ export class ModalFragspectEventView extends Component {
                                         </div>
                                     </Col>
                                     <Col xs={6} md={6}>
-                                        <h3 className="text-center">Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting]}</h3>
+                                        <h3 className="text-center">Interesting? {this.state.interestingStatus[this.props.fragspectModalContents.interesting == true ? 1 : 0]}</h3>
                                         <Row style={{height: window.innerHeight * 0.01.toString() + "px"}}></Row>
                                         <div className="text-center">
                                             <ToggleButtonGroup type="checkbox" value={this.state.buttonsDepressed} onChange={this.handleStatusChange}>
@@ -484,7 +484,7 @@ export class ModalFragspectEventView extends Component {
                                     <p>Ctrl + right button: change depth of clipping</p>
                                 </Col>
                                 <Col xs={4} md={4}>
-                                     <img src={fragspectLogo+"&dummy=png"} responsive rounded />
+                                     {/*<img src={fragspectLogo+"&dummy=png"} responsive rounded />*/}
                                 </Col>
                             </Col>
                         </Row>
