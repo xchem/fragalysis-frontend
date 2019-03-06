@@ -349,9 +349,10 @@ export class ModalFragspectEventView extends Component {
             if (this.state.initiated == 0) {
                 // this.loadDensity()
                 var newButtonsDepressed = [];
+                var numericalInterestingness = nextProps.fragspectModalContents.interesting == true ? 1 : 0;
                 newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
                 newButtonsDepressed.push(nextProps.fragspectModalContents.confidence + 7);
-                newButtonsDepressed.push(nextProps.fragspectModalContents.interesting + 11);
+                newButtonsDepressed.push(numericalInterestingness + 11);
                 this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
                 this.setState(prevState => ({initiated: 1}));
             }
