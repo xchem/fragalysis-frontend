@@ -12,15 +12,13 @@ const customStyles = {
         backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
     content : {
-        top: '10%',
-        left: '10%',
-        right: '10%',
-        bottom: '10%',
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
         marginRight: '-20%',
-        transform: 'translate(0%, 0%)',
-        border: '10px solid #7a7a7a',
-        width: '80%',
-        height:'80%'
+        transform: 'translate(-50%, -50%)',
+        border: '10px solid #7a7a7a'
     }
 };
 
@@ -38,7 +36,7 @@ export class ModalFragspectLoading extends React.Component {
             <div>
                 <ReactModal isOpen={this.props.fragspectLoadingState} style={customStyles}>
                     <div>
-                        <img src={ require('../img/fragspectLogo_v0.4.png')} width="494" height="349" />
+                        <img src={ require('../img/fragspectLogo_v0.5.png')} width="400" height="278" />
                     </div>
                 </ReactModal>
             </div>
