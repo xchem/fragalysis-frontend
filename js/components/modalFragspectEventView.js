@@ -11,6 +11,7 @@ import * as nglObjectTypes from "../components/nglObjectTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 // import NGLSpectView from "../components/nglSpectView";
 import NGLView from "../components/nglComponents";
+import fragspectLogo from "../img/fragspectLogo_v0.1.png";
 
 const customStyles = {
     overlay : {
@@ -483,7 +484,7 @@ export class ModalFragspectEventView extends Component {
                                     <p>Ctrl + right button: change depth of clipping</p>
                                 </Col>
                                 <Col xs={4} md={4}>
-                                     <Image src={../img/fragspectLogo_v0.1.png} responsive rounded />
+                                     <Image src={fragspectLogo} responsive rounded />
                                 </Col>
                             </Col>
                         </Row>
