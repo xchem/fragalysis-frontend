@@ -37,7 +37,7 @@ export class ModalFragspectLoading extends React.Component {
                 <ReactModal isOpen={this.props.fragspectLoadingState} style={customStyles}>
                     <div>
                         {/*<img src={ require('../img/fragspectLogo_v0.1.png')}/>*/}
-                        <img src={ require('../img/fragspectLogo_v0.1.png')} width="494" height="349" />
+                        <img src={ require('../img/fragspectLogo_v0.1.png')}/>
                     </div>
                 </ReactModal>
             </div>
