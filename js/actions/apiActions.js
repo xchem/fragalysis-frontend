@@ -40,6 +40,7 @@ import {
     SET_FRAGSPECT_MODAL_CONTENTS,
     SET_FRAGSPECT_TARGET,
     SET_FRAGSPECT_EVENTS,
+    SET_FRAGSPECT_LOADING_STATE,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -368,6 +369,14 @@ export const setFragspectEvents = function (fragspectEvents){
         type: SET_FRAGSPECT_TARGET,
         fragspectEvents: fragspectEvents
     }
+}
+
+export const setFragspectLoadingState = function (fragspectLoadingState) {
+    console.log("ACTIONS: fragspect loading to " + fragspectLoadingState);
+    return {
+        type: SET_FRAGSPECT_LOADING_STATE,
+        fragspectLoadingState: fragspectLoadingState
+    };
 }
 
 export function renderData(element_type, div_id) {

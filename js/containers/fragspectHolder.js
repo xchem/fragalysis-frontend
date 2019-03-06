@@ -3,8 +3,7 @@ import {connect} from "react-redux";
 import {Row, Col} from "react-bootstrap";
 import FragspectList from "../components/fragspectList";
 import ModalFragspectEventView from "../components/modalFragspectEventView";
-// import ModalStateSave from "../components/modalStateSave";
-
+import {ModalFragspectLoading} from "../components/modalFragspectLoading";
 import * as apiActions from "../actions/apiActions";
 
 class Fragspect extends Component {
@@ -19,6 +18,7 @@ class Fragspect extends Component {
             <Row>
                 <FragspectList height={screenHeight} style={{overflow: scroll}}/>
                 <ModalFragspectEventView/>
+                <ModalFragspectLoading/>
             </Row>
         )
     }
@@ -26,6 +26,7 @@ class Fragspect extends Component {
 
 function mapStateToProps(state) {
     return {
+
     }
 }
 const mapDispatchToProps = {

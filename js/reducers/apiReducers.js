@@ -39,6 +39,7 @@ const INITIALSTATE = {
     fragspectModalContents: undefined,
     fragspectTarget: undefined,
     fragspectEvents: undefined,
+    fragspectLoadingState: true
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -287,6 +288,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_FRAGSPECT_EVENTS:
             return Object.assign({}, state, {
                 fragspectEvents: action.fragspectEvents,
+            });
+
+        case actions.SET_FRAGSPECT_LOADING_STATE:
+            return Object.assign({}, state, {
+                fragspectLoadingState: action.fragspectLoadingState
             });
 
         // Cases like: @@redux/INIT

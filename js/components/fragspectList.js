@@ -8,6 +8,7 @@ import {connect} from "react-redux";
 import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import FragspectView from "./fragspectView";
+import ModalFragspectLoading from "./modalFragspectLoading";
 import {withRouter} from "react-router-dom";
 
 // const customStyles = {
@@ -481,6 +482,7 @@ class FragspectList extends GenericList {
             }
         }
         return rows;
+        this.props.setFragspectLoadingState(false);
     }
 
     initialiseButtons(props){
@@ -728,6 +730,7 @@ const mapDispatchToProps = {
     // setObjectList: apiActions.setMoleculeList,
     setFragspectTarget: apiActions.setFragspectTarget,
     setFragspectEvents: apiActions.setFragspectEvents,
+    setFragspectLoadingState: apiActions.setFragspectLoadingState
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FragspectList));
