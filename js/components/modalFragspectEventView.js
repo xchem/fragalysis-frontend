@@ -484,7 +484,7 @@ export class ModalFragspectEventView extends Component {
                                     <p>Ctrl + right button: change depth of clipping</p>
                                 </Col>
                                 <Col xs={4} md={4}>
-                                     <Image src={fragspectLogo+"&dummy=png"} responsive rounded />
+                                     <img src={fragspectLogo+"&dummy=png"} responsive rounded />
                                 </Col>
                             </Col>
                         </Row>
