@@ -346,9 +346,8 @@ export class ModalFragspectEventView extends Component {
     }
 
     componentDidMount() {
-        this.loadDensity()
         if (this.props.fragspectModalContents != undefined){
-            // this.loadDensity()
+            this.loadDensity()
         }
     }
 
