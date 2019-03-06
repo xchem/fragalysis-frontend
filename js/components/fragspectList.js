@@ -481,8 +481,10 @@ class FragspectList extends GenericList {
                 }
             }
         }
+        if (Object.keys(this.state.siteList).length != 0){
+            this.props.setFragspectLoadingState(false);
+        }
         return rows;
-        this.props.setFragspectLoadingState(false);
     }
 
     initialiseButtons(props){
