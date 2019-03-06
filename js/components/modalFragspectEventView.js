@@ -47,7 +47,7 @@ export class ModalFragspectEventView extends Component {
         // this.generateTargetObject = this.generateTargetObject.bind(this);
         this.generateMolImage = this.generateMolImage.bind(this);
         this.state = {
-            loadedObjects: {},
+            loadedObjects: [],
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
