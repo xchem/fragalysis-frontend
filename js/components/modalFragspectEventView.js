@@ -11,7 +11,6 @@ import * as nglObjectTypes from "../components/nglObjectTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 // import NGLSpectView from "../components/nglSpectView";
 import NGLView from "../components/nglComponents";
-import fragspectLogo from "../img/fragspectLogo_v0.1.png";
 
 const customStyles = {
     overlay : {
