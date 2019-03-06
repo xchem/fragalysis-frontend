@@ -220,7 +220,6 @@ export class ModalFragspectEventView extends Component {
     }
 
     closeModal() {
-        // this.setState(prevState => ({fragspectModalState: "closed"}));
         console.log("closing fragspect modal");
         for (var nglObj in this.props.objectsInView){
             this.props.deleteObject(nglObj);
@@ -229,55 +228,8 @@ export class ModalFragspectEventView extends Component {
 
     }
 
-    // generateTargetObject() {
-    //     // if(JSON.stringify(this.props.targetOn)!=JSON.stringify(undefined)) {
-    //         var out_object = {
-    //             "name": "PROTEIN_" + this.props.fragspectModalContents.target_id.toString(),
-    //             "prot_url": this.props.boundPdbUrl,
-    //             "OBJECT_TYPE": nglObjectTypes.PROTEIN,
-    //             "nglProtStyle": this.props.nglProtStyle
-    //         }
-    //         return out_object
-    //     // }
-    //     // return undefined;
-    // }
-    //
-    // loadProtein() {
-    //     var proteinQuery = "?code=" + this.props.fragspectModalContents.code;
-    //     var targetId = this.props.fragspectModalContents.target_id.toString();
-    //     fetch("/api/proteins/" + proteinQuery, {
-    //         method: "get",
-    //         headers: {
-    //             'Accept': 'application/json',
-    //             'Content-Type': 'application/json'
-    //         }
-    //     }).then(function (response) {
-    //         return response.json();
-    //     }).then(function (myJson) {
-    //         var proteinObject = {
-    //             "name": "PROTEIN_" + targetId,
-    //             "prot_url": myJson.results[0].pdb_info.replace("http:",window.location.protocol),
-    //             "OBJECT_TYPE": nglObjectTypes.PROTEIN,
-    //             "nglProtStyle": "cartoon",
-    //             "display_div": "fragspect"
-    //         };
-    //         return proteinObject;
-    //     // }).then(proteinObject => this.handleProtein(proteinObject))
-    //     }).then(proteinObject => this.props.loadObject(proteinObject))
-    // }
-
     loadDensity() {
-        //
-        // var loaderQuery = this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.site_number.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
-        // fetch(window.location.protocol + "//" + window.location.host + "/api/proteins/?code=" + loaderQuery)
-        //     .then(response => response.json())
-        //     .then(json => this.setLoader(json))
-        //     // .then(this.initialiseButtons(json.results))
-        //     .catch((error) => {
-        //         // this.deployErrorModal(error);
-        //     })
         var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.fragspectModalContents.site_number.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
-        // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
         var crystal = this.props.fragspectModalContents.crystal;
         var ligId = this.props.fragspectModalContents.lig_id;
         fetch("/api/proteins/" + densityQuery, {
@@ -343,12 +295,6 @@ export class ModalFragspectEventView extends Component {
 
     componentWillMount() {
         ReactModal.setAppElement('body');
-    }
-
-    componentDidMount() {
-        if (this.props.fragspectModalContents != undefined){
-            this.loadDensity()
-        }
     }
 
     componentWillReceiveProps(nextProps) {
