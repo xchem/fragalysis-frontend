@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {Row, Col} from "react-bootstrap";
 import FragspectList from "../components/fragspectList";
 import ModalFragspectEventView from "../components/modalFragspectEventView";
-import {ModalFragspectLoading} from "../components/modalFragspectLoading";
+import ModalFragspectLoading from "../components/modalFragspectLoading";
 import * as apiActions from "../actions/apiActions";
 
 class Fragspect extends Component {
