@@ -476,7 +476,6 @@ export class ModalFragspectEventView extends Component {
                                 </Row>
                                 <Col xs={4} md={4}>
                                     <p>left button and drag: rotate</p>
-                                    <p>scroll wheel: change electron density contour</p>
                                     <p>press scroll wheel and drag: translate</p>
                                 </Col>
                                 <Col xs={4} md={4}>
@@ -484,7 +483,8 @@ export class ModalFragspectEventView extends Component {
                                     <p>Ctrl + right button: change depth of clipping</p>
                                 </Col>
                                 <Col xs={4} md={4}>
-                                     {/*<img src={fragspectLogo+"&dummy=png"} responsive rounded />*/}
+                                    <p>scroll wheel: change electron density contour</p>
+                                    {/*<img src={fragspectLogo+"&dummy=png"} responsive rounded />*/}
                                 </Col>
                             </Col>
                         </Row>
