@@ -260,7 +260,7 @@ export class ModalFragspectEventView extends Component {
 
     loadDensity() {
         //
-        // var loaderQuery = this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
+        // var loaderQuery = this.props.fragspectModalContents.crystal + "_" + this.props.data.fragspectModalContents.site_number.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // fetch(window.location.protocol + "//" + window.location.host + "/api/proteins/?code=" + loaderQuery)
         //     .then(response => response.json())
         //     .then(json => this.setLoader(json))
@@ -268,7 +268,7 @@ export class ModalFragspectEventView extends Component {
         //     .catch((error) => {
         //         // this.deployErrorModal(error);
         //     })
-        var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.fragspectModalContents.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
+        var densityQuery = "?code=" + this.props.fragspectModalContents.crystal + "_" + this.props.fragspectModalContents.site_number.toString() + "_" + this.props.fragspectModalContents.event_number.toString();
         // var densityQuery = "?code=" + this.props.fragspectModalContents.code;
         var crystal = this.props.fragspectModalContents.crystal;
         var ligId = this.props.fragspectModalContents.lig_id;
