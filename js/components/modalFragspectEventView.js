@@ -352,6 +352,7 @@ export class ModalFragspectEventView extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        this.setState(prevState => ({buttonsDepressed: []}));
         if (nextProps.fragspectModalState == "open") {
             // if (this.state.initiated == 0) {
                 // this.loadDensity()
