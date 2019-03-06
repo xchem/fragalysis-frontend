@@ -52,6 +52,13 @@ export class ModalFragspectEventView extends Component {
             fraggleBoxLoc: undefined,
             snapshotLoc: undefined,
             title: undefined,
+            "confidenceInterpretor":{
+                "null": 100,
+                "0 - No Ligand placed": 100,
+                "Low": 1 ,
+                "Medium": 2,
+                "High": 3
+            },
             "confidenceStatus": {
                 1: "Low",
                 2: "Medium",
@@ -351,7 +358,7 @@ export class ModalFragspectEventView extends Component {
                 var newButtonsDepressed = [];
                 var numericalInterestingness = nextProps.fragspectModalContents.interesting == true ? 1 : 0;
                 newButtonsDepressed.push(nextProps.fragspectModalContents.event_status);
-                newButtonsDepressed.push(nextProps.fragspectModalContents.confidence + 7);
+                newButtonsDepressed.push(this.state.confidenceInterpretor[nextProps.fragspectModalContents.confidence] + 7);
                 newButtonsDepressed.push(numericalInterestingness + 11);
                 this.setState(prevState => ({buttonsDepressed: newButtonsDepressed}));
                 this.setState(prevState => ({initiated: 1}));
