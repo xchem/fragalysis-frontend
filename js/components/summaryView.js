@@ -139,7 +139,7 @@ class SummaryView extends React.Component{
 
     async handleExport() {
         var zip = new JSZip();
-        var fName = this.props.targetOnName + "_follow_up_" + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now()).replace(/\s/g, '-');
+        var fName = this.props.targetOnName + "_follow_up";
         var tot_folder = zip.folder(fName);
         var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list,",");
         tot_folder.file("follow_ups.csv", csvContent)
