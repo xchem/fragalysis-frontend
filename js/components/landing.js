@@ -29,6 +29,16 @@ export class Welcome extends React.Component {
         }
     }
 
+    // ###### can I use a similar approach to get the link to clikc itself instead of generating a link and then it needing to be clicked. #####
+    // download_file(file_data, file_name) {
+    //     var encodedUri = encodeURI(file_data);
+    //     var link = document.createElement("a");
+    //     link.setAttribute("href", encodedUri);
+    //     link.setAttribute("download", file_name);
+    //     document.body.appendChild(link); // Required for FF
+    //     link.click();
+    // }
+
     render() {
         var text_div;
         if (DJANGO_CONTEXT["authenticated"] == true) {
