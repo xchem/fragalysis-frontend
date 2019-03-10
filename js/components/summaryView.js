@@ -133,9 +133,19 @@ class SummaryView extends React.Component{
         return csvContent;
     }
 
-    handleExport() {
+    // handleExport() {
+    //     var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list,",");
+    //     this.download_file(csvContent,"follow_ups.csv");
+    // }
+
+    async handleExport() {
+        var zip = new JSZip();
+        var dirName = this.props.targetOnName + "_follow_up_" + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now()).replace(/\s/g, '-');
+        var csvDir = zip.folder(dirName);
         var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list,",");
-        this.download_file(csvContent,"follow_ups.csv");
+        csvDir.file("follow_ups.csv", csvContent)
+        const content = await zip.generateAsync({type: "blob"});
+        FileSaver.saveAs(content, dirName + ".zip");
     }
 
     getToBuyByVect(input_dict){
@@ -261,7 +271,7 @@ class SummaryView extends React.Component{
                     <h5>Number series explored: <b>{this.state.num_series}</b></h5>
                     <h5>Estimated cost: <b>£{this.state.cost}</b></h5>
                     <ButtonToolbar>
-                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Download CSV (Chrome)</Button>
+                        <Button bsSize="sm" bsStyle="success" onClick={this.handleExport}>Download CSV</Button>
                         <Button bsSize="sm" bsStyle="success" onClick={this.handleYankDuck}>Download Yank/Duck</Button>
                     </ButtonToolbar>
                     <h5>Selected Interaction: <b>{interaction_select}</b></h5>
