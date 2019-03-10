@@ -52,7 +52,6 @@ class SummaryView extends React.Component{
             this.loadVectors();
             this.vector_list = this.props.vector_list;
         }
-
     }
     
     getColour(item) {
