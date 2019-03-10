@@ -139,12 +139,11 @@ class SummaryView extends React.Component{
 
     async handleExport() {
         var zip = new JSZip();
-        var fName = this.props.targetOnName + "_follow_up";
-        var tot_folder = zip.folder(fName);
+        var tot_folder = zip.folder("followUps");
         var csvContent = this.generate_smiles("data:text/csv;charset=utf-8,",this.props.to_buy_list,",");
         tot_folder.file("follow_ups.csv", csvContent)
         const content = await zip.generateAsync({type: "blob"});
-        FileSaver.saveAs(content, fName + ".zip");
+        FileSaver.saveAs(content, "followUps.zip");
     }
 
     getToBuyByVect(input_dict){
