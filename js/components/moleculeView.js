@@ -310,7 +310,8 @@ class MoleculeView extends GenericView {
             // this.props.removeFromEDensityList(this.props.data.id);
         }
         else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
+            this.props.loadObject(this.getEDensityUrl());
+            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
             this.props.appendEDensityList(this.generateMolId());
         }
     }
@@ -340,7 +341,7 @@ class MoleculeView extends GenericView {
                 "map_type": "electronDensity"
             }
             return eDensityObject;
-            }).then(densityObject => this.handleDensity(densityObject));
+            // }).then(densityObject => this.handleDensity(densityObject));
     }
 
     handleDensity(densityObject) {
