@@ -30,6 +30,7 @@ class MoleculeView extends GenericView {
         this.getEDensityUrl = this.getEDensityUrl.bind(this);
         // this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleEDensity = this.handleEDensity.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
@@ -311,15 +312,16 @@ class MoleculeView extends GenericView {
         }
         else{
             this.props.loadObject(this.getEDensityUrl());
-            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
-            this.props.appendEDensityList(this.generateMolId());
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
+            this.props.loadObject(this.generateEDensityObject('load'));
+            // this.props.appendEDensityList(this.generateMolId());
         }
     }
 
     afterPush(data){
     }
 
-    getEDensityUrl() {
+    getEDensityUrl(loadState) {
         fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code, {
             method: "get",
             headers: {
@@ -341,13 +343,13 @@ class MoleculeView extends GenericView {
                 "map_type": "electronDensity"
             }
             return eDensityObject;
-            // }).then(densityObject => this.handleDensity(densityObject));
-        })
+            }).then(densityObject => this.handleEDensity(densityObject, loadState));
+        // })
     }
 
-    handleDensity(densityObject) {
-        this.props.loadObject(densityObject);
-    }
+    // handleDensity(densityObject) {
+    //     this.props.loadObject(densityObject);
+    // }
 
         // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/pdbs/TBXTA-x0773_1_apo_sSKGYWD.pdb")
         // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz")
@@ -389,13 +391,13 @@ class MoleculeView extends GenericView {
     //     eDensityObject => this.handleEDensity(eDensityObject, loadState)
     // }
 
-    // handleEDensity(eDensityObject, loadState){
-    //     if (loadState === 'load'){
-    //         this.props.loadObject(eDensityObject);
-    //     } else if (loadState === 'unload'){
-    //         this.props.deleteObject(eDensityObject);
-    //     }
-    // }
+    handleEDensity(eDensityObject, loadState){
+        if (loadState === 'load'){
+            this.props.loadObject(eDensityObject);
+        } else if (loadState === 'unload'){
+            this.props.deleteObject(eDensityObject);
+        }
+    }
 }
 
 function mapStateToProps(state) {
