@@ -332,12 +332,12 @@ class MoleculeView extends GenericView {
             return response.json();
         }).then(function (myJson) {
             var eDensityObject = {
-                "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+                "name": "EVENTLOAD" + "_" + myJson.results[0].code,
                 "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
                 "map_info": myJson.results[0].map_info.replace("http:", window.location.protocol),
-                "xtal": this.props.data.protein_code.toString(),
+                "xtal": myJson.results[0].code,
                 "lig_id": "lig",
-                "pdb_info": myJson.results[0].bound_info.replace("http:", window.location.protocol),
+                "pdb_info": myJson.results[0].pdb_info.replace("http:", window.location.protocol),
                 "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
                 "map_type": "electronDensity"
