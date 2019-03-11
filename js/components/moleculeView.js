@@ -28,7 +28,7 @@ class MoleculeView extends GenericView {
         this.onComplex = this.onComplex.bind(this);
         this.onEDensity = this.onEDensity.bind(this);
         this.getEDensityUrl = this.getEDensityUrl.bind(this);
-        this.generateEDensityObject = this.generateEDensityObject.bind(this);
+        // this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
@@ -162,9 +162,9 @@ class MoleculeView extends GenericView {
         }
     }
 
-    componentWillMount() {
-        this.getEDensityUrl()
-    }
+    // componentWillMount() {
+    //     this.getEDensityUrl()
+    // }
 
     componentDidMount() {
         this.loadFromServer(this.props.width,this.props.height);
@@ -318,14 +318,6 @@ class MoleculeView extends GenericView {
     afterPush(data){
     }
 
-    processEDensityUrl(json){
-        if (json.results[0].map_info != undefined) {
-            var results = json.results[0].map_info.replace("http:", window.location.protocol);
-        }
-        this.afterPush(results);
-        this.eDensityUrl = results;
-    }
-
     getEDensityUrl() {
         fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code, {
             method: "get",
@@ -335,10 +327,26 @@ class MoleculeView extends GenericView {
             },
         }).then(function (response) {
             return response.json();
-        }).then(
-            json => this.processEDensityUrl(json)
-        )
+        }).then(function (myJson) {
+            var eDensityObject = {
+                "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+                "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+                "map_info": myJson.results[0].map_info.replace("http:", window.location.protocol),
+                "xtal": this.props.data.protein_code.toString(),
+                "lig_id": "lig",
+                "pdb_info": myJson.results[0].bound_info.replace("http:", window.location.protocol),
+                "display_div": "major_view",
+                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+                "map_type": "electronDensity"
+            }
+            return eDensityObject;
+            }).then(densityObject => this.handleDensity(densityObject));
     }
+
+    handleDensity(densityObject) {
+        this.props.loadObject(densityObject);
+    }
+
         // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/pdbs/TBXTA-x0773_1_apo_sSKGYWD.pdb")
         // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz")
         // json => this.generateEDensityObject(json.results[0].map_info)
@@ -363,26 +371,29 @@ class MoleculeView extends GenericView {
     //         return eDensityObject;
     //     }).then(eDensityObject => this.handleEDensity(eDensityObject, loadState))
     // }
+    //
+    // generateEDensityObject(eDensityUrl, loadState) {
+    //     var eDensityObject = {
+    //         "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+    //         "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+    //         "map_info": eDensityUrl,
+    //         "xtal": this.props.data.protein_code.toString(),
+    //         "lig_id": "lig",
+    //         "display_div": "major_view",
+    //         "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+    //         "map_type": "electronDensity"
+    //
+    //     return eDensityObject;
+    //     eDensityObject => this.handleEDensity(eDensityObject, loadState)
+    // }
 
-    generateEDensityObject(eDensityUrl, loadState) {
-        var eDensityObject = {
-            "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
-            "map_url": eDensityUrl,
-            "display_div": "major_view",
-            "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
-            "map_type": "electronDensity"
-        }
-        return eDensityObject;
-        eDensityObject => this.handleEDensity(eDensityObject, loadState)
-    }
-
-    handleEDensity(eDensityObject, loadState){
-        if (loadState === 'load'){
-            this.props.loadObject(eDensityObject);
-        } else if (loadState === 'unload'){
-            this.props.deleteObject(eDensityObject);
-        }
-    }
+    // handleEDensity(eDensityObject, loadState){
+    //     if (loadState === 'load'){
+    //         this.props.loadObject(eDensityObject);
+    //     } else if (loadState === 'unload'){
+    //         this.props.deleteObject(eDensityObject);
+    //     }
+    // }
 }
 
 function mapStateToProps(state) {
