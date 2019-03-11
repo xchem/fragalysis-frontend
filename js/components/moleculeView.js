@@ -342,6 +342,7 @@ class MoleculeView extends GenericView {
             }
             return eDensityObject;
             // }).then(densityObject => this.handleDensity(densityObject));
+        })
     }
 
     handleDensity(densityObject) {
