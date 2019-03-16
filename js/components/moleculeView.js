@@ -27,8 +27,8 @@ class MoleculeView extends GenericView {
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
         this.onEDensity = this.onEDensity.bind(this);
-        this.getEDensityUrl = this.getEDensityUrl.bind(this);
-        // this.generateEDensityObject = this.generateEDensityObject.bind(this);
+        // this.getEDensityUrl = this.getEDensityUrl.bind(this);
+        this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleEDensity = this.handleEDensity.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
@@ -308,8 +308,8 @@ class MoleculeView extends GenericView {
             // this.props.removeFromEDensityList(this.props.data.id);
         }
         else{
-            this.props.loadObject(this.getEDensityUrl('load'));
-            // this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
+            // this.props.loadObject(this.getEDensityUrl('load'));
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
             // this.props.loadObject(this.generateEDensityObject('load'));
             this.props.appendEDensityList(this.generateMolId());
         }
@@ -318,7 +318,7 @@ class MoleculeView extends GenericView {
     afterPush(data){
     }
 
-    getEDensityUrl(loadState) {
+    generateEDensityObject(loadState) {
         fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code, {
             method: "get",
             headers: {
@@ -335,7 +335,6 @@ class MoleculeView extends GenericView {
                 "xtal": myJson.results[0].code,
                 "lig_id": "lig",
                 "pdb_info": myJson.results[0].pdb_info.replace("http:", window.location.protocol),
-                "display_div": "major_view",
                 "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
                 "map_type": "electronDensity"
             }

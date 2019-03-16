@@ -230,7 +230,7 @@ export class NGLSpectView extends React.Component {
     }
 
     componentWillMount() {
-        this.stage = new Stage(this.div_id);
+        this.stage = new Stage(this.div_id, {backgroundColor: "white"});
     }
 
     componentDidMount() {
