@@ -146,7 +146,7 @@ export class NGLSpectView extends React.Component {
                 this.surfFofcNeg.setParameters({isolevel: 3, boxSize: 10, contour: true, isolevelScroll: false})
             }
             this.surf2fofc = o.addRepresentation("surface", {
-                color: "skyblue",
+                color: "#68007C",
                 isolevel: 1.5,
                 boxSize: 10,
                 useWorker: false,
