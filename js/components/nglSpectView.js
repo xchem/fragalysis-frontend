@@ -230,7 +230,7 @@ export class NGLSpectView extends React.Component {
     }
 
     componentWillMount() {
-        this.stage = new Stage(this.div_id, {backgroundColor: "white"});
+        this.stage = new Stage(this.div_id);
     }
 
     componentDidMount() {
@@ -241,7 +241,7 @@ export class NGLSpectView extends React.Component {
             local_stage.handleResize();
         }, false);
         // this.stage.mouseControls.add("clickPick-left",this.showPick);
-        this.stage.setParameters({cameraType: "orthographic", mousePreset: "coot"});
+        this.stage.setParameters({cameraType: "orthographic", mousePreset: "coot", backgroundColor: "white"});
         this.stage.mouseControls.add("scroll", this.isolevelScroll)
         this.stage.mouseControls.add("scroll", function () {
             if (this.surf2fofc) {
