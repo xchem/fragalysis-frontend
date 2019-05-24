@@ -183,7 +183,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const svg_image = <SVGInline width='50%' svg={this.state.img_data}/>;
+        const svg_image = <SVGInline svg={this.state.img_data}/>;
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
@@ -195,8 +195,8 @@ class MoleculeView extends GenericView {
                                     height: (this.props.height).toString() + 'px',
                                     display: "inline-block"}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
-        return <div className="container-fluid">
-            <div className="row">
+        // return <div className="container-fluid">
+        return  <div className="row">
                 <div className="col-md-1">
                     <ButtonToolbar>
                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
