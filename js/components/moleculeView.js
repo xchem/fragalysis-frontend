@@ -189,11 +189,12 @@ class MoleculeView extends GenericView {
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         const selected_style = {width: (this.props.width).toString() + 'px',
                                 height: (this.props.height).toString() + 'px',
-                                display: "inline-block",
+                                // display: "inline-block",
                                 backgroundColor: this.colourToggle}
         const not_selected_style = {width: (this.props.width).toString() + 'px',
                                     height: (this.props.height).toString() + 'px',
-                                    display: "inline-block"}
+                                    // display: "inline-block"
+                                    }
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
         // return <div className="container-fluid">
         return  <div className="row">
