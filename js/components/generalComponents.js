@@ -251,7 +251,7 @@ export class GenericView extends React.Component {
     }
 
     render() {
-        const svg_image = <SVGInline width="100" height="100" svg={this.state.img_data}/>;
+        const svg_image = <SVGInline svg={this.state.img_data}/>;
         this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
         return <div onClick={this.handleClick} style={this.current_style}>{svg_image}</div>
     }
