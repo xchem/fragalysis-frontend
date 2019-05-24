@@ -204,7 +204,7 @@ class MoleculeView extends GenericView {
                     {this.props.data.protein_code}
                 </div>
                 <div className="col-md-3">
-                    <div style={this.current_style} width={100} height={100}>{svg_image}</div>
+                    <div style={this.current_style}>{svg_image}</div>
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-5">
