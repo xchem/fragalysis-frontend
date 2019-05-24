@@ -192,8 +192,8 @@ export class GenericView extends React.Component {
             complexOn: false
         }
         this.selected_style = {
-            width: (props.width + 5).toString() + 'px',
-            height: (props.height + 5).toString() + 'px',
+            width: (props.width - 10).toString() + 'px',
+            height: (props.height - 10).toString() + 'px',
             display: "inline-block",
             backgroundColor: "#B7C185"
         }
