@@ -165,9 +165,9 @@ export class GenericView extends React.Component {
         this.loadFromServer = this.loadFromServer.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.not_selected_style = {
-            width: (props.width).toString() + 'px',
-            height: (props.height).toString() + 'px',
-            display: "inline-block"
+            width: (props.width + 5).toString() + 'px',
+            height: (props.height + 5).toString() + 'px',
+            // display: "inline-block"
         }
         this.old_url = ''
         this.state = {
