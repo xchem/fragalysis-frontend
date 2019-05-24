@@ -187,12 +187,12 @@ class MoleculeView extends GenericView {
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        const selected_style = {width: (this.props.width - 100).toString() + 'px',
-                                height: (this.props.height - 100).toString() + 'px',
+        const selected_style = {width: (this.props.width*0.1).toString() + 'px',
+                                height: (this.props.height*0.1).toString() + 'px',
                                 display: "inline-block",
                                 backgroundColor: this.colourToggle}
-        const not_selected_style = {width: (this.props.width - 100).toString() + 'px',
-                                    height: (this.props.height - 100).toString() + 'px',
+        const not_selected_style = {width: (this.props.width*0.1).toString() + 'px',
+                                    height: (this.props.height*0.1).toString() + 'px',
                                     display: "inline-block"}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
         // return <div className="container-fluid">
