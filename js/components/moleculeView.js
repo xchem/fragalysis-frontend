@@ -217,7 +217,7 @@ class MoleculeView extends GenericView {
                     Some example text
                 </div>
             </div>
-        </div>
+        // </div>
     }
 
     getRandomColor() {
