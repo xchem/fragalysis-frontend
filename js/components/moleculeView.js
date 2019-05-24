@@ -196,7 +196,7 @@ class MoleculeView extends GenericView {
                                     display: "inline-flex"
                                     }
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
-        return <div className="container-fluid">
+        return <div className="container">
             <div className="row">
                 <div className="col-md-1">
                     <ButtonToolbar>
