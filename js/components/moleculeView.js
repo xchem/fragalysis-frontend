@@ -186,8 +186,8 @@ class MoleculeView extends GenericView {
         const svg_image = <SVGInline svg={this.state.img_data}/>;
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
-        const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        const not_selected_style = {height: this.props.height.toString()+'px'}
+        const selected_style = {height: '100 px', backgroundColor: this.colourToggle}
+        const not_selected_style = {height: '100 px'}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
         return <div className="container-fluid">
             <div className="row">
@@ -204,7 +204,7 @@ class MoleculeView extends GenericView {
                     {this.props.data.protein_code}
                 </div>
                 <div className="col-md-3">
-                    <div style={this.current_style} class="img-thumbnail img-fluid">{svg_image}</div>
+                    <div style={this.current_style} class="img-thumbnail img-fluid" >{svg_image}</div>
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-5">
