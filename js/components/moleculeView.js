@@ -189,18 +189,28 @@ class MoleculeView extends GenericView {
         const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         const not_selected_style = {height: this.props.height.toString()+'px'}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
-        return <div style={{border: "solid", display: "inline-block"}}>
-                <div style={this.current_style}>{svg_image}</div>
-            <Label bsStyle="default">{this.props.data.protein_code}</Label>
-            <RefinementOutcome data={this.props.data}></RefinementOutcome>
-                <ButtonToolbar>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
-                    </ToggleButtonGroup>
-                </ButtonToolbar>
+        return <div className="container-fluid">
+            <div className="row">
+                <div className="col-md-1">
+                    <ButtonToolbar>
+                        <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
+                            <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
+                            <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
+                            <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                        </ToggleButtonGroup>
+                    </ButtonToolbar>
+                </div>
+                <div className="col-md-3">
+                    <Label bsStyle="default">{this.props.data.protein_code}</Label>
+                </div>
+                <div className="col-md-3">
+                    <div style={this.current_style}>{svg_image}</div>
+                    <RefinementOutcome data={this.props.data}></RefinementOutcome>
+                </div>
+                <div className="col-md-5">
+                </div>
             </div>
+        </div>
     }
 
     getRandomColor() {
