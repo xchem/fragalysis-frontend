@@ -194,18 +194,18 @@ class MoleculeView extends GenericView {
                 <div className="col-md-1">
                     <ButtonToolbar>
                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                            <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                            <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
-                            <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+                            <ToggleButton bsSize="sm" bsStyle="info" value={2}>L</ToggleButton>
+                            <ToggleButton bsSize="sm" bsStyle="info" value={1}>C</ToggleButton>
+                            <ToggleButton bsSize="sm" bsStyle="info" value={3}>V</ToggleButton>
                         </ToggleButtonGroup>
                     </ButtonToolbar>
                 </div>
                 <div className="col-md-3">
-                    <Label bsStyle="default">{this.props.data.protein_code}</Label>
+                    {this.props.data.protein_code}
                 </div>
                 <div className="col-md-3">
                     <div style={this.current_style}>{svg_image}</div>
-                    <RefinementOutcome data={this.props.data}></RefinementOutcome>
+                    {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-5">
                 </div>
