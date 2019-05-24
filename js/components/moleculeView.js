@@ -208,6 +208,7 @@ class MoleculeView extends GenericView {
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-5">
+                    Some example text
                 </div>
             </div>
         </div>
