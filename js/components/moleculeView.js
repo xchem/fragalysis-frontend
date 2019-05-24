@@ -155,7 +155,7 @@ class MoleculeView extends GenericView {
     }
 
     componentDidMount() {
-        this.loadFromServer(this.props.width,this.props.height);
+        this.loadFromServer(this.props.width - 10,this.props.height - 10);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
         var value_list = []
@@ -189,11 +189,11 @@ class MoleculeView extends GenericView {
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         const selected_style = {width: (this.props.width).toString() + 'px',
                                 height: (this.props.height).toString() + 'px',
-                                // display: "inline-block",
+                                display: "inline-flex",
                                 backgroundColor: this.colourToggle}
         const not_selected_style = {width: (this.props.width).toString() + 'px',
                                     height: (this.props.height).toString() + 'px',
-                                    // display: "inline-block"
+                                    display: "inline-flex"
                                     }
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
         // return <div className="container-fluid">
