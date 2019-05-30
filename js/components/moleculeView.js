@@ -190,7 +190,7 @@ class MoleculeView extends GenericView {
         const selected_style = {backgroundColor: this.colourToggle}
         const not_selected_style = {}
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
-        return <div className="container-fluid">
+        return <div className="container-fluid border:1px solid black">
             <div className="row">
                 <div className="col-md-1">
                     <ButtonToolbar>
