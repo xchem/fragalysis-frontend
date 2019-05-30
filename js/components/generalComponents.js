@@ -172,21 +172,20 @@ export class GenericView extends React.Component {
         this.old_url = ''
         this.state = {
             isToggleOn: false,
-            img_data: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"><g>' +
-            '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
-            '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="100" cy="50" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="93.3012702" cy="75" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="75" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="50" cy="100" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="25" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="6.6987298" cy="75" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="0" cy="50" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="6.6987298" cy="25" r="5" transform="translate(5 5)"/> ' +
-            '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
-            '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
-            '</svg>',
+            img_data: '<svg width="40" height="20" xmlns="http://www.w3.org/2000/svg">' +
+            '<circle cx="10" cy="10">' +
+                '<animate attributeName="r" begin="0s" dur="0.8s" values="5;2;5" calcMode="linear" repeatCount="indefinite" />' +
+                '<animate attributeName="fill-opacity"begin="0s" dur="0.8s" values="1;.5;1" calcMode="linear" repeatCount="indefinite" />' +
+            '</circle>' +
+            '<circle cx="20" cy="10"fill-opacity="0.3">' +
+                '<animate attributeName="r" begin="0s" dur="0.8s" values="2;5;2" calcMode="linear" repeatCount="indefinite" />'+
+                '<animate attributeName="fill-opacity" begin="0s" dur="0.8s" values=".5;1;.5" calcMode="linear" repeatCount="indefinite" />' +
+            '</circle>' +
+            '<circle cx="30" cy="10">' +
+                '<animate attributeName="r" begin="0s" dur="0.8s" values="5;2;5" calcMode="linear" repeatCount="indefinite" />' +
+                '<animate attributeName="fill-opacity" begin="0s" dur="0.8s" values="1;.5;1" calcMode="linear" repeatCount="indefinite" />' +
+            '</circle>' +
+        '</svg>',
             value: [],
             vectorOn: false,
             complexOn: false
