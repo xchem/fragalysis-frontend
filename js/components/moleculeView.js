@@ -210,28 +210,19 @@ class MoleculeView extends GenericView {
                 </div>
                 <div className="col-md-6">
                     <Table striped bordered hover size="sm">
-                        {/*<thead>*/}
-                        {/*    <tr>*/}
-                        {/*        <th>MW</th>*/}
-                        {/*        <th>logP</th>*/}
-                        {/*        <th>TPSA</th>*/}
-                        {/*        <th>HA</th>*/}
-                        {/*        <th>Hacc</th>*/}
-                        {/*    </tr>*/}
-                        {/*</thead>*/}
                         <tbody>
                             <tr>
-                                <td><b>MW</b> {this.props.data.mw}</td>
-                                <td><b>logP</b> {this.props.data.logp}</td>
-                                <td><b>TPSA</b> {this.props.data.tpsa}</td>
-                                <td><b>HA</b> {this.props.data.ha}</td>
-                                <td><b>Hacc</b> {this.props.data.hacc}</td>
+                                <td><b>MW</b><p>{this.props.data.mw}</p></td>
+                                <td><b>logP</b><p>{this.props.data.logp}</p></td>
+                                <td><b>TPSA</b><p>{this.props.data.tpsa}</p></td>
+                                <td><b>HA</b><p>{this.props.data.ha}</p></td>
+                                <td><b>Hacc</b><p>{this.props.data.hacc}</p></td>
                             </tr>
                             <tr>
-                                <td><b>Hdon</b> {this.props.data.hdon}</td>
-                                <td><b>rots</b> {this.props.data.rots}</td>
-                                <td><b>rings</b> {this.props.data.rings}</td>
-                                <td><b>Velec</b> {this.props.data.velec}</td>
+                                <td><b>Hdon</b><p>{this.props.data.hdon}</p></td>
+                                <td><b>rots</b><p>{this.props.data.rots}</p></td>
+                                <td><b>rings</b><p>{this.props.data.rings}</p></td>
+                                <td><b>Velec</b><p>{this.props.data.velec}</p></td>
                             </tr>
                         </tbody>
                     </Table>
