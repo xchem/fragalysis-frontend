@@ -4,7 +4,7 @@
 
 import React from "react";
 import {connect} from "react-redux";
-import {ButtonToolbar,Label, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
+import {ButtonToolbar,Label, ToggleButtonGroup, ToggleButton, Table} from "react-bootstrap";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
