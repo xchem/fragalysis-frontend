@@ -196,8 +196,9 @@ class MoleculeView extends GenericView {
                                     display: "inline-flex"
                                     }
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
-        return <div className="row">
-                <div className="col-md-1 nopadding">
+        return <div className="container-fluid">
+            <div className="row">
+                <div className="col-md-1">
                     <ButtonToolbar>
                         <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
                             <ToggleButton bsSize="sm" bsStyle="info" value={2}>L</ToggleButton>
@@ -206,17 +207,18 @@ class MoleculeView extends GenericView {
                         </ToggleButtonGroup>
                     </ButtonToolbar>
                 </div>
-                <div className="col-md-3 nopadding">
+                <div className="col-md-3">
                     {this.props.data.protein_code}
                 </div>
-                <div className="col-md-1 nopadding" style={this.current_style}>
+                <div className="w-40" style={this.current_style}>
                     {svg_image}
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
-                <div className="col-md-7 nopadding">
+                <div className="col-md-7">
                     Some example text
                 </div>
             </div>
+        </div>
     }
 
     getRandomColor() {
