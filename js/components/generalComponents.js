@@ -286,7 +286,7 @@ export class Slider extends React.Component {
         }
 
         return <Well bsSize="small">
-            <h3>{this.slider_name} Selector</h3>  {this.state.progress_string}
+            <h4>{this.slider_name} Selector</h4>  {this.state.progress_string}
             {meat_of_div}
         </Well>;
     }
