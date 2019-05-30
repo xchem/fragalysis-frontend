@@ -204,11 +204,11 @@ class MoleculeView extends GenericView {
                 <div className="col-md-3">
                     {this.props.data.protein_code}
                 </div>
-                <div className="col-md-3" style={this.current_style}>
+                <div className="col-md-2" style={this.current_style}>
                     <div className="row">{svg_image}</div>
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
-                <div className="col-md-5">
+                <div className="col-md-6">
                     <Table striped bordered hover size="sm">
                         {/*<thead>*/}
                         {/*    <tr>*/}
