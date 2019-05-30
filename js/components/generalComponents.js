@@ -233,7 +233,7 @@ export class GenericView extends React.Component {
     }
 
     componentDidMount() {
-        this.loadFromServer(this.props.width-50, this.props.height-59);
+        this.loadFromServer(this.props.width, this.props.height);
     }
 
     clickHandle() {
