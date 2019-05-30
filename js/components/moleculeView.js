@@ -183,7 +183,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const svg_image = <SVGInline svg={this.state.img_data} viewBox="0 0 80 80"/>;
+        const svg_image = <SVGInline svg={this.state.img_data} viewBox="0 0 10 10"/>;
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
