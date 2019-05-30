@@ -63,7 +63,7 @@ class Preview extends Component {
 
     render() {
         var screenHeight= window.innerHeight*0.7.toString()+"px"
-        var molListHeight= window.innerHeight*0.45.toString()+"px"
+        var molListHeight= window.innerHeight*0.40.toString()+"px"
         return (
             <Row>
                 <Col xs={0} md={0}>
