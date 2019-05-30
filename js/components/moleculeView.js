@@ -187,12 +187,12 @@ class MoleculeView extends GenericView {
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        const selected_style = {width: (this.props.width - 50).toString() + 'px',
-                                height: (this.props.height + 50).toString() + 'px',
+        const selected_style = {width: (this.props.width).toString() + 'px',
+                                height: (this.props.height).toString() + 'px',
                                 display: "inline-flex",
                                 backgroundColor: this.colourToggle}
-        const not_selected_style = {width: (this.props.width - 50).toString() + 'px',
-                                    height: (this.props.height + 50).toString() + 'px',
+        const not_selected_style = {width: (this.props.width).toString() + 'px',
+                                    height: (this.props.height).toString() + 'px',
                                     display: "inline-flex"
                                     }
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
@@ -211,7 +211,9 @@ class MoleculeView extends GenericView {
                     {this.props.data.protein_code}
                 </div>
                 <div className="col-md-2 nopadding" style={this.current_style}>
-                    {svg_image}
+                    <svg viewBox="0 0 100 100" src={svg_image}>
+                        {/*{svg_image}*/}
+                    </svg>
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-6 nopadding">
