@@ -210,22 +210,28 @@ class MoleculeView extends GenericView {
                 </div>
                 <div className="col-md-5">
                     <Table striped bordered hover size="sm">
-                        <thead>
-                            <tr>
-                                <th>MW</th>
-                                <th>logP</th>
-                                <th>TPSA</th>
-                                <th>HA</th>
-                                <th>Hacc</th>
-                            </tr>
-                        </thead>
+                        {/*<thead>*/}
+                        {/*    <tr>*/}
+                        {/*        <th>MW</th>*/}
+                        {/*        <th>logP</th>*/}
+                        {/*        <th>TPSA</th>*/}
+                        {/*        <th>HA</th>*/}
+                        {/*        <th>Hacc</th>*/}
+                        {/*    </tr>*/}
+                        {/*</thead>*/}
                         <tbody>
                             <tr>
-                                <td>{this.props.data.mw}</td>
-                                <td>{this.props.data.logp}</td>
-                                <td>{this.props.data.tpsa}</td>
-                                <td>{this.props.data.ha}</td>
-                                <td>{this.props.data.hacc}</td>
+                                <td>MW: {this.props.data.mw}</td>
+                                <td>logP: {this.props.data.logp}</td>
+                                <td>TPSA: {this.props.data.tpsa}</td>
+                                <td>HA: {this.props.data.ha}</td>
+                                <td>Hacc: {this.props.data.hacc}</td>
+                            </tr>
+                            <tr>
+                                <td>Hdon: {this.props.data.hdon}</td>
+                                <td>rots: {this.props.data.rots}</td>
+                                <td>rings: {this.props.data.rings}</td>
+                                <td>Velec: {this.props.data.velec}</td>
                             </tr>
                         </tbody>
                     </Table>
