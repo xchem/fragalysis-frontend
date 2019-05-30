@@ -69,7 +69,7 @@ class Preview extends Component {
                 <Col xs={0} md={0}>
                     <MolGroupList/>
                 </Col>
-                <Col xs={3} md={3}>
+                <Col xs={3} md={4}>
                     <NGLView div_id="summary_view" height="200px"/>
                     <MolGroupSlider/>
                     <MoleculeList height={molListHeight} style={{overflow: scroll}}/>
@@ -78,7 +78,7 @@ class Preview extends Component {
                     <NGLView div_id="major_view" height={screenHeight}/>
                     <NglViewerControls/>
                 </Col>
-                <Col xs={4} md={4}>
+                <Col xs={4} md={3}>
                     <SummaryView/>
                     <CompoundList/>
                     <HotspotList/>
