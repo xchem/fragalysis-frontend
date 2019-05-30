@@ -209,7 +209,7 @@ class MoleculeView extends GenericView {
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-5">
-                    <table>
+                    <table cellpadding="10">
                         <tr>
                             <th>MW</th>
                             <th>logP</th>
