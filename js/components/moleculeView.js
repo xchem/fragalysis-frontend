@@ -183,7 +183,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const svg_image = <SVGInline svg={this.state.img_data}/>;
+        const svg_image = <SVGInline svg={this.state.img_data} viewBox="0 0 100 100"/>;
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
@@ -211,9 +211,7 @@ class MoleculeView extends GenericView {
                     {this.props.data.protein_code}
                 </div>
                 <div className="col-md-2 nopadding" style={this.current_style}>
-                    <svg viewBox="0 0 100 100">
-                        {svg_image}
-                    </svg>
+                    {svg_image}
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-6 nopadding">
