@@ -209,22 +209,26 @@ class MoleculeView extends GenericView {
                     {/*<RefinementOutcome data={this.props.data}></RefinementOutcome>*/}
                 </div>
                 <div className="col-md-5">
-                    <table cellpadding="10">
-                        <tr>
-                            <th>MW</th>
-                            <th>logP</th>
-                            <th>TPSA</th>
-                            <th>HA</th>
-                            <th>Hacc</th>
-                        </tr>
-                        <tr>
-                            <td>{this.props.data.mw}</td>
-                            <td>{this.props.data.logp}</td>
-                            <td>{this.props.data.tpsa}</td>
-                            <td>{this.props.data.ha}</td>
-                            <td>{this.props.data.hacc}</td>
-                        </tr>
-                    </table>
+                    <Table striped bordered hover size="sm">
+                        <thead>
+                            <tr>
+                                <th>MW</th>
+                                <th>logP</th>
+                                <th>TPSA</th>
+                                <th>HA</th>
+                                <th>Hacc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{this.props.data.mw}</td>
+                                <td>{this.props.data.logp}</td>
+                                <td>{this.props.data.tpsa}</td>
+                                <td>{this.props.data.ha}</td>
+                                <td>{this.props.data.hacc}</td>
+                            </tr>
+                        </tbody>
+                    </Table>
                 </div>
             </div>
         </div>
