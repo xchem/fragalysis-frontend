@@ -221,17 +221,17 @@ class MoleculeView extends GenericView {
                         {/*</thead>*/}
                         <tbody>
                             <tr>
-                                <td>MW: {this.props.data.mw}</td>
-                                <td>logP: {this.props.data.logp}</td>
-                                <td>TPSA: {this.props.data.tpsa}</td>
-                                <td>HA: {this.props.data.ha}</td>
-                                <td>Hacc: {this.props.data.hacc}</td>
+                                <td><b>MW</b> {this.props.data.mw}</td>
+                                <td><b>logP</b> {this.props.data.logp}</td>
+                                <td><b>TPSA</b> {this.props.data.tpsa}</td>
+                                <td><b>HA</b> {this.props.data.ha}</td>
+                                <td><b>Hacc</b> {this.props.data.hacc}</td>
                             </tr>
                             <tr>
-                                <td>Hdon: {this.props.data.hdon}</td>
-                                <td>rots: {this.props.data.rots}</td>
-                                <td>rings: {this.props.data.rings}</td>
-                                <td>Velec: {this.props.data.velec}</td>
+                                <td><b>Hdon</b> {this.props.data.hdon}</td>
+                                <td><b>rots</b> {this.props.data.rots}</td>
+                                <td><b>rings</b> {this.props.data.rings}</td>
+                                <td><b>Velec</b> {this.props.data.velec}</td>
                             </tr>
                         </tbody>
                     </Table>
