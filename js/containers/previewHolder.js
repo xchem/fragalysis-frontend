@@ -66,19 +66,19 @@ class Preview extends Component {
         var molListHeight= window.innerHeight*0.40.toString()+"px"
         return (
             <Row>
-                <Col xs={0} md={0} padding={0}>
+                <Col xs={0} md={0}>
                     <MolGroupList/>
                 </Col>
-                <Col xs={4} md={4} padding={0}>
+                <Col xs={4} md={4}>
                     <NGLView div_id="summary_view" height="150px"/>
                     <MolGroupSlider/>
                     <MoleculeList height={molListHeight} style={{overflow: scroll}}/>
                 </Col>
-                <Col xs={5} md={5} padding={0}>
+                <Col xs={5} md={5}>
                     <NGLView div_id="major_view" height={screenHeight}/>
                     <NglViewerControls/>
                 </Col>
-                <Col xs={3} md={3} padding={0}>
+                <Col xs={3} md={3}>
                     <SummaryView/>
                     <CompoundList/>
                     <HotspotList/>
