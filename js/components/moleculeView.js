@@ -188,11 +188,11 @@ class MoleculeView extends GenericView {
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         // const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
         const selected_style = {width: (this.props.width - 50).toString() + 'px',
-                                height: (this.props.height - 50).toString() + 'px',
+                                height: (this.props.height + 50).toString() + 'px',
                                 display: "inline-flex",
                                 backgroundColor: this.colourToggle}
         const not_selected_style = {width: (this.props.width - 50).toString() + 'px',
-                                    height: (this.props.height - 50).toString() + 'px',
+                                    height: (this.props.height + 50).toString() + 'px',
                                     display: "inline-flex"
                                     }
         this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
