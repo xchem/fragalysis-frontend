@@ -5,5 +5,5 @@ script:
   - yarn install && yarn test
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    yarn run-script build;
+    yarn run build;
     fi
