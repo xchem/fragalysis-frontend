@@ -154,7 +154,7 @@ export class ModalStateSave extends Component {
                 var linkSection = <Row><strong>Your session has been overwritten and remains available at:<br></br><a href={urlToCopy}>{urlToCopy}</a></strong></Row>
             }
             return (
-                <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} style={customStyles}>
+                <ReactModal isOpen={this.props.savingState.startsWith("saving") || this.props.savingState.startsWith("overwriting")} onRequestClose={this.closeModal} style={customStyles}>
                     <Col xs={1} md={1}></Col>
                     <Col xs={10} md={10}>
                         <Row><p></p></Row>

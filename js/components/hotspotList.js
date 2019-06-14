@@ -16,8 +16,10 @@ class HotspotList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
-        this.hsCount = undefined;
         this.updateCount = this.updateCount.bind(this);
+        this.state = {
+            hsCount: undefined
+        };
     }
 
     handleOptionChange(changeEvent) {
@@ -25,10 +27,10 @@ class HotspotList extends GenericList {
         this.props.setObjectOn(new_value);
     }
 
-
      async updateCount(props){
         if(props.object_list != undefined && props.object_list.length>0){
         var response = await fetch("/api/hotspots/?map_type=DO&prot_id=" + props.object_list[0].prot_id.toString(), {
+            //consider "target_id=" + props.target_id
             method: "get",
             headers: {
                 'Accept': 'application/json',
@@ -44,14 +46,12 @@ class HotspotList extends GenericList {
         this.updateCount(nextProps);
     }
 
-
     componentDidMount(){
         this.updateCount(this.props);
     }
 
-
     render() {
-        if (this.props.hsCount > 0) {
+        if (this.state.hsCount > 0) {
             console.log(this.props.message)
             return <Well><Row style={molStyle}>
                 {
@@ -63,11 +63,11 @@ class HotspotList extends GenericList {
             return null;
         }
     }
-
 }
 function mapStateToProps(state) {
   return {
-      object_list: state.apiReducers.present.molecule_list
+      object_list: state.apiReducers.present.molecule_list,
+      target_id: state.apiReducers.present.target_id,
   }
 }
 const mapDispatchToProps = {

@@ -10,35 +10,94 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import * as nglObjectTypes from "../components/nglObjectTypes";
+import fetch from "cross-fetch";
 import {withRouter, Link} from "react-router-dom";
 
 class TargetList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.TARGET;
-        this.render_method = this.render_method.bind(this);
+        this.afterPush = this.afterPush.bind(this);
+        this.processOpenTargets = this.processOpenTargets.bind(this);
+        this.fetchOpenTargetList = this.fetchOpenTargetList.bind(this);
+        this.ownTargetRenderMethod = this.ownTargetRenderMethod.bind(this);
+        this.openTargetRenderMethod = this.openTargetRenderMethod.bind(this);
         this.generateTargetObject = this.generateTargetObject.bind(this);
         this.checkForTargetChange = this.checkForTargetChange.bind(this);
         this.origTarget = -1;
     }
 
-    render_method(data) {
+    afterPush(data){
+    }
+
+    processOpenTargets(json){
+        var results = json.target_names;
+        this.afterPush(results)
+        return results;
+    }
+
+    fetchOpenTargetList() {
+        fetch(window.location.protocol + "//" + window.location.host+"/viewer/open_targets/", {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then(function (response) {
+            return response.json();
+        }).then(
+            json => this.props.setOpenTargetIdList(this.processOpenTargets(json))
+        )
+    }
+
+    ownTargetRenderMethod(data) {
+        if (this.props.openTargetIdList.length === 0){
+            this.fetchOpenTargetList();
+        }
         var preview = "/viewer/react/preview/target/" + data.title;
         var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
-        var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
-        if (sgcUploaded.includes(data.title)) {
-            return <ListGroupItem key={data.id}>
-                <Row>
-                    <Col xs={5} sm={5} mdOffset={1} md={5} lg={6}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
-                    <Col xs={7} sm={7} md={6} lg={5}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Open SGC summary</a></p></Row></Col>
-                </Row>
-            </ListGroupItem>
-        } else {
-            return <ListGroupItem key={data.id}>
-                <Row>
-                    <Col xs={12} sm={12} mdOffset={1} md={11} lg={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
-                </Row>
-            </ListGroupItem>
+        var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'NUDT21A', 'PARP14A'];
+        if (this.props.openTargetIdList.includes(data.title) === false) {
+            if (sgcUploaded.includes(data.title)) {
+                return <ListGroupItem key={data.id}>
+                    <Row>
+                        <Col xs={5} sm={5} mdOffset={1} md={5} lg={6}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                        <Col xs={7} sm={7} md={6} lg={5}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Model quality overview</a></p></Row></Col>
+                    </Row>
+                </ListGroupItem>
+            } else {
+                return <ListGroupItem key={data.id}>
+                    <Row>
+                        <Col xs={12} sm={12} mdOffset={1} md={11} lg={11}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                    </Row>
+                </ListGroupItem>
+            }
+        }
+    }
+
+    openTargetRenderMethod(data) {
+        if (this.props.openTargetIdList == []){
+            this.fetchOpenTargetList();
+        }
+        var preview = "/viewer/react/preview/target/" + data.title;
+        var sgcUrl = "https://thesgc.org/sites/default/files/XChem/"+data.title+"/html/index.html";
+        var sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'NUDT21A', 'PARP14A'];
+        if (this.props.openTargetIdList.includes(data.title)){
+            if (sgcUploaded.includes(data.title)) {
+                return <ListGroupItem key={data.id}>
+                    <Row>
+                        <Col xs={5} sm={5} mdOffset={1} md={5} lg={6}><Row></Row><p></p><Row><p><Link to={preview}>{data.title}</Link></p></Row></Col>
+                        <Col xs={7} sm={7} md={6} lg={5}><Row></Row><p></p><Row><p><a href={sgcUrl} target="new" styles={{float: 'right'}}>Model quality overview</a></p></Row></Col>
+                    </Row>
+                </ListGroupItem>
+            } else {
+                return <ListGroupItem key={data.id}>
+                    <Row>
+                        <Col xs={12} sm={12} mdOffset={1} md={11} lg={11}><Row></Row><p></p><Row><p><Link
+                            to={preview}>{data.title}</Link></p></Row></Col>
+                    </Row>
+                </ListGroupItem>
+            }
         }
     }
 
@@ -80,6 +139,10 @@ class TargetList extends GenericList {
         return undefined;
     }
 
+    componentWillMount() {
+        this.fetchOpenTargetList()
+    }
+
     componentDidMount() {
         this.loadFromServer();
         setInterval(this.loadFromServer,50);
@@ -96,10 +159,16 @@ class TargetList extends GenericList {
         }
         else if (this.props != undefined && this.props.object_list) {
             return <div>
-                <h3>Target List:</h3>
+                <h3>Target List</h3>
                 <ListGroup>
                     {
-                        this.props.object_list.map((data) => (this.render_method(data)))
+                        this.props.object_list.map((data) => (this.ownTargetRenderMethod(data)))
+                    }
+                </ListGroup>
+                <p>Open Targets:</p>
+                <ListGroup>
+                    {
+                        this.props.object_list.map((data) => (this.openTargetRenderMethod(data)))
                     }
                 </ListGroup>
             </div>
@@ -116,7 +185,8 @@ function mapStateToProps(state) {
       objectsInView: state.nglReducers.present.objectsInView,
       object_list: state.apiReducers.present.target_id_list,
       object_on: state.apiReducers.present.target_on,
-      nglProtStyle: state.nglReducers.present.nglProtStyle
+      nglProtStyle: state.nglReducers.present.nglProtStyle,
+      openTargetIdList: state.apiReducers.present.openTargetIdList
   }
 }
 const mapDispatchToProps = {
@@ -124,6 +194,7 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     setObjectOn: apiActions.setTargetOn,
     setMoleculeList: apiActions.setMoleculeList,
-    setObjectList: apiActions.setTargetIdList
+    setObjectList: apiActions.setTargetIdList,
+    setOpenTargetIdList: apiActions.setOpenTargetIdList,
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TargetList));

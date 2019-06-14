@@ -9,6 +9,7 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
 import * as selectionActions from "../actions/selectionActions";
+import * as apiActions from "../actions/apiActions";
 import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
@@ -25,13 +26,18 @@ class MoleculeView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
+        this.onEDensity = this.onEDensity.bind(this);
+        // this.getEDensityUrl = this.getEDensityUrl.bind(this);
+        this.generateEDensityObject = this.generateEDensityObject.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleEDensity = this.handleEDensity.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
         this.key = "mol_image"
         this.colourToggle = this.getRandomColor();
-    }
+        this.eDensityUrl = undefined
+        }
 
     getViewUrl(get_view) {
         return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + "/")
@@ -152,12 +158,20 @@ class MoleculeView extends GenericView {
         if (changed.indexOf(3)>-1){
             this.onVector(new_list);
         }
+        if (changed.indexOf(4)>-1){
+            this.onEDensity(new_list);
+        }
     }
+
+    // componentWillMount() {
+    //     this.getEDensityUrl()
+    // }
 
     componentDidMount() {
         this.loadFromServer(this.props.width - 100,this.props.height - 100);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
+        var eDensityOn = this.props.eDensityList.has(this.props.data.id);
         var value_list = []
         if(complexOn){
             value_list.push(1)
@@ -168,7 +182,10 @@ class MoleculeView extends GenericView {
         if(this.props.to_query==this.props.data.smiles){
             value_list.push(3)
         }
-        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
+        if(eDensityOn){
+            value_list.push(4)
+        }
+        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn, eDensityOn: eDensityOn}))
     }
 
     componentWillReceiveProps(nextProps){
@@ -227,8 +244,8 @@ class MoleculeView extends GenericView {
                         </tbody>
                     </Table>
                 </div>
-            </div>
-        </div>
+	    </div>
+	</div>
     }
 
     getRandomColor() {
@@ -304,14 +321,116 @@ class MoleculeView extends GenericView {
         }
     }
 
+    onEDensity(new_list=undefined) {
+        if(new_list!=undefined) {
+            this.setState(prevState => ({eDensityOn: !prevState.eDensityOn, value: new_list}))
+        }
+        else{
+            this.setState(prevState => ({eDensityOn: !prevState.eDensityOn}))
+        }
+        if(this.state.eDensityOn){
+            this.props.eDensityList.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            // this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl)));
+            this.props.removeFromEDensityList(this.generateMolId());
+            // this.props.removeFromEDensityList(this.props.data.id);
+        }
+        else{
+            // this.props.loadObject(this.getEDensityUrl('load'));
+            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateEDensityObject(this.eDensityUrl, 'load')));
+            // this.props.loadObject(this.generateEDensityObject('load'));
+            this.props.appendEDensityList(this.generateMolId());
+        }
+    }
+
+    afterPush(data){
+    }
+
+    generateEDensityObject(loadState) {
+        fetch(this.base_url + '/api/proteins/?code=' + this.props.data.protein_code, {
+            method: "get",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then(function (response) {
+            return response.json();
+        }).then(function (myJson) {
+            var eDensityObject = {
+                "name": "EVENTLOAD" + "_" + myJson.results[0].code,
+                "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+                "map_info": myJson.results[0].map_info.replace("http:", window.location.protocol),
+                "xtal": myJson.results[0].code,
+                "lig_id": "lig",
+                "pdb_info": myJson.results[0].pdb_info.replace("http:", window.location.protocol),
+                "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+                "map_type": "electronDensity"
+            }
+            return eDensityObject;
+            }).then(densityObject => this.handleEDensity(densityObject, loadState));
+        // })
+    }
+
+    // handleDensity(densityObject) {
+    //     this.props.loadObject(densityObject);
+    // }
+
+        // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/pdbs/TBXTA-x0773_1_apo_sSKGYWD.pdb")
+        // "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz")
+        // json => this.generateEDensityObject(json.results[0].map_info)
+        // return "http://fragalysis-rg.apps.xchem.diamond.ac.uk/media/maps/TBXTA-x0776_1_pandda.map_yTxO9Pb.gz"
+
+    // generateEDensityObject(eDensityUrl, loadState) {
+    //     fetch(eDensityUrl, {
+    //         method: "get",
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         },
+    //     }).then(function (response) {
+    //         var eDensityObject = {
+    //             "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+    //             "map_url": eDensityUrl,
+    //             "display_div": "major_view",
+    //             "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+    //             "map_type": "electronDensity",
+    //             "map_info": response
+    //         }
+    //         return eDensityObject;
+    //     }).then(eDensityObject => this.handleEDensity(eDensityObject, loadState))
+    // }
+    //
+    // generateEDensityObject(eDensityUrl, loadState) {
+    //     var eDensityObject = {
+    //         "name": "EVENTLOAD" + "_" + this.props.data.protein_code.toString(),
+    //         "OBJECT_TYPE": nglObjectTypes.EVENTMAP,
+    //         "map_info": eDensityUrl,
+    //         "xtal": this.props.data.protein_code.toString(),
+    //         "lig_id": "lig",
+    //         "display_div": "major_view",
+    //         "OBJECT_TYPE": nglObjectTypes.E_DENSITY,
+    //         "map_type": "electronDensity"
+    //
+    //     return eDensityObject;
+    //     eDensityObject => this.handleEDensity(eDensityObject, loadState)
+    // }
+
+    handleEDensity(eDensityObject, loadState){
+        if (loadState === 'load'){
+            this.props.loadObject(eDensityObject);
+        } else if (loadState === 'unload'){
+            this.props.deleteObject(eDensityObject);
+        }
+    }
 }
+
 function mapStateToProps(state) {
-  return {
-      to_query: state.selectionReducers.present.to_query,
-      vector_list: state.selectionReducers.present.vector_list,
-      complexList: state.selectionReducers.present.complexList,
-      fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-  }
+    return {
+        to_query: state.selectionReducers.present.to_query,
+        vector_list: state.selectionReducers.present.vector_list,
+        complexList: state.selectionReducers.present.complexList,
+        eDensityList: state.selectionReducers.present.eDensityList,
+        fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
+    }
 }
 const mapDispatchToProps = {
     getFullGraph: selectionActions.getFullGraph,
@@ -324,10 +443,13 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
     appendComplexList: selectionActions.appendComplexList,
     removeFromComplexList: selectionActions.removeFromComplexList,
+    appendEDensityList: selectionActions.appendEDensityList,
+    removeFromEDensityList: selectionActions.removeFromEDensityList,
     appendVectorOnList: selectionActions.appendVectorOnList,
     removeFromVectorOnList: selectionActions.removeFromVectorOnList,
     appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
     removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
+    setErrorMessage: apiActions.setErrorMessage,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeView);

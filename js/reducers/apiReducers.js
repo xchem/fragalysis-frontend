@@ -7,6 +7,7 @@ const INITIALSTATE = {
     project_id: undefined,
     target_id: undefined,
     target_id_list: [],
+    openTargetIdList: [],
     mol_group_list: [],
     molecule_list: [],
     duck_yank_data: {},
@@ -34,6 +35,11 @@ const INITIALSTATE = {
     sessionIdList: [],
     sessionTitle: undefined,
     user_id: undefined,
+    fragspectModalState: "closed",
+    fragspectModalContents: undefined,
+    fragspectTarget: undefined,
+    fragspectEvents: undefined,
+    fragspectLoadingState: true
 }
 
 export default function apiReducers(state = INITIALSTATE, action) {
@@ -85,6 +91,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_TARGET_ID_LIST:
             return Object.assign({}, state, {
                 target_id_list: action.target_id_list
+            });
+
+        case actions.SET_OPEN_TARGET_ID_LIST:
+            return Object.assign({}, state, {
+                openTargetIdList: action.openTargetIdList
             });
 
         case actions.SET_TARGET_ON:
@@ -257,6 +268,31 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 pandda_event_list: action.pandda_event_list,
                 pandda_site_list: action.pandda_site_list,
                 latestSession: action.latestSession,
+            });
+
+        case actions.SET_FRAGSPECT_MODAL_STATE:
+            return Object.assign({}, state, {
+                fragspectModalState: action.fragspectModalState
+            });
+
+        case actions.SET_FRAGSPECT_MODAL_CONTENTS:
+            return Object.assign({}, state, {
+                fragspectModalContents: action.fragspectModalContents
+            });
+
+        case actions.SET_FRAGSPECT_TARGET:
+            return Object.assign({}, state, {
+                fragspectTarget: action.fragspectTarget,
+            });
+
+        case actions.SET_FRAGSPECT_EVENTS:
+            return Object.assign({}, state, {
+                fragspectEvents: action.fragspectEvents,
+            });
+
+        case actions.SET_FRAGSPECT_LOADING_STATE:
+            return Object.assign({}, state, {
+                fragspectLoadingState: action.fragspectLoadingState
             });
 
         // Cases like: @@redux/INIT

@@ -38,6 +38,9 @@ export class NGLView extends React.Component {
         this.generateSphere = this.generateSphere.bind(this);
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
+        this.showEvent = this.showEvent.bind(this);
+        this.showEDensity = this.showEDensity.bind(this);
+        this.showHotspot = this.showHotspot.bind(this);
         this.updateOrientation = this.updateOrientation.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
@@ -51,6 +54,7 @@ export class NGLView extends React.Component {
         this.function_dict[nglObjectTypes.ARROW] = this.showArrow
         this.function_dict[nglObjectTypes.PROTEIN] = this.showProtein
         this.function_dict[nglObjectTypes.EVENTMAP] = this.showEvent
+        this.function_dict[nglObjectTypes.E_DENSITY] = this.showEDensity
         this.function_dict[nglObjectTypes.HOTSPOT] = this.showHotspot
     }
 
@@ -125,6 +129,9 @@ export class NGLView extends React.Component {
         window.addEventListener("resize", function (event) {
            local_stage.handleResize();
         }, false);
+        if (this.div_id == "fragspect") {
+            this.stage.setParameters({cameraType: "orthographic", mousePreset: "coot"})
+        }
         this.stage.mouseControls.add("clickPick-left",this.showPick);
         this.props.setOrientation(
                 this.div_id,
@@ -207,8 +214,7 @@ export class NGLView extends React.Component {
             comp.autoView("ligand");
             stage.setFocus(focus_var);
     };
-
-
+    
     showComplex(stage, input_dict, object_name) {
         var stringBlob = new Blob( [ input_dict.sdf_info ], { type: 'text/plain'} );
         Promise.all([
@@ -220,8 +226,10 @@ export class NGLView extends React.Component {
 
     showEvent(stage, input_dict, object_name) {
         stage.loadFile(input_dict.pdb_info, {name: object_name, ext: "pdb"}).then(function (comp) {
-            comp.addRepresentation('cartoon', {});
-            var selection = new Selection("LIG");
+            comp.addRepresentation('line', {colorValue: "yellow", multipleBond: "offset", bondSpacing: 1.1, linewidth: 6});
+            comp.addRepresentation("point", {colorValue: "yellow", sizeAttenuation: false, pointSize: 6, alphaTest: 1, useTexture: true});
+            // var selection = new Selection("LIG");
+            var selection = new Selection("HOH");
             var radius = 5;
             var atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
             var atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
@@ -232,31 +240,70 @@ export class NGLView extends React.Component {
                 weakHydrogenBond: true,
                 maxHbondDonPlaneAngle: 35,
                 linewidth: 1,
-                sele: sele2 + " or LIG"
+                sele: sele2 + " or HOH"
+                // sele: sele2 + " or LIG"
             });
             comp.addRepresentation("line", {
                 sele: sele1
             })
             comp.addRepresentation("ball+stick", {
-                sele: "LIG"
+                sele: "HOH"
+                // sele: "LIG"
             })
-            comp.autoView("LIG");
+            comp.autoView("HOH");
+            // comp.autoView("LIG");
+            var z = stage.viewer.camera.position.z
+            stage.setFocus(100 - Math.abs(z / 10))
         });
-
         stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
-            var surfFofc = comp.addRepresentation('surface', {
-                color: 'mediumseagreen',
+            var surf2Fofc = comp.addRepresentation('surface', {
+                color: '#5900ff',
                 isolevel: 3,
-                boxSize: 10,
+                boxSize: 15,
                 useWorker: false,
                 contour: true,
                 opaqueBack: false,
-                isolevelScroll: false
+                isolevelScroll: true
             })
-            var surfFofcNeg = comp.addRepresentation('surface', {
-                color: 'tomato',
+        // stage.loadFile(input_dict.map_info, {name: object_name, ext: "ccp4"}).then(function (comp) {
+        //     var surfFofc = comp.addRepresentation('surface', {
+        //         color: 'mediumseagreen',
+        //         isolevel: 3,
+        //         boxSize: 15,
+        //         useWorker: false,
+        //         contour: true,
+        //         opaqueBack: false,
+        //         isolevelScroll: true
+        //     })
+        //     var surfFofcNeg = comp.addRepresentation('surface', {
+        //         color: 'tomato',
+        //         isolevel: 3,
+        //         negateIsolevel: true,
+        //         boxSize: 15,
+        //         useWorker: false,
+        //         contour: true,
+        //         opaqueBack: false,
+        //         isolevelScroll: false
+        //     })
+        });
+        // FUNCTIONS TO INSERT TEXT AT BOTTOM OF NGL VIEWER WITH CONTOUR LEVEL - NOT TESTED AND REQUIRES WORK
+        // createElement(name, properties, style) {
+        // var el = document.createElement(name);
+        // Object.assign(el, properties);
+        // Object.assign(el.style, style);
+        // return el;
+        // }
+        // var isolevelFofcText = createElement("span", {}, { bottom: "12px", left: "12px", color: "lightgrey" })
+        //     this.stage.addElement(isolevelFofcText)
+        //     comp.surfFofc.getParameters().isolevel.toFixed(1)
+        //     isolevelFofcText.innerText = "fofc level: " + levelFofc + "\u03C3"
+    }
+
+    showEDensity(stage, input_dict, object_name) {
+        stage.loadFile(input_dict.map_info, {name: object_name, ext: "map"}).then(function (comp) {
+            var surfFofc = comp.addRepresentation('surface', {
+                color: 'mediumseagreen',
                 isolevel: 3,
-                negateIsolevel: true,
                 boxSize: 10,
                 useWorker: false,
                 contour: true,
@@ -408,7 +455,6 @@ export class NGLView extends React.Component {
             this.data_dict[listType].oldGroupOn = onGroup;
         }
     }
-
 
     /**
      * Function to deal with the logic of showing molecules

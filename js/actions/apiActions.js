@@ -5,6 +5,7 @@ import {
     LOAD_TARGETS,
     SET_TARGET_ON,
     SET_TARGET_ID_LIST,
+    SET_OPEN_TARGET_ID_LIST,
     SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST,
     SET_MOL_GROUP_ON,
@@ -35,6 +36,11 @@ import {
     SET_TARGET_UNRECOGNISED,
     SET_UUID,
     SET_USER_ID,
+    SET_FRAGSPECT_MODAL_STATE,
+    SET_FRAGSPECT_MODAL_CONTENTS,
+    SET_FRAGSPECT_TARGET,
+    SET_FRAGSPECT_EVENTS,
+    SET_FRAGSPECT_LOADING_STATE,
 } from "./actonTypes";
 
 export const loadTargets = function (project_id=undefined) {
@@ -59,6 +65,14 @@ export const setTargetIdList = function (input_json) {
     return {
         type: SET_TARGET_ID_LIST,
         target_id_list: input_json
+    };
+}
+
+export const setOpenTargetIdList = function (input_json) {
+    console.log("ACTIONS: " + input_json);
+    return {
+        type: SET_OPEN_TARGET_ID_LIST,
+        openTargetIdList: input_json
     };
 }
 
@@ -323,6 +337,46 @@ export const reloadApiState = function (apiReducers) {
         pandda_event_list: apiReducers.pandda_event_list,
         pandda_site_list: apiReducers.pandda_site_list,
     }
+}
+
+export const setFragspectModalState = function (fragspectModalState) {
+    console.log("ACTIONS: fragspect modal to " + fragspectModalState);
+    return {
+        type: SET_FRAGSPECT_MODAL_STATE,
+        fragspectModalState: fragspectModalState
+    };
+}
+
+export const setFragspectModalContents = function (fragspectModalContents) {
+    console.log("ACTIONS: fragspect modal to " + fragspectModalContents);
+    return {
+        type: SET_FRAGSPECT_MODAL_CONTENTS,
+        fragspectModalContents: fragspectModalContents
+    };
+}
+
+export const setFragspectTarget = function (fragspectTarget){
+    console.log("ACTIONS: "+ fragspectTarget)
+    return {
+        type: SET_FRAGSPECT_TARGET,
+        fragspectTarget: fragspectTarget
+    }
+}
+
+export const setFragspectEvents = function (fragspectEvents){
+    console.log("ACTIONS: Fragspect event set")
+    return {
+        type: SET_FRAGSPECT_TARGET,
+        fragspectEvents: fragspectEvents
+    }
+}
+
+export const setFragspectLoadingState = function (fragspectLoadingState) {
+    console.log("ACTIONS: fragspect loading to " + fragspectLoadingState);
+    return {
+        type: SET_FRAGSPECT_LOADING_STATE,
+        fragspectLoadingState: fragspectLoadingState
+    };
 }
 
 export function renderData(element_type, div_id) {
