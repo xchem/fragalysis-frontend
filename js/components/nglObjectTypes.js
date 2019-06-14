@@ -10,3 +10,4 @@ export const CYLINDER = "CYLINDER";
 export const LINE = "LINE";
 export const EVENTMAP = "EVENTMAP";
 export const HOTSPOT = "HOTSPOT";
+export const E_DENSITY = "E_DENSITY";

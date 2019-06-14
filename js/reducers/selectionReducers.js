@@ -16,6 +16,7 @@ const INITIALSTATE = {
     fragmentDisplayList: new Set(),
     bondColorMap: undefined,
     complexList: new Set(),
+    eDensityList: new Set(),
     vectorOnList: new Set(),
     currentVector: undefined,
     highlightedCompound: {},
@@ -161,6 +162,24 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 complexList: complexList
             })
 
+        case actions.SET_E_DENSITY_LIST:
+            return Object.assign({}, state, {
+                eDensityList: action.eDensityList,
+            });
+
+        case actions.APPEND_E_DENSITY_LIST:
+            var eDensityList = new Set(state.eDensityList.add(action.item.id));
+            return Object.assign({}, state, {
+                eDensityList: eDensityList
+            })
+
+        case actions.REMOVE_FROM_E_DENSITY_LIST:
+            var eDensityList = new Set(state.eDensityList);
+            eDensityList.delete(action.item.id);
+            return Object.assign({}, state, {
+                eDensityList: eDensityList
+            })
+
         case actions.SET_VECTOR_ON_LIST:
             return Object.assign({}, state, {
                 vectorOnList: action.vectorOnList,
@@ -211,6 +230,7 @@ export default function selectionReducers(state = INITIALSTATE, action) {
                 this_vector_list: this_vector_list,
                 fragmentDisplayList: new Set(action.savedSelectionReducers.fragmentDisplayList),
                 complexList: new Set(action.savedSelectionReducers.complexList),
+                eDensityList: new Set(action.savedSelectionReducers.eDensityList),
                 vectorOnList: new Set(action.savedSelectionReducers.vectorOnList),
                 to_query: action.savedSelectionReducers.to_query,
                 vector_list: action.savedSelectionReducers.vector_list,

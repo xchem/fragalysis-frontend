@@ -4,12 +4,12 @@
 import apiReducers from "../reducers/apiReducers";
 import * as types from "../actions/actonTypes";
 
-
 function getInitialState(){
    return {
        project_id: undefined,
        target_id: undefined,
        target_id_list: [],
+       open_target_id_list: [],
        mol_group_list: [],
        molecule_list: [],
        duck_yank_data: {},
@@ -37,9 +37,11 @@ function getInitialState(){
        sessionIdList: [],
        sessionTitle: undefined,
        user_id: undefined,
+       fragspectModalState: "closed",
+       fragspectModalContents: undefined,
+       fragspectTarget: undefined
    }
 }
-
 
 describe('API Redcuer', () => {
     it('should return the initial state', () => {
@@ -57,6 +59,7 @@ describe('API Redcuer', () => {
             project_id: 1,
             target_id: undefined,
             target_id_list: [],
+            open_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -84,6 +87,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
         expect(apiReducers(undefined, {
                 type: types.LOAD_TARGETS
@@ -92,6 +98,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: undefined,
             target_id_list: [],
+            open_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -119,6 +126,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
     })
     it('should handle LOAD_MOL_GROUPS', () => {
@@ -130,6 +140,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: undefined,
             target_id_list: [],
+            open_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -157,6 +168,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
         expect(apiReducers(undefined, {
                 type: types.LOAD_MOL_GROUPS,
@@ -167,6 +181,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: undefined,
             target_id_list: [],
+            open_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -194,6 +209,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
     })
     it('should handle LOAD_MOLECULES', () => {
@@ -214,6 +232,7 @@ describe('API Redcuer', () => {
             pandda_site_list: [],
             app_on: "PREVIEW",
             target_id_list: [],
+            open_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -233,6 +252,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
         expect(apiReducers(undefined, {
                 type: types.LOAD_MOLECULES,
@@ -242,6 +264,7 @@ describe('API Redcuer', () => {
             project_id: undefined,
             target_id: 1,
             target_id_list: [],
+            open_target_id_listn_target_id_list: [],
             mol_group_list: [],
             molecule_list: [],
             duck_yank_data: {},
@@ -269,6 +292,9 @@ describe('API Redcuer', () => {
             sessionIdList: [],
             sessionTitle: undefined,
             user_id: undefined,
+            fragspectModalState: "closed",
+            fragspectModalContents: undefined,
+            fragspectTarget: undefined
         })
     })
 })

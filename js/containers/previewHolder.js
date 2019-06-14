@@ -81,7 +81,7 @@ class Preview extends Component {
                 <Col xs={3} md={3}>
                     <SummaryView/>
                     <CompoundList/>
-                    <HotspotList/>
+                    {/*<HotspotList/>*/}
                 </Col>
                 <ModalStateSave/>
                 <ModalErrorMessage/>

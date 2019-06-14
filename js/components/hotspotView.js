@@ -2,7 +2,7 @@
  * Created by ricgillams on 05/07/2018.
  */
 
-import {Col, Row, Image, Panel, Grid} from "react-bootstrap";
+import {Col, Row, Image, Panel, Grid, ToggleButton} from "react-bootstrap";
 import React from "react";
 import {connect} from "react-redux";
 import * as nglLoadActions from "../actions/nglLoadActions";
@@ -92,7 +92,7 @@ class HotspotView extends React.Component {
                 "isoLevel": isoLevel,
                 "opacity": opacity,
                 "disablePicking": true
-            }
+            };
             return hotspotObject;
         }).then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
     }
@@ -117,6 +117,11 @@ class HotspotView extends React.Component {
             offstyle: this.state.hsParams[type].buttonStyle,
             active: this.state.hsDict[type][strength]
         });
+        return button;
+    }
+
+     buttonRender(strength, type) {
+        var button = <ToggleButton bsSize="sm" bsStyle="info" onClick={this.onHotspot(strength, type)}>{strength} {type}</ToggleButton>;
         return button;
     }
 

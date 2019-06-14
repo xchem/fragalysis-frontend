@@ -6,7 +6,7 @@ import React, {Component} from "react";
 import Header from "./header";
 import {ErrorView} from "./errorComponent";
 import TargetManagement from "../containers/targetManagementHolder";
-import Tindspect from "../containers/tindspectHolder";
+import Fragspect from "../containers/fragspectHolder";
 import Landing from "../containers/landingHolder";
 import Preview from "../containers/previewHolder";
 import Sessions from "../containers/sessionHolder";
@@ -21,7 +21,7 @@ class Switches extends Component {
             <ErrorView></ErrorView>
             <Switch>
                 <Route exact path="/viewer/react/targetmanagement" component={TargetManagement}/>
-                <Route exact path="/viewer/react/fraginpect" component={Tindspect}/>
+                <Route exact path="/viewer/react/fragspect/:target" component={Fragspect}/>
                 <Route exact path="/viewer/react/landing" component={Landing}/>
                 <Route exact path="/viewer/react/preview" component={Preview}/>
                 <Route exact path="/viewer/react/preview/target/:target" component={Preview}/>
