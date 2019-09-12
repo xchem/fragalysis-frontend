@@ -53,16 +53,21 @@ Clone repositories
 git clone https://github.com/pavol-brunclik-m2ms/fragalysis-frontend.git
 ```
 *Note: Fork if any work is expected.*
+### Optional
 ```
 git clone https://github.com/xchem/fragalysis-backend.git
 git clone https://github.com/xchem/fragalysis-loader.git
 git clone https://github.com/xchem/fragalysis-stack.git
-
+```
+### Mandatory
+```
 # git clone https://github.com/xchem/dls-fragalysis-stack-openshift.git (Did not contain 'loader' image)
 git clone https://github.com/InformaticsMatters/dls-fragalysis-stack-openshift.git
 ```
 
-Build the images locally
+## Build the images locally
+
+### Optional
 ```
 pushd fragalysis-backend || exit
 docker build . -t xchem/fragalysis-backend:latest
@@ -73,13 +78,18 @@ docker build . -t xchem/fragalysis-loader:latest
 popd || exit
 
 pushd fragalysis-stack || exit
-docker build . -f Dockerfile-local -t xchem/fragalysis-stack:latest
+docker build . -t xchem/fragalysis-stack:latest
 popd || exit
+```
 
+### Mandatory
+```
 pushd dls-fragalysis-stack-openshift/images/loader || exit
-docker build . -f Dockerfile-local -t xchem/loader:latest
+docker build . -f Dockerfile-local -t loader:latest
 popd || exit
-
+```
+### Optional
+```
 pushd dls-fragalysis-stack-openshift/images/graph || exit
 docker build . -t xchem/graph:latest
 popd || exit
@@ -95,9 +105,9 @@ mkdir -p data/stack/media
 mkdir -p data/stack/logs
 ```
 
-### Modify docker-compose file to look at right loader
+### Modify `fragalysis-frontend/docker-compose.dev.yml` file to look at right loader
 - `../data` folders
--  `DATA_ORIGIN: EXAMPLE` -> ../data/django_data/EXAMPLE
+-  `DATA_ORIGIN: EXAMPLE` -> will look for `EXAMPLE` folder in ../data/input/django_data/EXAMPLE
 
 ```
 cd fragalysis-frontend/
