@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import {Row, Well} from "react-bootstrap";
+import {Col, Well} from "react-bootstrap";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -27,12 +27,12 @@ class MoleculeList extends GenericList {
         var imgSize = window.innerWidth*0.1
         if (this.props != undefined && this.props.object_list) {
             console.log(this.props.message)
-            return <Well>
-                <Row style={molStyle}>
+            return <Well style={{padding: 0}}>
+                <Col style={molStyle}>
                 {
                     this.props.object_list.map((data)  => <MoleculeView height={imgSize} width={imgSize} key={data.id} data={data}/>)
                 }
-                </Row>
+                </Col>
             </Well>;
         }
         else {

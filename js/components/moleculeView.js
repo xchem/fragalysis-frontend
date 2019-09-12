@@ -4,7 +4,7 @@
 
 import React from "react";
 import {connect} from "react-redux";
-import {ButtonToolbar,Label, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
+import {Row, Col, ButtonToolbar,Label, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
@@ -13,6 +13,7 @@ import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
 import RefinementOutcome from "./refinementOutcome";
+import './moleculeView.css';
 
 class MoleculeView extends GenericView {
 
@@ -130,6 +131,22 @@ class MoleculeView extends GenericView {
         return out_d;
     }
 
+    getCalculatedProps() {
+        const { data } = this.props;
+        return [
+            { name: 'MW', value: data.mw },
+            { name: 'logP', value: data.logp },
+            { name: 'TPSA', value: data.tpsa },
+            { name: 'HA', value: data.ha },
+            { name: 'Hacc', value: data.hacc },
+            { name: 'Hdon', value: data.hdon },
+            { name: 'Rots', value: data.rots },
+            { name: 'Rings', value: data.rings },
+            { name: 'Velec', value: data.velec },
+            { name: '#cpa', value: '???' },
+        ]
+    }
+
     handleVector(json) {
         var objList = this.generateObjectList(json["3d"]);
         this.props.setVectorList(objList);
@@ -183,24 +200,45 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const svg_image = <SVGInline svg={this.state.img_data}/>;
+        const { height, data } = this.props;
+        const { img_data, isToggleOn, complexOn, value } = this.state;
+        const svg_image = <SVGInline svg={img_data}/>;
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
-        const selected_style = {height: this.props.height.toString()+'px', backgroundColor: this.colourToggle}
-        const not_selected_style = {height: this.props.height.toString()+'px'}
-        this.current_style = this.state.isToggleOn || this.state.complexOn ? selected_style : not_selected_style;
-        return <div style={{border: "solid", display: "inline-block"}}>
-                <div style={this.current_style}>{svg_image}</div>
-            <Label bsStyle="default">{this.props.data.protein_code}</Label>
-            <RefinementOutcome data={this.props.data}></RefinementOutcome>
-                <ButtonToolbar>
-                    <ToggleButtonGroup vertical block type="checkbox" value={this.state.value} onChange={this.handleChange}>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>Ligand</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>Complex</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>Vectors</ToggleButton>
+        const selected_style = {height: height.toString()+'px', backgroundColor: this.colourToggle}
+        const not_selected_style = {height: height.toString()+'px'}
+        this.current_style = isToggleOn || complexOn ? selected_style : not_selected_style;
+
+        return (
+            <Row className="molecule-view-container-row" style={{ height: height.toString() + 'px' }}>
+                <Col xs={1} className="molecule-view-no-padding">
+                    <ToggleButtonGroup vertical block type="checkbox" value={value} onChange={this.handleChange}>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>L</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>C</ToggleButton>
+                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>V</ToggleButton>
                     </ToggleButtonGroup>
-                </ButtonToolbar>
-            </div>
+                </Col>
+                <Col xs={3} className="molecule-view-no-padding">
+                    <Label bsStyle="default">{data.protein_code}</Label>
+                    <RefinementOutcome data={this.props.data}></RefinementOutcome>
+                </Col>
+                <Col xs={3} className="molecule-view-no-padding">
+                    <div style={this.current_style}>{svg_image}</div>
+                </Col>
+                <Col xs={5} className="molecule-view-no-padding">
+                    <div className="molecule-view-calc-props-div">
+                        {
+                            this.getCalculatedProps().map(p => (
+                                <div key={`calc-value-${p.name}`} className="molecule-view-calc-props-div-item">
+                                    <p>{p.name}</p>
+                                    <p>{p.value}</p>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </Col>
+            </Row>
+        )
     }
 
     getRandomColor() {

@@ -1,0 +1,17 @@
+.molecule-view-container-row {
+  width: 600px;
+  margin: 0;
+}
+
+.molecule-view-no-padding {
+  padding: 0;
+}
+
+.molecule-view-calc-props-div {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.molecule-view-calc-props-div-item {
+  width: 20%;
+}
