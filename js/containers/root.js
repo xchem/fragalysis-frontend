@@ -7,12 +7,13 @@ import configureStore from "../configureStore";
 import routes from "./app";
 import {BrowserRouter} from "react-router-dom";
 import {saveStore} from "../containers/globalStore";
+import { hot } from 'react-hot-loader';
 
 const store = configureStore()
 
 saveStore(store)
  
-export default class Root extends Component {
+class Root extends Component {
     render() {
         return (
             <Provider store={store}>
@@ -23,3 +24,5 @@ export default class Root extends Component {
             )
     }
 }
+
+export default hot(module)(Root);
