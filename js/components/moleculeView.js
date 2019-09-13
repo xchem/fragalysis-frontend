@@ -4,7 +4,7 @@
 
 import React from "react";
 import {connect} from "react-redux";
-import {Row, Col, ButtonToolbar,Label, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
+import {Grid, withStyles, Button} from "@material-ui/core";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import {GenericView} from "./generalComponents";
 import * as nglObjectTypes from "./nglObjectTypes";
@@ -13,7 +13,66 @@ import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
 import RefinementOutcome from "./refinementOutcome";
-import './moleculeView.css';
+import classNames from 'classnames';
+
+const styles = () => ({
+    container: {
+        width: '600px',
+        padding: '4px',
+        color: 'black'
+    },
+    siteCol: {
+        width: '24px',
+        fontSize: '24px',
+    },
+    contCol: {
+        width: '24px',
+    },
+    contColGridItem: {
+        height: '16px',
+        display: 'flex'
+    },
+    contColButton: {
+        padding: 0,
+        minWidth: 'unset',
+        borderRadius: 0,
+        borderColor: 'white',
+        backgroundColor: '#D8E7F4',
+        '&:hover': {
+            backgroundColor: '#2B69AA'
+        }
+    },
+    contColButtonSelected: {
+        backgroundColor: '#2B69AA',
+    },
+    detailsCol: {
+        // 544 = 600 - 8 (paddings) - 24 (siteCol) - 24 (contCol)
+        width: '544px',
+        border: 'solid 1px #DEDEDE'
+    },
+    statusCol: {
+        width: '160px',
+    },
+    textBold: {
+        fontWeight: 'bold',
+    },
+    imageCol: {
+        width: '160px',
+        display: 'flex',
+        justifyContent: 'center'
+    },
+    propsCol: {
+        width: '222px',
+    },
+    propsColItem: {
+        width: '20%'
+    },
+    centered: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
+});
 
 class MoleculeView extends GenericView {
 
@@ -154,7 +213,7 @@ class MoleculeView extends GenericView {
         this.props.setBondColorMap(vectorBondColorMap);
     }
 
-    handleChange(value){
+    handleChange(value) {
         var old = this.state.value;
         var new_list = value.slice();
         var removed = old.filter(function(i) {return value.indexOf(i)<0;})[0]
@@ -200,7 +259,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const { height, data } = this.props;
+        const { classes, height, data } = this.props;
         const { img_data, isToggleOn, complexOn, value } = this.state;
         const svg_image = <SVGInline svg={img_data}/>;
         // Here add the logic that updates this based on the information
@@ -210,34 +269,43 @@ class MoleculeView extends GenericView {
         this.current_style = isToggleOn || complexOn ? selected_style : not_selected_style;
 
         return (
-            <Row className="molecule-view-container-row" style={{ height: height.toString() + 'px' }}>
-                <Col xs={1} className="molecule-view-no-padding">
-                    <ToggleButtonGroup vertical block type="checkbox" value={value} onChange={this.handleChange}>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={2}>L</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={1}>C</ToggleButton>
-                        <ToggleButton bsSize="sm" bsStyle="info" value={3}>V</ToggleButton>
-                    </ToggleButtonGroup>
-                </Col>
-                <Col xs={3} className="molecule-view-no-padding">
-                    <Label bsStyle="default">{data.protein_code}</Label>
-                    <RefinementOutcome data={this.props.data}></RefinementOutcome>
-                </Col>
-                <Col xs={3} className="molecule-view-no-padding">
-                    <div style={this.current_style}>{svg_image}</div>
-                </Col>
-                <Col xs={5} className="molecule-view-no-padding">
-                    <div className="molecule-view-calc-props-div">
+            <Grid container className={classes.container}>
+                <Grid item className={classNames(classes.siteCol, classes.centered)}>
+                    1
+                </Grid>
+                <Grid item container direction="column" alignItems="stretch" className={classes.contCol}>
+                    <Grid item className={classes.contColGridItem}>
+                        <Button variant="outlined" fullWidth className={classes.contColButton}>L</Button>
+                    </Grid>
+                    <Grid item className={classes.contColGridItem}>
+                        <Button variant="outlined" fullWidth className={classes.contColButton}>C</Button>
+                    </Grid>
+                    <Grid item className={classes.contColGridItem}>
+                        <Button variant="outlined" fullWidth className={classes.contColButton}>V</Button>
+                    </Grid>
+                </Grid>
+                <Grid item container className={classes.detailsCol}>
+                    <Grid item container direction="column" alignItems="center" justify="center" className={classes.statusCol}>
+                        <Grid item className={classes.textBold}>{data.protein_code}</Grid>
+                        <Grid item>
+                            <RefinementOutcome data={this.props.data}></RefinementOutcome>
+                        </Grid>
+                    </Grid>
+                    <Grid item className={classes.imageCol}>
+                        <div style={this.current_style}>{svg_image}</div>
+                    </Grid>
+                    <Grid item container className={classes.propsCol}>
                         {
                             this.getCalculatedProps().map(p => (
-                                <div key={`calc-value-${p.name}`} className="molecule-view-calc-props-div-item">
-                                    <p>{p.name}</p>
-                                    <p>{p.value}</p>
-                                </div>
+                                <Grid item container justify="space-around" alignItems="center" direction="column" className={classes.propsColItem}>
+                                    <Grid item className={classes.textBold}>{p.name}</Grid>
+                                    <Grid item>{p.value}</Grid>
+                                </Grid>
                             ))
                         }
-                    </div>
-                </Col>
-            </Row>
+                    </Grid>
+                </Grid>
+            </Grid>
         )
     }
 
@@ -340,4 +408,4 @@ const mapDispatchToProps = {
     removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoleculeView);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MoleculeView));
