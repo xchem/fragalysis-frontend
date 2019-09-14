@@ -17,8 +17,8 @@ import classNames from 'classnames';
 
 const styles = () => ({
     container: {
-        width: '600px',
-        padding: '4px',
+        width: '100%',
+        padding: '4px 0',
         color: 'black'
     },
     siteCol: {
@@ -46,23 +46,24 @@ const styles = () => ({
         backgroundColor: '#2B69AA',
     },
     detailsCol: {
-        // 544 = 600 - 8 (paddings) - 24 (siteCol) - 24 (contCol)
-        width: '544px',
+        // - 24px (siteCol) - 24px (contCol)
+        width: 'calc(100% - 24px - 24px)',
         border: 'solid 1px #DEDEDE'
     },
     statusCol: {
-        width: '160px',
+        width: '30%',
     },
     textBold: {
         fontWeight: 'bold',
     },
     imageCol: {
-        width: '160px',
+        width: '30%',
         display: 'flex',
         justifyContent: 'center'
     },
     propsCol: {
-        width: '222px',
+        width: '40%',
+        fontSize: '10px'
     },
     propsColItem: {
         width: '20%'
@@ -271,7 +272,7 @@ class MoleculeView extends GenericView {
         return (
             <Grid container className={classes.container}>
                 <Grid item className={classNames(classes.siteCol, classes.centered)}>
-                    1
+                    ?
                 </Grid>
                 <Grid item container direction="column" alignItems="stretch" className={classes.contCol}>
                     <Grid item className={classes.contColGridItem}>
@@ -297,7 +298,7 @@ class MoleculeView extends GenericView {
                     <Grid item container className={classes.propsCol}>
                         {
                             this.getCalculatedProps().map(p => (
-                                <Grid item container justify="space-around" alignItems="center" direction="column" className={classes.propsColItem}>
+                                <Grid item container justify="space-around" alignItems="center" direction="column" key={`calc-prop-${p.name}`} className={classes.propsColItem}>
                                     <Grid item className={classes.textBold}>{p.name}</Grid>
                                     <Grid item>{p.value}</Grid>
                                 </Grid>

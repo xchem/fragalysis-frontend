@@ -4,7 +4,7 @@
 
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col} from "react-bootstrap";
+import { Grid, withStyles } from "@material-ui/core";
 import NGLView from "../components/nglComponents";
 import MolGroupList from "../components/molGroupList";
 import MoleculeList from "../components/moleculeList";
@@ -20,6 +20,16 @@ import * as apiActions from "../actions/apiActions";
 import fetch from "cross-fetch";
 import {withRouter} from "react-router-dom";
 import {BrowserBomb} from "../components/browserBombModal";
+
+const styles = () => ({
+    gridItemLhs: {
+        width: '500px'
+    },
+    gridItemRhs: {
+        paddingLeft: '8px',
+        width: 'calc(100% - 500px)'
+    }
+})
 
 class Preview extends Component {
 
@@ -62,32 +72,35 @@ class Preview extends Component {
     }
 
     render() {
+        const { classes } = this.props;
         var screenHeight= window.innerHeight*0.7.toString()+"px"
         var molListHeight= window.innerHeight*0.45.toString()+"px"
         return (
-            <Row>
-                <Col xs={0} md={0}>
-                    <MolGroupList/>
-                </Col>
-                <Col xs={3} md={3}>
-                    <NGLView div_id="summary_view" height="200px"/>
-                    <MolGroupSlider/>
-                    <MoleculeList height={molListHeight} style={{overflow: scroll}}/>
-                </Col>
-                <Col xs={5} md={5}>
-                    <NGLView div_id="major_view" height={screenHeight}/>
-                    <NglViewerControls/>
-                </Col>
-                <Col xs={4} md={4}>
-                    <SummaryView/>
-                    <CompoundList/>
-                    <HotspotList/>
-                </Col>
-                <ModalStateSave/>
-                <ModalErrorMessage/>
-                <ModalTargetUnrecognised/>
-                <BrowserBomb/>
-            </Row>
+            <Grid container>
+                <Grid item>
+                    <MolGroupList />
+                </Grid>
+                <Grid item className={classes.gridItemLhs}>
+                    <NGLView div_id="summary_view" height="200px" />
+                    <MolGroupSlider />
+                    <MoleculeList height={molListHeight} />
+                </Grid>
+                <Grid item container direction="column" className={classes.gridItemRhs}>
+                    <Grid item>
+                        <NGLView div_id="major_view" height={screenHeight} />
+                        <NglViewerControls />
+                    </Grid>
+                    <Grid item>
+                        <SummaryView />
+                        <CompoundList />
+                        <HotspotList />
+                    </Grid>
+                </Grid>
+                 <ModalStateSave/>
+                 <ModalErrorMessage/>
+                 <ModalTargetUnrecognised/>
+                 <BrowserBomb/>
+            </Grid>
         )
     }
 }
@@ -103,4 +116,4 @@ const mapDispatchToProps = {
     setErrorMessage: apiActions.setErrorMessage,
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Preview))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Preview)))

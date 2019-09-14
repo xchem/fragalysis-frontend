@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import {Col, Well} from "react-bootstrap";
+import { Grid, withStyles } from "@material-ui/core";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -10,6 +10,55 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
+import classNames from "classnames";
+
+const styles = () => ({
+    container: {
+        height: '100%',
+        width: '100%',
+        color: 'black'
+    },
+    gridItemTitle: {
+        height: '40px',
+        width: 'calc(100% + 4px)',
+        marginLeft: '-2px',
+        marginTop: '-2px',
+        backgroundColor: '#F4F4F4',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 8px',
+        fontSize: '16px'
+    },
+    gridItemHeader: {
+        height: '32px',
+        fontSize: '8px',
+        color: '#7B7B7B'
+    },
+    gridItemHeaderVert: {
+        width: '24px',
+        transform: 'rotate(-90deg)'
+    },
+    gridItemHeaderHoriz: {
+        width: 'calc((100% - 48px) * 0.3)',
+    },
+    gridItemHeaderHorizWider: {
+        width: 'calc((100% - 48px) * 0.4)',
+    },
+    gridItemList: {
+        overflow: 'auto',
+        // - 72px for title and header items
+        height: 'calc(100% - 72px)'
+    },
+    centered: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    border: {
+        border: 'solid 2px #DEDEDE',
+        borderRadius: '8px'
+    }
+});
 
 class MoleculeList extends GenericList {
 
@@ -23,17 +72,44 @@ class MoleculeList extends GenericList {
         this.props.setObjectOn(new_value);
     }
     render() {
-        const molStyle = {overflow:"scroll", height: this.props.height}
-        var imgSize = window.innerWidth*0.1
-        if (this.props != undefined && this.props.object_list) {
+        const { classes, object_list, height } = this.props;
+        var imgSize = 100;
+        if (object_list) {
             console.log(this.props.message)
-            return <Well style={{padding: 0}}>
-                <Col style={molStyle}>
-                {
-                    this.props.object_list.map((data)  => <MoleculeView height={imgSize} width={imgSize} key={data.id} data={data}/>)
-                }
-                </Col>
-            </Well>;
+            return (
+                <Grid container direction="column" className={classNames(classes.container, classes.border)} style={{height: height}}>
+                    <Grid item className={classNames(classes.gridItemTitle, classes.border)}>
+                        hit navigator
+                    </Grid>
+                    <Grid item container className={classes.gridItemHeader}>
+                        <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                            site
+                        </Grid>
+                        <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                            cont.
+                        </Grid>
+                        <Grid item container direction="column" justify="center" alignItems="center" className={classes.gridItemHeaderHoriz}>
+                            <Grid item>code</Grid>
+                            <Grid item>status</Grid>
+                        </Grid>
+                        <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
+                            image
+                        </Grid>
+                        <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
+                            properties
+                        </Grid>
+                    </Grid>
+                    <Grid item container direction="column" wrap="nowrap" className={classes.gridItemList}>
+                        {
+                            object_list.map(data => (
+                                <Grid item key={data.id}>
+                                    <MoleculeView height={imgSize} width={imgSize} data={data} />
+                                </Grid>
+                            ))
+                        }
+                    </Grid>
+                </Grid>
+            )
         }
         else {
             return null;
@@ -54,4 +130,4 @@ const mapDispatchToProps = {
     loadObject: nglLoadActions.loadObject,
 
 }
-export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MoleculeList));
