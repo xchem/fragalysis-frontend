@@ -26,7 +26,6 @@ const styles = () => ({
         width: '500px'
     },
     gridItemRhs: {
-        paddingLeft: '8px',
         width: 'calc(100% - 500px)'
     }
 })
@@ -76,30 +75,29 @@ class Preview extends Component {
         var screenHeight= window.innerHeight*0.7.toString()+"px"
         var molListHeight= window.innerHeight*0.45.toString()+"px"
         return (
-            <Grid container>
-                <Grid item>
-                    <MolGroupList />
-                </Grid>
+            <Grid container spacing={2}>
                 <Grid item className={classes.gridItemLhs}>
                     <NGLView div_id="summary_view" height="200px" />
                     <MolGroupSlider />
                     <MoleculeList height={molListHeight} />
                 </Grid>
-                <Grid item container direction="column" className={classes.gridItemRhs}>
-                    <Grid item>
+                <Grid item container className={classes.gridItemRhs} spacing={2}>
+                    <Grid item lg={6} md={12}>
                         <NGLView div_id="major_view" height={screenHeight} />
                         <NglViewerControls />
                     </Grid>
-                    <Grid item>
+                    <Grid item lg={6} md={12}>
                         <SummaryView />
                         <CompoundList />
                         <HotspotList />
                     </Grid>
                 </Grid>
-                 <ModalStateSave/>
-                 <ModalErrorMessage/>
-                 <ModalTargetUnrecognised/>
-                 <BrowserBomb/>
+                {/* MolGroupList is responsible for loading molecules list, so it must be 'rendered' */}
+                <MolGroupList />
+                <ModalStateSave />
+                <ModalErrorMessage />
+                <ModalTargetUnrecognised />
+                <BrowserBomb />
             </Grid>
         )
     }
