@@ -291,7 +291,7 @@ class MoleculeView extends GenericView {
                                 <MoleculeStatusView type={molStatusTypes.CONFIDENCE} value={0} />
                             </Grid>
                             <Grid item>
-                                <MoleculeStatusView type={molStatusTypes.QUALITY} value={1} />
+                                <MoleculeStatusView type={molStatusTypes.QUALITY} value={3.6} />
                             </Grid>
                             <Grid item>
                                 <MoleculeStatusView type={molStatusTypes.STATUS} value={6} />

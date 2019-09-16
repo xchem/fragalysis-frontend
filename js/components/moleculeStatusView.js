@@ -14,6 +14,14 @@ const useStyles = makeStyles(() => ({
     width: '20px',
     height: '20px'
   },
+  qualCircle: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%'
+  },
+  qualValue: {
+    fontSize: '10px'
+  }
 }));
 
 export const molStatusTypes = {
@@ -26,22 +34,23 @@ export default (props) => {
   const classes = useStyles();
   const { value, type } = props;
 
-  const createColoredSquare = (color) => {
-    return <div className={classes.valueItem} style={{backgroundColor: color}} />
-  }
-
   let valueElement = <div />;
   let label = '';
   switch (type) {
     case molStatusTypes.CONFIDENCE:
       label = 'conf.';
       // TODO: decide color based on provided value
-      valueElement = createColoredSquare('green');
+      valueElement = <div className={classes.valueItem} style={{backgroundColor: 'green'}} />
       break;
     case molStatusTypes.QUALITY:
         label = 'qual.';
         // TODO: decide color based on provided value
-        valueElement = createColoredSquare('red');
+        valueElement = <Grid container alignItems="center" direction="column" style={{color: 'orange'}}>
+          <Grid item className={classes.qualCircle} style={{backgroundColor: 'orange'}} />
+          <Grid item className={classes.qualValue}>
+            {value}
+          </Grid>
+        </Grid>
       break;
     case molStatusTypes.STATUS:
         label = 'stat.';
