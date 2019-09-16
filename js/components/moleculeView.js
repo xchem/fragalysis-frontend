@@ -13,6 +13,7 @@ import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
 import RefinementOutcome from "./refinementOutcome";
+import MoleculeStatusView, { molStatusTypes } from "./moleculeStatusView";
 import classNames from 'classnames';
 
 const styles = () => ({
@@ -53,6 +54,9 @@ const styles = () => ({
     statusCol: {
         width: '30%',
     },
+    statusColStatusRow: {
+        paddingTop: '8px',
+    },
     textBold: {
         fontWeight: 'bold',
     },
@@ -75,6 +79,12 @@ const styles = () => ({
     }
 });
 
+const controlValues = {
+    COMPLEX: 1,
+    LIGAND: 2,
+    VECTOR: 3
+};
+
 class MoleculeView extends GenericView {
 
     constructor(props) {
@@ -86,7 +96,9 @@ class MoleculeView extends GenericView {
         this.getViewUrl = this.getViewUrl.bind(this);
         this.onVector = this.onVector.bind(this);
         this.onComplex = this.onComplex.bind(this);
-        this.handleChange = this.handleChange.bind(this);
+        this.onLigand = this.onLigand.bind(this);
+        this.calculateValues = this.calculateValues.bind(this);
+        this.onSelectAll = this.onSelectAll.bind(this);
         var base_url = window.location.protocol + "//" + window.location.host
         this.base_url = base_url;
         this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + "/")
@@ -203,7 +215,7 @@ class MoleculeView extends GenericView {
             { name: 'Rots', value: data.rots },
             { name: 'Rings', value: data.rings },
             { name: 'Velec', value: data.velec },
-            { name: '#cpa', value: '???' },
+            { name: '#cpd', value: '???' },
         ]
     }
 
@@ -212,23 +224,6 @@ class MoleculeView extends GenericView {
         this.props.setVectorList(objList);
         var vectorBondColorMap = this.generateBondColorMap(json["indices"])
         this.props.setBondColorMap(vectorBondColorMap);
-    }
-
-    handleChange(value) {
-        var old = this.state.value;
-        var new_list = value.slice();
-        var removed = old.filter(function(i) {return value.indexOf(i)<0;})[0]
-        var added = value.filter(function(i) {return old.indexOf(i)<0;})[0]
-        var changed = [removed,added];
-        if (changed.indexOf(1)>-1){
-            this.onComplex(new_list);
-        }
-        if (changed.indexOf(2)>-1){
-            this.handleClick(new_list);
-        }
-        if (changed.indexOf(3)>-1){
-            this.onVector(new_list);
-        }
     }
 
     componentDidMount() {
@@ -276,20 +271,31 @@ class MoleculeView extends GenericView {
                 </Grid>
                 <Grid item container direction="column" alignItems="stretch" className={classes.contCol}>
                     <Grid item className={classes.contColGridItem}>
-                        <Button variant="outlined" fullWidth className={classes.contColButton}>L</Button>
+                        <Button variant="outlined" fullWidth className={classNames(classes.contColButton, {[classes.contColButtonSelected]: value.length === 3})} onClick={this.onSelectAll}>A</Button>
                     </Grid>
                     <Grid item className={classes.contColGridItem}>
-                        <Button variant="outlined" fullWidth className={classes.contColButton}>C</Button>
+                        <Button variant="outlined" fullWidth className={classNames(classes.contColButton, {[classes.contColButtonSelected]: value.some(v => v === controlValues.LIGAND)})} onClick={this.onLigand}>L</Button>
                     </Grid>
                     <Grid item className={classes.contColGridItem}>
-                        <Button variant="outlined" fullWidth className={classes.contColButton}>V</Button>
+                        <Button variant="outlined" fullWidth className={classNames(classes.contColButton, {[classes.contColButtonSelected]: value.some(v => v === controlValues.COMPLEX)})} onClick={this.onComplex}>C</Button>
+                    </Grid>
+                    <Grid item className={classes.contColGridItem}>
+                        <Button variant="outlined" fullWidth className={classNames(classes.contColButton, {[classes.contColButtonSelected]: value.some(v => v === controlValues.VECTOR)})} onClick={this.onVector}>V</Button>
                     </Grid>
                 </Grid>
                 <Grid item container className={classes.detailsCol}>
                     <Grid item container direction="column" alignItems="center" justify="center" className={classes.statusCol}>
                         <Grid item className={classes.textBold}>{data.protein_code}</Grid>
-                        <Grid item>
-                            <RefinementOutcome data={this.props.data}></RefinementOutcome>
+                        <Grid item container className={classes.statusColStatusRow}>
+                            <Grid item>
+                                <MoleculeStatusView type={molStatusTypes.CONFIDENCE} value={0} />
+                            </Grid>
+                            <Grid item>
+                                <MoleculeStatusView type={molStatusTypes.QUALITY} value={1} />
+                            </Grid>
+                            <Grid item>
+                                <MoleculeStatusView type={molStatusTypes.STATUS} value={6} />
+                            </Grid>
                         </Grid>
                     </Grid>
                     <Grid item className={classes.imageCol}>
@@ -315,72 +321,101 @@ class MoleculeView extends GenericView {
         return colourList[this.props.data.id % colourList.length];
     }
 
-    handleClick(new_list=undefined) {
-        if(new_list!=undefined){
-            this.setState(prevState => ({isToggleOn: !prevState.isToggleOn, value: new_list}));
+    onSelectAll() {
+        let newList = [];
+        if (this.state.value.length < 3) {
+            newList = [controlValues.COMPLEX, controlValues.LIGAND, controlValues.VECTOR];
         }
-        else{
-            this.setState(prevState => ({isToggleOn: !prevState.isToggleOn}))
-        }
-        if(this.state.isToggleOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateMolObject()))
-            this.props.removeFromFragmentDisplayList(this.generateMolId())
-        }
-        else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateMolObject(this.colourToggle)))
-            this.props.appendFragmentDisplayList(this.generateMolId())
-        }
+        this.onLigand(null, newList);
+        this.onComplex(null, newList);
+        this.onVector(null, newList);
     }
 
-    onComplex(new_list=undefined) {
-        if(new_list!=undefined) {
-            this.setState(prevState => ({complexOn: !prevState.complexOn, value: new_list}))
-        }
-        else{
-            this.setState(prevState => ({complexOn: !prevState.complexOn}))
-        }
-        if(this.state.complexOn){
-            this.props.deleteObject(Object.assign({display_div: "major_view"}, this.generateObject()))
-            this.props.removeFromComplexList(this.generateMolId())
-        }
-        else{
-            this.props.loadObject(Object.assign({display_div: "major_view"}, this.generateObject()))
-            this.props.appendComplexList(this.generateMolId())
-        }
-    }
-
-    onVector(new_list=undefined) {
-        if(new_list!=undefined) {
-            this.setState(prevState => ({vectorOn: !prevState.vectorOn, value: new_list}))
-        }
-        else{
-            this.setState(prevState => ({vectorOn: !prevState.vectorOn}))
-        }
-        if(this.state.vectorOn) {
-            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
-            this.props.setMol("");
-            this.props.removeFromVectorOnList(this.generateMolId())
+    onLigand(e, list) {
+        const new_list = list || this.calculateValues(controlValues.LIGAND);
+        const isToggled = new_list.some(i => i === controlValues.LIGAND);
+        // TODO: treba este poriesit nastavovanie booleanu podla toho ci je v newListe alebo nie..
+        // a idealne to aj extraktovat do dakej funkcie
+        if (new_list != undefined) {
+            this.setState({ isToggleOn: isToggled, value: new_list });
         }
         else {
-            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({display_div: "major_view"}, item)));
+            this.setState({ isToggleOn: isToggled });
+        }
+        if (!isToggled) {
+            this.props.deleteObject(Object.assign({ display_div: "major_view" }, this.generateMolObject()));
+            this.props.removeFromFragmentDisplayList(this.generateMolId());
+        }
+        else {
+            this.props.loadObject(Object.assign({ display_div: "major_view" }, this.generateMolObject(this.colourToggle)));
+            this.props.appendFragmentDisplayList(this.generateMolId());
+        }
+    }
+
+    onComplex(e, list) {
+        const new_list = list || this.calculateValues(controlValues.COMPLEX);
+        const isToggled = new_list.some(i => i === controlValues.COMPLEX);
+        if (new_list != undefined) {
+            this.setState({ complexOn: isToggled, value: new_list });
+        }
+        else {
+            this.setState({ complexOn: isToggled });
+        }
+        if (!isToggled) {
+            this.props.deleteObject(Object.assign({ display_div: "major_view" }, this.generateObject()));
+            this.props.removeFromComplexList(this.generateMolId());
+        }
+        else {
+            this.props.loadObject(Object.assign({ display_div: "major_view" }, this.generateObject()));
+            this.props.appendComplexList(this.generateMolId());
+        }
+    }
+
+    onVector(e, list) {
+        const new_list = list || this.calculateValues(controlValues.VECTOR);
+        const isToggled = new_list.some(i => i === controlValues.VECTOR);
+        if (new_list != undefined) {
+            this.setState({ vectorOn: isToggled, value: new_list });
+        }
+        else {
+            this.setState({ vectorOn: isToggled });
+        }
+        if (!isToggled) {
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: "major_view" }, item)));
+            this.props.setMol("");
+            this.props.removeFromVectorOnList(this.generateMolId());
+        }
+        else {
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: "major_view" }, item)));
             fetch(this.getViewUrl("vector"))
                 .then(
                     response => response.json(),
                     error => console.log('An error occurred.', error)
                 )
-                .then(json => this.handleVector(json["vectors"]))
+                .then(json => this.handleVector(json["vectors"]));
             // Set this
             this.props.getFullGraph(this.props.data);
             // Do the query
-            fetch(this.getViewUrl( "graph"))
+            fetch(this.getViewUrl("graph"))
                 .then(
                     response => response.json(),
                     error => console.log('An error occurred.', error)
                 )
-                .then(json => this.props.gotFullGraph(json["graph"]))
-            this.props.appendVectorOnList(this.generateMolId())
+                .then(json => this.props.gotFullGraph(json["graph"]));
+            this.props.appendVectorOnList(this.generateMolId());
             this.props.selectVector(undefined);
         }
+    }
+
+    calculateValues(val) {
+        const newValue = this.state.value.slice();
+        const valIdx = newValue.indexOf(val);
+        if (valIdx > -1) {
+            newValue.splice(valIdx, 1);
+        } else {
+            newValue.push(val);
+        }
+        return newValue;
     }
 
 }
