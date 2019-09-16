@@ -5,22 +5,29 @@ import status_5 from '../img/status_5.svg';
 import status_4 from '../img/status_4.svg';
 
 const useStyles = makeStyles(() => ({
+  container: {
+    height: '100%'
+  },
   labelItem: {
     color: '#7B7B7B',
     fontSize: '10px',
     transform: 'rotate(-90deg)',
   },
   valueItem: {
-    width: '20px',
-    height: '20px'
+    display: 'flex',
+    alignItems: 'center'
+  },
+  valueElement: {
+    width: '18px',
+    height: '18px'
   },
   qualCircle: {
-    width: '10px',
-    height: '10px',
+    width: '8px',
+    height: '8px',
     borderRadius: '50%'
   },
   qualValue: {
-    fontSize: '10px'
+    fontSize: '9px'
   }
 }));
 
@@ -40,7 +47,7 @@ export default (props) => {
     case molStatusTypes.CONFIDENCE:
       label = 'conf.';
       // TODO: decide color based on provided value
-      valueElement = <div className={classes.valueItem} style={{backgroundColor: 'green'}} />
+      valueElement = <div className={classes.valueElement} style={{backgroundColor: 'green'}} />
       break;
     case molStatusTypes.QUALITY:
         label = 'qual.';
@@ -55,14 +62,14 @@ export default (props) => {
     case molStatusTypes.STATUS:
         label = 'stat.';
         // TODO: update status image source according to value
-        valueElement = <img src={value === 6 ? status_6 : value === 5 ? status_5 : status_4} />
+        valueElement = <img src={value === 6 ? status_6 : value === 5 ? status_5 : status_4} className={classes.valueElement} />
       break;
     default:
       break;
   }
 
   return (
-    <Grid container alignItems="center">
+    <Grid container alignItems="center" justify="space-around" className={classes.container}>
       <Grid item className={classes.labelItem}>
         {label}
       </Grid>

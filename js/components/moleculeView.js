@@ -57,6 +57,9 @@ const styles = () => ({
     statusColStatusRow: {
         paddingTop: '8px',
     },
+    statusColStatusRowItem: {
+        width: '33%',
+    },
     textBold: {
         fontWeight: 'bold',
     },
@@ -286,14 +289,14 @@ class MoleculeView extends GenericView {
                 <Grid item container className={classes.detailsCol}>
                     <Grid item container direction="column" alignItems="center" justify="center" className={classes.statusCol}>
                         <Grid item className={classes.textBold}>{data.protein_code}</Grid>
-                        <Grid item container className={classes.statusColStatusRow}>
-                            <Grid item>
+                        <Grid item container justify="space-around" className={classes.statusColStatusRow}>
+                            <Grid item className={classes.statusColStatusRowItem}>
                                 <MoleculeStatusView type={molStatusTypes.CONFIDENCE} value={0} />
                             </Grid>
-                            <Grid item>
+                            <Grid item className={classes.statusColStatusRowItem}>
                                 <MoleculeStatusView type={molStatusTypes.QUALITY} value={3.6} />
                             </Grid>
-                            <Grid item>
+                            <Grid item className={classes.statusColStatusRowItem}>
                                 <MoleculeStatusView type={molStatusTypes.STATUS} value={6} />
                             </Grid>
                         </Grid>
@@ -334,8 +337,6 @@ class MoleculeView extends GenericView {
     onLigand(e, list) {
         const new_list = list || this.calculateValues(controlValues.LIGAND);
         const isToggled = new_list.some(i => i === controlValues.LIGAND);
-        // TODO: treba este poriesit nastavovanie booleanu podla toho ci je v newListe alebo nie..
-        // a idealne to aj extraktovat do dakej funkcie
         if (new_list != undefined) {
             this.setState({ isToggleOn: isToggled, value: new_list });
         }
