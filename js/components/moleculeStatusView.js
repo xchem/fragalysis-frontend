@@ -1,8 +1,6 @@
 import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
-import status_6 from '../img/status_6.svg';
-import status_5 from '../img/status_5.svg';
-import status_4 from '../img/status_4.svg';
+import RefinementOutcome from './refinementOutcome';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -39,30 +37,29 @@ export const molStatusTypes = {
 
 export default (props) => {
   const classes = useStyles();
-  const { value, type } = props;
+  const { type, data } = props;
 
   let valueElement = <div />;
   let label = '';
   switch (type) {
     case molStatusTypes.CONFIDENCE:
       label = 'conf.';
-      // TODO: decide color based on provided value
+      // TODO: decide color based on provided data
       valueElement = <div className={classes.valueElement} style={{backgroundColor: 'green'}} />
       break;
     case molStatusTypes.QUALITY:
         label = 'qual.';
-        // TODO: decide color based on provided value
+        // TODO: decide color based on provided data
         valueElement = <Grid container alignItems="center" direction="column" style={{color: 'orange'}}>
           <Grid item className={classes.qualCircle} style={{backgroundColor: 'orange'}} />
           <Grid item className={classes.qualValue}>
-            {value}
+            {3.6}
           </Grid>
         </Grid>
       break;
     case molStatusTypes.STATUS:
         label = 'stat.';
-        // TODO: update status image source according to value
-        valueElement = <img src={value === 6 ? status_6 : value === 5 ? status_5 : status_4} className={classes.valueElement} />
+        valueElement = <RefinementOutcome data={data} className={classes.valueElement} />
       break;
     default:
       break;

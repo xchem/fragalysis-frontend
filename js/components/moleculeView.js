@@ -12,7 +12,6 @@ import * as selectionActions from "../actions/selectionActions";
 import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
 import fetch from "cross-fetch";
-import RefinementOutcome from "./refinementOutcome";
 import MoleculeStatusView, { molStatusTypes } from "./moleculeStatusView";
 import classNames from 'classnames';
 
@@ -290,15 +289,13 @@ class MoleculeView extends GenericView {
                     <Grid item container direction="column" alignItems="center" justify="center" className={classes.statusCol}>
                         <Grid item className={classes.textBold}>{data.protein_code}</Grid>
                         <Grid item container justify="space-around" className={classes.statusColStatusRow}>
-                            <Grid item className={classes.statusColStatusRowItem}>
-                                <MoleculeStatusView type={molStatusTypes.CONFIDENCE} value={0} />
-                            </Grid>
-                            <Grid item className={classes.statusColStatusRowItem}>
-                                <MoleculeStatusView type={molStatusTypes.QUALITY} value={3.6} />
-                            </Grid>
-                            <Grid item className={classes.statusColStatusRowItem}>
-                                <MoleculeStatusView type={molStatusTypes.STATUS} value={6} />
-                            </Grid>
+                            {
+                                Object.values(molStatusTypes).map(type => (
+                                    <Grid item key={`molecule-status-${type}`} className={classes.statusColStatusRowItem}>
+                                        <MoleculeStatusView type={type} data={data} />
+                                    </Grid>
+                                ))
+                            }
                         </Grid>
                     </Grid>
                     <Grid item className={classes.imageCol}>
