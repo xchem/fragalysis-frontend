@@ -6,7 +6,8 @@ const useStyles = makeStyles(() => ({
   container: {
     width: '100%',
     height: '100%',
-    color: 'black'
+    color: 'black',
+    backgroundColor: 'white'
   },
   gridItemTitle: {
       height: '40px',

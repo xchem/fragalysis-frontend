@@ -16,8 +16,8 @@ const useStyles = makeStyles(() => ({
     alignItems: 'center'
   },
   valueElement: {
-    width: '18px',
-    height: '18px'
+    width: '16px',
+    height: '16px'
   },
   qualCircle: {
     width: '8px',

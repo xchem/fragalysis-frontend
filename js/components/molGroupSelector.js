@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import BorderedView from "./borderedView";
 import NGLView from "./nglComponents";
-import MolGroupSlider from "./molGroupSlider";
+import MolGroupChecklist from "./molGroupChecklist";
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 
@@ -14,6 +14,9 @@ const useStyles = makeStyles(() => ({
   containerCollapsed: {
     height: '0px',
     transition: 'height 0.2s'
+  },
+  checklistItem: {
+    height: '100%'
   }
 }));
 
@@ -36,9 +39,9 @@ export default () => {
         <Grid item xs={5}>
           <NGLView div_id="summary_view" height={expanded ? "200px" : "0px"} />
         </Grid>
-        <Grid item xs={7}>
+        <Grid item xs={7} className={classes.checklistItem}>
           {
-            expanded && <MolGroupSlider />
+            expanded && <MolGroupChecklist />
           }
         </Grid>
       </Grid>
