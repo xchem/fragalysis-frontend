@@ -8,7 +8,7 @@ import { Grid, withStyles } from "@material-ui/core";
 import NGLView from "../components/nglComponents";
 import MolGroupList from "../components/molGroupList";
 import MoleculeList from "../components/moleculeList";
-import MolGroupSlider from "../components/molGroupSlider";
+import MolGroupSelector from "../components/molGroupSelector";
 import SummaryView from "../components/summaryView";
 import CompoundList from '../components/compoundList';
 import NglViewerControls from "../components/nglViewerControls";
@@ -27,6 +27,9 @@ const styles = () => ({
     },
     gridItemRhs: {
         width: 'calc(100% - 500px)'
+    },
+    fullWidth: {
+        width: '100%'
     }
 })
 
@@ -76,10 +79,13 @@ class Preview extends Component {
         var molListHeight= window.innerHeight*0.45.toString()+"px"
         return (
             <Grid container spacing={2}>
-                <Grid item className={classes.gridItemLhs}>
-                    <NGLView div_id="summary_view" height="200px" />
-                    <MolGroupSlider />
-                    <MoleculeList height={molListHeight} />
+                <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
+                    <Grid item className={classes.fullWidth}>
+                        <MolGroupSelector />
+                    </Grid>
+                    <Grid item>
+                        <MoleculeList height={molListHeight} />
+                    </Grid>
                 </Grid>
                 <Grid item container className={classes.gridItemRhs} spacing={2}>
                     <Grid item lg={6} md={12}>

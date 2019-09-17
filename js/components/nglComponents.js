@@ -22,12 +22,6 @@ export class NGLView extends React.Component {
         else{
             this.div_id = "viewport";
         }
-        if(props.height){
-            this.height = props.height;
-        }
-        else{
-            this.height = "600px";
-        }
         this.interval = 300;
         this.focus_var = 95;
         this.stage = undefined;
@@ -482,8 +476,7 @@ export class NGLView extends React.Component {
     }
 
     render(){
-        return <div style={{height: this.height}} id={this.div_id}>
-           </div>
+        return <div style={{ height: this.props.height || "600px" }} id={this.div_id} />
     }
 }
 

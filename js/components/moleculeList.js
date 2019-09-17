@@ -10,6 +10,7 @@ import * as apiActions from "../actions/apiActions";
 import * as listType from "./listTypes";
 import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
+import BorderedView from "./borderedView";
 import classNames from "classnames";
 
 const styles = () => ({
@@ -17,17 +18,6 @@ const styles = () => ({
         height: '100%',
         width: '100%',
         color: 'black'
-    },
-    gridItemTitle: {
-        height: '40px',
-        width: 'calc(100% + 4px)',
-        marginLeft: '-2px',
-        marginTop: '-2px',
-        backgroundColor: '#F4F4F4',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 8px',
-        fontSize: '16px'
     },
     gridItemHeader: {
         height: '32px',
@@ -53,10 +43,6 @@ const styles = () => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
-    },
-    border: {
-        border: 'solid 2px #DEDEDE',
-        borderRadius: '8px'
     }
 });
 
@@ -77,38 +63,37 @@ class MoleculeList extends GenericList {
         if (object_list) {
             console.log(this.props.message)
             return (
-                <Grid container direction="column" className={classNames(classes.container, classes.border)} style={{height: height}}>
-                    <Grid item className={classNames(classes.gridItemTitle, classes.border)}>
-                        hit navigator
+                <BorderedView title="hit navigator">
+                    <Grid container direction="column" className={classes.container} style={{ height: height }}>
+                        <Grid item container className={classes.gridItemHeader}>
+                            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                                site
+                        </Grid>
+                            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                                cont.
+                        </Grid>
+                            <Grid item container direction="column" justify="center" alignItems="center" className={classes.gridItemHeaderHoriz}>
+                                <Grid item>code</Grid>
+                                <Grid item>status</Grid>
+                            </Grid>
+                            <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
+                                image
+                        </Grid>
+                            <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
+                                properties
+                        </Grid>
+                        </Grid>
+                        <Grid item container direction="column" wrap="nowrap" className={classes.gridItemList}>
+                            {
+                                object_list.map(data => (
+                                    <Grid item key={data.id}>
+                                        <MoleculeView height={imgSize} width={imgSize} data={data} />
+                                    </Grid>
+                                ))
+                            }
+                        </Grid>
                     </Grid>
-                    <Grid item container className={classes.gridItemHeader}>
-                        <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                            site
-                        </Grid>
-                        <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                            cont.
-                        </Grid>
-                        <Grid item container direction="column" justify="center" alignItems="center" className={classes.gridItemHeaderHoriz}>
-                            <Grid item>code</Grid>
-                            <Grid item>status</Grid>
-                        </Grid>
-                        <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
-                            image
-                        </Grid>
-                        <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
-                            properties
-                        </Grid>
-                    </Grid>
-                    <Grid item container direction="column" wrap="nowrap" className={classes.gridItemList}>
-                        {
-                            object_list.map(data => (
-                                <Grid item key={data.id}>
-                                    <MoleculeView height={imgSize} width={imgSize} data={data} />
-                                </Grid>
-                            ))
-                        }
-                    </Grid>
-                </Grid>
+                </BorderedView>
             )
         }
         else {
