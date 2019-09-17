@@ -34,8 +34,20 @@ module.exports = {
   module: {
     rules: [
       // we pass the output from babel loader to react-hot loader
-      { test: /\.js$/, enforce: "pre", loaders: ['react-hot-loader/webpack', 'babel-loader'], exclude: /node_modules/ },
-      { test: /\.jsx$/, enforce: "pre", loaders: ['react-hot-loader/webpack', 'babel-loader'], exclude: /node_modules/ },
+      {
+        test: /\.(js|jsx)$/,
+        enforce: "pre",
+        exclude: /node_modules/,
+        use: [{
+          loader: 'react-hot-loader/webpack'
+        }, {
+          loader: 'babel-loader',
+          options: {
+            presets: ['env', 'react', 'es2015'],
+            plugins: ['transform-class-properties', 'transform-decorators-legacy', 'emotion']
+          }
+        }]
+      },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)(\?[a-z0-9=.]+)?$/, loader: 'url-loader?limit=100000' },
     ]

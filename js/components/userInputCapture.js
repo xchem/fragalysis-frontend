@@ -82,7 +82,7 @@ class UserInputCapture extends Component {
     }
 
     componentWillReceiveProps({keydown}) {
-        if (keydown.event) {
+        if (keydown && keydown.event) {
             this.handleCursor(keydown.event.which);
         }
     }
