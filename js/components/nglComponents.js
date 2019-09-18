@@ -33,6 +33,7 @@ export class NGLView extends React.Component {
         this.renderComplex = this.renderComplex.bind(this);
         this.showComplex = this.showComplex.bind(this);
         this.updateOrientation = this.updateOrientation.bind(this);
+        this.toggleMolGroup = this.toggleMolGroup.bind(this);
         this.data_dict = {}
         this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1, oldGroupsOn:[],list:"mol_group_list",onGroup:"mol_group_on",onGroups:"mol_group_selection"}
         this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,oldGroupsOn:[], list:"pandda_site_list",onGroup:"pandda_site_on"}
@@ -94,8 +95,12 @@ export class NGLView extends React.Component {
                 // Ok so now perform logic
                 var type = name.split("_")[0].split("(")[1]
                 if (type==listTypes.MOLGROUPS){
-                    var pk = parseInt(name.split("_")[1].split(")")[0], 10)
-                    this.props.setMolGroupOn(pk)
+                    var pk = parseInt(name.split("_")[1].split(")")[0], 10);
+                    this.toggleMolGroup(pk);
+                }
+                else if (type == listTypes.MOLGROUPS_SELECT) {
+                    var pk = parseInt(name.split("_")[1].split(")")[0], 10);
+                    this.toggleMolGroup(pk);
                 }
                 else if (type==listTypes.PANDDA_SITE){
                     var pk = parseInt(name.split("_")[1].split(")")[0], 10)
@@ -109,6 +114,20 @@ export class NGLView extends React.Component {
                     this.props.selectVector(vectorSmi);
                 }
             }
+        }
+    }
+
+    toggleMolGroup(groupId) {
+        const { mol_group_selection, setMolGroupOn, setMolGroupSelection } = this.props;
+        const objIdx = mol_group_selection.indexOf(groupId);
+        const selectionCopy = mol_group_selection.slice();
+        if (objIdx === -1) {
+            setMolGroupOn(groupId);
+            selectionCopy.push(groupId);
+            setMolGroupSelection(selectionCopy);
+        } else {
+            selectionCopy.splice(objIdx, 1);
+            setMolGroupSelection(selectionCopy);
         }
     }
 
@@ -535,6 +554,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
     setMolGroupOn: apiActions.setMolGroupOn,
+    setMolGroupSelection: apiActions.setMolGroupSelection,
     selectVector: selectionActions.selectVector,
     setDuckYankData: apiActions.setDuckYankData,
     setNGLOrientation: nglLoadActions.setNGLOrientation,
