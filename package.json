@@ -45,6 +45,7 @@
     "logrocket": "^0.6.17",
     "ngl": "2.0.0-dev.33",
     "nprogress": "^0.2.0",
+    "ramda": "^0.26.1",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.4",
     "react-bootstrap-toggle": "^2.3.1",

@@ -6,10 +6,21 @@ import SVGInline from "react-svg-inline";
 import React from "react";
 import {ListGroup, Pager, Well} from "react-bootstrap";
 import fetch from "cross-fetch";
+import * as R from 'ramda';
 import * as listTypes from "./listTypes";
 export function FillMe(props) {
     return <h1>FILL ME UP PLEASE</h1>;
 }
+
+const fetchWithMemoize = R.memoizeWith(R.identity, url => {
+    return fetch(url)
+        .then(
+            response => response.json(),
+            error => console.log('An error occurred.', error)
+        )
+    }
+);
+exports.fetchWithMemoize = fetchWithMemoize;
 
 // Generic Classes
 export class GenericList extends React.Component {
@@ -21,8 +32,8 @@ export class GenericList extends React.Component {
         this.getUrl = this.getUrl.bind(this);
         this.handleOptionChange = this.handleOptionChange.bind(this);
         this.processResults = this.processResults.bind(this);
-        this.beforePush = this.beforePush.bind(this)
-        this.afterPush = this.afterPush.bind(this)
+        this.beforePush = this.beforePush.bind(this);
+        this.afterPush = this.afterPush.bind(this);
     }
 
     beforePush() {
@@ -121,11 +132,7 @@ export class GenericList extends React.Component {
         const url = this.getUrl();
         if (url.toString() != this.old_url) {
             this.beforePush();
-            fetch(url)
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
+            fetchWithMemoize(url)
                 .then(
                     json => this.props.setObjectList(this.processResults(json))
                 )
@@ -210,21 +217,13 @@ export class GenericView extends React.Component {
         Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]))
         if (this.key == undefined) {
             if (url.toString() != this.old_url) {
-                fetch(url)
-                    .then(
-                        response => response.text(),
-                        error => console.log('An error occurred.', error)
-                    )
+                fetchWithMemoize(url)
                     .then(text => this.setState(prevState => ({img_data: text})))
             }
         }
         else {
             if (url.toString() != this.old_url) {
-                fetch(url)
-                    .then(
-                        response => response.json(),
-                        error => console.log('An error occurred.', error)
-                    )
+                fetchWithMemoize(url)
                     .then(text => this.setState(prevState => ({img_data: text[this.key]})))
             }
         }

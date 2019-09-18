@@ -11,9 +11,9 @@ import * as nglObjectTypes from "./nglObjectTypes";
 import * as selectionActions from "../actions/selectionActions";
 import * as listTypes from "./listTypes";
 import SVGInline from "react-svg-inline";
-import fetch from "cross-fetch";
 import MoleculeStatusView, { molStatusTypes } from "./moleculeStatusView";
 import classNames from 'classnames';
+import { fetchWithMemoize } from './generalComponents';
 
 const styles = () => ({
     container: {
@@ -385,21 +385,11 @@ class MoleculeView extends GenericView {
         }
         else {
             this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: "major_view" }, item)));
-            fetch(this.getViewUrl("vector"))
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.handleVector(json["vectors"]));
+            fetchWithMemoize(this.getViewUrl("vector")).then(json => this.handleVector(json["vectors"]));
             // Set this
             this.props.getFullGraph(this.props.data);
             // Do the query
-            fetch(this.getViewUrl("graph"))
-                .then(
-                    response => response.json(),
-                    error => console.log('An error occurred.', error)
-                )
-                .then(json => this.props.gotFullGraph(json["graph"]));
+            fetchWithMemoize(this.getViewUrl("graph")).then(json => this.props.gotFullGraph(json["graph"]));
             this.props.appendVectorOnList(this.generateMolId());
             this.props.selectVector(undefined);
         }
