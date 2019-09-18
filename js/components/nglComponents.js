@@ -34,8 +34,8 @@ export class NGLView extends React.Component {
         this.showComplex = this.showComplex.bind(this);
         this.updateOrientation = this.updateOrientation.bind(this);
         this.data_dict = {}
-        this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1,list:"mol_group_list",onGroup:"mol_group_on"}
-        this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,list:"pandda_site_list",onGroup:"pandda_site_on"}
+        this.data_dict[listTypes.MOLGROUPS]={oldGroupOn:-1, oldGroupsOn:[],list:"mol_group_list",onGroup:"mol_group_on",onGroups:"mol_group_selection"}
+        this.data_dict[listTypes.PANDDA_SITE]={oldGroupOn:-1,oldGroupsOn:[], list:"pandda_site_list",onGroup:"pandda_site_on"}
         // Refactor this out into a utils directory
         this.function_dict = {}
         this.function_dict[nglObjectTypes.SPHERE] = this.showSphere
@@ -403,6 +403,38 @@ export class NGLView extends React.Component {
         }
     }
 
+    showMultipleSelect(listType, view) {
+        var oldGroups = this.data_dict[listType].oldGroupsOn;
+        var listOn = this.props[this.data_dict[listType].list];
+        var onGroups = this.props[this.data_dict[listType].onGroups];
+
+        if (onGroups) {
+            const groupsToRemove = [];
+            const groupsToAdd = [];
+            listOn.forEach(list => {
+                const isInOldGroups = oldGroups.some(g => g === list.id);
+                const isInNewGroups = onGroups.some(g => g === list.id);
+                if (isInOldGroups && !isInNewGroups) {
+                    groupsToRemove.push(list);
+                } else if (!isInOldGroups && isInNewGroups) {
+                    groupsToAdd.push(list);
+                }
+            });
+            // change groups that shuld be 'removed'
+            groupsToRemove.forEach(data => {
+                this.props.deleteObject(this.generateSphere(data, true, listType, view));
+                this.props.loadObject(this.generateSphere(data, false, listType, view));
+            });
+            // change groups that should be 'added'
+            groupsToAdd.forEach(data => {
+                this.props.deleteObject(this.generateSphere(data, false, listType, view));
+                this.props.loadObject(this.generateSphere(data, true, listType, view));
+            });
+            // update oldGroupsOn array
+            this.data_dict[listType].oldGroupsOn = onGroups;
+        }
+    }
+
 
     /**
      * Function to deal with the logic of showing molecules
@@ -426,7 +458,7 @@ export class NGLView extends React.Component {
                 this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey])
             }
         }
-        this.showSelect(listTypes.MOLGROUPS,"summary_view");
+        this.showMultipleSelect(listTypes.MOLGROUPS,"summary_view");
         this.showSelect(listTypes.PANDDA_SITE,"pandda_summary");
 
     }
@@ -486,6 +518,7 @@ function mapStateToProps(state) {
       orientationToSet: state.nglReducers.present.orientationToSet,
       mol_group_list: state.apiReducers.present.mol_group_list,
       mol_group_on: state.apiReducers.present.mol_group_on,
+      mol_group_selection: state.apiReducers.present.mol_group_selection,
       pandda_site_on: state.apiReducers.present.pandda_site_on,
       pandda_site_list: state.apiReducers.present.pandda_site_list,
       duck_yank_data: state.apiReducers.present.duck_yank_data,
