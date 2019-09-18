@@ -15,6 +15,9 @@ const useStyles = makeStyles(() => ({
     height: '0px',
     transition: 'height 0.2s'
   },
+  nglViewItem: {
+    paddingLeft: '4px'
+  },
   checklistItem: {
     height: '100%'
   }
@@ -36,7 +39,7 @@ export default () => {
   return (
     <BorderedView title="hit cluster selector" titleButtonData={titleButtonData}>
       <Grid item container alignItems="center" className={expanded ? classes.containerExpanded : classes.containerCollapsed}>
-        <Grid item xs={5}>
+        <Grid item xs={5} className={classes.nglViewItem}>
           <NGLView div_id="summary_view" height={expanded ? "200px" : "0px"} />
         </Grid>
         <Grid item xs={7} className={classes.checklistItem}>

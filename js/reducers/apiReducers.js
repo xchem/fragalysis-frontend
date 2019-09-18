@@ -15,6 +15,7 @@ const INITIALSTATE = {
     pandda_event_list: [],
     pandda_site_list: [],
     mol_group_on: undefined,
+    mol_group_selection: [],
     target_on: undefined,
     target_on_name: undefined,
     group_id: undefined,
@@ -117,6 +118,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_MOL_GROUP_ON:
             return Object.assign({}, state, {
                 mol_group_on: action.mol_group_on
+            });
+
+        case actions.SET_MOL_GROUP_SELECTION:
+            return Object.assign({}, state, {
+                mol_group_selection: action.mol_group_selection
             });
 
         case actions.SET_MOLECULE_LIST:
@@ -248,6 +254,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 molecule_list: action.molecule_list,
                 mol_group_list: action.mol_group_list,
                 mol_group_on: action.mol_group_on,
+                mol_group_selection: action.mol_group_selection,
                 hotspot_list: action.hotspot_list,
                 hotspot_on: action.hotspot_on,
                 app_on: action.app_on,

@@ -106,6 +106,7 @@ function mapStateToProps(state) {
       group_type: state.apiReducers.present.group_type,
       target_on: state.apiReducers.present.target_on,
       mol_group_on: state.apiReducers.present.mol_group_on,
+      object_selection: state.apiReducers.present.mol_group_selection,
       object_list: state.apiReducers.present.molecule_list,
   }
 }

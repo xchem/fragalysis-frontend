@@ -8,6 +8,7 @@ import {
     SET_MOLECULE_LIST,
     SET_MOL_GROUP_LIST,
     SET_MOL_GROUP_ON,
+    SET_MOL_GROUP_SELECTION,
     LOAD_MOLECULES,
     LOAD_MOL_GROUPS,
     GET_FROM_API,
@@ -115,6 +116,14 @@ export const setMolGroupOn = function (mol_group_id){
     return {
         type: SET_MOL_GROUP_ON,
         mol_group_on: mol_group_id
+    }
+}
+
+export const setMolGroupSelection = function (mol_group_ids) {
+    console.log("ACTIONS: ", mol_group_ids)
+    return {
+        type: SET_MOL_GROUP_SELECTION,
+        mol_group_selection: mol_group_ids
     }
 }
 
@@ -310,6 +319,7 @@ export const reloadApiState = function (apiReducers) {
         molecule_list: apiReducers.molecule_list,
         mol_group_list: apiReducers.mol_group_list,
         mol_group_on: apiReducers.mol_group_on,
+        mol_group_selection: apiReducers.mol_group_selection,
         hotspot_list: apiReducers.hotspot_list,
         hotspot_on: apiReducers.hotspot_on,
         app_on: apiReducers.app_on,
