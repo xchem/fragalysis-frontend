@@ -140,7 +140,7 @@ export class GenericList extends React.Component {
                     if (this.list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
                         // update cached mol lists
                         const newMolLists = Object.assign({}, cached_mol_lists, {
-                            [mol_group_on]: Object.assign(cached_mol_lists[mol_group_on] || {}, json)
+                            [mol_group_on]: json
                         });
                         setCachedMolLists(newMolLists);
                     }

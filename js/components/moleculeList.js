@@ -58,15 +58,16 @@ class MoleculeList extends GenericList {
         this.props.setObjectOn(new_value);
     }
     render() {
-        const { classes, object_selection, cached_mol_lists, height } = this.props;
+        const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
         var imgSize = 100;
 
         // concat molecule results for all selected molecule groups into single list
         const joinedMoleculeLists = [];
         object_selection.forEach(obj => {
             const cachedData = cached_mol_lists[obj];
+            const site = (mol_group_list || []).findIndex(group => group.id === obj) + 1;
             if (cachedData && cachedData.results) {
-                cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: cachedData.site }, r)));
+                cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
             }
         });
 
@@ -113,7 +114,8 @@ function mapStateToProps(state) {
       mol_group_on: state.apiReducers.present.mol_group_on,
       object_selection: state.apiReducers.present.mol_group_selection,
       object_list: state.apiReducers.present.molecule_list,
-      cached_mol_lists: state.apiReducers.present.cached_mol_lists
+      cached_mol_lists: state.apiReducers.present.cached_mol_lists,
+      mol_group_list: state.apiReducers.present.mol_group_list,
   }
 }
 const mapDispatchToProps = {
