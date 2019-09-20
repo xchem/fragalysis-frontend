@@ -133,9 +133,18 @@ export class GenericList extends React.Component {
         if (url.toString() != this.old_url) {
             this.beforePush();
             fetchWithMemoize(url)
-                .then(
-                    json => this.props.setObjectList(this.processResults(json))
-                )
+                .then(json => {
+                    const { mol_group_on, cached_mol_lists, setObjectList, setCachedMolLists } = this.props;
+                    setObjectList(this.processResults(json));
+                    // if we are handling molecule list and molecule data for mol_group are fetched
+                    if (this.list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
+                        // update cached mol lists
+                        const newMolLists = Object.assign({}, cached_mol_lists, {
+                            [mol_group_on]: json
+                        });
+                        setCachedMolLists(newMolLists);
+                    }
+                })
         }
         this.old_url = url.toString();
     }

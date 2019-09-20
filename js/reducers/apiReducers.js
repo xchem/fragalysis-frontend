@@ -9,6 +9,7 @@ const INITIALSTATE = {
     target_id_list: [],
     mol_group_list: [],
     molecule_list: [],
+    cached_mol_lists: {},
     duck_yank_data: {},
     pandda_event_on: undefined,
     pandda_site_on: undefined,
@@ -128,6 +129,11 @@ export default function apiReducers(state = INITIALSTATE, action) {
         case actions.SET_MOLECULE_LIST:
             return Object.assign({}, state, {
                 molecule_list: action.molecule_list
+            });
+        
+        case actions.SET_CACHED_MOL_LISTS:
+            return Object.assign({}, state, {
+                cached_mol_lists: action.cached_mol_lists
             });
 
         case actions.SET_PANNDA_EVENT_LIST:
@@ -252,6 +258,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
                 group_id: action.group_id,
                 group_type: action.group_type,
                 molecule_list: action.molecule_list,
+                cached_mol_lists: action.cached_mol_lists,
                 mol_group_list: action.mol_group_list,
                 mol_group_on: action.mol_group_on,
                 mol_group_selection: action.mol_group_selection,

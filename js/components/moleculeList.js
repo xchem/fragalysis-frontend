@@ -58,47 +58,52 @@ class MoleculeList extends GenericList {
         this.props.setObjectOn(new_value);
     }
     render() {
-        const { classes, object_list, height } = this.props;
+        const { classes, object_selection, cached_mol_lists, height } = this.props;
         var imgSize = 100;
-        if (object_list) {
-            console.log(this.props.message)
-            return (
-                <BorderedView title="hit navigator">
-                    <Grid container direction="column" className={classes.container} style={{ height: height }}>
-                        <Grid item container className={classes.gridItemHeader}>
-                            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                                site
+
+        // concat molecule results for all selected molecule groups into single list
+        const joinedMoleculeLists = [];
+        object_selection.forEach(obj => {
+            const cachedData = cached_mol_lists[obj];
+            if (cachedData && cachedData.results) {
+                cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: obj }, r)));
+            }
+        });
+
+        console.log(this.props.message)
+        return (
+            <BorderedView title="hit navigator">
+                <Grid container direction="column" className={classes.container} style={{ height: height }}>
+                    <Grid item container className={classes.gridItemHeader}>
+                        <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                            site
                         </Grid>
-                            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                                cont.
+                        <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                            cont.
                         </Grid>
-                            <Grid item container direction="column" justify="center" alignItems="center" className={classes.gridItemHeaderHoriz}>
-                                <Grid item>code</Grid>
-                                <Grid item>status</Grid>
-                            </Grid>
-                            <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
-                                image
+                        <Grid item container direction="column" justify="center" alignItems="center" className={classes.gridItemHeaderHoriz}>
+                            <Grid item>code</Grid>
+                            <Grid item>status</Grid>
                         </Grid>
-                            <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
-                                properties
+                        <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
+                            image
                         </Grid>
-                        </Grid>
-                        <Grid item container direction="column" wrap="nowrap" className={classes.gridItemList}>
-                            {
-                                object_list.map(data => (
-                                    <Grid item key={data.id}>
-                                        <MoleculeView height={imgSize} width={imgSize} data={data} />
-                                    </Grid>
-                                ))
-                            }
+                        <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
+                            properties
                         </Grid>
                     </Grid>
-                </BorderedView>
-            )
-        }
-        else {
-            return null;
-        }
+                    <Grid item container direction="column" wrap="nowrap" className={classes.gridItemList}>
+                        {
+                            joinedMoleculeLists.map(data => (
+                                <Grid item key={data.id}>
+                                    <MoleculeView height={imgSize} width={imgSize} data={data} />
+                                </Grid>
+                            ))
+                        }
+                    </Grid>
+                </Grid>
+            </BorderedView>
+        )
     }
 }
 function mapStateToProps(state) {
@@ -108,10 +113,12 @@ function mapStateToProps(state) {
       mol_group_on: state.apiReducers.present.mol_group_on,
       object_selection: state.apiReducers.present.mol_group_selection,
       object_list: state.apiReducers.present.molecule_list,
+      cached_mol_lists: state.apiReducers.present.cached_mol_lists
   }
 }
 const mapDispatchToProps = {
     setObjectList: apiActions.setMoleculeList,
+    setCachedMolLists: apiActions.setCachedMolLists,
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
 

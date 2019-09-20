@@ -6,6 +6,7 @@ import {
     SET_TARGET_ON,
     SET_TARGET_ID_LIST,
     SET_MOLECULE_LIST,
+    SET_CACHED_MOL_LISTS,
     SET_MOL_GROUP_LIST,
     SET_MOL_GROUP_ON,
     SET_MOL_GROUP_SELECTION,
@@ -147,6 +148,14 @@ export const setMoleculeList = function (molecule_list){
     return {
         type: SET_MOLECULE_LIST,
         molecule_list: molecule_list
+    }
+}
+
+export const setCachedMolLists = function (cached_mol_lists) {
+    console.log("ACTIONS: " + cached_mol_lists);
+    return {
+        type: SET_CACHED_MOL_LISTS,
+        cached_mol_lists: cached_mol_lists
     }
 }
 
@@ -317,6 +326,7 @@ export const reloadApiState = function (apiReducers) {
         target_on: apiReducers.target_on,
         target_id: apiReducers.target_id,
         molecule_list: apiReducers.molecule_list,
+        cached_mol_lists: apiReducers.cached_mol_lists,
         mol_group_list: apiReducers.mol_group_list,
         mol_group_on: apiReducers.mol_group_on,
         mol_group_selection: apiReducers.mol_group_selection,

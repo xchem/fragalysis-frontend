@@ -23,7 +23,10 @@ const styles = () => ({
     },
     siteCol: {
         width: '24px',
-        fontSize: '24px',
+        // TODO: uncomment when actual site is available 
+        // fontSize: '24px',
+        fontSize: '10px',
+        transform: 'rotate(-90deg)'
     },
     contCol: {
         width: '24px',
@@ -257,7 +260,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const { classes, height, data } = this.props;
+        const { classes, height, data, site } = this.props;
         const { img_data, isToggleOn, complexOn, value } = this.state;
         const svg_image = <SVGInline svg={img_data}/>;
         // Here add the logic that updates this based on the information
@@ -269,7 +272,7 @@ class MoleculeView extends GenericView {
         return (
             <Grid container className={classes.container}>
                 <Grid item className={classNames(classes.siteCol, classes.centered)}>
-                    ?
+                    {data.site}
                 </Grid>
                 <Grid item container direction="column" alignItems="stretch" className={classes.contCol}>
                     <Grid item className={classes.contColGridItem}>
