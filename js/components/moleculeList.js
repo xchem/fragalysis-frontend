@@ -66,7 +66,7 @@ class MoleculeList extends GenericList {
         object_selection.forEach(obj => {
             const cachedData = cached_mol_lists[obj];
             if (cachedData && cachedData.results) {
-                cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: obj }, r)));
+                cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: cachedData.site }, r)));
             }
         });
 

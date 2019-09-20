@@ -23,10 +23,7 @@ const styles = () => ({
     },
     siteCol: {
         width: '24px',
-        // TODO: uncomment when actual site is available 
-        // fontSize: '24px',
-        fontSize: '10px',
-        transform: 'rotate(-90deg)'
+        fontSize: '24px',
     },
     contCol: {
         width: '24px',
@@ -260,7 +257,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
-        const { classes, height, data, site } = this.props;
+        const { classes, height, data } = this.props;
         const { img_data, isToggleOn, complexOn, value } = this.state;
         const svg_image = <SVGInline svg={img_data}/>;
         // Here add the logic that updates this based on the information

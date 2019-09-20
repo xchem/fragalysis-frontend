@@ -33,15 +33,20 @@ const useStyles = makeStyles(() => ({
 
 const molGroupChecklist = (props) => {
   const classes = useStyles();
-  const { object_list, object_selection, setObjectOn, setObjectSelection } = props;
+  const { object_list, object_selection, cached_mol_lists, setObjectOn, setObjectSelection, setCachedMolLists } = props;
 
-  const handleOnSelect = (o) => (e) => {
+  const handleOnSelect = (o, site) => (e) => {
     const objIdx = object_selection.indexOf(o.id);
     const selectionCopy = object_selection.slice();
     if (e.target.checked && objIdx === -1) {
       setObjectOn(o.id);
       selectionCopy.push(o.id);
       setObjectSelection(selectionCopy);
+      // get currently cached data for this molecule group and add site number to it
+      const cachedGroupData = Object.assign(cached_mol_lists[o.id] || {}, { site: site });
+      // create new molecule list by adding enhanced group data to it
+      const newMolLists = Object.assign({}, cached_mol_lists, { [o.id]: cachedGroupData });
+      setCachedMolLists(newMolLists);
     } else if (!e.target.checked && objIdx > -1) {
       selectionCopy.splice(objIdx, 1);
       setObjectSelection(selectionCopy);
@@ -55,20 +60,21 @@ const molGroupChecklist = (props) => {
           {
             object_list && object_list.map((o, idx) => {
               const checked = object_selection.some(i => i === o.id);
+              const site = idx + 1;
               return (
                 <Grid item container alignItems="center" key={`mol-checklist-item-${idx}`}>
                   <Grid item>
                     <Checkbox
                       color="default"
                       checked={checked}
-                      onChange={handleOnSelect(o)}
+                      onChange={handleOnSelect(o, site)}
                       classes={{
                         root: classes.checkboxRoot
                       }}
                     />
                   </Grid>
                   <Grid item className={checked ? classes.selectedLine : null}>
-                    {`Site ${idx + 1} - (${o.id})`}
+                    {`Site ${site} - (${o.id})`}
                   </Grid>
                 </Grid>
               )
@@ -85,11 +91,13 @@ const mapStateToProps = (state) => {
   return {
       object_list: state.apiReducers.present.mol_group_list,
       object_selection: state.apiReducers.present.mol_group_selection,
+      cached_mol_lists: state.apiReducers.present.cached_mol_lists
   }
 }
 
 const mapDispatchToProps = {
     setObjectOn: apiActions.setMolGroupOn,
     setObjectSelection: apiActions.setMolGroupSelection,
+    setCachedMolLists: apiActions.setCachedMolLists,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);
