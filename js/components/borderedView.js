@@ -42,7 +42,7 @@ export default (props) => {
         <Grid item>
           {
             titleButtonData &&
-            <Button onClick={titleButtonData.onClick} className={classes.button}>{titleButtonData.content}</Button>
+            <Button onClick={titleButtonData.onClick} className={classes.button} disabled={titleButtonData.disabled}>{titleButtonData.content}</Button>
           }
         </Grid>
       </Grid>

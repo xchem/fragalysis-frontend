@@ -94,7 +94,8 @@ class MoleculeList extends GenericList {
 
         const titleButtonData = {
             content: <span className={classes.sortFilterButtonStyle}>sort/filter</span>,
-            onClick: this.handleDialog(open)
+            onClick: this.handleDialog(open),
+            disabled: !joinedMoleculeLists.length
           }
         return (
             <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
