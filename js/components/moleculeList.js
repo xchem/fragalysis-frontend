@@ -60,6 +60,7 @@ class MoleculeList extends GenericList {
         this.state = {
             sortDialogOpen: false
         }
+        this.filterSettings = undefined;
     }
 
     handleOptionChange(changeEvent) {
@@ -73,11 +74,13 @@ class MoleculeList extends GenericList {
         });
     }
 
-    handleDialogClose = () => {
+    handleDialogClose = (filter) => () => {
+        this.filterSettings = filter;
         this.handleDialog(false)();
     }
 
     render() {
+        console.log(`MoleculeList -> render with filter: ${JSON.stringify(this.filterSettings)}`)
         const { sortDialogOpen } = this.state;
         const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
         var imgSize = 100;
@@ -99,7 +102,11 @@ class MoleculeList extends GenericList {
           }
         return (
             <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
-                { sortDialogOpen && <MoleculeListSortFilterDialog handleClose={this.handleDialogClose} molGroupSelection={this.props.object_selection} cachedMolList={this.props.cached_mol_lists}/> }
+                { sortDialogOpen && <MoleculeListSortFilterDialog 
+                    handleClose={this.handleDialogClose} 
+                    molGroupSelection={this.props.object_selection} 
+                    cachedMolList={this.props.cached_mol_lists}
+                    filterSettings={this.filterSettings}/> }
                 <Grid container direction="column" className={classes.container} style={{ height: height }}>
                     <Grid item container className={classes.gridItemHeader}>
                         <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>

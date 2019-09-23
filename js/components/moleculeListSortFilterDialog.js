@@ -69,9 +69,68 @@ const MOL_ATTR = {
   NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)', isFloat: false },
 }
 
+const getFilteredMoleculesCount = (molecules, filterSettings) => {
+  let count = 0;
+  for (let molecule of molecules) {
+    let add = true; // By default molecule passes filter
+    for (let attr of Object.values(MOL_ATTR)) {
+      const lowAttr = attr.key.toLowerCase();
+      const attrValue = molecule[lowAttr];
+      if(attrValue < filterSettings[attr.key].minValue || attrValue > filterSettings[attr.key].maxValue) {
+        add = false;
+        break; // Do not loop over other attributes
+      }
+    }
+    if (add) {
+      count = count + 1;
+    }
+  }
+  return count;
+}
+
+const filterMolecules = (molecules, filterSettings) => {
+  // 1. Filter
+  let filteredMolecules = [];
+  for (let molecule of molecules) {
+    let add = true; // By default molecule passes filter
+    for (let attr of Object.values(MOL_ATTR)) {
+      const lowAttr = attr.key.toLowerCase();
+      const attrValue = molecule[lowAttr];
+      if(attrValue < filterSettings[attr.key].minValue || attrValue > filterSettings[attr.key].maxValue) {
+        add = false;
+        break; // Do not loop over other attributes
+      }
+    }
+    if (add) {
+      filteredMolecules.push(molecule);
+    }
+  }
+
+  // 2. Sort
+
+  return filteredMolecules;
+}
+
+exports.filterMolecules = filterMolecules;
+
 export default function MoleculeListSortFilterDialog(props) {
-  const { handleClose, molGroupSelection, cachedMolList } = props;
+  const { handleClose, molGroupSelection, cachedMolList, filterSettings } = props;
   let classes = useStyles();
+
+  const getListedMolecules = () => {
+    let molecules = [];
+    for ( let molgroupId of molGroupSelection) {
+      // Selected molecule groups
+      const molGroup = cachedMolList[molgroupId];
+      if (molGroup) { 
+        molecules = molecules.concat(molGroup.results);
+      } else {
+        console.log(`Molecule group ${molgroupId} not found in cached list`);
+      }
+    }
+
+    return molecules;
+  }
 
   const initialize = () => {
     let initObject = {};
@@ -79,19 +138,11 @@ export default function MoleculeListSortFilterDialog(props) {
       const lowAttr = attr.key.toLowerCase();
       let minValue = -999999;
       let maxValue  = 0;
-      for ( let molgroupId of molGroupSelection) {
-        // Selected molecule groups
-        const molGroup = cachedMolList[molgroupId];
-        if(molGroup) {
-          for (let molecule of molGroup.results) {
-            const attrValue = molecule[lowAttr];
-            if (attrValue > maxValue) maxValue = attrValue;
-            if (minValue === -999999) minValue = maxValue;
-            if (attrValue < minValue) minValue = attrValue;
-          }
-        } else {
-          console.log(`Molecule group ${molgroupId} not found in cached list`);
-        }
+      for (let molecule of getListedMolecules()) {
+        const attrValue = molecule[lowAttr];
+        if (attrValue > maxValue) maxValue = attrValue;
+        if (minValue === -999999) minValue = maxValue;
+        if (attrValue < minValue) minValue = attrValue;
       }
 
       initObject[attr.key] = { priority: 0, order: 1, minValue: minValue, maxValue: maxValue, isFloat: attr.isFloat }
@@ -103,20 +154,21 @@ export default function MoleculeListSortFilterDialog(props) {
     let newFilter = Object.assign({}, filter);
     newFilter[key] = setting;
     setFilter(newFilter);
-    setFilteredCount(Math.round(Math.random() * 100)); // Demo
+    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
   }
 
   const handleClear = () => {
-    setFilter(initialize());
-    setFilteredCount(0); // Demo
+    const resetFilter = initialize();
+    setFilter(resetFilter);
+    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter)); // Demo
   }
 
-  const [filter, setFilter] = useState(initialize());
-  const [initState] = useState(filter);
-  const [filteredCount, setFilteredCount] = useState(0);
+  const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
+  const [initState] = useState(initialize());
+  const [filteredCount, setFilteredCount] = useState(getListedMolecules().length);
 
   return (
-    <Dialog open={true} onClose={handleClose} aria-labelledby="form-dialog-title">
+    <Dialog open={true} aria-labelledby="form-dialog-title">
       <DialogTitle classes={{root: classes.title}} disableTypography id="form-dialog-title"><h4>Sort and filter</h4></DialogTitle>
       <DialogContent>
         <Grid container>
@@ -154,7 +206,7 @@ export default function MoleculeListSortFilterDialog(props) {
         <Button classes={{root: classes.button}} onClick={handleClear} color="secondary" variant="outlined">
           Clear
         </Button>
-        <Button classes={{root: classes.button}} className={classes.applyButton} onClick={handleClose} color="primary" variant="outlined">
+        <Button classes={{root: classes.button}} className={classes.applyButton} onClick={handleClose(filter)} color="primary" variant="outlined">
           Apply
         </Button>
       </DialogActions>
@@ -166,4 +218,5 @@ MoleculeListSortFilterDialog.propTypes = {
   handleClose: PropTypes.func.isRequired,
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
+  filterSettings: PropTypes.object,
 };
