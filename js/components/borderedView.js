@@ -23,6 +23,15 @@ const useStyles = makeStyles(() => ({
   button: {
     minWidth: 'unset'
   },
+  buttonActive: {
+    border: 'solid 1px #009000',
+    color: '#009000',
+    '&:hover': {
+      backgroundColor: '#E3EEDA',
+      borderColor: '#003f00',
+      color: '#003f00',
+    }
+  },
   border: {
       border: 'solid 2px #DEDEDE',
       borderRadius: '8px'
@@ -42,7 +51,7 @@ export default (props) => {
         <Grid item>
           {
             titleButtonData &&
-            <Button onClick={titleButtonData.onClick} className={classes.button} disabled={titleButtonData.disabled}>{titleButtonData.content}</Button>
+            <Button onClick={titleButtonData.onClick} className={classNames(classes.button, {[classes.buttonActive]: (titleButtonData || {}).active})} disabled={titleButtonData.disabled}>{titleButtonData.content}</Button>
           }
         </Grid>
       </Grid>

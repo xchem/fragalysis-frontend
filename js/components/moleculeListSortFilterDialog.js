@@ -114,7 +114,7 @@ const filterMolecules = (molecules, filterSettings) => {
 exports.filterMolecules = filterMolecules;
 
 export default function MoleculeListSortFilterDialog(props) {
-  const { handleClose, molGroupSelection, cachedMolList, filterSettings } = props;
+  const { handleClose, molGroupSelection, cachedMolList, filterSettings, handleFilterActive } = props;
   let classes = useStyles();
 
   const getListedMolecules = () => {
@@ -151,6 +151,7 @@ export default function MoleculeListSortFilterDialog(props) {
   }
 
   const handleItemChange = (key) => (setting) => {
+    handleFilterActive(true);
     let newFilter = Object.assign({}, filter);
     newFilter[key] = setting;
     setFilter(newFilter);
@@ -160,12 +161,13 @@ export default function MoleculeListSortFilterDialog(props) {
   const handleClear = () => {
     const resetFilter = initialize();
     setFilter(resetFilter);
-    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter)); // Demo
+    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
+    handleFilterActive(false);
   }
 
   const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
   const [initState] = useState(initialize());
-  const [filteredCount, setFilteredCount] = useState(getListedMolecules().length);
+  const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
 
   return (
     <Dialog open={true} aria-labelledby="form-dialog-title">
@@ -216,7 +218,8 @@ export default function MoleculeListSortFilterDialog(props) {
 
 MoleculeListSortFilterDialog.propTypes = {
   handleClose: PropTypes.func.isRequired,
+  handleFilterActive: PropTypes.func.isRequired,
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
-  filterSettings: PropTypes.object,
+  filterSettings: PropTypes.object
 };

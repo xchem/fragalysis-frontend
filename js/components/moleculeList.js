@@ -12,7 +12,7 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
 import BorderedView from "./borderedView";
 import classNames from "classnames";
-import MoleculeListSortFilterDialog from "./moleculeListSortFilterDialog";
+import MoleculeListSortFilterDialog, { filterMolecules } from "./moleculeListSortFilterDialog";
 
 const styles = () => ({
     container: {
@@ -61,6 +61,7 @@ class MoleculeList extends GenericList {
             sortDialogOpen: false
         }
         this.filterSettings = undefined;
+        this.filterActive = false;
     }
 
     handleOptionChange(changeEvent) {
@@ -79,14 +80,18 @@ class MoleculeList extends GenericList {
         this.handleDialog(false)();
     }
 
+    handleFilterActive = (active) => {
+        this.filterActive = active;
+    }
+
     render() {
-        console.log(`MoleculeList -> render with filter: ${JSON.stringify(this.filterSettings)}`)
+        console.log('MoleculeList -> render')
         const { sortDialogOpen } = this.state;
         const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
         var imgSize = 100;
 
         // concat molecule results for all selected molecule groups into single list
-        const joinedMoleculeLists = [];
+        let joinedMoleculeLists = [];
         object_selection.forEach(obj => {
             const cachedData = cached_mol_lists[obj];
             const site = (mol_group_list || []).findIndex(group => group.id === obj) + 1;
@@ -95,15 +100,21 @@ class MoleculeList extends GenericList {
             }
         });
 
+        if(this.filterActive) {
+            joinedMoleculeLists = filterMolecules(joinedMoleculeLists, this.filterSettings);
+        }
+
         const titleButtonData = {
             content: <span className={classes.sortFilterButtonStyle}>sort/filter</span>,
             onClick: this.handleDialog(open),
-            disabled: !joinedMoleculeLists.length
+            disabled: !joinedMoleculeLists.length,
+            active: this.filterActive,
           }
         return (
             <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
                 { sortDialogOpen && <MoleculeListSortFilterDialog 
                     handleClose={this.handleDialogClose} 
+                    handleFilterActive={this.handleFilterActive}
                     molGroupSelection={this.props.object_selection} 
                     cachedMolList={this.props.cached_mol_lists}
                     filterSettings={this.filterSettings}/> }
