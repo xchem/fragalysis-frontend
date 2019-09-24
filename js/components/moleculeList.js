@@ -85,7 +85,6 @@ class MoleculeList extends GenericList {
     }
 
     render() {
-        console.log('MoleculeList -> render')
         const { sortDialogOpen } = this.state;
         const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
         var imgSize = 100;
@@ -102,6 +101,8 @@ class MoleculeList extends GenericList {
 
         if(this.filterActive) {
             joinedMoleculeLists = filterMolecules(joinedMoleculeLists, this.filterSettings);
+        } else {
+            joinedMoleculeLists = joinedMoleculeLists.sort((a, b) => a.site - b.site);
         }
 
         const titleButtonData = {

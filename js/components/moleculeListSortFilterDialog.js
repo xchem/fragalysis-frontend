@@ -107,6 +107,30 @@ const filterMolecules = (molecules, filterSettings) => {
   }
 
   // 2. Sort
+  let sortedAttributes = Object.keys(filterSettings).sort((a, b) => {
+    return filterSettings[b].priority - filterSettings[a].priority; // Higher first
+  });
+
+  // Do not filter by priority 0
+  sortedAttributes = sortedAttributes.filter(attr => filterSettings[attr].priority > 0);
+  sortedAttributes.push('site'); // Finally sort by site;
+
+  filteredMolecules = filteredMolecules.sort((a, b) => {
+    for(let prioAttr of sortedAttributes) {
+      let order = 1;
+      if(prioAttr !== 'site') { // Site is always arbitrary
+        order = filterSettings[prioAttr].order;
+      }
+
+      const attrLo = prioAttr.toLowerCase();
+      let diff = order * (a[attrLo] - b[attrLo]);
+      if (diff === 0) {
+        continue; // pass to next attribute based on priority
+      } else {
+        return diff;
+      }
+    }
+  });
 
   return filteredMolecules;
 }
