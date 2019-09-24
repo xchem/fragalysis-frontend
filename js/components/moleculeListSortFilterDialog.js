@@ -81,6 +81,10 @@ const useStyles = makeStyles({
   },
   textCenter: {
     textAlign: 'center',
+  },
+  slider: {
+    paddingLeft: 8,
+    paddingRight: 8,
   }
 });
 
@@ -91,11 +95,21 @@ const widthMin = 30;
 const widthSlider = 170;
 
 const SortFilterItem = (props) => {
-  const { property, min, max, onChange } = props;
+  const { property, min, max, onChange, isFloat } = props;
   const { priority, order, minValue, maxValue } = props;
+  // Because Slider works only with Integers we convert Float to Int by multiplying with 100
+  const MULT = 100;
+
+  let normMin = isFloat ? min * MULT : min;
+  let normMax = isFloat ? max * MULT : max;
+
+  let normMinValue = isFloat ? minValue * MULT : minValue;
+  let normMaxValue = isFloat ? maxValue * MULT : maxValue;
+
   let classes = useStyles();
-  const [sliderValue, setSliderValue] = useState([minValue, maxValue]); // Internal state of slider
-  const [sliderCommittedValue, setSliderCommittedValue] = useState([minValue, maxValue]); // Internal state of committed slider value
+  const [sliderValue, setSliderValue] = useState([normMinValue, normMaxValue]); // Internal state of slider
+  const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
+
 
   let setting = {
     priority: priority,
@@ -127,16 +141,16 @@ const SortFilterItem = (props) => {
   };
 
   const handleCommitChangeSlider = (event, newValue) => {
-    setting.minValue = newValue[0];
-    setting.maxValue = newValue[1];
+    setting.minValue = isFloat ? newValue[0] / MULT : newValue[0];
+    setting.maxValue = isFloat ? newValue[1] / MULT : newValue[1];
     setSliderCommittedValue(newValue);
     onChange(setting);
   };
 
   // In case of 'CLEAR' filter we need reset internal state
-  if(sliderCommittedValue[0] !== minValue || sliderCommittedValue[1] !== maxValue) {
-    setSliderValue([minValue, maxValue]);
-    setSliderCommittedValue([minValue, maxValue]);
+  if(sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
+    setSliderValue([normMinValue, normMaxValue]);
+    setSliderCommittedValue([normMinValue, normMaxValue]);
   }
 
   return (
@@ -168,15 +182,17 @@ const SortFilterItem = (props) => {
       </Grid>
       <Grid item className={classNames(classes.property, classes.centered)} style={{width: widthProperty}}>{property}</Grid>
       <Grid item className={classNames(classes.min, classes.centered)} style={{width: widthMin}}>{min}</Grid>
-      <Grid item className={classes.centered} style={{width: widthSlider}}>
+      <Grid item className={classNames(classes.centered, classes.slider)} style={{width: widthSlider}}>
         <Slider
           value={sliderValue}
           onChange={handleChangeSlider}
           onChangeCommitted={handleCommitChangeSlider}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
-          max={max}
-          min={min}
+          max={normMax}
+          min={normMin}
+          marks={isFloat !== true ? true : undefined}
+          valueLabelFormat={value => { return isFloat ? value / MULT : value }}
         />
       </Grid>
       <Grid item className={classNames(classes.min, classes.centered)} style={{width: widthMin}}>{max}</Grid>
@@ -185,34 +201,53 @@ const SortFilterItem = (props) => {
 }
 
 SortFilterItem.propTypes = {
-  priority: PropTypes.number,
-  order: PropTypes.number,
-  property: PropTypes.string,
-  min: PropTypes.number,
-  max: PropTypes.number,
+  priority: PropTypes.number.isRequired,
+  order: PropTypes.number.isRequired,
+  property: PropTypes.string.isRequired,
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  isFloat: PropTypes.bool,
 };
 
 const MOL_ATTR = {
-  MW: { key: 'MW', name: 'Molecular weight (MW)' },
-  LOGP: { key: 'logP', name: 'logP' },
-  TPSA: { key: 'TPSA', name: 'Topological polar surface area (TPSA)' },
-  HA: { key: 'HA', name: 'Heavy atom count' },
-  HACC: { key: 'Hacc', name: '# H-bond acceptors (Hacc)' },
-  HDON: { key: 'Hdon', name: '# H-bond donors (Hdon)' },
-  ROTS: { key: 'Rots', name: '# Rotatable bonds (Rots)' },
-  RINGS: { key: 'Rings', name: '# rings (rings)' },
-  VELEC: { key: 'Velec', name: '# valence electrons (velec)' },
-  NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)' },
+  MW: { key: 'MW', name: 'Molecular weight (MW)', isFloat: true},
+  LOGP: { key: 'logP', name: 'logP', isFloat: true },
+  TPSA: { key: 'TPSA', name: 'Topological polar surface area (TPSA)', isFloat: true },
+  HA: { key: 'HA', name: 'Heavy atom count', isFloat: false },
+  HACC: { key: 'Hacc', name: '# H-bond acceptors (Hacc)', isFloat: false },
+  HDON: { key: 'Hdon', name: '# H-bond donors (Hdon)', isFloat: false },
+  ROTS: { key: 'Rots', name: '# Rotatable bonds (Rots)', isFloat: false },
+  RINGS: { key: 'Rings', name: '# rings (rings)', isFloat: false },
+  VELEC: { key: 'Velec', name: '# valence electrons (velec)', isFloat: false },
+  NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)', isFloat: false },
 }
 
 export default function MoleculeListSortFilterDialog(props) {
-  const { handleClose } = props;
+  const { handleClose, molGroupSelection, cachedMolList } = props;
   let classes = useStyles();
 
   const initialize = () => {
     let initObject = {};
     for (let attr of Object.values(MOL_ATTR)) {
-      initObject[attr.key] = { priority: 0, order: 1, minValue: 20, maxValue: 220 }
+      const lowAttr = attr.key.toLowerCase();
+      let minValue = -999999;
+      let maxValue  = 0;
+      for ( let molgroupId of molGroupSelection) {
+        // Selected molecule groups
+        const molGroup = cachedMolList[molgroupId];
+        if(molGroup) {
+          for (let molecule of molGroup.results) {
+            const attrValue = molecule[lowAttr];
+            if (attrValue > maxValue) maxValue = attrValue;
+            if (minValue === -999999) minValue = maxValue;
+            if (attrValue < minValue) minValue = attrValue;
+          }
+        } else {
+          console.log(`Molecule group ${molgroupId} not found in cached list`);
+        }
+      }
+
+      initObject[attr.key] = { priority: 0, order: 1, minValue: minValue, maxValue: maxValue, isFloat: attr.isFloat }
     }
     return initObject;
   }
@@ -230,6 +265,7 @@ export default function MoleculeListSortFilterDialog(props) {
   }
 
   const [filter, setFilter] = useState(initialize());
+  const [initState] = useState(filter);
   const [filteredCount, setFilteredCount] = useState(0);
 
   return (
@@ -255,8 +291,9 @@ export default function MoleculeListSortFilterDialog(props) {
                 order={filter[attr.key].order}
                 minValue={filter[attr.key].minValue}
                 maxValue={filter[attr.key].maxValue}
-                min={0} 
-                max={250} 
+                min={initState[attr.key].minValue} 
+                max={initState[attr.key].maxValue} 
+                isFloat={initState[attr.key].isFloat}
                 onChange={handleItemChange(attr.key)}/>
             )
           }
@@ -277,3 +314,9 @@ export default function MoleculeListSortFilterDialog(props) {
     </Dialog>
   );
 }
+
+MoleculeListSortFilterDialog.propTypes = {
+  handleClose: PropTypes.func.isRequired,
+  molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
+  cachedMolList: PropTypes.object.isRequired,
+};

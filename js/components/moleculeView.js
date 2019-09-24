@@ -257,6 +257,7 @@ class MoleculeView extends GenericView {
     }
 
     render() {
+        console.log('MoleculeView -> render')
         const { classes, height, data } = this.props;
         const { img_data, isToggleOn, complexOn, value } = this.state;
         const svg_image = <SVGInline svg={img_data}/>;

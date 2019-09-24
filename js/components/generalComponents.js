@@ -144,6 +144,14 @@ export class GenericList extends React.Component {
                         });
                         setCachedMolLists(newMolLists);
                     }
+
+                    // TODO: Do we need to fetch all or wait for click on molecule group?
+                    if (this.list_type === listTypes.MOLGROUPS) {
+                        // json.results.forEach(molgroup => {
+                        //     const molgroup_id = molgroup.id;
+                        //     console.log(`Fetch data for mol_group ${molgroup_id}`);
+                        // })
+                    }
                 })
         }
         this.old_url = url.toString();

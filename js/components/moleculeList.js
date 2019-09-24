@@ -92,14 +92,13 @@ class MoleculeList extends GenericList {
             }
         });
 
-        console.log(this.props.message)
         const titleButtonData = {
             content: <span className={classes.sortFilterButtonStyle}>sort/filter</span>,
             onClick: this.handleDialog(open)
           }
         return (
             <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
-                { sortDialogOpen && <MoleculeListSortFilterDialog handleClose={this.handleDialogClose}/> }
+                { sortDialogOpen && <MoleculeListSortFilterDialog handleClose={this.handleDialogClose} molGroupSelection={this.props.object_selection} cachedMolList={this.props.cached_mol_lists}/> }
                 <Grid container direction="column" className={classes.container} style={{ height: height }}>
                     <Grid item container className={classes.gridItemHeader}>
                         <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
