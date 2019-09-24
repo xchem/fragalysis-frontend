@@ -12,6 +12,7 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
 import BorderedView from "./borderedView";
 import classNames from "classnames";
+import MoleculeListSortFilterDialog from "./moleculeListSortFilterDialog";
 
 const styles = () => ({
     container: {
@@ -43,6 +44,11 @@ const styles = () => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    sortFilterButtonStyle: {
+        textTransform: 'none',
+        fontWeight: 'bold',
+        fontSize: 'larger',
     }
 });
 
@@ -51,13 +57,28 @@ class MoleculeList extends GenericList {
     constructor(props) {
         super(props);
         this.list_type = listType.MOLECULE;
+        this.state = {
+            sortDialogOpen: false
+        }
     }
 
     handleOptionChange(changeEvent) {
         const new_value = changeEvent.target.value;
         this.props.setObjectOn(new_value);
     }
+
+    handleDialog = () => (open) => {
+        this.setState({
+            sortDialogOpen: open
+        });
+    }
+
+    handleDialogClose = () => {
+        this.handleDialog(false)();
+    }
+
     render() {
+        const { sortDialogOpen } = this.state;
         const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
         var imgSize = 100;
 
@@ -72,12 +93,20 @@ class MoleculeList extends GenericList {
         });
 
         console.log(this.props.message)
+        const titleButtonData = {
+            content: <span className={classes.sortFilterButtonStyle}>sort/filter</span>,
+            onClick: this.handleDialog(open)
+          }
         return (
-            <BorderedView title="hit navigator">
+            <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
+                { sortDialogOpen && <MoleculeListSortFilterDialog handleClose={this.handleDialogClose}/> }
                 <Grid container direction="column" className={classes.container} style={{ height: height }}>
                     <Grid item container className={classes.gridItemHeader}>
                         <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
                             site
+                        </Grid>
+                            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+                                cont.
                         </Grid>
                         <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
                             cont.
