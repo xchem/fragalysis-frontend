@@ -1,12 +1,11 @@
 import React from "react";
 import {Grid} from "react-bootstrap";
-import UserInputCapture from "../components/userInputCapture";
+import Switches from "../components/switches";
 
 const routes = (
       <div id="outer-container">
           <Grid fluid id="page-wrap">
-              {/* switches contains routes to containers!!!! */}
-              <UserInputCapture></UserInputCapture>
+                <Switches/>
           </Grid>
       </div>
 )
