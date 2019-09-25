@@ -4,10 +4,10 @@
 
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Row, Col} from "react-bootstrap";
+import { Grid, withStyles } from "@material-ui/core";
 import MolGroupList from "../components/molGroupList";
 import MoleculeList from "../components/moleculeList";
-import MolGroupSlider from "../components/molGroupSlider";
+import MolGroupSelector from "../components/molGroupSelector";
 import SummaryView from "../components/summaryView";
 import CompoundList from '../components/compoundList';
 import NGLView from "../components/nglComponents";
@@ -22,11 +22,23 @@ import ModalErrorMessage from "../components/modalErrorDisplay";
 import HotspotList from "../components/hotspotList";
 import BrowserBomb from "../components/browserBombModal";
 
+const styles = () => ({
+    gridItemLhs: {
+        width: '500px'
+    },
+    gridItemRhs: {
+        width: 'calc(100% - 500px)'
+    },
+    fullWidth: {
+        width: '100%'
+    }
+})
+
 class FraggleBox extends Component {
 
     constructor(props) {
         super(props)
-    }
+    }   
 
     componentDidMount(){
         if (this.props.match.params.uuid != undefined) {
@@ -40,34 +52,38 @@ class FraggleBox extends Component {
     }
 
     render() {
-        var screenHeight= window.innerHeight*0.75.toString()+"px"
-        var molListHeight= window.innerHeight*0.5.toString()+"px"
-
+        const { classes } = this.props;
+        var screenHeight= window.innerHeight*0.7.toString()+"px"
+        var molListHeight= window.innerHeight*0.45.toString()+"px"
         return (
-            <Row >
-                <Col xs={0} md={0}>
-                    <MolGroupList />
-                </Col>
-                <Col xs={3} md={3}>
-                    <NGLView div_id="summary_view" height="200px"/>
-                    <MolGroupSlider />
-                    <MoleculeList height={molListHeight} style={{overflow: scroll}}/>
-                </Col>
-                <Col xs={5} md={5} >
-                    <NGLView div_id="major_view" height={screenHeight}/>
-                    <NglViewerControls />
-                </Col>
-                <Col xs={4} md={4}>
-                    <SummaryView />
-                    <CompoundList />
-                    <HotspotList />
-                </Col>
-                <ModalTargetUnrecognised/>
+            <Grid container spacing={2}>
+                <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
+                    <Grid item className={classes.fullWidth}>
+                        <MolGroupSelector />
+                    </Grid>
+                    <Grid item>
+                        <MoleculeList height={molListHeight} />
+                    </Grid>
+                </Grid>
+                <Grid item container className={classes.gridItemRhs} spacing={2}>
+                    <Grid item lg={6} md={12}>
+                        <NGLView div_id="major_view" height={screenHeight} />
+                        <NglViewerControls />
+                    </Grid>
+                    <Grid item lg={6} md={12}>
+                        <SummaryView />
+                        <CompoundList />
+                        <HotspotList />
+                    </Grid>
+                </Grid>
+                {/* MolGroupList is responsible for loading molecules list, so it must be 'rendered' */}
+                <MolGroupList />
+                <ModalStateSave />
+                <ModalErrorMessage />
+                <ModalTargetUnrecognised />
                 <ModalLoadingScreen/>
-                <ModalStateSave/>
-                <ModalErrorMessage/>
-                <BrowserBomb/>
-          </Row>
+                <BrowserBomb />
+            </Grid>
         )
     }
 }
@@ -86,4 +102,4 @@ const mapDispatchToProps = {
     setLoadingState: nglLoadActions.setLoadingState,
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FraggleBox))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(FraggleBox)))
