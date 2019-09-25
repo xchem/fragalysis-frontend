@@ -232,6 +232,7 @@ class MoleculeView extends GenericView {
         this.loadFromServer(this.props.width,this.props.height);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
+        var vectorOn = this.props.vectorOnList.has(this.props.data.id);
         var value_list = []
         if(complexOn){
             value_list.push(1)
@@ -242,7 +243,7 @@ class MoleculeView extends GenericView {
         if(this.props.to_query==this.props.data.smiles){
             value_list.push(3)
         }
-        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn}))
+        this.setState(prevState => ({value: value_list, complexOn: complexOn, isToggleOn: thisToggleOn, vectorOn: vectorOn}))
     }
 
     componentWillReceiveProps(nextProps){
@@ -259,13 +260,13 @@ class MoleculeView extends GenericView {
     render() {
         console.log('MoleculeView -> render')
         const { classes, height, data } = this.props;
-        const { img_data, isToggleOn, complexOn, value } = this.state;
+        const { img_data, isToggleOn, complexOn, vectorOn, value } = this.state;
         const svg_image = <SVGInline svg={img_data}/>;
         // Here add the logic that updates this based on the information
         // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
         const selected_style = {height: height.toString()+'px', backgroundColor: this.colourToggle}
         const not_selected_style = {height: height.toString()+'px'}
-        this.current_style = isToggleOn || complexOn ? selected_style : not_selected_style;
+        this.current_style = isToggleOn || complexOn || vectorOn ? selected_style : not_selected_style;
 
         return (
             <Grid container className={classes.container}>
@@ -414,6 +415,7 @@ function mapStateToProps(state) {
       vector_list: state.selectionReducers.present.vector_list,
       complexList: state.selectionReducers.present.complexList,
       fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
+      vectorOnList: state.selectionReducers.present.vectorOnList,
   }
 }
 const mapDispatchToProps = {
