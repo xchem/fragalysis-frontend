@@ -75,7 +75,7 @@ class MoleculeList extends GenericList {
         });
     }
 
-    handleDialogClose = (filter) => () => {
+    handleDialogClose = (filter) => {
         this.filterSettings = filter;
         this.handleDialog(false)();
     }

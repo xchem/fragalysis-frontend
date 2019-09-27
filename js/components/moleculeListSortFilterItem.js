@@ -4,8 +4,10 @@ import Button from '@material-ui/core/Button';
 import Slider from '@material-ui/core/Slider';
 import Radio from '@material-ui/core/Radio';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
+import { MOL_ATTRIBUTES } from './moleculeListSortFilterDialog';
 
 const useStyles = makeStyles({
   centered: {
@@ -90,10 +92,26 @@ const moleculeListSortFilterItem = (props) => {
   }
 
   const handleChangePrio = (inc) => () => {
-    const maxPrio = 3;
+    const maxPrio = MOL_ATTRIBUTES.length;
     const minPrio = 0;
     if(setting.priority + inc >= minPrio && setting.priority + inc <= maxPrio ) {
       setting.priority = setting.priority + inc;
+      onChange(setting);
+    }
+  }
+
+  const handleChangePrioDirect = (e) => {
+    let value = e.target.value;
+    if(value === '') {
+      setting.priority = value;
+      onChange(setting);
+      return;
+    }
+    value = parseInt(value);
+    const maxPrio = MOL_ATTRIBUTES.length;
+    const minPrio = 0;
+    if(value >= minPrio && value <= maxPrio ) {
+      setting.priority = value;
       onChange(setting);
     }
   }
@@ -127,7 +145,13 @@ const moleculeListSortFilterItem = (props) => {
   return (
     <Grid container item className={classes.gridItemHeader}>
       <Grid item container className={classes.centered} style={{width: widthPrio}}>
-        <Grid item xs={6} className={classNames(classes.textCenter, classes.prio)}>{priority}</Grid>
+        <Grid item xs={6} className={classNames(classes.textCenter, classes.prio)}>
+          <TextField
+            value={priority}
+            onChange={handleChangePrioDirect}
+            type="number"
+        />
+        </Grid>
         <Grid item container direction="column" xs={6}>
           <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonGreen)} onClick={handleChangePrio(1)}>+</Button></Grid>
           <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonRed)} onClick={handleChangePrio(-1)}>-</Button></Grid>
@@ -172,7 +196,7 @@ const moleculeListSortFilterItem = (props) => {
 }
 
 moleculeListSortFilterItem.propTypes = {
-  priority: PropTypes.number.isRequired,
+  priority: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   order: PropTypes.number.isRequired,
   property: PropTypes.string.isRequired,
   min: PropTypes.number.isRequired,

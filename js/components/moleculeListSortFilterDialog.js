@@ -7,6 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
+import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles({
@@ -48,6 +49,11 @@ const useStyles = makeStyles({
     fontSize: '10px',
     color: '#7B7B7B',
   },
+  warningIcon: {
+    color: '#FFC107',
+    position: 'relative',
+    top: 2,
+  },
 });
 
 const widthPrio = 50;
@@ -69,11 +75,14 @@ const MOL_ATTR = {
   NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)', isFloat: false },
 }
 
+const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
+exports.MOL_ATTRIBUTES = MOL_ATTRIBUTES;
+
 const getFilteredMoleculesCount = (molecules, filterSettings) => {
   let count = 0;
   for (let molecule of molecules) {
     let add = true; // By default molecule passes filter
-    for (let attr of Object.values(MOL_ATTR)) {
+    for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
       if(attrValue < filterSettings[attr.key].minValue || attrValue > filterSettings[attr.key].maxValue) {
@@ -93,7 +102,7 @@ const filterMolecules = (molecules, filterSettings) => {
   let filteredMolecules = [];
   for (let molecule of molecules) {
     let add = true; // By default molecule passes filter
-    for (let attr of Object.values(MOL_ATTR)) {
+    for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
       if(attrValue < filterSettings[attr.key].minValue || attrValue > filterSettings[attr.key].maxValue) {
@@ -158,7 +167,7 @@ export default function MoleculeListSortFilterDialog(props) {
 
   const initialize = () => {
     let initObject = {};
-    for (let attr of Object.values(MOL_ATTR)) {
+    for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       let minValue = -999999;
       let maxValue  = 0;
@@ -189,9 +198,30 @@ export default function MoleculeListSortFilterDialog(props) {
     handleFilterActive(false);
   }
 
+  const handleCloseVerify = () => {
+    let filterSettings = Object.assign({}, filter);
+    for (let attr of MOL_ATTRIBUTES) {
+      if (filterSettings[attr.key].priority === undefined || filterSettings[attr.key].priority === '') {
+        filterSettings[attr.key].priority = 0;
+      }
+    }
+    handleClose(filterSettings);
+  }
+
   const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
   const [initState] = useState(initialize());
   const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
+
+  // Check for multiple attributes with same sorting priority
+  let prioWarning = false;
+  let prioWarningTest = {};
+  for (const attr of MOL_ATTRIBUTES) {
+    const prioKey = filter[attr.key].priority;
+    if (prioKey > 0) {
+      prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
+      if(prioWarningTest[prioKey] > 1) prioWarning = true;
+    }
+  }
 
   return (
     <Dialog open={true} aria-labelledby="form-dialog-title">
@@ -208,7 +238,7 @@ export default function MoleculeListSortFilterDialog(props) {
           </Grid>
 
           {
-            Object.values(MOL_ATTR).map((attr) => 
+            MOL_ATTRIBUTES.map((attr) => 
               <MoleculeListSortFilterItem 
                 key={attr.key}
                 property={attr.name} 
@@ -228,11 +258,12 @@ export default function MoleculeListSortFilterDialog(props) {
       <DialogActions>
         <div className={classes.numberOfHits}>
           # of hits matching selection: <b>{filteredCount}</b>
+          { prioWarning && <div><WarningIcon className={classes.warningIcon}/> multiple attributes with same sorting priority</div> }
         </div>
         <Button classes={{root: classes.button}} onClick={handleClear} color="secondary" variant="outlined">
           Clear
         </Button>
-        <Button classes={{root: classes.button}} className={classes.applyButton} onClick={handleClose(filter)} color="primary" variant="outlined">
+        <Button classes={{root: classes.button}} className={classes.applyButton} onClick={handleCloseVerify} color="primary" variant="outlined">
           Apply
         </Button>
       </DialogActions>
