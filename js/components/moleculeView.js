@@ -229,7 +229,7 @@ class MoleculeView extends GenericView {
     }
 
     componentDidMount() {
-        this.loadFromServer(this.props.width,this.props.height);
+        this.loadFromServer(this.props.height, this.props.width);
         var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
         var complexOn = this.props.complexList.has(this.props.data.id);
         var vectorOn = this.props.vectorOnList.has(this.props.data.id);
@@ -259,7 +259,7 @@ class MoleculeView extends GenericView {
 
     render() {
         console.log('MoleculeView -> render')
-        const { classes, height, data } = this.props;
+        const { classes, height, width, data } = this.props;
         const { img_data, isToggleOn, complexOn, vectorOn, value } = this.state;
         const svg_image = <SVGInline svg={img_data}/>;
         // Here add the logic that updates this based on the information

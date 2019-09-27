@@ -37,8 +37,8 @@ const styles = () => ({
     },
     gridItemList: {
         overflow: 'auto',
-        // - 72px for title and header items
-        height: 'calc(100% - 72px)'
+        // - 48px for title and header items
+        height: 'calc(100% - 48px)'
     },
     centered: {
         display: 'flex',
@@ -87,7 +87,8 @@ class MoleculeList extends GenericList {
     render() {
         const { sortDialogOpen } = this.state;
         const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
-        var imgSize = 100;
+        const imgHeight = 80;
+        const imgWidth = 100;
 
         // concat molecule results for all selected molecule groups into single list
         let joinedMoleculeLists = [];
@@ -124,9 +125,6 @@ class MoleculeList extends GenericList {
                         <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
                             site
                         </Grid>
-                            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                                cont.
-                        </Grid>
                         <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
                             cont.
                         </Grid>
@@ -145,7 +143,7 @@ class MoleculeList extends GenericList {
                         {
                             joinedMoleculeLists.map(data => (
                                 <Grid item key={data.id}>
-                                    <MoleculeView height={imgSize} width={imgSize} data={data} />
+                                    <MoleculeView height={imgHeight} width={imgWidth} data={data} />
                                 </Grid>
                             ))
                         }
