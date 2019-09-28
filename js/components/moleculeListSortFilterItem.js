@@ -5,6 +5,7 @@ import Slider from '@material-ui/core/Slider';
 import Radio from '@material-ui/core/Radio';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
 import { MOL_ATTRIBUTES } from './moleculeListSortFilterDialog';
@@ -58,6 +59,10 @@ const useStyles = makeStyles({
   slider: {
     paddingLeft: 8,
     paddingRight: 8,
+  },
+  propertyChip: {
+    fontSize: '1.1rem',
+    fontWeight: 'bolder',
   }
 });
 
@@ -68,7 +73,7 @@ const widthMin = 30;
 const widthSlider = 170;
 
 const moleculeListSortFilterItem = (props) => {
-  const { property, min, max, onChange, isFloat } = props;
+  const { property, min, max, onChange, isFloat, color } = props;
   const { priority, order, minValue, maxValue } = props;
   // Because Slider works only with Integers we convert Float to Int by multiplying with 100
   const MULT = 100;
@@ -175,7 +180,7 @@ const moleculeListSortFilterItem = (props) => {
           name="radio-button-demo"
         />  
       </Grid>
-      <Grid item className={classNames(classes.property, classes.centered)} style={{width: widthProperty}}>{property}</Grid>
+      <Grid item className={classNames(classes.property, classes.centered)} style={{width: widthProperty}}><Chip size='small' className={classes.propertyChip} label={property} style={{backgroundColor: color}}/></Grid>
       <Grid item className={classNames(classes.min, classes.centered)} style={{width: widthMin}}>{min}</Grid>
       <Grid item className={classNames(classes.centered, classes.slider)} style={{width: widthSlider}}>
         <Slider
@@ -201,6 +206,7 @@ moleculeListSortFilterItem.propTypes = {
   property: PropTypes.string.isRequired,
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
   isFloat: PropTypes.bool,
 };
 

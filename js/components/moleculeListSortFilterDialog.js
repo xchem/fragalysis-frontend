@@ -63,16 +63,16 @@ const widthMin = 30;
 const widthSlider = 170;
 
 const MOL_ATTR = {
-  MW: { key: 'MW', name: 'Molecular weight (MW)', isFloat: true},
-  LOGP: { key: 'logP', name: 'logP', isFloat: true },
-  TPSA: { key: 'TPSA', name: 'Topological polar surface area (TPSA)', isFloat: true },
-  HA: { key: 'HA', name: 'Heavy atom count', isFloat: false },
-  HACC: { key: 'Hacc', name: '# H-bond acceptors (Hacc)', isFloat: false },
-  HDON: { key: 'Hdon', name: '# H-bond donors (Hdon)', isFloat: false },
-  ROTS: { key: 'Rots', name: '# Rotatable bonds (Rots)', isFloat: false },
-  RINGS: { key: 'Rings', name: '# rings (rings)', isFloat: false },
-  VELEC: { key: 'Velec', name: '# valence electrons (velec)', isFloat: false },
-  NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)', isFloat: false },
+  MW: { key: 'MW', name: 'Molecular weight (MW)', isFloat: true, color: '#f96587' },
+  LOGP: { key: 'logP', name: 'logP', isFloat: true, color: '#3cb44b'},
+  TPSA: { key: 'TPSA', name: 'Topological polar surface area (TPSA)', isFloat: true, color: '#ffe119' },
+  HA: { key: 'HA', name: 'Heavy atom count', isFloat: false, color: '#079ddf' },
+  HACC: { key: 'Hacc', name: '# H-bond acceptors (Hacc)', isFloat: false, color: '#f58231' },
+  HDON: { key: 'Hdon', name: '# H-bond donors (Hdon)', isFloat: false, color: '#86844a' },
+  ROTS: { key: 'Rots', name: '# Rotatable bonds (Rots)', isFloat: false, color: '#42d4f4' },
+  RINGS: { key: 'Rings', name: '# rings (rings)', isFloat: false, color: '#f032e6' },
+  VELEC: { key: 'Velec', name: '# valence electrons (velec)', isFloat: false, color: '#bfef45' },
+  NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)', isFloat: false, color: '#fabebe' },
 }
 
 const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
@@ -96,6 +96,20 @@ const getFilteredMoleculesCount = (molecules, filterSettings) => {
   }
   return count;
 }
+
+const getSortedAttrOrder = (filterSettings) => {
+  let sortedAttributes = Object.keys(filterSettings).sort((a, b) => {
+    return filterSettings[b].priority - filterSettings[a].priority; // Higher first
+  });
+  return sortedAttributes;
+}
+exports.getSortedAttrOrder = getSortedAttrOrder;
+
+
+const getAttrColor = (attr) => {
+  return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr).color;
+}
+exports.getAttrColor = getAttrColor;
 
 const filterMolecules = (molecules, filterSettings) => {
   // 1. Filter
@@ -249,6 +263,7 @@ export default function MoleculeListSortFilterDialog(props) {
                 min={initState[attr.key].minValue} 
                 max={initState[attr.key].maxValue} 
                 isFloat={initState[attr.key].isFloat}
+                color={attr.color}
                 onChange={handleItemChange(attr.key)}/>
             )
           }

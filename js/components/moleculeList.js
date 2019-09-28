@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, withStyles } from "@material-ui/core";
+import { Grid, withStyles, Chip, Tooltip } from "@material-ui/core";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -12,9 +12,9 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
 import BorderedView from "./borderedView";
 import classNames from "classnames";
-import MoleculeListSortFilterDialog, { filterMolecules } from "./moleculeListSortFilterDialog";
+import MoleculeListSortFilterDialog, { filterMolecules, getSortedAttrOrder, getAttrColor } from "./moleculeListSortFilterDialog";
 
-const styles = () => ({
+const styles = (theme) => ({
     container: {
         height: '100%',
         width: '100%',
@@ -49,6 +49,19 @@ const styles = () => ({
         textTransform: 'none',
         fontWeight: 'bold',
         fontSize: 'larger',
+    },
+    filtersRow: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+      },
+    filterChip: {
+        marginBottom: theme.spacing(1),
+        fontWeight: 'bolder',
+        fontSize: '1rem',
+    },
+    filterTooltip: {
+        fontSize: '1rem',
     }
 });
 
@@ -113,6 +126,18 @@ class MoleculeList extends GenericList {
             active: this.filterActive,
           }
         return (
+            <div>
+            { this.filterActive && 
+                <div>Filters:<br/>
+                    <div className={classes.filtersRow}>
+                        {getSortedAttrOrder(this.filterSettings).map( attr => 
+                            <Tooltip key={`Mol-Tooltip-${attr}`} classes={{tooltip: classes.filterTooltip}} title={`${this.filterSettings[attr].minValue}-${this.filterSettings[attr].maxValue} ${this.filterSettings[attr].order === 1 ? '\u2191' : '\u2193'}`} placement="top">
+                                <Chip size="small" label={attr} className={classes.filterChip} style={{backgroundColor: getAttrColor(attr)}}/>
+                            </Tooltip>
+                        )}
+                    </div>
+                </div>
+            }
             <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
                 { sortDialogOpen && <MoleculeListSortFilterDialog 
                     handleClose={this.handleDialogClose} 
@@ -150,6 +175,7 @@ class MoleculeList extends GenericList {
                     </Grid>
                 </Grid>
             </BorderedView>
+            </div>
         )
     }
 }
