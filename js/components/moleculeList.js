@@ -12,7 +12,7 @@ import * as nglLoadActions from "../actions/nglLoadActions";
 import MoleculeView from "./moleculeView";
 import BorderedView from "./borderedView";
 import classNames from "classnames";
-import MoleculeListSortFilterDialog, { filterMolecules, getSortedAttrOrder, getAttrColor } from "./moleculeListSortFilterDialog";
+import MoleculeListSortFilterDialog, { filterMolecules, getAttrDefinition } from "./moleculeListSortFilterDialog";
 
 const styles = (theme) => ({
     container: {
@@ -125,9 +125,9 @@ class MoleculeList extends GenericList {
             {  !!(this.filterSettings || {}).active && 
                 <div>Filters:<br/>
                     <div className={classes.filtersRow}>
-                        {getSortedAttrOrder(this.filterSettings).map( attr => 
+                        {this.filterSettings.priorityOrder.map( attr => 
                             <Tooltip key={`Mol-Tooltip-${attr}`} classes={{tooltip: classes.filterTooltip}} title={`${this.filterSettings.filter[attr].minValue}-${this.filterSettings.filter[attr].maxValue} ${this.filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'}`} placement="top">
-                                <Chip size="small" label={attr} className={classes.filterChip} style={{backgroundColor: getAttrColor(attr)}}/>
+                                <Chip size="small" label={attr} className={classes.filterChip} style={{backgroundColor: getAttrDefinition(attr).color}}/>
                             </Tooltip>
                         )}
                     </div>

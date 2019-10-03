@@ -135,19 +135,10 @@ const getFilteredMoleculesCount = (molecules, filterSettings) => {
   return count;
 }
 
-const getSortedAttrOrder = (filterSettings) => {
-  let sortedAttributes = Object.keys(filterSettings.filter).sort((a, b) => {
-    return filterSettings.filter[b].priority - filterSettings.filter[a].priority; // Higher first
-  });
-  return sortedAttributes;
+const getAttrDefinition = (attr) => {
+  return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr);
 }
-exports.getSortedAttrOrder = getSortedAttrOrder;
-
-
-const getAttrColor = (attr) => {
-  return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr).color;
-}
-exports.getAttrColor = getAttrColor;
+exports.getAttrDefinition = getAttrDefinition;
 
 const filterMolecules = (molecules, filterSettings) => {
   // 1. Filter
@@ -168,12 +159,7 @@ const filterMolecules = (molecules, filterSettings) => {
   }
 
   // 2. Sort
-  let sortedAttributes = Object.keys(filterSettings.filter).sort((a, b) => {
-    return filterSettings.filter[b].priority - filterSettings.filter[a].priority; // Higher first
-  });
-
-  // Do not filter by priority 0
-  sortedAttributes = sortedAttributes.filter(attr => filterSettings.filter[attr].priority > 0);
+  let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
   sortedAttributes.push('site'); // Finally sort by site;
 
   filteredMolecules = filteredMolecules.sort((a, b) => {
@@ -222,6 +208,7 @@ export default function MoleculeListSortFilterDialog(props) {
       active: false,
       predefined: 'none',
       filter: {},
+      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key),
     };
   
     for (let attr of MOL_ATTRIBUTES) {
@@ -246,6 +233,21 @@ export default function MoleculeListSortFilterDialog(props) {
     newFilter.active = true;
     setFilter(newFilter);
     setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
+  }
+
+  const handlePrioChange = (key) => (inc) => () => {
+    const maxPrio = MOL_ATTRIBUTES.length - 1;
+    const minPrio = 0;
+    let priorityOrder = filter.priorityOrder;
+    const index = filter.priorityOrder.indexOf(key);
+    if (index > -1 && (index+inc) >= minPrio && index <= maxPrio) {
+      priorityOrder.splice(index, 1);
+      priorityOrder.splice(index+inc, 0, key);
+      let newFilter = Object.assign({}, filter);
+      newFilter.priorityOrder = priorityOrder;
+      newFilter.active = true;
+      setFilter(newFilter);
+    }
   }
 
   const handleClear = () => {
@@ -339,20 +341,22 @@ export default function MoleculeListSortFilterDialog(props) {
           </Grid>
 
           {
-            MOL_ATTRIBUTES.map((attr) => 
-              <MoleculeListSortFilterItem 
-                key={attr.key}
-                property={attr.name} 
-                priority={filter.filter[attr.key].priority}
-                order={filter.filter[attr.key].order}
-                minValue={filter.filter[attr.key].minValue}
-                maxValue={filter.filter[attr.key].maxValue}
-                min={initState.filter[attr.key].minValue} 
-                max={initState.filter[attr.key].maxValue} 
-                isFloat={initState.filter[attr.key].isFloat}
-                color={attr.color}
+            filter.priorityOrder.map((attr) => {
+              let attrDef = getAttrDefinition(attr);
+              return <MoleculeListSortFilterItem 
+                key={attr}
+                property={attrDef.name} 
+                order={filter.filter[attr].order}
+                minValue={filter.filter[attr].minValue}
+                maxValue={filter.filter[attr].maxValue}
+                min={initState.filter[attr].minValue} 
+                max={initState.filter[attr].maxValue} 
+                isFloat={initState.filter[attr].isFloat}
+                color={attrDef.color}
                 disabled={predefinedFilter !== 'none'}
-                onChange={handleItemChange(attr.key)}/>
+                onChange={handleItemChange(attr)}
+                onChangePrio={handlePrioChange(attr)}/>
+            }
             )
           }
         </Grid>

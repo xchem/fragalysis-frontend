@@ -4,7 +4,8 @@ import Button from '@material-ui/core/Button';
 import Slider from '@material-ui/core/Slider';
 import Radio from '@material-ui/core/Radio';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
+import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
@@ -31,7 +32,8 @@ const useStyles = makeStyles({
     //padding: 0
   },
   prioButton: {
-    height: 15,
+    height: 24,
+    width: 24,
     padding: 0,
     borderRadius: 0,
     borderColor: 'white',
@@ -73,8 +75,8 @@ const widthMin = 30;
 const widthSlider = 170;
 
 const moleculeListSortFilterItem = (props) => {
-  const { property, min, max, onChange, isFloat, color, disabled } = props;
-  const { priority, order, minValue, maxValue } = props;
+  const { property, min, max, onChange, isFloat, color, disabled, onChangePrio } = props;
+  const { order, minValue, maxValue } = props;
   // Because Slider works only with Integers we convert Float to Int by multiplying with 100
   const MULT = 100;
 
@@ -89,35 +91,9 @@ const moleculeListSortFilterItem = (props) => {
   const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
 
   let setting = {
-    priority: priority,
     order: order,
     minValue: minValue,
     maxValue: maxValue,
-  }
-
-  const handleChangePrio = (inc) => () => {
-    const maxPrio = MOL_ATTRIBUTES.length;
-    const minPrio = 0;
-    if(setting.priority + inc >= minPrio && setting.priority + inc <= maxPrio ) {
-      setting.priority = setting.priority + inc;
-      onChange(setting);
-    }
-  }
-
-  const handleChangePrioDirect = (e) => {
-    let value = e.target.value;
-    if(value === '') {
-      setting.priority = value;
-      onChange(setting);
-      return;
-    }
-    value = parseInt(value);
-    const maxPrio = MOL_ATTRIBUTES.length;
-    const minPrio = 0;
-    if(value >= minPrio && value <= maxPrio ) {
-      setting.priority = value;
-      onChange(setting);
-    }
   }
 
   const handleChangeOrder = (e) => {
@@ -149,16 +125,9 @@ const moleculeListSortFilterItem = (props) => {
   return (
     <Grid container item className={classes.gridItemHeader}>
       <Grid item container className={classes.centered} style={{width: widthPrio}}>
-        <Grid item xs={6} className={classNames(classes.textCenter, classes.prio)}>
-          <TextField
-            value={priority}
-            onChange={handleChangePrioDirect}
-            type="number"
-        />
-        </Grid>
-        <Grid item container direction="column" xs={6}>
-          <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonGreen)} onClick={handleChangePrio(1)}>+</Button></Grid>
-          <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonRed)} onClick={handleChangePrio(-1)}>-</Button></Grid>
+        <Grid item container justify="center">
+          <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonGreen)} onClick={onChangePrio(-1)}><KeyboardArrowUp/></Button></Grid>
+          <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonRed)} onClick={onChangePrio(1)}><KeyboardArrowDown/></Button></Grid>
         </Grid>
       </Grid>
       <Grid item className={classes.centered} style={{width: widthOrder}}>
@@ -201,7 +170,6 @@ const moleculeListSortFilterItem = (props) => {
 }
 
 moleculeListSortFilterItem.propTypes = {
-  priority: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   order: PropTypes.number.isRequired,
   property: PropTypes.string.isRequired,
   min: PropTypes.number.isRequired,
