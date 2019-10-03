@@ -74,7 +74,6 @@ class MoleculeList extends GenericList {
             sortDialogOpen: false
         }
         this.filterSettings = undefined;
-        this.filterActive = false;
     }
 
     handleOptionChange(changeEvent) {
@@ -93,10 +92,6 @@ class MoleculeList extends GenericList {
         this.handleDialog(false)();
     }
 
-    handleFilterActive = (active) => {
-        this.filterActive = active;
-    }
-
     render() {
         const { sortDialogOpen } = this.state;
         const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
@@ -113,7 +108,7 @@ class MoleculeList extends GenericList {
             }
         });
 
-        if(this.filterActive) {
+        if(!!(this.filterSettings || {}).active) {
             joinedMoleculeLists = filterMolecules(joinedMoleculeLists, this.filterSettings);
         } else {
             joinedMoleculeLists = joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -122,16 +117,16 @@ class MoleculeList extends GenericList {
         const titleButtonData = {
             content: <span className={classes.sortFilterButtonStyle}>sort/filter</span>,
             onClick: this.handleDialog(open),
-            disabled: !joinedMoleculeLists.length,
-            active: this.filterActive,
+            disabled: !(object_selection || []).length,
+            active: !!(this.filterSettings || {}).active,
           }
         return (
             <div>
-            { this.filterActive && 
+            {  !!(this.filterSettings || {}).active && 
                 <div>Filters:<br/>
                     <div className={classes.filtersRow}>
                         {getSortedAttrOrder(this.filterSettings).map( attr => 
-                            <Tooltip key={`Mol-Tooltip-${attr}`} classes={{tooltip: classes.filterTooltip}} title={`${this.filterSettings[attr].minValue}-${this.filterSettings[attr].maxValue} ${this.filterSettings[attr].order === 1 ? '\u2191' : '\u2193'}`} placement="top">
+                            <Tooltip key={`Mol-Tooltip-${attr}`} classes={{tooltip: classes.filterTooltip}} title={`${this.filterSettings.filter[attr].minValue}-${this.filterSettings.filter[attr].maxValue} ${this.filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'}`} placement="top">
                                 <Chip size="small" label={attr} className={classes.filterChip} style={{backgroundColor: getAttrColor(attr)}}/>
                             </Tooltip>
                         )}
@@ -141,7 +136,6 @@ class MoleculeList extends GenericList {
             <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
                 { sortDialogOpen && <MoleculeListSortFilterDialog 
                     handleClose={this.handleDialogClose} 
-                    handleFilterActive={this.handleFilterActive}
                     molGroupSelection={this.props.object_selection} 
                     cachedMolList={this.props.cached_mol_lists}
                     filterSettings={this.filterSettings}/> }

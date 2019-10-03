@@ -73,7 +73,7 @@ const widthMin = 30;
 const widthSlider = 170;
 
 const moleculeListSortFilterItem = (props) => {
-  const { property, min, max, onChange, isFloat, color } = props;
+  const { property, min, max, onChange, isFloat, color, disabled } = props;
   const { priority, order, minValue, maxValue } = props;
   // Because Slider works only with Integers we convert Float to Int by multiplying with 100
   const MULT = 100;
@@ -87,7 +87,6 @@ const moleculeListSortFilterItem = (props) => {
   let classes = useStyles();
   const [sliderValue, setSliderValue] = useState([normMinValue, normMaxValue]); // Internal state of slider
   const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
-
 
   let setting = {
     priority: priority,
@@ -193,6 +192,7 @@ const moleculeListSortFilterItem = (props) => {
           min={normMin}
           marks={isFloat !== true ? true : undefined}
           valueLabelFormat={value => { return isFloat ? value / MULT : value }}
+          disabled={disabled}
         />
       </Grid>
       <Grid item className={classNames(classes.min, classes.centered)} style={{width: widthMin}}>{max}</Grid>
@@ -208,6 +208,7 @@ moleculeListSortFilterItem.propTypes = {
   max: PropTypes.number.isRequired,
   color: PropTypes.string.isRequired,
   isFloat: PropTypes.bool,
+  disabled: PropTypes.bool
 };
 
 export default moleculeListSortFilterItem;

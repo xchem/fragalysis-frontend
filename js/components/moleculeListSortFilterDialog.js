@@ -5,6 +5,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { Select, InputLabel, MenuItem, FormControl } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
@@ -54,6 +55,18 @@ const useStyles = makeStyles({
     position: 'relative',
     top: 2,
   },
+  formControl: {
+    margin: 8,
+    minWidth: 120,
+    fontSize: '1.2rem'
+  },
+  selectEmpty: {
+    marginTop: 16,
+    fontSize: 'larger',
+  },
+  fontLarger: {
+    fontSize: 'larger',
+  }
 });
 
 const widthPrio = 50;
@@ -75,6 +88,31 @@ const MOL_ATTR = {
   NCPD: { key: '#cpd', name: '# available follow-up cmpds. (#cpd)', isFloat: false, color: '#fabebe' },
 }
 
+const PREDEFINED_FILTERS = {
+  none: {
+    name: 'None',
+    filter: undefined
+  },
+  rule_of_5: {
+    name: 'Rule of 5',
+    filter: {
+      'Hdon': 5,
+      'Hacc': 10,
+      'MW': 500,
+      'logP': 5
+    }
+  },
+  rule_of_3: {
+    name: 'Rule of 3',
+    filter: {
+      'Hdon': 3,
+      'Hacc': 3,
+      'MW': 300,
+      'logP': 3
+    }
+  }
+}
+
 const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
 exports.MOL_ATTRIBUTES = MOL_ATTRIBUTES;
 
@@ -85,7 +123,7 @@ const getFilteredMoleculesCount = (molecules, filterSettings) => {
     for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
-      if(attrValue < filterSettings[attr.key].minValue || attrValue > filterSettings[attr.key].maxValue) {
+      if(attrValue < filterSettings.filter[attr.key].minValue || attrValue > filterSettings.filter[attr.key].maxValue) {
         add = false;
         break; // Do not loop over other attributes
       }
@@ -98,8 +136,8 @@ const getFilteredMoleculesCount = (molecules, filterSettings) => {
 }
 
 const getSortedAttrOrder = (filterSettings) => {
-  let sortedAttributes = Object.keys(filterSettings).sort((a, b) => {
-    return filterSettings[b].priority - filterSettings[a].priority; // Higher first
+  let sortedAttributes = Object.keys(filterSettings.filter).sort((a, b) => {
+    return filterSettings.filter[b].priority - filterSettings.filter[a].priority; // Higher first
   });
   return sortedAttributes;
 }
@@ -119,7 +157,7 @@ const filterMolecules = (molecules, filterSettings) => {
     for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
-      if(attrValue < filterSettings[attr.key].minValue || attrValue > filterSettings[attr.key].maxValue) {
+      if(attrValue < filterSettings.filter[attr.key].minValue || attrValue > filterSettings.filter[attr.key].maxValue) {
         add = false;
         break; // Do not loop over other attributes
       }
@@ -130,19 +168,19 @@ const filterMolecules = (molecules, filterSettings) => {
   }
 
   // 2. Sort
-  let sortedAttributes = Object.keys(filterSettings).sort((a, b) => {
-    return filterSettings[b].priority - filterSettings[a].priority; // Higher first
+  let sortedAttributes = Object.keys(filterSettings.filter).sort((a, b) => {
+    return filterSettings.filter[b].priority - filterSettings.filter[a].priority; // Higher first
   });
 
   // Do not filter by priority 0
-  sortedAttributes = sortedAttributes.filter(attr => filterSettings[attr].priority > 0);
+  sortedAttributes = sortedAttributes.filter(attr => filterSettings.filter[attr].priority > 0);
   sortedAttributes.push('site'); // Finally sort by site;
 
   filteredMolecules = filteredMolecules.sort((a, b) => {
     for(let prioAttr of sortedAttributes) {
       let order = 1;
       if(prioAttr !== 'site') { // Site is always arbitrary
-        order = filterSettings[prioAttr].order;
+        order = filterSettings.filter[prioAttr].order;
       }
 
       const attrLo = prioAttr.toLowerCase();
@@ -161,7 +199,7 @@ const filterMolecules = (molecules, filterSettings) => {
 exports.filterMolecules = filterMolecules;
 
 export default function MoleculeListSortFilterDialog(props) {
-  const { handleClose, molGroupSelection, cachedMolList, filterSettings, handleFilterActive } = props;
+  const { handleClose, molGroupSelection, cachedMolList, filterSettings } = props;
   let classes = useStyles();
 
   const getListedMolecules = () => {
@@ -180,7 +218,12 @@ export default function MoleculeListSortFilterDialog(props) {
   }
 
   const initialize = () => {
-    let initObject = {};
+    let initObject = {
+      active: false,
+      predefined: 'none',
+      filter: {},
+    };
+  
     for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       let minValue = -999999;
@@ -192,45 +235,63 @@ export default function MoleculeListSortFilterDialog(props) {
         if (attrValue < minValue) minValue = attrValue;
       }
 
-      initObject[attr.key] = { priority: 0, order: 1, minValue: minValue, maxValue: maxValue, isFloat: attr.isFloat }
+      initObject.filter[attr.key] = { priority: 0, order: 1, minValue: minValue, maxValue: maxValue, isFloat: attr.isFloat }
     }
     return initObject;
   }
 
   const handleItemChange = (key) => (setting) => {
-    handleFilterActive(true);
     let newFilter = Object.assign({}, filter);
-    newFilter[key] = setting;
+    newFilter.filter[key] = setting;
+    newFilter.active = true;
     setFilter(newFilter);
     setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
   }
 
   const handleClear = () => {
     const resetFilter = initialize();
+    setPredefinedFilter('none');
     setFilter(resetFilter);
     setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
-    handleFilterActive(false);
   }
 
   const handleCloseVerify = () => {
     let filterSettings = Object.assign({}, filter);
     for (let attr of MOL_ATTRIBUTES) {
-      if (filterSettings[attr.key].priority === undefined || filterSettings[attr.key].priority === '') {
-        filterSettings[attr.key].priority = 0;
+      if (filterSettings.filter[attr.key].priority === undefined || filterSettings.filter[attr.key].priority === '') {
+        filterSettings.filter[attr.key].priority = 0;
       }
     }
     handleClose(filterSettings);
   }
 
+  const changePredefinedFilter = (event) => {
+    const preFilterKey = event.target.value;
+    setPredefinedFilter(preFilterKey);
+    let newFilter = Object.assign({}, filter);
+    newFilter.active = true;
+    newFilter.predefined = preFilterKey;
+    if(preFilterKey !== 'none') {
+      Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
+        const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
+        newFilter.filter[attr].maxValue = maxValue;
+        newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
+      });
+    }
+    setFilter(newFilter);
+    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
+  }
+
   const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
   const [initState] = useState(initialize());
   const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
+  const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 
   // Check for multiple attributes with same sorting priority
   let prioWarning = false;
   let prioWarningTest = {};
   for (const attr of MOL_ATTRIBUTES) {
-    const prioKey = filter[attr.key].priority;
+    const prioKey = filter.filter[attr.key].priority;
     if (prioKey > 0) {
       prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
       if(prioWarningTest[prioKey] > 1) prioWarning = true;
@@ -239,7 +300,33 @@ export default function MoleculeListSortFilterDialog(props) {
 
   return (
     <Dialog open={true} aria-labelledby="form-dialog-title">
-      <DialogTitle classes={{root: classes.title}} disableTypography id="form-dialog-title"><h4>Sort and filter</h4></DialogTitle>
+      <DialogTitle classes={{root: classes.title}} disableTypography id="form-dialog-title">
+        <Grid container justify='space-between'>
+          <Grid item> <h4>Sort and filter</h4></Grid>
+          <Grid item>
+            <FormControl className={classes.formControl}>
+              <InputLabel shrink htmlFor="predefined-label-placeholder" className={classes.fontLarger}>
+                Predefined filter
+              </InputLabel>
+              <Select
+                value={predefinedFilter}
+                onChange={changePredefinedFilter}
+                inputProps={{
+                  name: 'predefined',
+                  id: 'predefined-label-placeholder',
+                }}
+                displayEmpty
+                name="predefined"
+                className={classes.selectEmpty}
+              >
+                {
+                  Object.keys(PREDEFINED_FILTERS).map(preFilterKey => <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>{PREDEFINED_FILTERS[preFilterKey].name}</MenuItem>)
+                }
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </DialogTitle>
       <DialogContent>
         <Grid container>
           <Grid container item className={classes.gridItemHeader}>
@@ -256,14 +343,15 @@ export default function MoleculeListSortFilterDialog(props) {
               <MoleculeListSortFilterItem 
                 key={attr.key}
                 property={attr.name} 
-                priority={filter[attr.key].priority}
-                order={filter[attr.key].order}
-                minValue={filter[attr.key].minValue}
-                maxValue={filter[attr.key].maxValue}
-                min={initState[attr.key].minValue} 
-                max={initState[attr.key].maxValue} 
-                isFloat={initState[attr.key].isFloat}
+                priority={filter.filter[attr.key].priority}
+                order={filter.filter[attr.key].order}
+                minValue={filter.filter[attr.key].minValue}
+                maxValue={filter.filter[attr.key].maxValue}
+                min={initState.filter[attr.key].minValue} 
+                max={initState.filter[attr.key].maxValue} 
+                isFloat={initState.filter[attr.key].isFloat}
                 color={attr.color}
+                disabled={predefinedFilter !== 'none'}
                 onChange={handleItemChange(attr.key)}/>
             )
           }
@@ -288,7 +376,6 @@ export default function MoleculeListSortFilterDialog(props) {
 
 MoleculeListSortFilterDialog.propTypes = {
   handleClose: PropTypes.func.isRequired,
-  handleFilterActive: PropTypes.func.isRequired,
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
   filterSettings: PropTypes.object
