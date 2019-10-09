@@ -1,25 +1,22 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {Welcome} from "../components/landing";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Welcome } from '../components/landing';
 
 class Landing extends Component {
-
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props);
   }
 
   render() {
-      return (
-          <Welcome/>
-      )
-    }
+    return <Welcome />;
+  }
 }
 
 function mapStateToProps(state) {
-  return { }
+  return {};
 }
 
-export default connect(mapStateToProps)(Landing)
+export default connect(mapStateToProps)(Landing);

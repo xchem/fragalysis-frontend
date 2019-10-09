@@ -19,14 +19,14 @@ const useStyles = makeStyles({
   },
   property: {
     fontSize: '10px',
-    color: '#000',
+    color: '#000'
   },
   min: {
     fontSize: '10px',
-    color: '#7B7B7B',
+    color: '#7B7B7B'
   },
   prio: {
-    color: '#7B7B7B',
+    color: '#7B7B7B'
   },
   radioOrder: {
     //padding: 0
@@ -41,30 +41,30 @@ const useStyles = makeStyles({
     color: 'white',
     fontWeight: 'bolder',
     fontSize: 12,
-    lineHeight: '10px',
+    lineHeight: '10px'
   },
   prioButtonGreen: {
     backgroundColor: '#00D100',
     '&:hover': {
-        backgroundColor: '#007500'
+      backgroundColor: '#007500'
     }
   },
   prioButtonRed: {
     backgroundColor: '#DC143C',
     '&:hover': {
-        backgroundColor: '#B21031'
+      backgroundColor: '#B21031'
     }
   },
   textCenter: {
-    textAlign: 'center',
+    textAlign: 'center'
   },
   slider: {
     paddingLeft: 8,
-    paddingRight: 8,
+    paddingRight: 8
   },
   propertyChip: {
     fontSize: '1.1rem',
-    fontWeight: 'bolder',
+    fontWeight: 'bolder'
   }
 });
 
@@ -74,7 +74,7 @@ const widthProperty = 200;
 const widthMin = 30;
 const widthSlider = 170;
 
-const moleculeListSortFilterItem = (props) => {
+const moleculeListSortFilterItem = props => {
   const { property, min, max, onChange, isFloat, color, disabled, onChangePrio } = props;
   const { order, minValue, maxValue } = props;
   // Because Slider works only with Integers we convert Float to Int by multiplying with 100
@@ -93,16 +93,16 @@ const moleculeListSortFilterItem = (props) => {
   let setting = {
     order: order,
     minValue: minValue,
-    maxValue: maxValue,
-  }
+    maxValue: maxValue
+  };
 
-  const handleChangeOrder = (e) => {
+  const handleChangeOrder = e => {
     const value = parseInt(e.target.value);
     if (value !== order) {
-      setting.order = value
+      setting.order = value;
       onChange(setting);
     }
-  }
+  };
 
   // We use internal state for slider for improved performance, so the uncommitted value is not passed to parent for processing
   const handleChangeSlider = (event, newValue) => {
@@ -117,40 +117,60 @@ const moleculeListSortFilterItem = (props) => {
   };
 
   // In case of 'CLEAR' filter we need reset internal state
-  if(sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
+  if (sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
     setSliderValue([normMinValue, normMaxValue]);
     setSliderCommittedValue([normMinValue, normMaxValue]);
   }
 
   return (
     <Grid container item className={classes.gridItemHeader}>
-      <Grid item container className={classes.centered} style={{width: widthPrio}}>
+      <Grid item container className={classes.centered} style={{ width: widthPrio }}>
         <Grid item container justify="center">
-          <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonGreen)} onClick={onChangePrio(-1)}><KeyboardArrowUp/></Button></Grid>
-          <Grid item><Button variant="outlined" className={classNames(classes.prioButton, classes.prioButtonRed)} onClick={onChangePrio(1)}><KeyboardArrowDown/></Button></Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              className={classNames(classes.prioButton, classes.prioButtonGreen)}
+              onClick={onChangePrio(-1)}
+            >
+              <KeyboardArrowUp />
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              className={classNames(classes.prioButton, classes.prioButtonRed)}
+              onClick={onChangePrio(1)}
+            >
+              <KeyboardArrowDown />
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
-      <Grid item className={classes.centered} style={{width: widthOrder}}>
+      <Grid item className={classes.centered} style={{ width: widthOrder }}>
         <Radio
-          classes={{root: classes.radioOrder}}
-          style={{left: 4}}
+          classes={{ root: classes.radioOrder }}
+          style={{ left: 4 }}
           checked={order === 1}
           onChange={handleChangeOrder}
           value={1}
           name="radio-button-demo"
         />
         <Radio
-          classes={{root: classes.radioOrder}}
-          style={{right: 4}}
+          classes={{ root: classes.radioOrder }}
+          style={{ right: 4 }}
           checked={order === -1}
           onChange={handleChangeOrder}
           value={-1}
           name="radio-button-demo"
-        />  
+        />
       </Grid>
-      <Grid item className={classNames(classes.property, classes.centered)} style={{width: widthProperty}}><Chip size='small' className={classes.propertyChip} label={property} style={{backgroundColor: color}}/></Grid>
-      <Grid item className={classNames(classes.min, classes.centered)} style={{width: widthMin}}>{min}</Grid>
-      <Grid item className={classNames(classes.centered, classes.slider)} style={{width: widthSlider}}>
+      <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
+        <Chip size="small" className={classes.propertyChip} label={property} style={{ backgroundColor: color }} />
+      </Grid>
+      <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+        {min}
+      </Grid>
+      <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
         <Slider
           value={sliderValue}
           onChange={handleChangeSlider}
@@ -160,14 +180,18 @@ const moleculeListSortFilterItem = (props) => {
           max={normMax}
           min={normMin}
           marks={isFloat !== true ? true : undefined}
-          valueLabelFormat={value => { return isFloat ? value / MULT : value }}
+          valueLabelFormat={value => {
+            return isFloat ? value / MULT : value;
+          }}
           disabled={disabled}
         />
       </Grid>
-      <Grid item className={classNames(classes.min, classes.centered)} style={{width: widthMin}}>{max}</Grid>
+      <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+        {max}
+      </Grid>
     </Grid>
-  )
-}
+  );
+};
 
 moleculeListSortFilterItem.propTypes = {
   order: PropTypes.number.isRequired,

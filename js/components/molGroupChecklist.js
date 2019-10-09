@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
-import { connect } from "react-redux";
-import * as apiActions from "../actions/apiActions";
+import { connect } from 'react-redux';
+import * as apiActions from '../actions/apiActions';
 
 const useStyles = makeStyles(() => ({
   divContainer: {
@@ -31,11 +31,11 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const molGroupChecklist = (props) => {
+const molGroupChecklist = props => {
   const classes = useStyles();
   const { object_list, object_selection, setObjectOn, setObjectSelection } = props;
 
-  const handleOnSelect = (o) => (e) => {
+  const handleOnSelect = o => e => {
     const objIdx = object_selection.indexOf(o.id);
     const selectionCopy = object_selection.slice();
     if (e.target.checked && objIdx === -1) {
@@ -52,8 +52,8 @@ const molGroupChecklist = (props) => {
     <div className={classes.divContainer}>
       <div className={classes.divScrollable}>
         <Grid container direction="column">
-          {
-            object_list && object_list.map((o, idx) => {
+          {object_list &&
+            object_list.map((o, idx) => {
               const checked = object_selection.some(i => i === o.id);
               const site = idx + 1;
               return (
@@ -72,25 +72,27 @@ const molGroupChecklist = (props) => {
                     {`Site ${site} - (${o.id})`}
                   </Grid>
                 </Grid>
-              )
-            })
-          }
+              );
+            })}
         </Grid>
       </div>
       <div className={classes.title}>selected sites:</div>
     </div>
-  )
-}
+  );
+};
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
-      object_list: state.apiReducers.present.mol_group_list,
-      object_selection: state.apiReducers.present.mol_group_selection,
-  }
-}
+    object_list: state.apiReducers.present.mol_group_list,
+    object_selection: state.apiReducers.present.mol_group_selection
+  };
+};
 
 const mapDispatchToProps = {
-    setObjectOn: apiActions.setMolGroupOn,
-    setObjectSelection: apiActions.setMolGroupSelection,
-}
-export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);
+  setObjectOn: apiActions.setMolGroupOn,
+  setObjectSelection: apiActions.setMolGroupSelection
+};
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(molGroupChecklist);

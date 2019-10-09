@@ -1,25 +1,22 @@
 /**
  * Created by ricgillams on 31/10/2018.
  */
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import SessionList from "../components/sessionList";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import SessionList from '../components/sessionList';
 
 class Sessions extends Component {
-
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props);
   }
 
   render() {
-      return (
-          <SessionList key="SESSIONLIST"/>
-      )
-    }
+    return <SessionList key="SESSIONLIST" />;
+  }
 }
 
 function mapStateToProps(state) {
-  return { }
+  return {};
 }
 
-export default connect(mapStateToProps)(Sessions)
+export default connect(mapStateToProps)(Sessions);
