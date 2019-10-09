@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, withStyles, Chip, Tooltip } from "@material-ui/core";
+import { Grid, withStyles, Chip, Tooltip, Button } from "@material-ui/core";
 import {GenericList} from "./generalComponents";
 import React from "react";
 import {connect} from "react-redux";
@@ -13,6 +13,7 @@ import MoleculeView from "./moleculeView";
 import BorderedView from "./borderedView";
 import classNames from "classnames";
 import MoleculeListSortFilterDialog, { filterMolecules, getAttrDefinition } from "./moleculeListSortFilterDialog";
+import {getJoinedMoleculeList} from "./molecules/helpers";
 
 const styles = (theme) => ({
     container: {
@@ -62,7 +63,19 @@ const styles = (theme) => ({
     },
     filterTooltip: {
         fontSize: '1rem',
-    }
+    },
+    button: {
+        minWidth: 'unset'
+    },
+    buttonActive: {
+        border: 'solid 1px #009000',
+        color: '#009000',
+        '&:hover': {
+            backgroundColor: '#E3EEDA',
+            borderColor: '#003f00',
+            color: '#003f00',
+        }
+    },
 });
 
 class MoleculeList extends GenericList {
@@ -94,32 +107,24 @@ class MoleculeList extends GenericList {
 
     render() {
         const { sortDialogOpen } = this.state;
-        const { classes, object_selection, cached_mol_lists, mol_group_list, height } = this.props;
+        const { classes, object_selection, height, cached_mol_lists, mol_group_list} = this.props;
         const imgHeight = 80;
         const imgWidth = 100;
 
-        // concat molecule results for all selected molecule groups into single list
-        let joinedMoleculeLists = [];
-        object_selection.forEach(obj => {
-            const cachedData = cached_mol_lists[obj];
-            const site = (mol_group_list || []).findIndex(group => group.id === obj) + 1;
-            if (cachedData && cachedData.results) {
-                cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
-            }
-        });
+        let joinedMoleculeLists =  getJoinedMoleculeList(object_selection, cached_mol_lists, mol_group_list);
+
 
         if(!!(this.filterSettings || {}).active) {
-            joinedMoleculeLists = filterMolecules(joinedMoleculeLists, this.filterSettings);
+            joinedMoleculeLists = useMemo(()=>filterMolecules(joinedMoleculeLists, this.filterSettings),[joinedMoleculeLists, this.filterSettings]);
         } else {
-            joinedMoleculeLists = joinedMoleculeLists.sort((a, b) => a.site - b.site);
+            joinedMoleculeLists.sort((a, b) => a.site - b.site);
         }
 
-        const titleButtonData = {
-            content: <span className={classes.sortFilterButtonStyle}>sort/filter</span>,
-            onClick: this.handleDialog(open),
-            disabled: !(object_selection || []).length,
-            active: !!(this.filterSettings || {}).active,
-          }
+        const titleRightElement = <Button 
+            onClick={this.handleDialog(open)} 
+            className={classNames(classes.button, {[classes.buttonActive]: !!(this.filterSettings || {}).active})} 
+            disabled={!(object_selection || []).length}><span className={classes.sortFilterButtonStyle}>sort/filter</span></Button>
+
         return (
             <div>
             {  !!(this.filterSettings || {}).active && 
@@ -133,7 +138,7 @@ class MoleculeList extends GenericList {
                     </div>
                 </div>
             }
-            <BorderedView title="hit navigator" titleButtonData={titleButtonData}>
+            <BorderedView title="hit navigator" rightElement={titleRightElement}>
                 { sortDialogOpen && <MoleculeListSortFilterDialog 
                     handleClose={this.handleDialogClose} 
                     molGroupSelection={this.props.object_selection} 
@@ -188,7 +193,6 @@ const mapDispatchToProps = {
     setObjectList: apiActions.setMoleculeList,
     setCachedMolLists: apiActions.setCachedMolLists,
     deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject,
-
+    loadObject: nglLoadActions.loadObject
 }
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MoleculeList));

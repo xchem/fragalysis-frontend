@@ -14,6 +14,7 @@ import SVGInline from "react-svg-inline";
 import MoleculeStatusView, { molStatusTypes } from "./moleculeStatusView";
 import classNames from 'classnames';
 import { fetchWithMemoize } from './generalComponents';
+import {VIEWS} from "./constants";
 
 const styles = () => ({
     container: {
@@ -343,11 +344,11 @@ class MoleculeView extends GenericView {
             this.setState({ isToggleOn: isToggled });
         }
         if (!isToggled) {
-            this.props.deleteObject(Object.assign({ display_div: "major_view" }, this.generateMolObject()));
+            this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject()));
             this.props.removeFromFragmentDisplayList(this.generateMolId());
         }
         else {
-            this.props.loadObject(Object.assign({ display_div: "major_view" }, this.generateMolObject(this.colourToggle)));
+            this.props.loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject(this.colourToggle)));
             this.props.appendFragmentDisplayList(this.generateMolId());
         }
     }
@@ -362,11 +363,11 @@ class MoleculeView extends GenericView {
             this.setState({ complexOn: isToggled });
         }
         if (!isToggled) {
-            this.props.deleteObject(Object.assign({ display_div: "major_view" }, this.generateObject()));
+            this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateObject()));
             this.props.removeFromComplexList(this.generateMolId());
         }
         else {
-            this.props.loadObject(Object.assign({ display_div: "major_view" }, this.generateObject()));
+            this.props.loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateObject()));
             this.props.appendComplexList(this.generateMolId());
         }
     }
@@ -381,12 +382,12 @@ class MoleculeView extends GenericView {
             this.setState({ vectorOn: isToggled });
         }
         if (!isToggled) {
-            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: "major_view" }, item)));
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
             this.props.setMol("");
             this.props.removeFromVectorOnList(this.generateMolId());
         }
         else {
-            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: "major_view" }, item)));
+            this.props.vector_list.forEach(item => this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
             fetchWithMemoize(this.getViewUrl("vector")).then(json => this.handleVector(json["vectors"]));
             // Set this
             this.props.getFullGraph(this.props.data);

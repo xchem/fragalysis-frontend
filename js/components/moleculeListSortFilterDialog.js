@@ -336,7 +336,7 @@ export default function MoleculeListSortFilterDialog(props) {
             <Grid item className={classes.centered} style={{width: widthOrder}}><div style={{textAlign: 'center'}}>order<br/><span style={{fontSize: 'smaller'}}>(up/down)</span></div></Grid>
             <Grid item className={classes.centered} style={{width: widthProperty}}>property</Grid>
             <Grid item className={classes.centered} style={{width: widthMin}}>min</Grid>
-            <Grid item className={classes.centered} style={{width: widthSlider}}></Grid>
+            <Grid item className={classes.centered} style={{width: widthSlider}}/>
             <Grid item className={classes.centered} style={{width: widthMin}}>max</Grid>
           </Grid>
 

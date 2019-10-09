@@ -23,7 +23,7 @@ const fetchWithMemoize = R.memoizeWith(R.identity, url => {
 exports.fetchWithMemoize = fetchWithMemoize;
 
 // Generic Classes
-export class GenericList extends React.Component {
+export class GenericList extends React.PureComponent {
 
     constructor(props) {
         super(props);
@@ -182,7 +182,7 @@ export class GenericList extends React.Component {
     }
 }
 
-export class GenericView extends React.Component {
+export class GenericView extends React.PureComponent {
 
     constructor(props) {
         super(props);
@@ -273,7 +273,7 @@ export class GenericView extends React.Component {
     }
 }
 
-export class Slider extends React.Component {
+export class Slider extends React.PureComponent {
 
     constructor(props) {
         super(props);

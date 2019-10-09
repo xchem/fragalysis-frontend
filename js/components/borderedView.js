@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Button, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
 const useStyles = makeStyles(() => ({
@@ -20,18 +20,6 @@ const useStyles = makeStyles(() => ({
       padding: '0 8px',
       fontSize: '16px'
   },
-  button: {
-    minWidth: 'unset'
-  },
-  buttonActive: {
-    border: 'solid 1px #009000',
-    color: '#009000',
-    '&:hover': {
-      backgroundColor: '#E3EEDA',
-      borderColor: '#003f00',
-      color: '#003f00',
-    }
-  },
   border: {
       border: 'solid 2px #DEDEDE',
       borderRadius: '8px'
@@ -40,7 +28,7 @@ const useStyles = makeStyles(() => ({
 
 export default (props) => {
   const classes = useStyles();
-  const { title, titleButtonData, children } = props;
+  const { title, rightElement, children } = props;
 
   return (
     <Grid container direction="column" className={classNames(classes.container, classes.border)}>
@@ -49,10 +37,7 @@ export default (props) => {
           {title}
         </Grid>
         <Grid item>
-          {
-            titleButtonData &&
-            <Button onClick={titleButtonData.onClick} className={classNames(classes.button, {[classes.buttonActive]: (titleButtonData || {}).active})} disabled={titleButtonData.disabled}>{titleButtonData.content}</Button>
-          }
+          {rightElement}
         </Grid>
       </Grid>
       <Grid item container>
