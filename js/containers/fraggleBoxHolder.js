@@ -2,7 +2,7 @@
  * Created by ricgillams in 25/06/2018.
  */
 
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
 import MolGroupList from '../components/molGroupList';
@@ -34,7 +34,7 @@ const styles = () => ({
   }
 });
 
-class FraggleBox extends Component {
+class FraggleBox extends PureComponent {
   constructor(props) {
     super(props);
   }

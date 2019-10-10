@@ -2,20 +2,15 @@
  * Created by ricgillams on 21/06/2018.
  */
 import { Col, Row } from 'react-bootstrap';
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { PureComponent } from 'react';
 import TargetList from './targetList';
 import SessionList from './sessionList';
 import { BrowserBomb } from './browserBombModal';
 
-export class Welcome extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
+export class Welcome extends PureComponent {
   render() {
     var text_div;
-    if (DJANGO_CONTEXT['authenticated'] == true) {
+    if (DJANGO_CONTEXT['authenticated'] === true) {
       var entry_text = "You're logged in as " + DJANGO_CONTEXT['username'];
       text_div = <h3>{entry_text}</h3>;
     } else {
@@ -30,7 +25,7 @@ export class Welcome extends React.Component {
     }
     return (
       <Row>
-        <Col xs={1} md={1}></Col>
+        <Col xs={1} md={1} />
         <Col xs={2} md={2}>
           <Row>
             <h1>Welcome to Fragalysis{'\n'}</h1>
@@ -62,13 +57,4 @@ export class Welcome extends React.Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {};
-}
-const mapDispatchToProps = {};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Welcome);
+export default Welcome;

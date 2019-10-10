@@ -15,4 +15,4 @@ const rootReducer = combineReducers({
   selectionReducers: undoable(selectionRed, { limit: 1 })
 });
 
-export default rootReducer;
+export { rootReducer };

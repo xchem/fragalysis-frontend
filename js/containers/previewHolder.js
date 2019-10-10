@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
 import NGLView from '../components/nglComponents';
@@ -33,7 +33,7 @@ const styles = () => ({
   }
 });
 
-class Preview extends Component {
+class Preview extends PureComponent {
   constructor(props) {
     super(props);
     this.updateTarget = this.updateTarget.bind(this);

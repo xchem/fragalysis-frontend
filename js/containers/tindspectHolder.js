@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { PureComponent } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import NGLView from '../components/nglComponents';
 import EventList from '../components/eventList';
@@ -7,11 +6,7 @@ import PanddaSiteList from '../components/panddaSiteList';
 import PanddaSlider from '../components/panddaSlider';
 import EventSlider from '../components/eventSlider';
 
-class Tindspect extends Component {
-  constructor(props) {
-    super(props);
-  }
-
+class Tindspect extends PureComponent {
   render() {
     return (
       <Row>
@@ -30,8 +25,4 @@ class Tindspect extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {};
-}
-
-export default connect(mapStateToProps)(Tindspect);
+export default Tindspect;

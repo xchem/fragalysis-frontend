@@ -1,22 +1,33 @@
 /**
  * Created by abradley on 07/03/2018.
  */
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Provider } from 'react-redux';
-import configureStore from '../configureStore';
-import routes from './app';
+import Routes from './Routes';
 import { BrowserRouter } from 'react-router-dom';
-import { saveStore } from '../containers/globalStore';
+import { saveStore } from './globalStore';
 import { hot } from 'react-hot-loader';
+import { configureStore } from 'redux-starter-kit';
+import thunkMiddleware from 'redux-thunk';
+import { createLogger } from 'redux-logger';
+import { rootReducer } from '../reducers/rootReducer';
 
-const store = configureStore();
+const loggerMiddleware = createLogger();
+
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: [thunkMiddleware, loggerMiddleware],
+  devTools: true
+});
 
 saveStore(store);
-class Root extends Component {
+class Root extends PureComponent {
   render() {
     return (
       <Provider store={store}>
-        <BrowserRouter>{routes}</BrowserRouter>
+        <BrowserRouter>
+          <Routes />
+        </BrowserRouter>
       </Provider>
     );
   }
