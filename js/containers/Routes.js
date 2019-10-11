@@ -6,7 +6,7 @@ import { Route, Switch } from 'react-router-dom';
 import TargetManagement from './targetManagementHolder';
 import Tindspect from './tindspectHolder';
 import Landing from './Landing';
-import Preview from './previewHolder';
+import Preview from './Preview';
 import Sessions from './sessionHolder';
 import FraggleBox from './fraggleBoxHolder';
 import Funders from './fundersHolder';

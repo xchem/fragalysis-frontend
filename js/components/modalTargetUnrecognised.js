@@ -54,6 +54,7 @@ export class ModalTargetUnrecognised extends React.Component {
   }
 
   render() {
+    // eslint-disable-next-line no-undef
     if (DJANGO_CONTEXT['username'] == 'NOT_LOGGED_IN') {
       var request = (
         <h3>
@@ -89,7 +90,9 @@ export class ModalTargetUnrecognised extends React.Component {
                 Target was not recognised or you do not have authentication to access target. <br />
               </h3>
               {request}
-              <TargetList key="TARGLIST" />
+              {/*TODO: create new simple component only with list of targets, because now when you load TargetList
+              component, objects in reducer will be changed*/}
+              {/*<TargetList key="TARGLIST" showList />*/}
               <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>
                 Close
               </Button>

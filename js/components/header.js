@@ -7,9 +7,9 @@ import { Navbar, Nav, NavItem, Row, Button, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import { withRouter } from 'react-router-dom';
-import TargetList from './targetList';
 import SessionManagement from './sessionManagement';
 import { ErrorReport } from './errorReport';
+import { PREFIX } from './constants';
 
 class Header extends React.Component {
   constructor(props) {
@@ -34,7 +34,7 @@ class Header extends React.Component {
     var prot_to_load = targetData.protein_set[0];
     if (prot_to_load != undefined) {
       var out_object = {
-        name: 'PROTEIN_' + prot_to_load.toString(),
+        name: PREFIX.PROTEIN + prot_to_load.toString(),
         prot_url: this.getViewUrl(prot_to_load, 'prot_from_pk'),
         OBJECT_TYPE: nglObjectTypes.PROTEIN
       };
@@ -78,6 +78,7 @@ class Header extends React.Component {
     var logout = '/accounts/logout';
     var new_ele;
     var navbarBrand;
+    // eslint-disable-next-line no-undef
     var username = DJANGO_CONTEXT['username'];
 
     if (username == 'NOT_LOGGED_IN') {
@@ -128,7 +129,7 @@ class Header extends React.Component {
 
     return (
       <Navbar fluid>
-        <Col xs={1} md={1}></Col>
+        <Col xs={1} md={1} />
         <Col xs={11} md={11}>
           <Navbar.Header>{navbarBrand}</Navbar.Header>
           <Nav pullLeft>
@@ -151,7 +152,6 @@ class Header extends React.Component {
             </NavItem>
           </Nav>
         </Col>
-        <TargetList key="TARGLIST" render={false} />
       </Navbar>
     );
   }

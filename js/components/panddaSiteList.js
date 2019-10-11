@@ -23,11 +23,14 @@ class PanddaSiteList extends GenericList {
 
   loadFromServer() {
     const url = this.getUrl();
+    debugger;
     if (url.toString() != this.old_url) {
       this.beforePush();
       fetch(url)
         .then(response => response.json(), error => console.log('An error occurred.', error))
-        .then(json => this.props.setObjectList(this.processResults(json)));
+        .then(json => {
+          this.props.setObjectList(this.processResults(json));
+        });
     }
     this.old_url = url.toString();
   }

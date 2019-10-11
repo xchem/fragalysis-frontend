@@ -10,7 +10,9 @@ import { BrowserBomb } from './browserBombModal';
 export class Welcome extends PureComponent {
   render() {
     var text_div;
+    // eslint-disable-next-line no-undef
     if (DJANGO_CONTEXT['authenticated'] === true) {
+      // eslint-disable-next-line no-undef
       var entry_text = "You're logged in as " + DJANGO_CONTEXT['username'];
       text_div = <h3>{entry_text}</h3>;
     } else {

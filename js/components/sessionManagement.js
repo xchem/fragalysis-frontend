@@ -293,6 +293,7 @@ export class SessionManagement extends React.Component {
         hour12: false
       };
       var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
+      // eslint-disable-next-line no-undef
       var userId = DJANGO_CONTEXT['pk'];
       var stateObject = JSON.parse(store);
       var newPresentObject = Object.assign(stateObject.apiReducers.present, {

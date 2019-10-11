@@ -8,9 +8,14 @@ import { init, showReportDialog } from '@sentry/browser';
 import LogRocket from 'logrocket';
 LogRocket.init('eoalzb/fragalysis');
 // This is the log rocket setup
+
+// eslint-disable-next-line no-undef
 LogRocket.identify(DJANGO_CONTEXT['username'], {
+  // eslint-disable-next-line no-undef
   pk: DJANGO_CONTEXT['pk'],
+  // eslint-disable-next-line no-undef
   name: DJANGO_CONTEXT['name'],
+  // eslint-disable-next-line no-undef
   email: DJANGO_CONTEXT['email']
 });
 init({

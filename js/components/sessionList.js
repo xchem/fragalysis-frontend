@@ -255,6 +255,7 @@ class SessionList extends GenericList {
       );
     } else {
       if (this.props != undefined && this.props.object_list) {
+        // eslint-disable-next-line no-undef
         if (DJANGO_CONTEXT['username'] == 'NOT_LOGGED_IN') {
           return <h3>Please log in to view session history.</h3>;
         } else if (this.props.object_list.length == 0) {

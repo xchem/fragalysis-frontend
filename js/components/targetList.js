@@ -3,26 +3,19 @@
  */
 
 import { ListGroupItem, ListGroup, Row, Col } from 'react-bootstrap';
-import { GenericList, FillMe } from './generalComponents';
-import React from 'react';
+import { FillMe } from './generalComponents';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from '../components/nglObjectTypes';
+
 import { withRouter, Link } from 'react-router-dom';
+import { getUrl, loadFromServer } from '../services/general';
 
-class TargetList extends GenericList {
-  constructor(props) {
-    super(props);
-    this.list_type = listType.TARGET;
-    this.render_method = this.render_method.bind(this);
-    this.generateTargetObject = this.generateTargetObject.bind(this);
-    this.checkForTargetChange = this.checkForTargetChange.bind(this);
-    this.origTarget = -1;
-  }
+const TargetList = memo(({ object_list, setObjectList }) => {
+  const [oldUrl, setOldUrl] = useState('');
 
-  render_method(data) {
+  const render_method = data => {
     const preview = '/viewer/react/preview/target/' + data.title;
     const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + data.title + '/html/index.html';
     const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
@@ -70,89 +63,38 @@ class TargetList extends GenericList {
         </ListGroupItem>
       );
     }
-  }
+  };
 
-  checkForTargetChange() {
-    if (this.props.object_on !== this.origTarget && this.props.object_on !== undefined) {
-      let targetData;
-      for (let index in this.props.object_list) {
-        var thisTarget = this.props.object_list[index];
-        if (thisTarget.id === this.props.object_on) {
-          targetData = thisTarget;
-          break;
-        }
-      }
-      this.props.setMoleculeList([]);
-      for (let key in this.props.objectsInView) {
-        this.props.deleteObject(this.props.objectsInView[key]);
-      }
-      const targObject = this.generateTargetObject(targetData);
-      if (targObject) {
-        this.props.loadObject(Object.assign({}, targObject, { display_div: 'summary_view' }));
-        this.props.loadObject(
-          Object.assign({}, targObject, {
-            display_div: 'major_view',
-            name: targObject.name + '_MAIN'
-          })
-        );
-      }
-      this.origTarget = this.props.object_on;
-    }
-  }
+  useEffect(() => {
+    const list_type = listType.TARGET;
 
-  generateTargetObject(targetData) {
-    // Now deal with this target
-    const prot_to_load = window.location.protocol + '//' + window.location.host + targetData.template_protein;
-    if (JSON.stringify(prot_to_load) !== JSON.stringify(undefined)) {
-      return {
-        name: 'PROTEIN_' + targetData.id.toString(),
-        prot_url: prot_to_load,
-        OBJECT_TYPE: nglObjectTypes.PROTEIN,
-        nglProtStyle: this.props.nglProtStyle
-      };
-    }
-    return undefined;
-  }
+    loadFromServer({
+      url: getUrl({ list_type }),
+      setOldUrl: url => setOldUrl(url),
+      old_url: oldUrl,
+      setObjectList: setObjectList,
+      list_type
+    });
+  }, [oldUrl, setObjectList]);
 
-  componentDidMount() {
-    this.loadFromServer();
-    setInterval(this.loadFromServer, 50);
-    setInterval(this.checkForTargetChange, 50);
+  if (object_list) {
+    return (
+      <div>
+        <h3>Target List:</h3>
+        <ListGroup>{object_list.map(data => render_method(data))}</ListGroup>
+      </div>
+    );
+  } else {
+    return <FillMe />;
   }
-
-  handleOptionChange(changeEvent) {
-    this.props.setObjectOn(changeEvent.target.value);
-  }
-
-  render() {
-    if (this.props.render === false) {
-      return null;
-    } else if (this.props.object_list) {
-      return (
-        <div>
-          <h3>Target List:</h3>
-          <ListGroup>{this.props.object_list.map(data => this.render_method(data))}</ListGroup>
-        </div>
-      );
-    } else {
-      return <FillMe />;
-    }
-  }
-}
+});
 
 function mapStateToProps(state) {
   return {
-    objectsInView: state.nglReducers.present.objectsInView,
-    object_list: state.apiReducers.present.target_id_list,
-    object_on: state.apiReducers.present.target_on,
-    nglProtStyle: state.nglReducers.present.nglProtStyle
+    object_list: state.apiReducers.present.target_id_list
   };
 }
 const mapDispatchToProps = {
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject,
-  setObjectOn: apiActions.setTargetOn,
-  setMoleculeList: apiActions.setMoleculeList,
   setObjectList: apiActions.setTargetIdList
 };
 export default withRouter(
