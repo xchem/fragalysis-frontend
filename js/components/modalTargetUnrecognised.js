@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button } from 'react-bootstrap';
@@ -26,86 +26,65 @@ const customStyles = {
   }
 };
 
-export class ModalTargetUnrecognised extends React.Component {
-  constructor(props) {
-    super(props);
-    this.closeModal = this.closeModal.bind(this);
-    this.state = { targetUnrecognised: undefined, targetListLength: undefined };
-  }
+const ModalTargetUnrecognised = memo(({ targetUnrecognised, targetIdList, setTargetUnrecognised }) => {
+  const closeModal = () => {
+    setTargetUnrecognised(undefined);
+  };
 
-  closeModal() {
-    this.setState(prevState => ({ targetUnrecognised: undefined }));
-    this.props.setTargetUnrecognised(undefined);
+  let request = null;
+  // eslint-disable-next-line no-undef
+  if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
+    request = (
+      <h3>
+        Please
+        <a className="inline" href="/accounts/login">
+          {' '}
+          sign in
+        </a>
+        , or select a target:
+      </h3>
+    );
+  } else {
+    request = <h3>Please select a target:</h3>;
   }
-
-  componentWillMount() {
-    ReactModal.setAppElement('body');
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.targetUnrecognised != undefined) {
-      this.setState(prevState => ({
-        targetUnrecognised: nextProps.targetUnrecognised
-      }));
-      this.setState(prevState => ({
-        targetListLength: this.props.targetIdList.length
-      }));
-    }
-  }
-
-  render() {
-    // eslint-disable-next-line no-undef
-    if (DJANGO_CONTEXT['username'] == 'NOT_LOGGED_IN') {
-      var request = (
-        <h3>
-          Please
-          <a className="inline" href="/accounts/login">
-            {' '}
-            sign in
-          </a>
-          , or select a target:
-        </h3>
+  if (targetUnrecognised === true) {
+    /*if (targetIdList && targetIdList.length === 0) {
+      return (
+        <ReactModal isOpen={targetUnrecognised} style={customStyles}>
+          <div>
+            <h3>The target was not recognised and there are no other available targets.</h3>
+            <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+              Close
+            </Button>
+            <ErrorReport />
+          </div>
+        </ReactModal>
       );
     } else {
-      var request = <h3>Please select a target:</h3>;
-    }
-    if (this.props.targetUnrecognised == true) {
-      if (this.state.targetListLength == 0) {
-        return (
-          <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
-            <div>
-              <h3>The target was not recognised and there are no other available targets.</h3>
-              <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>
-                Close
-              </Button>
-              <ErrorReport />
-            </div>
-          </ReactModal>
-        );
-      } else {
-        return (
-          <ReactModal isOpen={this.state.targetUnrecognised} style={customStyles}>
-            <div>
-              <h3>
-                Target was not recognised or you do not have authentication to access target. <br />
-              </h3>
-              {request}
-              {/*TODO: create new simple component only with list of targets, because now when you load TargetList
+    */
+    return (
+      <ReactModal isOpen={targetUnrecognised} style={customStyles}>
+        <div>
+          <h3>
+            Target was not recognised or you do not have authentication to access target. <br />
+          </h3>
+          {request}
+          {/*TODO: create new simple component only with list of targets, because now when you load TargetList
               component, objects in reducer will be changed*/}
-              {/*<TargetList key="TARGLIST" showList />*/}
-              <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>
-                Close
-              </Button>
-              <ErrorReport />
-            </div>
-          </ReactModal>
-        );
-      }
+          <TargetList key="TARGLIST" />
+          <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+            Close
+          </Button>
+          <ErrorReport />
+        </div>
+      </ReactModal>
+    );
+    /*  }
     } else {
       return null;
-    }
+    }*/
   }
-}
+});
 
 function mapStateToProps(state) {
   return {

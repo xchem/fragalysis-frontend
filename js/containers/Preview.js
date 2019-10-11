@@ -23,6 +23,7 @@ import { BrowserBomb } from '../components/browserBombModal';
 import { SUFFIX, VIEWS } from '../components/constants';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
+import { getTargetByTitle, getUrl, loadFromServer } from '../services/general';
 
 const styles = () => ({
   gridItemLhs: {
@@ -50,9 +51,11 @@ const Preview = memo(
     object_list,
     object_on,
     objectsInView,
-    deleteObject
+    deleteObject,
+    targetUnrecognised
   }) => {
     const origTarget = useRef(-1);
+    const target = match.params.target;
 
     const deployErrorModal = useCallback(
       error => {
@@ -62,24 +65,25 @@ const Preview = memo(
     );
 
     const updateTarget = useCallback(() => {
-      let target = match.params.target;
       // Get from the REST API
+      let targetUnrecognisedFlag = true;
       if (targetIdList.length !== 0) {
-        var targetUnrecognised = true;
         targetIdList.forEach(targetId => {
           if (target === targetId.title) {
-            targetUnrecognised = false;
+            targetUnrecognisedFlag = false;
           }
         });
       }
-      setTargetUnrecognised(targetUnrecognised);
-      fetch(window.location.protocol + '//' + window.location.host + '/api/targets/?title=' + target)
-        .then(response => response.json())
-        .then(json => setTargetOn(json['results'][0].id))
-        .catch(error => {
-          deployErrorModal(error);
-        });
-    }, [match.params.target, setTargetUnrecognised, targetIdList, deployErrorModal, setTargetOn]);
+      setTargetUnrecognised(targetUnrecognisedFlag);
+      if (targetUnrecognisedFlag === false) {
+        fetch(window.location.protocol + '//' + window.location.host + '/api/targets/?title=' + target)
+          .then(response => response.json())
+          .then(json => setTargetOn(json['results'][0].id))
+          .catch(error => {
+            deployErrorModal(error);
+          });
+      }
+    }, [target, setTargetUnrecognised, targetIdList, deployErrorModal, setTargetOn]);
 
     useEffect(() => {
       updateTarget();
@@ -133,8 +137,10 @@ const Preview = memo(
 
     // for loading protein
     useEffect(() => {
-      checkForTargetChange();
-    }, [checkForTargetChange]);
+      if (targetIdList.length > 0) {
+        checkForTargetChange();
+      }
+    }, [checkForTargetChange, targetIdList, targetUnrecognised, setTargetUnrecognised]);
 
     const screenHeight = window.innerHeight * (0.7).toString() + 'px';
     const molListHeight = window.innerHeight * (0.45).toString() + 'px';
@@ -177,7 +183,8 @@ function mapStateToProps(state) {
     nglProtStyle: state.nglReducers.present.nglProtStyle,
     object_list: state.apiReducers.present.target_id_list,
     object_on: state.apiReducers.present.target_on,
-    objectsInView: state.nglReducers.present.objectsInView
+    objectsInView: state.nglReducers.present.objectsInView,
+    targetUnrecognised: state.apiReducers.present.targetUnrecognised
   };
 }
 const mapDispatchToProps = {
