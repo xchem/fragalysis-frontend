@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
-import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 const useStyles = makeStyles(() => ({
   divContainer: {
