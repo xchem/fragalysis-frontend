@@ -18,11 +18,6 @@ class HotspotList extends GenericList {
     this.updateCount = this.updateCount.bind(this);
   }
 
-  handleOptionChange(changeEvent) {
-    const new_value = changeEvent.target.value;
-    this.props.setObjectOn(new_value);
-  }
-
   async updateCount(props) {
     if (props.object_list != undefined && props.object_list.length > 0) {
       var response = await fetch('/api/hotspots/?map_type=DO&prot_id=' + props.object_list[0].prot_id.toString(), {

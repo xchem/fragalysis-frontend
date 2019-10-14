@@ -208,7 +208,7 @@ const filterMolecules = (molecules, filterSettings) => {
   let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
   sortedAttributes.push('site'); // Finally sort by site;
 
-  filteredMolecules = filteredMolecules.sort((a, b) => {
+  return filteredMolecules.sort((a, b) => {
     for (let prioAttr of sortedAttributes) {
       let order = 1;
       if (prioAttr !== 'site') {
@@ -218,21 +218,21 @@ const filterMolecules = (molecules, filterSettings) => {
 
       const attrLo = prioAttr.toLowerCase();
       let diff = order * (a[attrLo] - b[attrLo]);
-      if (diff === 0) {
-        continue; // pass to next attribute based on priority
-      } else {
+      if (diff !== 0) {
         return diff;
       }
     }
   });
-
-  return filteredMolecules;
 };
 
 exports.filterMolecules = filterMolecules;
 
-export default function MoleculeListSortFilterDialog(props) {
-  const { handleClose, molGroupSelection, cachedMolList, filterSettings } = props;
+export default function MoleculeListSortFilterDialog({
+  handleClose,
+  molGroupSelection,
+  cachedMolList,
+  filterSettings
+}) {
   let classes = useStyles();
 
   const getListedMolecules = () => {
@@ -311,13 +311,13 @@ export default function MoleculeListSortFilterDialog(props) {
   };
 
   const handleCloseVerify = () => {
-    let filterSettings = Object.assign({}, filter);
+    const filterSet = Object.assign({}, filter);
     for (let attr of MOL_ATTRIBUTES) {
-      if (filterSettings.filter[attr.key].priority === undefined || filterSettings.filter[attr.key].priority === '') {
-        filterSettings.filter[attr.key].priority = 0;
+      if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+        filterSet.filter[attr.key].priority = 0;
       }
     }
-    handleClose(filterSettings);
+    handleClose(filterSet);
   };
 
   const changePredefinedFilter = event => {

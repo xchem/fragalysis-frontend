@@ -24,7 +24,6 @@ class PanddaSiteList extends GenericList {
 
   loadFromServer() {
     const url = this.getUrl();
-    debugger;
     if (url.toString() != this.old_url) {
       this.beforePush();
       fetch(url)
@@ -71,11 +70,6 @@ class PanddaSiteList extends GenericList {
         this.props.loadObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, this.generateObject(data)))
       );
     }
-  }
-
-  handleOptionChange(changeEvent) {
-    const new_value = changeEvent.target.value;
-    this.props.setObjectOn(new_value);
   }
 }
 function mapStateToProps(state) {

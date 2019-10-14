@@ -24,7 +24,6 @@ export class GenericList extends React.PureComponent {
     this.old_url = '';
     this.loadFromServer = this.loadFromServer.bind(this);
     this.getUrl = this.getUrl.bind(this);
-    this.handleOptionChange = this.handleOptionChange.bind(this);
     this.processResults = this.processResults.bind(this);
     this.beforePush = this.beforePush.bind(this);
     this.afterPush = this.afterPush.bind(this);
@@ -143,11 +142,6 @@ export class GenericList extends React.PureComponent {
       });
     }
     this.old_url = url.toString();
-  }
-
-  handleOptionChange(changeEvent) {
-    const new_value = changeEvent.target.value;
-    this.props.setObjectOn(new_value);
   }
 
   componentDidMount() {

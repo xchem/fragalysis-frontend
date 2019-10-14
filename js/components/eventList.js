@@ -15,10 +15,6 @@ class EventList extends GenericList {
     this.old_object = -1;
   }
 
-  handleOptionChange(changeEvent) {
-    const new_value = changeEvent.target.value;
-    this.props.setObjectOn(new_value);
-  }
   render() {
     return null;
   }

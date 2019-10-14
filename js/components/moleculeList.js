@@ -3,8 +3,7 @@
  */
 
 import { Grid, withStyles, Chip, Tooltip, Button } from '@material-ui/core';
-import { GenericList } from './generalComponents';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, memo } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -14,6 +13,7 @@ import BorderedView from './borderedView';
 import classNames from 'classnames';
 import MoleculeListSortFilterDialog, { filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './molecules/helpers';
+import { getUrl, loadFromServer } from '../services/general';
 
 const styles = theme => ({
   container: {
@@ -78,56 +78,61 @@ const styles = theme => ({
   }
 });
 
-class MoleculeList extends GenericList {
-  // const list_type = listType.MOLECULE;
+const MoleculeList = memo(
+  ({
+    classes,
+    object_selection,
+    height,
+    cached_mol_lists,
+    mol_group_list,
+    target_on,
+    mol_group_on,
+    setObjectList,
+    setCachedMolLists
+  }) => {
+    const list_type = listType.MOLECULE;
+    const [oldUrl, setOldUrl] = useState('');
+    const [sortDialogOpen, setSortDialogOpen] = useState(false);
+    const [filterSettings, setFilterSettings] = useState();
 
-  constructor(props) {
-    super(props);
-    this.list_type = listType.MOLECULE;
-    this.state = {
-      sortDialogOpen: false
-    };
-    this.filterSettings = undefined;
-  }
-
-  handleOptionChange(changeEvent) {
-    const new_value = changeEvent.target.value;
-    this.props.setObjectOn(new_value);
-  }
-
-  handleDialog = () => open => {
-    this.setState({
-      sortDialogOpen: open
-    });
-  };
-
-  handleDialogClose = filter => {
-    this.filterSettings = filter;
-    this.handleDialog(false)();
-  };
-
-  render() {
-    const { sortDialogOpen } = this.state;
-    const { classes, object_selection, height, cached_mol_lists, mol_group_list } = this.props;
     const imgHeight = 80;
     const imgWidth = 100;
 
-    let joinedMoleculeLists = getJoinedMoleculeList(object_selection, cached_mol_lists, mol_group_list);
+    let joinedMoleculeLists = useMemo(
+      () => getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }),
+      [object_selection, cached_mol_lists, mol_group_list]
+    );
 
-    if (!!(this.filterSettings || {}).active) {
-      joinedMoleculeLists = useMemo(() => filterMolecules(joinedMoleculeLists, this.filterSettings), [
-        joinedMoleculeLists,
-        this.filterSettings
-      ]);
+    const handleDialog = () => open => setSortDialogOpen(open);
+
+    const handleDialogClose = filter => {
+      setFilterSettings(filter);
+      handleDialog(false);
+    };
+
+    if (!!(filterSettings || {}).active) {
+      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
     } else {
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }
 
+    useEffect(() => {
+      loadFromServer({
+        url: getUrl({ list_type, target_on, mol_group_on }),
+        setOldUrl: url => setOldUrl(url),
+        old_url: oldUrl,
+        list_type,
+        setObjectList,
+        setCachedMolLists,
+        mol_group_on
+      });
+    }, [list_type, mol_group_on, oldUrl, setObjectList, target_on, setCachedMolLists]);
+
     const titleRightElement = (
       <Button
-        onClick={this.handleDialog(open)}
+        onClick={handleDialog(!sortDialogOpen)}
         className={classNames(classes.button, {
-          [classes.buttonActive]: !!(this.filterSettings || {}).active
+          [classes.buttonActive]: !!(filterSettings || {}).active
         })}
         disabled={!(object_selection || []).length}
       >
@@ -137,17 +142,17 @@ class MoleculeList extends GenericList {
 
     return (
       <div>
-        {!!(this.filterSettings || {}).active && (
+        {!!(filterSettings || {}).active && (
           <div>
             Filters:
             <br />
             <div className={classes.filtersRow}>
-              {this.filterSettings.priorityOrder.map(attr => (
+              {filterSettings.priorityOrder.map(attr => (
                 <Tooltip
                   key={`Mol-Tooltip-${attr}`}
                   classes={{ tooltip: classes.filterTooltip }}
-                  title={`${this.filterSettings.filter[attr].minValue}-${this.filterSettings.filter[attr].maxValue} ${
-                    this.filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                  title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
+                    filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
                   }`}
                   placement="top"
                 >
@@ -165,10 +170,10 @@ class MoleculeList extends GenericList {
         <BorderedView title="hit navigator" rightElement={titleRightElement}>
           {sortDialogOpen && (
             <MoleculeListSortFilterDialog
-              handleClose={this.handleDialogClose}
-              molGroupSelection={this.props.object_selection}
-              cachedMolList={this.props.cached_mol_lists}
-              filterSettings={this.filterSettings}
+              handleClose={handleDialogClose}
+              molGroupSelection={object_selection}
+              cachedMolList={cached_mol_lists}
+              filterSettings={filterSettings}
             />
           )}
           <Grid container direction="column" className={classes.container} style={{ height: height }}>
@@ -209,7 +214,8 @@ class MoleculeList extends GenericList {
       </div>
     );
   }
-}
+);
+
 function mapStateToProps(state) {
   return {
     group_type: state.apiReducers.present.group_type,
