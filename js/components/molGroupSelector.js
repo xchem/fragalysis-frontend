@@ -11,6 +11,7 @@ import * as nglLoadActions from '../actions/nglLoadActions';
 import { VIEWS } from './constants';
 import * as selectionActions from '../actions/selectionActions';
 import { generateMolId, generateMolObject, generateObject, getJoinedMoleculeList } from './molecules/helpers';
+import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 const useStyles = makeStyles(() => ({
   containerExpanded: {
@@ -137,4 +138,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(molGroupSelector);
+)(withLoadingMolGroupList(molGroupSelector));

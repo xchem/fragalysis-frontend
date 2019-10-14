@@ -32,7 +32,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const molGroupChecklist = ({ object_list, object_selection, setObjectOn, setObjectSelection }) => {
+const molGroupChecklist = memo(({ object_list, object_selection, setObjectOn, setObjectSelection }) => {
   const classes = useStyles();
 
   const handleOnSelect = o => e => {
@@ -79,7 +79,7 @@ const molGroupChecklist = ({ object_list, object_selection, setObjectOn, setObje
       <div className={classes.title}>selected sites:</div>
     </div>
   );
-};
+});
 
 const mapStateToProps = state => {
   return {
@@ -95,4 +95,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withLoadingMolGroupList(molGroupChecklist));
+)(molGroupChecklist);
