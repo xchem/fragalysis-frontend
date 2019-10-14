@@ -99,7 +99,7 @@ class CompoundView extends GenericView {
   async handleConf() {
     if (this.state.isConfOn) {
       this.props.deleteObject(
-        Object.assign({ display_div: 'major_view' }, this.generateMolObject(this.conf, this.props.data.smiles))
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject(this.conf, this.props.data.smiles))
       );
     } else {
       // This needs currying
@@ -123,7 +123,7 @@ class CompoundView extends GenericView {
       // Now load this into NGL
       this.conf = content[0];
       this.props.loadObject(
-        Object.assign({ display_div: 'major_view' }, this.generateMolObject(this.conf, this.props.data.smiles))
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject(this.conf, this.props.data.smiles))
       );
     }
   }

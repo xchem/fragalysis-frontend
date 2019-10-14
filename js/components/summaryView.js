@@ -11,6 +11,7 @@ import SummaryCmpd from './SummaryCmpd';
 import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
+import { VIEWS } from './constants';
 
 class SummaryView extends React.Component {
   constructor(props) {
@@ -92,7 +93,7 @@ class SummaryView extends React.Component {
     // Colour and then load the vectors in
     if (this.props.to_query != '') {
       this.props.vector_list.forEach(item =>
-        this.props.loadObject(Object.assign({ display_div: 'major_view' }, item, this.getColour(item)))
+        this.props.loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item, this.getColour(item)))
       );
     }
   }

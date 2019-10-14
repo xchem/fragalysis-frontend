@@ -5,7 +5,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
-import MolGroupList from '../components/molGroupList';
+import MolGroupList from '../hoc/withLoadingMolGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSelector from '../components/molGroupSelector';
 import SummaryView from '../components/summaryView';
@@ -75,8 +75,6 @@ class FraggleBox extends PureComponent {
             <HotspotList />
           </Grid>
         </Grid>
-        {/* MolGroupList is responsible for loading molecules list, so it must be 'rendered' */}
-        <MolGroupList />
         <ModalStateSave />
         <ModalErrorMessage />
         <ModalTargetUnrecognised />

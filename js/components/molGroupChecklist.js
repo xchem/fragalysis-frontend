@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
+import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 const useStyles = makeStyles(() => ({
   divContainer: {
@@ -31,10 +32,9 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const molGroupChecklist = props => {
-  const classes = useStyles();
-  const { object_list, object_selection, setObjectOn, setObjectSelection } = props;
+const classes = useStyles();
 
+const molGroupChecklist = ({ object_list, object_selection, setObjectOn, setObjectSelection }) => {
   const handleOnSelect = o => e => {
     const objIdx = object_selection.indexOf(o.id);
     const selectionCopy = object_selection.slice();
@@ -95,4 +95,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(molGroupChecklist);
+)(withLoadingMolGroupList(molGroupChecklist));

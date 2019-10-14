@@ -72,7 +72,7 @@ const TargetList = memo(({ object_list, setObjectList }) => {
       url: getUrl({ list_type }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl,
-      setObjectList: setObjectList,
+      setObjectList,
       list_type
     });
   }, [oldUrl, setObjectList]);

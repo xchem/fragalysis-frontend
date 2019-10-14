@@ -11,6 +11,7 @@ import * as nglRenderActions from '../actions/nglRenderActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as listTypes from './listTypes';
 import * as selectionActions from '../actions/selectionActions';
+import { SUFFIX, VIEWS, PREFIX } from './constants';
 
 export class NGLView extends React.Component {
   constructor(props) {
@@ -78,7 +79,7 @@ export class NGLView extends React.Component {
     var chain_name = pickingProxy.object[atom_id].chainname;
     var res_num = pickingProxy.object[atom_id].resno;
     var tot_name = chain_name + '_' + res_name + '_' + res_num.toString() + '_' + atom_name;
-    var mol_int = parseInt(pickingProxy.object.atom1.structure.name.split('COMPLEXLOAD_')[1]);
+    var mol_int = parseInt(pickingProxy.object.atom1.structure.name.split(PREFIX.COMPLEX_LOAD)[1]);
     return { interaction: tot_name, complex_id: mol_int };
   }
 
@@ -89,8 +90,8 @@ export class NGLView extends React.Component {
         var input_dict = this.processInt(pickingProxy);
         if (this.props.duck_yank_data['interaction'] != undefined) {
           this.props.deleteObject({
-            display_div: 'major_view',
-            name: this.props.duck_yank_data['interaction'] + '_INTERACTION'
+            display_div: VIEWS.MAJOR_VIEW,
+            name: this.props.duck_yank_data['interaction'] + SUFFIX.INTERACTION
           });
         }
         this.props.setDuckYankData(input_dict);
@@ -98,9 +99,9 @@ export class NGLView extends React.Component {
           start: pickingProxy.object.center1,
           end: pickingProxy.object.center2,
           radius: 0.2,
-          display_div: 'major_view',
+          display_div: VIEWS.MAJOR_VIEW,
           color: [1, 0, 0],
-          name: input_dict['interaction'] + '_INTERACTION',
+          name: input_dict['interaction'] + SUFFIX.INTERACTION,
           OBJECT_TYPE: nglObjectTypes.ARROW
         });
       } else if (pickingProxy.object.name) {
@@ -377,7 +378,7 @@ export class NGLView extends React.Component {
     }
   }
 
-  generateSphere(data, selected = false, listType = listTypes.MOLGROUPS, view = 'summary_view') {
+  generateSphere(data, selected = false, listType = listTypes.MOLGROUPS, view = VIEWS.SUMMARY_VIEW) {
     var sele = '';
     var color = [0, 0, 1];
     var getCoords = {};
@@ -479,8 +480,8 @@ export class NGLView extends React.Component {
         this.props.deleteObjectSuccess(this.props.objectsToDelete[nglKey]);
       }
     }
-    this.showMultipleSelect(listTypes.MOLGROUPS, 'summary_view');
-    this.showSelect(listTypes.PANDDA_SITE, 'pandda_summary');
+    this.showMultipleSelect(listTypes.MOLGROUPS, VIEWS.SUMMARY_VIEW);
+    this.showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
   }
 
   updateOrientation() {
@@ -489,8 +490,10 @@ export class NGLView extends React.Component {
         if (this.checkIfLoading() == true) {
           var ori = this.props.orientationToSet[this.div_id];
           var curr_orient = this.stage.viewerControls.getOrientation();
-          for (var i = 0; i < curr_orient.elements.length; i += 1) {
-            curr_orient.elements[i] = ori.elements[i];
+          if (curr_orient && curr_orient.elements) {
+            for (var i = 0; i < curr_orient.elements.length; i += 1) {
+              curr_orient.elements[i] = ori.elements[i];
+            }
           }
           this.stage.viewerControls.orient(curr_orient);
           this.props.setNGLOrientation(this.div_id, 'SET');

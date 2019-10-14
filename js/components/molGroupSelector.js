@@ -78,10 +78,12 @@ const molGroupSelector = memo(props => {
         )
       );
       removeFromComplexList(generateMolId(mol.id.toString()));
+
+      // remove all Vectors
+      removeFromVectorOnList(generateMolId(mol.id.toString()));
     });
     // remove all Vectors
     vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
-    removeFromVectorOnList(generateMolId(mol.id.toString()));
 
     // remove all selected values in hit navigator
   };

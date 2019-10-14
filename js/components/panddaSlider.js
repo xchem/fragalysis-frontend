@@ -7,6 +7,7 @@ import * as apiActions from '../actions/apiActions';
 import { Slider } from './generalComponents';
 import * as nglObjectTypes from './nglObjectTypes';
 import * as nglActions from '../actions/nglLoadActions';
+import { PREFIX, VIEWS } from './constants';
 
 class PanddaSlider extends Slider {
   constructor(props) {
@@ -18,9 +19,9 @@ class PanddaSlider extends Slider {
     if (this.props.event_on != undefined) {
       this.props.deleteObject(
         Object.assign(
-          { display_div: 'pandda_major' },
+          { display_div: VIEWS.PANDDA_MAJOR },
           {
-            name: 'EVENTLOAD' + '_' + this.props.event_on.toString(),
+            name: PREFIX.EVENT_LOAD + this.props.event_on.toString(),
             OBJECT_TYPE: nglObjectTypes.EVENTMAP
           }
         )

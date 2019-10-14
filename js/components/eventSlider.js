@@ -7,6 +7,7 @@ import * as apiActions from '../actions/apiActions';
 import { Slider } from './generalComponents';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from './nglObjectTypes';
+import { PREFIX, VIEWS } from './constants';
 
 class EventSlider extends Slider {
   constructor(props) {
@@ -19,15 +20,14 @@ class EventSlider extends Slider {
 
   generateEventMapObject(data) {
     // Get the data
-    var nglObject = {
-      name: 'EVENTLOAD' + '_' + data.id.toString(),
+    return {
+      name: PREFIX.EVENT_LOAD + data.id.toString(),
       OBJECT_TYPE: nglObjectTypes.EVENTMAP,
       map_info: data.small_map_info,
       xtal: data.xtal,
       lig_id: data.lig_id,
       pdb_info: data.pdb_info
     };
-    return nglObject;
   }
 
   newOption(new_value) {
@@ -35,11 +35,11 @@ class EventSlider extends Slider {
       if (this.props.object_list[index].id == new_value) {
         // Build the map
         this.props.loadObject(
-          Object.assign({ display_div: 'pandda_major' }, this.generateEventMapObject(this.props.object_list[index]))
+          Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, this.generateEventMapObject(this.props.object_list[index]))
         );
       } else if (this.props.object_list[index].id == this.props.object_on) {
         this.props.deleteObject(
-          Object.assign({ display_div: 'pandda_major' }, this.generateEventMapObject(this.props.object_list[index]))
+          Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, this.generateEventMapObject(this.props.object_list[index]))
         );
       }
     }

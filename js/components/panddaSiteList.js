@@ -9,6 +9,7 @@ import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
+import { VIEWS } from './constants';
 
 class PanddaSiteList extends GenericList {
   constructor(props) {
@@ -59,7 +60,7 @@ class PanddaSiteList extends GenericList {
     // Delete of them in the PANDDA VIEW
     if (this.props.object_list) {
       this.props.object_list.map(data =>
-        this.props.deleteObject(Object.assign({ display_div: 'pandda_summary' }, this.generateObject(data)))
+        this.props.deleteObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, this.generateObject(data)))
       );
     }
   }
@@ -67,7 +68,7 @@ class PanddaSiteList extends GenericList {
   afterPush(object_list) {
     if (object_list) {
       object_list.map(data =>
-        this.props.loadObject(Object.assign({ display_div: 'pandda_summary' }, this.generateObject(data)))
+        this.props.loadObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, this.generateObject(data)))
       );
     }
   }

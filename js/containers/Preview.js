@@ -2,11 +2,10 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
 import NGLView from '../components/nglComponents';
-import MolGroupList from '../components/molGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSelector from '../components/molGroupSelector';
 import SummaryView from '../components/summaryView';
@@ -23,7 +22,6 @@ import { BrowserBomb } from '../components/browserBombModal';
 import { SUFFIX, VIEWS } from '../components/constants';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import { getTargetByTitle, getUrl, loadFromServer } from '../services/general';
 
 const styles = () => ({
   gridItemLhs: {
@@ -165,8 +163,6 @@ const Preview = memo(
             <HotspotList />
           </Grid>
         </Grid>
-        {/* MolGroupList is responsible for loading molecules list, so it must be 'rendered' */}
-        <MolGroupList />
         <ModalStateSave />
         <ModalErrorMessage />
         <ModalTargetUnrecognised />

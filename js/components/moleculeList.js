@@ -4,7 +4,7 @@
 
 import { Grid, withStyles, Chip, Tooltip, Button } from '@material-ui/core';
 import { GenericList } from './generalComponents';
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -79,6 +79,8 @@ const styles = theme => ({
 });
 
 class MoleculeList extends GenericList {
+  // const list_type = listType.MOLECULE;
+
   constructor(props) {
     super(props);
     this.list_type = listType.MOLECULE;
