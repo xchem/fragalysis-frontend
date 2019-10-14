@@ -32,9 +32,9 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const classes = useStyles();
-
 const molGroupChecklist = ({ object_list, object_selection, setObjectOn, setObjectSelection }) => {
+  const classes = useStyles();
+
   const handleOnSelect = o => e => {
     const objIdx = object_selection.indexOf(o.id);
     const selectionCopy = object_selection.slice();
