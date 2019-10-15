@@ -2,23 +2,29 @@
  * Created by abradley on 19/04/2018.
  */
 
-import { GenericList } from './generalComponents';
-import React from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
+import { getUrl, loadFromServer } from '../services/general';
 
-class EventList extends GenericList {
-  constructor(props) {
-    super(props);
-    this.list_type = listType.PANDDA_EVENT;
-    this.old_object = -1;
-  }
+// TODO this should be HOC
+const EventList = memo(({ group_type, target_on, event_on, pandda_site_on, object_list, setObjectList }) => {
+  const list_type = listType.PANDDA_EVENT;
+  const [oldUrl, setOldUrl] = useState('');
 
-  render() {
-    return null;
-  }
-}
+  useEffect(() => {
+    loadFromServer({
+      url: getUrl({ list_type, target_on, pandda_site_on }),
+      setOldUrl: url => setOldUrl(url),
+      old_url: oldUrl,
+      list_type,
+      setObjectList
+    });
+  }, [list_type, oldUrl, setObjectList, target_on, pandda_site_on]);
+
+  return null;
+});
 function mapStateToProps(state) {
   return {
     group_type: state.apiReducers.present.group_type,

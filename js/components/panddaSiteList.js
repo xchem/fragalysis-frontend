@@ -2,8 +2,8 @@
  * Created by abradley on 17/04/2018.
  */
 
-import { GenericList } from './generalComponents';
 import React from 'react';
+import { GenericList } from './generalComponents';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
