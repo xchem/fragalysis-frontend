@@ -3,8 +3,7 @@
  */
 
 import { ListGroupItem, ListGroup, Row, Col, OverlayTrigger, ButtonToolbar, Tooltip } from 'react-bootstrap';
-import { GenericList } from './generalComponents';
-import React from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -12,6 +11,7 @@ import { withRouter, Link } from 'react-router-dom';
 import Clipboard from 'react-clipboard.js';
 import { css } from 'react-emotion';
 import { RingLoader } from 'react-spinners';
+import { getUrl, loadFromServer } from '../services/general';
 
 const override = css`
   display: block;
@@ -19,246 +19,241 @@ const override = css`
   border-color: red;
 `;
 
-class SessionList extends GenericList {
-  constructor(props) {
-    super(props);
-    this.list_type = listType.SESSIONS;
-    this.getCookie = this.getCookie.bind(this);
-    this.renameStateSession = this.renameStateSession.bind(this);
-    this.handleSessionNaming = this.handleSessionNaming.bind(this);
-    this.deleteStateSession = this.deleteStateSession.bind(this);
-    this.deleteSession = this.deleteSession.bind(this);
-    this.renderDeleteButton = this.renderDeleteButton.bind(this);
-    this.render_method = this.render_method.bind(this);
-  }
+const SessionList = memo(
+  ({
+    object_list,
+    seshListSaving,
+    setObjectList,
+    updateSessionIdList,
+    setSeshListSaving,
+    setErrorMessage,
+    location
+  }) => {
+    const list_type = listType.SESSIONS;
+    const [oldUrl, setOldUrl] = useState('');
+    const { pathname } = location;
 
-  getCookie(name) {
-    if (!document.cookie) {
-      return null;
-    }
-    const xsrfCookies = document.cookie
-      .split(';')
-      .map(c => c.trim())
-      .filter(c => c.startsWith(name + '='));
-    if (xsrfCookies.length === 0) {
-      return null;
-    }
-    return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-  }
-
-  renameStateSession(id, title) {
-    let currentSessionList = this.props.object_list;
-    for (var session in currentSessionList) {
-      if (currentSessionList[session].id == id) {
-        Object.assign(currentSessionList[session], { title: title });
+    const getCookie = name => {
+      if (!document.cookie) {
+        return null;
       }
-    }
-    this.props.updateSessionIdList(currentSessionList);
-  }
+      const xsrfCookies = document.cookie
+        .split(';')
+        .map(c => c.trim())
+        .filter(c => c.startsWith(name + '='));
+      if (xsrfCookies.length === 0) {
+        return null;
+      }
+      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    };
 
-  handleSessionNaming(e) {
-    if (e.keyCode === 13) {
-      var id = e.target.id;
-      var title = e.target.value;
-      this.renameStateSession(id, title);
-      console.log('submit new session name ' + title);
-      const csrfToken = this.getCookie('csrftoken');
-      var formattedState = {
-        id: id,
-        title: title
-      };
-      fetch('/api/viewscene/' + id, {
-        method: 'PATCH',
-        headers: {
-          'X-CSRFToken': csrfToken,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formattedState)
-      }).catch(error => {
-        this.props.setErrorMessage(error);
+    const renameStateSession = (id, title) => {
+      let currentSessionList = object_list;
+      currentSessionList.forEach(session => {
+        if (currentSessionList[session].id === id) {
+          Object.assign(currentSessionList[session], { title: title });
+        }
       });
-    }
-  }
+      updateSessionIdList(currentSessionList);
+    };
 
-  deleteStateSession(id) {
-    let currentSessionList = this.props.object_list;
-    for (var session in currentSessionList) {
-      if (currentSessionList[session].id === id) {
-        currentSessionList.splice(session, 1);
+    const handleSessionNaming = e => {
+      if (e.keyCode === 13) {
+        const id = e.target.id;
+        const title = e.target.value;
+        renameStateSession(id, title);
+        console.log('submit new session name ' + title);
+        const csrfToken = getCookie('csrftoken');
+        const formattedState = {
+          id,
+          title
+        };
+        fetch('/api/viewscene/' + id, {
+          method: 'PATCH',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formattedState)
+        }).catch(error => {
+          setErrorMessage(error);
+        });
       }
-    }
-    this.props.updateSessionIdList(currentSessionList);
-    if (this.props.object_list.length == 23) {
-      this.props.setSeshListSaving(true);
-      window.location.reload();
-    }
-  }
+    };
 
-  deleteSession(id) {
-    this.deleteStateSession(id);
-    const csrfToken = this.getCookie('csrftoken');
-    var sceneUrl = '/api/viewscene/' + id;
-    fetch(sceneUrl, {
-      method: 'delete',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken
+    const deleteStateSession = id => {
+      let currentSessionList = object_list;
+      currentSessionList.forEach(session => {
+        if (currentSessionList[session].id === id) {
+          currentSessionList.splice(session, 1);
+        }
+      });
+      updateSessionIdList(currentSessionList);
+      if (object_list.length === 23) {
+        setSeshListSaving(true);
+        window.location.reload();
       }
-    });
-  }
+    };
 
-  renderDeleteButton(data) {
-    var _this = this;
-    var deleteButton = (
+    const deleteSession = id => {
+      deleteStateSession(id);
+      const csrfToken = getCookie('csrftoken');
+      var sceneUrl = '/api/viewscene/' + id;
+      fetch(sceneUrl, {
+        method: 'delete',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        }
+      });
+    };
+
+    const renderDeleteButton = data => (
       <button
         onClick={function onClick() {
-          _this.deleteSession(data.id);
+          deleteSession(data.id);
         }}
       >
         Delete
       </button>
     );
-    return deleteButton;
-  }
 
-  renderCopyUrlButton(data) {
-    const tooltip = (
-      <Tooltip id="tooltip">
-        <strong>Copied!</strong>
-      </Tooltip>
-    );
-    var urlToCopy =
-      window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + data.uuid;
-    var copyButton = (
-      <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
-        <Clipboard option-container="modal" data-clipboard-text={urlToCopy} button-title="Copy URL">
-          Copy link
-        </Clipboard>
-      </OverlayTrigger>
-    );
-    return copyButton;
-  }
-
-  render_method(data) {
-    const { pathname } = this.props.location;
-    var fragglebox = '/viewer/react/fragglebox/' + data.uuid;
-    if (pathname == '/viewer/react/sessions') {
-      return (
-        <ListGroupItem key={data.id}>
-          <Row>
-            <Col xs={3} md={3}>
-              <Row></Row>
-              <p></p>
-              <Row>
-                <p>
-                  Title:{' '}
-                  <Link to={fragglebox}>
-                    {this.props.object_list[this.props.object_list.findIndex(x => x.id == data.id)].title}
-                  </Link>
-                </p>
-              </Row>
-            </Col>
-            <Col xs={3} md={3}>
-              <Row></Row>
-              <p></p>
-              <Row>
-                <p>
-                  Last modified on {data.modified.slice(0, 10)} at {data.modified.slice(11, 19)}
-                </p>
-              </Row>
-            </Col>
-            <Col xs={1} md={1}>
-              <Row></Row>
-              <p></p>
-              <Row>
-                <p>Target: {data.target_on_name}</p>
-              </Row>
-            </Col>
-            <Col xs={3} md={3}>
-              <input
-                id={data.id}
-                key="sessRnm"
-                style={{ width: 250 }}
-                defaultValue={data.title}
-                onKeyDown={this.handleSessionNaming}
-              ></input>
-              <sup>
-                <br></br>To rename, type new title & press enter.
-              </sup>
-            </Col>
-            <Col xs={2} md={2}>
-              <ButtonToolbar>
-                {this.renderCopyUrlButton(data)} {this.renderDeleteButton(data)}
-              </ButtonToolbar>
-            </Col>
-          </Row>
-        </ListGroupItem>
+    const renderCopyUrlButton = data => {
+      const tooltip = (
+        <Tooltip id="tooltip">
+          <strong>Copied!</strong>
+        </Tooltip>
       );
-    } else {
+      const urlToCopy =
+        window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + data.uuid;
       return (
-        <ListGroupItem key={data.id}>
-          <Row>
-            <Col xs={12} sm={12} md={6} lgOffset={1} lg={7}>
-              <Row></Row>
-              <p></p>
-              <Row>
-                <p>
-                  Title: <Link to={fragglebox}>{data.title}</Link>
-                </p>
-              </Row>
-            </Col>
-            <Col xsHidden smHidden md={6} lg={4}>
-              <Row></Row>
-              <p></p>
-              <Row>
-                <p>Target: {data.target_on_name}</p>
-              </Row>
-            </Col>
-          </Row>
-        </ListGroupItem>
+        <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
+          <Clipboard option-container="modal" data-clipboard-text={urlToCopy} button-title="Copy URL">
+            Copy link
+          </Clipboard>
+        </OverlayTrigger>
       );
-    }
-  }
+    };
 
-  componentDidMount() {
-    this.loadFromServer();
-    setInterval(this.loadFromServer, 50);
-  }
+    const render_method = data => {
+      var fragglebox = '/viewer/react/fragglebox/' + data.uuid;
+      if (pathname === '/viewer/react/sessions') {
+        return (
+          <ListGroupItem key={data.id}>
+            <Row>
+              <Col xs={3} md={3}>
+                <Row />
+                <p />
+                <Row>
+                  <p>
+                    Title:{' '}
+                    <Link to={fragglebox}>{object_list[object_list.findIndex(x => x.id === data.id)].title}</Link>
+                  </p>
+                </Row>
+              </Col>
+              <Col xs={3} md={3}>
+                <Row />
+                <p />
+                <Row>
+                  <p>
+                    Last modified on {data.modified.slice(0, 10)} at {data.modified.slice(11, 19)}
+                  </p>
+                </Row>
+              </Col>
+              <Col xs={1} md={1}>
+                <Row />
+                <p />
+                <Row>
+                  <p>Target: {data.target_on_name}</p>
+                </Row>
+              </Col>
+              <Col xs={3} md={3}>
+                <input
+                  id={data.id}
+                  key="sessRnm"
+                  style={{ width: 250 }}
+                  defaultValue={data.title}
+                  onKeyDown={handleSessionNaming}
+                />
+                <sup>
+                  <br />
+                  To rename, type new title & press enter.
+                </sup>
+              </Col>
+              <Col xs={2} md={2}>
+                <ButtonToolbar>
+                  {renderCopyUrlButton(data)} {renderDeleteButton(data)}
+                </ButtonToolbar>
+              </Col>
+            </Row>
+          </ListGroupItem>
+        );
+      } else {
+        return (
+          <ListGroupItem key={data.id}>
+            <Row>
+              <Col xs={12} sm={12} md={6} lgOffset={1} lg={7}>
+                <Row />
+                <p />
+                <Row>
+                  <p>
+                    Title: <Link to={fragglebox}>{data.title}</Link>
+                  </p>
+                </Row>
+              </Col>
+              <Col xsHidden smHidden md={6} lg={4}>
+                <Row />
+                <p />
+                <Row>
+                  <p>Target: {data.target_on_name}</p>
+                </Row>
+              </Col>
+            </Row>
+          </ListGroupItem>
+        );
+      }
+    };
 
-  render() {
-    const { pathname } = this.props.location;
-    var sessionListTitle;
-    if (
-      (this.props.object_list.length != 0 && this.props.object_list.length <= 10) ||
-      this.props.location.pathname != '/viewer/react/sessions'
-    ) {
+    useEffect(() => {
+      loadFromServer({
+        url: getUrl({ list_type, setSeshListSaving }),
+        setOldUrl: url => setOldUrl(url),
+        old_url: oldUrl,
+        list_type,
+        setObjectList,
+        seshListSaving
+      });
+    }, [list_type, setObjectList, oldUrl, setSeshListSaving, seshListSaving]);
+
+    let sessionListTitle;
+    if ((object_list.length !== 0 && object_list.length <= 10) || pathname !== '/viewer/react/sessions') {
       sessionListTitle = <h3>Session List:</h3>;
-    } else if (this.props.object_list.length > 10) {
+    } else if (object_list.length > 10) {
       sessionListTitle = (
         <h3>
-          You have {this.props.object_list.length} sessions. Please consider deleting old/unused{' '}
+          You have {object_list.length} sessions. Please consider deleting old/unused{' '}
           <a href="/viewer/react/sessions">sessions</a> to improve performance.
         </h3>
       );
     }
-    if (this.props.seshListSaving == true) {
+    if (seshListSaving === true) {
       return (
         <RingLoader
           className={override}
           sizeUnit={'px'}
           size={30}
           color={'#7B36D7'}
-          loading={this.props.seshListSaving == true}
+          loading={seshListSaving === true}
         />
       );
     } else {
-      if (this.props != undefined && this.props.object_list) {
+      if (object_list) {
         // eslint-disable-next-line no-undef
-        if (DJANGO_CONTEXT['username'] == 'NOT_LOGGED_IN') {
+        if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
           return <h3>Please log in to view session history.</h3>;
-        } else if (this.props.object_list.length == 0) {
+        } else if (object_list.length === 0) {
           return (
             <div>
               <h3>You do not own any sessions!</h3>
@@ -266,11 +261,11 @@ class SessionList extends GenericList {
             </div>
           );
         } else {
-          if (pathname != '/viewer/react/sessions') {
+          if (pathname !== '/viewer/react/sessions') {
             return (
               <div>
                 {sessionListTitle}
-                <ListGroup>{this.props.object_list.slice(0, 10).map(data => this.render_method(data))}</ListGroup>
+                <ListGroup>{object_list.slice(0, 10).map(data => render_method(data))}</ListGroup>
                 <p>
                   Full list and session management here: <a href="/viewer/react/sessions">Sessions</a>
                 </p>
@@ -280,7 +275,7 @@ class SessionList extends GenericList {
             return (
               <div>
                 {sessionListTitle}
-                <ListGroup>{this.props.object_list.map(data => this.render_method(data))}</ListGroup>
+                <ListGroup>{object_list.map(data => render_method(data))}</ListGroup>
               </div>
             );
           }
@@ -290,8 +285,7 @@ class SessionList extends GenericList {
       }
     }
   }
-}
-
+);
 function mapStateToProps(state) {
   return {
     object_list: state.apiReducers.present.sessionIdList,
@@ -302,7 +296,8 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setObjectList: apiActions.setSessionIdList,
   updateSessionIdList: apiActions.updateSessionIdList,
-  setSeshListSaving: apiActions.setSeshListSaving
+  setSeshListSaving: apiActions.setSeshListSaving,
+  setErrorMessage: apiActions.setErrorMessage
 };
 
 export default withRouter(

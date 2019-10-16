@@ -96,7 +96,7 @@ export const processResults = ({ json, list_type, seshListSaving, setSeshListSav
   if (afterPush) {
     afterPush(results);
   }
-  if (list_type === listTypes.SESSIONS && seshListSaving === true) {
+  if (list_type === listTypes.SESSIONS && seshListSaving === true && setSeshListSaving) {
     setSeshListSaving(false);
   }
   return results || [];

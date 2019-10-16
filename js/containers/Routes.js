@@ -4,7 +4,7 @@ import Header from '../components/header';
 import { ErrorView } from '../components/errorComponent';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from './targetManagementHolder';
-import Tindspect from './tindspectHolder';
+import Tindspect from './Tindspect';
 import Landing from './Landing';
 import Preview from './Preview';
 import Sessions from './sessionHolder';

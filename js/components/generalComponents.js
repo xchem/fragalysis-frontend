@@ -4,10 +4,9 @@
 
 import SVGInline from 'react-svg-inline';
 import React from 'react';
-import { ListGroup, Pager, Well } from 'react-bootstrap';
+import { Pager, Well } from 'react-bootstrap';
 import fetch from 'cross-fetch';
 import * as R from 'ramda';
-import * as listTypes from './listTypes';
 export function FillMe(props) {
   return <h1>FILL ME UP PLEASE</h1>;
 }
@@ -18,147 +17,6 @@ const fetchWithMemoize = R.memoizeWith(R.identity, url => {
 exports.fetchWithMemoize = fetchWithMemoize;
 
 // Generic Classes
-export class GenericList extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.old_url = '';
-    this.loadFromServer = this.loadFromServer.bind(this);
-    this.getUrl = this.getUrl.bind(this);
-    this.processResults = this.processResults.bind(this);
-    this.beforePush = this.beforePush.bind(this);
-    this.afterPush = this.afterPush.bind(this);
-  }
-
-  beforePush() {}
-
-  afterPush(data) {}
-
-  /**
-   * Logic to generate the url - here is the logic that connects listTypes to my API
-   * @returns {URL}
-   */
-  getUrl() {
-    // This should be defined by type
-    var base_url = window.location.protocol + '//' + window.location.host;
-    // eslint-disable-next-line no-undef
-    if (DJANGO_CONTEXT['pk'] !== undefined) {
-      // eslint-disable-next-line no-undef
-      var userId = DJANGO_CONTEXT['pk'].toString();
-    } else {
-      var userId = null;
-    }
-    // Set the version
-    base_url += '/api/';
-    var get_params = {};
-    if (this.list_type === listTypes.TARGET) {
-      base_url += 'targets/';
-      if (this.props.project_id !== undefined) {
-        get_params.project_id = this.props.project_id;
-      }
-    } else if (this.list_type === listTypes.MOLGROUPS) {
-      if (this.props.target_on !== undefined) {
-        get_params.target_id = this.props.target_on;
-        base_url += 'molgroup/';
-        get_params.group_type = this.props.group_type;
-      }
-    } else if (this.list_type === listTypes.MOLECULE) {
-      if (this.props.target_on !== undefined && this.props.mol_group_on !== undefined) {
-        // mol group choice
-        base_url += 'molecules/';
-        get_params.mol_groups = this.props.mol_group_on;
-        get_params.mol_type = 'PR';
-      }
-    } else if (this.list_type === listTypes.PANDDA_EVENT) {
-      if (this.props.target_on !== undefined && this.props.pandda_site_on !== undefined) {
-        // mol group choice
-        base_url += 'events/';
-        get_params.target_id = this.props.target_on;
-        get_params.limit = -1;
-        get_params.pandda_site = this.props.pandda_site_on;
-      }
-    } else if (this.list_type === listTypes.PANDDA_SITE) {
-      if (this.props.target_on !== undefined) {
-        // mol group choice
-        base_url += 'sites/';
-        get_params.target_id = this.props.target_on;
-        get_params.limit = -1;
-      }
-    } else if (this.list_type === listTypes.HOTSPOT) {
-      if (this.props.target_on !== undefined) {
-        base_url += 'hotspots/';
-        get_params.target_id = this.props.target_on;
-      }
-    } else if (this.list_type === listTypes.SESSIONS) {
-      base_url += 'viewscene/?user_id=' + userId;
-      if (this.props.project_id !== undefined) {
-        get_params.project_id = this.props.project_id;
-        this.props.setSeshListSaving(true);
-      }
-    } else {
-      console.log('DEFAULT');
-    }
-    var url = new URL(base_url);
-    Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]));
-    return url;
-  }
-
-  /**
-   * Process the results - switched to be used for pagination
-   * @param json
-   * @returns {*}
-   */
-  processResults(json) {
-    var results = json.results;
-    this.afterPush(results);
-    if (this.list_type === listTypes.SESSIONS && this.props.seshListSaving === true) {
-      this.props.setSeshListSaving(false);
-    }
-    return results || [];
-  }
-
-  loadFromServer() {
-    const url = this.getUrl();
-    if (url.toString() !== this.old_url) {
-      this.beforePush();
-      fetchWithMemoize(url).then(json => {
-        const { mol_group_on, cached_mol_lists, setObjectList, setCachedMolLists } = this.props;
-        setObjectList(this.processResults(json));
-        // if we are handling molecule list and molecule data for mol_group are fetched
-        if (this.list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
-          // update cached mol lists
-          const newMolLists = Object.assign({}, cached_mol_lists, {
-            [mol_group_on]: json
-          });
-          setCachedMolLists(newMolLists);
-        }
-
-        // TODO: Do we need to fetch all or wait for click on molecule group?
-        if (this.list_type === listTypes.MOLGROUPS) {
-          // json.results.forEach(molgroup => {
-          //     const molgroup_id = molgroup.id;
-          //     console.log(`Fetch data for mol_group ${molgroup_id}`);
-          // })
-        }
-      });
-    }
-    this.old_url = url.toString();
-  }
-
-  componentDidMount() {
-    this.loadFromServer();
-    // this is performance issue
-    setInterval(this.loadFromServer, 50);
-  }
-
-  render() {
-    if (this.props !== undefined && this.props.object_list) {
-      console.log(this.props.message);
-      return <ListGroup>{this.props.object_list.map(data => this.render_method(data))}</ListGroup>;
-    } else {
-      return <FillMe />;
-    }
-  }
-}
 
 export class GenericView extends React.PureComponent {
   constructor(props) {
