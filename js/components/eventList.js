@@ -6,7 +6,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
-import { getUrl, loadFromServer } from '../services/general';
+import { getUrl, loadFromServer } from '../services/genericList';
 
 // TODO this should be HOC
 const EventList = memo(({ group_type, target_on, event_on, pandda_site_on, object_list, setObjectList }) => {

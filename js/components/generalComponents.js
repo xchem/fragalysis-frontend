@@ -68,12 +68,12 @@ export class GenericView extends React.PureComponent {
       height: height
     };
     Object.keys(get_params).forEach(key => url.searchParams.append(key, get_params[key]));
-    if (this.key == undefined) {
-      if (url.toString() != this.old_url) {
+    if (this.key === undefined) {
+      if (url.toString() !== this.old_url) {
         fetchWithMemoize(url).then(text => this.setState(prevState => ({ img_data: text })));
       }
     } else {
-      if (url.toString() != this.old_url) {
+      if (url.toString() !== this.old_url) {
         fetchWithMemoize(url).then(text => this.setState(prevState => ({ img_data: text[this.key] })));
       }
     }
@@ -82,29 +82,6 @@ export class GenericView extends React.PureComponent {
 
   componentDidMount() {
     this.loadFromServer(this.props.width, this.props.height);
-  }
-
-  clickHandle() {}
-
-  handleStop(e, data) {
-    // Move this element from list A to list B if it moves to that zone
-    const fromElement = e.fromElement;
-    const toElement = e.toElement;
-    const eleMove = data.node;
-  }
-
-  handleClick() {
-    this.setState(prevState => ({ isToggleOn: !prevState.isToggleOn }));
-  }
-
-  render() {
-    const svg_image = <SVGInline svg={this.state.img_data} />;
-    this.current_style = this.state.isToggleOn ? this.selected_style : this.not_selected_style;
-    return (
-      <div onClick={this.handleClick} style={this.current_style}>
-        {svg_image}
-      </div>
-    );
   }
 }
 

@@ -11,7 +11,7 @@ import { withRouter, Link } from 'react-router-dom';
 import Clipboard from 'react-clipboard.js';
 import { css } from 'react-emotion';
 import { RingLoader } from 'react-spinners';
-import { getUrl, loadFromServer } from '../services/general';
+import { getUrl, loadFromServer } from '../services/genericList';
 
 const override = css`
   display: block;

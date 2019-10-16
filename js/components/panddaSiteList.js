@@ -9,7 +9,7 @@ import * as listType from './listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import { VIEWS } from './constants';
-import { getUrl, loadFromServer } from '../services/general';
+import { getUrl, loadFromServer } from '../services/genericList';
 
 // TODO change to HOC
 const PanddaSiteList = memo(

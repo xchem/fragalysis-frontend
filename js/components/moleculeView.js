@@ -2,11 +2,10 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles, Button } from '@material-ui/core';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import { GenericView } from './generalComponents';
 import * as nglObjectTypes from './nglObjectTypes';
 import * as selectionActions from '../actions/selectionActions';
 import * as listTypes from './listTypes';
@@ -15,6 +14,7 @@ import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
 import { fetchWithMemoize } from './generalComponents';
 import { VIEWS } from './constants';
+import { loadFromServer } from '../services/genericView';
 
 const styles = () => ({
   container: {
@@ -88,122 +88,158 @@ const controlValues = {
   VECTOR: 3
 };
 
-class MoleculeView extends GenericView {
-  constructor(props) {
-    super(props);
-    this.generateObject = this.generateObject.bind(this);
-    this.generateMolObject = this.generateMolObject.bind(this);
-    this.generateMolId = this.generateMolId.bind(this);
-    this.handleVector = this.handleVector.bind(this);
-    this.getViewUrl = this.getViewUrl.bind(this);
-    this.onVector = this.onVector.bind(this);
-    this.onComplex = this.onComplex.bind(this);
-    this.onLigand = this.onLigand.bind(this);
-    this.calculateValues = this.calculateValues.bind(this);
-    this.onSelectAll = this.onSelectAll.bind(this);
-    var base_url = window.location.protocol + '//' + window.location.host;
-    this.base_url = base_url;
-    this.url = new URL(base_url + '/api/molimg/' + this.props.data.id + '/');
-    this.key = 'mol_image';
-    this.colourToggle = this.getRandomColor();
-  }
+const colourList = [
+  '#EFCDB8',
+  '#CC6666',
+  '#FF6E4A',
+  '#78DBE2',
+  '#1F75FE',
+  '#FAE7B5',
+  '#FDBCB4',
+  '#C5E384',
+  '#95918C',
+  '#F75394',
+  '#80DAEB',
+  '#ADADD6'
+];
 
-  getViewUrl(get_view) {
-    return new URL(this.base_url + '/api/' + get_view + '/' + this.props.data.id + '/');
-  }
+const img_data_init =
+  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
+  '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
+  '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="100" cy="50" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="93.3012702" cy="75" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="75" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="50" cy="100" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="25" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="6.6987298" cy="75" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="0" cy="50" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="6.6987298" cy="25" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
+  '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
+  '</svg>';
 
-  /**
-   * Convert the JSON into a list of arrow objects
-   */
-  generateObjectList(out_data) {
-    var colour = [1, 0, 0];
-    var deletions = out_data.deletions;
-    var outList = [];
-    for (var key in deletions) {
-      outList.push(this.generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
-    }
-    var additions = out_data.additions;
-    for (var key in additions) {
-      outList.push(this.generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
-    }
-    var linker = out_data.linkers;
-    for (var key in linker) {
-      outList.push(this.generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
-    }
+const MoleculeView = memo(
+  ({
+    classes,
+    height,
+    width,
+    data,
+    to_query,
+    vector_list,
+    complexList,
+    fragmentDisplayList,
+    vectorOnList,
+    getFullGraph,
+    setVectorList,
+    setBondColorMap,
+    selectVector,
+    gotFullGraph,
+    setMol,
+    deleteObject,
+    loadObject,
+    appendComplexList,
+    removeFromComplexList,
+    appendVectorOnList,
+    removeFromVectorOnList,
+    appendFragmentDisplayList,
+    removeFromFragmentDisplayList
+  }) => {
+    const key = 'mol_image';
+    const base_url = window.location.protocol + '//' + window.location.host;
+    const url = new URL(base_url + '/api/molimg/' + data.id + '/');
+    const [img_data, setImg_data] = useState(img_data_init);
+    const [isToggleOn, setIsToggleOn] = useState(false);
+    const [complexOn, setComplexOn] = useState(false);
+    const [vectorOn, setVectorOn] = useState(false);
+    const [value, setValue] = useState([]);
+    const [old_url, setOld_url] = useState('');
+    const getRandomColor = () => colourList[data.id % colourList.length];
+    const colourToggle = getRandomColor();
 
-    var rings = out_data.ring;
-    for (var key in rings) {
-      outList.push(this.generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
-    }
-    return outList;
-  }
+    const getViewUrl = get_view => {
+      return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
+    };
 
-  generateArrowObject(start, end, name, colour) {
-    return {
+    /**
+     * Convert the JSON into a list of arrow objects
+     */
+    const generateObjectList = out_data => {
+      const colour = [1, 0, 0];
+      const deletions = out_data.deletions;
+      let outList = [];
+
+      deletions.forEach(item =>
+        outList.push(generateArrowObject(deletions[item][0], deletions[item][1], item.split('_')[0], colour))
+      );
+
+      var additions = out_data.additions;
+
+      additions.forEach(item =>
+        outList.push(generateArrowObject(additions[item][0], additions[item][1], item.split('_')[0], colour))
+      );
+
+      var linkers = out_data.linkers;
+      linkers.forEach(item =>
+        outList.push(generateCylinderObject(linkers[item][0], linkers[item][1], item.split('_')[0], colour))
+      );
+
+      var rings = out_data.ring;
+      rings.forEach(item =>
+        outList.push(generateCylinderObject(rings[item][0], rings[item][2], item.split('_')[0], colour))
+      );
+
+      return outList;
+    };
+
+    const generateArrowObject = (start, end, name, colour) => ({
       name: listTypes.VECTOR + '_' + name,
       OBJECT_TYPE: nglObjectTypes.ARROW,
       start: start,
       end: end,
       colour: colour
-    };
-  }
+    });
 
-  generateCylinderObject(start, end, name, colour) {
-    return {
+    const generateCylinderObject = (start, end, name, colour) => ({
       name: listTypes.VECTOR + '_' + name,
       OBJECT_TYPE: nglObjectTypes.CYLINDER,
       start: start,
       end: end,
       colour: colour
-    };
-  }
+    });
 
-  generateMolObject() {
-    // Get the data
-    const data = this.props.data;
-    var nglObject = {
+    const generateMolObject = () => ({
       name: 'MOLLOAD' + '_' + data.id.toString(),
       OBJECT_TYPE: nglObjectTypes.MOLECULE,
-      colour: this.colourToggle,
+      colour: colourToggle,
       sdf_info: data.sdf_info
-    };
-    return nglObject;
-  }
+    });
 
-  generateMolId() {
-    var molId = {
-      id: this.props.data.id
-    };
-    return molId;
-  }
+    const generateMolId = () => ({
+      id: data.id
+    });
 
-  generateObject() {
-    // Get the data
-    const data = this.props.data;
-    var nglObject = {
-      name: this.props.data.protein_code + '_COMP',
+    const generateObject = () => ({
+      name: data.protein_code + '_COMP',
       OBJECT_TYPE: nglObjectTypes.COMPLEX,
       sdf_info: data.sdf_info,
-      colour: this.colourToggle,
-      prot_url: this.base_url + data.molecule_protein
+      colour: colourToggle,
+      prot_url: base_url + data.molecule_protein
+    });
+
+    const generateBondColorMap = inputDict => {
+      var out_d = {};
+      inputDict.forEach(keyItem => {
+        inputDict[keyItem].forEach(vector => {
+          var vect = vector.split('_')[0];
+          out_d[vect] = inputDict[keyItem][vector];
+        });
+      });
+      return out_d;
     };
-    return nglObject;
-  }
 
-  generateBondColorMap(inputDict) {
-    var out_d = {};
-    for (var key in inputDict) {
-      for (var vector in inputDict[key]) {
-        var vect = vector.split('_')[0];
-        out_d[vect] = inputDict[key][vector];
-      }
-    }
-    return out_d;
-  }
-
-  getCalculatedProps() {
-    const { data } = this.props;
-    return [
+    const getCalculatedProps = () => [
       { name: 'MW', value: data.mw },
       { name: 'logP', value: data.logp },
       { name: 'TPSA', value: data.tpsa },
@@ -215,62 +251,143 @@ class MoleculeView extends GenericView {
       { name: 'Velec', value: data.velec },
       { name: '#cpd', value: '???' }
     ];
-  }
 
-  handleVector(json) {
-    var objList = this.generateObjectList(json['3d']);
-    this.props.setVectorList(objList);
-    var vectorBondColorMap = this.generateBondColorMap(json['indices']);
-    this.props.setBondColorMap(vectorBondColorMap);
-  }
+    const handleVector = json => {
+      var objList = generateObjectList(json['3d']);
+      setVectorList(objList);
+      var vectorBondColorMap = generateBondColorMap(json['indices']);
+      setBondColorMap(vectorBondColorMap);
+    };
 
-  componentDidMount() {
-    this.loadFromServer(this.props.height, this.props.width);
-    var thisToggleOn = this.props.fragmentDisplayList.has(this.props.data.id);
-    var complexOn = this.props.complexList.has(this.props.data.id);
-    var vectorOn = this.props.vectorOnList.has(this.props.data.id);
-    var value_list = [];
-    if (complexOn) {
-      value_list.push(1);
-    }
-    if (thisToggleOn) {
-      value_list.push(2);
-    }
-    if (this.props.to_query == this.props.data.smiles) {
-      value_list.push(3);
-    }
-    this.setState(prevState => ({
-      value: value_list,
-      complexOn: complexOn,
-      isToggleOn: thisToggleOn,
-      vectorOn: vectorOn
-    }));
-  }
+    // componentDidMount
+    useEffect(() => {
+      loadFromServer({
+        width,
+        height,
+        key,
+        old_url,
+        setImg_data,
+        setOld_url,
+        url
+      });
 
-  componentWillReceiveProps(nextProps) {
-    var value_list = this.state.value.slice();
-    if (nextProps.to_query != this.props.data.smiles) {
-      var index = value_list.indexOf(3);
-      if (index > -1) {
-        value_list.splice(index, 1);
-        this.setState(prevState => ({ value: value_list }));
+      const thisToggleOn = fragmentDisplayList.has(data.id);
+      const complexOnHelper = complexList.has(data.id);
+      const vectorOnHelper = vectorOnList.has(data.id);
+      var value_list = [];
+      if (complexOnHelper) {
+        value_list.push(1);
       }
-    }
-  }
+      if (thisToggleOn) {
+        value_list.push(2);
+      }
+      if (to_query === data.smiles) {
+        value_list.push(3);
+      }
+      setValue(value_list);
+      setComplexOn(complexOnHelper);
+      setIsToggleOn(thisToggleOn);
+      setVectorOn(vectorOnHelper);
+    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, old_url, to_query, url, vectorOnList, width]);
 
-  render() {
+    useEffect(() => {
+      let value_list = value.slice();
+      if (to_query !== data.smiles) {
+        var index = value_list.indexOf(3);
+        if (index > -1) {
+          value_list.splice(index, 1);
+          setValue(value_list);
+        }
+      }
+    }, [data.smiles, to_query, value]);
+
     console.log('MoleculeView -> render');
-    const { classes, height, width, data } = this.props;
-    const { img_data, isToggleOn, complexOn, vectorOn, value } = this.state;
+
     const svg_image = <SVGInline svg={img_data} />;
     // Here add the logic that updates this based on the information
     // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
     const selected_style = {
       height: height.toString() + 'px',
-      backgroundColor: this.colourToggle
+      backgroundColor: colourToggle
     };
     const not_selected_style = { height: height.toString() + 'px' };
-    this.current_style = isToggleOn || complexOn || vectorOn ? selected_style : not_selected_style;
+    const current_style = isToggleOn || complexOn || vectorOn ? selected_style : not_selected_style;
+
+    const onSelectAll = () => {
+      let newList = [];
+      if (value.length < 3) {
+        newList = [controlValues.COMPLEX, controlValues.LIGAND, controlValues.VECTOR];
+      }
+      onLigand(null, newList);
+      onComplex(null, newList);
+      onVector(null, newList);
+    };
+
+    const onLigand = (e, list) => {
+      const new_list = list || calculateValues(controlValues.LIGAND);
+      const isToggled = new_list.some(i => i === controlValues.LIGAND);
+      setIsToggleOn(isToggled);
+      if (new_list) {
+        setValue(new_list);
+      }
+      if (!isToggled) {
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject()));
+        removeFromFragmentDisplayList(generateMolId());
+      } else {
+        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(colourToggle)));
+        appendFragmentDisplayList(generateMolId());
+      }
+    };
+
+    const onComplex = (e, list) => {
+      const new_list = list || calculateValues(controlValues.COMPLEX);
+      const isToggled = new_list.some(i => i === controlValues.COMPLEX);
+      setIsToggleOn(isToggled);
+      if (new_list) {
+        setValue(new_list);
+      }
+      if (!isToggled) {
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()));
+        removeFromComplexList(generateMolId());
+      } else {
+        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()));
+        appendComplexList(generateMolId());
+      }
+    };
+
+    const onVector = (e, list) => {
+      const new_list = list || calculateValues(controlValues.VECTOR);
+      const isToggled = new_list.some(i => i === controlValues.VECTOR);
+      setIsToggleOn(isToggled);
+      if (new_list) {
+        setValue(new_list);
+      }
+      if (!isToggled) {
+        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
+        setMol('');
+        removeFromVectorOnList(generateMolId());
+      } else {
+        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
+        fetchWithMemoize(getViewUrl('vector')).then(json => handleVector(json['vectors']));
+        // Set this
+        getFullGraph(data);
+        // Do the query
+        fetchWithMemoize(getViewUrl('graph')).then(json => gotFullGraph(json['graph']));
+        appendVectorOnList(generateMolId());
+        selectVector(undefined);
+      }
+    };
+
+    const calculateValues = val => {
+      const newValue = value.slice();
+      const valIdx = newValue.indexOf(val);
+      if (valIdx > -1) {
+        newValue.splice(valIdx, 1);
+      } else {
+        newValue.push(val);
+      }
+      return newValue;
+    };
 
     return (
       <Grid container className={classes.container}>
@@ -285,7 +402,7 @@ class MoleculeView extends GenericView {
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: value.length === 3
               })}
-              onClick={this.onSelectAll}
+              onClick={onSelectAll}
             >
               A
             </Button>
@@ -297,7 +414,7 @@ class MoleculeView extends GenericView {
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: value.some(v => v === controlValues.LIGAND)
               })}
-              onClick={this.onLigand}
+              onClick={onLigand}
             >
               L
             </Button>
@@ -309,7 +426,7 @@ class MoleculeView extends GenericView {
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: value.some(v => v === controlValues.COMPLEX)
               })}
-              onClick={this.onComplex}
+              onClick={onComplex}
             >
               C
             </Button>
@@ -321,7 +438,7 @@ class MoleculeView extends GenericView {
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: value.some(v => v === controlValues.VECTOR)
               })}
-              onClick={this.onVector}
+              onClick={onVector}
             >
               V
             </Button>
@@ -341,10 +458,10 @@ class MoleculeView extends GenericView {
             </Grid>
           </Grid>
           <Grid item className={classes.imageCol}>
-            <div style={this.current_style}>{svg_image}</div>
+            <div style={current_style}>{svg_image}</div>
           </Grid>
           <Grid item container className={classes.propsCol}>
-            {this.getCalculatedProps().map(p => (
+            {getCalculatedProps().map(p => (
               <Grid
                 item
                 container
@@ -365,110 +482,7 @@ class MoleculeView extends GenericView {
       </Grid>
     );
   }
-
-  getRandomColor() {
-    var colourList = [
-      '#EFCDB8',
-      '#CC6666',
-      '#FF6E4A',
-      '#78DBE2',
-      '#1F75FE',
-      '#FAE7B5',
-      '#FDBCB4',
-      '#C5E384',
-      '#95918C',
-      '#F75394',
-      '#80DAEB',
-      '#ADADD6'
-    ];
-    return colourList[this.props.data.id % colourList.length];
-  }
-
-  onSelectAll() {
-    let newList = [];
-    if (this.state.value.length < 3) {
-      newList = [controlValues.COMPLEX, controlValues.LIGAND, controlValues.VECTOR];
-    }
-    this.onLigand(null, newList);
-    this.onComplex(null, newList);
-    this.onVector(null, newList);
-  }
-
-  onLigand(e, list) {
-    const new_list = list || this.calculateValues(controlValues.LIGAND);
-    const isToggled = new_list.some(i => i === controlValues.LIGAND);
-    if (new_list != undefined) {
-      this.setState({ isToggleOn: isToggled, value: new_list });
-    } else {
-      this.setState({ isToggleOn: isToggled });
-    }
-    if (!isToggled) {
-      this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject()));
-      this.props.removeFromFragmentDisplayList(this.generateMolId());
-    } else {
-      this.props.loadObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject(this.colourToggle))
-      );
-      this.props.appendFragmentDisplayList(this.generateMolId());
-    }
-  }
-
-  onComplex(e, list) {
-    const new_list = list || this.calculateValues(controlValues.COMPLEX);
-    const isToggled = new_list.some(i => i === controlValues.COMPLEX);
-    if (new_list != undefined) {
-      this.setState({ complexOn: isToggled, value: new_list });
-    } else {
-      this.setState({ complexOn: isToggled });
-    }
-    if (!isToggled) {
-      this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateObject()));
-      this.props.removeFromComplexList(this.generateMolId());
-    } else {
-      this.props.loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateObject()));
-      this.props.appendComplexList(this.generateMolId());
-    }
-  }
-
-  onVector(e, list) {
-    const new_list = list || this.calculateValues(controlValues.VECTOR);
-    const isToggled = new_list.some(i => i === controlValues.VECTOR);
-    if (new_list != undefined) {
-      this.setState({ vectorOn: isToggled, value: new_list });
-    } else {
-      this.setState({ vectorOn: isToggled });
-    }
-    if (!isToggled) {
-      this.props.vector_list.forEach(item =>
-        this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item))
-      );
-      this.props.setMol('');
-      this.props.removeFromVectorOnList(this.generateMolId());
-    } else {
-      this.props.vector_list.forEach(item =>
-        this.props.deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item))
-      );
-      fetchWithMemoize(this.getViewUrl('vector')).then(json => this.handleVector(json['vectors']));
-      // Set this
-      this.props.getFullGraph(this.props.data);
-      // Do the query
-      fetchWithMemoize(this.getViewUrl('graph')).then(json => this.props.gotFullGraph(json['graph']));
-      this.props.appendVectorOnList(this.generateMolId());
-      this.props.selectVector(undefined);
-    }
-  }
-
-  calculateValues(val) {
-    const newValue = this.state.value.slice();
-    const valIdx = newValue.indexOf(val);
-    if (valIdx > -1) {
-      newValue.splice(valIdx, 1);
-    } else {
-      newValue.push(val);
-    }
-    return newValue;
-  }
-}
+);
 function mapStateToProps(state) {
   return {
     to_query: state.selectionReducers.present.to_query,
