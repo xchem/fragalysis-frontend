@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles, Button } from '@material-ui/core';
 import * as nglLoadActions from '../actions/nglLoadActions';
@@ -155,6 +155,7 @@ const MoleculeView = memo(
     const [vectorOn, setVectorOn] = useState(false);
     const [value, setValue] = useState([]);
     const [old_url, setOld_url] = useState('');
+    const refDidMount = useRef(false);
     const getRandomColor = () => colourList[data.id % colourList.length];
     const colourToggle = getRandomColor();
 
@@ -261,34 +262,38 @@ const MoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      loadFromServer({
-        width,
-        height,
-        key,
-        old_url,
-        setImg_data,
-        setOld_url,
-        url
-      });
+      if (refDidMount.current === false) {
+        loadFromServer({
+          width,
+          height,
+          key,
+          old_url,
+          setImg_data,
+          setOld_url,
+          url
+        });
 
-      const thisToggleOn = fragmentDisplayList.has(data.id);
-      const complexOnHelper = complexList.has(data.id);
-      const vectorOnHelper = vectorOnList.has(data.id);
-      var value_list = [];
-      if (complexOnHelper) {
-        value_list.push(1);
+        refDidMount.current = true;
+
+        const thisToggleOn = fragmentDisplayList.has(data.id);
+        const complexOnHelper = complexList.has(data.id);
+        const vectorOnHelper = vectorOnList.has(data.id);
+        var value_list = [];
+        if (complexOnHelper) {
+          value_list.push(1);
+        }
+        if (thisToggleOn) {
+          value_list.push(2);
+        }
+        if (to_query === data.smiles) {
+          value_list.push(3);
+        }
+        setValue(value_list);
+        setComplexOn(complexOnHelper);
+        setIsToggleOn(thisToggleOn);
+        setVectorOn(vectorOnHelper);
       }
-      if (thisToggleOn) {
-        value_list.push(2);
-      }
-      if (to_query === data.smiles) {
-        value_list.push(3);
-      }
-      setValue(value_list);
-      setComplexOn(complexOnHelper);
-      setIsToggleOn(thisToggleOn);
-      setVectorOn(vectorOnHelper);
-    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, old_url, to_query, url, vectorOnList, width]);
+    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width, old_url]);
 
     useEffect(() => {
       let value_list = value.slice();
