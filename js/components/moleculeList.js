@@ -124,9 +124,10 @@ const MoleculeList = memo(
         list_type,
         setObjectList,
         setCachedMolLists,
-        mol_group_on
+        mol_group_on,
+        cached_mol_lists
       });
-    }, [list_type, mol_group_on, oldUrl, setObjectList, target_on, setCachedMolLists]);
+    }, [list_type, mol_group_on, oldUrl, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const titleRightElement = (
       <Button
