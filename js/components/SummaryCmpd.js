@@ -58,18 +58,18 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
     }
     let optionList = bondColorMap[currentVector];
     let outStrList = [];
-    optionList.forEach(index => {
+    for (let index in optionList) {
       let newList = [];
-      optionList[index].forEach(newIndex => {
+      for (let newIndex in optionList[index]) {
         if (optionList[index][newIndex] === 'NA') {
           newList.push(101);
         } else {
           newList.push(optionList[index][newIndex]);
         }
-      });
+      }
       let newStr = newList.join(',');
       outStrList.push(newStr);
-    });
+    }
     return outStrList.join(',');
   }, [bondColorMap, currentVector]);
 
