@@ -1,195 +1,215 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React from 'react';
+import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { GenericView } from './generalComponents';
 import * as selectionActions from '../actions/selectionActions';
 import SVGInline from 'react-svg-inline';
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
+import { VIEWS } from './constants';
+import { loadFromServer } from '../services/genericView';
 
-class CompoundView extends GenericView {
-  getCookie(name) {
-    if (!document.cookie) {
-      return null;
-    }
-    const xsrfCookies = document.cookie
-      .split(';')
-      .map(c => c.trim())
-      .filter(c => c.startsWith(name + '='));
-    if (xsrfCookies.length === 0) {
-      return null;
-    }
-    return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-  }
+const img_data_init =
+  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
+  '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
+  '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="100" cy="50" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="93.3012702" cy="75" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="75" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="50" cy="100" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="25" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="6.6987298" cy="75" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="0" cy="50" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="6.6987298" cy="25" r="5" transform="translate(5 5)"/> ' +
+  '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
+  '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
+  '</svg>';
 
-  constructor(props) {
-    super(props);
-    // tu je key, nie je tu vlastny loader
-    this.base_url = window.location.protocol + '//' + window.location.host;
-    if (this.props.data.id != undefined) {
-      this.url = new URL(this.base_url + '/api/cmpdimg/' + this.props.data.id + '/');
-      this.key = 'cmpd_image';
-    } else {
-      this.url = new URL(this.base_url + '/viewer/img_from_smiles/');
-      var get_params = { smiles: props.data.show_frag };
-      Object.keys(get_params).forEach(key => this.url.searchParams.append(key, get_params[key]));
-      this.key = undefined;
-    }
-    this.send_obj = props.data;
-    this.conf_on_style = { opacity: '0.3' };
-    this.highlightedCompStyle = { borderStyle: 'solid' };
-    this.checkInList = this.checkInList.bind(this);
-    this.handleConf = this.handleConf.bind(this);
-    this.state = {
-      img_data:
-        '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
-        '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
-        '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="100" cy="50" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="93.3012702" cy="75" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="75" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="50" cy="100" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="25" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="6.6987298" cy="75" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="0" cy="50" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="6.6987298" cy="25" r="5" transform="translate(5 5)"/> ' +
-        '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
-        '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
-        '</svg>'
+const CompoundView = memo(
+  ({
+    to_buy_list,
+    to_query_sdf_info,
+    highlightedCompound,
+    currentCompoundClass,
+    loadObject,
+    deleteObject,
+    removeFromToBuyList,
+    appendToBuyList,
+    setHighlighted,
+    height,
+    width,
+    data
+  }) => {
+    const not_selected_style = {
+      width: (width + 5).toString() + 'px',
+      height: (height + 5).toString() + 'px',
+      display: 'inline-block'
     };
-  }
+    const send_obj = data;
+    const conf_on_style = { opacity: '0.3' };
+    const highlightedCompStyle = { borderStyle: 'solid' };
+    let url = undefined;
+    let key = undefined;
+    const [isHighlighted, setIsHighlighted] = useState(false);
+    const [compoundClass, setCompoundClass] = useState();
+    const [isConfOn, setIsConfOn] = useState(false);
+    const refDidMount = useRef(false);
+    const conf = useRef(false);
+    const [old_url, setOld_url] = useState('');
+    const [img_data, setImg_data] = useState(img_data_init);
 
-  checkInList(nextProps) {
-    var isHighlighted = false;
-    if (nextProps.highlightedCompound.smiles == this.send_obj.smiles) {
-      isHighlighted = true;
-    }
-    this.setState(prevState => ({ isHighlighted: isHighlighted }));
-
-    var compoundClass = 0;
-    for (var item in nextProps.to_buy_list) {
-      if (nextProps.to_buy_list[item].smiles == this.send_obj.smiles) {
-        var compoundClass = nextProps.to_buy_list[item].class;
-      }
-    }
-    this.setState(prevState => ({ compoundClass: compoundClass }));
-  }
-
-  handleClick(e) {
-    this.props.setHighlighted({
-      index: this.send_obj.index,
-      smiles: this.send_obj.smiles
-    });
-    if (e.shiftKey) {
-      var isConfOn = this.state.isConfOn;
-      this.setState(prevState => ({ isConfOn: !isConfOn }));
-      this.handleConf();
+    // tu je key, nie je tu vlastny loader
+    const base_url = window.location.protocol + '//' + window.location.host;
+    if (data.id !== undefined) {
+      url = new URL(base_url + '/api/cmpdimg/' + data.id + '/');
+      key = 'cmpd_image';
     } else {
-      if (this.state.compoundClass == this.props.currentCompoundClass) {
-        this.setState(prevState => ({ compoundClass: 0 }));
-        this.props.removeFromToBuyList(this.send_obj);
-      } else {
-        this.setState(prevState => ({
-          compoundClass: this.props.currentCompoundClass
-        }));
-        Object.assign(this.send_obj, {
-          class: parseInt(this.props.currentCompoundClass)
-        });
-        this.props.appendToBuyList(this.send_obj);
-      }
+      url = new URL(base_url + '/viewer/img_from_smiles/');
+      var get_params = { smiles: data.show_frag };
+      Object.keys(get_params).forEach(p => url.searchParams.append(p, get_params[p]));
     }
-  }
 
-  generateMolObject(data, identifier) {
-    // Get the data
-    var nglObject = {
+    const getCookie = name => {
+      if (!document.cookie) {
+        return null;
+      }
+      const xsrfCookies = document.cookie
+        .split(';')
+        .map(c => c.trim())
+        .filter(c => c.startsWith(name + '='));
+      if (xsrfCookies.length === 0) {
+        return null;
+      }
+      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    };
+
+    const checkInList = useCallback(() => {
+      let isHighlightedTemp = false;
+      if (highlightedCompound.smiles === send_obj.smiles) {
+        isHighlightedTemp = true;
+      }
+      setIsHighlighted(isHighlightedTemp);
+
+      let compoundClassTemp = 0;
+      for (var item in to_buy_list) {
+        if (to_buy_list[item].smiles === send_obj.smiles) {
+          compoundClassTemp = to_buy_list[item].class;
+          break;
+        }
+      }
+      setCompoundClass(compoundClassTemp);
+    }, [highlightedCompound.smiles, send_obj.smiles, to_buy_list]);
+
+    const handleClick = e => {
+      setHighlighted({
+        index: send_obj.index,
+        smiles: send_obj.smiles
+      });
+      if (e.shiftKey) {
+        setIsConfOn(!isConfOn);
+        handleConf();
+      } else {
+        if (compoundClass === currentCompoundClass) {
+          setCompoundClass(0);
+          removeFromToBuyList(send_obj);
+        } else {
+          setCompoundClass(currentCompoundClass);
+          Object.assign(send_obj, {
+            class: parseInt(currentCompoundClass)
+          });
+          appendToBuyList(send_obj);
+        }
+      }
+    };
+
+    const generateMolObject = (sdf_info, identifier) => ({
       name: 'CONFLOAD_' + identifier,
       OBJECT_TYPE: nglObjectTypes.MOLECULE,
       colour: 'cyan',
-      sdf_info: data
+      sdf_info: sdf_info
+    });
+
+    const handleConf = async () => {
+      if (isConfOn) {
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+      } else {
+        // This needs currying
+        const csrfToken = getCookie('csrftoken');
+        var post_data = {
+          INPUT_VECTOR: send_obj.vector,
+          INPUT_SMILES: [send_obj.smiles],
+          INPUT_MOL_BLOCK: to_query_sdf_info
+        };
+        const rawResponse = await fetch(base_url + '/scoring/gen_conf_from_vect/', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify(post_data)
+        });
+        const content = await rawResponse.json();
+        // Now load this into NGL
+        conf.current = content[0];
+        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+      }
     };
-    return nglObject;
-  }
 
-  async handleConf() {
-    if (this.state.isConfOn) {
-      this.props.deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject(this.conf, this.props.data.smiles))
-      );
-    } else {
-      // This needs currying
-      const csrfToken = this.getCookie('csrftoken');
-      var post_data = {
-        INPUT_VECTOR: this.send_obj.vector,
-        INPUT_SMILES: [this.send_obj.smiles],
-        INPUT_MOL_BLOCK: this.props.to_query_sdf_info
-      };
-      const rawResponse = await fetch(this.base_url + '/scoring/gen_conf_from_vect/', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': csrfToken
-        },
-        body: JSON.stringify(post_data)
-      });
-      const content = await rawResponse.json();
-      // Now load this into NGL
-      this.conf = content[0];
-      this.props.loadObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, this.generateMolObject(this.conf, this.props.data.smiles))
-      );
-    }
-  }
+    // componentDidMount
+    useEffect(() => {
+      if (refDidMount.current === false) {
+        loadFromServer({
+          width,
+          height,
+          key,
+          old_url,
+          setImg_data,
+          setOld_url,
+          url
+        });
+        if (to_buy_list.length !== 0) {
+          checkInList();
+        }
+        refDidMount.current = true;
+      }
+    }, [height, key, old_url, url, width, checkInList, to_buy_list.length]);
 
-  componentDidMount() {
-    this.loadFromServer(this.props.width, this.props.height);
-    if (this.props.to_buy_list.length != 0) {
-      this.checkInList(this.props);
-    }
-  }
+    useEffect(() => {
+      checkInList();
+    }, [checkInList]);
 
-  componentWillReceiveProps(nextProps) {
-    this.checkInList(nextProps);
-  }
-
-  render() {
-    const svg_image = <SVGInline svg={this.state.img_data} />;
-    var current_style = Object.assign({}, this.not_selected_style);
-    if (this.state.isConfOn == true) {
-      current_style = Object.assign(current_style, this.conf_on_style);
+    let current_style = Object.assign({}, not_selected_style);
+    if (isConfOn === true) {
+      current_style = Object.assign(current_style, conf_on_style);
     }
-    if (this.state.isHighlighted == true) {
-      current_style = Object.assign(current_style, this.highlightedCompStyle);
+    if (isHighlighted === true) {
+      current_style = Object.assign(current_style, highlightedCompStyle);
     }
-    if (this.state.compoundClass != 0) {
-      var colourList = ['null', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
+    if (compoundClass !== 0) {
+      const colourList = ['null', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
       current_style = Object.assign(current_style, {
-        backgroundColor: colourList[this.state.compoundClass]
+        backgroundColor: colourList[compoundClass]
       });
     }
     return (
-      <div onClick={this.handleClick} style={current_style}>
-        {svg_image}
+      <div onClick={handleClick} style={current_style}>
+        <SVGInline svg={img_data} />
       </div>
     );
   }
-}
+);
 
 function mapStateToProps(state) {
   return {
     to_buy_list: state.selectionReducers.present.to_buy_list,
     to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
     highlightedCompound: state.selectionReducers.present.highlightedCompound,
-    thisVectorList: state.selectionReducers.present.this_vector_list,
-    currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
-    to_query: state.selectionReducers.present.to_query,
-    currentVector: state.selectionReducers.present.currentVector
+    currentCompoundClass: state.selectionReducers.present.currentCompoundClass
   };
 }
 

@@ -230,12 +230,12 @@ const MoleculeView = memo(
 
     const generateBondColorMap = inputDict => {
       var out_d = {};
-      inputDict.forEach(keyItem => {
-        inputDict[keyItem].forEach(vector => {
+      for (let keyItem in inputDict) {
+        for (let vector in inputDict[key]) {
           var vect = vector.split('_')[0];
           out_d[vect] = inputDict[keyItem][vector];
-        });
-      });
+        }
+      }
       return out_d;
     };
 
