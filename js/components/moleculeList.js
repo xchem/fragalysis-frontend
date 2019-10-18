@@ -111,7 +111,10 @@ const MoleculeList = memo(
     };
 
     if (!!(filterSettings || {}).active) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
+      joinedMoleculeLists = useMemo(() => filterMolecules(joinedMoleculeLists, filterSettings), [
+        joinedMoleculeLists,
+        filterSettings
+      ]);
     } else {
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }

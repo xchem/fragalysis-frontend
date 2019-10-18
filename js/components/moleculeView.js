@@ -169,27 +169,26 @@ const MoleculeView = memo(
     const generateObjectList = out_data => {
       const colour = [1, 0, 0];
       const deletions = out_data.deletions;
+      const additions = out_data.additions;
+      const linkers = out_data.linkers;
+      const rings = out_data.ring;
       let outList = [];
 
-      deletions.forEach(item =>
-        outList.push(generateArrowObject(deletions[item][0], deletions[item][1], item.split('_')[0], colour))
-      );
+      for (let item in deletions) {
+        outList.push(generateArrowObject(deletions[item][0], deletions[item][1], item.split('_')[0], colour));
+      }
 
-      var additions = out_data.additions;
+      for (let item in additions) {
+        outList.push(generateArrowObject(additions[item][0], additions[item][1], item.split('_')[0], colour));
+      }
 
-      additions.forEach(item =>
-        outList.push(generateArrowObject(additions[item][0], additions[item][1], item.split('_')[0], colour))
-      );
+      for (let item in linkers) {
+        outList.push(generateCylinderObject(linkers[item][0], linkers[item][1], item.split('_')[0], colour));
+      }
 
-      var linkers = out_data.linkers;
-      linkers.forEach(item =>
-        outList.push(generateCylinderObject(linkers[item][0], linkers[item][1], item.split('_')[0], colour))
-      );
-
-      var rings = out_data.ring;
-      rings.forEach(item =>
-        outList.push(generateCylinderObject(rings[item][0], rings[item][2], item.split('_')[0], colour))
-      );
+      for (let item in rings) {
+        outList.push(generateCylinderObject(rings[item][0], rings[item][2], item.split('_')[0], colour));
+      }
 
       return outList;
     };
