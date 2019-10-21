@@ -9,7 +9,7 @@ import * as listType from './listTypes';
 import { getUrl, loadFromServer } from '../services/genericList';
 
 // TODO this should be HOC
-const EventList = memo(({ group_type, target_on, event_on, pandda_site_on, object_list, setObjectList }) => {
+const EventList = memo(({ target_on, pandda_site_on, setObjectList }) => {
   const list_type = listType.PANDDA_EVENT;
   const [oldUrl, setOldUrl] = useState('');
 
@@ -27,11 +27,8 @@ const EventList = memo(({ group_type, target_on, event_on, pandda_site_on, objec
 });
 function mapStateToProps(state) {
   return {
-    group_type: state.apiReducers.present.group_type,
     target_on: state.apiReducers.present.target_on,
-    event_on: state.apiReducers.present.pandda_event_on,
-    pandda_site_on: state.apiReducers.present.pandda_site_on,
-    object_list: state.apiReducers.present.pandda_event_list
+    pandda_site_on: state.apiReducers.present.pandda_site_on
   };
 }
 const mapDispatchToProps = {

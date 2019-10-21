@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button } from 'react-bootstrap';
@@ -24,46 +24,31 @@ const customStyles = {
   }
 };
 
-export class ModalErrorMessage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.closeModal = this.closeModal.bind(this);
-    this.state = { errorMessage: undefined };
-  }
+export const ModalErrorMessage = memo(({ errorMessage, savingState, setErrorMessage, setSavingState }) => {
+  const closeModal = () => {
+    setErrorMessage(undefined);
+    setSavingState(false);
+  };
 
-  closeModal() {
-    this.setState(prevState => ({ errorMessage: undefined }));
-    this.props.setErrorMessage(undefined);
-    this.props.setSavingState(false);
-  }
-
-  componentWillMount() {
+  useEffect(() => {
     ReactModal.setAppElement('body');
-  }
+  }, []);
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.errorMessage != undefined && nextProps.savingState == true) {
-      this.setState(prevState => ({ errorMessage: nextProps.errorMessage }));
-    }
+  if (errorMessage !== undefined) {
+    return (
+      <ReactModal isOpen={savingState} style={customStyles}>
+        <div>
+          <h3>Error occurred during state saving. Please contact Fragalysis support!</h3>
+          <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+            Close
+          </Button>
+        </div>
+      </ReactModal>
+    );
+  } else {
+    return null;
   }
-
-  render() {
-    if (this.state.errorMessage != undefined) {
-      return (
-        <ReactModal isOpen={this.props.savingState} style={customStyles}>
-          <div>
-            <h3>Error occurred during state saving. Please contact Fragalysis support!</h3>
-            <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>
-              Close
-            </Button>
-          </div>
-        </ReactModal>
-      );
-    } else {
-      return null;
-    }
-  }
-}
+});
 
 function mapStateToProps(state) {
   return {

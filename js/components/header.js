@@ -11,7 +11,7 @@ import SessionManagement from './sessionManagement';
 import { ErrorReport } from './errorReport';
 import { PREFIX } from './constants';
 
-class Header extends React.Component {
+class Header extends React.PureComponent {
   constructor(props) {
     super(props);
     this.getTargetList = this.getTargetList.bind(this);
@@ -32,13 +32,12 @@ class Header extends React.Component {
   generateTargetObject(targetData) {
     // Now deal with this target
     var prot_to_load = targetData.protein_set[0];
-    if (prot_to_load != undefined) {
-      var out_object = {
+    if (prot_to_load !== undefined) {
+      return {
         name: PREFIX.PROTEIN + prot_to_load.toString(),
         prot_url: this.getViewUrl(prot_to_load, 'prot_from_pk'),
         OBJECT_TYPE: nglObjectTypes.PROTEIN
       };
-      return out_object;
     }
     return undefined;
   }
@@ -81,7 +80,7 @@ class Header extends React.Component {
     // eslint-disable-next-line no-undef
     var username = DJANGO_CONTEXT['username'];
 
-    if (username == 'NOT_LOGGED_IN') {
+    if (username === 'NOT_LOGGED_IN') {
       new_ele = (
         <NavItem eventKey={1} href={login}>
           <Button> Login </Button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Slider from '@material-ui/core/Slider';
@@ -74,7 +74,7 @@ const widthProperty = 200;
 const widthMin = 30;
 const widthSlider = 170;
 
-const moleculeListSortFilterItem = props => {
+const moleculeListSortFilterItem = memo(props => {
   const { property, min, max, onChange, isFloat, color, disabled, onChangePrio } = props;
   const { order, minValue, maxValue } = props;
   // Because Slider works only with Integers we convert Float to Int by multiplying with 100
@@ -191,7 +191,7 @@ const moleculeListSortFilterItem = props => {
       </Grid>
     </Grid>
   );
-};
+});
 
 moleculeListSortFilterItem.propTypes = {
   order: PropTypes.number.isRequired,

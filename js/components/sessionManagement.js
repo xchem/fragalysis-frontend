@@ -56,15 +56,15 @@ export class SessionManagement extends React.Component {
     var target = jsonOfView.apiReducers.present.target_on_name;
     var targetUnrecognised = true;
     for (var i in this.props.targetIdList) {
-      if (target == this.props.targetIdList[i].title) {
+      if (target === this.props.targetIdList[i].title) {
         targetUnrecognised = false;
       }
     }
-    if (targetUnrecognised == true) {
+    if (targetUnrecognised === true) {
       this.props.setLoadingState(false);
     }
     this.props.setTargetUnrecognised(targetUnrecognised);
-    if (targetUnrecognised == false) {
+    if (targetUnrecognised === false) {
       this.reloadSession(myJson);
     }
   }
@@ -75,7 +75,7 @@ export class SessionManagement extends React.Component {
     this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
     this.props.setStageColor(jsonOfView.nglReducers.present.stageColor);
     this.restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
-    if (jsonOfView.selectionReducers.present.vectorOnList.length != 0) {
+    if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
       var url =
         window.location.protocol +
         '//' +
@@ -104,7 +104,7 @@ export class SessionManagement extends React.Component {
   }
 
   updateFraggleBox(myJson) {
-    if (this.state.saveType == 'sessionNew') {
+    if (this.state.saveType === 'sessionNew') {
       this.props.setLatestSession(myJson.uuid);
       this.props.setSessionId(myJson.id);
       this.props.setSessionTitle(myJson.title);
@@ -112,11 +112,11 @@ export class SessionManagement extends React.Component {
       this.props.setSavingState('savingSession');
       this.setState(prevState => ({ nextUuid: '' }));
       this.getSessionDetails();
-    } else if (this.state.saveType == 'sessionSave') {
+    } else if (this.state.saveType === 'sessionSave') {
       this.setState(prevState => ({ saveType: '' }));
       this.props.setSavingState('overwritingSession');
       this.getSessionDetails();
-    } else if (this.state.saveType == 'snapshotNew') {
+    } else if (this.state.saveType === 'snapshotNew') {
       this.props.setLatestSnapshot(myJson.uuid);
       this.setState(prevState => ({ saveType: '' }));
       this.props.setSavingState('savingSnapshot');
@@ -149,7 +149,7 @@ export class SessionManagement extends React.Component {
   }
 
   handleJson(myJson) {
-    if (myJson.scene == undefined) {
+    if (myJson.scene === undefined) {
       return;
     }
     this.checkTarget(myJson);
@@ -233,7 +233,7 @@ export class SessionManagement extends React.Component {
   }
 
   generateNextUuid() {
-    if (this.state.nextUuid == '') {
+    if (this.state.nextUuid === '') {
       const uuidv4 = require('uuid/v4');
       this.setState(prevState => ({ nextUuid: uuidv4() }));
       this.setState(prevState => ({ newSessionFlag: 1 }));
@@ -264,7 +264,7 @@ export class SessionManagement extends React.Component {
   componentDidUpdate() {
     this.generateNextUuid();
     var hasBeenRefreshed = true;
-    if (this.props.uuid != 'UNSET') {
+    if (this.props.uuid !== 'UNSET') {
       fetch('/api/viewscene/?uuid=' + this.props.uuid)
         .then(function(response) {
           return response.json();
@@ -273,14 +273,14 @@ export class SessionManagement extends React.Component {
       this.props.setUuid('UNSET');
     }
     for (var key in this.props.nglOrientations) {
-      if (this.props.nglOrientations[key] == 'REFRESH') {
+      if (this.props.nglOrientations[key] === 'REFRESH') {
         hasBeenRefreshed = false;
       }
-      if (this.props.nglOrientations[key] == 'STARTED') {
+      if (this.props.nglOrientations[key] === 'STARTED') {
         hasBeenRefreshed = false;
       }
     }
-    if (hasBeenRefreshed == true) {
+    if (hasBeenRefreshed === true) {
       var store = JSON.stringify(getStore().getState());
       const csrfToken = this.getCookie('csrftoken');
       const timeOptions = {
@@ -306,7 +306,7 @@ export class SessionManagement extends React.Component {
         apiReducers: newApiObject
       });
       var fullState = { state: JSON.stringify(newStateObject) };
-      if (this.state.saveType == 'sessionNew' && this.state.newSessionFlag == 1) {
+      if (this.state.saveType === 'sessionNew' && this.state.newSessionFlag == 1) {
         this.setState(prevState => ({ newSessionFlag: 0 }));
         var formattedState = {
           uuid: this.state.nextUuid,
@@ -332,7 +332,7 @@ export class SessionManagement extends React.Component {
           .catch(error => {
             this.deployErrorModal(error);
           });
-      } else if (this.state.saveType == 'sessionSave') {
+      } else if (this.state.saveType === 'sessionSave') {
         var formattedState = {
           scene: JSON.stringify(JSON.stringify(fullState))
         };
@@ -354,7 +354,7 @@ export class SessionManagement extends React.Component {
           .catch(error => {
             this.deployErrorModal(error);
           });
-      } else if (this.state.saveType == 'snapshotNew') {
+      } else if (this.state.saveType === 'snapshotNew') {
         const uuidv4 = require('uuid/v4');
         var formattedState = {
           uuid: uuidv4(),
@@ -388,12 +388,12 @@ export class SessionManagement extends React.Component {
     const { pathname } = this.props.location;
     var buttons = '';
     if (
-      pathname != '/viewer/react/landing' &&
-      pathname != '/viewer/react/funders' &&
-      pathname != '/viewer/react/sessions' &&
-      pathname != '/viewer/react/targetmanagement'
+      pathname !== '/viewer/react/landing' &&
+      pathname !== '/viewer/react/funders' &&
+      pathname !== '/viewer/react/sessions' &&
+      pathname !== '/viewer/react/targetmanagement'
     ) {
-      if (this.props.sessionTitle == undefined || this.props.sessionTitle == 'undefined') {
+      if (this.props.sessionTitle === undefined || this.props.sessionTitle === 'undefined') {
         buttons = (
           <Col>
             <ButtonToolbar>

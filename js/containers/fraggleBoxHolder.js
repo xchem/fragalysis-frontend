@@ -40,11 +40,11 @@ class FraggleBox extends PureComponent {
   }
 
   componentDidMount() {
-    if (this.props.match.params.uuid != undefined) {
+    if (this.props.match.params.uuid !== undefined) {
       var uuid = this.props.match.params.uuid;
       this.props.setUuid(uuid);
       this.props.setLatestSession(uuid);
-    } else if (this.props.match.params.snapshotUuid != undefined) {
+    } else if (this.props.match.params.snapshotUuid !== undefined) {
       var snapshotUuid = this.props.match.params.snapshotUuid;
       this.props.setUuid(snapshotUuid);
     }

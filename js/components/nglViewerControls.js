@@ -2,45 +2,37 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import { Button } from 'react-bootstrap';
 
-class NglViewerControls extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleStageColor = this.handleStageColor.bind(this);
-    this.handleNglProtStyle = this.handleNglProtStyle.bind(this);
-  }
-
-  handleStageColor() {
-    if (this.props.stageColor === 'white') {
-      this.props.setStageColor('black');
+const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {
+  const handleStageColor = () => {
+    if (stageColor === 'white') {
+      setStageColor('black');
     } else {
-      this.props.setStageColor('white');
+      setStageColor('white');
     }
-  }
+  };
 
-  handleNglProtStyle() {
-    if (this.props.nglProtStyle === 'cartoon') {
-      this.props.setNglProtStyle('hyperball');
-    } else if (this.props.nglProtStyle === 'hyperball') {
-      this.props.setNglProtStyle('cartoon');
+  const handleNglProtStyle = () => {
+    if (nglProtStyle === 'cartoon') {
+      setNglProtStyle('hyperball');
+    } else if (nglProtStyle === 'hyperball') {
+      setNglProtStyle('cartoon');
     }
-  }
+  };
 
-  render() {
-    return (
-      <div>
-        <h3>Viewer controls</h3>
-        <Button bsSize="sm" bsStyle="success" onClick={this.handleStageColor}>
-          Change background colour
-        </Button>
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <h3>Viewer controls</h3>
+      <Button bsSize="sm" bsStyle="success" onClick={handleStageColor}>
+        Change background colour
+      </Button>
+    </div>
+  );
+});
 
 function mapStateToProps(state) {
   return {

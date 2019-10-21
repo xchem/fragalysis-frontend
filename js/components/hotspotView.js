@@ -11,7 +11,7 @@ import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
 import $ from 'jquery';
 
-class HotspotView extends React.Component {
+class HotspotView extends React.PureComponent {
   constructor(props) {
     super(props);
     this.onHotspot = this.onHotspot.bind(this);

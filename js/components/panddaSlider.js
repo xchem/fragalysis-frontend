@@ -16,7 +16,7 @@ class PanddaSlider extends Slider {
   }
 
   newOption(new_value) {
-    if (this.props.event_on != undefined) {
+    if (this.props.event_on !== undefined) {
       this.props.deleteObject(
         Object.assign(
           { display_div: VIEWS.PANDDA_MAJOR },

@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
 import { Tooltip, OverlayTrigger, ButtonToolbar, Row, Col } from 'react-bootstrap';
@@ -26,7 +26,7 @@ const customStyles = {
   }
 };
 
-export class ModalStateSave extends Component {
+export class ModalStateSave extends PureComponent {
   constructor(props) {
     super(props);
     this.getCookie = this.getCookie.bind(this);
@@ -57,7 +57,7 @@ export class ModalStateSave extends Component {
 
   openFraggleLink() {
     var url = '';
-    if (this.props.savingState == 'savingSnapshot') {
+    if (this.props.savingState === 'savingSnapshot') {
       url =
         window.location.protocol +
         '//' +
@@ -65,7 +65,7 @@ export class ModalStateSave extends Component {
         '/viewer/react/snapshot/' +
         this.props.latestSnapshot;
       window.open(url);
-    } else if (this.props.savingState == 'savingSession' || this.props.savingState == 'overwritingSession') {
+    } else if (this.props.savingState === 'savingSession' || this.props.savingState === 'overwritingSession') {
       url =
         window.location.protocol +
         '//' +
@@ -136,7 +136,7 @@ export class ModalStateSave extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.latestSession != undefined || nextProps.latestSnapshot != undefined) {
+    if (nextProps.latestSession !== undefined || nextProps.latestSnapshot !== undefined) {
       this.setState(prevState => ({ fraggleBoxLoc: nextProps.latestSession }));
       this.setState(prevState => ({ snapshotLoc: nextProps.latestSnapshot }));
     }
@@ -151,9 +151,9 @@ export class ModalStateSave extends Component {
     var urlToCopy = '';
     var sessionRename = '';
     var linkSection = '';
-    if (this.state.fraggleBoxLoc != undefined || this.state.snapshotLoc != undefined) {
-      if (this.props.savingState == 'savingSnapshot') {
-        var sessionRename = <Row></Row>;
+    if (this.state.fraggleBoxLoc !== undefined || this.state.snapshotLoc !== undefined) {
+      if (this.props.savingState === 'savingSnapshot') {
+        var sessionRename = <Row />;
         var urlToCopy =
           window.location.protocol +
           '//' +
@@ -164,13 +164,13 @@ export class ModalStateSave extends Component {
           <Row>
             <strong>
               A permanent, fixed snapshot of the current state has been saved:
-              <br></br>
+              <br />
               <a href={urlToCopy}>{urlToCopy}</a>
             </strong>
           </Row>
         );
-      } else if (this.props.savingState == 'savingSession') {
-        if (this.state.title == undefined) {
+      } else if (this.props.savingState === 'savingSession') {
+        if (this.state.title === undefined) {
           this.getTitle();
         }
         var sessionRename = (
@@ -182,9 +182,10 @@ export class ModalStateSave extends Component {
               style={{ width: 300 }}
               defaultValue={this.state.title}
               onKeyDown={this.handleSessionNaming}
-            ></input>
+            />
             <sup>
-              <br></br>To overwrite session name, enter new title above and press enter.
+              <br />
+              To overwrite session name, enter new title above and press enter.
             </sup>
           </Row>
         );
@@ -197,13 +198,14 @@ export class ModalStateSave extends Component {
         var linkSection = (
           <Row>
             <strong>
-              A new session has been generated:<br></br>
+              A new session has been generated:
+              <br />
               <a href={urlToCopy}>{urlToCopy}</a>
             </strong>
           </Row>
         );
-      } else if (this.props.savingState == 'overwritingSession') {
-        if (this.state.title == undefined) {
+      } else if (this.props.savingState === 'overwritingSession') {
+        if (this.state.title === undefined) {
           this.getTitle();
         }
         var sessionRename = (
@@ -215,9 +217,10 @@ export class ModalStateSave extends Component {
               style={{ width: 300 }}
               defaultValue={this.state.title}
               onKeyDown={this.handleSessionNaming}
-            ></input>
+            />
             <sup>
-              <br></br>To overwrite session name, enter new title above and press enter.
+              <br />
+              To overwrite session name, enter new title above and press enter.
             </sup>
           </Row>
         );
@@ -231,7 +234,7 @@ export class ModalStateSave extends Component {
           <Row>
             <strong>
               Your session has been overwritten and remains available at:
-              <br></br>
+              <br />
               <a href={urlToCopy}>{urlToCopy}</a>
             </strong>
           </Row>
@@ -242,21 +245,21 @@ export class ModalStateSave extends Component {
           isOpen={this.props.savingState.startsWith('saving') || this.props.savingState.startsWith('overwriting')}
           style={customStyles}
         >
-          <Col xs={1} md={1}></Col>
+          <Col xs={1} md={1} />
           <Col xs={10} md={10}>
             <Row>
-              <p></p>
+              <p />
             </Row>
             {sessionRename}
             <Row>
-              <p></p>
+              <p />
             </Row>
             {linkSection}
             <Row>
-              <p></p>
+              <p />
             </Row>
             <Row>
-              <p></p>
+              <p />
             </Row>
             <Row>
               <ButtonToolbar>
@@ -272,7 +275,7 @@ export class ModalStateSave extends Component {
               </ButtonToolbar>
             </Row>
           </Col>
-          <Col xs={1} md={1}></Col>
+          <Col xs={1} md={1} />
         </ReactModal>
       );
     } else {
