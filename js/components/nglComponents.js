@@ -7,7 +7,6 @@ import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglRenderActions from '../actions/nglRenderActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as listTypes from './listTypes';
 import * as selectionActions from '../actions/selectionActions';
@@ -27,10 +26,7 @@ const NGLView = memo(
     objectsToDelete,
     objectsLoading,
     objectsInView,
-    objectsPicked,
-    loadingState,
     stageColor,
-    this_vector_list,
     targetOnName,
     setMolGroupOn,
     setMolGroupSelection,
@@ -41,13 +37,10 @@ const NGLView = memo(
     setOrientation,
     objectLoading,
     loadObjectSuccess,
-    loadObjectFailure,
     deleteObject,
     loadObject,
     deleteObjectSuccess,
     setLoadingState,
-    setStageColor,
-    setHighlighted,
     div_id,
     height
   }) => {
@@ -414,10 +407,22 @@ const NGLView = memo(
     const showSelect = useCallback(
       (listType, view) => {
         let oldGroup = data_dict[listType].oldGroupOn;
-        //TODO i need use prop by string
-        let listOn = props[data_dict[listType].list];
-        let onGroup = props[data_dict[listType].onGroup];
-        debugger;
+
+        const listOnTemp = data_dict[listType].list;
+        const onGroupTemp = data_dict[listType].onGroup;
+        let listOn;
+        let onGroup;
+        if (listOnTemp === 'pandda_site_list') {
+          listOn = pandda_site_list;
+        } else if (listOnTemp === 'mol_group_list') {
+          listOn = mol_group_list;
+        }
+        if (onGroupTemp === 'pandda_site_list') {
+          onGroup = pandda_site_on;
+        } else if (onGroupTemp === 'mol_group_list') {
+          onGroup = mol_group_on;
+        }
+
         if (onGroup && onGroup !== oldGroup) {
           let old_data;
           let new_data;
@@ -441,7 +446,16 @@ const NGLView = memo(
           data_dict[listType].oldGroupOn = onGroup;
         }
       },
-      [data_dict, deleteObject, generateSphere, loadObject]
+      [
+        data_dict,
+        deleteObject,
+        generateSphere,
+        loadObject,
+        mol_group_list,
+        mol_group_on,
+        pandda_site_list,
+        pandda_site_on
+      ]
     );
 
     const showMultipleSelect = useCallback(
@@ -616,10 +630,7 @@ function mapStateToProps(state) {
     objectsToDelete: state.nglReducers.present.objectsToDelete,
     objectsLoading: state.nglReducers.present.objectsLoading,
     objectsInView: state.nglReducers.present.objectsInView,
-    objectsPicked: state.nglReducers.present.objectsPicked,
-    loadingState: state.nglReducers.present.loadingState,
     stageColor: state.nglReducers.present.stageColor,
-    this_vector_list: state.selectionReducers.present.this_vector_list,
     targetOnName: state.apiReducers.present.target_on_name
   };
 }
@@ -633,13 +644,10 @@ const mapDispatchToProps = {
   setOrientation: nglLoadActions.setOrientation,
   objectLoading: nglLoadActions.objectLoading,
   loadObjectSuccess: nglLoadActions.loadObjectSuccess,
-  loadObjectFailure: nglLoadActions.loadObjectFailure,
   deleteObject: nglLoadActions.deleteObject,
   loadObject: nglLoadActions.loadObject,
   deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-  setLoadingState: nglLoadActions.setLoadingState,
-  setStageColor: nglRenderActions.setStageColor,
-  setHighlighted: selectionActions.setHighlighted
+  setLoadingState: nglLoadActions.setLoadingState
 };
 export default connect(
   mapStateToProps,
