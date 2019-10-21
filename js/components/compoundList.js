@@ -2,118 +2,112 @@
  * Created by abradley on 15/03/2018.
  */
 import { Row, Well, Button, ButtonToolbar } from 'react-bootstrap';
-import React from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
 import * as selectionActions from '../actions/selectionActions';
 
 const molStyle = { height: '400px', overflow: 'scroll' };
 
-class CompoundList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleClassNaming = this.handleClassNaming.bind(this);
-    this.selectAll = this.selectAll.bind(this);
-    this.clearAll = this.clearAll.bind(this);
-    this.colourClassBoxes = this.colourClassBoxes.bind(this);
-    this.updateClassNames = this.updateClassNames.bind(this);
-    this.state = {
-      compoundClasses: {
-        1: 'blue',
-        2: 'red',
-        3: 'green',
-        4: 'purple',
-        5: 'apricot'
+const CompoundList = memo(
+  ({
+    thisVectorList,
+    to_query,
+    compoundClasses,
+    currentCompoundClass,
+    to_select,
+    querying,
+    setToBuyList,
+    appendToBuyList,
+    setCompoundClasses,
+    setCurrentCompoundClass
+  }) => {
+    const [compoundClassesLocal, setCompoundClassesLocal] = useState({
+      1: 'blue',
+      2: 'red',
+      3: 'green',
+      4: 'purple',
+      5: 'apricot'
+    });
+
+    const updateClassNames = useCallback(() => {
+      setCompoundClassesLocal(compoundClasses);
+    }, [compoundClasses]);
+
+    const handleClassNaming = e => {
+      if (e.keyCode === 13) {
+        const newClassDescription = { [e.target.id]: e.target.value };
+        console.log('submit new class name ' + newClassDescription);
+        const descriptionToSet = Object.assign(compoundClasses, newClassDescription);
+        setCompoundClasses(descriptionToSet);
+        setCurrentCompoundClass(e.target.id);
       }
     };
-  }
 
-  updateClassNames(newNames) {
-    var newCompoundClasses = newNames;
-    this.setState(prevState => ({ compoundClasses: newCompoundClasses }));
-  }
-
-  handleClassNaming(e) {
-    if (e.keyCode === 13) {
-      var newClassDescription = { [e.target.id]: e.target.value };
-      console.log('submit new class name ' + newClassDescription);
-      var classDescription = this.props.compoundClasses;
-      var descriptionToSet = Object.assign(classDescription, newClassDescription);
-      this.props.setCompoundClasses(descriptionToSet);
-      this.props.setCurrentCompoundClass(e.target.id);
-    }
-  }
-
-  selectAll() {
-    for (var key in this.props.thisVectorList) {
-      for (var index in this.props.thisVectorList[key]) {
-        if (index != 'vector') {
-          for (var fUCompound in this.props.thisVectorList[key][index]) {
-            var thisObj = {
-              smiles: this.props.thisVectorList[key][index][fUCompound].end,
-              vector: this.props.thisVectorList[key].vector.split('_')[0],
-              mol: this.props.to_query,
-              class: parseInt(this.props.currentCompoundClass)
-            };
-            this.props.appendToBuyList(thisObj);
+    const selectAll = () => {
+      for (let key in thisVectorList) {
+        for (let index in thisVectorList[key]) {
+          if (index !== 'vector') {
+            for (let fUCompound in thisVectorList[key][index]) {
+              var thisObj = {
+                smiles: thisVectorList[key][index][fUCompound].end,
+                vector: thisVectorList[key].vector.split('_')[0],
+                mol: to_query,
+                class: parseInt(currentCompoundClass)
+              };
+              appendToBuyList(thisObj);
+            }
           }
         }
       }
-    }
-  }
-
-  clearAll() {
-    this.props.setToBuyList([]);
-  }
-
-  getNum() {
-    var tot_num = 0;
-    for (var key in this.props.to_select) {
-      tot_num += this.props.to_select[key]['addition'].length;
-    }
-    return tot_num;
-  }
-
-  colourClassBoxes(props) {
-    var colourList = {
-      1: '#b3cde3',
-      2: '#fbb4ae',
-      3: '#ccebc5',
-      4: '#decbe4',
-      5: '#fed9a6'
     };
-    for (var i in colourList) {
-      if (!!document.getElementById(i)) {
-        var inputId = document.getElementById(i);
-        inputId.style.backgroundColor = colourList[i];
-        inputId.style.border = '1px solid black';
-        if (props.currentCompoundClass === i) {
-          inputId.style.border = '2px solid red';
+
+    const clearAll = () => {
+      setToBuyList([]);
+    };
+
+    const getNum = () => {
+      let tot_num = 0;
+      for (let key in to_select) {
+        tot_num += to_select[key]['addition'].length;
+      }
+      return tot_num;
+    };
+
+    const colourClassBoxes = useCallback(() => {
+      const colourList = {
+        1: '#b3cde3',
+        2: '#fbb4ae',
+        3: '#ccebc5',
+        4: '#decbe4',
+        5: '#fed9a6'
+      };
+      for (var i in colourList) {
+        if (!!document.getElementById(i)) {
+          let inputId = document.getElementById(i);
+          inputId.style.backgroundColor = colourList[i];
+          inputId.style.border = '1px solid black';
+          if (currentCompoundClass === i) {
+            inputId.style.border = '2px solid red';
+          }
         }
       }
-    }
-  }
+    }, [currentCompoundClass]);
 
-  componentWillReceiveProps(nextProps) {
-    this.updateClassNames(nextProps.compoundClasses);
-    this.colourClassBoxes(nextProps);
-  }
+    useEffect(() => {
+      updateClassNames();
+      colourClassBoxes();
+    }, [updateClassNames, colourClassBoxes]);
 
-  componentDidMount() {
-    this.colourClassBoxes(this.props);
-    this.updateClassNames(this.props.compoundClasses);
-  }
-
-  render() {
-    var numMols = this.getNum();
-    var mol_string = 'No molecules found!';
+    var numMols = getNum();
+    let mol_string = 'No molecules found!';
     if (numMols) {
       mol_string = 'Compounds to pick. Mol total: ' + numMols;
     }
-    if (this.props.to_query == '' || this.props.to_query == undefined) {
+    if (to_query === '' || to_query === undefined) {
       mol_string = '';
     }
-    if (this.props.to_query != undefined) {
+    if (to_query !== undefined) {
       var totArray = [];
       totArray.push(
         <p key={'breakup'}>
@@ -125,45 +119,45 @@ class CompoundList extends React.Component {
           id="1"
           key="CLASS_1"
           style={{ width: 100 }}
-          defaultValue={this.state.compoundClasses[1]}
-          onKeyDown={this.handleClassNaming}
-        ></input>
+          defaultValue={compoundClassesLocal[1]}
+          onKeyDown={handleClassNaming}
+        />
       );
       totArray.push(
         <input
           id="2"
           key="CLASS_2"
           style={{ width: 100 }}
-          defaultValue={this.state.compoundClasses[2]}
-          onKeyDown={this.handleClassNaming}
-        ></input>
+          defaultValue={compoundClassesLocal[2]}
+          onKeyDown={handleClassNaming}
+        />
       );
       totArray.push(
         <input
           id="3"
           key="CLASS_3"
           style={{ width: 100 }}
-          defaultValue={this.state.compoundClasses[3]}
-          onKeyDown={this.handleClassNaming}
-        ></input>
+          defaultValue={compoundClassesLocal[3]}
+          onKeyDown={handleClassNaming}
+        />
       );
       totArray.push(
         <input
           id="4"
           key="CLASS_4"
           style={{ width: 100 }}
-          defaultValue={this.state.compoundClasses[4]}
-          onKeyDown={this.handleClassNaming}
-        ></input>
+          defaultValue={compoundClassesLocal[4]}
+          onKeyDown={handleClassNaming}
+        />
       );
       totArray.push(
         <input
           id="5"
           key="CLASS_5"
           style={{ width: 100 }}
-          defaultValue={this.state.compoundClasses[5]}
-          onKeyDown={this.handleClassNaming}
-        ></input>
+          defaultValue={compoundClassesLocal[5]}
+          onKeyDown={handleClassNaming}
+        />
       );
       totArray.push(
         <p key={'breakdown'}>
@@ -171,19 +165,19 @@ class CompoundList extends React.Component {
         </p>
       );
       var retArray = [];
-      for (var key in this.props.thisVectorList) {
-        var vector_smi = this.props.thisVectorList[key]['vector'];
-        var change_list = this.props.thisVectorList[key]['addition'];
+      for (var key in thisVectorList) {
+        const vector_smi = thisVectorList[key]['vector'];
+        const change_list = thisVectorList[key]['addition'];
         for (var ele in change_list) {
-          var data_transfer = change_list[ele];
-          var input_data = {};
+          const data_transfer = change_list[ele];
+          const input_data = {};
           input_data.smiles = data_transfer['end'];
           // Set this back for now - because it's confusing - alter to change if want later
           input_data.show_frag = data_transfer['end'];
           input_data.vector = vector_smi;
-          input_data.mol = this.props.to_query;
+          input_data.mol = to_query;
           input_data.index = ele;
-          input_data.class = this.props.currentCompoundClass;
+          input_data.class = currentCompoundClass;
           retArray.push(<CompoundView height={100} width={100} key={ele + '__' + key} data={input_data} />);
         }
       }
@@ -195,13 +189,13 @@ class CompoundList extends React.Component {
       return (
         <Well>
           <h3>
-            <b>{this.props.querying ? 'Loading....' : mol_string}</b>
+            <b>{querying ? 'Loading....' : mol_string}</b>
           </h3>
           <ButtonToolbar>
-            <Button bsSize="sm" bsStyle="success" onClick={this.selectAll}>
+            <Button bsSize="sm" bsStyle="success" onClick={selectAll}>
               Select All
             </Button>
-            <Button bsSize="sm" bsStyle="success" onClick={this.clearAll}>
+            <Button bsSize="sm" bsStyle="success" onClick={clearAll}>
               Clear Selection
             </Button>
           </ButtonToolbar>
@@ -212,7 +206,7 @@ class CompoundList extends React.Component {
       return null;
     }
   }
-}
+);
 
 function mapStateToProps(state) {
   return {
