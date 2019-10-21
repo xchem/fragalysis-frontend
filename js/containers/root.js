@@ -11,6 +11,7 @@ import { configureStore } from 'redux-starter-kit';
 import thunkMiddleware from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
+import { ErrorView } from '../components/errorComponent';
 
 const loggerMiddleware = createLogger();
 
@@ -24,11 +25,13 @@ saveStore(store);
 class Root extends PureComponent {
   render() {
     return (
-      <Provider store={store}>
-        <BrowserRouter>
-          <Routes />
-        </BrowserRouter>
-      </Provider>
+      <ErrorView>
+        <Provider store={store}>
+          <BrowserRouter>
+            <Routes />
+          </BrowserRouter>
+        </Provider>
+      </ErrorView>
     );
   }
 }

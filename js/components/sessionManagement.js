@@ -2,7 +2,7 @@
  * Created by ricgillams on 13/06/2018.
  */
 
-import React from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as apiActions from '../actions/apiActions';
@@ -22,370 +22,372 @@ const override = css`
   border-color: red;
 `;
 
-export class SessionManagement extends React.Component {
-  constructor(props) {
-    super(props);
-    this.getCookie = this.getCookie.bind(this);
-    this.updateFraggleBox = this.updateFraggleBox.bind(this);
-    this.newSession = this.newSession.bind(this);
-    this.saveSession = this.saveSession.bind(this);
-    this.newSnapshot = this.newSnapshot.bind(this);
-    this.deployErrorModal = this.deployErrorModal.bind(this);
-    this.postToServer = this.postToServer.bind(this);
-    this.handleJson = this.handleJson.bind(this);
-    this.restoreOrientation = this.restoreOrientation.bind(this);
-    this.generateArrowObject = this.generateArrowObject.bind(this);
-    this.generateCylinderObject = this.generateCylinderObject.bind(this);
-    this.generateObjectList = this.generateObjectList.bind(this);
-    this.generateBondColorMap = this.generateBondColorMap.bind(this);
-    this.handleVector = this.handleVector.bind(this);
-    this.redeployVectors = this.redeployVectors.bind(this);
-    this.generateNextUuid = this.generateNextUuid.bind(this);
-    this.getSessionDetails = this.getSessionDetails.bind(this);
-    this.checkTarget = this.checkTarget.bind(this);
-    this.reloadSession = this.reloadSession.bind(this);
-    this.state = {
-      saveType: '',
-      nextUuid: '',
-      newSessionFlag: 0
+const SessionManagement = memo(
+  ({
+    nglOrientations,
+    savingState,
+    uuid,
+    latestSession,
+    sessionId,
+    sessionTitle,
+    targetIdList,
+    setSavingState,
+    setOrientation,
+    setNGLOrientation,
+    loadObject,
+    reloadApiState,
+    reloadSelectionState,
+    setLatestSession,
+    setLatestSnapshot,
+    setErrorMessage,
+    setStageColor,
+    setSessionId,
+    setUuid,
+    setSessionTitle,
+    setVectorList,
+    setBondColorMap,
+    setTargetUnrecognised,
+    setLoadingState
+  }) => {
+    const [saveType, setSaveType] = useState('');
+    const [nextUuid, setNextUuid] = useState('');
+    const [newSessionFlag, setNewSessionFlag] = useState(0);
+
+    const checkTarget = myJson => {
+      var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+      var target = jsonOfView.apiReducers.present.target_on_name;
+      var targetUnrecognised = true;
+      for (var i in targetIdList) {
+        if (target === targetIdList[i].title) {
+          targetUnrecognised = false;
+        }
+      }
+      if (targetUnrecognised === true) {
+        setLoadingState(false);
+      }
+      setTargetUnrecognised(targetUnrecognised);
+      if (targetUnrecognised === false) {
+        reloadSession(myJson);
+      }
     };
-  }
 
-  checkTarget(myJson) {
-    var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-    var target = jsonOfView.apiReducers.present.target_on_name;
-    var targetUnrecognised = true;
-    for (var i in this.props.targetIdList) {
-      if (target === this.props.targetIdList[i].title) {
-        targetUnrecognised = false;
-      }
-    }
-    if (targetUnrecognised === true) {
-      this.props.setLoadingState(false);
-    }
-    this.props.setTargetUnrecognised(targetUnrecognised);
-    if (targetUnrecognised === false) {
-      this.reloadSession(myJson);
-    }
-  }
-
-  reloadSession(myJson) {
-    var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-    this.props.reloadApiState(jsonOfView.apiReducers.present);
-    this.props.reloadSelectionState(jsonOfView.selectionReducers.present);
-    this.props.setStageColor(jsonOfView.nglReducers.present.stageColor);
-    this.restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
-    if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
-      var url =
-        window.location.protocol +
-        '//' +
-        window.location.host +
-        '/api/vector/' +
-        jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
-        '/';
-      this.redeployVectors(url);
-    }
-    this.props.setSessionTitle(myJson.title);
-    this.props.setSessionId(myJson.id);
-  }
-
-  getCookie(name) {
-    if (!document.cookie) {
-      return null;
-    }
-    const xsrfCookies = document.cookie
-      .split(';')
-      .map(c => c.trim())
-      .filter(c => c.startsWith(name + '='));
-    if (xsrfCookies.length === 0) {
-      return null;
-    }
-    return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-  }
-
-  updateFraggleBox(myJson) {
-    if (this.state.saveType === 'sessionNew') {
-      this.props.setLatestSession(myJson.uuid);
-      this.props.setSessionId(myJson.id);
-      this.props.setSessionTitle(myJson.title);
-      this.setState(prevState => ({ saveType: '' }));
-      this.props.setSavingState('savingSession');
-      this.setState(prevState => ({ nextUuid: '' }));
-      this.getSessionDetails();
-    } else if (this.state.saveType === 'sessionSave') {
-      this.setState(prevState => ({ saveType: '' }));
-      this.props.setSavingState('overwritingSession');
-      this.getSessionDetails();
-    } else if (this.state.saveType === 'snapshotNew') {
-      this.props.setLatestSnapshot(myJson.uuid);
-      this.setState(prevState => ({ saveType: '' }));
-      this.props.setSavingState('savingSnapshot');
-    }
-  }
-
-  newSession() {
-    this.setState(prevState => ({ saveType: 'sessionNew' }));
-    this.postToServer();
-  }
-
-  saveSession() {
-    this.setState(prevState => ({ saveType: 'sessionSave' }));
-    this.postToServer();
-  }
-
-  newSnapshot() {
-    this.setState(prevState => ({ saveType: 'snapshotNew' }));
-    this.postToServer();
-  }
-
-  deployErrorModal(error) {
-    this.props.setErrorMessage(error);
-  }
-
-  postToServer() {
-    for (var key in this.props.nglOrientations) {
-      this.props.setOrientation(key, 'REFRESH');
-    }
-  }
-
-  handleJson(myJson) {
-    if (myJson.scene === undefined) {
-      return;
-    }
-    this.checkTarget(myJson);
-  }
-
-  restoreOrientation(myOrientDict) {
-    for (var div_id in myOrientDict) {
-      var orientation = myOrientDict[div_id]['orientation'];
-      var components = myOrientDict[div_id]['components'];
-      for (var component in components) {
-        this.props.loadObject(components[component]);
-      }
-      this.props.setNGLOrientation(div_id, orientation);
-    }
-  }
-
-  generateArrowObject(start, end, name, colour) {
-    return {
-      name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: nglObjectTypes.ARROW,
-      start: start,
-      end: end,
-      colour: colour
+    const redeployVectorsLocal = url => {
+      fetch(url)
+        .then(response => response.json(), error => console.log('An error occurred.', error))
+        .then(json => handleVector(json['vectors']));
     };
-  }
 
-  generateCylinderObject(start, end, name, colour) {
-    return {
-      name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: nglObjectTypes.CYLINDER,
-      start: start,
-      end: end,
-      colour: colour
+    const reloadSession = myJson => {
+      var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+      reloadApiState(jsonOfView.apiReducers.present);
+      reloadSelectionState(jsonOfView.selectionReducers.present);
+      setStageColor(jsonOfView.nglReducers.present.stageColor);
+      restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
+      if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
+        var url =
+          window.location.protocol +
+          '//' +
+          window.location.host +
+          '/api/vector/' +
+          jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
+          '/';
+        redeployVectorsLocal(url);
+      }
+      setSessionTitle(myJson.title);
+      setSessionId(myJson.id);
     };
-  }
 
-  generateObjectList(out_data) {
-    var colour = [1, 0, 0];
-    var deletions = out_data.deletions;
-    var outList = [];
-    for (var key in deletions) {
-      outList.push(this.generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
-    }
-    var additions = out_data.additions;
-    for (var key in additions) {
-      outList.push(this.generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
-    }
-    var linker = out_data.linkers;
-    for (var key in linker) {
-      outList.push(this.generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
-    }
-    var rings = out_data.ring;
-    for (var key in rings) {
-      outList.push(this.generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
-    }
-    return outList;
-  }
-
-  generateBondColorMap(inputDict) {
-    var out_d = {};
-    for (var key in inputDict) {
-      for (var vector in inputDict[key]) {
-        var vect = vector.split('_')[0];
-        out_d[vect] = inputDict[key][vector];
+    const getCookie = name => {
+      if (!document.cookie) {
+        return null;
       }
-    }
-    return out_d;
-  }
-
-  handleVector(json) {
-    var objList = this.generateObjectList(json['3d']);
-    this.props.setVectorList(objList);
-    var vectorBondColorMap = this.generateBondColorMap(json['indices']);
-    this.props.setBondColorMap(vectorBondColorMap);
-  }
-
-  redeployVectors(url) {
-    fetch(url)
-      .then(response => response.json(), error => console.log('An error occurred.', error))
-      .then(json => this.handleVector(json['vectors']));
-  }
-
-  generateNextUuid() {
-    if (this.state.nextUuid === '') {
-      const uuidv4 = require('uuid/v4');
-      this.setState(prevState => ({ nextUuid: uuidv4() }));
-      this.setState(prevState => ({ newSessionFlag: 1 }));
-    }
-  }
-
-  getSessionDetails() {
-    fetch('/api/viewscene/?uuid=' + this.props.latestSession, {
-      method: 'get',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
+      const xsrfCookies = document.cookie
+        .split(';')
+        .map(c => c.trim())
+        .filter(c => c.startsWith(name + '='));
+      if (xsrfCookies.length === 0) {
+        return null;
       }
-    })
-      .catch(error => {
-        this.props.setErrorMessage(error);
-      })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(myJson) {
-        var title = myJson.results[JSON.stringify(0)].title;
-        return title;
-      })
-      .then(title => this.props.setSessionTitle(title));
-  }
+      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    };
 
-  componentDidUpdate() {
-    this.generateNextUuid();
-    var hasBeenRefreshed = true;
-    if (this.props.uuid !== 'UNSET') {
-      fetch('/api/viewscene/?uuid=' + this.props.uuid)
+    const updateFraggleBox = myJson => {
+      if (saveType === 'sessionNew') {
+        setLatestSession(myJson.uuid);
+        setSessionId(myJson.id);
+        setSessionTitle(myJson.title);
+        setSaveType('');
+        setSavingState('savingSession');
+        setNextUuid('');
+        getSessionDetails();
+      } else if (saveType === 'sessionSave') {
+        setSaveType('');
+        setSavingState('overwritingSession');
+        getSessionDetails();
+      } else if (saveType === 'snapshotNew') {
+        setLatestSnapshot(myJson.uuid);
+        setSaveType('');
+        setSavingState('savingSnapshot');
+      }
+    };
+
+    const newSession = () => {
+      setSaveType('sessionNew');
+      postToServer();
+    };
+
+    const saveSession = () => {
+      setSaveType('sessionNew');
+      postToServer();
+    };
+
+    const newSnapshot = () => {
+      setSaveType('snapshotNew');
+      postToServer();
+    };
+
+    const deployErrorModal = error => {
+      setErrorMessage(error);
+    };
+
+    const postToServer = () => {
+      for (var key in nglOrientations) {
+        setOrientation(key, 'REFRESH');
+      }
+    };
+
+    const handleJson = myJson => {
+      if (myJson.scene === undefined) {
+        return;
+      }
+      checkTarget(myJson);
+    };
+
+    const restoreOrientation = myOrientDict => {
+      for (var div_id in myOrientDict) {
+        var orientation = myOrientDict[div_id]['orientation'];
+        var components = myOrientDict[div_id]['components'];
+        for (var component in components) {
+          loadObject(components[component]);
+        }
+        setNGLOrientation(div_id, orientation);
+      }
+    };
+
+    const generateArrowObject = (start, end, name, colour) => {
+      return {
+        name: listTypes.VECTOR + '_' + name,
+        OBJECT_TYPE: nglObjectTypes.ARROW,
+        start: start,
+        end: end,
+        colour: colour
+      };
+    };
+
+    const generateCylinderObject = (start, end, name, colour) => {
+      return {
+        name: listTypes.VECTOR + '_' + name,
+        OBJECT_TYPE: nglObjectTypes.CYLINDER,
+        start: start,
+        end: end,
+        colour: colour
+      };
+    };
+
+    const generateObjectList = out_data => {
+      var colour = [1, 0, 0];
+      var deletions = out_data.deletions;
+      var outList = [];
+      for (var key in deletions) {
+        outList.push(generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
+      }
+      var additions = out_data.additions;
+      for (var key in additions) {
+        outList.push(generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
+      }
+      var linker = out_data.linkers;
+      for (var key in linker) {
+        outList.push(generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
+      }
+      var rings = out_data.ring;
+      for (var key in rings) {
+        outList.push(generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
+      }
+      return outList;
+    };
+
+    const generateBondColorMap = inputDict => {
+      var out_d = {};
+      for (var key in inputDict) {
+        for (var vector in inputDict[key]) {
+          var vect = vector.split('_')[0];
+          out_d[vect] = inputDict[key][vector];
+        }
+      }
+      return out_d;
+    };
+
+    const handleVector = json => {
+      var objList = generateObjectList(json['3d']);
+      setVectorList(objList);
+      var vectorBondColorMap = generateBondColorMap(json['indices']);
+      setBondColorMap(vectorBondColorMap);
+    };
+
+    const generateNextUuid = () => {
+      if (nextUuid === '') {
+        const uuidv4 = require('uuid/v4');
+        setNextUuid(uuidv4());
+        setNewSessionFlag(1);
+      }
+    };
+
+    const getSessionDetails = () => {
+      fetch('/api/viewscene/?uuid=' + latestSession, {
+        method: 'get',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
+        .catch(error => {
+          setErrorMessage(error);
+        })
         .then(function(response) {
           return response.json();
         })
-        .then(json => this.handleJson(json.results[0]));
-      this.props.setUuid('UNSET');
-    }
-    for (var key in this.props.nglOrientations) {
-      if (this.props.nglOrientations[key] === 'REFRESH') {
-        hasBeenRefreshed = false;
-      }
-      if (this.props.nglOrientations[key] === 'STARTED') {
-        hasBeenRefreshed = false;
-      }
-    }
-    if (hasBeenRefreshed === true) {
-      var store = JSON.stringify(getStore().getState());
-      const csrfToken = this.getCookie('csrftoken');
-      const timeOptions = {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        hour12: false
-      };
-      var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
-      // eslint-disable-next-line no-undef
-      var userId = DJANGO_CONTEXT['pk'];
-      var stateObject = JSON.parse(store);
-      var newPresentObject = Object.assign(stateObject.apiReducers.present, {
-        latestSession: this.state.nextUuid
-      });
-      var newApiObject = Object.assign(stateObject.apiReducers, {
-        present: newPresentObject
-      });
-      var newStateObject = Object.assign(JSON.parse(store), {
-        apiReducers: newApiObject
-      });
-      var fullState = { state: JSON.stringify(newStateObject) };
-      if (this.state.saveType === 'sessionNew' && this.state.newSessionFlag == 1) {
-        this.setState(prevState => ({ newSessionFlag: 0 }));
-        var formattedState = {
-          uuid: this.state.nextUuid,
-          title: TITLE,
-          user_id: userId,
-          scene: JSON.stringify(JSON.stringify(fullState))
-        };
-        fetch('/api/viewscene/', {
-          method: 'post',
-          headers: {
-            'X-CSRFToken': csrfToken,
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formattedState)
+        .then(function(myJson) {
+          var title = myJson.results[JSON.stringify(0)].title;
+          return title;
         })
-          .then(function(response) {
-            return response.json();
-          })
-          .then(myJson => {
-            this.updateFraggleBox(myJson);
-          })
-          .catch(error => {
-            this.deployErrorModal(error);
-          });
-      } else if (this.state.saveType === 'sessionSave') {
-        var formattedState = {
-          scene: JSON.stringify(JSON.stringify(fullState))
-        };
-        fetch('/api/viewscene/' + JSON.parse(this.props.sessionId), {
-          method: 'PATCH',
-          headers: {
-            'X-CSRFToken': csrfToken,
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formattedState)
-        })
-          .then(function(response) {
-            return response.json();
-          })
-          .then(myJson => {
-            this.updateFraggleBox(myJson);
-          })
-          .catch(error => {
-            this.deployErrorModal(error);
-          });
-      } else if (this.state.saveType === 'snapshotNew') {
-        const uuidv4 = require('uuid/v4');
-        var formattedState = {
-          uuid: uuidv4(),
-          title: 'undefined',
-          user_id: userId,
-          scene: JSON.stringify(JSON.stringify(fullState))
-        };
-        fetch('/api/viewscene/', {
-          method: 'post',
-          headers: {
-            'X-CSRFToken': csrfToken,
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formattedState)
-        })
-          .then(function(response) {
-            return response.json();
-          })
-          .then(myJson => {
-            this.updateFraggleBox(myJson);
-          })
-          .catch(error => {
-            this.deployErrorModal(error);
-          });
-      }
-    }
-  }
+        .then(title => setSessionTitle(title));
+    };
 
-  render() {
-    const { pathname } = this.props.location;
+    // componentDidUpdate
+    useEffect(() => {
+      generateNextUuid();
+      var hasBeenRefreshed = true;
+      if (uuid !== 'UNSET') {
+        fetch('/api/viewscene/?uuid=' + uuid)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(json => handleJson(json.results[0]));
+        setUuid('UNSET');
+      }
+      for (var key in nglOrientations) {
+        if (nglOrientations[key] === 'REFRESH') {
+          hasBeenRefreshed = false;
+        }
+        if (nglOrientations[key] === 'STARTED') {
+          hasBeenRefreshed = false;
+        }
+      }
+      if (hasBeenRefreshed === true) {
+        var store = JSON.stringify(getStore().getState());
+        const csrfToken = getCookie('csrftoken');
+        const timeOptions = {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: false
+        };
+        var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
+        // eslint-disable-next-line no-undef
+        var userId = DJANGO_CONTEXT['pk'];
+        var stateObject = JSON.parse(store);
+        var newPresentObject = Object.assign(stateObject.apiReducers.present, {
+          latestSession: nextUuid
+        });
+        var newApiObject = Object.assign(stateObject.apiReducers, {
+          present: newPresentObject
+        });
+        var newStateObject = Object.assign(JSON.parse(store), {
+          apiReducers: newApiObject
+        });
+        var fullState = { state: JSON.stringify(newStateObject) };
+        if (saveType === 'sessionNew' && newSessionFlag === 1) {
+          setNewSessionFlag(0);
+          var formattedState = {
+            uuid: nextUuid,
+            title: TITLE,
+            user_id: userId,
+            scene: JSON.stringify(JSON.stringify(fullState))
+          };
+          fetch('/api/viewscene/', {
+            method: 'post',
+            headers: {
+              'X-CSRFToken': csrfToken,
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedState)
+          })
+            .then(function(response) {
+              return response.json();
+            })
+            .then(myJson => {
+              updateFraggleBox(myJson);
+            })
+            .catch(error => {
+              deployErrorModal(error);
+            });
+        } else if (saveType === 'sessionSave') {
+          formattedState = {
+            scene: JSON.stringify(JSON.stringify(fullState))
+          };
+          fetch('/api/viewscene/' + JSON.parse(sessionId), {
+            method: 'PATCH',
+            headers: {
+              'X-CSRFToken': csrfToken,
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedState)
+          })
+            .then(function(response) {
+              return response.json();
+            })
+            .then(myJson => {
+              updateFraggleBox(myJson);
+            })
+            .catch(error => {
+              deployErrorModal(error);
+            });
+        } else if (saveType === 'snapshotNew') {
+          const uuidv4 = require('uuid/v4');
+          formattedState = {
+            uuid: uuidv4(),
+            title: 'undefined',
+            user_id: userId,
+            scene: JSON.stringify(JSON.stringify(fullState))
+          };
+          fetch('/api/viewscene/', {
+            method: 'post',
+            headers: {
+              'X-CSRFToken': csrfToken,
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedState)
+          })
+            .then(function(response) {
+              return response.json();
+            })
+            .then(myJson => {
+              updateFraggleBox(myJson);
+            })
+            .catch(error => {
+              deployErrorModal(error);
+            });
+        }
+      }
+    }, [deployErrorModal, generateNextUuid, handleJson, newSessionFlag, nextUuid, nglOrientations, saveType, sessionId, setUuid, updateFraggleBox, uuid]);
+
+    const { pathname } = location;
     var buttons = '';
     if (
       pathname !== '/viewer/react/landing' &&
@@ -393,17 +395,17 @@ export class SessionManagement extends React.Component {
       pathname !== '/viewer/react/sessions' &&
       pathname !== '/viewer/react/targetmanagement'
     ) {
-      if (this.props.sessionTitle === undefined || this.props.sessionTitle === 'undefined') {
+      if (sessionTitle === undefined || sessionTitle === 'undefined') {
         buttons = (
           <Col>
             <ButtonToolbar>
               <Button bsSize="sm" bsStyle="info" disabled>
                 Save Session
               </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>
+              <Button bsSize="sm" bsStyle="info" onClick={newSession}>
                 Save Session As...
               </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>
+              <Button bsSize="sm" bsStyle="info" onClick={newSnapshot}>
                 Share Snapshot
               </Button>
               <DownloadPdb />
@@ -417,39 +419,39 @@ export class SessionManagement extends React.Component {
         buttons = (
           <Col>
             <ButtonToolbar>
-              <Button bsSize="sm" bsStyle="info" onClick={this.saveSession}>
+              <Button bsSize="sm" bsStyle="info" onClick={saveSession}>
                 Save Session
               </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={this.newSession}>
+              <Button bsSize="sm" bsStyle="info" onClick={newSession}>
                 Save Session As...
               </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={this.newSnapshot}>
+              <Button bsSize="sm" bsStyle="info" onClick={newSnapshot}>
                 Share Snapshot
               </Button>
               <DownloadPdb />
             </ButtonToolbar>
             <Row>
-              <p>Session: {this.props.sessionTitle}</p>
+              <p>Session: {sessionTitle}</p>
             </Row>
           </Col>
         );
       }
     }
-    if (this.props.savingState.startsWith('saving') || this.props.savingState.startsWith('overwriting')) {
+    if (savingState.startsWith('saving') || savingState.startsWith('overwriting')) {
       return (
         <RingLoader
           className={override}
           sizeUnit={'px'}
           size={30}
           color={'#7B36D7'}
-          loading={this.props.savingState.startsWith('saving') || this.props.savingState.startsWith('overwriting')}
+          loading={savingState.startsWith('saving') || savingState.startsWith('overwriting')}
         />
       );
     } else {
       return <ButtonToolbar>{buttons}</ButtonToolbar>;
     }
   }
-}
+);
 
 function mapStateToProps(state) {
   return {
@@ -477,10 +479,8 @@ const mapDispatchToProps = {
   setSessionId: apiActions.setSessionId,
   setUuid: apiActions.setUuid,
   setSessionTitle: apiActions.setSessionTitle,
-  redeployVectors: nglLoadActions.redeployVectors,
   setVectorList: selectionActions.setVectorList,
   setBondColorMap: selectionActions.setBondColorMap,
-  setMolGroupOn: apiActions.setMolGroupOn,
   setTargetUnrecognised: apiActions.setTargetUnrecognised,
   setLoadingState: nglLoadActions.setLoadingState
 };

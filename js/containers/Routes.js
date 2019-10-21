@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { Grid } from 'react-bootstrap';
 import Header from '../components/header';
-import { ErrorView } from '../components/errorComponent';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from './targetManagementHolder';
 import Tindspect from './Tindspect';
@@ -15,7 +14,6 @@ const Routes = memo(() => (
   <div id="outer-container">
     <Grid fluid id="page-wrap">
       <Header />
-      <ErrorView />
       <Switch>
         <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
         <Route exact path="/viewer/react/fraginpect" component={Tindspect} />

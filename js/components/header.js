@@ -75,8 +75,8 @@ class Header extends React.PureComponent {
     var prodLanding = 'https://fragalysis.diamond.ac.uk/viewer/react/landing';
     var login = '/accounts/login';
     var logout = '/accounts/logout';
-    var new_ele;
-    var navbarBrand;
+    var new_ele = null;
+    var navbarBrand = null;
     // eslint-disable-next-line no-undef
     var username = DJANGO_CONTEXT['username'];
 
@@ -162,9 +162,7 @@ function mapStateToProps(state) {
   };
 }
 const mapDispatchToProps = {};
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(Header)
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(Header));

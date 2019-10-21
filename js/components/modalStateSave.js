@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React, { PureComponent } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
 import { Tooltip, OverlayTrigger, ButtonToolbar, Row, Col } from 'react-bootstrap';
@@ -26,123 +26,101 @@ const customStyles = {
   }
 };
 
-export class ModalStateSave extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.getCookie = this.getCookie.bind(this);
-    this.openFraggleLink = this.openFraggleLink.bind(this);
-    this.getTitle = this.getTitle.bind(this);
-    this.handleSessionNaming = this.handleSessionNaming.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-    this.state = {
-      fraggleBoxLoc: undefined,
-      snapshotLoc: undefined,
-      title: undefined
-    };
-  }
+const ModalStateSave = memo(
+  ({ savingState, latestSession, latestSnapshot, sessionId, setSavingState, setSessionTitle, setErrorMessage }) => {
+    const [fraggleBoxLoc, setFraggleBoxLoc] = useState();
+    const [snapshotLoc, setSnapshotLoc] = useState();
+    const [title, setTitle] = useState();
 
-  getCookie(name) {
-    if (!document.cookie) {
-      return null;
-    }
-    const xsrfCookies = document.cookie
-      .split(';')
-      .map(c => c.trim())
-      .filter(c => c.startsWith(name + '='));
-    if (xsrfCookies.length === 0) {
-      return null;
-    }
-    return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-  }
-
-  openFraggleLink() {
-    var url = '';
-    if (this.props.savingState === 'savingSnapshot') {
-      url =
-        window.location.protocol +
-        '//' +
-        window.location.hostname +
-        '/viewer/react/snapshot/' +
-        this.props.latestSnapshot;
-      window.open(url);
-    } else if (this.props.savingState === 'savingSession' || this.props.savingState === 'overwritingSession') {
-      url =
-        window.location.protocol +
-        '//' +
-        window.location.hostname +
-        '/viewer/react/fragglebox/' +
-        this.props.latestSession;
-      window.open(url);
-    }
-  }
-
-  getTitle() {
-    var _this = this;
-    fetch('/api/viewscene/?uuid=' + this.props.latestSession, {
-      method: 'get',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
+    const getCookie = name => {
+      if (!document.cookie) {
+        return null;
       }
-    })
-      .catch(error => {
-        this.props.setErrorMessage(error);
-      })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(myJson) {
-        var getTitle = myJson.results[JSON.stringify(0)].title;
-        _this.props.setSessionTitle(getTitle);
-        return getTitle;
-      })
-      .then(getTitle => this.setState(prevState => ({ title: getTitle })));
-  }
+      const xsrfCookies = document.cookie
+        .split(';')
+        .map(c => c.trim())
+        .filter(c => c.startsWith(name + '='));
+      if (xsrfCookies.length === 0) {
+        return null;
+      }
+      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    };
 
-  handleSessionNaming(e) {
-    if (e.keyCode === 13) {
-      var title = e.target.value;
-      console.log('submit new session name ' + title);
-      this.props.setSessionTitle(title);
-      const csrfToken = this.getCookie('csrftoken');
-      var uuid = this.props.latestSession;
-      var formattedState = {
-        uuid: uuid,
-        title: title
-      };
-      fetch('/api/viewscene/' + JSON.parse(this.props.sessionId), {
-        method: 'PATCH',
+    const openFraggleLink = () => {
+      var url = '';
+      if (savingState === 'savingSnapshot') {
+        url = window.location.protocol + '//' + window.location.hostname + '/viewer/react/snapshot/' + latestSnapshot;
+        window.open(url);
+      } else if (savingState === 'savingSession' || savingState === 'overwritingSession') {
+        url = window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + latestSession;
+        window.open(url);
+      }
+    };
+
+    const getTitle = () => {
+      fetch('/api/viewscene/?uuid=' + latestSession, {
+        method: 'get',
         headers: {
-          'X-CSRFToken': csrfToken,
           Accept: 'application/json',
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formattedState)
-      }).catch(error => {
-        this.props.setErrorMessage(error);
-      });
-    }
-  }
+        }
+      })
+        .catch(error => {
+          setErrorMessage(error);
+        })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          var downloadedTitle = myJson.results[JSON.stringify(0)].title;
+          setSessionTitle(downloadedTitle);
+          return downloadedTitle;
+        })
+        .then(t => setTitle(t));
+    };
 
-  closeModal() {
-    this.setState(prevState => ({ fraggleBoxLoc: undefined }));
-    this.setState(prevState => ({ snapshotLoc: undefined }));
-    this.setState(prevState => ({ title: undefined }));
-    this.props.setSavingState('UNSET');
-  }
+    const handleSessionNaming = e => {
+      if (e.keyCode === 13) {
+        var titleTemp = e.target.value;
+        console.log('submit new session name ' + titleTemp);
+        setSessionTitle(titleTemp);
+        const csrfToken = getCookie('csrftoken');
+        var formattedState = {
+          uuid: latestSession,
+          title: titleTemp
+        };
+        fetch('/api/viewscene/' + JSON.parse(sessionId), {
+          method: 'PATCH',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formattedState)
+        }).catch(error => {
+          setErrorMessage(error);
+        });
+      }
+    };
 
-  componentWillMount() {
-    ReactModal.setAppElement('body');
-  }
+    const closeModal = () => {
+      setFraggleBoxLoc(undefined);
+      setSnapshotLoc(undefined);
+      setTitle(undefined);
+      setSavingState('UNSET');
+    };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.latestSession !== undefined || nextProps.latestSnapshot !== undefined) {
-      this.setState(prevState => ({ fraggleBoxLoc: nextProps.latestSession }));
-      this.setState(prevState => ({ snapshotLoc: nextProps.latestSnapshot }));
-    }
-  }
+    useEffect(() => {
+      ReactModal.setAppElement('body');
+    }, []);
 
-  render() {
+    useEffect(() => {
+      if (latestSession !== undefined || latestSnapshot !== undefined) {
+        setFraggleBoxLoc(latestSession);
+        setSnapshotLoc(latestSnapshot);
+      }
+    }, [latestSession, latestSnapshot]);
+
     const tooltip = (
       <Tooltip id="tooltip">
         <strong>Copied!</strong>
@@ -151,16 +129,12 @@ export class ModalStateSave extends PureComponent {
     var urlToCopy = '';
     var sessionRename = '';
     var linkSection = '';
-    if (this.state.fraggleBoxLoc !== undefined || this.state.snapshotLoc !== undefined) {
-      if (this.props.savingState === 'savingSnapshot') {
-        var sessionRename = <Row />;
-        var urlToCopy =
-          window.location.protocol +
-          '//' +
-          window.location.hostname +
-          '/viewer/react/snapshot/' +
-          this.props.latestSnapshot;
-        var linkSection = (
+    if (fraggleBoxLoc !== undefined || snapshotLoc !== undefined) {
+      if (savingState === 'savingSnapshot') {
+        sessionRename = <Row />;
+        urlToCopy =
+          window.location.protocol + '//' + window.location.hostname + '/viewer/react/snapshot/' + latestSnapshot;
+        linkSection = (
           <Row>
             <strong>
               A permanent, fixed snapshot of the current state has been saved:
@@ -169,19 +143,19 @@ export class ModalStateSave extends PureComponent {
             </strong>
           </Row>
         );
-      } else if (this.props.savingState === 'savingSession') {
-        if (this.state.title === undefined) {
-          this.getTitle();
+      } else if (savingState === 'savingSession') {
+        if (title === undefined) {
+          getTitle();
         }
-        var sessionRename = (
+        sessionRename = (
           <Row>
             {' '}
             <input
               id="sessionRename"
               key="sessionRename"
               style={{ width: 300 }}
-              defaultValue={this.state.title}
-              onKeyDown={this.handleSessionNaming}
+              defaultValue={title}
+              onKeyDown={handleSessionNaming}
             />
             <sup>
               <br />
@@ -189,13 +163,9 @@ export class ModalStateSave extends PureComponent {
             </sup>
           </Row>
         );
-        var urlToCopy =
-          window.location.protocol +
-          '//' +
-          window.location.hostname +
-          '/viewer/react/fragglebox/' +
-          this.props.latestSession;
-        var linkSection = (
+        urlToCopy =
+          window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + latestSession;
+        linkSection = (
           <Row>
             <strong>
               A new session has been generated:
@@ -204,19 +174,19 @@ export class ModalStateSave extends PureComponent {
             </strong>
           </Row>
         );
-      } else if (this.props.savingState === 'overwritingSession') {
-        if (this.state.title === undefined) {
-          this.getTitle();
+      } else if (savingState === 'overwritingSession') {
+        if (title === undefined) {
+          getTitle();
         }
-        var sessionRename = (
+        sessionRename = (
           <Row>
             {' '}
             <input
               id="sessionRename"
               key="sessionRename"
               style={{ width: 300 }}
-              defaultValue={this.state.title}
-              onKeyDown={this.handleSessionNaming}
+              defaultValue={title}
+              onKeyDown={handleSessionNaming}
             />
             <sup>
               <br />
@@ -224,13 +194,9 @@ export class ModalStateSave extends PureComponent {
             </sup>
           </Row>
         );
-        var urlToCopy =
-          window.location.protocol +
-          '//' +
-          window.location.hostname +
-          '/viewer/react/fragglebox/' +
-          this.props.latestSession;
-        var linkSection = (
+        urlToCopy =
+          window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + latestSession;
+        linkSection = (
           <Row>
             <strong>
               Your session has been overwritten and remains available at:
@@ -242,7 +208,7 @@ export class ModalStateSave extends PureComponent {
       }
       return (
         <ReactModal
-          isOpen={this.props.savingState.startsWith('saving') || this.props.savingState.startsWith('overwriting')}
+          isOpen={savingState.startsWith('saving') || savingState.startsWith('overwriting')}
           style={customStyles}
         >
           <Col xs={1} md={1} />
@@ -269,9 +235,9 @@ export class ModalStateSave extends PureComponent {
                   </Clipboard>
                 </OverlayTrigger>
                 <h3 style={{ display: 'inline' }}> </h3>
-                <button onClick={this.openFraggleLink}>Open in new tab</button>
+                <button onClick={openFraggleLink}>Open in new tab</button>
                 <h3 style={{ display: 'inline' }}> </h3>
-                <button onClick={this.closeModal}>Close</button>
+                <button onClick={closeModal}>Close</button>
               </ButtonToolbar>
             </Row>
           </Col>
@@ -282,14 +248,13 @@ export class ModalStateSave extends PureComponent {
       return null;
     }
   }
-}
+);
 
 function mapStateToProps(state) {
   return {
     savingState: state.apiReducers.present.savingState,
     latestSession: state.apiReducers.present.latestSession,
     latestSnapshot: state.apiReducers.present.latestSnapshot,
-    sessionTitle: state.apiReducers.present.sessionTitle,
     sessionId: state.apiReducers.present.sessionId
   };
 }
