@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 22/03/2018.
  */
-
+/*
 import React from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
@@ -27,3 +27,4 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(MoleculeSlider);
+*/

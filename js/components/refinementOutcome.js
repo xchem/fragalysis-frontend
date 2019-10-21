@@ -11,8 +11,7 @@ import { fetchWithMemoize } from './generalComponents';
 class RefinementOutcome extends React.PureComponent {
   constructor(props) {
     super(props);
-    var base_url = window.location.protocol + '//' + window.location.host;
-    this.base_url = base_url;
+    this.base_url = window.location.protocol + '//' + window.location.host;
     this.getUrl = this.getUrl.bind(this);
     this.state = { refinementOutcome: undefined };
   }
@@ -26,7 +25,7 @@ class RefinementOutcome extends React.PureComponent {
     var results = input_json['results'];
     for (var index in results) {
       var result = results[index];
-      if (result['annotation_type'] == 'ligand_confidence') {
+      if (result['annotation_type'] === 'ligand_confidence') {
         var result_text = result['annotation_text'];
         var int_conf = parseInt(result_text);
       }
