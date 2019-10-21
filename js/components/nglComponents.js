@@ -44,7 +44,7 @@ const NGLView = memo(
     div_id,
     height
   }) => {
-    const data_dict = {
+    const ref_data_dict = useRef({
       [listTypes.MOLGROUPS]: {
         oldGroupOn: -1,
         oldGroupsOn: [],
@@ -58,7 +58,7 @@ const NGLView = memo(
         list: 'pandda_site_list',
         onGroup: 'pandda_site_on'
       }
-    };
+    });
 
     // Create NGL Stage object
     let local_div_id = 'viewport';
@@ -142,8 +142,10 @@ const NGLView = memo(
             } else if (type === listTypes.PANDDA_SITE) {
               let pk = parseInt(name.split('_')[1].split(')')[0], 10);
               setPanddaSiteOn(pk);
-            } else if (type === listTypes.MOLECULE) {
-            } else if (type === listTypes.VECTOR) {
+            }
+            //else if (type === listTypes.MOLECULE) {
+            //}
+            else if (type === listTypes.VECTOR) {
               const vectorSmi = name.split('_')[1].slice(0, -1);
               selectVector(vectorSmi);
             }
@@ -406,10 +408,10 @@ const NGLView = memo(
 
     const showSelect = useCallback(
       (listType, view) => {
-        let oldGroup = data_dict[listType].oldGroupOn;
+        let oldGroup = ref_data_dict.current[listType].oldGroupOn;
 
-        const listOnTemp = data_dict[listType].list;
-        const onGroupTemp = data_dict[listType].onGroup;
+        const listOnTemp = ref_data_dict.current[listType].list;
+        const onGroupTemp = ref_data_dict.current[listType].onGroup;
         let listOn;
         let onGroup;
         if (listOnTemp === 'pandda_site_list') {
@@ -443,26 +445,23 @@ const NGLView = memo(
             deleteObject(generateSphere(new_data, false, listType, view));
             loadObject(generateSphere(new_data, true, listType, view));
           }
-          data_dict[listType].oldGroupOn = onGroup;
+          ref_data_dict.current[listType].oldGroupOn = onGroup;
         }
+        /* if (listOn === undefined) {
+          console.error('ERROR - Not found prop: ', listOnTemp);
+        }
+        if (onGroup === undefined) {
+          console.error('ERROR - Not found prop: ', onGroupTemp);
+        }*/
       },
-      [
-        data_dict,
-        deleteObject,
-        generateSphere,
-        loadObject,
-        mol_group_list,
-        mol_group_on,
-        pandda_site_list,
-        pandda_site_on
-      ]
+      [deleteObject, generateSphere, loadObject, mol_group_list, mol_group_on, pandda_site_list, pandda_site_on]
     );
 
     const showMultipleSelect = useCallback(
       (listType, view) => {
-        let oldGroups = data_dict[listType].oldGroupsOn;
-        let listOn = [data_dict[listType].list];
-        let onGroups = [data_dict[listType].onGroups];
+        let oldGroups = ref_data_dict.current[listType].oldGroupsOn;
+        let listOn = [ref_data_dict.current[listType].list];
+        let onGroups = [ref_data_dict.current[listType].onGroups];
 
         if (onGroups) {
           const groupsToRemove = [];
@@ -487,10 +486,10 @@ const NGLView = memo(
             loadObject(generateSphere(data, true, listType, view));
           });
           // update oldGroupsOn array
-          data_dict[listType].oldGroupsOn = onGroups;
+          ref_data_dict.current[listType].oldGroupsOn = onGroups;
         }
       },
-      [data_dict, deleteObject, generateSphere, loadObject]
+      [deleteObject, generateSphere, loadObject]
     );
 
     /**

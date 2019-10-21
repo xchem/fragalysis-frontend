@@ -2,96 +2,70 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React from "react";
-import { connect } from "react-redux";
-import ReactModal from "react-modal";
-import { Button } from "react-bootstrap";
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import ReactModal from 'react-modal';
+import { Button } from 'react-bootstrap';
 
 const customStyles = {
   overlay: {
     zIndex: 50,
-    backgroundColor: "rgba(0, 0, 0, 0.85)"
+    backgroundColor: 'rgba(0, 0, 0, 0.85)'
   },
   content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-20%",
-    transform: "translate(-50%, -50%)",
-    border: "10px solid #7a7a7a"
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-20%',
+    transform: 'translate(-50%, -50%)',
+    border: '10px solid #7a7a7a'
   }
 };
 
-export class BrowserBomb extends React.Component {
-  constructor(props) {
-    super(props);
-    this.closeModal = this.closeModal.bind(this);
-    this.checkBrowser = this.checkBrowser.bind(this);
-    this.state = {
-      currentBrowser: undefined,
-      notSupported: undefined
-    };
-  }
+const BrowserBomb = memo(props => {
+  const [currentBrowser, setCurrentBrowser] = useState();
+  const [notSupported, setNotSupported] = useState();
 
-  checkBrowser() {
-    if (typeof InstallTrigger !== "undefined") {
-      this.setState(prevState => ({
-        currentBrowser:
-          "Firefox should be supported, please report error. We aim to support "
-      }));
-      this.setState(prevState => ({ notSupported: false }));
+  const checkBrowser = useCallback(() => {
+    if (typeof InstallTrigger !== 'undefined') {
+      setCurrentBrowser('Firefox should be supported, please report error. We aim to support ');
+      setNotSupported(false);
     } else if (!!window.chrome) {
-      this.setState(prevState => ({
-        currentBrowser:
-          "Chrome should be supported, please report error. We aim to support "
-      }));
-      this.setState(prevState => ({ notSupported: false }));
+      setCurrentBrowser('Chrome should be supported, please report error. We aim to support ');
+      setNotSupported(false);
     } else {
-      this.setState(prevState => ({
-        currentBrowser:
-          "This browser is not supported by Fragalysis, please consider moving to"
-      }));
-      this.setState(prevState => ({ notSupported: true }));
+      setCurrentBrowser('This browser is not supported by Fragalysis, please consider moving to');
+      setNotSupported(true);
     }
-  }
+  }, []);
 
-  closeModal() {
-    this.setState(prevState => ({ notSupported: undefined }));
-  }
+  const closeModal = () => {
+    setNotSupported(undefined);
+  };
 
-  componentWillMount() {
-    ReactModal.setAppElement("body");
-    this.checkBrowser();
-  }
+  useEffect(() => {
+    ReactModal.setAppElement('body');
+  }, []);
 
-  render() {
-    return (
-      <ReactModal isOpen={this.state.notSupported} style={customStyles}>
-        <div>
-          <h4>
-            {this.state.currentBrowser}
-            <a href="https://www.google.com/chrome/"> Google Chrome</a> or{" "}
-            <a href="https://www.mozilla.org/en-GB/firefox/">
-              Mozilla Firefox.
-            </a>
-          </h4>
-          <Button bsSize="sm" bsStyle="success" onClick={this.closeModal}>
-            Close
-          </Button>
-        </div>
-      </ReactModal>
-    );
-  }
-}
+  useEffect(() => {
+    checkBrowser();
+  }, [checkBrowser]);
 
-function mapStateToProps(state) {
-  return {};
-}
+  return (
+    <ReactModal isOpen={notSupported} style={customStyles}>
+      <div>
+        <h4>
+          {currentBrowser}
+          <a href="https://www.google.com/chrome/"> Google Chrome</a> or{' '}
+          <a href="https://www.mozilla.org/en-GB/firefox/">Mozilla Firefox.</a>
+        </h4>
+        <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+          Close
+        </Button>
+      </div>
+    </ReactModal>
+  );
+});
 
-const mapDispatchToProps = {};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(BrowserBomb);
+export { BrowserBomb };
