@@ -4,7 +4,7 @@
 import * as Sentry from '@sentry/browser';
 import React from 'react';
 
-export class ErrorView extends React.Component {
+export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { error: null };

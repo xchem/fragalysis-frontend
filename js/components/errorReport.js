@@ -4,6 +4,7 @@
 
 import React, { memo } from 'react';
 import { Button, makeStyles } from '@material-ui/core';
+const uuidv4 = require('uuid/v4');
 // import { showReportDialog } from '@sentry/browser';
 
 const useStyles = makeStyles(theme => ({
@@ -19,7 +20,6 @@ export const ErrorReport = memo(() => {
   const classes = useStyles();
   const reportError = () => {
     // Set a custom user error to invoke sentry
-    const uuidv4 = require('uuid/v4');
     throw new Error('Custom user error.' + uuidv4());
   };
 

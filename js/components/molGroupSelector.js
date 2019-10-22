@@ -109,7 +109,7 @@ const molGroupSelector = memo(
           className={expanded ? classes.containerExpanded : classes.containerCollapsed}
         >
           <Grid item xs={5} className={classes.nglViewItem}>
-            <NGLView div_id="summary_view" height={expanded ? '200px' : '0px'} />
+            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={expanded ? '200px' : '0px'} />
           </Grid>
           <Grid item xs={7} className={classes.checklistItem}>
             {expanded && <MolGroupChecklist />}

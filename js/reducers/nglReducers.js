@@ -32,8 +32,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
       // Append the input to objectsToLoad list
       var objectsToLoad = JSON.parse(JSON.stringify(state.objectsToLoad));
       var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      if (action.group.name in objectsInView) {
-      } else {
+      if (!(action.group.name in objectsInView)) {
         objectsToLoad[action.group.name] = action.group;
       }
 

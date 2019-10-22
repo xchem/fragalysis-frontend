@@ -11,7 +11,7 @@ import * as nglLoadActions from '../actions/nglLoadActions';
 import MoleculeView from './moleculeView';
 import BorderedView from './borderedView';
 import classNames from 'classnames';
-import MoleculeListSortFilterDialog, { filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
+import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './molecules/helpers';
 import { getUrl, loadFromServer } from '../services/genericList';
 

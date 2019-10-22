@@ -11,13 +11,13 @@ import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as listTypes from './listTypes';
 import * as selectionActions from '../actions/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from './constants';
+import { isEmpty } from 'ramda';
 
 const NGLView = memo(
   ({
     nglOrientations,
     orientationToSet,
     mol_group_list,
-    mol_group_on,
     mol_group_selection,
     pandda_site_on,
     pandda_site_list,
@@ -59,6 +59,7 @@ const NGLView = memo(
         onGroup: 'pandda_site_on'
       }
     });
+    const refComponentDidMount = useRef(false);
 
     // Create NGL Stage object
     let local_div_id = 'viewport';
@@ -68,12 +69,13 @@ const NGLView = memo(
     const refStage = useRef(undefined);
     const [focus_let, setFocus_let] = useState(95);
 
+    /*
     const showLine = (stage, input_dict, object_name) => {
       let shape = new Shape(object_name);
       shape.addLine();
       let shapeComp = stage.addComponentFromObject(shape);
       shapeComp.addRepresentation('buffer');
-    };
+    };*/
 
     const processInt = pickingProxy => {
       let atom_id = '';
@@ -91,6 +93,7 @@ const NGLView = memo(
       return { interaction: tot_name, complex_id: mol_int };
     };
 
+    // tu bude chyba alebo v jej volani
     const toggleMolGroup = useCallback(
       groupId => {
         const objIdx = mol_group_selection.indexOf(groupId);
@@ -104,7 +107,7 @@ const NGLView = memo(
           setMolGroupSelection(selectionCopy);
         }
       },
-      [mol_group_selection, setMolGroupOn, setMolGroupSelection]
+      [setMolGroupOn, setMolGroupSelection, mol_group_selection]
     );
 
     const showPick = useCallback(
@@ -132,15 +135,13 @@ const NGLView = memo(
           } else if (pickingProxy.object.name) {
             let name = pickingProxy.object.name;
             // Ok so now perform logic
-            let type = name.split('_')[0].split('(')[1];
+            const type = name.split('_')[0].split('(')[1];
+            const pk = parseInt(name.split('_')[1].split(')')[0], 10);
             if (type === listTypes.MOLGROUPS) {
-              let pk = parseInt(name.split('_')[1].split(')')[0], 10);
               toggleMolGroup(pk);
             } else if (type === listTypes.MOLGROUPS_SELECT) {
-              let pk = parseInt(name.split('_')[1].split(')')[0], 10);
               toggleMolGroup(pk);
             } else if (type === listTypes.PANDDA_SITE) {
-              let pk = parseInt(name.split('_')[1].split(')')[0], 10);
               setPanddaSiteOn(pk);
             }
             //else if (type === listTypes.MOLECULE) {
@@ -152,7 +153,7 @@ const NGLView = memo(
           }
         }
       },
-      [deleteObject, duck_yank_data, loadObject, selectVector, setDuckYankData, setPanddaSiteOn, toggleMolGroup]
+      [deleteObject, duck_yank_data, loadObject, selectVector, setDuckYankData, toggleMolGroup, setPanddaSiteOn]
     );
 
     const checkIfLoading = useCallback(() => {
@@ -235,7 +236,7 @@ const NGLView = memo(
     };
 
     const showEvent = (stage, input_dict, object_name) => {
-      stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(function(comp) {
+      stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(comp => {
         comp.addRepresentation('cartoon', {});
         let selection = new Selection('LIG');
         let radius = 5;
@@ -259,7 +260,7 @@ const NGLView = memo(
         comp.autoView('LIG');
       });
 
-      stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(function(comp) {
+      stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
         let surfFofc = comp.addRepresentation('surface', {
           color: 'mediumseagreen',
           isolevel: 3,
@@ -311,7 +312,7 @@ const NGLView = memo(
     };
 
     const showProtein = (stage, input_dict, object_name) => {
-      stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' }).then(function(comp) {
+      stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' }).then(comp => {
         comp.addRepresentation(input_dict.nglProtStyle, {});
         comp.autoView();
       });
@@ -319,7 +320,7 @@ const NGLView = memo(
 
     const showHotspot = (stage, input_dict, object_name) => {
       if (input_dict.map_type === 'AP') {
-        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(function(comp) {
+        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
           comp.addRepresentation('surface', {
             color: '#FFFF00',
             isolevelType: 'value',
@@ -331,7 +332,7 @@ const NGLView = memo(
           });
         });
       } else if (input_dict.map_type === 'DO') {
-        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(function(comp) {
+        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
           comp.addRepresentation('surface', {
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
@@ -343,7 +344,7 @@ const NGLView = memo(
           });
         });
       } else if (input_dict.map_type === 'AC') {
-        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(function(comp) {
+        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
           comp.addRepresentation('surface', {
             color: '#FF0000',
             isolevelType: 'value',
@@ -412,20 +413,16 @@ const NGLView = memo(
 
         const listOnTemp = ref_data_dict.current[listType].list;
         const onGroupTemp = ref_data_dict.current[listType].onGroup;
-        let listOn;
-        let onGroup;
+        let listOn = undefined;
+        let onGroup = undefined;
         if (listOnTemp === 'pandda_site_list') {
           listOn = pandda_site_list;
-        } else if (listOnTemp === 'mol_group_list') {
-          listOn = mol_group_list;
         }
-        if (onGroupTemp === 'pandda_site_list') {
+        if (onGroupTemp === 'pandda_site_on') {
           onGroup = pandda_site_on;
-        } else if (onGroupTemp === 'mol_group_list') {
-          onGroup = mol_group_on;
         }
 
-        if (onGroup && onGroup !== oldGroup) {
+        if (onGroup !== undefined && onGroup !== oldGroup) {
           let old_data;
           let new_data;
           for (let index in listOn) {
@@ -447,23 +444,27 @@ const NGLView = memo(
           }
           ref_data_dict.current[listType].oldGroupOn = onGroup;
         }
-        /* if (listOn === undefined) {
-          console.error('ERROR - Not found prop: ', listOnTemp);
-        }
-        if (onGroup === undefined) {
-          console.error('ERROR - Not found prop: ', onGroupTemp);
-        }*/
       },
-      [deleteObject, generateSphere, loadObject, mol_group_list, mol_group_on, pandda_site_list, pandda_site_on]
+      [deleteObject, generateSphere, loadObject, pandda_site_list, pandda_site_on]
     );
 
     const showMultipleSelect = useCallback(
       (listType, view) => {
         let oldGroups = ref_data_dict.current[listType].oldGroupsOn;
-        let listOn = [ref_data_dict.current[listType].list];
-        let onGroups = [ref_data_dict.current[listType].onGroups];
 
-        if (onGroups) {
+        const listOnTemp = ref_data_dict.current[listType].list;
+        const onGroupsTemp = ref_data_dict.current[listType].onGroups;
+
+        let listOn = undefined;
+        let onGroups = undefined;
+        if (listOnTemp === 'mol_group_list') {
+          listOn = mol_group_list;
+        }
+        if (onGroupsTemp !== undefined && onGroupsTemp === 'mol_group_selection') {
+          onGroups = mol_group_selection;
+        }
+
+        if (onGroups !== undefined && listOn !== undefined) {
           const groupsToRemove = [];
           const groupsToAdd = [];
           listOn.forEach(list => {
@@ -489,43 +490,36 @@ const NGLView = memo(
           ref_data_dict.current[listType].oldGroupsOn = onGroups;
         }
       },
-      [deleteObject, generateSphere, loadObject]
+      [deleteObject, generateSphere, loadObject, mol_group_list, mol_group_selection]
     );
 
     /**
      * Function to deal with the logic of showing molecules
      */
     const renderDisplay = useCallback(() => {
-      refStage.current.viewer.setBackground(stageColor);
-      for (let nglKey in objectsToLoad) {
-        let nglObject = objectsToLoad[nglKey];
-        if (local_div_id === nglObject.display_div) {
-          function_dict[nglObject.OBJECT_TYPE](refStage.current, nglObject, nglKey);
-          objectLoading(nglObject);
-        }
-      }
-      for (let nglKey in objectsToDelete) {
-        if (local_div_id === objectsToDelete[nglKey].display_div) {
-          let comps = refStage.current.getComponentsByName(nglKey);
-          for (let component in comps.list) {
-            refStage.current.removeComponent(comps.list[component]);
+      if (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete)) {
+        for (let nglKey in objectsToLoad) {
+          let nglObject = objectsToLoad[nglKey];
+          if (local_div_id === nglObject.display_div) {
+            function_dict[nglObject.OBJECT_TYPE](refStage.current, nglObject, nglKey);
+            objectLoading(nglObject);
           }
-          deleteObjectSuccess(objectsToDelete[nglKey]);
+        }
+        for (let nglKey in objectsToDelete) {
+          if (local_div_id === objectsToDelete[nglKey].display_div) {
+            const comps = refStage.current.getComponentsByName(nglKey);
+            for (let component in comps.list) {
+              refStage.current.removeComponent(comps.list[component]);
+            }
+            deleteObjectSuccess(objectsToDelete[nglKey]);
+          }
         }
       }
-      showMultipleSelect(listTypes.MOLGROUPS, VIEWS.SUMMARY_VIEW);
-      showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
-    }, [
-      deleteObjectSuccess,
-      function_dict,
-      local_div_id,
-      objectLoading,
-      objectsToDelete,
-      objectsToLoad,
-      showMultipleSelect,
-      showSelect,
-      stageColor
-    ]);
+    }, [deleteObjectSuccess, function_dict, local_div_id, objectLoading, objectsToDelete, objectsToLoad]);
+
+    const renderColorChange = useCallback(() => {
+      refStage.current.viewer.setBackground(stageColor);
+    }, [stageColor]);
 
     const updateOrientation = useCallback(() => {
       if (orientationToSet !== undefined) {
@@ -586,20 +580,24 @@ const NGLView = memo(
     ]);
 
     useEffect(() => {
-      refStage.current = new Stage(local_div_id);
-      // Handle window resizing
-      let local_stage = refStage.current;
-      window.addEventListener(
-        'resize',
-        function(event) {
-          local_stage.handleResize();
-        },
-        false
-      );
-      refStage.current.mouseControls.add('clickPick-left', showPick);
       setOrientation(local_div_id, 'STARTED');
       setNGLOrientation(local_div_id, 'SET');
-    }, [local_div_id, setNGLOrientation, setOrientation, showPick]);
+    }, [local_div_id, setNGLOrientation, setOrientation]);
+
+    useEffect(() => {
+      if (refComponentDidMount.current === false) {
+        refStage.current = new Stage(local_div_id);
+        window.addEventListener(
+          'resize',
+          event => {
+            refStage.current.handleResize();
+          },
+          false
+        );
+        refStage.current.mouseControls.add('clickPick-left', showPick);
+        refComponentDidMount.current = true;
+      }
+    }, [local_div_id, showPick]);
 
     useEffect(() => {
       updateOrientation();
@@ -612,6 +610,15 @@ const NGLView = memo(
       }
     }, [renderDisplay, targetOnName]);
 
+    useEffect(() => {
+      showMultipleSelect(listTypes.MOLGROUPS, VIEWS.SUMMARY_VIEW);
+      showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
+    }, [showMultipleSelect, showSelect]);
+
+    useEffect(() => {
+      renderColorChange();
+    }, [renderColorChange]);
+
     return <div style={{ height: height || '600px' }} id={local_div_id} />;
   }
 );
@@ -620,7 +627,6 @@ function mapStateToProps(state) {
     nglOrientations: state.nglReducers.present.nglOrientations,
     orientationToSet: state.nglReducers.present.orientationToSet,
     mol_group_list: state.apiReducers.present.mol_group_list,
-    mol_group_on: state.apiReducers.present.mol_group_on,
     mol_group_selection: state.apiReducers.present.mol_group_selection,
     pandda_site_on: state.apiReducers.present.pandda_site_on,
     pandda_site_list: state.apiReducers.present.pandda_site_list,
