@@ -4,7 +4,7 @@
 import React, { memo, useState } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
+import { Button } from '@material-ui/core';
 import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';
 
@@ -50,19 +50,19 @@ const DownloadPdb = memo(({ targetOn, targetOnName }) => {
 
   if (targetOnName === undefined) {
     return (
-      <Button bsSize="sm" bsStyle="warning" disabled>
+      <Button color="secondary" disabled>
         Loading...
       </Button>
     );
   } else if (downloading === true) {
     return (
-      <Button bsSize="sm" bsStyle="warning" disabled>
+      <Button color="secondary" disabled>
         Downloading...
       </Button>
     );
   } else {
     return (
-      <Button bsSize="sm" bsStyle="warning" onClick={handlePdbDownload}>
+      <Button color="secondary" onClick={handlePdbDownload}>
         Download {targetOnName.toString()} structures
       </Button>
     );

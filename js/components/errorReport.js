@@ -3,10 +3,20 @@
  */
 
 import React, { memo } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, makeStyles } from '@material-ui/core';
 // import { showReportDialog } from '@sentry/browser';
 
+const useStyles = makeStyles(theme => ({
+  button: {
+    margin: theme.spacing(1)
+  },
+  input: {
+    display: 'none'
+  }
+}));
+
 export const ErrorReport = memo(() => {
+  const classes = useStyles();
   const reportError = () => {
     // Set a custom user error to invoke sentry
     const uuidv4 = require('uuid/v4');
@@ -14,7 +24,7 @@ export const ErrorReport = memo(() => {
   };
 
   return (
-    <Button bsSize="sm" bsStyle="danger" onClick={reportError}>
+    <Button variant="contained" color="secondary" className={classes.button} onClick={reportError}>
       Report Error
     </Button>
   );

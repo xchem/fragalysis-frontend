@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import { Col, Row } from 'react-bootstrap';
+import { Grid } from '@material-ui/core';
 import React, { PureComponent } from 'react';
 import TargetList from './targetList';
 import SessionList from './sessionList';
@@ -26,36 +26,36 @@ export class Welcome extends PureComponent {
       );
     }
     return (
-      <Row>
-        <Col xs={1} md={1} />
-        <Col xs={2} md={2}>
-          <Row>
+      <Grid container>
+        <Grid item xs={1} md={1} />
+        <Grid item xs={2} md={2}>
+          <Grid container>
             <h1>Welcome to Fragalysis{'\n'}</h1>
             {text_div}
-          </Row>
-          <Row>
+          </Grid>
+          <Grid container>
             <p>
               <a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">
                 Target status overview
               </a>{' '}
               (only accessible within Diamond)
             </p>
-          </Row>
-        </Col>
-        <Col xs={4} md={4}>
+          </Grid>
+        </Grid>
+        <Grid item xs={4} md={4}>
           <div>
             <TargetList key="TARGLIST" />
           </div>
-        </Col>
-        <Col xs={4} md={4}>
+        </Grid>
+        <Grid item xs={4} md={4}>
           <div>
             <SessionList key="SESSIONLIST" />
           </div>
-        </Col>
-        <Col xs={1} md={1}>
+        </Grid>
+        <Grid item xs={1} md={1}>
           <BrowserBomb />
-        </Col>
-      </Row>
+        </Grid>
+      </Grid>
     );
   }
 }

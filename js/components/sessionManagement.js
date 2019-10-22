@@ -2,12 +2,11 @@
  * Created by ricgillams on 13/06/2018.
  */
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as apiActions from '../actions/apiActions';
-import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
-import { css } from 'react-emotion';
+import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
 import { RingLoader } from 'react-spinners';
 import { getStore } from '../containers/globalStore';
 import * as selectionActions from '../actions/selectionActions';
@@ -16,11 +15,16 @@ import * as listTypes from './listTypes';
 import * as nglObjectTypes from './nglObjectTypes';
 import DownloadPdb from './downloadPdb';
 
-const override = css`
-  display: block;
-  margin: 0 auto;
-  border-color: red;
-`;
+const useStyles = makeStyles(theme => ({
+  button: {
+    margin: theme.spacing(1)
+  },
+  loader: {
+    display: 'block',
+    margin: '0 auto',
+    borderCcolor: 'red'
+  }
+}));
 
 const SessionManagement = memo(
   ({
@@ -52,50 +56,7 @@ const SessionManagement = memo(
     const [saveType, setSaveType] = useState('');
     const [nextUuid, setNextUuid] = useState('');
     const [newSessionFlag, setNewSessionFlag] = useState(0);
-
-    const checkTarget = myJson => {
-      var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-      var target = jsonOfView.apiReducers.present.target_on_name;
-      var targetUnrecognised = true;
-      for (var i in targetIdList) {
-        if (target === targetIdList[i].title) {
-          targetUnrecognised = false;
-        }
-      }
-      if (targetUnrecognised === true) {
-        setLoadingState(false);
-      }
-      setTargetUnrecognised(targetUnrecognised);
-      if (targetUnrecognised === false) {
-        reloadSession(myJson);
-      }
-    };
-
-    const redeployVectorsLocal = url => {
-      fetch(url)
-        .then(response => response.json(), error => console.log('An error occurred.', error))
-        .then(json => handleVector(json['vectors']));
-    };
-
-    const reloadSession = myJson => {
-      var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-      reloadApiState(jsonOfView.apiReducers.present);
-      reloadSelectionState(jsonOfView.selectionReducers.present);
-      setStageColor(jsonOfView.nglReducers.present.stageColor);
-      restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
-      if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
-        var url =
-          window.location.protocol +
-          '//' +
-          window.location.host +
-          '/api/vector/' +
-          jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
-          '/';
-        redeployVectorsLocal(url);
-      }
-      setSessionTitle(myJson.title);
-      setSessionId(myJson.id);
-    };
+    const classes = useStyles();
 
     const getCookie = name => {
       if (!document.cookie) {
@@ -109,26 +70,6 @@ const SessionManagement = memo(
         return null;
       }
       return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-    };
-
-    const updateFraggleBox = myJson => {
-      if (saveType === 'sessionNew') {
-        setLatestSession(myJson.uuid);
-        setSessionId(myJson.id);
-        setSessionTitle(myJson.title);
-        setSaveType('');
-        setSavingState('savingSession');
-        setNextUuid('');
-        getSessionDetails();
-      } else if (saveType === 'sessionSave') {
-        setSaveType('');
-        setSavingState('overwritingSession');
-        getSessionDetails();
-      } else if (saveType === 'snapshotNew') {
-        setLatestSnapshot(myJson.uuid);
-        setSaveType('');
-        setSavingState('savingSnapshot');
-      }
     };
 
     const newSession = () => {
@@ -146,9 +87,12 @@ const SessionManagement = memo(
       postToServer();
     };
 
-    const deployErrorModal = error => {
-      setErrorMessage(error);
-    };
+    const deployErrorModal = useCallback(
+      error => {
+        setErrorMessage(error);
+      },
+      [setErrorMessage]
+    );
 
     const postToServer = () => {
       for (var key in nglOrientations) {
@@ -156,23 +100,90 @@ const SessionManagement = memo(
       }
     };
 
-    const handleJson = myJson => {
-      if (myJson.scene === undefined) {
-        return;
-      }
-      checkTarget(myJson);
-    };
+    const redeployVectorsLocal = useCallback(
+      url => {
+        fetch(url)
+          .then(response => response.json(), error => console.log('An error occurred.', error))
+          .then(json => handleVector(json['vectors']));
+      },
+      [handleVector]
+    );
 
-    const restoreOrientation = myOrientDict => {
-      for (var div_id in myOrientDict) {
-        var orientation = myOrientDict[div_id]['orientation'];
-        var components = myOrientDict[div_id]['components'];
-        for (var component in components) {
-          loadObject(components[component]);
+    const restoreOrientation = useCallback(
+      myOrientDict => {
+        for (var div_id in myOrientDict) {
+          var orientation = myOrientDict[div_id]['orientation'];
+          var components = myOrientDict[div_id]['components'];
+          for (var component in components) {
+            loadObject(components[component]);
+          }
+          setNGLOrientation(div_id, orientation);
         }
-        setNGLOrientation(div_id, orientation);
-      }
-    };
+      },
+      [loadObject, setNGLOrientation]
+    );
+
+    const reloadSession = useCallback(
+      myJson => {
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        reloadApiState(jsonOfView.apiReducers.present);
+        reloadSelectionState(jsonOfView.selectionReducers.present);
+        setStageColor(jsonOfView.nglReducers.present.stageColor);
+        restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
+        if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
+          var url =
+            window.location.protocol +
+            '//' +
+            window.location.host +
+            '/api/vector/' +
+            jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
+            '/';
+          redeployVectorsLocal(url);
+        }
+        setSessionTitle(myJson.title);
+        setSessionId(myJson.id);
+      },
+      [
+        redeployVectorsLocal,
+        reloadApiState,
+        reloadSelectionState,
+        restoreOrientation,
+        setSessionId,
+        setSessionTitle,
+        setStageColor
+      ]
+    );
+
+    const checkTarget = useCallback(
+      myJson => {
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        var target = jsonOfView.apiReducers.present.target_on_name;
+        var targetUnrecognised = true;
+        for (var i in targetIdList) {
+          if (target === targetIdList[i].title) {
+            targetUnrecognised = false;
+          }
+        }
+        if (targetUnrecognised === true) {
+          setLoadingState(false);
+        }
+        setTargetUnrecognised(targetUnrecognised);
+        if (targetUnrecognised === false) {
+          reloadSession(myJson);
+        }
+      },
+      [reloadSession, setLoadingState, setTargetUnrecognised, targetIdList]
+    );
+
+    const handleJson = useCallback(
+      myJson => {
+        if (myJson.scene === undefined) {
+          return;
+        }
+        checkTarget(myJson);
+      },
+      [checkTarget]
+    );
 
     const generateArrowObject = (start, end, name, colour) => {
       return {
@@ -194,7 +205,7 @@ const SessionManagement = memo(
       };
     };
 
-    const generateObjectList = out_data => {
+    const generateObjectList = useCallback(out_data => {
       var colour = [1, 0, 0];
       var deletions = out_data.deletions;
       var outList = [];
@@ -214,7 +225,7 @@ const SessionManagement = memo(
         outList.push(generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
       }
       return outList;
-    };
+    }, []);
 
     const generateBondColorMap = inputDict => {
       var out_d = {};
@@ -227,22 +238,25 @@ const SessionManagement = memo(
       return out_d;
     };
 
-    const handleVector = json => {
-      var objList = generateObjectList(json['3d']);
-      setVectorList(objList);
-      var vectorBondColorMap = generateBondColorMap(json['indices']);
-      setBondColorMap(vectorBondColorMap);
-    };
+    const handleVector = useCallback(
+      json => {
+        var objList = generateObjectList(json['3d']);
+        setVectorList(objList);
+        var vectorBondColorMap = generateBondColorMap(json['indices']);
+        setBondColorMap(vectorBondColorMap);
+      },
+      [generateObjectList, setBondColorMap, setVectorList]
+    );
 
-    const generateNextUuid = () => {
+    const generateNextUuid = useCallback(() => {
       if (nextUuid === '') {
         const uuidv4 = require('uuid/v4');
         setNextUuid(uuidv4());
         setNewSessionFlag(1);
       }
-    };
+    }, [nextUuid]);
 
-    const getSessionDetails = () => {
+    const getSessionDetails = useCallback(() => {
       fetch('/api/viewscene/?uuid=' + latestSession, {
         method: 'get',
         headers: {
@@ -257,11 +271,33 @@ const SessionManagement = memo(
           return response.json();
         })
         .then(function(myJson) {
-          var title = myJson.results[JSON.stringify(0)].title;
-          return title;
+          return myJson.results[JSON.stringify(0)].title;
         })
         .then(title => setSessionTitle(title));
-    };
+    }, [latestSession, setErrorMessage, setSessionTitle]);
+
+    const updateFraggleBox = useCallback(
+      myJson => {
+        if (saveType === 'sessionNew') {
+          setLatestSession(myJson.uuid);
+          setSessionId(myJson.id);
+          setSessionTitle(myJson.title);
+          setSaveType('');
+          setSavingState('savingSession');
+          setNextUuid('');
+          getSessionDetails();
+        } else if (saveType === 'sessionSave') {
+          setSaveType('');
+          setSavingState('overwritingSession');
+          getSessionDetails();
+        } else if (saveType === 'snapshotNew') {
+          setLatestSnapshot(myJson.uuid);
+          setSaveType('');
+          setSavingState('savingSnapshot');
+        }
+      },
+      [getSessionDetails, saveType, setLatestSession, setLatestSnapshot, setSessionId, setSessionTitle, setSavingState]
+    );
 
     // componentDidUpdate
     useEffect(() => {
@@ -385,7 +421,19 @@ const SessionManagement = memo(
             });
         }
       }
-    }, [deployErrorModal, generateNextUuid, handleJson, newSessionFlag, nextUuid, nglOrientations, saveType, sessionId, setUuid, updateFraggleBox, uuid]);
+    }, [
+      deployErrorModal,
+      generateNextUuid,
+      handleJson,
+      newSessionFlag,
+      nextUuid,
+      nglOrientations,
+      saveType,
+      sessionId,
+      setUuid,
+      updateFraggleBox,
+      uuid
+    ]);
 
     const { pathname } = location;
     var buttons = '';
@@ -397,50 +445,54 @@ const SessionManagement = memo(
     ) {
       if (sessionTitle === undefined || sessionTitle === 'undefined') {
         buttons = (
-          <Col>
-            <ButtonToolbar>
-              <Button bsSize="sm" bsStyle="info" disabled>
-                Save Session
-              </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={newSession}>
-                Save Session As...
-              </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={newSnapshot}>
-                Share Snapshot
-              </Button>
-              <DownloadPdb />
-            </ButtonToolbar>
-            <Row>
+          <Grid container direction="column" justify="center" alignItems="center">
+            <Grid>
+              <ButtonGroup variant="contained" className={classes.button}>
+                <Button color="primary" disabled>
+                  Save Session
+                </Button>
+                <Button color="primary" onClick={newSession}>
+                  Save Session As...
+                </Button>
+                <Button color="primary" onClick={newSnapshot}>
+                  Share Snapshot
+                </Button>
+                <DownloadPdb />
+              </ButtonGroup>
+            </Grid>
+            <Grid>
               <p>Currently no active session.</p>
-            </Row>
-          </Col>
+            </Grid>
+          </Grid>
         );
       } else {
         buttons = (
-          <Col>
-            <ButtonToolbar>
-              <Button bsSize="sm" bsStyle="info" onClick={saveSession}>
-                Save Session
-              </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={newSession}>
-                Save Session As...
-              </Button>
-              <Button bsSize="sm" bsStyle="info" onClick={newSnapshot}>
-                Share Snapshot
-              </Button>
-              <DownloadPdb />
-            </ButtonToolbar>
-            <Row>
+          <Grid container direction="column" justify="center" alignItems="center">
+            <Grid>
+              <ButtonGroup variant="contained" className={classes.button}>
+                <Button color="primary" onClick={saveSession}>
+                  Save Session
+                </Button>
+                <Button color="primary" onClick={newSession}>
+                  Save Session As...
+                </Button>
+                <Button color="primary" onClick={newSnapshot}>
+                  Share Snapshot
+                </Button>
+                <DownloadPdb />
+              </ButtonGroup>
+            </Grid>
+            <Grid>
               <p>Session: {sessionTitle}</p>
-            </Row>
-          </Col>
+            </Grid>
+          </Grid>
         );
       }
     }
     if (savingState.startsWith('saving') || savingState.startsWith('overwriting')) {
       return (
         <RingLoader
-          className={override}
+          className={classes.loader}
           sizeUnit={'px'}
           size={30}
           color={'#7B36D7'}
@@ -448,7 +500,7 @@ const SessionManagement = memo(
         />
       );
     } else {
-      return <ButtonToolbar>{buttons}</ButtonToolbar>;
+      return buttons;
     }
   }
 );

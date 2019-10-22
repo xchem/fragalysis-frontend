@@ -9,15 +9,17 @@ import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import Clipboard from 'react-clipboard.js';
-import { css } from 'react-emotion';
 import { RingLoader } from 'react-spinners';
 import { getUrl, loadFromServer } from '../services/genericList';
+import { makeStyles } from '@material-ui/core';
 
-const override = css`
-  display: block;
-  margin: 0 auto;
-  border-color: red;
-`;
+const useStyles = makeStyles(theme => ({
+  loader: {
+    display: 'block',
+    margin: '0 auto',
+    borderCcolor: 'red'
+  }
+}));
 
 const SessionList = memo(
   ({
@@ -32,6 +34,7 @@ const SessionList = memo(
     const list_type = listType.SESSIONS;
     const [oldUrl, setOldUrl] = useState('');
     const { pathname } = location;
+    const classes = useStyles();
 
     const getCookie = name => {
       if (!document.cookie) {
@@ -241,7 +244,7 @@ const SessionList = memo(
     if (seshListSaving === true) {
       return (
         <RingLoader
-          className={override}
+          className={classes.loader}
           sizeUnit={'px'}
           size={30}
           color={'#7B36D7'}

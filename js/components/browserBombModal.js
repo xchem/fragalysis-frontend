@@ -3,9 +3,8 @@
  */
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
-import { Button } from 'react-bootstrap';
+import { Button } from '@material-ui/core';
 
 const customStyles = {
   overlay: {
@@ -60,7 +59,7 @@ const BrowserBomb = memo(props => {
           <a href="https://www.google.com/chrome/"> Google Chrome</a> or{' '}
           <a href="https://www.mozilla.org/en-GB/firefox/">Mozilla Firefox.</a>
         </h4>
-        <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+        <Button size="small" variant="contained" color="primary" onClick={closeModal}>
           Close
         </Button>
       </div>
