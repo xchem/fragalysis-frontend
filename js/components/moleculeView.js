@@ -305,8 +305,6 @@ const MoleculeView = memo(
       }
     }, [data.smiles, to_query, value]);
 
-    console.log('MoleculeView -> render');
-
     const svg_image = <SVGInline svg={img_data} />;
     // Here add the logic that updates this based on the information
     // const refinement = <Label bsStyle="success">{"Refined"}</Label>;

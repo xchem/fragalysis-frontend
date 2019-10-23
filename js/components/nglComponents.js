@@ -4,7 +4,7 @@
 
 import { Stage, Shape, concatStructures, Selection } from 'ngl';
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
@@ -12,13 +12,14 @@ import * as listTypes from './listTypes';
 import * as selectionActions from '../actions/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from './constants';
 import { isEmpty } from 'ramda';
+import { store } from '../containers/root';
+import { setVectorList } from '../actions/selectionActions';
 
 const NGLView = memo(
   ({
     nglOrientations,
     orientationToSet,
     mol_group_list,
-    mol_group_selection,
     pandda_site_on,
     pandda_site_list,
     duck_yank_data,
@@ -42,7 +43,9 @@ const NGLView = memo(
     deleteObjectSuccess,
     setLoadingState,
     div_id,
-    height
+    height,
+    mol_group_selection,
+    state
   }) => {
     const ref_data_dict = useRef({
       [listTypes.MOLGROUPS]: {
@@ -59,14 +62,14 @@ const NGLView = memo(
         onGroup: 'pandda_site_on'
       }
     });
-    const refComponentDidMount = useRef(false);
 
     // Create NGL Stage object
     let local_div_id = 'viewport';
     if (div_id) {
       local_div_id = div_id;
     }
-    const refStage = useRef(undefined);
+    const refStage = useRef();
+    const refSetClickFunction = useRef(false);
     const [focus_let, setFocus_let] = useState(95);
 
     /*
@@ -94,67 +97,61 @@ const NGLView = memo(
     };
 
     // tu bude chyba alebo v jej volani
-    const toggleMolGroup = useCallback(
-      groupId => {
-        const objIdx = mol_group_selection.indexOf(groupId);
-        const selectionCopy = mol_group_selection.slice();
-        if (objIdx === -1) {
-          setMolGroupOn(groupId);
-          selectionCopy.push(groupId);
-          setMolGroupSelection(selectionCopy);
-        } else {
-          selectionCopy.splice(objIdx, 1);
-          setMolGroupSelection(selectionCopy);
-        }
-      },
-      [setMolGroupOn, setMolGroupSelection, mol_group_selection]
-    );
+    const toggleMolGroup = groupId => {
+      const objIdx = mol_group_selection.indexOf(groupId);
+      const selectionCopy = mol_group_selection.slice();
+      if (objIdx === -1) {
+        setMolGroupOn(groupId);
+        selectionCopy.push(groupId);
+        setMolGroupSelection(selectionCopy);
+      } else {
+        selectionCopy.splice(objIdx, 1);
+        setMolGroupSelection(selectionCopy);
+      }
+    };
 
-    const showPick = useCallback(
-      (stage, pickingProxy) => {
-        if (pickingProxy) {
-          // For assigning the ligand interaction
-          if (pickingProxy.object.type === 'hydrogen bond') {
-            let input_dict = processInt(pickingProxy);
-            if (duck_yank_data['interaction'] !== undefined) {
-              deleteObject({
-                display_div: VIEWS.MAJOR_VIEW,
-                name: duck_yank_data['interaction'] + SUFFIX.INTERACTION
-              });
-            }
-            setDuckYankData(input_dict);
-            loadObject({
-              start: pickingProxy.object.center1,
-              end: pickingProxy.object.center2,
-              radius: 0.2,
+    const showPick = (stage, pickingProxy) => {
+      if (pickingProxy) {
+        // For assigning the ligand interaction
+        if (pickingProxy.object.type === 'hydrogen bond') {
+          let input_dict = processInt(pickingProxy);
+          if (duck_yank_data['interaction'] !== undefined) {
+            deleteObject({
               display_div: VIEWS.MAJOR_VIEW,
-              color: [1, 0, 0],
-              name: input_dict['interaction'] + SUFFIX.INTERACTION,
-              OBJECT_TYPE: nglObjectTypes.ARROW
+              name: duck_yank_data['interaction'] + SUFFIX.INTERACTION
             });
-          } else if (pickingProxy.object.name) {
-            let name = pickingProxy.object.name;
-            // Ok so now perform logic
-            const type = name.split('_')[0].split('(')[1];
-            const pk = parseInt(name.split('_')[1].split(')')[0], 10);
-            if (type === listTypes.MOLGROUPS) {
-              toggleMolGroup(pk);
-            } else if (type === listTypes.MOLGROUPS_SELECT) {
-              toggleMolGroup(pk);
-            } else if (type === listTypes.PANDDA_SITE) {
-              setPanddaSiteOn(pk);
-            }
-            //else if (type === listTypes.MOLECULE) {
-            //}
-            else if (type === listTypes.VECTOR) {
-              const vectorSmi = name.split('_')[1].slice(0, -1);
-              selectVector(vectorSmi);
-            }
+          }
+          setDuckYankData(input_dict);
+          loadObject({
+            start: pickingProxy.object.center1,
+            end: pickingProxy.object.center2,
+            radius: 0.2,
+            display_div: VIEWS.MAJOR_VIEW,
+            color: [1, 0, 0],
+            name: input_dict['interaction'] + SUFFIX.INTERACTION,
+            OBJECT_TYPE: nglObjectTypes.ARROW
+          });
+        } else if (pickingProxy.object.name) {
+          let name = pickingProxy.object.name;
+          // Ok so now perform logic
+          const type = name.split('_')[0].split('(')[1];
+          const pk = parseInt(name.split('_')[1].split(')')[0], 10);
+          if (type === listTypes.MOLGROUPS) {
+            toggleMolGroup(pk);
+          } else if (type === listTypes.MOLGROUPS_SELECT) {
+            toggleMolGroup(pk);
+          } else if (type === listTypes.PANDDA_SITE) {
+            setPanddaSiteOn(pk);
+          }
+          //else if (type === listTypes.MOLECULE) {
+          //}
+          else if (type === listTypes.VECTOR) {
+            const vectorSmi = name.split('_')[1].slice(0, -1);
+            selectVector(vectorSmi);
           }
         }
-      },
-      [deleteObject, duck_yank_data, loadObject, selectVector, setDuckYankData, toggleMolGroup, setPanddaSiteOn]
-    );
+      }
+    };
 
     const checkIfLoading = useCallback(() => {
       for (let key in objectsToLoad) {
@@ -584,8 +581,10 @@ const NGLView = memo(
       setNGLOrientation(local_div_id, 'SET');
     }, [local_div_id, setNGLOrientation, setOrientation]);
 
-    useEffect(() => {
-      if (refComponentDidMount.current === false) {
+    const test = state;
+
+    useEffect(
+      () => {
         refStage.current = new Stage(local_div_id);
         window.addEventListener(
           'resize',
@@ -594,10 +593,30 @@ const NGLView = memo(
           },
           false
         );
-        refStage.current.mouseControls.add('clickPick-left', showPick);
-        refComponentDidMount.current = true;
-      }
-    }, [local_div_id, showPick]);
+
+        //  if (refStage.current !== undefined && refSetClickFunction.current === false) {
+        refStage.current.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
+          console.log(`Click: ${JSON.stringify(mol_group_selection)}`);
+          console.log(store.getState());
+          showPick(stage, pickingProxy);
+        });
+        //     refSetClickFunction.current = true;
+        //   }
+
+        return () => {
+          window.removeEventListener(
+            'resize',
+            event => {
+              refStage.current.handleResize();
+            },
+            false
+          );
+
+          refStage.current.mouseControls.remove('clickPick-left', showPick);
+        };
+      }, // eslint-disable-next-line react-hooks/exhaustive-deps
+      [local_div_id]
+    );
 
     useEffect(() => {
       updateOrientation();
@@ -619,15 +638,17 @@ const NGLView = memo(
       renderColorChange();
     }, [renderColorChange]);
 
+    console.log(`Render: ${JSON.stringify(mol_group_selection)}`);
     return <div style={{ height: height || '600px' }} id={local_div_id} />;
   }
 );
 function mapStateToProps(state) {
   return {
+    state: state,
     nglOrientations: state.nglReducers.present.nglOrientations,
     orientationToSet: state.nglReducers.present.orientationToSet,
     mol_group_list: state.apiReducers.present.mol_group_list,
-    mol_group_selection: state.apiReducers.present.mol_group_selection,
+    //   mol_group_selection: state.apiReducers.present.mol_group_selection,
     pandda_site_on: state.apiReducers.present.pandda_site_on,
     pandda_site_list: state.apiReducers.present.pandda_site_list,
     duck_yank_data: state.apiReducers.present.duck_yank_data,
@@ -654,6 +675,9 @@ const mapDispatchToProps = {
   deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
   setLoadingState: nglLoadActions.setLoadingState
 };
+
+NGLView.displayName = 'NGLView';
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps

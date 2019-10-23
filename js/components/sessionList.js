@@ -65,7 +65,6 @@ const SessionList = memo(
         const id = e.target.id;
         const title = e.target.value;
         renameStateSession(id, title);
-        console.log('submit new session name ' + title);
         const csrfToken = getCookie('csrftoken');
         const formattedState = {
           id,

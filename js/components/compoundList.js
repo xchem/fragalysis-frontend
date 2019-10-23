@@ -37,7 +37,6 @@ const CompoundList = memo(
     const handleClassNaming = e => {
       if (e.keyCode === 13) {
         const newClassDescription = { [e.target.id]: e.target.value };
-        console.log('submit new class name ' + newClassDescription);
         const descriptionToSet = Object.assign(compoundClasses, newClassDescription);
         setCompoundClasses(descriptionToSet);
         setCurrentCompoundClass(e.target.id);

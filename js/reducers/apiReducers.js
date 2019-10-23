@@ -39,10 +39,6 @@ const INITIALSTATE = {
 };
 
 export default function apiReducers(state = INITIALSTATE, action) {
-  console.log('REDUCERS FIRED OFF. OLD STATE');
-  console.log(state);
-  console.log('action.type=' + action.type);
-
   switch (action.type) {
     case actions.LOAD_TARGETS:
       return Object.assign({}, state, {

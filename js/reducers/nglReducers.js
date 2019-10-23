@@ -21,10 +21,6 @@ const INITIALSTATE = {
 };
 
 export default function nglReducers(state = INITIALSTATE, action) {
-  console.log('REDUCERS FIRED OFF. OLD STATE');
-  console.log(state);
-  console.log('action.type=' + action.type);
-
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
 
@@ -54,7 +50,6 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
     case actions.LOAD_OBJECT_FAILURE:
       // Don't change state - but can be used later to count number of failures
-      console.log('Failed to load - ' + action.group.name);
       return Object.assign({}, state, {});
 
     case actions.DELETE_OBJECT:
@@ -90,7 +85,6 @@ export default function nglReducers(state = INITIALSTATE, action) {
       });
 
     case actions.DELETE_OBJECT_TYPE:
-      console.log('DELETING OBJECT OF TYPE - ' + action.object_type);
       var objectsToDelete = JSON.parse(JSON.stringify(state.objectsToDelete));
       var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       for (var key in objectsInView) {
@@ -104,7 +98,6 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
     case actions.DELETE_OBJECT_FAILURE:
       // Don't change state - but can be used later to count number of failures
-      console.log('Failed to delete - ' + action.group.name);
       return Object.assign({}, state, {});
 
     case actions.SET_COLOR:

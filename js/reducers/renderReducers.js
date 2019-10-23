@@ -6,10 +6,6 @@ import * as actions from '../actions/actonTypes';
 const INITIALSTATE = {};
 
 export default function renderReducers(state = INITIALSTATE, action) {
-  console.log('REDUCERS FIRED OFF. OLD STATE');
-  console.log(state);
-  console.log('action.type=' + action.type);
-
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
     case actions.RECEIVE_DATA_FROM_API:

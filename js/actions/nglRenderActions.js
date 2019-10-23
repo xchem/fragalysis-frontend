@@ -5,7 +5,6 @@
 import { SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN } from './actonTypes';
 
 export const setColor = function(color) {
-  console.log('ACTIONS: ' + color);
   return {
     type: SET_COLOR,
     color: color
@@ -13,7 +12,6 @@ export const setColor = function(color) {
 };
 
 export const setStyle = function(style) {
-  console.log('ACTIONS: ' + style);
   return {
     type: SET_STYLE,
     style: style
@@ -21,7 +19,6 @@ export const setStyle = function(style) {
 };
 
 export const setSpin = function(spin) {
-  console.log('ACTIONS: ' + spin);
   return {
     type: SET_SPIN,
     spin: spin
@@ -29,7 +26,6 @@ export const setSpin = function(spin) {
 };
 
 export const setWater = function(water) {
-  console.log('ACTIONS: ' + water);
   return {
     type: SET_WATER,
     spin: water
@@ -37,7 +33,6 @@ export const setWater = function(water) {
 };
 
 export const setHydrogen = function(hydrogen) {
-  console.log('ACTIONS: ' + hydrogen);
   return {
     type: SET_HYDROGEN,
     spin: hydrogen
@@ -45,7 +40,6 @@ export const setHydrogen = function(hydrogen) {
 };
 
 export const setAssemblyOptions = function(structure) {
-  console.log('Dispatching Set Assembly Options');
   const options = [];
   const biomolDict = structure.biomolDict;
   if (

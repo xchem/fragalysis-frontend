@@ -13,11 +13,13 @@ import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
 import { ErrorBoundary } from '../components/errorBoundary';
 
-const loggerMiddleware = createLogger();
+//const loggerMiddleware = createLogger();
 
-const store = configureStore({
+export const store = configureStore({
   reducer: rootReducer,
-  middleware: [thunkMiddleware, loggerMiddleware],
+  middleware: [
+    thunkMiddleware //, loggerMiddleware
+  ],
   devTools: true
 });
 

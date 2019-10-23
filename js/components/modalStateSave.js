@@ -82,7 +82,6 @@ const ModalStateSave = memo(
     const handleSessionNaming = e => {
       if (e.keyCode === 13) {
         var titleTemp = e.target.value;
-        console.log('submit new session name ' + titleTemp);
         setSessionTitle(titleTemp);
         const csrfToken = getCookie('csrftoken');
         var formattedState = {

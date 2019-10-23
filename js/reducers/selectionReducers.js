@@ -30,10 +30,6 @@ const INITIALSTATE = {
 };
 
 export default function selectionReducers(state = INITIALSTATE, action) {
-  console.log('REDUCERS FIRED OFF. OLD STATE');
-  console.log(state);
-  console.log('action.type=' + action.type);
-
   switch (action.type) {
     case actions.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
