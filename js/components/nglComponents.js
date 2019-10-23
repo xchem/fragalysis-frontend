@@ -4,7 +4,7 @@
 
 import { Stage, Shape, concatStructures, Selection } from 'ngl';
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
@@ -44,8 +44,7 @@ const NGLView = memo(
     setLoadingState,
     div_id,
     height,
-    mol_group_selection,
-    state
+    mol_group_selection
   }) => {
     const ref_data_dict = useRef({
       [listTypes.MOLGROUPS]: {
@@ -96,10 +95,11 @@ const NGLView = memo(
       return { interaction: tot_name, complex_id: mol_int };
     };
 
-    // tu bude chyba alebo v jej volani
     const toggleMolGroup = groupId => {
-      const objIdx = mol_group_selection.indexOf(groupId);
-      const selectionCopy = mol_group_selection.slice();
+      // Anti-pattern but connected prop (mol_group_selection) is undefined here
+      const mgs = store.getState().apiReducers.present.mol_group_selection;
+      const objIdx = mgs.indexOf(groupId);
+      const selectionCopy = mgs.slice();
       if (objIdx === -1) {
         setMolGroupOn(groupId);
         selectionCopy.push(groupId);
@@ -182,7 +182,7 @@ const NGLView = memo(
 
     const showMol = (stage, input_dict, object_name) => {
       let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-      stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function(comp) {
+      stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function (comp) {
         comp.addRepresentation('ball+stick', {
           colorScheme: 'element',
           colorValue: input_dict.colour,
@@ -581,8 +581,6 @@ const NGLView = memo(
       setNGLOrientation(local_div_id, 'SET');
     }, [local_div_id, setNGLOrientation, setOrientation]);
 
-    const test = state;
-
     useEffect(
       () => {
         refStage.current = new Stage(local_div_id);
@@ -596,8 +594,6 @@ const NGLView = memo(
 
         //  if (refStage.current !== undefined && refSetClickFunction.current === false) {
         refStage.current.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
-          console.log(`Click: ${JSON.stringify(mol_group_selection)}`);
-          console.log(store.getState());
           showPick(stage, pickingProxy);
         });
         //     refSetClickFunction.current = true;
@@ -638,17 +634,15 @@ const NGLView = memo(
       renderColorChange();
     }, [renderColorChange]);
 
-    console.log(`Render: ${JSON.stringify(mol_group_selection)}`);
     return <div style={{ height: height || '600px' }} id={local_div_id} />;
   }
 );
 function mapStateToProps(state) {
   return {
-    state: state,
     nglOrientations: state.nglReducers.present.nglOrientations,
     orientationToSet: state.nglReducers.present.orientationToSet,
     mol_group_list: state.apiReducers.present.mol_group_list,
-    //   mol_group_selection: state.apiReducers.present.mol_group_selection,
+    mol_group_selection: state.apiReducers.present.mol_group_selection,
     pandda_site_on: state.apiReducers.present.pandda_site_on,
     pandda_site_list: state.apiReducers.present.pandda_site_list,
     duck_yank_data: state.apiReducers.present.duck_yank_data,
