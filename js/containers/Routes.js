@@ -12,7 +12,8 @@ import Funders from './fundersHolder';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
+    padding: theme.spacing(2)
   },
   paper: {
     padding: theme.spacing(2),

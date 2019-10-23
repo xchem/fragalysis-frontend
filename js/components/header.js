@@ -16,7 +16,8 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: '#ffffff',
     borderColor: '#eeeeee',
     border: '1px solid transparent',
-    width: 'inherit'
+    width: 'inherit',
+    marginBottom: theme.spacing(2)
   }
 }));
 

@@ -9,7 +9,7 @@ import { saveStore } from './globalStore';
 import { hot } from 'react-hot-loader';
 import { configureStore } from 'redux-starter-kit';
 import thunkMiddleware from 'redux-thunk';
-import { createLogger } from 'redux-logger';
+//import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
 import { ErrorBoundary } from '../components/errorBoundary';
 
@@ -18,7 +18,7 @@ import { ErrorBoundary } from '../components/errorBoundary';
 export const store = configureStore({
   reducer: rootReducer,
   middleware: [
-    thunkMiddleware //, loggerMiddleware
+    thunkMiddleware //, loggerMiddleware 
   ],
   devTools: true
 });
