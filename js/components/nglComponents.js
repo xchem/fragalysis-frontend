@@ -13,7 +13,6 @@ import * as selectionActions from '../actions/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from './constants';
 import { isEmpty } from 'ramda';
 import { store } from '../containers/root';
-import { setVectorList } from '../actions/selectionActions';
 
 const NGLView = memo(
   ({
@@ -182,7 +181,7 @@ const NGLView = memo(
 
     const showMol = (stage, input_dict, object_name) => {
       let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-      stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function (comp) {
+      stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function(comp) {
         comp.addRepresentation('ball+stick', {
           colorScheme: 'element',
           colorValue: input_dict.colour,
@@ -258,7 +257,7 @@ const NGLView = memo(
       });
 
       stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
-        let surfFofc = comp.addRepresentation('surface', {
+        comp.addRepresentation('surface', {
           color: 'mediumseagreen',
           isolevel: 3,
           boxSize: 10,
@@ -267,7 +266,7 @@ const NGLView = memo(
           opaqueBack: false,
           isolevelScroll: false
         });
-        let surfFofcNeg = comp.addRepresentation('surface', {
+        comp.addRepresentation('surface', {
           color: 'tomato',
           isolevel: 3,
           negateIsolevel: true,
@@ -592,12 +591,12 @@ const NGLView = memo(
           false
         );
 
-        //  if (refStage.current !== undefined && refSetClickFunction.current === false) {
-        refStage.current.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
-          showPick(stage, pickingProxy);
-        });
-        //     refSetClickFunction.current = true;
-        //   }
+        if (refSetClickFunction.current === false) {
+          refStage.current.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
+            showPick(stage, pickingProxy);
+          });
+          refSetClickFunction.current = true;
+        }
 
         return () => {
           window.removeEventListener(

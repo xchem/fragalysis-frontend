@@ -110,7 +110,6 @@ export const setMolGroupOn = function(mol_group_id) {
 };
 
 export const setMolGroupSelection = function(mol_group_ids) {
-  debugger;
   return {
     type: SET_MOL_GROUP_SELECTION,
     mol_group_selection: mol_group_ids
