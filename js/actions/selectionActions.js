@@ -24,7 +24,8 @@ import {
   SET_COMPOUND_CLASSES,
   SET_CURRENT_COMPOUND_CLASS,
   RELOAD_SELECTION_STATE,
-  SET_BOND_COLOR_MAP
+  SET_BOND_COLOR_MAP,
+  RESET_SELECTION_STATE
 } from './actonTypes';
 
 export const setToBuyList = function(to_buy_list) {
@@ -135,7 +136,7 @@ export const removeFromComplexList = function(item) {
 export const setVectorOnList = function(vectorOnList) {
   return {
     type: SET_VECTOR_ON_LIST,
-    vectorList: vectorOnList
+    vectorOnList: vectorOnList
   };
 };
 
@@ -178,5 +179,11 @@ export const reloadSelectionState = function(savedSelectionReducers) {
   return {
     type: RELOAD_SELECTION_STATE,
     savedSelectionReducers: savedSelectionReducers
+  };
+};
+
+export const resetSelectionState = function() {
+  return {
+    type: RESET_SELECTION_STATE
   };
 };

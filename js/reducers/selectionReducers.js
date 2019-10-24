@@ -3,7 +3,7 @@
  */
 import * as actions from '../actions/actonTypes';
 
-const INITIALSTATE = {
+const INITIAL_STATE = {
   to_buy_list: [],
   to_select: {},
   vector_list: [],
@@ -29,7 +29,7 @@ const INITIALSTATE = {
   currentCompoundClass: 1
 };
 
-export default function selectionReducers(state = INITIALSTATE, action) {
+export default function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     case actions.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
@@ -37,21 +37,21 @@ export default function selectionReducers(state = INITIALSTATE, action) {
       });
 
     case actions.APPEND_TO_BUY_LIST:
-      var to_buy_list = state.to_buy_list.slice();
-      var exists = false;
-      for (var item in to_buy_list) {
-        if (to_buy_list[item].smiles == action.item.smiles) {
+      const current_to_buy_list = state.to_buy_list.slice();
+      let exists = false;
+      for (let current_to_buy_item in current_to_buy_list) {
+        if (current_to_buy_list[current_to_buy_item].smiles === action.item.smiles) {
           exists = true;
-          if (to_buy_list[item].class != action.item.class) {
-            Object.assign(to_buy_list[item], { class: action.item.class });
+          if (current_to_buy_list[current_to_buy_item].class !== action.item.class) {
+            Object.assign(current_to_buy_list[current_to_buy_item], { class: action.item.class });
           }
         }
       }
-      if (exists == false) {
-        to_buy_list.push(action.item);
+      if (exists === false) {
+        current_to_buy_list.push(action.item);
       }
       return Object.assign({}, state, {
-        to_buy_list: to_buy_list
+        to_buy_list: current_to_buy_list
       });
 
     case actions.SET_VECTOR_LIST:
@@ -60,16 +60,16 @@ export default function selectionReducers(state = INITIALSTATE, action) {
       });
 
     case actions.REMOVE_FROM_TO_BUY_LIST:
-      var to_buy_list = state.to_buy_list.slice();
-      var index = -1;
+      const to_buy_list = state.to_buy_list.slice();
+      let itemIndex = -1;
       for (var item in to_buy_list) {
-        if (to_buy_list[item].smiles == action.item.smiles) {
-          index = item;
+        if (to_buy_list[item].smiles === action.item.smiles) {
+          itemIndex = item;
           break;
         }
       }
-      if (index != -1) {
-        to_buy_list.splice(index, 1);
+      if (itemIndex !== -1) {
+        to_buy_list.splice(itemIndex, 1);
         return Object.assign({}, state, { to_buy_list: to_buy_list });
       } else {
         return state;
@@ -92,18 +92,18 @@ export default function selectionReducers(state = INITIALSTATE, action) {
       });
 
     case actions.GOT_FULL_GRAPH:
-      var input_mol_dict = action.input_mol_dict;
+      const input_mol_dict = action.input_mol_dict;
       var new_dict = {};
       // Uniquify
-      for (var key in input_mol_dict) {
+      for (var input_mol_dict_key in input_mol_dict) {
         var smiSet = new Set();
-        new_dict[key] = {};
-        new_dict[key]['addition'] = [];
-        new_dict[key]['vector'] = input_mol_dict[key]['vector'];
-        for (var index in input_mol_dict[key]['addition']) {
-          var newSmi = input_mol_dict[key]['addition'][index]['end'];
-          if (smiSet.has(newSmi) != true) {
-            new_dict[key]['addition'].push(input_mol_dict[key]['addition'][index]);
+        new_dict[input_mol_dict_key] = {};
+        new_dict[input_mol_dict_key]['addition'] = [];
+        new_dict[input_mol_dict_key]['vector'] = input_mol_dict[input_mol_dict_key]['vector'];
+        for (var index in input_mol_dict[input_mol_dict_key]['addition']) {
+          var newSmi = input_mol_dict[input_mol_dict_key]['addition'][index]['end'];
+          if (smiSet.has(newSmi) !== true) {
+            new_dict[input_mol_dict_key]['addition'].push(input_mol_dict[input_mol_dict_key]['addition'][index]);
             smiSet.add(newSmi);
           }
         }
@@ -115,70 +115,68 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
     case actions.SELECT_VECTOR:
       var input_mol_key = action.vector;
-      var this_vector_list = [];
-      for (var key in state.to_select) {
-        if (key.split('_')[0] == input_mol_key) {
-          this_vector_list[key] = state.to_select[key];
+      var new_this_vector_list = [];
+      for (var key_to_select in state.to_select) {
+        if (key_to_select.split('_')[0] === input_mol_key) {
+          new_this_vector_list[key_to_select] = state.to_select[key_to_select];
         }
       }
       return Object.assign({}, state, {
-        this_vector_list: this_vector_list,
+        this_vector_list: new_this_vector_list,
         currentVector: action.vector
       });
 
     case actions.SET_FRAGMENT_DISPLAY_LIST:
       return Object.assign({}, state, {
-        fragmentDisplayList: action.fragmentDisplayList
+        fragmentDisplayList: new Set(action.fragmentDisplayList)
       });
 
     case actions.APPEND_FRAGMENT_DISPLAY_LIST:
-      var fragmentDisplayList = new Set(state.fragmentDisplayList.add(action.item.id));
       return Object.assign({}, state, {
-        fragmentDisplayList: fragmentDisplayList
+        fragmentDisplayList: new Set(state.fragmentDisplayList.add(action.item.id))
       });
 
     case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
-      var fragmentDisplayList = new Set(state.fragmentDisplayList);
-      fragmentDisplayList.delete(action.item.id);
+      const diminishedFragmentDisplayList = new Set(state.fragmentDisplayList);
+      diminishedFragmentDisplayList.delete(action.item.id);
       return Object.assign({}, state, {
-        fragmentDisplayList: fragmentDisplayList
+        fragmentDisplayList: diminishedFragmentDisplayList
       });
 
     case actions.SET_COMPLEX_LIST:
       return Object.assign({}, state, {
-        complexList: action.complexList
+        complexList: new Set(action.complexList)
       });
 
     case actions.APPEND_COMPLEX_LIST:
-      var complexList = new Set(state.complexList.add(action.item.id));
       return Object.assign({}, state, {
-        complexList: complexList
+        complexList: new Set(state.complexList.add(action.item.id))
       });
 
     case actions.REMOVE_FROM_COMPLEX_LIST:
-      var complexList = new Set(state.complexList);
-      complexList.delete(action.item.id);
+      const diminishedComplexList = new Set(state.complexList);
+      diminishedComplexList.delete(action.item.id);
       return Object.assign({}, state, {
-        complexList: complexList
+        complexList: diminishedComplexList
       });
 
     case actions.SET_VECTOR_ON_LIST:
       return Object.assign({}, state, {
-        vectorOnList: action.vectorOnList
+        vectorOnList: new Set(action.vectorOnList)
       });
 
     case actions.APPEND_VECTOR_ON_LIST:
-      var vectorOnList = new Set(state.vectorOnList.clear());
-      vectorOnList.add(action.item.id);
+      const newVectorOnList = new Set(state.vectorOnList.clear());
+      newVectorOnList.add(action.item.id);
       return Object.assign({}, state, {
-        vectorOnList: vectorOnList
+        vectorOnList: newVectorOnList
       });
 
     case actions.REMOVE_FROM_VECTOR_ON_LIST:
-      var vectorOnList = new Set(state.vectorOnList);
-      vectorOnList.delete(action.item.id);
+      const diminishedVectorOnList = new Set(state.vectorOnList);
+      diminishedVectorOnList.delete(action.item.id);
       return Object.assign({}, state, {
-        vectorOnList: vectorOnList
+        vectorOnList: diminishedVectorOnList
       });
 
     case actions.SET_HIGHLIGHTED:
@@ -203,9 +201,9 @@ export default function selectionReducers(state = INITIALSTATE, action) {
 
     case actions.RELOAD_SELECTION_STATE:
       var this_vector_list = [];
-      for (var key in action.savedSelectionReducers.to_select) {
-        if (key.split('_')[0] == action.savedSelectionReducers.currentVector) {
-          this_vector_list[key] = action.savedSelectionReducers.to_select[key];
+      for (var to_select_item in action.savedSelectionReducers.to_select) {
+        if (to_select_item.split('_')[0] === action.savedSelectionReducers.currentVector) {
+          this_vector_list[to_select_item] = action.savedSelectionReducers.to_select[to_select_item];
         }
       }
       return Object.assign({}, state, {
@@ -225,6 +223,9 @@ export default function selectionReducers(state = INITIALSTATE, action) {
         currentCompoundClass: action.savedSelectionReducers.currentCompoundClass,
         highlightedCompound: action.savedSelectionReducers.highlightedCompound
       });
+
+    case actions.RESET_SELECTION_STATE:
+      return INITIAL_STATE;
 
     // Cases like: @@redux/INIT
     default:

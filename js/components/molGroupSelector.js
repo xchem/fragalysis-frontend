@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import { VIEWS } from './constants';
 import * as selectionActions from '../actions/selectionActions';
-import { generateMolId, generateMolObject, generateObject, getJoinedMoleculeList } from './molecules/helpers';
+import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecules/helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 const useStyles = makeStyles(() => ({
@@ -46,10 +46,12 @@ const molGroupSelector = memo(
     cached_mol_lists,
     mol_group_list,
     deleteObject,
-    removeFromFragmentDisplayList,
-    removeFromComplexList,
+    setFragmentDisplayList,
+    setComplexList,
     vector_list,
-    removeFromVectorOnList
+    setVectorOnList,
+    setVectorList,
+    resetSelectionState
   }) => {
     const [expanded, setExpanded] = useState(true);
     const classes = useStyles();
@@ -59,17 +61,12 @@ const molGroupSelector = memo(
     };
 
     const handleClearSelection = () => {
-      // remove selected sites
-      setObjectOn(undefined);
-      setObjectSelection([]);
-
       // loop through all molecules
-      getJoinedMoleculeList(object_selection, cached_mol_lists, mol_group_list, vector_list).forEach(mol => {
+      getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }).forEach(mol => {
         // remove Ligand
         deleteObject(
           Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(mol.id.toString(), mol.sdf_info))
         );
-        removeFromFragmentDisplayList(generateMolId(mol.id.toString()));
 
         // remove Complex
         deleteObject(
@@ -78,15 +75,27 @@ const molGroupSelector = memo(
             generateObject(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
           )
         );
-        removeFromComplexList(generateMolId(mol.id.toString()));
-
-        // remove all Vectors
-        removeFromVectorOnList(generateMolId(mol.id.toString()));
       });
       // remove all Vectors
-      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
+      vector_list.forEach(item => {
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item));
+      });
 
-      // remove all selected values in hit navigator
+      // remove sites selection
+      setObjectOn(undefined);
+      setObjectSelection([]);
+
+      // reset all selection state
+      resetSelectionState();
+
+      // remove Ligand, Complex, Vectors from selection
+      //Ligand
+      setFragmentDisplayList([]);
+      // Complex
+      setComplexList([]);
+      // Vectors
+      setVectorOnList([]);
+      setVectorList([]);
     };
 
     const titleRightElement = (
@@ -133,8 +142,11 @@ const mapDispatchToProps = {
   setObjectSelection: apiActions.setMolGroupSelection,
   deleteObject: nglLoadActions.deleteObject,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
-  removeFromComplexList: selectionActions.removeFromComplexList,
-  removeFromVectorOnList: selectionActions.removeFromVectorOnList
+  setFragmentDisplayList: selectionActions.setFragmentDisplayList,
+  setComplexList: selectionActions.setComplexList,
+  setVectorOnList: selectionActions.setVectorOnList,
+  setVectorList: selectionActions.setVectorList,
+  resetSelectionState: selectionActions.resetSelectionState
 };
 export default withLoadingMolGroupList(
   connect(
