@@ -143,7 +143,7 @@ const MoleculeList = memo(
         <span className={classes.sortFilterButtonStyle}>sort/filter</span>
       </Button>
     );
-
+    console.log('render molecule list');
     return (
       <div>
         {!!(filterSettings || {}).active && (

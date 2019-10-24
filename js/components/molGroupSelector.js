@@ -136,7 +136,9 @@ const mapDispatchToProps = {
   removeFromComplexList: selectionActions.removeFromComplexList,
   removeFromVectorOnList: selectionActions.removeFromVectorOnList
 };
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLoadingMolGroupList(molGroupSelector));
+export default withLoadingMolGroupList(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(molGroupSelector)
+);
