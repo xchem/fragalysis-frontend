@@ -107,14 +107,11 @@ const MoleculeList = memo(
 
     const handleDialogClose = filter => {
       setFilterSettings(filter);
-      handleDialog(false);
+      handleDialog(false)();
     };
 
     if (!!(filterSettings || {}).active) {
-      joinedMoleculeLists = useMemo(() => filterMolecules(joinedMoleculeLists, filterSettings), [
-        joinedMoleculeLists,
-        filterSettings
-      ]);
+      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
     } else {
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }
@@ -157,7 +154,7 @@ const MoleculeList = memo(
                   classes={{ tooltip: classes.filterTooltip }}
                   title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
                     filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                  }`}
+                    }`}
                   placement="top"
                 >
                   <Chip
