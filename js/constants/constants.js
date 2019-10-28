@@ -14,3 +14,8 @@ export const SUFFIX = {
   MAIN: '_MAIN',
   INTERACTION: '_INTERACTION'
 };
+
+export const OBJECT_TYPE = {
+  ARROW: 'ARROW',
+  CYLINDER: 'CYLINDER'
+};

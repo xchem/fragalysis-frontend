@@ -8,8 +8,8 @@ import SVGInline from 'react-svg-inline';
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
-import { VIEWS } from './constants';
-import { loadFromServer } from '../services/genericView';
+import { VIEWS } from '../constants/constants';
+import { loadFromServer } from '../utils/genericView';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +

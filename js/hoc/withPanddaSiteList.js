@@ -5,15 +5,14 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
-import * as listType from './listTypes';
+import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
-import { VIEWS } from './constants';
-import { getUrl, loadFromServer } from '../services/genericList';
+import { VIEWS } from '../constants/constants';
+import { getUrl, loadFromServer } from '../utils/genericList';
 
-// TODO change to HOC
-const PanddaSiteList = memo(
-  ({ group_type, target_on, object_list, object_on, setObjectOn, setObjectList, deleteObject, loadObject }) => {
+export const withLoadingPanddaSiteList = WrappedComponent => {
+  const PanddaSiteList = memo(({ group_type, target_on, object_list, setObjectList, deleteObject, loadObject }) => {
     const list_type = listType.PANDDA_SITE;
     const [oldUrl, setOldUrl] = useState('');
 
@@ -66,24 +65,24 @@ const PanddaSiteList = memo(
       });
     }, [list_type, oldUrl, setObjectList, target_on, beforePush, afterPush, group_type]);
 
-    return null;
+    return <WrappedComponent />;
+  });
+
+  function mapStateToProps(state) {
+    return {
+      group_type: state.apiReducers.present.group_type,
+      target_on: state.apiReducers.present.target_on,
+      object_list: state.apiReducers.present.pandda_site_list
+    };
   }
-);
-function mapStateToProps(state) {
-  return {
-    group_type: state.apiReducers.present.group_type,
-    target_on: state.apiReducers.present.target_on,
-    object_list: state.apiReducers.present.pandda_site_list,
-    object_on: state.apiReducers.present.pandda_site_on
+
+  const mapDispatchToProps = {
+    setObjectList: apiActions.setPanddaSiteList,
+    deleteObject: nglLoadActions.deleteObject,
+    loadObject: nglLoadActions.loadObject
   };
-}
-const mapDispatchToProps = {
-  setObjectOn: apiActions.setPanddaSiteOn,
-  setObjectList: apiActions.setPanddaSiteList,
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(PanddaSiteList);
 };
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PanddaSiteList);

@@ -19,7 +19,7 @@ import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom';
 import { BrowserBomb } from '../components/browserBombModal';
-import { SUFFIX, VIEWS } from '../components/constants';
+import { SUFFIX, VIEWS } from '../constants/constants';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 

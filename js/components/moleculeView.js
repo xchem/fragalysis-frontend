@@ -13,8 +13,8 @@ import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
 import { fetchWithMemoize } from './generalComponents';
-import { VIEWS } from './constants';
-import { loadFromServer } from '../services/genericView';
+import { VIEWS } from '../constants/constants';
+import { loadFromServer } from '../utils/genericView';
 
 const styles = () => ({
   container: {

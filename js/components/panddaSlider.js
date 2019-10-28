@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as nglObjectTypes from './nglObjectTypes';
 import * as nglActions from '../actions/nglLoadActions';
-import { PREFIX, VIEWS } from './constants';
-import { handleBackward, handleChange, handleForward } from '../services/genericSlider';
+import { PREFIX, VIEWS } from '../constants/constants';
+import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';
 import { Pager, Well } from 'react-bootstrap';
 
 const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, deleteObject, setObjectOn, setEventOn }) => {

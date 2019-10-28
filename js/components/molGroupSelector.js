@@ -8,9 +8,9 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import * as apiActions from '../actions/apiActions';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import { VIEWS } from './constants';
+import { VIEWS } from '../constants/constants';
 import * as selectionActions from '../actions/selectionActions';
-import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecules/helpers';
+import { generateMolObject, generateObject, getJoinedMoleculeList } from '../utils/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 const useStyles = makeStyles(() => ({

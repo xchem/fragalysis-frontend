@@ -35,10 +35,6 @@ const styles = () => ({
 });
 
 class FraggleBox extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     if (this.props.match.params.uuid !== undefined) {
       var uuid = this.props.match.params.uuid;

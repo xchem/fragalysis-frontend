@@ -1,4 +1,5 @@
 import * as actions from '../actions/actonTypes';
+import { OBJECT_TYPE } from '../constants/constants';
 
 const INITIALSTATE = {
   // Lists storing the information of what is in the viewer
@@ -20,32 +21,32 @@ const INITIALSTATE = {
   nglProtStyle: 'cartoon'
 };
 
-export default function nglReducers(state = INITIALSTATE, action) {
+export default function nglReducers(state = INITIALSTATE, action = {}) {
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
 
     case actions.LOAD_OBJECT:
       // Append the input to objectsToLoad list
-      var objectsToLoad = JSON.parse(JSON.stringify(state.objectsToLoad));
-      var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      if (!(action.group.name in objectsInView)) {
-        objectsToLoad[action.group.name] = action.group;
+      const newObjectsToLoad = JSON.parse(JSON.stringify(state.objectsToLoad));
+      const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
+      if (!(action.group.name in newObjectsInView)) {
+        newObjectsToLoad[action.group.name] = action.group;
       }
 
       return Object.assign({}, state, {
-        objectsToLoad: objectsToLoad
+        objectsToLoad: newObjectsToLoad
       });
 
     case actions.LOAD_OBJECT_SUCCESS:
       // Remove from objectsLoading List
-      var objectsLoading = JSON.parse(JSON.stringify(state.objectsLoading));
-      delete objectsLoading[action.group.name];
+      const newObjectsLoading = JSON.parse(JSON.stringify(state.objectsLoading));
+      delete newObjectsLoading[action.group.name];
       // Add to Objects in view list
-      var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      objectsInView[action.group.name] = action.group;
+      const newTempObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
+      newTempObjectsInView[action.group.name] = action.group;
       return Object.assign({}, state, {
-        objectsInView: objectsInView,
-        objectsLoading: objectsLoading
+        objectsInView: newTempObjectsInView,
+        objectsLoading: newObjectsLoading
       });
 
     case actions.LOAD_OBJECT_FAILURE:
@@ -54,11 +55,11 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
     case actions.DELETE_OBJECT:
       // Append the input to objectsToDelete list
-      var objectsToDelete = JSON.parse(JSON.stringify(state.objectsToDelete));
+      const objectsToDeleteTemp = JSON.parse(JSON.stringify(state.objectsToDelete));
       // Add to the list to delete if not
-      objectsToDelete[action.group.name] = action.group;
+      objectsToDeleteTemp[action.group.name] = action.group;
       return Object.assign({}, state, {
-        objectsToDelete: objectsToDelete
+        objectsToDelete: objectsToDeleteTemp
       });
 
     case actions.OBJECT_LOADING:
@@ -74,21 +75,21 @@ export default function nglReducers(state = INITIALSTATE, action) {
 
     case actions.DELETE_OBJECT_SUCCESS:
       // Remove from objectsToDelete list
-      var objectsToDelete = JSON.parse(JSON.stringify(state.objectsToDelete));
-      delete objectsToDelete[action.group.name];
+      const objectsToDeleteHelp = JSON.parse(JSON.stringify(state.objectsToDelete));
+      delete objectsToDeleteHelp[action.group.name];
       // Remove from ObjecsIn view list
-      var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      delete objectsInView[action.group.name];
+      const objectsInViewHelp = JSON.parse(JSON.stringify(state.objectsInView));
+      delete objectsInViewHelp[action.group.name];
       return Object.assign({}, state, {
-        objectsToDelete: objectsToDelete,
-        objectsInView: objectsInView
+        objectsToDelete: objectsToDeleteHelp,
+        objectsInView: objectsInViewHelp
       });
 
     case actions.DELETE_OBJECT_TYPE:
       var objectsToDelete = JSON.parse(JSON.stringify(state.objectsToDelete));
       var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       for (var key in objectsInView) {
-        if (key.split('_')[0] == action.object_type) {
+        if (key.split('_')[0] === action.object_type) {
           objectsToDelete[key] = objectsInView[key];
         }
       }
@@ -125,7 +126,7 @@ export default function nglReducers(state = INITIALSTATE, action) {
     case actions.SET_ORIENTATION:
       const div_id = action.div_id;
       const orientation = action.orientation;
-      var toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
+      const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
       toSetDiv[div_id] = orientation;
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
@@ -134,10 +135,10 @@ export default function nglReducers(state = INITIALSTATE, action) {
     case actions.SET_NGL_ORIENTATION:
       const set_div_id = action.div_id;
       const set_orientation = action.orientation;
-      var toSetDiv = JSON.parse(JSON.stringify(state.orientationToSet));
-      toSetDiv[set_div_id] = set_orientation;
+      const toSetDivTemp = JSON.parse(JSON.stringify(state.orientationToSet));
+      toSetDivTemp[set_div_id] = set_orientation;
       return Object.assign({}, state, {
-        orientationToSet: toSetDiv
+        orientationToSet: toSetDivTemp
       });
 
     case actions.SET_LOADING_STATE:
@@ -159,8 +160,8 @@ export default function nglReducers(state = INITIALSTATE, action) {
       var vectorList = [];
       for (var object in action.objectsWereInView) {
         if (
-          action.objectsWereInView[object].OBJECT_TYPE == 'ARROW' ||
-          action.objectsWereInView[object].OBJECT_TYPE == 'CYLINDER'
+          action.objectsWereInView[object].OBJECT_TYPE === OBJECT_TYPE.ARROW ||
+          action.objectsWereInView[object].OBJECT_TYPE === OBJECT_TYPE.CYLINDER
         ) {
           vectorList.push(action.objectsWereInView[object]);
         }

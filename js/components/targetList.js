@@ -10,7 +10,7 @@ import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
 
 import { withRouter, Link } from 'react-router-dom';
-import { getUrl, loadFromServer } from '../services/genericList';
+import { getUrl, loadFromServer } from '../utils/genericList';
 
 const TargetList = memo(({ object_list, setObjectList }) => {
   const [oldUrl, setOldUrl] = useState('');

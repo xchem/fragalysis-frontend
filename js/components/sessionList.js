@@ -10,7 +10,7 @@ import * as listType from './listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import Clipboard from 'react-clipboard.js';
 import { RingLoader } from 'react-spinners';
-import { getUrl, loadFromServer } from '../services/genericList';
+import { getUrl, loadFromServer } from '../utils/genericList';
 import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({

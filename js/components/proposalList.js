@@ -7,7 +7,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as listType from './listTypes';
 import { withRouter } from 'react-router-dom';
-import { getUrl, loadFromServer } from '../services/genericList';
+import { getUrl, loadFromServer } from '../utils/genericList';
 // import {withRouter, Link} from "react-router-dom";
 
 const ProposalList = memo(({ object_list }) => {

@@ -12,8 +12,8 @@ import MoleculeView from './moleculeView';
 import BorderedView from './borderedView';
 import classNames from 'classnames';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
-import { getJoinedMoleculeList } from './molecules/helpers';
-import { getUrl, loadFromServer } from '../services/genericList';
+import { getJoinedMoleculeList } from '../utils/molecules_helpers';
+import { getUrl, loadFromServer } from '../utils/genericList';
 
 const styles = theme => ({
   container: {
@@ -154,7 +154,7 @@ const MoleculeList = memo(
                   classes={{ tooltip: classes.filterTooltip }}
                   title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
                     filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                    }`}
+                  }`}
                   placement="top"
                 >
                   <Chip

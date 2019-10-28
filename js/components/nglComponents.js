@@ -2,7 +2,7 @@
  * Created by abradley on 01/03/2018.
  */
 
-import { Stage, Shape, concatStructures, Selection } from 'ngl';
+import { Stage, Shape, Selection, concatStructures } from 'ngl';
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
@@ -10,7 +10,7 @@ import * as nglLoadActions from '../actions/nglLoadActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
 import * as listTypes from './listTypes';
 import * as selectionActions from '../actions/selectionActions';
-import { SUFFIX, VIEWS, PREFIX } from './constants';
+import { SUFFIX, VIEWS, PREFIX } from '../constants/constants';
 import { isEmpty } from 'ramda';
 import { store } from '../containers/root';
 
@@ -592,9 +592,7 @@ const NGLView = memo(
         );
 
         if (refSetClickFunction.current === false) {
-          refStage.current.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
-            showPick(stage, pickingProxy);
-          });
+          refStage.current.mouseControls.add('clickPick-left', showPick);
           refSetClickFunction.current = true;
         }
 
@@ -608,6 +606,7 @@ const NGLView = memo(
           );
 
           refStage.current.mouseControls.remove('clickPick-left', showPick);
+          refStage.current.dispose();
         };
       }, // eslint-disable-next-line react-hooks/exhaustive-deps
       [local_div_id]

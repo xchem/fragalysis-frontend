@@ -1,4 +1,4 @@
-import * as nglObjectTypes from '../nglObjectTypes';
+import * as nglObjectTypes from '../components/nglObjectTypes';
 
 // concat molecule results for all selected molecule groups into single list
 export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_group_list }) => {

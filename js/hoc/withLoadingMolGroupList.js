@@ -7,8 +7,8 @@ import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as apiActions from '../actions/apiActions';
 import * as nglObjectTypes from '../components/nglObjectTypes';
-import { VIEWS } from '../components/constants';
-import { getUrl, loadFromServer } from '../services/genericList';
+import { VIEWS } from '../constants/constants';
+import { getUrl, loadFromServer } from '../utils/genericList';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {

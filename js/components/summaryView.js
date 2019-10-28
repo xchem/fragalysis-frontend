@@ -10,7 +10,7 @@ import SummaryCmpd from './SummaryCmpd';
 import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
-import { VIEWS } from './constants';
+import { VIEWS } from '../constants/constants';
 
 const SummaryView = memo(
   ({

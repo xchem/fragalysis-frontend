@@ -6583,10 +6583,10 @@ neo-async@^2.5.0, neo-async@^2.6.0, neo-async@^2.6.1:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
 
-ngl@2.0.0-dev.33:
-  version "2.0.0-dev.33"
-  resolved "https://registry.yarnpkg.com/ngl/-/ngl-2.0.0-dev.33.tgz#c535032ef010cf00ab73c251afd948c3a6199b30"
-  integrity sha512-KcxLvuBapPyjtUG7ksbaaThb7Gvl1j4Tu0fu9x7NUFGvGI3l9Oy9fP2D+yubq9luXdWBTmfOoGxaZME8SoWjVg==
+ngl@2.0.0-dev.36:
+  version "2.0.0-dev.36"
+  resolved "https://registry.yarnpkg.com/ngl/-/ngl-2.0.0-dev.36.tgz#b44bfe40c9a2bd5dd7c10cedc5318e574a4c60fc"
+  integrity sha512-/V/9+dlzP2Sv8HBz0BoM4hskP/BZ/86TUH5DI6MKK7yom7dU+1YIjZwdwfYKB78JhVWew9YOEHeTVCpp83WMGw==
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -8056,15 +8056,7 @@ redux-undo@^1.0.0-beta9-9-7:
   resolved "https://registry.yarnpkg.com/redux-undo/-/redux-undo-1.0.0-beta9-9-7.tgz#fe3baa1b271423d7ddbbfc3a82c71b029a2db8ba"
   integrity sha1-/juqGycUI9fdu/w6gscbApotuLo=
 
-redux@^4.0.0:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
-  integrity sha512-vKv4WdiJxOWKxK0yRoaK3Y4pxxB0ilzVx6dszU2W8wLxlb2yikRph4iV/ymtdJ6ZxpBLFbyrxklnT5yBbQSl3Q==
-  dependencies:
-    loose-envify "^1.4.0"
-    symbol-observable "^1.2.0"
-
-redux@^4.0.4:
+redux@^4.0.0, redux@^4.0.4:
   version "4.0.4"
   resolved "https://registry.npmjs.org/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
   integrity sha512-vKv4WdiJxOWKxK0yRoaK3Y4pxxB0ilzVx6dszU2W8wLxlb2yikRph4iV/ymtdJ6ZxpBLFbyrxklnT5yBbQSl3Q==
