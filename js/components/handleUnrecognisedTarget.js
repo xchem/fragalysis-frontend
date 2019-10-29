@@ -22,11 +22,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ModalTargetUnrecognised = memo(({ targetUnrecognised, setTargetUnrecognised }) => {
+const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list, children }) => {
   const classes = useStyles();
   const closeModal = () => {
     setTargetUnrecognised(undefined);
   };
+
+  let modal = null;
 
   let request = null;
   // eslint-disable-next-line no-undef
@@ -44,48 +46,59 @@ const ModalTargetUnrecognised = memo(({ targetUnrecognised, setTargetUnrecognise
   } else {
     request = <h3>Please select a target:</h3>;
   }
+
   if (targetUnrecognised === true) {
-    /*if (targetIdList && targetIdList.length === 0) {
-      return (
-        <ReactModal isOpen={targetUnrecognised} style={customStyles}>
-          <div>
+    if (target_id_list && target_id_list.length === 0) {
+      modal = (
+        <Modal
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          open={targetUnrecognised}
+        >
+          <div className={classes.paper}>
             <h3>The target was not recognised and there are no other available targets.</h3>
             <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
               Close
             </Button>
             <ErrorReport />
           </div>
-        </ReactModal>
+        </Modal>
       );
     } else {
-    */
-    return (
-      <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={targetUnrecognised}>
-        <div className={classes.paper}>
-          <h3>
-            Target was not recognised or you do not have authentication to access target. <br />
-          </h3>
-          {request}
-          {/*TODO: create new simple component only with list of targets, because now when you load TargetList
-              component, objects in reducer will be changed*/}
-          <TargetList key="TARGLIST" />
-          <Button color="secondary" onClick={closeModal}>
-            Close
-          </Button>
-          <ErrorReport />
-        </div>
-      </Modal>
-    );
-    /*  }
-    } else {
-      return null;
-    }*/
+      modal = (
+        <Modal
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          open={targetUnrecognised}
+        >
+          <div className={classes.paper}>
+            <h3>
+              Target was not recognised or you do not have authentication to access target. <br />
+            </h3>
+            {request}
+            <TargetList key="TARGLIST" />
+            <Button color="secondary" onClick={closeModal}>
+              Close
+            </Button>
+            <ErrorReport />
+          </div>
+        </Modal>
+      );
+    }
   }
+
+  return (
+    <div>
+      {children}
+      {modal}
+    </div>
+  );
 });
 
 function mapStateToProps(state) {
   return {
-    targetUnrecognised: state.apiReducers.present.targetUnrecognised
+    targetUnrecognised: state.apiReducers.present.targetUnrecognised,
+    target_id_list: state.apiReducers.present.target_id_list
   };
 }
 
@@ -96,4 +109,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ModalTargetUnrecognised);
+)(HandleUnrecognisedTarget);

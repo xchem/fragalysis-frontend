@@ -14,7 +14,7 @@ import NglViewerControls from '../components/nglViewerControls';
 import HotspotList from '../components/hotspotList';
 import ModalStateSave from '../components/modalStateSave';
 import ModalErrorMessage from '../components/modalErrorDisplay';
-import ModalTargetUnrecognised from '../components/modalTargetUnrecognised';
+import HandleUnrecognisedTarget from '../components/handleUnrecognisedTarget';
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom';
@@ -145,8 +145,9 @@ const Preview = memo(
     const molListHeight = window.innerHeight * (0.45).toString() + 'px';
 
     return (
-      <Grid container spacing={2}>
-        {/*{' '}
+      <HandleUnrecognisedTarget>
+        <Grid container spacing={2}>
+          {/*
         <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
           <Grid item className={classes.fullWidth}>
             <MolGroupSelector />
@@ -171,8 +172,8 @@ const Preview = memo(
         <ModalTargetUnrecognised />
         <BrowserBomb />
         */}
-        <ModalTargetUnrecognised />
-      </Grid>
+        </Grid>
+      </HandleUnrecognisedTarget>
     );
   }
 );

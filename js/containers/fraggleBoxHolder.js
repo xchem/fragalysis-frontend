@@ -5,7 +5,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
-import MolGroupList from '../hoc/withLoadingMolGroupList';
 import MoleculeList from '../components/moleculeList';
 import MolGroupSelector from '../components/molGroupSelector';
 import SummaryView from '../components/summaryView';
@@ -15,7 +14,7 @@ import NglViewerControls from '../components/nglViewerControls';
 import { withRouter } from 'react-router-dom';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import ModalTargetUnrecognised from '../components/modalTargetUnrecognised';
+import HandleUnrecognisedTarget from '../components/handleUnrecognisedTarget';
 import ModalLoadingScreen from '../components/modalLoadingScreen';
 import ModalStateSave from '../components/modalStateSave';
 import ModalErrorMessage from '../components/modalErrorDisplay';
@@ -51,32 +50,33 @@ class FraggleBox extends PureComponent {
     var screenHeight = window.innerHeight * (0.7).toString() + 'px';
     var molListHeight = window.innerHeight * (0.45).toString() + 'px';
     return (
-      <Grid container spacing={2}>
-        <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
-          <Grid item className={classes.fullWidth}>
-            <MolGroupSelector />
+      <HandleUnrecognisedTarget>
+        <Grid container spacing={2}>
+          <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
+            <Grid item className={classes.fullWidth}>
+              <MolGroupSelector />
+            </Grid>
+            <Grid item>
+              <MoleculeList height={molListHeight} />
+            </Grid>
           </Grid>
-          <Grid item>
-            <MoleculeList height={molListHeight} />
+          <Grid item container className={classes.gridItemRhs} spacing={2}>
+            <Grid item lg={6} md={12}>
+              <NGLView div_id="major_view" height={screenHeight} />
+              <NglViewerControls />
+            </Grid>
+            <Grid item lg={6} md={12}>
+              <SummaryView />
+              <CompoundList />
+              <HotspotList />
+            </Grid>
           </Grid>
+          <ModalStateSave />
+          <ModalErrorMessage />
+          <ModalLoadingScreen />
+          <BrowserBomb />
         </Grid>
-        <Grid item container className={classes.gridItemRhs} spacing={2}>
-          <Grid item lg={6} md={12}>
-            <NGLView div_id="major_view" height={screenHeight} />
-            <NglViewerControls />
-          </Grid>
-          <Grid item lg={6} md={12}>
-            <SummaryView />
-            <CompoundList />
-            <HotspotList />
-          </Grid>
-        </Grid>
-        <ModalStateSave />
-        <ModalErrorMessage />
-        <ModalTargetUnrecognised />
-        <ModalLoadingScreen />
-        <BrowserBomb />
-      </Grid>
+      </HandleUnrecognisedTarget>
     );
   }
 }
