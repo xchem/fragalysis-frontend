@@ -3,7 +3,7 @@
  */
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import SessionList from '../components/sessionList';
+import SessionList from './session/sessionList';
 
 const Sessions = memo(() => {
   return <SessionList key="SESSIONLIST" />;

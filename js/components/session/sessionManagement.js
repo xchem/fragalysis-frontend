@@ -4,16 +4,16 @@
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import * as apiActions from '../actions/apiActions';
+import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as apiActions from '../../actions/apiActions';
 import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
 import { RingLoader } from 'react-spinners';
-import { getStore } from '../containers/globalStore';
-import * as selectionActions from '../actions/selectionActions';
+import { getStore } from '../globalStore';
+import * as selectionActions from '../../actions/selectionActions';
 import { withRouter } from 'react-router-dom';
-import * as listTypes from './listTypes';
-import * as nglObjectTypes from './nglObjectTypes';
-import DownloadPdb from './downloadPdb';
+import * as listTypes from '../listTypes';
+import * as nglObjectTypes from '../nglObjectTypes';
+import DownloadPdb from '../downloadPdb';
 
 const useStyles = makeStyles(theme => ({
   button: {

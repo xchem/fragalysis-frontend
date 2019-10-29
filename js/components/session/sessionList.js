@@ -5,12 +5,12 @@
 import { ListGroupItem, ListGroup, Row, Col, OverlayTrigger, ButtonToolbar, Tooltip } from 'react-bootstrap';
 import React, { memo, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as listType from './listTypes';
+import * as apiActions from '../../actions/apiActions';
+import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import Clipboard from 'react-clipboard.js';
 import { RingLoader } from 'react-spinners';
-import { getUrl, loadFromServer } from '../utils/genericList';
+import { getUrl, loadFromServer } from '../../utils/genericList';
 import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({

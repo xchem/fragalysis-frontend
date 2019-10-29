@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
-import Root from './containers/root';
+import Root from './components/root';
 // Sentry logging
 import { init, showReportDialog } from '@sentry/browser';
 // Setup log rocket logging

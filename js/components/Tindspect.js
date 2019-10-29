@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import NGLView from '../components/nglComponents';
+import NGLView from './nglComponents';
 import { withLoadingEventList } from '../hoc/withLoadingEventList';
 import { withLoadingPanddaSiteList } from '../hoc/withPanddaSiteList';
-import PanddaSlider from '../components/panddaSlider';
-import EventSlider from '../components/eventSlider';
+import PanddaSlider from './panddaSlider';
+import EventSlider from './eventSlider';
 
 const Tindspect = memo(() => {
   return (

@@ -5,22 +5,22 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
-import NGLView from '../components/nglComponents';
-import MoleculeList from '../components/moleculeList';
-import MolGroupSelector from '../components/molGroupSelector';
-import SummaryView from '../components/summaryView';
-import CompoundList from '../components/compoundList';
-import NglViewerControls from '../components/nglViewerControls';
-import HotspotList from '../components/hotspotList';
-import ModalStateSave from '../components/modalStateSave';
-import ModalErrorMessage from '../components/modalErrorDisplay';
-import HandleUnrecognisedTarget from '../components/handleUnrecognisedTarget';
+import NGLView from './nglComponents';
+import MoleculeList from './molecule/moleculeList';
+import MolGroupSelector from './molGroupSelector';
+import SummaryView from './summaryView';
+import CompoundList from './compoundList';
+import NglViewerControls from './nglViewerControls';
+import HotspotList from './hotspot/hotspotList';
+import ModalStateSave from './session/modalStateSave';
+import ModalErrorMessage from './modalErrorDisplay';
+import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import * as apiActions from '../actions/apiActions';
 import fetch from 'cross-fetch';
 import { withRouter } from 'react-router-dom';
-import { BrowserBomb } from '../components/browserBombModal';
+import { BrowserBomb } from './browserBombModal';
 import { SUFFIX, VIEWS } from '../constants/constants';
-import * as nglObjectTypes from '../components/nglObjectTypes';
+import * as nglObjectTypes from './nglObjectTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 
 const styles = () => ({
@@ -147,31 +147,30 @@ const Preview = memo(
     return (
       <HandleUnrecognisedTarget>
         <Grid container spacing={2}>
-          {/*
-        <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
-          <Grid item className={classes.fullWidth}>
-            <MolGroupSelector />
+          <ModalStateSave />
+
+          <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
+            <Grid item className={classes.fullWidth}>
+              <MolGroupSelector />
+            </Grid>
+            <Grid item>
+              <MoleculeList height={molListHeight} />
+            </Grid>
           </Grid>
-          <Grid item>
-            <MoleculeList height={molListHeight} />
+          <Grid item container className={classes.gridItemRhs} spacing={2}>
+            <Grid item lg={6} md={12}>
+              <NGLView div_id="major_view" height={screenHeight} />
+              <NglViewerControls />
+            </Grid>
+            <Grid item lg={6} md={12}>
+              <SummaryView />
+              <CompoundList />
+              <HotspotList />
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid item container className={classes.gridItemRhs} spacing={2}>
-          <Grid item lg={6} md={12}>
-            <NGLView div_id="major_view" height={screenHeight} />
-            <NglViewerControls />
-          </Grid>
-          <Grid item lg={6} md={12}>
-            <SummaryView />
-            <CompoundList />
-            <HotspotList />
-          </Grid>
-        </Grid>
-        <ModalStateSave />
-        <ModalErrorMessage />
-        <ModalTargetUnrecognised />
-        <BrowserBomb />
-        */}
+
+          <ModalErrorMessage />
+          <BrowserBomb />
         </Grid>
       </HandleUnrecognisedTarget>
     );

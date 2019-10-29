@@ -5,16 +5,16 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles, Button } from '@material-ui/core';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from './nglObjectTypes';
-import * as selectionActions from '../actions/selectionActions';
-import * as listTypes from './listTypes';
+import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as nglObjectTypes from '../nglObjectTypes';
+import * as selectionActions from '../../actions/selectionActions';
+import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
-import { fetchWithMemoize } from './generalComponents';
-import { VIEWS } from '../constants/constants';
-import { loadFromServer } from '../utils/genericView';
+import { fetchWithMemoize } from '../generalComponents';
+import { VIEWS } from '../../constants/constants';
+import { loadFromServer } from '../../utils/genericView';
 
 const styles = () => ({
   container: {

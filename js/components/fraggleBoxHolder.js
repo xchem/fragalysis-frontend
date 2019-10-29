@@ -5,21 +5,21 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles } from '@material-ui/core';
-import MoleculeList from '../components/moleculeList';
-import MolGroupSelector from '../components/molGroupSelector';
-import SummaryView from '../components/summaryView';
-import CompoundList from '../components/compoundList';
-import NGLView from '../components/nglComponents';
-import NglViewerControls from '../components/nglViewerControls';
+import MoleculeList from './molecule/moleculeList';
+import MolGroupSelector from './molGroupSelector';
+import SummaryView from './summaryView';
+import CompoundList from './compoundList';
+import NGLView from './nglComponents';
+import NglViewerControls from './nglViewerControls';
 import { withRouter } from 'react-router-dom';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import HandleUnrecognisedTarget from '../components/handleUnrecognisedTarget';
-import ModalLoadingScreen from '../components/modalLoadingScreen';
-import ModalStateSave from '../components/modalStateSave';
-import ModalErrorMessage from '../components/modalErrorDisplay';
-import HotspotList from '../components/hotspotList';
-import BrowserBomb from '../components/browserBombModal';
+import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
+import ModalLoadingScreen from './modalLoadingScreen';
+import ModalStateSave from './session/modalStateSave';
+import ModalErrorMessage from './modalErrorDisplay';
+import HotspotList from './hotspot/hotspotList';
+import BrowserBomb from './browserBombModal';
 
 const styles = () => ({
   gridItemLhs: {

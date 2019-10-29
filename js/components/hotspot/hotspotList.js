@@ -4,10 +4,10 @@
 import { Row, Well } from 'react-bootstrap';
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as listType from './listTypes';
+import * as apiActions from '../../actions/apiActions';
+import * as listType from '../listTypes';
 import HotspotView from './hotspotView';
-import { getUrl, loadFromServer } from '../utils/genericList';
+import { getUrl, loadFromServer } from '../../utils/genericList';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on }) => {

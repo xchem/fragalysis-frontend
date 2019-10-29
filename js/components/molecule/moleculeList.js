@@ -5,15 +5,15 @@
 import { Grid, withStyles, Chip, Tooltip, Button } from '@material-ui/core';
 import React, { useMemo, useState, useEffect, memo, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as listType from './listTypes';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as apiActions from '../../actions/apiActions';
+import * as listType from '../listTypes';
+import * as nglLoadActions from '../../actions/nglLoadActions';
 import MoleculeView from './moleculeView';
-import BorderedView from './borderedView';
+import BorderedView from '../borderedView';
 import classNames from 'classnames';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
-import { getJoinedMoleculeList } from '../utils/molecules_helpers';
-import { getUrl, loadFromServer } from '../utils/genericList';
+import { getJoinedMoleculeList } from '../../utils/molecules_helpers';
+import { getUrl, loadFromServer } from '../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 const styles = theme => ({

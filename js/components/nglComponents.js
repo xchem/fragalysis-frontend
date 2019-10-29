@@ -12,7 +12,7 @@ import * as listTypes from './listTypes';
 import * as selectionActions from '../actions/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../constants/constants';
 import { isEmpty } from 'ramda';
-import { store } from '../containers/root';
+import { store } from './root';
 
 const NGLView = memo(
   ({

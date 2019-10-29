@@ -4,26 +4,13 @@
 
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { Button, Modal, makeStyles } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import * as apiActions from '../actions/apiActions';
 import TargetList from './targetList';
 import { ErrorReport } from './errorReport';
-
-const useStyles = makeStyles(theme => ({
-  paper: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3)
-  }
-}));
+import { Modal } from './common/modal';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list, children }) => {
-  const classes = useStyles();
   const closeModal = () => {
     setTargetUnrecognised(undefined);
   };
@@ -50,38 +37,26 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
   if (targetUnrecognised === true) {
     if (target_id_list && target_id_list.length === 0) {
       modal = (
-        <Modal
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          open={targetUnrecognised}
-        >
-          <div className={classes.paper}>
-            <h3>The target was not recognised and there are no other available targets.</h3>
-            <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
-              Close
-            </Button>
-            <ErrorReport />
-          </div>
+        <Modal open={targetUnrecognised}>
+          <h3>The target was not recognised and there are no other available targets.</h3>
+          <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+            Close
+          </Button>
+          <ErrorReport />
         </Modal>
       );
     } else {
       modal = (
-        <Modal
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          open={targetUnrecognised}
-        >
-          <div className={classes.paper}>
-            <h3>
-              Target was not recognised or you do not have authentication to access target. <br />
-            </h3>
-            {request}
-            <TargetList key="TARGLIST" />
-            <Button color="secondary" onClick={closeModal}>
-              Close
-            </Button>
-            <ErrorReport />
-          </div>
+        <Modal open={targetUnrecognised}>
+          <h3>
+            Target was not recognised or you do not have authentication to access target. <br />
+          </h3>
+          {request}
+          <TargetList key="TARGLIST" />
+          <Button color="secondary" onClick={closeModal}>
+            Close
+          </Button>
+          <ErrorReport />
         </Modal>
       );
     }

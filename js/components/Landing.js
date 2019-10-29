@@ -2,7 +2,7 @@
  * Created by ricgillams on 21/06/2018.
  */
 import React, { PureComponent } from 'react';
-import { Welcome } from '../components/Welcome';
+import { Welcome } from './Welcome';
 
 class Landing extends PureComponent {
   render() {

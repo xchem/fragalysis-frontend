@@ -4,7 +4,7 @@
 import { Grid } from '@material-ui/core';
 import React, { PureComponent } from 'react';
 import TargetList from './targetList';
-import SessionList from './sessionList';
+import SessionList from './session/sessionList';
 import { BrowserBomb } from './browserBombModal';
 
 export class Welcome extends PureComponent {

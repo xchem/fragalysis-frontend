@@ -5,7 +5,7 @@
 import React, { memo } from 'react';
 import { Grid, Button, makeStyles } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
-import SessionManagement from './sessionManagement';
+import SessionManagement from './session/sessionManagement';
 import { ErrorReport } from './errorReport';
 
 const useStyles = makeStyles(theme => ({

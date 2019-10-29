@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
-import Header from '../components/header';
+import Header from './header';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from './targetManagementHolder';
 import Tindspect from './Tindspect';

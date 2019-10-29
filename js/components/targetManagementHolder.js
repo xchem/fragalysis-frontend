@@ -3,7 +3,7 @@
  */
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import ProposalList from '../components/proposalList';
+import ProposalList from './proposalList';
 
 const TargetManagement = memo(() => {
   return <ProposalList key="PROPOSALLIST" />;
