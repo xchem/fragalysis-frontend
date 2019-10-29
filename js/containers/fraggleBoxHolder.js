@@ -84,14 +84,12 @@ class FraggleBox extends PureComponent {
 function mapStateToProps(state) {
   return {
     targetOnName: state.apiReducers.present.target_on_name,
-    targetIdList: state.apiReducers.present.target_id_list,
-    targetUnrecognised: state.apiReducers.present.targetUnrecognised
+    targetIdList: state.apiReducers.present.target_id_list
   };
 }
 const mapDispatchToProps = {
   setUuid: apiActions.setUuid,
   setLatestSession: apiActions.setLatestSession,
-  setTargetUnrecognised: apiActions.setTargetUnrecognised,
   setLoadingState: nglLoadActions.setLoadingState
 };
 

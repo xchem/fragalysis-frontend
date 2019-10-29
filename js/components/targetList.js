@@ -4,20 +4,12 @@
 
 import { ListGroupItem, ListGroup, Row, Col } from 'react-bootstrap';
 import { FillMe } from './generalComponents';
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as listType from './listTypes';
 
 import { withRouter, Link } from 'react-router-dom';
-import { getUrl, loadFromServer } from '../utils/genericList';
 
-const TargetList = memo(({ object_list, setObjectList }) => {
-  const oldUrl = useRef('');
-  const setOldUrl = url => {
-    oldUrl.current = url;
-  };
-
+const TargetList = memo(({ target_id_list }) => {
   const render_method = data => {
     const preview = '/viewer/react/preview/target/' + data.title;
     const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + data.title + '/html/index.html';
@@ -68,23 +60,11 @@ const TargetList = memo(({ object_list, setObjectList }) => {
     }
   };
 
-  useEffect(() => {
-    const list_type = listType.TARGET;
-
-    loadFromServer({
-      url: getUrl({ list_type }),
-      setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl.current,
-      setObjectList,
-      list_type
-    });
-  }, [setObjectList]);
-
-  if (object_list) {
+  if (target_id_list) {
     return (
       <div>
         <h3>Target List:</h3>
-        <ListGroup>{object_list.map(data => render_method(data))}</ListGroup>
+        <ListGroup>{target_id_list.map(data => render_method(data))}</ListGroup>
       </div>
     );
   } else {
@@ -94,15 +74,12 @@ const TargetList = memo(({ object_list, setObjectList }) => {
 
 function mapStateToProps(state) {
   return {
-    object_list: state.apiReducers.present.target_id_list
+    target_id_list: state.apiReducers.present.target_id_list
   };
 }
-const mapDispatchToProps = {
-  setObjectList: apiActions.setTargetIdList
-};
 export default withRouter(
   connect(
     mapStateToProps,
-    mapDispatchToProps
+    null
   )(TargetList)
 );

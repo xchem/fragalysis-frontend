@@ -9,6 +9,7 @@ import Preview from './Preview';
 import Sessions from './sessionHolder';
 import FraggleBox from './fraggleBoxHolder';
 import Funders from './fundersHolder';
+import { withLoadingTargetList } from '../hoc/withLoadingTargetIdList';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -45,4 +46,4 @@ const Routes = memo(() => {
   );
 });
 
-export default Routes;
+export default withLoadingTargetList(Routes);

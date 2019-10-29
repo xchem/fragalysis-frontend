@@ -38,7 +38,7 @@ const INITIALSTATE = {
   user_id: undefined
 };
 
-export default function apiReducers(state = INITIALSTATE, action) {
+export default function apiReducers(state = INITIALSTATE, action = {}) {
   switch (action.type) {
     case actions.LOAD_TARGETS:
       return Object.assign({}, state, {
@@ -88,7 +88,7 @@ export default function apiReducers(state = INITIALSTATE, action) {
     case actions.SET_TARGET_ON:
       var target_on_name = undefined;
       for (var ind in state.target_id_list) {
-        if (state.target_id_list[ind].id == action.target_on) {
+        if (state.target_id_list[ind].id === action.target_on) {
           target_on_name = state.target_id_list[ind].title;
         }
       }

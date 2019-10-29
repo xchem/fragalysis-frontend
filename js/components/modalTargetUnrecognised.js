@@ -4,29 +4,26 @@
 
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import ReactModal from 'react-modal';
-import { Button } from 'react-bootstrap';
+import { Button, Modal, makeStyles } from '@material-ui/core';
 import * as apiActions from '../actions/apiActions';
 import TargetList from './targetList';
 import { ErrorReport } from './errorReport';
 
-const customStyles = {
-  overlay: {
-    zIndex: 50,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)'
-  },
-  content: {
+const useStyles = makeStyles(theme => ({
+  paper: {
+    position: 'absolute',
     top: '50%',
     left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-20%',
     transform: 'translate(-50%, -50%)',
-    border: '10px solid #7a7a7a'
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3)
   }
-};
+}));
 
-const ModalTargetUnrecognised = memo(({ targetUnrecognised, targetIdList, setTargetUnrecognised }) => {
+const ModalTargetUnrecognised = memo(({ targetUnrecognised, setTargetUnrecognised }) => {
+  const classes = useStyles();
   const closeModal = () => {
     setTargetUnrecognised(undefined);
   };
@@ -63,8 +60,8 @@ const ModalTargetUnrecognised = memo(({ targetUnrecognised, targetIdList, setTar
     } else {
     */
     return (
-      <ReactModal isOpen={targetUnrecognised} style={customStyles}>
-        <div>
+      <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={targetUnrecognised}>
+        <div className={classes.paper}>
           <h3>
             Target was not recognised or you do not have authentication to access target. <br />
           </h3>
@@ -72,12 +69,12 @@ const ModalTargetUnrecognised = memo(({ targetUnrecognised, targetIdList, setTar
           {/*TODO: create new simple component only with list of targets, because now when you load TargetList
               component, objects in reducer will be changed*/}
           <TargetList key="TARGLIST" />
-          <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+          <Button color="secondary" onClick={closeModal}>
             Close
           </Button>
           <ErrorReport />
         </div>
-      </ReactModal>
+      </Modal>
     );
     /*  }
     } else {
@@ -88,8 +85,7 @@ const ModalTargetUnrecognised = memo(({ targetUnrecognised, targetIdList, setTar
 
 function mapStateToProps(state) {
   return {
-    targetUnrecognised: state.apiReducers.present.targetUnrecognised,
-    targetIdList: state.apiReducers.present.target_id_list
+    targetUnrecognised: state.apiReducers.present.targetUnrecognised
   };
 }
 

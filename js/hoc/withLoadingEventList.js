@@ -39,7 +39,7 @@ export const withLoadingEventList = WrappedComponent => {
   const mapDispatchToProps = {
     setObjectList: apiActions.setPanddaEventList
   };
-  connect(
+  return connect(
     mapStateToProps,
     mapDispatchToProps
   )(EventList);

@@ -84,7 +84,7 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject
   };
-  connect(
+  return connect(
     mapStateToProps,
     mapDispatchToProps
   )(PanddaSiteList);
