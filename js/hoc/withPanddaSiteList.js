@@ -2,7 +2,7 @@
  * Created by abradley on 17/04/2018.
  */
 
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from '../components/listTypes';
@@ -14,7 +14,10 @@ import { getUrl, loadFromServer } from '../utils/genericList';
 export const withLoadingPanddaSiteList = WrappedComponent => {
   const PanddaSiteList = memo(({ group_type, target_on, object_list, setObjectList, deleteObject, loadObject }) => {
     const list_type = listType.PANDDA_SITE;
-    const [oldUrl, setOldUrl] = useState('');
+    const oldUrl = useRef('');
+    const setOldUrl = url => {
+      oldUrl.current = url;
+    };
 
     const generateObject = useCallback(
       (data, selected = false) => {
@@ -57,13 +60,13 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
       loadFromServer({
         url: getUrl({ list_type, target_on, group_type }),
         setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl,
+        old_url: oldUrl.current,
         list_type,
         setObjectList,
         beforePush,
         afterPush
       });
-    }, [list_type, oldUrl, setObjectList, target_on, beforePush, afterPush, group_type]);
+    }, [list_type, setObjectList, target_on, beforePush, afterPush, group_type]);
 
     return <WrappedComponent />;
   });

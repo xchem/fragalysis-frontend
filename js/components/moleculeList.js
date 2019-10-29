@@ -3,7 +3,7 @@
  */
 
 import { Grid, withStyles, Chip, Tooltip, Button } from '@material-ui/core';
-import React, { useMemo, useState, useEffect, memo } from 'react';
+import React, { useMemo, useState, useEffect, memo, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -14,6 +14,7 @@ import classNames from 'classnames';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from '../utils/molecules_helpers';
 import { getUrl, loadFromServer } from '../utils/genericList';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const styles = theme => ({
   container: {
@@ -84,16 +85,24 @@ const MoleculeList = memo(
     object_selection,
     height,
     cached_mol_lists,
-    mol_group_list,
     target_on,
     mol_group_on,
     setObjectList,
-    setCachedMolLists
+    setCachedMolLists,
+    mol_group_list
   }) => {
     const list_type = listType.MOLECULE;
-    const [oldUrl, setOldUrl] = useState('');
+    const oldUrl = useRef('');
+    const setOldUrl = url => {
+      oldUrl.current = url;
+    };
     const [sortDialogOpen, setSortDialogOpen] = useState(false);
     const [filterSettings, setFilterSettings] = useState();
+    const moleculesPerPage = 5;
+    // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
+    // stav sa tym padom strati
+    const currentMolecules = useRef([]);
+    const currentPage = useRef(0);
 
     const imgHeight = 80;
     const imgWidth = 100;
@@ -116,18 +125,33 @@ const MoleculeList = memo(
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }
 
+    const loadNextMolecules = useCallback(() => {
+      const newPage = currentPage.current + 1;
+      if (newPage * moleculesPerPage < joinedMoleculeLists.length) {
+        currentMolecules.current = joinedMoleculeLists.slice(currentPage, moleculesPerPage);
+        currentPage.current = newPage;
+      } else {
+        currentMolecules.current = [];
+        currentPage.current = 0;
+      }
+    }, [joinedMoleculeLists, currentMolecules]);
+
+    useEffect(() => {
+      loadNextMolecules();
+    }, [loadNextMolecules]);
+
     useEffect(() => {
       loadFromServer({
         url: getUrl({ list_type, target_on, mol_group_on }),
         setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl,
+        old_url: oldUrl.current,
         list_type,
         setObjectList,
         setCachedMolLists,
         mol_group_on,
         cached_mol_lists
       });
-    }, [list_type, mol_group_on, oldUrl, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
+    }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const titleRightElement = (
       <Button
@@ -140,7 +164,7 @@ const MoleculeList = memo(
         <span className={classes.sortFilterButtonStyle}>sort/filter</span>
       </Button>
     );
-    console.log('render molecule list');
+    // console.log('render molecule list', mol_group_list);
     return (
       <div>
         {!!(filterSettings || {}).active && (

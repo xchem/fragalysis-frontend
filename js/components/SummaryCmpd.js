@@ -26,7 +26,10 @@ const img_data_init =
 const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height }) => {
   const [img_data, setImg_data] = useState(img_data_init);
   const [isToggleOn, setIsToggleOn] = useState(false);
-  const [old_url, setOld_url] = useState('');
+  const oldUrl = useRef('');
+  const setOldUrl = url => {
+    oldUrl.current = url;
+  };
   const base_url = window.location.protocol + '//' + window.location.host;
   const url = useRef('');
   const smiles = useRef('');
@@ -41,13 +44,13 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
       height
     };
     Object.keys(get_params).forEach(key => url.current.searchParams.append(key, get_params[key]));
-    if (url.current.toString() !== old_url) {
+    if (url.current.toString() !== oldUrl.current) {
       fetch(url.current)
         .then(response => response.text(), error => console.log('An error occurred.', error))
         .then(text => setImg_data(text));
     }
-    setOld_url(url.current.toString());
-  }, [height, old_url, width]);
+    setOldUrl(url.current.toString());
+  }, [height, width]);
 
   const getAtomIndices = useCallback(() => {
     if (currentVector === undefined) {

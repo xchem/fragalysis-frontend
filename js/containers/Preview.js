@@ -46,11 +46,9 @@ const Preview = memo(
     loadObject,
     nglProtStyle,
     setMoleculeList,
-    object_list,
     object_on,
     objectsInView,
-    deleteObject,
-    targetUnrecognised
+    deleteObject
   }) => {
     const origTarget = useRef(-1);
     const target = match.params.target;
@@ -83,6 +81,15 @@ const Preview = memo(
       }
     }, [target, setTargetUnrecognised, targetIdList, deployErrorModal, setTargetOn]);
 
+    console.log(
+      'render Preview '
+      // targetIdList, // toto tu zo zaciatku nema hodnoty
+      // nglProtStyle, // cartoon to sa nemeni
+      // targetIdList, // toto je stale len protein, to sa nemeni
+      // object_on,   // toto je undefined na zaciatku a potom nemenitelne cislo
+      // objectsInView // tu sa to stale meni
+    );
+
     useEffect(() => {
       updateTarget();
     }, [updateTarget]);
@@ -105,9 +112,9 @@ const Preview = memo(
     );
 
     const checkForTargetChange = useCallback(() => {
-      if (object_on !== origTarget.current && object_on !== undefined && object_list && objectsInView) {
+      if (object_on !== origTarget.current && object_on !== undefined && targetIdList && objectsInView) {
         let targetData = null;
-        object_list.forEach(thisTarget => {
+        targetIdList.forEach(thisTarget => {
           if (thisTarget.id === object_on && targetData === null) {
             targetData = thisTarget;
           }
@@ -118,7 +125,6 @@ const Preview = memo(
         Object.keys(objectsInView).forEach(obj => {
           deleteObject(objectsInView[obj]);
         });
-
         const targObject = generateTargetObject(targetData);
         if (targObject) {
           loadObject(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }));
@@ -131,17 +137,18 @@ const Preview = memo(
         }
         origTarget.current = object_on;
       }
-    }, [deleteObject, generateTargetObject, loadObject, object_list, object_on, objectsInView, setMoleculeList]);
+    }, [deleteObject, generateTargetObject, loadObject, targetIdList, object_on, objectsInView, setMoleculeList]);
 
     // for loading protein
     useEffect(() => {
       if (targetIdList.length > 0) {
         checkForTargetChange();
       }
-    }, [checkForTargetChange, targetIdList, targetUnrecognised, setTargetUnrecognised]);
+    }, [checkForTargetChange, targetIdList]);
 
     const screenHeight = window.innerHeight * (0.7).toString() + 'px';
     const molListHeight = window.innerHeight * (0.45).toString() + 'px';
+
     return (
       <Grid container spacing={2}>
         <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
@@ -177,10 +184,8 @@ function mapStateToProps(state) {
     targetIdList: state.apiReducers.present.target_id_list,
 
     nglProtStyle: state.nglReducers.present.nglProtStyle,
-    object_list: state.apiReducers.present.target_id_list,
     object_on: state.apiReducers.present.target_on,
-    objectsInView: state.nglReducers.present.objectsInView,
-    targetUnrecognised: state.apiReducers.present.targetUnrecognised
+    objectsInView: state.nglReducers.present.objectsInView
   };
 }
 const mapDispatchToProps = {

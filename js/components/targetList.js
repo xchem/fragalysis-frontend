@@ -4,7 +4,7 @@
 
 import { ListGroupItem, ListGroup, Row, Col } from 'react-bootstrap';
 import { FillMe } from './generalComponents';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -13,7 +13,10 @@ import { withRouter, Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../utils/genericList';
 
 const TargetList = memo(({ object_list, setObjectList }) => {
-  const [oldUrl, setOldUrl] = useState('');
+  const oldUrl = useRef('');
+  const setOldUrl = url => {
+    oldUrl.current = url;
+  };
 
   const render_method = data => {
     const preview = '/viewer/react/preview/target/' + data.title;
@@ -71,11 +74,11 @@ const TargetList = memo(({ object_list, setObjectList }) => {
     loadFromServer({
       url: getUrl({ list_type }),
       setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl,
+      old_url: oldUrl.current,
       setObjectList,
       list_type
     });
-  }, [oldUrl, setObjectList]);
+  }, [setObjectList]);
 
   if (object_list) {
     return (

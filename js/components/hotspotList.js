@@ -2,7 +2,7 @@
  * Created by ricgillams on 04/07/2018.
  */
 import { Row, Well } from 'react-bootstrap';
-import React, { memo, useState, useEffect, useCallback } from 'react';
+import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -12,7 +12,10 @@ import { getUrl, loadFromServer } from '../utils/genericList';
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on }) => {
   const list_type = listType.MOLECULE;
-  const [oldUrl, setOldUrl] = useState('');
+  const oldUrl = useRef('');
+  const setOldUrl = url => {
+    oldUrl.current = url;
+  };
   const [hsCount, setHsCount] = useState();
 
   const updateCount = useCallback(async () => {
@@ -37,11 +40,11 @@ const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on 
     loadFromServer({
       url: getUrl({ list_type, mol_group_on, target_on }),
       setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl,
+      old_url: oldUrl.current,
       list_type,
       setObjectList
     });
-  }, [list_type, oldUrl, setObjectList, mol_group_on, target_on]);
+  }, [list_type, setObjectList, mol_group_on, target_on]);
 
   if (hsCount > 0) {
     return (

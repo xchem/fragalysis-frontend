@@ -154,7 +154,10 @@ const MoleculeView = memo(
     const [complexOn, setComplexOn] = useState(false);
     const [vectorOn, setVectorOn] = useState(false);
     const [value, setValue] = useState([]);
-    const [old_url, setOld_url] = useState('');
+    const oldUrl = useRef('');
+    const setOldUrl = url => {
+      oldUrl.current = url;
+    };
     const refDidMount = useRef(false);
     const getRandomColor = () => colourList[data.id % colourList.length];
     const colourToggle = getRandomColor();
@@ -266,9 +269,9 @@ const MoleculeView = memo(
           width,
           height,
           key,
-          old_url,
+          old_url: oldUrl.current,
           setImg_data,
-          setOld_url,
+          setOld_url: newUrl => setOldUrl(newUrl),
           url
         });
 
@@ -292,7 +295,7 @@ const MoleculeView = memo(
         setIsToggleOn(thisToggleOn);
         setVectorOn(vectorOnHelper);
       }
-    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width, old_url]);
+    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
     useEffect(() => {
       let value_list = value.slice();

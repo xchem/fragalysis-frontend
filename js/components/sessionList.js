@@ -3,7 +3,7 @@
  */
 
 import { ListGroupItem, ListGroup, Row, Col, OverlayTrigger, ButtonToolbar, Tooltip } from 'react-bootstrap';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from './listTypes';
@@ -32,7 +32,10 @@ const SessionList = memo(
     location
   }) => {
     const list_type = listType.SESSIONS;
-    const [oldUrl, setOldUrl] = useState('');
+    const oldUrl = useRef('');
+    const setOldUrl = url => {
+      oldUrl.current = url;
+    };
     const { pathname } = location;
     const classes = useStyles();
 
@@ -222,12 +225,12 @@ const SessionList = memo(
       loadFromServer({
         url: getUrl({ list_type, setSeshListSaving }),
         setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl,
+        old_url: oldUrl.current,
         list_type,
         setObjectList,
         seshListSaving
       });
-    }, [list_type, setObjectList, oldUrl, setSeshListSaving, seshListSaving]);
+    }, [list_type, setObjectList, setSeshListSaving, seshListSaving]);
 
     let sessionListTitle;
     if ((object_list.length !== 0 && object_list.length <= 10) || pathname !== '/viewer/react/sessions') {

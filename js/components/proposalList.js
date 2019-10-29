@@ -3,7 +3,7 @@
  */
 
 import { ListGroupItem, ListGroup, Col, Checkbox, Row } from 'react-bootstrap';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as listType from './listTypes';
 import { withRouter } from 'react-router-dom';
@@ -12,7 +12,10 @@ import { getUrl, loadFromServer } from '../utils/genericList';
 
 const ProposalList = memo(({ object_list }) => {
   const list_type = listType.SESSIONS;
-  const [oldUrl, setOldUrl] = useState('');
+  const oldUrl = useRef('');
+  const setOldUrl = url => {
+    oldUrl.current = url;
+  };
   const [proposalList, setProposalList] = useState([
     { id: 'LB-test1', owner: 'qwu18777' },
     { id: 'LB-test2', owner: 'qwu18777' },
@@ -54,10 +57,10 @@ const ProposalList = memo(({ object_list }) => {
     loadFromServer({
       url: getUrl({ list_type }),
       setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl,
+      old_url: oldUrl.current,
       list_type
     });
-  }, [list_type, oldUrl]);
+  }, [list_type]);
 
   // const userPk = DJANGO_CONTEXT["pk"]
   // const username = DJANGO_CONTEXT["username"]

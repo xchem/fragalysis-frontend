@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 13/03/2018.
  */
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
@@ -14,7 +14,10 @@ import { getUrl, loadFromServer } from '../utils/genericList';
 export const withLoadingMolGroupList = WrappedComponent => {
   const MolGroupList = memo(({ object_list, deleteObject, loadObject, target_on, group_type, setObjectList }) => {
     const list_type = listType.MOLGROUPS;
-    const [oldUrl, setOldUrl] = useState('');
+    const oldUrl = useRef('');
+    const setOldUrl = url => {
+      oldUrl.current = url;
+    };
 
     const generateObject = useCallback(
       (data, selected = false) => {
@@ -60,16 +63,18 @@ export const withLoadingMolGroupList = WrappedComponent => {
     );
 
     useEffect(() => {
-      loadFromServer({
-        url: getUrl({ list_type, target_on, group_type }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl,
-        afterPush: afterPush,
-        beforePush: beforePush,
-        list_type,
-        setObjectList
-      });
-    }, [oldUrl, afterPush, beforePush, list_type, target_on, group_type, setObjectList]);
+      if (target_on) {
+        loadFromServer({
+          url: getUrl({ list_type, target_on, group_type }),
+          setOldUrl: url => setOldUrl(url),
+          old_url: oldUrl.current,
+          afterPush: afterPush,
+          beforePush: beforePush,
+          list_type,
+          setObjectList
+        });
+      }
+    }, [target_on, afterPush, beforePush, group_type, list_type, setObjectList]);
 
     return <WrappedComponent />;
   });

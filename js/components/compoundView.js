@@ -58,7 +58,10 @@ const CompoundView = memo(
     const [isConfOn, setIsConfOn] = useState(false);
     const refDidMount = useRef(false);
     const conf = useRef(false);
-    const [old_url, setOld_url] = useState('');
+    const oldUrl = useRef('');
+    const setOldUrl = newUrl => {
+      oldUrl.current = newUrl;
+    };
     const [img_data, setImg_data] = useState(img_data_init);
 
     // tu je key, nie je tu vlastny loader
@@ -167,9 +170,9 @@ const CompoundView = memo(
           width,
           height,
           key,
-          old_url,
+          old_url: oldUrl.current,
           setImg_data,
-          setOld_url,
+          setOld_url: newUrl => setOldUrl(newUrl),
           url
         });
         if (to_buy_list.length !== 0) {
@@ -177,7 +180,7 @@ const CompoundView = memo(
         }
         refDidMount.current = true;
       }
-    }, [height, key, old_url, url, width, checkInList, to_buy_list.length]);
+    }, [height, key, url, width, checkInList, to_buy_list.length]);
 
     useEffect(() => {
       checkInList();
