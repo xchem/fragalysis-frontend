@@ -16,12 +16,12 @@ import ModalStateSave from './session/modalStateSave';
 import ModalErrorMessage from './modalErrorDisplay';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import * as apiActions from '../actions/apiActions';
-import fetch from 'cross-fetch';
-import { withRouter } from 'react-router-dom';
+
 import { BrowserBomb } from './browserBombModal';
 import { SUFFIX, VIEWS } from '../constants/constants';
 import * as nglObjectTypes from './nglObjectTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
+import { withUpdatingTarget } from '../hoc/withUpdatingTarget';
 
 const styles = () => ({
   gridItemLhs: {
@@ -36,58 +36,10 @@ const styles = () => ({
 });
 
 const Preview = memo(
-  ({
-    match,
-    targetIdList,
-    setErrorMessage,
-    setTargetUnrecognised,
-    classes,
-    setTargetOn,
-    loadObject,
-    nglProtStyle,
-    setMoleculeList,
-    target_on,
-    objectsInView,
-    deleteObject
-  }) => {
+  ({ targetIdList, classes, loadObject, nglProtStyle, setMoleculeList, target_on, objectsInView, deleteObject }) => {
     const origTarget = useRef(-1);
-    const target = match.params.target;
 
-    const deployErrorModal = useCallback(
-      error => {
-        setErrorMessage(error);
-      },
-      [setErrorMessage]
-    );
-
-    const updateTarget = useCallback(() => {
-      // Get from the REST API
-      let targetUnrecognisedFlag = true;
-      if (targetIdList.length !== 0) {
-        targetIdList.forEach(targetId => {
-          if (target === targetId.title) {
-            targetUnrecognisedFlag = false;
-          }
-        });
-        setTargetUnrecognised(targetUnrecognisedFlag);
-        console.log('updating target', targetUnrecognisedFlag);
-      }
-
-      if (targetUnrecognisedFlag === false) {
-        fetch(window.location.protocol + '//' + window.location.host + '/api/targets/?title=' + target)
-          .then(response => response.json())
-          .then(json => setTargetOn(json['results'][0].id))
-          .catch(error => {
-            deployErrorModal(error);
-          });
-      }
-    }, [target, setTargetUnrecognised, targetIdList, deployErrorModal, setTargetOn]);
-
-    console.log('render Preview ');
-
-    useEffect(() => {
-      updateTarget();
-    }, [updateTarget]);
+    console.log('render Preview ', target_on);
 
     const generateTargetObject = useCallback(
       targetData => {
@@ -148,7 +100,7 @@ const Preview = memo(
       <HandleUnrecognisedTarget>
         <Grid container spacing={2}>
           <ModalStateSave />
-
+          {/* continue with refactoring of next components, but now is Preview component 3 times rendered
           <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
             <Grid item className={classes.fullWidth}>
               <MolGroupSelector />
@@ -168,7 +120,7 @@ const Preview = memo(
               <HotspotList />
             </Grid>
           </Grid>
-
+*/}
           <ModalErrorMessage />
           <BrowserBomb />
         </Grid>
@@ -180,23 +132,18 @@ const Preview = memo(
 function mapStateToProps(state) {
   return {
     targetIdList: state.apiReducers.present.target_id_list,
-
     nglProtStyle: state.nglReducers.present.nglProtStyle,
     target_on: state.apiReducers.present.target_on,
     objectsInView: state.nglReducers.present.objectsInView
   };
 }
 const mapDispatchToProps = {
-  setTargetOn: apiActions.setTargetOn,
-  setTargetUnrecognised: apiActions.setTargetUnrecognised,
-  setErrorMessage: apiActions.setErrorMessage,
-
   loadObject: nglLoadActions.loadObject,
   setMoleculeList: apiActions.setMoleculeList,
   deleteObject: nglLoadActions.deleteObject
 };
 
-export default withRouter(
+export default withUpdatingTarget(
   connect(
     mapStateToProps,
     mapDispatchToProps

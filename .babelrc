@@ -1,4 +1,4 @@
 {
-  "presets": ["babel-preset-env", "react", "stage-3"],
+  "presets": ["babel-preset-env", "react", "stage-3", "es2015"],
   "plugins": ["transform-decorators-legacy", "emotion"]
 }

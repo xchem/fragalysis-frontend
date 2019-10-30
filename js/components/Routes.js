@@ -10,6 +10,7 @@ import Sessions from './sessionHolder';
 import FraggleBox from './fraggleBoxHolder';
 import Funders from './fundersHolder';
 import { withLoadingTargetList } from '../hoc/withLoadingTargetIdList';
+import { HeaderLoadingProvider } from './header/loadingContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -28,20 +29,22 @@ const Routes = memo(() => {
 
   return (
     <div className={classes.root}>
-      <Grid container>
-        <Header />
-        <Switch>
-          <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
-          <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
-          <Route exact path="/viewer/react/landing" component={Landing} />
-          <Route exact path="/viewer/react/preview" component={Preview} />
-          <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
-          <Route exact path="/viewer/react/sessions" component={Sessions} />
-          <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
-          <Route path="/viewer/react/snapshot/:snapshotUuid" component={FraggleBox} />
-          <Route exact path="/viewer/react/funders" component={Funders} />
-        </Switch>
-      </Grid>
+      <HeaderLoadingProvider>
+        <Grid container>
+          <Header />
+          <Switch>
+            <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
+            <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
+            <Route exact path="/viewer/react/landing" component={Landing} />
+            <Route exact path="/viewer/react/preview" component={Preview} />
+            <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
+            <Route exact path="/viewer/react/sessions" component={Sessions} />
+            <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
+            <Route path="/viewer/react/snapshot/:snapshotUuid" component={FraggleBox} />
+            <Route exact path="/viewer/react/funders" component={Funders} />
+          </Switch>
+        </Grid>
+      </HeaderLoadingProvider>
     </div>
   );
 });

@@ -2,11 +2,12 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo } from 'react';
-import { Grid, Button, makeStyles } from '@material-ui/core';
+import React, { Fragment, memo, useContext } from 'react';
+import { Grid, Button, makeStyles, LinearProgress } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
-import SessionManagement from './session/sessionManagement';
-import { ErrorReport } from './errorReport';
+import SessionManagement from '../session/sessionManagement';
+import { ErrorReport } from '../errorReport';
+import { HeaderLoadingContext } from './loadingContext';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -18,11 +19,15 @@ const useStyles = makeStyles(theme => ({
     border: '1px solid transparent',
     width: 'inherit',
     marginBottom: theme.spacing(2)
+  },
+  progressBar: {
+    width: '100%'
   }
 }));
 
-const Header = memo(({ history }) => {
+const Index = memo(({ history }) => {
   const classes = useStyles();
+  const { isLoading } = useContext(HeaderLoadingContext);
 
   const openXchem = () => {
     window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -89,34 +94,41 @@ const Header = memo(({ history }) => {
   }
 
   return (
-    <div className={classes.header}>
-      <Grid container>
-        <Grid item xs={2}>
-          {navbarBrand}
-        </Grid>
-        <Grid item xs={1}>
-          {new_ele}
-        </Grid>
-        <Grid item xs={6}>
-          <SessionManagement />
-        </Grid>
+    <Fragment>
+      <div className={classes.header}>
+        <Grid container>
+          <Grid item xs={2}>
+            {navbarBrand}
+          </Grid>
+          <Grid item xs={1}>
+            {new_ele}
+          </Grid>
+          <Grid item xs={6}>
+            <SessionManagement />
+          </Grid>
 
-        <Grid item xs={3}>
-          <Grid container direction="column" justify="center" alignItems="center">
-            <Grid item>
-              <img src={require('../img/xchemLogo.png')} width="67" height="31" onClick={openXchem} />
-              <img src={require('../img/dlsLogo.png')} width="100" height="31" onClick={openDiamond} />{' '}
-              <img src={require('../img/sgcLogo.png')} width="65" height="31" onClick={openSgc} />
-              <ErrorReport />
-            </Grid>
-            <Grid item>
-              <p onClick={showFunders}>Supported by...</p>
+          <Grid item xs={3}>
+            <Grid container direction="column" justify="center" alignItems="center">
+              <Grid item>
+                <img src={require('../../img/xchemLogo.png')} width="67" height="31" onClick={openXchem} />
+                <img src={require('../../img/dlsLogo.png')} width="100" height="31" onClick={openDiamond} />{' '}
+                <img src={require('../../img/sgcLogo.png')} width="65" height="31" onClick={openSgc} />
+                <ErrorReport />
+              </Grid>
+              <Grid item>
+                <p onClick={showFunders}>Supported by...</p>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </div>
+      </div>
+      {isLoading === true && (
+        <div className={classes.progressBar}>
+          <LinearProgress />
+        </div>
+      )}
+    </Fragment>
   );
 });
 
-export default withRouter(Header);
+export default withRouter(Index);
