@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import Header from './header';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from './targetManagementHolder';
@@ -32,20 +32,18 @@ const Routes = memo(() => {
   return (
     <div className={classes.root}>
       <HeaderLoadingProvider>
-        <Grid container>
-          <Header />
-          <Switch>
-            <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
-            <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
-            <Route exact path="/viewer/react/landing" component={Landing} />
-            <Route exact path="/viewer/react/preview" component={Preview} />
-            <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
-            <Route exact path="/viewer/react/sessions" component={Sessions} />
-            <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
-            <Route path="/viewer/react/snapshot/:snapshotUuid" component={FraggleBox} />
-            <Route exact path="/viewer/react/funders" component={Funders} />
-          </Switch>
-        </Grid>
+        <Header />
+        <Switch>
+          <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
+          <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
+          <Route exact path="/viewer/react/landing" component={Landing} />
+          <Route exact path="/viewer/react/preview" component={Preview} />
+          <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
+          <Route exact path="/viewer/react/sessions" component={Sessions} />
+          <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
+          <Route path="/viewer/react/snapshot/:snapshotUuid" component={FraggleBox} />
+          <Route exact path="/viewer/react/funders" component={Funders} />
+        </Switch>
       </HeaderLoadingProvider>
       <ModalErrorMessage />
       <BrowserBomb />
