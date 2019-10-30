@@ -52,9 +52,7 @@ export class Welcome extends PureComponent {
             <SessionList key="SESSIONLIST" />
           </div>
         </Grid>
-        <Grid item xs={1} md={1}>
-          <BrowserBomb />
-        </Grid>
+        <Grid item xs={1} md={1} />
       </Grid>
     );
   }

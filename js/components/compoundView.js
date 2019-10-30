@@ -7,7 +7,7 @@ import * as selectionActions from '../actions/selectionActions';
 import SVGInline from 'react-svg-inline';
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from '../components/nglObjectTypes';
+import * as nglObjectTypes from './nglView/nglObjectTypes';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 

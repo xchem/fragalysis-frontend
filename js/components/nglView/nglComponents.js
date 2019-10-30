@@ -5,14 +5,14 @@
 import { Stage, Shape, Selection, concatStructures } from 'ngl';
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from '../components/nglObjectTypes';
-import * as listTypes from './listTypes';
-import * as selectionActions from '../actions/selectionActions';
-import { SUFFIX, VIEWS, PREFIX } from '../constants/constants';
+import * as apiActions from '../../actions/apiActions';
+import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as nglObjectTypes from './nglObjectTypes';
+import * as listTypes from '../listTypes';
+import * as selectionActions from '../../actions/selectionActions';
+import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'ramda';
-import { store } from './root';
+import { store } from '../root';
 
 const NGLView = memo(
   ({
@@ -43,7 +43,11 @@ const NGLView = memo(
     setLoadingState,
     div_id,
     height,
-    mol_group_selection
+    mol_group_selection,
+    targetIdList,
+    target_on,
+    setMoleculeList,
+    nglProtStyle
   }) => {
     const ref_data_dict = useRef({
       [listTypes.MOLGROUPS]: {
@@ -69,6 +73,7 @@ const NGLView = memo(
     const refStage = useRef();
     const refSetClickFunction = useRef(false);
     const [focus_let, setFocus_let] = useState(95);
+    const origTarget = useRef(-1);
 
     /*
     const showLine = (stage, input_dict, object_name) => {
@@ -632,6 +637,59 @@ const NGLView = memo(
       renderColorChange();
     }, [renderColorChange]);
 
+    const generateTargetObject = useCallback(
+      targetData => {
+        // Now deal with this target
+        const prot_to_load = window.location.protocol + '//' + window.location.host + targetData.template_protein;
+        if (JSON.stringify(prot_to_load) !== JSON.stringify(undefined)) {
+          return {
+            name: 'PROTEIN_' + targetData.id.toString(),
+            prot_url: prot_to_load,
+            OBJECT_TYPE: nglObjectTypes.PROTEIN,
+            nglProtStyle: nglProtStyle
+          };
+        }
+        return undefined;
+      },
+      [nglProtStyle]
+    );
+
+    const checkForTargetChange = useCallback(() => {
+      if (target_on !== origTarget.current && target_on !== undefined && targetIdList) {
+        let targetData = null;
+        targetIdList.forEach(thisTarget => {
+          if (thisTarget.id === target_on && targetData === null) {
+            targetData = thisTarget;
+          }
+        });
+
+        setMoleculeList([]);
+
+        Object.keys(objectsInView).forEach(obj => {
+          deleteObject(objectsInView[obj]);
+        });
+
+        const targObject = generateTargetObject(targetData);
+        if (targObject) {
+          loadObject(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }));
+          loadObject(
+            Object.assign({}, targObject, {
+              display_div: VIEWS.MAJOR_VIEW,
+              name: targObject.name + SUFFIX.MAIN
+            })
+          );
+        }
+        origTarget.current = target_on;
+      }
+    }, [generateTargetObject, loadObject, targetIdList, target_on, setMoleculeList, deleteObject, objectsInView]);
+
+    // for loading protein
+    useEffect(() => {
+      if (targetIdList.length > 0) {
+        checkForTargetChange();
+      }
+    }, [checkForTargetChange, targetIdList]);
+
     return <div style={{ height: height || '600px' }} id={local_div_id} />;
   }
 );
@@ -649,7 +707,10 @@ function mapStateToProps(state) {
     objectsLoading: state.nglReducers.present.objectsLoading,
     objectsInView: state.nglReducers.present.objectsInView,
     stageColor: state.nglReducers.present.stageColor,
-    targetOnName: state.apiReducers.present.target_on_name
+    targetOnName: state.apiReducers.present.target_on_name,
+    targetIdList: state.apiReducers.present.target_id_list,
+    target_on: state.apiReducers.present.target_on,
+    nglProtStyle: state.nglReducers.present.nglProtStyle
   };
 }
 const mapDispatchToProps = {
@@ -665,7 +726,8 @@ const mapDispatchToProps = {
   deleteObject: nglLoadActions.deleteObject,
   loadObject: nglLoadActions.loadObject,
   deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-  setLoadingState: nglLoadActions.setLoadingState
+  setLoadingState: nglLoadActions.setLoadingState,
+  setMoleculeList: apiActions.setMoleculeList
 };
 
 NGLView.displayName = 'NGLView';

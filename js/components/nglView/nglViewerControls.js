@@ -4,7 +4,7 @@
 
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as nglLoadActions from '../../actions/nglLoadActions';
 import { Button } from 'react-bootstrap';
 
 const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {

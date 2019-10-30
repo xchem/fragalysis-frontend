@@ -11,6 +11,8 @@ import FraggleBox from './fraggleBoxHolder';
 import Funders from './fundersHolder';
 import { withLoadingTargetList } from '../hoc/withLoadingTargetIdList';
 import { HeaderLoadingProvider } from './header/loadingContext';
+import ModalErrorMessage from './modalErrorDisplay';
+import { BrowserBomb } from './browserBombModal';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -45,6 +47,8 @@ const Routes = memo(() => {
           </Switch>
         </Grid>
       </HeaderLoadingProvider>
+      <ModalErrorMessage />
+      <BrowserBomb />
     </div>
   );
 });

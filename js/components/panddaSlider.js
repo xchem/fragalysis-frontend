@@ -4,7 +4,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
-import * as nglObjectTypes from './nglObjectTypes';
+import * as nglObjectTypes from './nglView/nglObjectTypes';
 import * as nglActions from '../actions/nglLoadActions';
 import { PREFIX, VIEWS } from '../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';

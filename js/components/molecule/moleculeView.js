@@ -6,7 +6,7 @@ import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, withStyles, Button } from '@material-ui/core';
 import * as nglLoadActions from '../../actions/nglLoadActions';
-import * as nglObjectTypes from '../nglObjectTypes';
+import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import * as selectionActions from '../../actions/selectionActions';
 import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';

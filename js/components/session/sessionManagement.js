@@ -12,7 +12,7 @@ import { getStore } from '../globalStore';
 import * as selectionActions from '../../actions/selectionActions';
 import { withRouter } from 'react-router-dom';
 import * as listTypes from '../listTypes';
-import * as nglObjectTypes from '../nglObjectTypes';
+import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import DownloadPdb from '../downloadPdb';
 
 const useStyles = makeStyles(theme => ({

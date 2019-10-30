@@ -1,7 +1,7 @@
 import React, { useState, memo } from 'react';
 import { Grid, makeStyles, Button } from '@material-ui/core';
 import BorderedView from './borderedView';
-import NGLView from './nglComponents';
+import NGLView from './nglView/nglComponents';
 import MolGroupChecklist from './molGroupChecklist';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';

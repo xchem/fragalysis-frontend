@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from '../components/nglObjectTypes';
+import * as nglObjectTypes from '../components/nglView/nglObjectTypes';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 

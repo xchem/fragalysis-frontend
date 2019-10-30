@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import NGLView from './nglComponents';
+import NGLView from './nglView/nglComponents';
 import { withLoadingEventList } from '../hoc/withLoadingEventList';
 import { withLoadingPanddaSiteList } from '../hoc/withPanddaSiteList';
 import PanddaSlider from './panddaSlider';

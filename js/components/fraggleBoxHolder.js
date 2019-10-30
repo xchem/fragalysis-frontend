@@ -9,17 +9,15 @@ import MoleculeList from './molecule/moleculeList';
 import MolGroupSelector from './molGroupSelector';
 import SummaryView from './summaryView';
 import CompoundList from './compoundList';
-import NGLView from './nglComponents';
-import NglViewerControls from './nglViewerControls';
+import NGLView from './nglView/nglComponents';
+import NglViewerControls from './nglView/nglViewerControls';
 import { withRouter } from 'react-router-dom';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import ModalLoadingScreen from './modalLoadingScreen';
 import ModalStateSave from './session/modalStateSave';
-import ModalErrorMessage from './modalErrorDisplay';
 import HotspotList from './hotspot/hotspotList';
-import BrowserBomb from './browserBombModal';
 
 const styles = () => ({
   gridItemLhs: {
@@ -72,9 +70,7 @@ class FraggleBox extends PureComponent {
             </Grid>
           </Grid>
           <ModalStateSave />
-          <ModalErrorMessage />
           <ModalLoadingScreen />
-          <BrowserBomb />
         </Grid>
       </HandleUnrecognisedTarget>
     );
