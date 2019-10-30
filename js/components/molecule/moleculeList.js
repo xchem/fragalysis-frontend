@@ -2,8 +2,8 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, withStyles, Chip, Tooltip, Button } from '@material-ui/core';
-import React, { useMemo, useState, useEffect, memo, useCallback, useRef } from 'react';
+import { Grid, Chip, Tooltip, Button, makeStyles, CircularProgress } from '@material-ui/core';
+import React, { useMemo, useState, useEffect, memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../actions/apiActions';
 import * as listType from '../listTypes';
@@ -14,9 +14,9 @@ import classNames from 'classnames';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from '../../utils/molecules_helpers';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from 'react-infinite-scroller';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   container: {
     height: '100%',
     width: '100%',
@@ -77,11 +77,10 @@ const styles = theme => ({
       color: '#003f00'
     }
   }
-});
+}));
 
 const MoleculeList = memo(
   ({
-    classes,
     object_selection,
     height,
     cached_mol_lists,
@@ -91,6 +90,7 @@ const MoleculeList = memo(
     setCachedMolLists,
     mol_group_list
   }) => {
+    const classes = useStyles();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -98,12 +98,10 @@ const MoleculeList = memo(
     };
     const [sortDialogOpen, setSortDialogOpen] = useState(false);
     const [filterSettings, setFilterSettings] = useState();
-    const moleculesPerPage = 5;
+    const moleculesPerPage = 3;
     // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
     // stav sa tym padom strati
-    const currentMolecules = useRef([]);
-    const currentPage = useRef(0);
-
+    const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 80;
     const imgWidth = 100;
 
@@ -125,20 +123,9 @@ const MoleculeList = memo(
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }
 
-    const loadNextMolecules = useCallback(() => {
-      const newPage = currentPage.current + 1;
-      if (newPage * moleculesPerPage < joinedMoleculeLists.length) {
-        currentMolecules.current = joinedMoleculeLists.slice(currentPage, moleculesPerPage);
-        currentPage.current = newPage;
-      } else {
-        currentMolecules.current = [];
-        currentPage.current = 0;
-      }
-    }, [joinedMoleculeLists, currentMolecules]);
-
-    useEffect(() => {
-      loadNextMolecules();
-    }, [loadNextMolecules]);
+    const loadNextMolecules = () => {
+      setCurrentPage(currentPage + 1);
+    };
 
     useEffect(() => {
       loadFromServer({
@@ -164,7 +151,11 @@ const MoleculeList = memo(
         <span className={classes.sortFilterButtonStyle}>sort/filter</span>
       </Button>
     );
-    // console.log('render molecule list', mol_group_list);
+
+    const listItemOffset = (currentPage + 1) * moleculesPerPage;
+    const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
+    const canLoadMore = listItemOffset < joinedMoleculeLists.length;
+
     return (
       <div>
         {!!(filterSettings || {}).active && (
@@ -202,7 +193,7 @@ const MoleculeList = memo(
             />
           )}
           <Grid container direction="column" className={classes.container} style={{ height: height }}>
-            <Grid item container className={classes.gridItemHeader}>
+            <Grid item container direction="row" className={classes.gridItemHeader}>
               <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
                 site
               </Grid>
@@ -210,7 +201,6 @@ const MoleculeList = memo(
                 cont.
               </Grid>
               <Grid
-                item
                 container
                 direction="column"
                 justify="center"
@@ -227,13 +217,26 @@ const MoleculeList = memo(
                 properties
               </Grid>
             </Grid>
-            <Grid item container direction="column" wrap="nowrap" className={classes.gridItemList}>
-              {joinedMoleculeLists.map(data => (
-                <Grid item key={data.id}>
-                  <MoleculeView height={imgHeight} width={imgWidth} data={data} />
-                </Grid>
-              ))}
-            </Grid>
+            <div className={classes.gridItemList}>
+              <InfiniteScroll
+                threshold={1}
+                pageStart={0}
+                loadMore={loadNextMolecules}
+                hasMore={canLoadMore}
+                loader={
+                  <div className="loader" key={0}>
+                    <Grid container direction="row" justify="center" alignItems="center">
+                      <CircularProgress />
+                    </Grid>
+                  </div>
+                }
+                useWindow={false}
+              >
+                {currentMolecules.map(data => (
+                  <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
+                ))}
+              </InfiniteScroll>
+            </div>
           </Grid>
         </BorderedView>
       </div>
@@ -258,7 +261,8 @@ const mapDispatchToProps = {
   deleteObject: nglLoadActions.deleteObject,
   loadObject: nglLoadActions.loadObject
 };
+MoleculeList.displayName = 'MoleculeList';
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withStyles(styles)(MoleculeList));
+)(MoleculeList);

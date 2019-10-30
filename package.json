@@ -54,7 +54,7 @@
     "react-clipboard.js": "^2.0.1",
     "react-dom": "^16.2.0",
     "react-hot-loader": "^4.12.15",
-    "react-infinite-scroll-component": "^4.5.3",
+    "react-infinite-scroller": "^1.2.4",
     "react-inlinesvg": "^0.7.5",
     "react-keydown": "^1.9.7",
     "react-modal": "^3.4.5",
