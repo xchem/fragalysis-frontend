@@ -98,7 +98,7 @@ const MoleculeList = memo(
     };
     const [sortDialogOpen, setSortDialogOpen] = useState(false);
     const [filterSettings, setFilterSettings] = useState();
-    const moleculesPerPage = 3;
+    const moleculesPerPage = 5;
     // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
     // stav sa tym padom strati
     const [currentPage, setCurrentPage] = useState(0);
@@ -109,6 +109,11 @@ const MoleculeList = memo(
       () => getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }),
       [object_selection, cached_mol_lists, mol_group_list]
     );
+
+    // Reset Infinity scroll
+    useEffect(() => {
+      setCurrentPage(0);
+    }, [object_selection]);
 
     const handleDialog = () => open => setSortDialogOpen(open);
 
@@ -217,26 +222,28 @@ const MoleculeList = memo(
                 properties
               </Grid>
             </Grid>
-            <div className={classes.gridItemList}>
-              <InfiniteScroll
-                threshold={1}
-                pageStart={0}
-                loadMore={loadNextMolecules}
-                hasMore={canLoadMore}
-                loader={
-                  <div className="loader" key={0}>
-                    <Grid container direction="row" justify="center" alignItems="center">
-                      <CircularProgress />
-                    </Grid>
-                  </div>
-                }
-                useWindow={false}
-              >
-                {currentMolecules.map(data => (
-                  <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
-                ))}
-              </InfiniteScroll>
-            </div>
+            {currentMolecules.length > 0 && (
+              <div className={classes.gridItemList}>
+                <InfiniteScroll
+                  threshold={1}
+                  pageStart={0}
+                  loadMore={loadNextMolecules}
+                  hasMore={canLoadMore}
+                  loader={
+                    <div className="loader" key={0}>
+                      <Grid container direction="row" justify="center" alignItems="center">
+                        <CircularProgress />
+                      </Grid>
+                    </div>
+                  }
+                  useWindow={false}
+                >
+                  {currentMolecules.map(data => (
+                    <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
+                  ))}
+                </InfiniteScroll>
+              </div>
+            )}
           </Grid>
         </BorderedView>
       </div>

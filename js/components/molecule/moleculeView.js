@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { Grid, withStyles, Button } from '@material-ui/core';
+import { Grid, withStyles, Button, makeStyles } from '@material-ui/core';
 import * as nglLoadActions from '../../actions/nglLoadActions';
 import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import * as selectionActions from '../../actions/selectionActions';
@@ -16,7 +16,7 @@ import { fetchWithMemoize } from '../generalComponents';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 
-const styles = () => ({
+const useStyles = makeStyles(theme => ({
   container: {
     width: '100%',
     padding: '4px 0',
@@ -80,7 +80,7 @@ const styles = () => ({
     justifyContent: 'center',
     alignItems: 'center'
   }
-});
+}));
 
 const controlValues = {
   COMPLEX: 1,
@@ -122,7 +122,6 @@ const img_data_init =
 
 const MoleculeView = memo(
   ({
-    classes,
     height,
     width,
     data,
@@ -146,6 +145,7 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList
   }) => {
+    const classes = useStyles();
     const key = 'mol_image';
     const base_url = window.location.protocol + '//' + window.location.host;
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
@@ -275,8 +275,6 @@ const MoleculeView = memo(
           url
         });
 
-        refDidMount.current = true;
-
         const thisToggleOn = fragmentDisplayList.has(data.id);
         const complexOnHelper = complexList.has(data.id);
         const vectorOnHelper = vectorOnList.has(data.id);
@@ -294,6 +292,7 @@ const MoleculeView = memo(
         setComplexOn(complexOnHelper);
         setIsToggleOn(thisToggleOn);
         setVectorOn(vectorOnHelper);
+        refDidMount.current = true;
       }
     }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
@@ -517,4 +516,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withStyles(styles)(MoleculeView));
+)(MoleculeView);
