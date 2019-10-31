@@ -3,16 +3,14 @@
  */
 
 import React, { Fragment, memo, useContext } from 'react';
-import { Grid, Button, makeStyles, LinearProgress } from '@material-ui/core';
+import { Grid, makeStyles, LinearProgress } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
 import { ErrorReport } from '../errorReport';
 import { HeaderLoadingContext } from './loadingContext';
+import { Button } from '../common/inputs/button';
 
 const useStyles = makeStyles(theme => ({
-  button: {
-    margin: theme.spacing(1)
-  },
   header: {
     backgroundColor: '#ffffff',
     borderColor: '#eeeeee',
@@ -56,15 +54,18 @@ const Index = memo(({ history }) => {
 
   if (username === 'NOT_LOGGED_IN') {
     new_ele = (
-      <Button className={classes.button} variant="contained" color="primary" onClick={() => history.push(login)}>
+      <Button color="primary" href={login}>
         Login
       </Button>
     );
   } else {
     new_ele = (
-      <Button className={classes.button} variant="contained" color="primary" onClick={() => history.push(logout)}>
-        <b>Hello {username}</b> Logout.
-      </Button>
+      <Fragment>
+        <Button color="primary" href={logout}>
+          Logout
+        </Button>
+        <b>{username}</b>
+      </Fragment>
     );
   }
 
@@ -72,9 +73,8 @@ const Index = memo(({ history }) => {
     navbarBrand = (
       <Grid container direction="column" justify="center" alignItems="center">
         <Grid item>
-          <h4>
-            <a onClick={() => history.push(landing)}>
-              {' '}
+          <h4 onClick={() => history.push(landing)}>
+            <a>
               Fragalysis <b>DEVELOPMENT </b>
             </a>
           </h4>
@@ -96,7 +96,7 @@ const Index = memo(({ history }) => {
   return (
     <Fragment>
       <div className={classes.header}>
-        <Grid container>
+        <Grid container direction="row" alignItems="center">
           <Grid item xs={2}>
             {navbarBrand}
           </Grid>
