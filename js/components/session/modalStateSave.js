@@ -10,6 +10,7 @@ import * as apiActions from '../../actions/apiActions';
 import { TextField } from '../common/inputs/textField';
 import { Button } from '../common/inputs/button';
 import { savingStateConst } from './constants';
+import { updateClipboard } from './helpers';
 
 const useStyles = makeStyles(theme => ({
   row: {
@@ -131,10 +132,6 @@ const ModalStateSave = memo(
         setSnapshotLoc(latestSnapshot);
       }
     }, [latestSession, latestSnapshot]);
-
-    const updateClipboard = valueToClipboard => {
-      navigator.clipboard.writeText(valueToClipboard);
-    };
 
     if (fraggleBoxLoc !== undefined || snapshotLoc !== undefined) {
       if (savingState === savingStateConst.savingSnapshot) {

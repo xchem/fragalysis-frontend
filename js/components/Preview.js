@@ -31,8 +31,6 @@ const useStyles = makeStyles(theme => ({
 const Preview = memo(props => {
   const classes = useStyles();
 
-  console.log('render Preview ');
-
   const screenHeight = window.innerHeight * (0.7).toString() + 'px';
   const molListHeight = window.innerHeight * (0.45).toString() + 'px';
 

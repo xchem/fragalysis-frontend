@@ -6,8 +6,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../actions/nglLoadActions';
 import * as apiActions from '../../actions/apiActions';
-import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
-import { RingLoader } from 'react-spinners';
+import { Button, ButtonGroup, CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import { getStore } from '../globalStore';
 import * as selectionActions from '../../actions/selectionActions';
 import { withRouter } from 'react-router-dom';
@@ -72,6 +71,12 @@ const SessionManagement = memo(
       return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     };
 
+    const postToServer = () => {
+      for (var key in nglOrientations) {
+        setOrientation(key, 'REFRESH');
+      }
+    };
+
     const newSession = () => {
       setSaveType('sessionNew');
       postToServer();
@@ -94,11 +99,7 @@ const SessionManagement = memo(
       [setErrorMessage]
     );
 
-    const postToServer = () => {
-      for (var key in nglOrientations) {
-        setOrientation(key, 'REFRESH');
-      }
-    };
+
 
     const redeployVectorsLocal = useCallback(
       url => {
@@ -271,6 +272,7 @@ const SessionManagement = memo(
           return response.json();
         })
         .then(function(myJson) {
+          console.log('json: ', myJson);
           return myJson.results[JSON.stringify(0)].title;
         })
         .then(title => setSessionTitle(title));
@@ -285,6 +287,7 @@ const SessionManagement = memo(
           setSaveType('');
           setSavingState('savingSession');
           setNextUuid('');
+          console.log(myJson);
           getSessionDetails();
         } else if (saveType === 'sessionSave') {
           setSaveType('');
@@ -309,7 +312,6 @@ const SessionManagement = memo(
             return response.json();
           })
           .then(json => handleJson(json.results[0]));
-        setUuid('UNSET');
       }
       for (var key in nglOrientations) {
         if (nglOrientations[key] === 'REFRESH') {
@@ -490,15 +492,7 @@ const SessionManagement = memo(
       }
     }
     if (savingState.startsWith('saving') || savingState.startsWith('overwriting')) {
-      return (
-        <RingLoader
-          className={classes.loader}
-          sizeUnit={'px'}
-          size={30}
-          color={'#7B36D7'}
-          loading={savingState.startsWith('saving') || savingState.startsWith('overwriting')}
-        />
-      );
+      return <CircularProgress />;
     } else {
       return buttons;
     }

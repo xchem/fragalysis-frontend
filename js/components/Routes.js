@@ -7,7 +7,6 @@ import Tindspect from './Tindspect';
 import Landing from './Landing';
 import Preview from './Preview';
 import Sessions from './sessionHolder';
-import FraggleBox from './fraggleBoxHolder';
 import Funders from './fundersHolder';
 import { withLoadingTargetList } from '../hoc/withLoadingTargetIdList';
 import { HeaderLoadingProvider } from './header/loadingContext';
@@ -40,8 +39,8 @@ const Routes = memo(() => {
           <Route exact path="/viewer/react/preview" component={Preview} />
           <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
           <Route exact path="/viewer/react/sessions" component={Sessions} />
-          <Route path="/viewer/react/fragglebox/:uuid" component={FraggleBox} />
-          <Route path="/viewer/react/snapshot/:snapshotUuid" component={FraggleBox} />
+          <Route path="/viewer/react/fragglebox/:uuid" component={Preview} />
+          <Route path="/viewer/react/snapshot/:snapshotUuid" component={Preview} />
           <Route exact path="/viewer/react/funders" component={Funders} />
         </Switch>
       </HeaderLoadingProvider>

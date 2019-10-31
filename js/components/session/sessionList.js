@@ -2,16 +2,16 @@
  * Created by ricgillams on 29/10/2018.
  */
 
-import { ListGroupItem, ListGroup, Row, Col, OverlayTrigger, ButtonToolbar, Tooltip } from 'react-bootstrap';
-import React, { memo, useEffect, useRef } from 'react';
+import { ListGroupItem, ListGroup, Row, Col, ButtonToolbar } from 'react-bootstrap';
+import React, { Fragment, memo, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../actions/apiActions';
 import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
-import Clipboard from 'react-clipboard.js';
-import { RingLoader } from 'react-spinners';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import { makeStyles } from '@material-ui/core';
+import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { updateClipboard } from './helpers';
+import { Button } from '../common/inputs/button';
 
 const useStyles = makeStyles(theme => ({
   loader: {
@@ -23,9 +23,9 @@ const useStyles = makeStyles(theme => ({
 
 const SessionList = memo(
   ({
-    object_list,
+    sessionIdList,
     seshListSaving,
-    setObjectList,
+    setSessionIdList,
     updateSessionIdList,
     setSeshListSaving,
     setErrorMessage,
@@ -54,7 +54,7 @@ const SessionList = memo(
     };
 
     const renameStateSession = (id, title) => {
-      let currentSessionList = object_list;
+      let currentSessionList = sessionIdList;
       currentSessionList.forEach(session => {
         if (currentSessionList[session].id === id) {
           Object.assign(currentSessionList[session], { title: title });
@@ -88,14 +88,14 @@ const SessionList = memo(
     };
 
     const deleteStateSession = id => {
-      let currentSessionList = object_list;
+      let currentSessionList = sessionIdList;
       currentSessionList.forEach(session => {
         if (currentSessionList[session].id === id) {
           currentSessionList.splice(session, 1);
         }
       });
       updateSessionIdList(currentSessionList);
-      if (object_list.length === 23) {
+      if (sessionIdList.length === 23) {
         setSeshListSaving(true);
         window.location.reload();
       }
@@ -126,20 +126,9 @@ const SessionList = memo(
     );
 
     const renderCopyUrlButton = data => {
-      const tooltip = (
-        <Tooltip id="tooltip">
-          <strong>Copied!</strong>
-        </Tooltip>
-      );
       const urlToCopy =
         window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + data.uuid;
-      return (
-        <OverlayTrigger trigger="click" placement="bottom" overlay={tooltip}>
-          <Clipboard option-container="modal" data-clipboard-text={urlToCopy} button-title="Copy URL">
-            Copy link
-          </Clipboard>
-        </OverlayTrigger>
-      );
+      return <Button onClick={() => updateClipboard(urlToCopy)}>Copy link</Button>;
     };
 
     const render_method = data => {
@@ -154,7 +143,7 @@ const SessionList = memo(
                 <Row>
                   <p>
                     Title:{' '}
-                    <Link to={fragglebox}>{object_list[object_list.findIndex(x => x.id === data.id)].title}</Link>
+                    <Link to={fragglebox}>{sessionIdList[sessionIdList.findIndex(x => x.id === data.id)].title}</Link>
                   </p>
                 </Row>
               </Col>
@@ -221,44 +210,43 @@ const SessionList = memo(
       }
     };
 
+
     useEffect(() => {
       loadFromServer({
         url: getUrl({ list_type, setSeshListSaving }),
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
-        setObjectList,
+        setObjectList: setSessionIdList,
         seshListSaving
       });
-    }, [list_type, setObjectList, setSeshListSaving, seshListSaving]);
+    }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving]);
+
 
     let sessionListTitle;
-    if ((object_list.length !== 0 && object_list.length <= 10) || pathname !== '/viewer/react/sessions') {
+    if ((sessionIdList.length !== 0 && sessionIdList.length <= 10) || pathname !== '/viewer/react/sessions') {
       sessionListTitle = <h3>Session List:</h3>;
-    } else if (object_list.length > 10) {
+    } else if (sessionIdList.length > 10) {
       sessionListTitle = (
         <h3>
-          You have {object_list.length} sessions. Please consider deleting old/unused{' '}
+          You have {sessionIdList.length} sessions. Please consider deleting old/unused{' '}
           <a href="/viewer/react/sessions">sessions</a> to improve performance.
         </h3>
       );
     }
+
+    console.log(sessionIdList, seshListSaving, location);
+
     if (seshListSaving === true) {
-      return (
-        <RingLoader
-          className={classes.loader}
-          sizeUnit={'px'}
-          size={30}
-          color={'#7B36D7'}
-          loading={seshListSaving === true}
-        />
-      );
+      return (<Fragment>{sessionListTitle}
+      <CircularProgress />
+      </Fragment>);
     } else {
-      if (object_list) {
+      if (sessionIdList) {
         // eslint-disable-next-line no-undef
         if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
           return <h3>Please log in to view session history.</h3>;
-        } else if (object_list.length === 0) {
+        } else if (sessionIdList.length === 0) {
           return (
             <div>
               <h3>You do not own any sessions!</h3>
@@ -270,7 +258,7 @@ const SessionList = memo(
             return (
               <div>
                 {sessionListTitle}
-                <ListGroup>{object_list.slice(0, 10).map(data => render_method(data))}</ListGroup>
+                <ListGroup>{sessionIdList.slice(0, 10).map(data => render_method(data))}</ListGroup>
                 <p>
                   Full list and session management here: <a href="/viewer/react/sessions">Sessions</a>
                 </p>
@@ -280,7 +268,7 @@ const SessionList = memo(
             return (
               <div>
                 {sessionListTitle}
-                <ListGroup>{object_list.map(data => render_method(data))}</ListGroup>
+                <ListGroup>{sessionIdList.map(data => render_method(data))}</ListGroup>
               </div>
             );
           }
@@ -293,13 +281,13 @@ const SessionList = memo(
 );
 function mapStateToProps(state) {
   return {
-    object_list: state.apiReducers.present.sessionIdList,
+    sessionIdList: state.apiReducers.present.sessionIdList,
     seshListSaving: state.apiReducers.present.seshListSaving
   };
 }
 
 const mapDispatchToProps = {
-  setObjectList: apiActions.setSessionIdList,
+  setSessionIdList: apiActions.setSessionIdList,
   updateSessionIdList: apiActions.updateSessionIdList,
   setSeshListSaving: apiActions.setSeshListSaving,
   setErrorMessage: apiActions.setErrorMessage

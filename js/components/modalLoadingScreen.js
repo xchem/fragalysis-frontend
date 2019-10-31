@@ -22,14 +22,14 @@ const customStyles = {
   }
 };
 
-export const ModalLoadingScreen = memo(() => {
+export const ModalLoadingScreen = memo(({ loadingState }) => {
   useEffect(() => {
     ReactModal.setAppElement('body');
   }, []);
 
   return (
     <div>
-      <ReactModal isOpen={this.props.loadingState} style={customStyles}>
+      <ReactModal isOpen={loadingState} style={customStyles}>
         <div>
           <img src={require('../img/Fragglebox_logo_v0.2.png')} width="494" height="349" />
         </div>

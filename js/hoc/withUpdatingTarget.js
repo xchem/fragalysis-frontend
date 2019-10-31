@@ -7,7 +7,7 @@ import { HeaderLoadingContext } from '../components/header/loadingContext';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
-    ({ match, targetIdList, setTargetUnrecognised, setTargetOn, setErrorMessage, target_on }) => {
+    ({ match, targetIdList, setTargetUnrecognised, setTargetOn, setErrorMessage, target_on, setUuid, setLatestSession }) => {
       const target = match.params.target;
       const { isLoading, setIsLoading } = useContext(HeaderLoadingContext);
 
@@ -48,7 +48,20 @@ export const withUpdatingTarget = WrappedContainer => {
         updateTarget();
       }, [updateTarget]);
 
-      if (isLoading === true || target_on === undefined) {
+      // Component DidMount - Fragglebox
+      useEffect(()=>{
+        if (match.params.uuid !== undefined) {
+          const uuid = match.params.uuid;
+          setUuid(uuid);
+          setLatestSession(uuid);
+        } else if (match.params.snapshotUuid !== undefined) {
+          const snapshotUuid = match.params.snapshotUuid;
+          setUuid(snapshotUuid);
+        }
+      },[match.params.snapshotUuid, match.params.uuid, setUuid, setLatestSession])
+
+      if (isLoading === true  || target_on === undefined
+      ) {
         return null;
       } else {
         return <WrappedContainer />;
@@ -65,7 +78,9 @@ export const withUpdatingTarget = WrappedContainer => {
   const mapDispatchToProps = {
     setTargetOn: apiActions.setTargetOn,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
-    setErrorMessage: apiActions.setErrorMessage
+    setErrorMessage: apiActions.setErrorMessage,
+    setUuid: apiActions.setUuid,
+    setLatestSession: apiActions.setLatestSession
   };
 
   return withRouter(

@@ -5,7 +5,6 @@ import { Grid } from '@material-ui/core';
 import React, { PureComponent } from 'react';
 import TargetList from './targetList';
 import SessionList from './session/sessionList';
-import { BrowserBomb } from './browserBombModal';
 
 export class Welcome extends PureComponent {
   render() {
@@ -26,7 +25,7 @@ export class Welcome extends PureComponent {
       );
     }
     return (
-      <Grid container>
+      <Grid container spacing={4}>
         <Grid item xs={1} md={1} />
         <Grid item xs={2} md={2}>
           <Grid container>
@@ -57,4 +56,3 @@ export class Welcome extends PureComponent {
     );
   }
 }
-export default Welcome;

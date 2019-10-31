@@ -26,7 +26,7 @@ const INITIALSTATE = {
   hotspot_on: undefined,
   hotspot_list: [],
   savingState: 'UNSET',
-  seshListSaving: true,
+  seshListSaving: false,
   latestSession: undefined,
   latestSnapshot: undefined,
   errorMessage: undefined,

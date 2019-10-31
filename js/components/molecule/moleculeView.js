@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { Grid, withStyles, Button, makeStyles } from '@material-ui/core';
+import { Grid, Button, makeStyles } from '@material-ui/core';
 import * as nglLoadActions from '../../actions/nglLoadActions';
 import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import * as selectionActions from '../../actions/selectionActions';

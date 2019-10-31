@@ -27,7 +27,7 @@ export class ErrorBoundary extends React.Component {
   render() {
     if (this.state.error) {
       //render fallback UI
-      return <a onClick={() => Sentry.showReportDialog()}>Report feedback</a>;
+      return <a onClick={() => Sentry.showReportDialog()}><h2>Report feedback</h2></a>;
     } else {
       return this.props.children;
     }
