@@ -6,13 +6,14 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../actions/nglLoadActions';
 import * as apiActions from '../../actions/apiActions';
-import { Button, ButtonGroup, CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
 import { getStore } from '../globalStore';
 import * as selectionActions from '../../actions/selectionActions';
 import { withRouter } from 'react-router-dom';
 import * as listTypes from '../listTypes';
 import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import DownloadPdb from '../downloadPdb';
+import { savingStateConst } from './constants';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -56,6 +57,8 @@ const SessionManagement = memo(
     const [nextUuid, setNextUuid] = useState('');
     const [newSessionFlag, setNewSessionFlag] = useState(0);
     const classes = useStyles();
+    const disableButtons =
+      savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting);
 
     const getCookie = name => {
       if (!document.cookie) {
@@ -71,25 +74,26 @@ const SessionManagement = memo(
       return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     };
 
-    const postToServer = () => {
+    const postToServer = savingState => {
+      setSavingState(savingState);
       for (var key in nglOrientations) {
         setOrientation(key, 'REFRESH');
       }
     };
 
     const newSession = () => {
+      postToServer(savingStateConst.savingSession);
       setSaveType('sessionNew');
-      postToServer();
     };
 
     const saveSession = () => {
+      postToServer(savingStateConst.savingSession);
       setSaveType('sessionNew');
-      postToServer();
     };
 
     const newSnapshot = () => {
+      postToServer(savingStateConst.savingSnapshot);
       setSaveType('snapshotNew');
-      postToServer();
     };
 
     const deployErrorModal = useCallback(
@@ -98,8 +102,6 @@ const SessionManagement = memo(
       },
       [setErrorMessage]
     );
-
-
 
     const redeployVectorsLocal = useCallback(
       url => {
@@ -271,10 +273,7 @@ const SessionManagement = memo(
         .then(function(response) {
           return response.json();
         })
-        .then(function(myJson) {
-          console.log('json: ', myJson);
-          return myJson.results[JSON.stringify(0)].title;
-        })
+        .then(myJson => (myJson.results.length > 0 ? myJson.results[JSON.stringify(0)].title : ''))
         .then(title => setSessionTitle(title));
     }, [latestSession, setErrorMessage, setSessionTitle]);
 
@@ -285,18 +284,17 @@ const SessionManagement = memo(
           setSessionId(myJson.id);
           setSessionTitle(myJson.title);
           setSaveType('');
-          setSavingState('savingSession');
+          setSavingState(savingStateConst.savingSession);
           setNextUuid('');
-          console.log(myJson);
           getSessionDetails();
         } else if (saveType === 'sessionSave') {
           setSaveType('');
-          setSavingState('overwritingSession');
+          setSavingState(savingStateConst.overwritingSession);
           getSessionDetails();
         } else if (saveType === 'snapshotNew') {
           setLatestSnapshot(myJson.uuid);
           setSaveType('');
-          setSavingState('savingSnapshot');
+          setSavingState(savingStateConst.savingSnapshot);
         }
       },
       [getSessionDetails, saveType, setLatestSession, setLatestSnapshot, setSessionId, setSessionTitle, setSavingState]
@@ -438,7 +436,7 @@ const SessionManagement = memo(
     ]);
 
     const { pathname } = location;
-    var buttons = '';
+    let buttons = null;
     if (
       pathname !== '/viewer/react/landing' &&
       pathname !== '/viewer/react/funders' &&
@@ -448,8 +446,8 @@ const SessionManagement = memo(
       if (sessionTitle === undefined || sessionTitle === 'undefined') {
         buttons = (
           <Grid container direction="column" justify="center" alignItems="center">
-            <Grid>
-              <ButtonGroup variant="contained" className={classes.button}>
+            <Grid item>
+              <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
                 <Button color="primary" disabled>
                   Save Session
                 </Button>
@@ -462,7 +460,7 @@ const SessionManagement = memo(
                 <DownloadPdb />
               </ButtonGroup>
             </Grid>
-            <Grid>
+            <Grid item>
               <p>Currently no active session.</p>
             </Grid>
           </Grid>
@@ -470,8 +468,8 @@ const SessionManagement = memo(
       } else {
         buttons = (
           <Grid container direction="column" justify="center" alignItems="center">
-            <Grid>
-              <ButtonGroup variant="contained" className={classes.button}>
+            <Grid item>
+              <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
                 <Button color="primary" onClick={saveSession}>
                   Save Session
                 </Button>
@@ -484,18 +482,15 @@ const SessionManagement = memo(
                 <DownloadPdb />
               </ButtonGroup>
             </Grid>
-            <Grid>
+            <Grid item>
               <p>Session: {sessionTitle}</p>
             </Grid>
           </Grid>
         );
       }
     }
-    if (savingState.startsWith('saving') || savingState.startsWith('overwriting')) {
-      return <CircularProgress />;
-    } else {
-      return buttons;
-    }
+
+    return buttons;
   }
 );
 

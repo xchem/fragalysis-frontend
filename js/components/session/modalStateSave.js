@@ -172,7 +172,9 @@ const ModalStateSave = memo(
       }
 
       return (
-        <Modal open={savingState.startsWith('saving') || savingState.startsWith('overwriting')}>
+        <Modal
+          open={savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting)}
+        >
           <Grid container direction="column" justify="space-between" alignItems="stretch">
             {sessionRename === true && (
               <Grid item className={classes.row}>
