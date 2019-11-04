@@ -12,17 +12,11 @@ import {
   SET_MOL_GROUP_SELECTION,
   LOAD_MOLECULES,
   LOAD_MOL_GROUPS,
-  GET_FROM_API,
-  GET_FROM_API_FAILURE,
-  GET_FROM_API_SUCCESS,
   RECEIVE_DATA_FROM_API,
   SET_PANNDA_EVENT_LIST,
   SET_PANNDA_EVENT_ON,
   SET_PANNDA_SITE_ON,
   SET_PANNDA_SITE_LIST,
-  SET_APP_ON,
-  SET_HOTSPOT_LIST,
-  SET_HOTSPOT_ON,
   SET_DUCK_YANK_DATA,
   RELOAD_API_STATE,
   SET_SAVING_STATE,
@@ -35,8 +29,7 @@ import {
   UPDATE_SESSION_ID_LIST,
   SET_ERROR_MESSAGE,
   SET_TARGET_UNRECOGNISED,
-  SET_UUID,
-  SET_USER_ID
+  SET_UUID
 } from './actonTypes';
 
 export const loadTargets = function(project_id = undefined) {
@@ -116,13 +109,6 @@ export const setMolGroupSelection = function(mol_group_ids) {
   };
 };
 
-export const setAppOn = function(app_on) {
-  return {
-    type: SET_APP_ON,
-    app_on: app_on
-  };
-};
-
 export const setMolGroupList = function(mol_group_list) {
   return {
     type: SET_MOL_GROUP_LIST,
@@ -149,44 +135,6 @@ export const loadMolecules = function(target_id = undefined, group_id = undefine
     type: LOAD_MOLECULES,
     target_id: target_id,
     group_id: group_id
-  };
-};
-
-export const setHotspotList = function(input_json) {
-  return {
-    type: SET_HOTSPOT_LIST,
-    hotspot_list: input_json
-  };
-};
-
-export const setHotspotOn = function(hotspot) {
-  return {
-    type: SET_HOTSPOT_ON,
-    hotspot_on: hotspot
-  };
-};
-
-export const getFromApi = function(element_type) {
-  return {
-    type: GET_FROM_API,
-    isFetching: true,
-    element_type: element_type
-  };
-};
-
-export const getFromApiSuccess = function(response) {
-  return {
-    type: GET_FROM_API_SUCCESS,
-    isFetching: false,
-    response: response
-  };
-};
-
-export const getFromApiFailure = function() {
-  return {
-    type: GET_FROM_API_FAILURE,
-    isFetching: false,
-    error: 'Request failed'
   };
 };
 
@@ -277,13 +225,6 @@ export const setUuid = function(uuid) {
   };
 };
 
-export const setUserId = function(user_id) {
-  return {
-    type: SET_USER_ID,
-    user_id: user_id
-  };
-};
-
 export const reloadApiState = function(apiReducers) {
   return {
     type: RELOAD_API_STATE,
@@ -309,14 +250,3 @@ export const reloadApiState = function(apiReducers) {
     pandda_site_list: apiReducers.pandda_site_list
   };
 };
-
-export function renderData(element_type, div_id) {}
-
-export function fetchDataFillDiv(url) {
-  return dispatch => {
-    // Set the URL and the get params
-    return fetch(url)
-      .then(response => response.json(), error => console.log('An error occurred.', error))
-      .then(json => dispatch(receiveDataFromApi(json, element_type)));
-  };
-}

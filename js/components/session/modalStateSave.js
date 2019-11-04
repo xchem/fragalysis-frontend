@@ -133,7 +133,11 @@ const ModalStateSave = memo(
       }
     }, [latestSession, latestSnapshot]);
 
-    if (fraggleBoxLoc !== undefined || snapshotLoc !== undefined) {
+    const isLoaded = fraggleBoxLoc !== undefined || snapshotLoc !== undefined;
+
+    console.log('Modal ' + savingState, latestSession, latestSnapshot, sessionId, isLoaded);
+
+    if (isLoaded) {
       if (savingState === savingStateConst.savingSnapshot) {
         urlToCopy =
           window.location.protocol +
@@ -170,47 +174,46 @@ const ModalStateSave = memo(
           latestSession;
         linkTitle = 'Your session has been overwritten and remains available at: ';
       }
+    }
 
-      return (
-        <Modal
-          open={savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting)}
-        >
-          <Grid container direction="column" justify="space-between" alignItems="stretch">
-            {sessionRename === true && (
-              <Grid item className={classes.row}>
-                <TextField
-                  id="sessionRename"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  onKeyDown={handleSessionNaming}
-                  className={classes.textField}
-                  helperText="To overwrite session name, enter new title above and press enter."
-                />
-              </Grid>
-            )}
-            <Grid item>{linkTitle}</Grid>
-            <Grid item>
-              <a href={urlToCopy}>{urlToCopy}</a>
+    return (
+      <Modal
+        open={savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting)}
+        loading={!isLoaded || title === ''}
+      >
+        <Grid container direction="column" justify="space-between" alignItems="stretch">
+          {sessionRename === true && (
+            <Grid item className={classes.row}>
+              <TextField
+                id="sessionRename"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                onKeyDown={handleSessionNaming}
+                className={classes.textField}
+                helperText="To overwrite session name, enter new title above and press enter."
+              />
             </Grid>
-            <Grid item>
-              <Grid container direction="row" justify="space-between" alignItems="center">
-                <Grid item>
-                  <Button onClick={() => updateClipboard(urlToCopy)}>Copy link</Button>
-                </Grid>
-                <Grid item>
-                  <Button onClick={openFraggleLink}>Open in new tab</Button>
-                </Grid>
-                <Grid item>
-                  <Button onClick={closeModal}>Close</Button>
-                </Grid>
+          )}
+          <Grid item>{linkTitle}</Grid>
+          <Grid item>
+            <a href={urlToCopy}>{urlToCopy}</a>
+          </Grid>
+          <Grid item>
+            <Grid container direction="row" justify="space-between" alignItems="center">
+              <Grid item>
+                <Button onClick={() => updateClipboard(urlToCopy)}>Copy link</Button>
+              </Grid>
+              <Grid item>
+                <Button onClick={openFraggleLink}>Open in new tab</Button>
+              </Grid>
+              <Grid item>
+                <Button onClick={closeModal}>Close</Button>
               </Grid>
             </Grid>
           </Grid>
-        </Modal>
-      );
-    } else {
-      return null;
-    }
+        </Grid>
+      </Modal>
+    );
   }
 );
 

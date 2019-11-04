@@ -13,7 +13,7 @@ import { withRouter } from 'react-router-dom';
 import * as listTypes from '../listTypes';
 import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import DownloadPdb from '../downloadPdb';
-import { savingStateConst } from './constants';
+import { savingStateConst, savingTypeConst } from './constants';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -74,8 +74,8 @@ const SessionManagement = memo(
       return decodeURIComponent(xsrfCookies[0].split('=')[1]);
     };
 
-    const postToServer = savingState => {
-      setSavingState(savingState);
+    const postToServer = sessionState => {
+      setSavingState(sessionState);
       for (var key in nglOrientations) {
         setOrientation(key, 'REFRESH');
       }
@@ -83,17 +83,17 @@ const SessionManagement = memo(
 
     const newSession = () => {
       postToServer(savingStateConst.savingSession);
-      setSaveType('sessionNew');
+      setSaveType(savingTypeConst.sessionNew);
     };
 
     const saveSession = () => {
-      postToServer(savingStateConst.savingSession);
-      setSaveType('sessionNew');
+      postToServer(savingStateConst.overwritingSession);
+      setSaveType(savingTypeConst.sessionNew);
     };
 
     const newSnapshot = () => {
       postToServer(savingStateConst.savingSnapshot);
-      setSaveType('snapshotNew');
+      setSaveType(savingTypeConst.snapshotNew);
     };
 
     const deployErrorModal = useCallback(
@@ -279,26 +279,25 @@ const SessionManagement = memo(
 
     const updateFraggleBox = useCallback(
       myJson => {
-        if (saveType === 'sessionNew') {
+        if (saveType === savingTypeConst.sessionNew) {
           setLatestSession(myJson.uuid);
           setSessionId(myJson.id);
           setSessionTitle(myJson.title);
           setSaveType('');
-          setSavingState(savingStateConst.savingSession);
           setNextUuid('');
           getSessionDetails();
-        } else if (saveType === 'sessionSave') {
+        } else if (saveType === savingTypeConst.sessionSave) {
           setSaveType('');
-          setSavingState(savingStateConst.overwritingSession);
           getSessionDetails();
-        } else if (saveType === 'snapshotNew') {
+        } else if (saveType === savingTypeConst.snapshotNew) {
           setLatestSnapshot(myJson.uuid);
           setSaveType('');
-          setSavingState(savingStateConst.savingSnapshot);
         }
       },
-      [getSessionDetails, saveType, setLatestSession, setLatestSnapshot, setSessionId, setSessionTitle, setSavingState]
+      [getSessionDetails, saveType, setLatestSession, setLatestSnapshot, setSessionId, setSessionTitle]
     );
+
+    console.log('Updating Session management ' + savingState);
 
     // componentDidUpdate
     useEffect(() => {
@@ -345,7 +344,7 @@ const SessionManagement = memo(
           apiReducers: newApiObject
         });
         var fullState = { state: JSON.stringify(newStateObject) };
-        if (saveType === 'sessionNew' && newSessionFlag === 1) {
+        if (saveType === savingTypeConst.sessionNew && newSessionFlag === 1) {
           setNewSessionFlag(0);
           var formattedState = {
             uuid: nextUuid,
@@ -371,7 +370,7 @@ const SessionManagement = memo(
             .catch(error => {
               deployErrorModal(error);
             });
-        } else if (saveType === 'sessionSave') {
+        } else if (saveType === savingTypeConst.sessionSave) {
           formattedState = {
             scene: JSON.stringify(JSON.stringify(fullState))
           };
@@ -393,7 +392,7 @@ const SessionManagement = memo(
             .catch(error => {
               deployErrorModal(error);
             });
-        } else if (saveType === 'snapshotNew') {
+        } else if (saveType === savingTypeConst.snapshotNew) {
           const uuidv4 = require('uuid/v4');
           formattedState = {
             uuid: uuidv4(),

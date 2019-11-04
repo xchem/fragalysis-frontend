@@ -1,4 +1,4 @@
-import { makeStyles, Modal as MaterialModal } from '@material-ui/core';
+import { CircularProgress, makeStyles, Modal as MaterialModal } from '@material-ui/core';
 import React, { memo } from 'react';
 
 const useStyles = makeStyles(theme => ({
@@ -14,8 +14,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Modal = memo(({ children, open, ...rest }) => {
+export const Modal = memo(({ children, open, loading, ...rest }) => {
   const classes = useStyles();
+  const content = loading ? <CircularProgress /> : children;
   return (
     <MaterialModal
       aria-labelledby="simple-modal-title"
@@ -23,7 +24,7 @@ export const Modal = memo(({ children, open, ...rest }) => {
       open={open}
       {...rest}
     >
-      <div className={classes.paper}>{children}</div>
+      <div className={classes.paper}>{content}</div>
     </MaterialModal>
   );
 });

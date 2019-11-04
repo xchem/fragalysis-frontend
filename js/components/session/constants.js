@@ -6,3 +6,9 @@ export const savingStateConst = {
   saving: 'saving',
   overwriting: 'overwriting'
 };
+
+export const savingTypeConst = {
+  sessionNew: 'sessionNew',
+  snapshotNew: 'snapshotNew',
+  sessionSave: 'sessionSave'
+};

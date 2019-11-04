@@ -2,6 +2,7 @@
  * Created by abradley on 06/03/2018.
  */
 import * as actions from '../actions/actonTypes';
+import { savingStateConst } from '../components/session/constants';
 
 const INITIALSTATE = {
   project_id: undefined,
@@ -25,13 +26,13 @@ const INITIALSTATE = {
   group_type: 'MC',
   hotspot_on: undefined,
   hotspot_list: [],
-  savingState: 'UNSET',
+  savingState: savingStateConst.UNSET,
   seshListSaving: false,
   latestSession: undefined,
   latestSnapshot: undefined,
   errorMessage: undefined,
   targetUnrecognised: undefined,
-  uuid: 'UNSET',
+  uuid: savingStateConst.UNSET,
   sessionId: undefined,
   sessionIdList: [],
   sessionTitle: undefined,
@@ -58,28 +59,6 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
         group_id: action.group_id
       });
 
-    case actions.GET_FROM_API:
-      // Here is where we put the logic for generatiing the url
-      return Object.assign({}, state, {
-        isFetching: true,
-        element_type: action.element_type,
-        url: getUrl(state, action.element_type)
-      });
-
-    case actions.GET_FROM_API_SUCCESS:
-      return Object.assign({}, state, {
-        element_type: action.element_type,
-        isFetching: false,
-        response: action.response
-      });
-
-    case actions.GET_FROM_API_FAILURE:
-      return Object.assign({}, state, {
-        element_type: action.element_type,
-        isFetching: false,
-        error: action.error
-      });
-
     case actions.SET_TARGET_ID_LIST:
       return Object.assign({}, state, {
         target_id_list: action.target_id_list
@@ -95,16 +74,6 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
       return Object.assign({}, state, {
         target_on_name: target_on_name,
         target_on: action.target_on
-      });
-
-    case actions.SET_HOTSPOT_LIST:
-      return Object.assign({}, state, {
-        hotspot_list: action.hotspot_list
-      });
-
-    case actions.SET_HOTSPOT_ON:
-      return Object.assign({}, state, {
-        hotspot_on: action.hotspot_on
       });
 
     case actions.SET_MOL_GROUP_LIST:
@@ -151,11 +120,6 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
         pandda_site_on: action.pandda_site_id
       });
 
-    case actions.SET_APP_ON:
-      return Object.assign({}, state, {
-        app_on: action.app_on
-      });
-
     case actions.SET_DUCK_YANK_DATA:
       return Object.assign({}, state, {
         duck_yank_data: action.duck_yank_data
@@ -192,9 +156,9 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
       });
 
     case actions.SET_SESSION_ID_LIST:
-      var sessionSummary = [];
+      let sessionSummaryNew = [];
       for (var key in action.sessionIdList) {
-        sessionSummary.push({
+        sessionSummaryNew.push({
           id: action.sessionIdList[key].id,
           uuid: action.sessionIdList[key].uuid,
           title: action.sessionIdList[key].title,
@@ -206,11 +170,11 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
         });
       }
       return Object.assign({}, state, {
-        sessionIdList: sessionSummary
+        sessionIdList: sessionSummaryNew
       });
 
     case actions.UPDATE_SESSION_ID_LIST:
-      var sessionSummary = [];
+      let sessionSummary = [];
       for (var key in action.sessionIdList) {
         sessionSummary.push({
           id: action.sessionIdList[key].id,
@@ -239,11 +203,6 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
     case actions.SET_UUID:
       return Object.assign({}, state, {
         uuid: action.uuid
-      });
-
-    case actions.SET_USER_ID:
-      return Object.assign({}, state, {
-        user_id: action.user_id
       });
 
     case actions.RELOAD_API_STATE:
