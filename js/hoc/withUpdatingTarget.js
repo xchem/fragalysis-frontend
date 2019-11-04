@@ -7,7 +7,17 @@ import { HeaderLoadingContext } from '../components/header/loadingContext';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
-    ({ match, targetIdList, setTargetUnrecognised, setTargetOn, setErrorMessage, target_on, setUuid, setLatestSession }) => {
+    ({
+      match,
+      targetIdList,
+      setTargetUnrecognised,
+      setTargetOn,
+      setErrorMessage,
+      target_on,
+      setUuid,
+      setLatestSession,
+      ...rest
+    }) => {
       const target = match.params.target;
       const { isLoading, setIsLoading } = useContext(HeaderLoadingContext);
 
@@ -49,7 +59,7 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [updateTarget]);
 
       // Component DidMount - Fragglebox
-      useEffect(()=>{
+      useEffect(() => {
         if (match.params.uuid !== undefined) {
           const uuid = match.params.uuid;
           setUuid(uuid);
@@ -58,13 +68,12 @@ export const withUpdatingTarget = WrappedContainer => {
           const snapshotUuid = match.params.snapshotUuid;
           setUuid(snapshotUuid);
         }
-      },[match.params.snapshotUuid, match.params.uuid, setUuid, setLatestSession])
+      }, [match.params.snapshotUuid, match.params.uuid, setUuid, setLatestSession]);
 
-      if (isLoading === true  || target_on === undefined
-      ) {
+      if (isLoading === true || target_on === undefined) {
         return null;
       } else {
-        return <WrappedContainer />;
+        return <WrappedContainer {...rest} />;
       }
     }
   );

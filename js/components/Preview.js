@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(props => {
+const Preview = memo(({ isStateLoaded }) => {
   const classes = useStyles();
 
   const screenHeight = window.innerHeight * (0.7).toString() + 'px';
@@ -40,7 +40,7 @@ const Preview = memo(props => {
         <Grid container spacing={2}>
           <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
             <Grid item className={classes.fullWidth}>
-              <MolGroupSelector />
+              <MolGroupSelector isStateLoaded={isStateLoaded} />
             </Grid>
             <Grid item>
               <MoleculeList height={molListHeight} />

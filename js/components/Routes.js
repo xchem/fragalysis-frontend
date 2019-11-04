@@ -39,8 +39,14 @@ const Routes = memo(() => {
           <Route exact path="/viewer/react/preview" component={Preview} />
           <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
           <Route exact path="/viewer/react/sessions" component={Sessions} />
-          <Route path="/viewer/react/fragglebox/:uuid" component={Preview} />
-          <Route path="/viewer/react/snapshot/:snapshotUuid" component={Preview} />
+          <Route
+            path="/viewer/react/fragglebox/:uuid"
+            render={routeProps => <Preview stateIsLoaded={true} {...routeProps} />}
+          />
+          <Route
+            path="/viewer/react/snapshot/:snapshotUuid"
+            render={routeProps => <Preview stateIsLoaded={true} {...routeProps} />}
+          />
           <Route exact path="/viewer/react/funders" component={Funders} />
         </Switch>
       </HeaderLoadingProvider>
