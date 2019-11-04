@@ -7,9 +7,9 @@ import * as selectionActions from '../actions/selectionActions';
 import SVGInline from 'react-svg-inline';
 import fetch from 'cross-fetch';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from './nglView/nglObjectTypes';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
+import { OBJECT_TYPE } from './nglView/constants';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -130,7 +130,7 @@ const CompoundView = memo(
 
     const generateMolObject = (sdf_info, identifier) => ({
       name: 'CONFLOAD_' + identifier,
-      OBJECT_TYPE: nglObjectTypes.MOLECULE,
+      OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
       colour: 'cyan',
       sdf_info: sdf_info
     });

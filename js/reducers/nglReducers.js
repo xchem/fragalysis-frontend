@@ -1,5 +1,6 @@
 import * as actions from '../actions/actonTypes';
 import { OBJECT_TYPE } from '../constants/constants';
+import { MOL_REPRESENTATION } from '../components/nglView/constants';
 
 const INITIALSTATE = {
   // Lists storing the information of what is in the viewer
@@ -18,7 +19,7 @@ const INITIALSTATE = {
   orientationToSet: {},
   loadingState: true,
   stageColor: 'black',
-  nglProtStyle: 'cartoon'
+  nglProtStyle: MOL_REPRESENTATION.cartoon
 };
 
 export default function nglReducers(state = INITIALSTATE, action = {}) {

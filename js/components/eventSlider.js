@@ -5,10 +5,10 @@ import React, { memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as nglLoadActions from '../actions/nglLoadActions';
-import * as nglObjectTypes from './nglView/nglObjectTypes';
 import { PREFIX, VIEWS } from '../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';
 import { Pager, Well } from 'react-bootstrap';
+import { OBJECT_TYPE } from './nglView/constants';
 
 const EventSlider = memo(({ object_list, object_on, setObjectOn, deleteObject, loadObject }) => {
   const slider_name = 'Pandda Event';
@@ -20,7 +20,7 @@ const EventSlider = memo(({ object_list, object_on, setObjectOn, deleteObject, l
     // Get the data
     return {
       name: PREFIX.EVENT_LOAD + data.id.toString(),
-      OBJECT_TYPE: nglObjectTypes.EVENTMAP,
+      OBJECT_TYPE: OBJECT_TYPE.EVENTMAP,
       map_info: data.small_map_info,
       xtal: data.xtal,
       lig_id: data.lig_id,

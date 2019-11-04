@@ -1,6 +1,6 @@
-import * as nglObjectTypes from '../components/nglView/nglObjectTypes';
-
+import { OBJECT_TYPE } from '../components/nglView/constants';
 // concat molecule results for all selected molecule groups into single list
+
 export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_group_list }) => {
   let joinedMoleculeLists = [];
   if (object_selection) {
@@ -18,7 +18,7 @@ export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_
 export const generateMolObject = (id, sdf_info) => {
   return {
     name: 'MOLLOAD' + '_' + id,
-    OBJECT_TYPE: nglObjectTypes.MOLECULE,
+    OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
     colour: '#FFFFFF',
     sdf_info: sdf_info
   };
@@ -29,7 +29,7 @@ const base_url = window.location.protocol + '//' + window.location.host;
 export const generateObject = (id, protein_code, sdf_info, molecule_protein) => {
   return {
     name: protein_code + '_COMP',
-    OBJECT_TYPE: nglObjectTypes.COMPLEX,
+    OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
     sdf_info: sdf_info,
     colour: '#FFFFFF',
     prot_url: base_url + molecule_protein

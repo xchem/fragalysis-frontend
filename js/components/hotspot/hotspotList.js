@@ -19,7 +19,7 @@ const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on 
   const [hsCount, setHsCount] = useState();
 
   const updateCount = useCallback(async () => {
-    if (object_list.length > 0) {
+    if (object_list && object_list.length > 0) {
       var response = await fetch('/api/hotspots/?map_type=DO&prot_id=' + object_list[0].prot_id.toString(), {
         method: 'get',
         headers: {

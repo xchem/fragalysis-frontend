@@ -6,10 +6,11 @@ import { Col, Row, Image, Panel, Grid } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../actions/nglLoadActions';
-import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
 import $ from 'jquery';
+import { OBJECT_TYPE } from '../nglView/constants';
+import { VIEWS } from '../../constants/constants';
 
 class HotspotView extends React.PureComponent {
   constructor(props) {
@@ -97,18 +98,17 @@ class HotspotView extends React.PureComponent {
         return response.json();
       })
       .then(function(myJson) {
-        var hotspotObject = {
+        return {
           name: 'HOTSPOT_' + myJson.results[0].prot_id.toString() + mapType + isoLevel,
           hotUrl: myJson.results[0].map_info.replace('http:', window.location.protocol),
           display_div: VIEWS.MAJOR_VIEW,
-          OBJECT_TYPE: nglObjectTypes.HOTSPOT,
+          OBJECT_TYPE: OBJECT_TYPE.HOTSPOT,
           map_type: myJson.results[0].map_type.toString(),
           fragment: myJson.results[0].prot_id.toString(),
           isoLevel: isoLevel,
           opacity: opacity,
           disablePicking: true
         };
-        return hotspotObject;
       })
       .then(hotspotObject => this.handleHotspot(hotspotObject, loadState));
   }
@@ -130,7 +130,7 @@ class HotspotView extends React.PureComponent {
 
   buttonRender(strength, type) {
     var _this = this;
-    var button = React.createElement(Toggle, {
+    return React.createElement(Toggle, {
       onClick: function onClick() {
         _this.onHotspot(strength, type);
       },
@@ -141,7 +141,6 @@ class HotspotView extends React.PureComponent {
       offstyle: this.state.hsParams[type].buttonStyle,
       active: this.state.hsDict[type][strength]
     });
-    return button;
   }
 
   render() {

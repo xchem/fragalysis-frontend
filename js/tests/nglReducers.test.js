@@ -3,6 +3,7 @@
  */
 import nglReducers from '../reducers/nglReducers';
 import * as types from '../actions/actonTypes';
+import { MOL_REPRESENTATION } from '../components/nglView/constants';
 
 const TEST_OBJ_ONE = { name: 'TESTOBJ', loadMe: 'STRING' };
 const TEST_OBJ_TWO = { name: 'TESTOBJ2', loadMe: 'STRING_TWO' };
@@ -25,7 +26,7 @@ function getInitialState() {
     hydrogen: true,
     orientationToSet: {},
     loadingState: true,
-    nglProtStyle: 'cartoon',
+    nglProtStyle: MOL_REPRESENTATION.cartoon,
     stageColor: 'black'
   };
 }

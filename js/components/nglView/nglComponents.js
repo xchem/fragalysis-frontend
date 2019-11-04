@@ -7,12 +7,12 @@ import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../actions/apiActions';
 import * as nglLoadActions from '../../actions/nglLoadActions';
-import * as nglObjectTypes from './nglObjectTypes';
 import * as listTypes from '../listTypes';
 import * as selectionActions from '../../actions/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'ramda';
 import { store } from '../root';
+import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
 
 const NGLView = memo(
   ({
@@ -80,7 +80,7 @@ const NGLView = memo(
       let shape = new Shape(object_name);
       shape.addLine();
       let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation('buffer');
+      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
     };*/
 
     const processInt = pickingProxy => {
@@ -133,7 +133,7 @@ const NGLView = memo(
             display_div: VIEWS.MAJOR_VIEW,
             color: [1, 0, 0],
             name: input_dict['interaction'] + SUFFIX.INTERACTION,
-            OBJECT_TYPE: nglObjectTypes.ARROW
+            OBJECT_TYPE: OBJECT_TYPE.ARROW
           });
         } else if (pickingProxy.object.name) {
           let name = pickingProxy.object.name;
@@ -181,13 +181,13 @@ const NGLView = memo(
       let shape = new Shape(object_name);
       shape.addSphere(coords, colour, radius);
       let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation('buffer');
+      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
     };
 
     const showMol = (stage, input_dict, object_name) => {
       let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
       stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function(comp) {
-        comp.addRepresentation('ball+stick', {
+        comp.addRepresentation(MOL_REPRESENTATION.ballPlusStick, {
           colorScheme: 'element',
           colorValue: input_dict.colour,
           multipleBond: true
@@ -207,21 +207,23 @@ const NGLView = memo(
       let colour = ol[5];
       // Set the object name
       let comp = stage.addComponentFromObject(cs);
-      // let nglProtStyle = this.props.nglProtStyle
-      comp.addRepresentation('cartoon');
-      comp.addRepresentation('contact', {
+
+      comp.addRepresentation(MOL_REPRESENTATION.cartoon);
+      comp.addRepresentation(MOL_REPRESENTATION.contact, {
         masterModelIndex: 0,
         weakHydrogenBond: true,
         maxHbondDonPlaneAngle: 35,
         sele: '/0 or /1'
       });
-      comp.addRepresentation('line', {
+      comp.addRepresentation(MOL_REPRESENTATION.line, {
         colorScheme: 'element',
         colorValue: colour,
         sele: '/0'
       });
+
       comp.autoView('ligand');
-      stage.setFocus(focus_let_temp);
+      comp.stage.setFocus(focus_let_temp);
+      comp.stage.viewer.setBackground(stageColor);
     };
 
     const showComplex = (stage, input_dict, object_name) => {
@@ -238,31 +240,31 @@ const NGLView = memo(
 
     const showEvent = (stage, input_dict, object_name) => {
       stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(comp => {
-        comp.addRepresentation('cartoon', {});
+        comp.addRepresentation(MOL_REPRESENTATION.cartoon, {});
         let selection = new Selection('LIG');
         let radius = 5;
         let atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
         let atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
         let sele2 = atomSet2.toSeleString();
         let sele1 = atomSet.toSeleString();
-        comp.addRepresentation('contact', {
+        comp.addRepresentation(MOL_REPRESENTATION.contact, {
           masterModelIndex: 0,
           weakHydrogenBond: true,
           maxHbondDonPlaneAngle: 35,
           linewidth: 1,
           sele: sele2 + ' or LIG'
         });
-        comp.addRepresentation('line', {
+        comp.addRepresentation(MOL_REPRESENTATION.line, {
           sele: sele1
         });
-        comp.addRepresentation('ball+stick', {
+        comp.addRepresentation(MOL_REPRESENTATION.ballPlusStick, {
           sele: 'LIG'
         });
         comp.autoView('LIG');
       });
 
       stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
-        comp.addRepresentation('surface', {
+        comp.addRepresentation(MOL_REPRESENTATION.surface, {
           color: 'mediumseagreen',
           isolevel: 3,
           boxSize: 10,
@@ -271,7 +273,7 @@ const NGLView = memo(
           opaqueBack: false,
           isolevelScroll: false
         });
-        comp.addRepresentation('surface', {
+        comp.addRepresentation(MOL_REPRESENTATION.surface, {
           color: 'tomato',
           isolevel: 3,
           negateIsolevel: true,
@@ -295,7 +297,7 @@ const NGLView = memo(
       let shape = new Shape(object_name, { disableImpostor: true });
       shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
       let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation('buffer');
+      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
     };
 
     const showArrow = (stage, input_dict, object_name) => {
@@ -309,7 +311,7 @@ const NGLView = memo(
       let shape = new Shape(object_name, { disableImpostor: true });
       shape.addArrow(input_dict.start, input_dict.end, colour, radius);
       let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation('buffer');
+      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
     };
 
     const showProtein = (stage, input_dict, object_name) => {
@@ -322,7 +324,7 @@ const NGLView = memo(
     const showHotspot = (stage, input_dict, object_name) => {
       if (input_dict.map_type === 'AP') {
         stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-          comp.addRepresentation('surface', {
+          comp.addRepresentation(MOL_REPRESENTATION.surface, {
             color: '#FFFF00',
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
@@ -334,7 +336,7 @@ const NGLView = memo(
         });
       } else if (input_dict.map_type === 'DO') {
         stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-          comp.addRepresentation('surface', {
+          comp.addRepresentation(MOL_REPRESENTATION.surface, {
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
             opacity: input_dict.opacity,
@@ -346,7 +348,7 @@ const NGLView = memo(
         });
       } else if (input_dict.map_type === 'AC') {
         stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-          comp.addRepresentation('surface', {
+          comp.addRepresentation(MOL_REPRESENTATION.surface, {
             color: '#FF0000',
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
@@ -361,14 +363,14 @@ const NGLView = memo(
 
     // Refactor this out into a utils directory
     const function_dict = {
-      [nglObjectTypes.SPHERE]: showSphere,
-      [nglObjectTypes.MOLECULE]: showMol,
-      [nglObjectTypes.COMPLEX]: showComplex,
-      [nglObjectTypes.CYLINDER]: showCylinder,
-      [nglObjectTypes.ARROW]: showArrow,
-      [nglObjectTypes.PROTEIN]: showProtein,
-      [nglObjectTypes.EVENTMAP]: showEvent,
-      [nglObjectTypes.HOTSPOT]: showHotspot
+      [OBJECT_TYPE.SPHERE]: showSphere,
+      [OBJECT_TYPE.MOLECULE]: showMol,
+      [OBJECT_TYPE.COMPLEX]: showComplex,
+      [OBJECT_TYPE.CYLINDER]: showCylinder,
+      [OBJECT_TYPE.ARROW]: showArrow,
+      [OBJECT_TYPE.PROTEIN]: showProtein,
+      [OBJECT_TYPE.EVENTMAP]: showEvent,
+      [OBJECT_TYPE.HOTSPOT]: showHotspot
     };
 
     const getRadius = data => {
@@ -399,7 +401,7 @@ const NGLView = memo(
         return Object.assign({}, data, {
           name: listType + sele + '_' + +data.id.toString(),
           display_div: view,
-          OBJECT_TYPE: nglObjectTypes.SPHERE,
+          OBJECT_TYPE: OBJECT_TYPE.SPHERE,
           coords: getCoords[listType],
           radius: radius,
           colour: color
@@ -612,6 +614,7 @@ const NGLView = memo(
 
           refStage.current.mouseControls.remove('clickPick-left', showPick);
           refStage.current.dispose();
+          refStage.current = undefined;
         };
       }, // eslint-disable-next-line react-hooks/exhaustive-deps
       [local_div_id]
@@ -645,7 +648,7 @@ const NGLView = memo(
           return {
             name: 'PROTEIN_' + targetData.id.toString(),
             prot_url: prot_to_load,
-            OBJECT_TYPE: nglObjectTypes.PROTEIN,
+            OBJECT_TYPE: OBJECT_TYPE.PROTEIN,
             nglProtStyle: nglProtStyle
           };
         }

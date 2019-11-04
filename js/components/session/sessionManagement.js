@@ -11,9 +11,9 @@ import { getStore } from '../globalStore';
 import * as selectionActions from '../../actions/selectionActions';
 import { withRouter } from 'react-router-dom';
 import * as listTypes from '../listTypes';
-import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import DownloadPdb from '../downloadPdb';
 import { savingStateConst, savingTypeConst } from './constants';
+import { OBJECT_TYPE } from '../nglView/constants';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -191,7 +191,7 @@ const SessionManagement = memo(
     const generateArrowObject = (start, end, name, colour) => {
       return {
         name: listTypes.VECTOR + '_' + name,
-        OBJECT_TYPE: nglObjectTypes.ARROW,
+        OBJECT_TYPE: OBJECT_TYPE.ARROW,
         start: start,
         end: end,
         colour: colour
@@ -201,7 +201,7 @@ const SessionManagement = memo(
     const generateCylinderObject = (start, end, name, colour) => {
       return {
         name: listTypes.VECTOR + '_' + name,
-        OBJECT_TYPE: nglObjectTypes.CYLINDER,
+        OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
         start: start,
         end: end,
         colour: colour

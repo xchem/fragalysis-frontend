@@ -6,7 +6,6 @@ import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles } from '@material-ui/core';
 import * as nglLoadActions from '../../actions/nglLoadActions';
-import * as nglObjectTypes from '../nglView/nglObjectTypes';
 import * as selectionActions from '../../actions/selectionActions';
 import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';
@@ -15,6 +14,7 @@ import classNames from 'classnames';
 import { fetchWithMemoize } from '../generalComponents';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
+import { OBJECT_TYPE } from '../nglView/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -198,7 +198,7 @@ const MoleculeView = memo(
 
     const generateArrowObject = (start, end, name, colour) => ({
       name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: nglObjectTypes.ARROW,
+      OBJECT_TYPE: OBJECT_TYPE.ARROW,
       start: start,
       end: end,
       colour: colour
@@ -206,7 +206,7 @@ const MoleculeView = memo(
 
     const generateCylinderObject = (start, end, name, colour) => ({
       name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: nglObjectTypes.CYLINDER,
+      OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
       start: start,
       end: end,
       colour: colour
@@ -214,7 +214,7 @@ const MoleculeView = memo(
 
     const generateMolObject = () => ({
       name: 'MOLLOAD' + '_' + data.id.toString(),
-      OBJECT_TYPE: nglObjectTypes.MOLECULE,
+      OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
       colour: colourToggle,
       sdf_info: data.sdf_info
     });
@@ -225,7 +225,7 @@ const MoleculeView = memo(
 
     const generateObject = () => ({
       name: data.protein_code + '_COMP',
-      OBJECT_TYPE: nglObjectTypes.COMPLEX,
+      OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
       sdf_info: data.sdf_info,
       colour: colourToggle,
       prot_url: base_url + data.molecule_protein
@@ -235,7 +235,7 @@ const MoleculeView = memo(
       var out_d = {};
       for (let keyItem in inputDict) {
         for (let vector in inputDict[key]) {
-          var vect = vector.split('_')[0];
+          const vect = vector.split('_')[0];
           out_d[vect] = inputDict[keyItem][vector];
         }
       }
@@ -317,14 +317,15 @@ const MoleculeView = memo(
     const not_selected_style = { height: height.toString() + 'px' };
     const current_style = isToggleOn || complexOn || vectorOn ? selected_style : not_selected_style;
 
-    const onSelectAll = () => {
-      let newList = [];
-      if (value.length < 3) {
-        newList = [controlValues.COMPLEX, controlValues.LIGAND, controlValues.VECTOR];
+    const calculateValues = val => {
+      const newValue = value.slice();
+      const valIdx = newValue.indexOf(val);
+      if (valIdx > -1) {
+        newValue.splice(valIdx, 1);
+      } else {
+        newValue.push(val);
       }
-      onLigand(null, newList);
-      onComplex(null, newList);
-      onVector(null, newList);
+      return newValue;
     };
 
     const onLigand = (e, list) => {
@@ -382,15 +383,14 @@ const MoleculeView = memo(
       }
     };
 
-    const calculateValues = val => {
-      const newValue = value.slice();
-      const valIdx = newValue.indexOf(val);
-      if (valIdx > -1) {
-        newValue.splice(valIdx, 1);
-      } else {
-        newValue.push(val);
+    const onSelectAll = () => {
+      let newList = [];
+      if (value.length < 3) {
+        newList = [controlValues.COMPLEX, controlValues.LIGAND, controlValues.VECTOR];
       }
-      return newValue;
+      onLigand(null, newList);
+      onComplex(null, newList);
+      onVector(null, newList);
     };
 
     return (

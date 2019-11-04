@@ -92,14 +92,17 @@ export const getUrl = ({
  * @returns {*|Array}
  */
 export const processResults = ({ json, list_type, seshListSaving, setSeshListSaving, afterPush }) => {
-  let results = json.results;
+  let results = [];
+  if (json) {
+    results = json.results;
+  }
   if (afterPush) {
     afterPush(results);
   }
   if (list_type === listTypes.SESSIONS && seshListSaving === true && setSeshListSaving) {
     setSeshListSaving(false);
   }
-  return results || [];
+  return results;
 };
 
 //url means gall getUrl function

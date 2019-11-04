@@ -6,21 +6,22 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../actions/nglLoadActions';
 import { Button } from 'react-bootstrap';
+import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
 
 const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {
   const handleStageColor = () => {
-    if (stageColor === 'white') {
-      setStageColor('black');
+    if (stageColor === STAGE_COLOR.white) {
+      setStageColor(STAGE_COLOR.black);
     } else {
-      setStageColor('white');
+      setStageColor(STAGE_COLOR.white);
     }
   };
 
   const handleNglProtStyle = () => {
-    if (nglProtStyle === 'cartoon') {
-      setNglProtStyle('hyperball');
-    } else if (nglProtStyle === 'hyperball') {
-      setNglProtStyle('cartoon');
+    if (nglProtStyle === MOL_REPRESENTATION.cartoon) {
+      setNglProtStyle(MOL_REPRESENTATION.hyperball);
+    } else if (nglProtStyle === MOL_REPRESENTATION.hyperball) {
+      setNglProtStyle(MOL_REPRESENTATION.cartoon);
     }
   };
 

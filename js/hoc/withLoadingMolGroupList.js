@@ -6,9 +6,9 @@ import { connect } from 'react-redux';
 import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../actions/nglLoadActions';
 import * as apiActions from '../actions/apiActions';
-import * as nglObjectTypes from '../components/nglView/nglObjectTypes';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
+import { OBJECT_TYPE } from '../components/nglView/constants';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
@@ -37,7 +37,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
         }
         // Move this out of this
         return {
-          OBJECT_TYPE: nglObjectTypes.SPHERE,
+          OBJECT_TYPE: OBJECT_TYPE.SPHERE,
           name: list_type + sele + '_' + +data.id.toString(),
           radius: radius,
           colour: colour,
