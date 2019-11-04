@@ -297,8 +297,6 @@ const SessionManagement = memo(
       [getSessionDetails, saveType, setLatestSession, setLatestSnapshot, setSessionId, setSessionTitle]
     );
 
-    console.log('Updating Session management ' + savingState);
-
     // componentDidUpdate
     useEffect(() => {
       generateNextUuid();

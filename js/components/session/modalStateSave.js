@@ -133,11 +133,9 @@ const ModalStateSave = memo(
       }
     }, [latestSession, latestSnapshot]);
 
-    const isLoaded = fraggleBoxLoc !== undefined || snapshotLoc !== undefined;
+    let isLoading = true;
 
-    console.log('Modal ' + savingState, latestSession, latestSnapshot, sessionId, isLoaded);
-
-    if (isLoaded) {
+    if (snapshotLoc !== undefined || fraggleBoxLoc !== undefined) {
       if (savingState === savingStateConst.savingSnapshot) {
         urlToCopy =
           window.location.protocol +
@@ -147,9 +145,12 @@ const ModalStateSave = memo(
           '/viewer/react/snapshot/' +
           latestSnapshot;
         linkTitle = 'A permanent, fixed snapshot of the current state has been saved: ';
+        isLoading = false;
       } else if (savingState === savingStateConst.savingSession) {
         if (title === '') {
           getTitle();
+        } else {
+          isLoading = false;
         }
         sessionRename = true;
         urlToCopy =
@@ -163,6 +164,8 @@ const ModalStateSave = memo(
       } else if (savingState === savingStateConst.overwritingSession) {
         if (title === '') {
           getTitle();
+        } else {
+          isLoading = false;
         }
         sessionRename = true;
         urlToCopy =
@@ -179,7 +182,7 @@ const ModalStateSave = memo(
     return (
       <Modal
         open={savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting)}
-        loading={!isLoaded || title === ''}
+        loading={isLoading}
       >
         <Grid container direction="column" justify="space-between" alignItems="stretch">
           {sessionRename === true && (
