@@ -115,7 +115,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case actions.SELECT_VECTOR:
       var input_mol_key = action.vector;
-      var new_this_vector_list = [];
+      var new_this_vector_list = {};
       for (var key_to_select in state.to_select) {
         if (key_to_select.split('_')[0] === input_mol_key) {
           new_this_vector_list[key_to_select] = state.to_select[key_to_select];
@@ -200,7 +200,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case actions.RELOAD_SELECTION_STATE:
-      var this_vector_list = [];
+      var this_vector_list = {};
       for (var to_select_item in action.savedSelectionReducers.to_select) {
         if (to_select_item.split('_')[0] === action.savedSelectionReducers.currentVector) {
           this_vector_list[to_select_item] = action.savedSelectionReducers.to_select[to_select_item];

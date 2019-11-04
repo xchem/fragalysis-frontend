@@ -232,10 +232,10 @@ const SessionManagement = memo(
 
     const generateBondColorMap = inputDict => {
       var out_d = {};
-      for (var key in inputDict) {
-        for (var vector in inputDict[key]) {
-          var vect = vector.split('_')[0];
-          out_d[vect] = inputDict[key][vector];
+      for (let keyItem in inputDict) {
+        for (let vector in inputDict[keyItem]) {
+          const vect = vector.split('_')[0];
+          out_d[vect] = inputDict[keyItem][vector];
         }
       }
       return out_d;

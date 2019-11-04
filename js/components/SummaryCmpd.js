@@ -32,7 +32,6 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
   };
   const base_url = window.location.protocol + '//' + window.location.host;
   const url = useRef('');
-  const smiles = useRef('');
 
   const handleClick = () => {
     setIsToggleOn(!isToggleOn);
@@ -79,18 +78,14 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
   const update = useCallback(() => {
     let atomIndices = getAtomIndices();
     url.current = new URL(base_url + '/viewer/img_from_smiles/');
-    let get_params;
-    if (to_query === '') {
-      smiles.current = to_query;
-      return;
-    } else if (atomIndices === undefined) {
-      get_params = { smiles: to_query };
-    } else {
+    let get_params = {};
+    if (atomIndices !== undefined && to_query !== undefined) {
       get_params = { smiles: to_query, atom_indices: atomIndices };
+    } else if (to_query !== undefined) {
+      get_params = { smiles: to_query };
     }
     Object.keys(get_params).forEach(key => url.current.searchParams.append(key, get_params[key]));
     loadFromServer();
-    smiles.current = to_query;
   }, [base_url, getAtomIndices, loadFromServer, to_query]);
 
   useEffect(() => {

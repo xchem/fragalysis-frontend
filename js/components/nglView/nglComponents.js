@@ -593,7 +593,9 @@ const NGLView = memo(
         window.addEventListener(
           'resize',
           event => {
-            refStage.current.handleResize();
+            if (refStage.current) {
+              refStage.current.handleResize();
+            }
           },
           false
         );
@@ -607,7 +609,9 @@ const NGLView = memo(
           window.removeEventListener(
             'resize',
             event => {
-              refStage.current.handleResize();
+              if (refStage.current) {
+                refStage.current.handleResize();
+              }
             },
             false
           );
