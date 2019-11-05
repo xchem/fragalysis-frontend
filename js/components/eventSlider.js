@@ -3,8 +3,8 @@
  */
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as apiActions from '../reducers/api/apiActions';
+import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { PREFIX, VIEWS } from '../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';
 import { Pager, Well } from 'react-bootstrap';

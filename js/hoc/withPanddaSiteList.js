@@ -4,9 +4,9 @@
 
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
+import * as apiActions from '../reducers/api/apiActions';
 import * as listType from '../components/listTypes';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';

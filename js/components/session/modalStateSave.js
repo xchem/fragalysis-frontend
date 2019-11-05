@@ -6,7 +6,7 @@ import React, { memo, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Modal from '../common/modal';
 import { Grid, makeStyles } from '@material-ui/core';
-import * as apiActions from '../../actions/apiActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import { TextField } from '../common/inputs/textField';
 import { Button } from '../common/inputs/button';
 import { savingStateConst } from './constants';

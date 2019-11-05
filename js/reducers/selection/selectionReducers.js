@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import * as actions from '../actions/actonTypes';
+import * as actions from '../actonTypes';
 
 const INITIAL_STATE = {
   to_buy_list: [],
@@ -225,7 +225,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case actions.RESET_SELECTION_STATE:
-      return INITIAL_STATE;
+      return Object.assign({}, state, {
+        ...INITIAL_STATE,
+        fragmentDisplayList: new Set(state.fragmentDisplayList.clear()),
+        complexList: new Set(state.complexList.clear()),
+        vectorOnList: new Set(state.vectorOnList.clear())
+      });
 
     // Cases like: @@redux/INIT
     default:

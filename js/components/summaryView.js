@@ -5,7 +5,7 @@ import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import { Button, ButtonToolbar, Well, Col, Row } from 'react-bootstrap';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import SummaryCmpd from './SummaryCmpd';
 import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';

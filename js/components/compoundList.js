@@ -5,7 +5,7 @@ import { Row, Well, Button, ButtonToolbar } from 'react-bootstrap';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
-import * as selectionActions from '../actions/selectionActions';
+import * as selectionActions from '../reducers/selection/selectionActions';
 
 const molStyle = { height: '400px', overflow: 'scroll' };
 

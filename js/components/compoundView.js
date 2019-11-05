@@ -3,10 +3,10 @@
  */
 import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import * as selectionActions from '../actions/selectionActions';
+import * as selectionActions from '../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import fetch from 'cross-fetch';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';

@@ -4,7 +4,7 @@
 
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import { Button } from 'react-bootstrap';
 import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
 

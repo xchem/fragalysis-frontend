@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 07/03/2018.
  */
-import * as actions from '../actions/nglLoadActions';
-import * as types from '../actions/actonTypes';
+import * as actions from '../reducers/ngl/nglLoadActions';
+import * as types from '../reducers/actonTypes';
 
 const TEST_GROUP_CONST = 'GROUP';
 

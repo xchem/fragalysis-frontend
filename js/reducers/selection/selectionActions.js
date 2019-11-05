@@ -26,7 +26,7 @@ import {
   RELOAD_SELECTION_STATE,
   SET_BOND_COLOR_MAP,
   RESET_SELECTION_STATE
-} from './actonTypes';
+} from '../actonTypes';
 
 export const setToBuyList = function(to_buy_list) {
   return {

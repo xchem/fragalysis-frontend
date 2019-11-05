@@ -12,7 +12,11 @@ export const loadFromServer = ({ width, height, key, old_url, setImg_data, setOl
     }
   } else {
     if (url.toString() !== old_url) {
-      fetchWithMemoize(url).then(text => setImg_data(text[key]));
+      fetchWithMemoize(url).then(text => {
+        if (text !== undefined && text.hasOwnProperty(key)) {
+          setImg_data(text[key]);
+        }
+      });
     }
   }
   setOld_url(url.toString());

@@ -4,11 +4,11 @@
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../actions/nglLoadActions';
-import * as apiActions from '../../actions/apiActions';
+import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
 import { getStore } from '../globalStore';
-import * as selectionActions from '../../actions/selectionActions';
+import * as selectionActions from '../../reducers/selection/selectionActions';
 import { withRouter } from 'react-router-dom';
 import * as listTypes from '../listTypes';
 import DownloadPdb from '../downloadPdb';

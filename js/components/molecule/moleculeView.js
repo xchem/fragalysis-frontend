@@ -5,8 +5,8 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles } from '@material-ui/core';
-import * as nglLoadActions from '../../actions/nglLoadActions';
-import * as selectionActions from '../../actions/selectionActions';
+import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as selectionActions from '../../reducers/selection/selectionActions';
 import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';

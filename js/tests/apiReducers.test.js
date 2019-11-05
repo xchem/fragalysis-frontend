@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import apiReducers from '../reducers/apiReducers';
-import * as types from '../actions/actonTypes';
+import apiReducers from '../reducers/api/apiReducers';
+import * as types from '../reducers/actonTypes';
 
 function getInitialState() {
   return {

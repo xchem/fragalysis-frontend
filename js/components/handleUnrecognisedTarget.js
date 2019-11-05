@@ -5,7 +5,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
-import * as apiActions from '../actions/apiActions';
+import * as apiActions from '../reducers/api/apiActions';
 import TargetList from './targetList';
 import { ErrorReport } from './errorReport';
 import { Modal } from './common/modal';

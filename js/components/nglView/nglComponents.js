@@ -5,10 +5,10 @@
 import { Stage, Shape, Selection, concatStructures } from 'ngl';
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../actions/apiActions';
-import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as apiActions from '../../reducers/api/apiActions';
+import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as listTypes from '../listTypes';
-import * as selectionActions from '../../actions/selectionActions';
+import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'ramda';
 import { store } from '../root';
@@ -692,7 +692,7 @@ const NGLView = memo(
 
     // for loading protein
     useEffect(() => {
-      if (targetIdList.length > 0) {
+      if (targetIdList && targetIdList.length > 0) {
         checkForTargetChange();
       }
     }, [checkForTargetChange, targetIdList]);

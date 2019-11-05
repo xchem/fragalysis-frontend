@@ -1,10 +1,10 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import * as actions from '../actions/actonTypes';
-import { savingStateConst } from '../components/session/constants';
+import * as actions from '../actonTypes';
+import { savingStateConst } from '../../components/session/constants';
 
-const INITIALSTATE = {
+const INITIAL_STATE = {
   project_id: undefined,
   target_id: undefined,
   target_id_list: [],
@@ -39,7 +39,39 @@ const INITIALSTATE = {
   user_id: undefined
 };
 
-export default function apiReducers(state = INITIALSTATE, action = {}) {
+const RESET_TARGET_STATE = {
+  mol_group_list: [],
+  molecule_list: [],
+  cached_mol_lists: {},
+  duck_yank_data: {},
+  pandda_event_on: undefined,
+  pandda_site_on: undefined,
+  pandda_event_list: [],
+  pandda_site_list: [],
+  mol_group_on: undefined,
+  mol_group_selection: [],
+  target_on: undefined,
+  target_on_name: undefined,
+  group_id: undefined,
+  isFetching: false,
+  app_on: 'PREVIEW',
+  group_type: 'MC',
+  hotspot_on: undefined,
+  hotspot_list: [],
+  savingState: savingStateConst.UNSET,
+  seshListSaving: false,
+  latestSession: undefined,
+  latestSnapshot: undefined,
+  errorMessage: undefined,
+  targetUnrecognised: undefined,
+  uuid: savingStateConst.UNSET,
+  sessionId: undefined,
+  sessionIdList: [],
+  sessionTitle: undefined,
+  user_id: undefined
+};
+
+export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     case actions.LOAD_TARGETS:
       return Object.assign({}, state, {
@@ -229,6 +261,8 @@ export default function apiReducers(state = INITIALSTATE, action = {}) {
         latestSession: action.latestSession
       });
 
+    case actions.RESET_TARGET_STATE:
+      return Object.assign({}, state, RESET_TARGET_STATE);
     // Cases like: @@redux/INIT
     default:
       return state;

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
-import * as apiActions from '../actions/apiActions';
+import * as apiActions from '../reducers/api/apiActions';
 
 const useStyles = makeStyles(() => ({
   divContainer: {
@@ -31,19 +31,19 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const molGroupChecklist = memo(({ object_list, object_selection, setObjectOn, setObjectSelection }) => {
+const molGroupChecklist = memo(({ mol_group_list, mol_group_selection, setMolGroupOn, setMolGroupSelection }) => {
   const classes = useStyles();
 
   const handleOnSelect = o => e => {
-    const objIdx = object_selection.indexOf(o.id);
-    const selectionCopy = object_selection.slice();
+    const objIdx = mol_group_selection.indexOf(o.id);
+    const selectionCopy = mol_group_selection.slice();
     if (e.target.checked && objIdx === -1) {
-      setObjectOn(o.id);
+      setMolGroupOn(o.id);
       selectionCopy.push(o.id);
-      setObjectSelection(selectionCopy);
+      setMolGroupSelection(selectionCopy);
     } else if (!e.target.checked && objIdx > -1) {
       selectionCopy.splice(objIdx, 1);
-      setObjectSelection(selectionCopy);
+      setMolGroupSelection(selectionCopy);
     }
   };
 
@@ -51,9 +51,9 @@ const molGroupChecklist = memo(({ object_list, object_selection, setObjectOn, se
     <div className={classes.divContainer}>
       <div className={classes.divScrollable}>
         <Grid container direction="column">
-          {object_list &&
-            object_list.map((o, idx) => {
-              const checked = object_selection.some(i => i === o.id);
+          {mol_group_list &&
+            mol_group_list.map((o, idx) => {
+              const checked = mol_group_selection.some(i => i === o.id);
               const site = idx + 1;
               return (
                 <Grid item container alignItems="center" key={`mol-checklist-item-${idx}`}>
@@ -82,14 +82,14 @@ const molGroupChecklist = memo(({ object_list, object_selection, setObjectOn, se
 
 const mapStateToProps = state => {
   return {
-    object_list: state.apiReducers.present.mol_group_list,
-    object_selection: state.apiReducers.present.mol_group_selection
+    mol_group_list: state.apiReducers.present.mol_group_list,
+    mol_group_selection: state.apiReducers.present.mol_group_selection
   };
 };
 
 const mapDispatchToProps = {
-  setObjectOn: apiActions.setMolGroupOn,
-  setObjectSelection: apiActions.setMolGroupSelection
+  setMolGroupOn: apiActions.setMolGroupOn,
+  setMolGroupSelection: apiActions.setMolGroupSelection
 };
 export default connect(
   mapStateToProps,

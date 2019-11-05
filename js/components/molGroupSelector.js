@@ -5,11 +5,11 @@ import NGLView from './nglView/nglComponents';
 import MolGroupChecklist from './molGroupChecklist';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
-import * as apiActions from '../actions/apiActions';
+import * as apiActions from '../reducers/api/apiActions';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../actions/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
-import * as selectionActions from '../actions/selectionActions';
+import * as selectionActions from '../reducers/selection/selectionActions';
 import { generateMolObject, generateObject, getJoinedMoleculeList } from '../utils/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 

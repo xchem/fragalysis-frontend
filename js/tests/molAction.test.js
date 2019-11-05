@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import * as actions from '../actions/apiActions';
-import * as types from '../actions/actonTypes';
+import * as actions from '../reducers/api/apiActions';
+import * as types from '../reducers/actonTypes';
 
 describe('Molecular actions', () => {
   it('Should load all the targets for a project id', () => {

@@ -1,6 +1,6 @@
-import * as actions from '../actions/actonTypes';
-import { OBJECT_TYPE } from '../constants/constants';
-import { MOL_REPRESENTATION } from '../components/nglView/constants';
+import * as actions from '../actonTypes';
+import { OBJECT_TYPE } from '../../constants/constants';
+import { MOL_REPRESENTATION } from '../../components/nglView/constants';
 
 const INITIALSTATE = {
   // Lists storing the information of what is in the viewer

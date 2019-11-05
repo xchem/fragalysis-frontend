@@ -6,7 +6,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button } from 'react-bootstrap';
-import * as apiActions from '../actions/apiActions';
+import * as apiActions from '../reducers/api/apiActions';
 
 const customStyles = {
   overlay: {

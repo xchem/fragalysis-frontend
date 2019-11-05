@@ -5,7 +5,7 @@
 import { Col, Row, Image, Panel, Grid } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
 import $ from 'jquery';

@@ -1,9 +1,10 @@
 import React, { memo, useCallback, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import * as apiActions from '../actions/apiActions';
+import * as apiActions from '../reducers/api/apiActions';
 import fetch from 'cross-fetch';
 import { HeaderLoadingContext } from '../components/header/loadingContext';
+import * as selectionActions from '../reducers/selection/selectionActions';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
@@ -16,6 +17,9 @@ export const withUpdatingTarget = WrappedContainer => {
       target_on,
       setUuid,
       setLatestSession,
+      resetSelection,
+      resetSelectionState,
+      resetTargetState,
       ...rest
     }) => {
       const target = match.params.target;
@@ -28,15 +32,24 @@ export const withUpdatingTarget = WrappedContainer => {
         [setErrorMessage]
       );
 
+      useEffect(() => {
+        if (resetSelection) {
+          resetTargetState();
+          resetSelectionState();
+        }
+      }, [resetTargetState, resetSelectionState, resetSelection]);
+
       const updateTarget = useCallback(() => {
         // Get from the REST API
         let targetUnrecognisedFlag = true;
-        if (target !== undefined && targetIdList.length !== 0) {
-          targetIdList.forEach(targetId => {
-            if (target === targetId.title) {
-              targetUnrecognisedFlag = false;
-            }
-          });
+        if (target !== undefined) {
+          if (targetIdList && targetIdList.length > 0) {
+            targetIdList.forEach(targetId => {
+              if (target === targetId.title) {
+                targetUnrecognisedFlag = false;
+              }
+            });
+          }
           setTargetUnrecognised(targetUnrecognisedFlag);
         }
 
@@ -89,7 +102,9 @@ export const withUpdatingTarget = WrappedContainer => {
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
     setErrorMessage: apiActions.setErrorMessage,
     setUuid: apiActions.setUuid,
-    setLatestSession: apiActions.setLatestSession
+    setLatestSession: apiActions.setLatestSession,
+    resetSelectionState: selectionActions.resetSelectionState,
+    resetTargetState: apiActions.resetTargetState
   };
 
   return withRouter(

@@ -5,9 +5,9 @@
 import { Grid, Chip, Tooltip, Button, makeStyles, CircularProgress } from '@material-ui/core';
 import React, { useMemo, useState, useEffect, memo, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../actions/apiActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
-import * as nglLoadActions from '../../actions/nglLoadActions';
+import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import MoleculeView from './moleculeView';
 import BorderedView from '../borderedView';
 import classNames from 'classnames';

@@ -16,7 +16,7 @@ import {
   SET_STAGE_COLOR,
   SET_NGL_PROT_STYLE,
   REDEPLOY_VECTORS
-} from './actonTypes';
+} from '../actonTypes';
 
 export const loadObject = function(group) {
   return {

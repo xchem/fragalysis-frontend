@@ -3,7 +3,13 @@ import * as R from 'ramda';
 
 const fetchWithMemoize = R.memoizeWith(R.identity, url => {
   return fetch(url)
-    .then(response => response.json())
+    .then(response => {
+      if (response && response.ok) {
+        return response.json();
+      } else {
+        return new Error(response.status, ': ', response.statusText, ', ', response.url);
+      }
+    })
     .catch(error => console.log('An error occurred.', error));
 });
 exports.fetchWithMemoize = fetchWithMemoize;

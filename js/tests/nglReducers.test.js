@@ -1,8 +1,8 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import nglReducers from '../reducers/nglReducers';
-import * as types from '../actions/actonTypes';
+import nglReducers from '../reducers/ngl/nglReducers';
+import * as types from '../reducers/actonTypes';
 import { MOL_REPRESENTATION } from '../components/nglView/constants';
 
 const TEST_OBJ_ONE = { name: 'TESTOBJ', loadMe: 'STRING' };

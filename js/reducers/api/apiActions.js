@@ -12,7 +12,6 @@ import {
   SET_MOL_GROUP_SELECTION,
   LOAD_MOLECULES,
   LOAD_MOL_GROUPS,
-  RECEIVE_DATA_FROM_API,
   SET_PANNDA_EVENT_LIST,
   SET_PANNDA_EVENT_ON,
   SET_PANNDA_SITE_ON,
@@ -29,8 +28,9 @@ import {
   UPDATE_SESSION_ID_LIST,
   SET_ERROR_MESSAGE,
   SET_TARGET_UNRECOGNISED,
-  SET_UUID
-} from './actonTypes';
+  SET_UUID,
+  RESET_TARGET_STATE
+} from '../actonTypes';
 
 export const loadTargets = function(project_id = undefined) {
   return {
@@ -138,16 +138,6 @@ export const loadMolecules = function(target_id = undefined, group_id = undefine
   };
 };
 
-export const receiveDataFromApi = function(json, element_type) {
-  return {
-    type: RECEIVE_DATA_FROM_API,
-    element_type: element_type,
-    // Perhaps need to handle pagination here
-    children: json.data.children.map(child => child.data),
-    receivedAt: Date.now()
-  };
-};
-
 export const setSavingState = function(savingState) {
   return {
     type: SET_SAVING_STATE,
@@ -250,3 +240,5 @@ export const reloadApiState = function(apiReducers) {
     pandda_site_list: apiReducers.pandda_site_list
   };
 };
+
+export const resetTargetState = () => ({ type: RESET_TARGET_STATE });

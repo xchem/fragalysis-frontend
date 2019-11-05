@@ -5,7 +5,7 @@
 import { ListGroupItem, ListGroup, Row, Col, ButtonToolbar } from 'react-bootstrap';
 import React, { Fragment, memo, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../actions/apiActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
@@ -210,7 +210,6 @@ const SessionList = memo(
       }
     };
 
-
     useEffect(() => {
       loadFromServer({
         url: getUrl({ list_type, setSeshListSaving }),
@@ -221,7 +220,6 @@ const SessionList = memo(
         seshListSaving
       });
     }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving]);
-
 
     let sessionListTitle;
     if ((sessionIdList.length !== 0 && sessionIdList.length <= 10) || pathname !== '/viewer/react/sessions') {
@@ -235,12 +233,13 @@ const SessionList = memo(
       );
     }
 
-    console.log(sessionIdList, seshListSaving, location);
-
     if (seshListSaving === true) {
-      return (<Fragment>{sessionListTitle}
-      <CircularProgress />
-      </Fragment>);
+      return (
+        <Fragment>
+          {sessionListTitle}
+          <CircularProgress />
+        </Fragment>
+      );
     } else {
       if (sessionIdList) {
         // eslint-disable-next-line no-undef

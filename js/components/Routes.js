@@ -36,8 +36,11 @@ const Routes = memo(() => {
           <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path="/viewer/react/landing" component={Landing} />
-          <Route exact path="/viewer/react/preview" component={Preview} />
-          <Route exact path="/viewer/react/preview/target/:target" component={Preview} />
+          <Route
+            exact
+            path="/viewer/react/preview/target/:target"
+            render={routeProps => <Preview resetSelection {...routeProps} />}
+          />
           <Route exact path="/viewer/react/sessions" component={Sessions} />
           <Route
             path="/viewer/react/fragglebox/:uuid"

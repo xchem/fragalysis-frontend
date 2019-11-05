@@ -2,7 +2,7 @@
  * Created by abradley on 03/03/2018.
  */
 
-import { SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN } from './actonTypes';
+import { SET_COLOR, SET_STYLE, SET_SPIN, SET_WATER, SET_HYDROGEN } from '../actonTypes';
 
 export const setColor = function(color) {
   return {
