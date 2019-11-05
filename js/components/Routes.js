@@ -41,11 +41,11 @@ const Routes = memo(() => {
           <Route exact path="/viewer/react/sessions" component={Sessions} />
           <Route
             path="/viewer/react/fragglebox/:uuid"
-            render={routeProps => <Preview stateIsLoaded={true} {...routeProps} />}
+            render={routeProps => <Preview isStateLoaded={true} {...routeProps} />}
           />
           <Route
             path="/viewer/react/snapshot/:snapshotUuid"
-            render={routeProps => <Preview stateIsLoaded={true} {...routeProps} />}
+            render={routeProps => <Preview isStateLoaded={true} {...routeProps} />}
           />
           <Route exact path="/viewer/react/funders" component={Funders} />
         </Switch>
