@@ -17,7 +17,7 @@ module.exports = {
   stats: {
     // Configure the console output
     errorDetails: true, //this does show errors
-    colors: false,
+    colors: true,
     modules: true,
     reasons: true
   },

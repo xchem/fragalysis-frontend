@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import Toggle from 'react-bootstrap-toggle';
 import fetch from 'cross-fetch';
-import $ from 'jquery';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { VIEWS } from '../../constants/constants';
 
@@ -116,7 +115,7 @@ class HotspotView extends React.PureComponent {
   onHotspot(strength, type) {
     const newState = !this.state.hsDict[type][strength];
     const replacementObject = { [type]: { [strength]: newState } };
-    const newDict = $.extend(true, {}, this.state.hsDict, replacementObject);
+    const newDict = JSON.parse(JSON.stringify(Object.assign({}, this.state.hsDict, replacementObject)));
     this.setState({ hsDict: newDict });
     const load_var = this.state.hsDict[type][strength] ? 'unload' : 'load';
     this.fetchHotspotUrl(
