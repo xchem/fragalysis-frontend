@@ -76,6 +76,9 @@ const useStyles = makeStyles(theme => ({
       borderColor: '#003f00',
       color: '#003f00'
     }
+  },
+  paddingProgress: {
+    padding: theme.spacing(1)
   }
 }));
 
@@ -231,7 +234,13 @@ const MoleculeList = memo(
                   hasMore={canLoadMore}
                   loader={
                     <div className="loader" key={0}>
-                      <Grid container direction="row" justify="center" alignItems="center">
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="center"
+                        className={classes.paddingProgress}
+                      >
                         <CircularProgress />
                       </Grid>
                     </div>
