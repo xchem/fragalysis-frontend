@@ -145,15 +145,18 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList
   }) => {
+    const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
     const base_url = window.location.protocol + '//' + window.location.host;
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
-    const [isToggleOn, setIsToggleOn] = useState(false);
-    const [complexOn, setComplexOn] = useState(false);
-    const [vectorOn, setVectorOn] = useState(false);
-    const [value, setValue] = useState([]);
+
+    const isLigandOn = (currentID && fragmentDisplayList.has(currentID)) || false;
+    const isComplexOn = (currentID && complexList.has(currentID)) || false;
+    const isVectorOn = (currentID && vectorOnList.has(currentID)) || false;
+    const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
+
     const oldUrl = useRef('');
     const setOldUrl = url => {
       oldUrl.current = url;
@@ -275,37 +278,9 @@ const MoleculeView = memo(
           url
         });
 
-        const thisToggleOn = fragmentDisplayList.has(data.id);
-        const complexOnHelper = complexList.has(data.id);
-        const vectorOnHelper = vectorOnList.has(data.id);
-        var value_list = [];
-        if (complexOnHelper) {
-          value_list.push(1);
-        }
-        if (thisToggleOn) {
-          value_list.push(2);
-        }
-        if (to_query === data.smiles) {
-          value_list.push(3);
-        }
-        setValue(value_list);
-        setComplexOn(complexOnHelper);
-        setIsToggleOn(thisToggleOn);
-        setVectorOn(vectorOnHelper);
         refDidMount.current = true;
       }
     }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
-
-    useEffect(() => {
-      let value_list = value.slice();
-      if (to_query !== data.smiles) {
-        var index = value_list.indexOf(3);
-        if (index > -1) {
-          value_list.splice(index, 1);
-          setValue(value_list);
-        }
-      }
-    }, [data.smiles, to_query, value]);
 
     const svg_image = <SVGInline svg={img_data} />;
     // Here add the logic that updates this based on the information
@@ -315,27 +290,10 @@ const MoleculeView = memo(
       backgroundColor: colourToggle
     };
     const not_selected_style = { height: height.toString() + 'px' };
-    const current_style = isToggleOn || complexOn || vectorOn ? selected_style : not_selected_style;
+    const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
 
-    const calculateValues = val => {
-      const newValue = value.slice();
-      const valIdx = newValue.indexOf(val);
-      if (valIdx > -1) {
-        newValue.splice(valIdx, 1);
-      } else {
-        newValue.push(val);
-      }
-      return newValue;
-    };
-
-    const onLigand = (e, list) => {
-      const new_list = list || calculateValues(controlValues.LIGAND);
-      const isToggled = new_list.some(i => i === controlValues.LIGAND);
-      setIsToggleOn(isToggled);
-      if (new_list) {
-        setValue(new_list);
-      }
-      if (!isToggled) {
+    const onLigand = () => {
+      if (isLigandOn) {
         deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject()));
         removeFromFragmentDisplayList(generateMolId());
       } else {
@@ -344,14 +302,8 @@ const MoleculeView = memo(
       }
     };
 
-    const onComplex = (e, list) => {
-      const new_list = list || calculateValues(controlValues.COMPLEX);
-      const isToggled = new_list.some(i => i === controlValues.COMPLEX);
-      setIsToggleOn(isToggled);
-      if (new_list) {
-        setValue(new_list);
-      }
-      if (!isToggled) {
+    const onComplex = () => {
+      if (isComplexOn) {
         deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()));
         removeFromComplexList(generateMolId());
       } else {
@@ -360,14 +312,8 @@ const MoleculeView = memo(
       }
     };
 
-    const onVector = (e, list) => {
-      const new_list = list || calculateValues(controlValues.VECTOR);
-      const isToggled = new_list.some(i => i === controlValues.VECTOR);
-      setIsToggleOn(isToggled);
-      if (new_list) {
-        setValue(new_list);
-      }
-      if (!isToggled) {
+    const onVector = () => {
+      if (isVectorOn) {
         vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
         setMol('');
         removeFromVectorOnList(generateMolId());
@@ -384,13 +330,9 @@ const MoleculeView = memo(
     };
 
     const onSelectAll = () => {
-      let newList = [];
-      if (value.length < 3) {
-        newList = [controlValues.COMPLEX, controlValues.LIGAND, controlValues.VECTOR];
-      }
-      onLigand(null, newList);
-      onComplex(null, newList);
-      onVector(null, newList);
+      onLigand();
+      onComplex();
+      onVector();
     };
 
     return (
@@ -404,7 +346,7 @@ const MoleculeView = memo(
               variant="outlined"
               fullWidth
               className={classNames(classes.contColButton, {
-                [classes.contColButtonSelected]: value.length === 3
+                [classes.contColButtonSelected]: hasAllValuesOn
               })}
               onClick={onSelectAll}
             >
@@ -416,7 +358,7 @@ const MoleculeView = memo(
               variant="outlined"
               fullWidth
               className={classNames(classes.contColButton, {
-                [classes.contColButtonSelected]: value.some(v => v === controlValues.LIGAND)
+                [classes.contColButtonSelected]: isLigandOn
               })}
               onClick={onLigand}
             >
@@ -428,7 +370,7 @@ const MoleculeView = memo(
               variant="outlined"
               fullWidth
               className={classNames(classes.contColButton, {
-                [classes.contColButtonSelected]: value.some(v => v === controlValues.COMPLEX)
+                [classes.contColButtonSelected]: isComplexOn
               })}
               onClick={onComplex}
             >
@@ -440,7 +382,7 @@ const MoleculeView = memo(
               variant="outlined"
               fullWidth
               className={classNames(classes.contColButton, {
-                [classes.contColButtonSelected]: value.some(v => v === controlValues.VECTOR)
+                [classes.contColButtonSelected]: isVectorOn
               })}
               onClick={onVector}
             >
@@ -513,6 +455,7 @@ const mapDispatchToProps = {
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList
 };
 
+MoleculeView.displayName = 'MoleculeView';
 export default connect(
   mapStateToProps,
   mapDispatchToProps

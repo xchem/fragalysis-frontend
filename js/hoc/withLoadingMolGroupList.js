@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 13/03/2018.
  */
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
