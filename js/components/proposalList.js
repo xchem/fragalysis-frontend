@@ -8,9 +8,10 @@ import { connect } from 'react-redux';
 import * as listType from './listTypes';
 import { withRouter } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../utils/genericList';
+import * as apiActions from '../reducers/api/apiActions';
 // import {withRouter, Link} from "react-router-dom";
 
-const ProposalList = memo(({ object_list }) => {
+const ProposalList = memo(({ setErrorMessage }) => {
   const list_type = listType.SESSIONS;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -59,8 +60,10 @@ const ProposalList = memo(({ object_list }) => {
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl.current,
       list_type
+    }).catch(error => {
+      setErrorMessage(error);
     });
-  }, [list_type]);
+  }, [list_type, setErrorMessage]);
 
   // const userPk = DJANGO_CONTEXT["pk"]
   // const username = DJANGO_CONTEXT["username"]
@@ -136,12 +139,12 @@ const ProposalList = memo(({ object_list }) => {
 });
 
 function mapStateToProps(state) {
-  return {
-    object_list: state.apiReducers.present.sessionIdList
-  };
+  return {};
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setErrorMessage: apiActions.setErrorMessage
+};
 
 export default withRouter(
   connect(

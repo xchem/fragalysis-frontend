@@ -10,7 +10,7 @@ import HotspotView from './hotspotView';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
-const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on }) => {
+const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on, setErrorMessage }) => {
   const list_type = listType.MOLECULE;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -19,8 +19,8 @@ const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on 
   const [hsCount, setHsCount] = useState();
 
   const updateCount = useCallback(async () => {
-    if (object_list && object_list.length > 0) {
-      var response = await fetch('/api/hotspots/?map_type=DO&prot_id=' + object_list[0].prot_id.toString(), {
+    if (molecule_list && molecule_list.length > 0) {
+      var response = await fetch('/api/hotspots/?map_type=DO&prot_id=' + molecule_list[0].prot_id.toString(), {
         method: 'get',
         headers: {
           Accept: 'application/json',
@@ -30,7 +30,7 @@ const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on 
       const myJson = await response.json();
       setHsCount(myJson.count);
     }
-  }, [object_list]);
+  }, [molecule_list]);
 
   useEffect(() => {
     updateCount();
@@ -43,14 +43,16 @@ const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on 
       old_url: oldUrl.current,
       list_type,
       setObjectList
+    }).catch(error => {
+      setErrorMessage(error);
     });
-  }, [list_type, setObjectList, mol_group_on, target_on]);
+  }, [list_type, setObjectList, mol_group_on, target_on, setErrorMessage]);
 
   if (hsCount > 0) {
     return (
       <Well>
         <Row style={molStyle}>
-          {object_list.map(data => (
+          {molecule_list.map(data => (
             <HotspotView key={data.id} data={data} />
           ))}
         </Row>
@@ -62,13 +64,14 @@ const HotspotList = memo(({ object_list, setObjectList, target_on, mol_group_on 
 });
 function mapStateToProps(state) {
   return {
-    object_list: state.apiReducers.present.molecule_list,
+    molecule_list: state.apiReducers.present.molecule_list,
     target_on: state.apiReducers.present.target_on,
     mol_group_on: state.apiReducers.present.mol_group_on
   };
 }
 const mapDispatchToProps = {
-  setObjectList: apiActions.setMoleculeList
+  setObjectList: apiActions.setMoleculeList,
+  setErrorMessage: apiActions.setErrorMessage
 };
 
 export default connect(

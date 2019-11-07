@@ -12,64 +12,70 @@ import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
 
 export const withLoadingPanddaSiteList = WrappedComponent => {
-  const PanddaSiteList = memo(({ group_type, target_on, object_list, setObjectList, deleteObject, loadObject }) => {
-    const list_type = listType.PANDDA_SITE;
-    const oldUrl = useRef('');
-    const setOldUrl = url => {
-      oldUrl.current = url;
-    };
+  const PanddaSiteList = memo(
+    ({ group_type, target_on, object_list, setObjectList, deleteObject, loadObject, setErrorMessage }) => {
+      const list_type = listType.PANDDA_SITE;
+      const oldUrl = useRef('');
+      const setOldUrl = url => {
+        oldUrl.current = url;
+      };
 
-    const generateObject = useCallback(
-      (data, selected = false) => {
-        var sele = '';
-        var colour = [0, 0, 1];
-        var radius = 6.0;
-        if (selected) {
-          sele = 'SELECT';
-          colour = [0, 1, 0];
+      const generateObject = useCallback(
+        (data, selected = false) => {
+          var sele = '';
+          var colour = [0, 0, 1];
+          var radius = 6.0;
+          if (selected) {
+            sele = 'SELECT';
+            colour = [0, 1, 0];
+          }
+          // Move this out of this
+          return {
+            OBJECT_TYPE: OBJECT_TYPE.SPHERE,
+            name: list_type + sele + '_' + +data.id.toString(),
+            radius: radius,
+            colour: colour,
+            coords: [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z]
+          };
+        },
+        [list_type]
+      );
+
+      const beforePush = useCallback(() => {
+        // Delete of them in the PANDDA VIEW
+        if (object_list) {
+          object_list.map(data =>
+            deleteObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateObject(data)))
+          );
         }
-        // Move this out of this
-        return {
-          OBJECT_TYPE: OBJECT_TYPE.SPHERE,
-          name: list_type + sele + '_' + +data.id.toString(),
-          radius: radius,
-          colour: colour,
-          coords: [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z]
-        };
-      },
-      [list_type]
-    );
+      }, [deleteObject, generateObject, object_list]);
 
-    const beforePush = useCallback(() => {
-      // Delete of them in the PANDDA VIEW
-      if (object_list) {
-        object_list.map(data => deleteObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateObject(data))));
-      }
-    }, [deleteObject, generateObject, object_list]);
+      const afterPush = useCallback(
+        objects => {
+          if (objects) {
+            objects.map(data => loadObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateObject(data))));
+          }
+        },
+        [generateObject, loadObject]
+      );
 
-    const afterPush = useCallback(
-      objects => {
-        if (objects) {
-          objects.map(data => loadObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateObject(data))));
-        }
-      },
-      [generateObject, loadObject]
-    );
+      useEffect(() => {
+        loadFromServer({
+          url: getUrl({ list_type, target_on, group_type }),
+          setOldUrl: url => setOldUrl(url),
+          old_url: oldUrl.current,
+          list_type,
+          setObjectList,
+          beforePush,
+          afterPush
+        }).catch(error => {
+          setErrorMessage(error);
+        });
+      }, [list_type, setObjectList, target_on, beforePush, afterPush, group_type, setErrorMessage]);
 
-    useEffect(() => {
-      loadFromServer({
-        url: getUrl({ list_type, target_on, group_type }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl.current,
-        list_type,
-        setObjectList,
-        beforePush,
-        afterPush
-      });
-    }, [list_type, setObjectList, target_on, beforePush, afterPush, group_type]);
-
-    return <WrappedComponent />;
-  });
+      return <WrappedComponent />;
+    }
+  );
 
   function mapStateToProps(state) {
     return {
@@ -82,7 +88,8 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
   const mapDispatchToProps = {
     setObjectList: apiActions.setPanddaSiteList,
     deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject
+    loadObject: nglLoadActions.loadObject,
+    setErrorMessage: apiActions.setErrorMessage
   };
   return connect(
     mapStateToProps,

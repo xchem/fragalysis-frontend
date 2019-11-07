@@ -5,6 +5,8 @@
 import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import SVGInline from 'react-svg-inline';
+import { fetchWithMemoize } from '../utils/api';
+import * as apiActions from '../reducers/api/apiActions';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -23,7 +25,7 @@ const img_data_init =
   '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
   '</svg>';
 
-const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height }) => {
+const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height, setErrorMessage }) => {
   const [img_data, setImg_data] = useState(img_data_init);
   const [isToggleOn, setIsToggleOn] = useState(false);
   const oldUrl = useRef('');
@@ -37,19 +39,21 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
     setIsToggleOn(!isToggleOn);
   };
 
-  const loadFromServer = useCallback(() => {
+  const fetchFromServer = useCallback(() => {
     let get_params = {
       width,
       height
     };
     Object.keys(get_params).forEach(key => url.current.searchParams.append(key, get_params[key]));
     if (url.current.toString() !== oldUrl.current) {
-      fetch(url.current)
-        .then(response => response.text(), error => console.log('An error occurred.', error))
-        .then(text => setImg_data(text));
+      fetchWithMemoize(url.current)
+        .then(text => setImg_data(text.text()))
+        .catch(error => {
+          setErrorMessage(error);
+        });
     }
     setOldUrl(url.current.toString());
-  }, [height, width]);
+  }, [height, width, setErrorMessage]);
 
   const getAtomIndices = useCallback(() => {
     if (currentVector === undefined) {
@@ -85,8 +89,8 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
       get_params = { smiles: to_query };
     }
     Object.keys(get_params).forEach(key => url.current.searchParams.append(key, get_params[key]));
-    loadFromServer();
-  }, [base_url, getAtomIndices, loadFromServer, to_query]);
+    fetchFromServer();
+  }, [base_url, getAtomIndices, fetchFromServer, to_query]);
 
   useEffect(() => {
     update();
@@ -107,7 +111,9 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setErrorMessage: apiActions.setErrorMessage
+};
 
 export default connect(
   mapStateToProps,

@@ -9,7 +9,7 @@ import * as listType from '../components/listTypes';
 import { getUrl, loadFromServer } from '../utils/genericList';
 
 export const withLoadingEventList = WrappedComponent => {
-  const EventList = memo(({ target_on, pandda_site_on, setObjectList }) => {
+  const EventList = memo(({ target_on, pandda_site_on, setObjectList, setErrorMessage }) => {
     const list_type = listType.PANDDA_EVENT;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -23,8 +23,10 @@ export const withLoadingEventList = WrappedComponent => {
         old_url: oldUrl.current,
         list_type,
         setObjectList
+      }).catch(error => {
+        setErrorMessage(error);
       });
-    }, [list_type, setObjectList, target_on, pandda_site_on]);
+    }, [list_type, setObjectList, target_on, pandda_site_on, setErrorMessage]);
 
     return <WrappedComponent />;
   });
@@ -37,7 +39,8 @@ export const withLoadingEventList = WrappedComponent => {
   }
 
   const mapDispatchToProps = {
-    setObjectList: apiActions.setPanddaEventList
+    setObjectList: apiActions.setPanddaEventList,
+    setErrorMessage: apiActions.setErrorMessage
   };
   return connect(
     mapStateToProps,

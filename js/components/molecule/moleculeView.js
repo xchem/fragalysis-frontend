@@ -11,10 +11,11 @@ import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
-import { fetchWithMemoize } from '../generalComponents';
+import { fetchWithMemoize } from '../../utils/api';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
+import * as apiActions from '../../reducers/api/apiActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -143,7 +144,8 @@ const MoleculeView = memo(
     appendVectorOnList,
     removeFromVectorOnList,
     appendFragmentDisplayList,
-    removeFromFragmentDisplayList
+    removeFromFragmentDisplayList,
+    setErrorMessage
   }) => {
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
@@ -276,11 +278,24 @@ const MoleculeView = memo(
           setImg_data,
           setOld_url: newUrl => setOldUrl(newUrl),
           url
+        }).catch(error => {
+          setErrorMessage(error);
         });
 
         refDidMount.current = true;
       }
-    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
+    }, [
+      complexList,
+      data.id,
+      data.smiles,
+      fragmentDisplayList,
+      height,
+      to_query,
+      url,
+      vectorOnList,
+      width,
+      setErrorMessage
+    ]);
 
     const svg_image = <SVGInline svg={img_data} />;
     // Here add the logic that updates this based on the information
@@ -319,11 +334,19 @@ const MoleculeView = memo(
         removeFromVectorOnList(generateMolId());
       } else {
         vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
-        fetchWithMemoize(getViewUrl('vector')).then(json => handleVector(json['vectors']));
+        fetchWithMemoize(getViewUrl('vector'))
+          .then(json => handleVector(json['vectors']))
+          .catch(error => {
+            setErrorMessage(error);
+          });
         // Set this
         getFullGraph(data);
         // Do the query
-        fetchWithMemoize(getViewUrl('graph')).then(json => gotFullGraph(json['graph']));
+        fetchWithMemoize(getViewUrl('graph'))
+          .then(json => gotFullGraph(json['graph']))
+          .catch(error => {
+            setErrorMessage(error);
+          });
         appendVectorOnList(generateMolId());
         selectVector(undefined);
       }
@@ -452,7 +475,8 @@ const mapDispatchToProps = {
   appendVectorOnList: selectionActions.appendVectorOnList,
   removeFromVectorOnList: selectionActions.removeFromVectorOnList,
   appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
-  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList
+  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
+  setErrorMessage: apiActions.setErrorMessage
 };
 
 MoleculeView.displayName = 'MoleculeView';

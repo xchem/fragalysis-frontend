@@ -9,7 +9,7 @@ import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { CircularProgress, makeStyles } from '@material-ui/core';
 import { updateClipboard } from './helpers';
 import { Button } from '../common/inputs/button';
 
@@ -218,8 +218,10 @@ const SessionList = memo(
         list_type,
         setObjectList: setSessionIdList,
         seshListSaving
+      }).catch(error => {
+        setErrorMessage(error);
       });
-    }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving]);
+    }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving, setErrorMessage]);
 
     let sessionListTitle;
     if ((sessionIdList.length !== 0 && sessionIdList.length <= 10) || pathname !== '/viewer/react/sessions') {

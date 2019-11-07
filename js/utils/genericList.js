@@ -1,18 +1,5 @@
 import * as listTypes from '../components/listTypes';
-import * as R from 'ramda';
-
-const fetchWithMemoize = R.memoizeWith(R.identity, url => {
-  return fetch(url)
-    .then(response => {
-      if (response && response.ok) {
-        return response.json();
-      } else {
-        return new Error(response.status, ': ', response.statusText, ', ', response.url);
-      }
-    })
-    .catch(error => console.log('An error occurred.', error));
-});
-exports.fetchWithMemoize = fetchWithMemoize;
+import { fetchWithMemoize } from './api';
 
 // START of functions from GenericList
 export const getUrl = ({
@@ -131,27 +118,33 @@ export const loadFromServer = ({
     if (beforePush) {
       beforePush();
     }
-    fetchWithMemoize(url).then(json => {
-      setObjectList(processResults({ json, list_type, seshListSaving, setSeshListSaving, afterPush }));
-      // if we are handling molecule list and molecule data for mol_group are fetched
-      if (list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
-        // update cached mol lists
-        const newMolLists = Object.assign({}, cached_mol_lists, {
-          [mol_group_on]: json
-        });
-        setCachedMolLists(newMolLists);
-      }
+    return fetchWithMemoize(url)
+      .then(json => {
+        setObjectList(processResults({ json, list_type, seshListSaving, setSeshListSaving, afterPush }));
+        // if we are handling molecule list and molecule data for mol_group are fetched
+        if (list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
+          // update cached mol lists
+          const newMolLists = Object.assign({}, cached_mol_lists, {
+            [mol_group_on]: json
+          });
+          setCachedMolLists(newMolLists);
+        }
 
-      // TODO: Do we need to fetch all or wait for click on molecule group?
-      if (list_type === listTypes.MOLGROUPS) {
-        // json.results.forEach(molgroup => {
-        //     const molgroup_id = molgroup.id;
-        //     console.log(`Fetch data for mol_group ${molgroup_id}`);
-        // })
-      }
-    });
+        // TODO: Do we need to fetch all or wait for click on molecule group?
+        if (list_type === listTypes.MOLGROUPS) {
+          // json.results.forEach(molgroup => {
+          //     const molgroup_id = molgroup.id;
+          //     console.log(`Fetch data for mol_group ${molgroup_id}`);
+          // })
+        }
+      })
+      .finally(() => {
+        setOldUrl(url.toString());
+      });
+  } else {
+    setOldUrl(url.toString());
+    return Promise.resolve();
   }
-  setOldUrl(url.toString());
 };
 
 // END of functions from GenericList

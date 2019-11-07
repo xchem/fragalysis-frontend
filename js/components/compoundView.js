@@ -10,6 +10,7 @@ import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';
+import * as apiActions from '../reducers/api/apiActions';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -41,7 +42,8 @@ const CompoundView = memo(
     setHighlighted,
     height,
     width,
-    data
+    data,
+    setErrorMessage
   }) => {
     const not_selected_style = {
       width: (width + 5).toString() + 'px',
@@ -174,13 +176,15 @@ const CompoundView = memo(
           setImg_data,
           setOld_url: newUrl => setOldUrl(newUrl),
           url
+        }).catch(error => {
+          setErrorMessage(error);
         });
         if (to_buy_list.length !== 0) {
           checkInList();
         }
         refDidMount.current = true;
       }
-    }, [height, key, url, width, checkInList, to_buy_list.length]);
+    }, [height, key, url, width, checkInList, to_buy_list.length, setErrorMessage]);
 
     useEffect(() => {
       checkInList();
@@ -221,7 +225,8 @@ const mapDispatchToProps = {
   deleteObject: nglLoadActions.deleteObject,
   removeFromToBuyList: selectionActions.removeFromToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
-  setHighlighted: selectionActions.setHighlighted
+  setHighlighted: selectionActions.setHighlighted,
+  setErrorMessage: apiActions.setErrorMessage
 };
 
 export default connect(
