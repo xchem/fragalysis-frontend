@@ -4,7 +4,7 @@ import Header from './header';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from './targetManagementHolder';
 import Tindspect from './Tindspect';
-import Landing from './Landing';
+import Landing from './landing/Landing';
 import Preview from './Preview';
 import Sessions from './sessionHolder';
 import Funders from './fundersHolder';
