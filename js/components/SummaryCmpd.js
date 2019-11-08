@@ -47,7 +47,7 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
     Object.keys(get_params).forEach(key => url.current.searchParams.append(key, get_params[key]));
     if (url.current.toString() !== oldUrl.current) {
       fetchWithMemoize(url.current)
-        .then(text => setImg_data(text.text()))
+        .then(text => setImg_data(text))
         .catch(error => {
           setErrorMessage(error);
         });

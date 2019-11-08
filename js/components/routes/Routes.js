@@ -1,17 +1,17 @@
 import React, { memo } from 'react';
 import { makeStyles } from '@material-ui/core';
-import Header from './header';
+import Header from '../header';
 import { Route, Switch } from 'react-router-dom';
-import TargetManagement from './targetManagementHolder';
-import Tindspect from './Tindspect';
-import Landing from './landing/Landing';
-import Preview from './Preview';
-import Sessions from './sessionHolder';
-import Funders from './fundersHolder';
-import { withLoadingTargetList } from '../hoc/withLoadingTargetIdList';
-import { HeaderLoadingProvider } from './header/loadingContext';
-import ModalErrorMessage from './modalErrorDisplay';
-import { BrowserBomb } from './browserBombModal';
+import TargetManagement from '../targetManagementHolder';
+import Tindspect from '../Tindspect';
+import Landing from '../landing/Landing';
+import Preview from '../preview/Preview';
+import Sessions from '../sessionHolder';
+import Funders from '../fundersHolder';
+import { withLoadingTargetList } from './withLoadingTargetIdList';
+import { HeaderLoadingProvider } from '../header/loadingContext';
+import ModalErrorMessage from '../modalErrorDisplay';
+import { BrowserBomb } from '../browserBombModal';
 
 const useStyles = makeStyles(theme => ({
   root: {

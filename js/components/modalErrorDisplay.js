@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import ReactModal from 'react-modal';
 import { Button } from 'react-bootstrap';
@@ -24,7 +24,7 @@ const customStyles = {
   }
 };
 
-export const ModalErrorMessage = memo(({ errorMessage, savingState, setErrorMessage, setSavingState }) => {
+export const ModalErrorMessage = memo(({ errorMessage, setErrorMessage, setSavingState }) => {
   const closeModal = () => {
     setErrorMessage(undefined);
     setSavingState(false);
@@ -34,26 +34,22 @@ export const ModalErrorMessage = memo(({ errorMessage, savingState, setErrorMess
     ReactModal.setAppElement('body');
   }, []);
 
-  if (errorMessage !== undefined) {
-    return (
-      <ReactModal isOpen={savingState} style={customStyles}>
-        <div>
-          <h3>Error occurred during state saving. Please contact Fragalysis support!</h3>
-          <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
-            Close
-          </Button>
-        </div>
-      </ReactModal>
-    );
-  } else {
-    return null;
-  }
+  return (
+    <ReactModal isOpen={errorMessage !== undefined} style={customStyles}>
+      <div>
+        <h3>Error occurred during state saving. Please contact Fragalysis support!</h3>
+        <div>{process.env.NODE_ENV === 'development' && errorMessage}</div>
+        <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
+          Close
+        </Button>
+      </div>
+    </ReactModal>
+  );
 });
 
 function mapStateToProps(state) {
   return {
-    errorMessage: state.apiReducers.present.errorMessage,
-    savingState: state.apiReducers.present.savingState
+    errorMessage: state.apiReducers.present.errorMessage
   };
 }
 

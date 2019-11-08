@@ -163,7 +163,7 @@ const MoleculeView = memo(
     const setOldUrl = url => {
       oldUrl.current = url;
     };
-    const refDidMount = useRef(false);
+    const refOnCancel = useRef(false);
     const getRandomColor = () => colourList[data.id % colourList.length];
     const colourToggle = getRandomColor();
 
@@ -269,7 +269,8 @@ const MoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (refDidMount.current === false) {
+      if (refOnCancel.current !== undefined) {
+        let onCanel = () => {};
         loadFromServer({
           width,
           height,
@@ -277,13 +278,16 @@ const MoleculeView = memo(
           old_url: oldUrl.current,
           setImg_data,
           setOld_url: newUrl => setOldUrl(newUrl),
-          url
+          url,
+          cancel: onCanel
         }).catch(error => {
           setErrorMessage(error);
         });
-
-        refDidMount.current = true;
+        refOnCancel.current = onCanel;
       }
+      return () => {
+        refOnCancel.current();
+      };
     }, [
       complexList,
       data.id,

@@ -58,7 +58,9 @@ const SessionManagement = memo(
     const [newSessionFlag, setNewSessionFlag] = useState(0);
     const classes = useStyles();
     const disableButtons =
-      savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting);
+      (savingState &&
+        (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
+      false;
 
     const getCookie = name => {
       if (!document.cookie) {

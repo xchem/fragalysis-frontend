@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
-import * as listType from '../components/listTypes';
-import { getUrl, loadFromServer } from '../utils/genericList';
-import * as apiActions from '../reducers/api/apiActions';
+import * as listType from '../listTypes';
+import { getUrl, loadFromServer } from '../../utils/genericList';
+import * as apiActions from '../../reducers/api/apiActions';
 import { connect } from 'react-redux';
 
 export const withLoadingTargetList = WrappedComponent => {

@@ -112,13 +112,14 @@ export const loadFromServer = ({
   list_type,
   seshListSaving,
   setSeshListSaving,
-  afterPush
+  afterPush,
+  cancel
 }) => {
   if (url.toString() !== old_url) {
     if (beforePush) {
       beforePush();
     }
-    return fetchWithMemoize(url)
+    return fetchWithMemoize(url, cancel)
       .then(json => {
         setObjectList(processResults({ json, list_type, seshListSaving, setSeshListSaving, afterPush }));
         // if we are handling molecule list and molecule data for mol_group are fetched
@@ -141,10 +142,9 @@ export const loadFromServer = ({
       .finally(() => {
         setOldUrl(url.toString());
       });
-  } else {
-    setOldUrl(url.toString());
-    return Promise.resolve();
   }
+  setOldUrl(url.toString());
+  return Promise.resolve();
 };
 
 // END of functions from GenericList

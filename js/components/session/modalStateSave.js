@@ -181,7 +181,10 @@ const ModalStateSave = memo(
 
     return (
       <Modal
-        open={savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting)}
+        open={
+          savingState &&
+          (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))
+        }
         loading={isLoading}
       >
         <Grid container direction="column" justify="space-between" alignItems="stretch">

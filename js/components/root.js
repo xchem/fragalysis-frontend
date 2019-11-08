@@ -3,7 +3,7 @@
  */
 import React, { PureComponent } from 'react';
 import { Provider } from 'react-redux';
-import Routes from './Routes';
+import Routes from './routes/Routes';
 import { BrowserRouter } from 'react-router-dom';
 import { saveStore } from './globalStore';
 import { hot } from 'react-hot-loader';

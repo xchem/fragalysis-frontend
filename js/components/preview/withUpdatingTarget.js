@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import * as apiActions from '../reducers/api/apiActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import fetch from 'cross-fetch';
-import { HeaderLoadingContext } from '../components/header/loadingContext';
-import * as selectionActions from '../reducers/selection/selectionActions';
+import { HeaderLoadingContext } from '../header/loadingContext';
+import * as selectionActions from '../../reducers/selection/selectionActions';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(

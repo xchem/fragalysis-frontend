@@ -4,17 +4,17 @@
 
 import React, { Fragment, memo } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
-import NGLView from './nglView/nglComponents';
-import MoleculeList from './molecule/moleculeList';
-import MolGroupSelector from './molGroupSelector';
-import SummaryView from './summaryView';
-import CompoundList from './compoundList';
-import NglViewerControls from './nglView/nglViewerControls';
-import HotspotList from './hotspot/hotspotList';
-import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
+import NGLView from '../nglView/nglComponents';
+import MoleculeList from '../molecule/moleculeList';
+import MolGroupSelector from '../molGroupSelector';
+import SummaryView from '../summaryView';
+import CompoundList from '../compoundList';
+import NglViewerControls from '../nglView/nglViewerControls';
+import HotspotList from '../hotspot/hotspotList';
+import HandleUnrecognisedTarget from '../handleUnrecognisedTarget';
 
-import { withUpdatingTarget } from '../hoc/withUpdatingTarget';
-import ModalStateSave from './session/modalStateSave';
+import { withUpdatingTarget } from './withUpdatingTarget';
+import ModalStateSave from '../session/modalStateSave';
 
 const useStyles = makeStyles(theme => ({
   gridItemLhs: {
