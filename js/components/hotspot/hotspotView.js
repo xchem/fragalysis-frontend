@@ -6,10 +6,12 @@ import { Col, Row, Image, Panel, Grid } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import Toggle from 'react-bootstrap-toggle';
-import fetch from 'cross-fetch';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { VIEWS } from '../../constants/constants';
+import { api, METHOD } from '../../utils/api';
+import { setErrorMessage } from '../../reducers/api/apiActions';
 
 class HotspotView extends React.PureComponent {
   constructor(props) {
@@ -86,30 +88,31 @@ class HotspotView extends React.PureComponent {
 
   fetchHotspotUrl(mapType, protId, loadState, isoLevel, opacity) {
     var hotspotQuery = '?map_type=' + mapType + '&prot_id=' + protId.toString();
-    fetch('/api/hotspots/' + hotspotQuery, {
-      method: 'get',
+    api({
+      url: '/api/hotspots/' + hotspotQuery,
+      method: METHOD.GET,
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       }
     })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(myJson) {
+      .then(response => {
         return {
-          name: 'HOTSPOT_' + myJson.results[0].prot_id.toString() + mapType + isoLevel,
-          hotUrl: myJson.results[0].map_info.replace('http:', window.location.protocol),
+          name: 'HOTSPOT_' + response.data.results[0].prot_id.toString() + mapType + isoLevel,
+          hotUrl: response.data.results[0].map_info.replace('http:', window.location.protocol),
           display_div: VIEWS.MAJOR_VIEW,
           OBJECT_TYPE: OBJECT_TYPE.HOTSPOT,
-          map_type: myJson.results[0].map_type.toString(),
-          fragment: myJson.results[0].prot_id.toString(),
+          map_type: response.data.results[0].map_type.toString(),
+          fragment: response.data.results[0].prot_id.toString(),
           isoLevel: isoLevel,
           opacity: opacity,
           disablePicking: true
         };
       })
-      .then(hotspotObject => this.handleHotspot(hotspotObject, loadState));
+      .then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
+      .catch(error => {
+        setErrorMessage(error);
+      });
   }
 
   onHotspot(strength, type) {
@@ -178,7 +181,8 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject
+  loadObject: nglLoadActions.loadObject,
+  setErrorMessage: apiActions.setErrorMessage
 };
 
 export default connect(

@@ -11,6 +11,7 @@ import { TextField } from '../common/inputs/textField';
 import { Button } from '../common/inputs/button';
 import { savingStateConst } from './constants';
 import { updateClipboard } from './helpers';
+import { api } from '../../utils/api';
 
 const useStyles = makeStyles(theme => ({
   row: {
@@ -75,25 +76,23 @@ const ModalStateSave = memo(
     };
 
     const getTitle = () => {
-      fetch('/api/viewscene/?uuid=' + latestSession, {
+      api({
+        url: '/api/viewscene/?uuid=' + latestSession,
         method: 'get',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         }
       })
-        .catch(error => {
-          setErrorMessage(error);
-        })
-        .then(function(response) {
-          return response.json();
-        })
-        .then(function(myJson) {
-          var downloadedTitle = myJson.results[JSON.stringify(0)].title;
+        .then(response => {
+          var downloadedTitle = response.data.results[JSON.stringify(0)].title;
           setSessionTitle(downloadedTitle);
           return downloadedTitle;
         })
-        .then(t => setTitle(t));
+        .then(t => setTitle(t))
+        .catch(error => {
+          setErrorMessage(error);
+        });
     };
 
     const handleSessionNaming = e => {
@@ -105,7 +104,8 @@ const ModalStateSave = memo(
           uuid: latestSession,
           title: titleTemp
         };
-        fetch('/api/viewscene/' + JSON.parse(sessionId), {
+        api({
+          url: '/api/viewscene/' + JSON.parse(sessionId),
           method: 'PATCH',
           headers: {
             'X-CSRFToken': csrfToken,

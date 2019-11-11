@@ -7,8 +7,10 @@ import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';
+import { api } from '../utils/api';
+import * as apiActions from '../reducers/api/apiActions';
 
-const DownloadPdb = memo(({ targetOn, targetOnName }) => {
+const DownloadPdb = memo(({ targetOn, targetOnName, setErrorMessage }) => {
   const [downloading, setDownloading] = useState(false);
 
   const handlePdbDownload = async () => {
@@ -17,11 +19,15 @@ const DownloadPdb = memo(({ targetOn, targetOnName }) => {
       window.location.protocol + '//' + window.location.host + '/api/protpdbbound/?target_id=' + targetOn.toString();
     var proteinsUrl =
       window.location.protocol + '//' + window.location.host + '/api/proteins/?target_id=' + targetOn.toString();
-    const protResponse = await fetch(proteinsUrl);
-    const protJson = await protResponse.json();
+    const protResponse = await api({ url: proteinsUrl }).catch(error => {
+      setErrorMessage(error);
+    });
+    const protJson = await protResponse.data;
     const protInfo = protJson.results;
-    const pdbResponse = await fetch(protPdbUrl);
-    const pdbJson = await pdbResponse.json();
+    const pdbResponse = await api({ url: protPdbUrl }).catch(error => {
+      setErrorMessage(error);
+    });
+    const pdbJson = await pdbResponse.data;
     const pdbInfo = pdbJson.results;
     var zip = new JSZip();
     const timeOptions = { year: 'numeric', month: 'short', day: '2-digit' };
@@ -76,7 +82,9 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setErrorMessage: apiActions.setErrorMessage
+};
 
 export default connect(
   mapStateToProps,

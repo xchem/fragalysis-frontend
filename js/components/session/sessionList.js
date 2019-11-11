@@ -9,17 +9,10 @@ import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import { CircularProgress, makeStyles } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 import { updateClipboard } from './helpers';
 import { Button } from '../common/inputs/button';
-
-const useStyles = makeStyles(theme => ({
-  loader: {
-    display: 'block',
-    margin: '0 auto',
-    borderCcolor: 'red'
-  }
-}));
+import { api, METHOD, getCsrfToken } from '../../utils/api';
 
 const SessionList = memo(
   ({
@@ -37,21 +30,6 @@ const SessionList = memo(
       oldUrl.current = url;
     };
     const { pathname } = location;
-    const classes = useStyles();
-
-    const getCookie = name => {
-      if (!document.cookie) {
-        return null;
-      }
-      const xsrfCookies = document.cookie
-        .split(';')
-        .map(c => c.trim())
-        .filter(c => c.startsWith(name + '='));
-      if (xsrfCookies.length === 0) {
-        return null;
-      }
-      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-    };
 
     const renameStateSession = (id, title) => {
       let currentSessionList = sessionIdList;
@@ -68,15 +46,15 @@ const SessionList = memo(
         const id = e.target.id;
         const title = e.target.value;
         renameStateSession(id, title);
-        const csrfToken = getCookie('csrftoken');
         const formattedState = {
           id,
           title
         };
-        fetch('/api/viewscene/' + id, {
-          method: 'PATCH',
+        api({
+          url: '/api/viewscene/' + id,
+          method: METHOD.PATCH,
           headers: {
-            'X-CSRFToken': csrfToken,
+            'X-CSRFToken': getCsrfToken(),
             Accept: 'application/json',
             'Content-Type': 'application/json'
           },
@@ -103,15 +81,17 @@ const SessionList = memo(
 
     const deleteSession = id => {
       deleteStateSession(id);
-      const csrfToken = getCookie('csrftoken');
       var sceneUrl = '/api/viewscene/' + id;
-      fetch(sceneUrl, {
-        method: 'delete',
+      api({
+        url: sceneUrl,
+        method: METHOD.DELETE,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken
+          'X-CSRFToken': getCsrfToken()
         }
+      }).catch(error => {
+        setErrorMessage(error);
       });
     };
 

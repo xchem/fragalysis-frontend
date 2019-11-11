@@ -1,7 +1,8 @@
 export const VIEWS = {
   MAJOR_VIEW: 'major_view',
   SUMMARY_VIEW: 'summary_view',
-  PANDDA_MAJOR: 'pandda_major'
+  PANDDA_MAJOR: 'pandda_major',
+  PANDDA_SUMMARY: 'pandda_summary'
 };
 
 export const PREFIX = {

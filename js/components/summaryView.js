@@ -7,24 +7,23 @@ import { connect } from 'react-redux';
 import { Button, ButtonToolbar, Well, Col, Row } from 'react-bootstrap';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import SummaryCmpd from './SummaryCmpd';
-import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
 import { VIEWS } from '../constants/constants';
+import { api } from '../utils/api';
+import * as apiActions from '../reducers/api/apiActions';
 
 const SummaryView = memo(
   ({
-    target_on_name,
     duck_yank_data,
-    to_query_sdf_info,
-    to_query_prot,
     to_buy_list,
     to_select,
     vector_list,
     querying,
     to_query,
     compoundClasses,
-    loadObject
+    loadObject,
+    setErrorMessage
   }) => {
     const dockingScripts = new DockingScripts();
     // Number vectors and series to be incorporated later
@@ -155,42 +154,26 @@ const SummaryView = memo(
       download_file(csvContent, 'follow_ups.csv');
     };
 
-    const getToBuyByVect = input_dict => {
-      var output_dict = {};
-      for (var key in input_dict) {
-        var vector = input_dict[key].vector;
-        var smilesTemp = input_dict[key].smiles;
-        var mol = input_dict[key].mol;
-
-        if (mol in output_dict) {
-        } else {
-          output_dict[mol] = {};
-        }
-
-        if (vector in output_dict[mol]) {
-          output_dict[mol][vector].push(smilesTemp);
-        } else {
-          output_dict[mol][vector] = new Array();
-          output_dict[mol][vector].push(smilesTemp);
-        }
-      }
-      return output_dict;
-    };
-
     const handleYankDuck = async () => {
       var interaction = duck_yank_data['interaction'];
       var complex_id = duck_yank_data['complex_id'];
       let url =
         window.location.protocol + '//' + window.location.host + '/api/molecules/' + complex_id.toString() + '/';
-      const mol_response = await fetch(url);
-      const mol_json = await mol_response.json();
+      const mol_response = await api({ url }).catch(error => {
+        setErrorMessage(error);
+      });
+      const mol_json = await mol_response.data;
       var prot_id = mol_json['prot_id'];
       url = window.location.protocol + '//' + window.location.host + '/api/protpdb/' + prot_id + '/';
-      const prot_response = await fetch(url);
-      const prot_json = await prot_response.json();
+      const prot_response = await api({ url }).catch(error => {
+        setErrorMessage(error);
+      });
+      const prot_json = await prot_response.data;
       url = window.location.protocol + '//' + window.location.host + '/api/proteins/' + prot_id + '/';
-      const prot_data_response = await fetch(url);
-      const prot_data_json = await prot_data_response.json();
+      const prot_data_response = await api({ url }).catch(error => {
+        setErrorMessage(error);
+      });
+      const prot_data_json = await prot_data_response.data;
       const prot_code = prot_data_json['code'];
       const pdb_data = prot_json['pdb_data'];
       const mol_data = mol_json['sdf_info'];
@@ -204,62 +187,6 @@ const SummaryView = memo(
       tot_folder.file('yank.yaml', yank_yaml);
       tot_folder.file(prot_code + '.mol', mol_data);
       tot_folder.file(prot_code + '_apo.pdb', pdb_data);
-      const content = await zip.generateAsync({ type: 'blob' });
-      FileSaver.saveAs(content, f_name + '.zip');
-    };
-
-    const handleDocking = async () => {
-      // Url of the current molecule
-      var url =
-        window.location.protocol + '//' + window.location.host + '/api/protpdb/' + to_query_prot.toString() + '/';
-      const response = await fetch(url);
-      const json = await response.json();
-      const pdb_data = json['pdb_data'];
-      var reg_ex = new RegExp('Xe', 'g');
-      // Get the Original molecule
-      const orig_mol = to_query_sdf_info;
-      // Get the elaborations and the vector(s)
-      var to_buy_by_vect = getToBuyByVect(to_buy_list);
-      var zip = new JSZip();
-      var f_name = 'docking_' + target_on_name + '_' + new Date().getTime().toString();
-      var tot_folder = zip.folder(f_name);
-      var mol_counter = 0;
-      for (var mol in to_buy_by_vect) {
-        var mol_folder = tot_folder.folder('MOL_' + mol_counter.toString());
-        mol_folder.file('SMILES', mol);
-        mol_counter++;
-        var vector_counter = 0;
-        for (var vector in to_buy_by_vect[mol]) {
-          // TODO - something more meaningful for this name
-          // var dock_name = f_name;
-          const smilesTemp = to_buy_by_vect[mol][vector];
-          var csvContent = '';
-          smilesTemp.forEach(smilesItem => {
-            let row = [smilesItem, mol, vector].join('\t');
-            csvContent += row + '\n';
-          });
-          var constraints = vector.split('.');
-          for (var constraint_index in constraints) {
-            var constraint = constraints[constraint_index];
-            if (constraint.length < 8) {
-              continue;
-            }
-            var folder = mol_folder.folder('VECTOR_' + vector_counter.toString());
-            var constrain_smiles = constraint.replace(reg_ex, '*');
-            folder.file('SMILES', constrain_smiles);
-            // Get the docking script
-            var prm_file = dockingScripts.getPrmFile();
-            var docking_script = dockingScripts.getDockingScript();
-            // Save as a zip
-            folder.file('recep.prm', prm_file);
-            folder.file('run.sh', docking_script);
-            folder.file('input.smi', csvContent);
-            folder.file('receptor.pdb', pdb_data);
-            folder.file('reference.sdf', orig_mol);
-          }
-          vector_counter++;
-        }
-      }
       const content = await zip.generateAsync({ type: 'blob' });
       FileSaver.saveAs(content, f_name + '.zip');
     };
@@ -307,10 +234,7 @@ const SummaryView = memo(
 
 function mapStateToProps(state) {
   return {
-    target_on_name: state.apiReducers.present.target_on_name,
     duck_yank_data: state.apiReducers.present.duck_yank_data,
-    to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
-    to_query_prot: state.selectionReducers.present.to_query_prot,
     to_buy_list: state.selectionReducers.present.to_buy_list,
     to_select: state.selectionReducers.present.to_select,
     vector_list: state.selectionReducers.present.vector_list,
@@ -321,7 +245,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadObject: nglLoadActions.loadObject
+  loadObject: nglLoadActions.loadObject,
+  setErrorMessage: apiActions.setErrorMessage
 };
 
 export default connect(

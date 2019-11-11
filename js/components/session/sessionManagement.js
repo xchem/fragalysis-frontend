@@ -14,6 +14,7 @@ import * as listTypes from '../listTypes';
 import DownloadPdb from '../downloadPdb';
 import { savingStateConst, savingTypeConst } from './constants';
 import { OBJECT_TYPE } from '../nglView/constants';
+import { api, METHOD, getCsrfToken } from '../../utils/api';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -62,18 +63,24 @@ const SessionManagement = memo(
         (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
       false;
 
-    const getCookie = name => {
-      if (!document.cookie) {
-        return null;
-      }
-      const xsrfCookies = document.cookie
-        .split(';')
-        .map(c => c.trim())
-        .filter(c => c.startsWith(name + '='));
-      if (xsrfCookies.length === 0) {
-        return null;
-      }
-      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+    const generateArrowObject = (start, end, name, colour) => {
+      return {
+        name: listTypes.VECTOR + '_' + name,
+        OBJECT_TYPE: OBJECT_TYPE.ARROW,
+        start: start,
+        end: end,
+        colour: colour
+      };
+    };
+
+    const generateCylinderObject = (start, end, name, colour) => {
+      return {
+        name: listTypes.VECTOR + '_' + name,
+        OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
+        start: start,
+        end: end,
+        colour: colour
+      };
     };
 
     const postToServer = sessionState => {
@@ -105,15 +112,6 @@ const SessionManagement = memo(
       [setErrorMessage]
     );
 
-    const redeployVectorsLocal = useCallback(
-      url => {
-        fetch(url)
-          .then(response => response.json(), error => console.log('An error occurred.', error))
-          .then(json => handleVector(json['vectors']));
-      },
-      [handleVector]
-    );
-
     const restoreOrientation = useCallback(
       myOrientDict => {
         for (var div_id in myOrientDict) {
@@ -126,6 +124,58 @@ const SessionManagement = memo(
         }
       },
       [loadObject, setNGLOrientation]
+    );
+
+    const generateObjectList = useCallback(out_data => {
+      var colour = [1, 0, 0];
+      var deletions = out_data.deletions;
+      var outList = [];
+      for (var key in deletions) {
+        outList.push(generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
+      }
+      var additions = out_data.additions;
+      for (var key in additions) {
+        outList.push(generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
+      }
+      var linker = out_data.linkers;
+      for (var key in linker) {
+        outList.push(generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
+      }
+      var rings = out_data.ring;
+      for (var key in rings) {
+        outList.push(generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
+      }
+      return outList;
+    }, []);
+
+    const generateBondColorMap = inputDict => {
+      var out_d = {};
+      for (let keyItem in inputDict) {
+        for (let vector in inputDict[keyItem]) {
+          const vect = vector.split('_')[0];
+          out_d[vect] = inputDict[keyItem][vector];
+        }
+      }
+      return out_d;
+    };
+
+    const handleVector = useCallback(
+      json => {
+        var objList = generateObjectList(json['3d']);
+        setVectorList(objList);
+        var vectorBondColorMap = generateBondColorMap(json['indices']);
+        setBondColorMap(vectorBondColorMap);
+      },
+      [generateObjectList, setBondColorMap, setVectorList]
+    );
+
+    const redeployVectorsLocal = useCallback(
+      url => {
+        api({ method: METHOD.GET, url })
+          .then(response => handleVector(response.data['vectors']))
+          .catch(error => deployErrorModal(error));
+      },
+      [handleVector, deployErrorModal]
     );
 
     const reloadSession = useCallback(
@@ -190,69 +240,6 @@ const SessionManagement = memo(
       [checkTarget]
     );
 
-    const generateArrowObject = (start, end, name, colour) => {
-      return {
-        name: listTypes.VECTOR + '_' + name,
-        OBJECT_TYPE: OBJECT_TYPE.ARROW,
-        start: start,
-        end: end,
-        colour: colour
-      };
-    };
-
-    const generateCylinderObject = (start, end, name, colour) => {
-      return {
-        name: listTypes.VECTOR + '_' + name,
-        OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
-        start: start,
-        end: end,
-        colour: colour
-      };
-    };
-
-    const generateObjectList = useCallback(out_data => {
-      var colour = [1, 0, 0];
-      var deletions = out_data.deletions;
-      var outList = [];
-      for (var key in deletions) {
-        outList.push(generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
-      }
-      var additions = out_data.additions;
-      for (var key in additions) {
-        outList.push(generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
-      }
-      var linker = out_data.linkers;
-      for (var key in linker) {
-        outList.push(generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
-      }
-      var rings = out_data.ring;
-      for (var key in rings) {
-        outList.push(generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
-      }
-      return outList;
-    }, []);
-
-    const generateBondColorMap = inputDict => {
-      var out_d = {};
-      for (let keyItem in inputDict) {
-        for (let vector in inputDict[keyItem]) {
-          const vect = vector.split('_')[0];
-          out_d[vect] = inputDict[keyItem][vector];
-        }
-      }
-      return out_d;
-    };
-
-    const handleVector = useCallback(
-      json => {
-        var objList = generateObjectList(json['3d']);
-        setVectorList(objList);
-        var vectorBondColorMap = generateBondColorMap(json['indices']);
-        setBondColorMap(vectorBondColorMap);
-      },
-      [generateObjectList, setBondColorMap, setVectorList]
-    );
-
     const generateNextUuid = useCallback(() => {
       if (nextUuid === '') {
         const uuidv4 = require('uuid/v4');
@@ -262,26 +249,20 @@ const SessionManagement = memo(
     }, [nextUuid]);
 
     const getSessionDetails = useCallback(() => {
-      fetch('/api/viewscene/?uuid=' + latestSession, {
-        method: 'get',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      })
+      api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + latestSession })
+        .then(response =>
+          response.data && response.data.results.length > 0
+            ? setSessionTitle(response.data.results[JSON.stringify(0)].title)
+            : setSessionTitle('')
+        )
         .catch(error => {
           setErrorMessage(error);
-        })
-        .then(function(response) {
-          return response.json();
-        })
-        .then(myJson => (myJson.results.length > 0 ? myJson.results[JSON.stringify(0)].title : ''))
-        .then(title => setSessionTitle(title));
+        });
     }, [latestSession, setErrorMessage, setSessionTitle]);
 
     const updateFraggleBox = useCallback(
       myJson => {
-        if (saveType === savingTypeConst.sessionNew) {
+        if (saveType === savingTypeConst.sessionNew && myJson) {
           setLatestSession(myJson.uuid);
           setSessionId(myJson.id);
           setSessionTitle(myJson.title);
@@ -291,7 +272,7 @@ const SessionManagement = memo(
         } else if (saveType === savingTypeConst.sessionSave) {
           setSaveType('');
           getSessionDetails();
-        } else if (saveType === savingTypeConst.snapshotNew) {
+        } else if (saveType === savingTypeConst.snapshotNew && myJson) {
           setLatestSnapshot(myJson.uuid);
           setSaveType('');
         }
@@ -304,11 +285,11 @@ const SessionManagement = memo(
       generateNextUuid();
       var hasBeenRefreshed = true;
       if (uuid !== 'UNSET') {
-        fetch('/api/viewscene/?uuid=' + uuid)
-          .then(function(response) {
-            return response.json();
-          })
-          .then(json => handleJson(json.results[0]));
+        api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid })
+          .then(response => handleJson(response.data.results[0]))
+          .catch(error => {
+            deployErrorModal(error);
+          });
       }
       for (var key in nglOrientations) {
         if (nglOrientations[key] === 'REFRESH') {
@@ -320,7 +301,6 @@ const SessionManagement = memo(
       }
       if (hasBeenRefreshed === true) {
         var store = JSON.stringify(getStore().getState());
-        const csrfToken = getCookie('csrftoken');
         const timeOptions = {
           year: 'numeric',
           month: 'numeric',
@@ -337,13 +317,15 @@ const SessionManagement = memo(
         var newPresentObject = Object.assign(stateObject.apiReducers.present, {
           latestSession: nextUuid
         });
-        var newApiObject = Object.assign(stateObject.apiReducers, {
-          present: newPresentObject
-        });
-        var newStateObject = Object.assign(JSON.parse(store), {
-          apiReducers: newApiObject
-        });
-        var fullState = { state: JSON.stringify(newStateObject) };
+
+        const fullState = {
+          state: JSON.stringify({
+            apiReducers: { present: newPresentObject },
+            nglReducers: { present: stateObject.nglReducers.present },
+            selectionReducers: { present: stateObject.selectionReducers.present }
+          })
+        };
+
         if (saveType === savingTypeConst.sessionNew && newSessionFlag === 1) {
           setNewSessionFlag(0);
           var formattedState = {
@@ -352,20 +334,18 @@ const SessionManagement = memo(
             user_id: userId,
             scene: JSON.stringify(JSON.stringify(fullState))
           };
-          fetch('/api/viewscene/', {
-            method: 'post',
+          api({
+            url: '/api/viewscene/',
+            method: METHOD.POST,
             headers: {
-              'X-CSRFToken': csrfToken,
+              'X-CSRFToken': getCsrfToken(),
               Accept: 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formattedState)
+            data: JSON.stringify(formattedState)
           })
-            .then(function(response) {
-              return response.json();
-            })
-            .then(myJson => {
-              updateFraggleBox(myJson);
+            .then(response => {
+              updateFraggleBox(response.data);
             })
             .catch(error => {
               deployErrorModal(error);
@@ -374,20 +354,18 @@ const SessionManagement = memo(
           formattedState = {
             scene: JSON.stringify(JSON.stringify(fullState))
           };
-          fetch('/api/viewscene/' + JSON.parse(sessionId), {
-            method: 'PATCH',
+          api({
+            url: '/api/viewscene/' + JSON.parse(sessionId),
+            method: METHOD.PATCH,
             headers: {
-              'X-CSRFToken': csrfToken,
+              'X-CSRFToken': getCsrfToken(),
               Accept: 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formattedState)
+            data: JSON.stringify(formattedState)
           })
-            .then(function(response) {
-              return response.json();
-            })
-            .then(myJson => {
-              updateFraggleBox(myJson);
+            .then(response => {
+              updateFraggleBox(response.data);
             })
             .catch(error => {
               deployErrorModal(error);
@@ -400,20 +378,18 @@ const SessionManagement = memo(
             user_id: userId,
             scene: JSON.stringify(JSON.stringify(fullState))
           };
-          fetch('/api/viewscene/', {
-            method: 'post',
+          api({
+            url: '/api/viewscene/',
+            method: METHOD.POST,
             headers: {
-              'X-CSRFToken': csrfToken,
+              'X-CSRFToken': getCsrfToken(),
               Accept: 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formattedState)
+            data: JSON.stringify(formattedState)
           })
-            .then(function(response) {
-              return response.json();
-            })
-            .then(myJson => {
-              updateFraggleBox(myJson);
+            .then(response => {
+              updateFraggleBox(response.data);
             })
             .catch(error => {
               deployErrorModal(error);

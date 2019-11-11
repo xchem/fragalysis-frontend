@@ -8,6 +8,7 @@ import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import HotspotView from './hotspotView';
 import { getUrl, loadFromServer } from '../../utils/genericList';
+import { api, METHOD } from '../../utils/api';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on, setErrorMessage }) => {
@@ -18,19 +19,24 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
   };
   const [hsCount, setHsCount] = useState();
 
-  const updateCount = useCallback(async () => {
+  const updateCount = useCallback(() => {
     if (molecule_list && molecule_list.length > 0) {
-      var response = await fetch('/api/hotspots/?map_type=DO&prot_id=' + molecule_list[0].prot_id.toString(), {
-        method: 'get',
+      api({
+        url: '/api/hotspots/?map_type=DO&prot_id=' + molecule_list[0].prot_id.toString(),
+        method: METHOD.GET,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         }
-      });
-      const myJson = await response.json();
-      setHsCount(myJson.count);
+      })
+        .then(response => {
+          setHsCount(response.data);
+        })
+        .catch(error => {
+          setErrorMessage(error);
+        });
     }
-  }, [molecule_list]);
+  }, [molecule_list, setErrorMessage]);
 
   useEffect(() => {
     updateCount();

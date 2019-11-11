@@ -34,11 +34,15 @@ export const ModalErrorMessage = memo(({ errorMessage, setErrorMessage, setSavin
     ReactModal.setAppElement('body');
   }, []);
 
+  let msg = null;
+  if (process.env.NODE_ENV === 'development' && errorMessage !== undefined) {
+    msg = errorMessage.toString();
+  }
   return (
     <ReactModal isOpen={errorMessage !== undefined} style={customStyles}>
       <div>
         <h3>Error occurred during state saving. Please contact Fragalysis support!</h3>
-        <div>{process.env.NODE_ENV === 'development' && errorMessage}</div>
+        <div>{msg}</div>
         <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
           Close
         </Button>

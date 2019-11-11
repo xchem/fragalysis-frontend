@@ -5,12 +5,12 @@ import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as selectionActions from '../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
-import fetch from 'cross-fetch';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';
 import * as apiActions from '../reducers/api/apiActions';
+import { api, METHOD } from '../utils/api';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -137,7 +137,7 @@ const CompoundView = memo(
       sdf_info: sdf_info
     });
 
-    const handleConf = async () => {
+    const handleConf = () => {
       if (isConfOn) {
         deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
       } else {
@@ -148,8 +148,9 @@ const CompoundView = memo(
           INPUT_SMILES: [send_obj.smiles],
           INPUT_MOL_BLOCK: to_query_sdf_info
         };
-        const rawResponse = await fetch(base_url + '/scoring/gen_conf_from_vect/', {
-          method: 'POST',
+        api({
+          url: base_url + '/scoring/gen_conf_from_vect/',
+          method: METHOD.POST,
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -157,11 +158,15 @@ const CompoundView = memo(
             'X-CSRFToken': csrfToken
           },
           body: JSON.stringify(post_data)
-        });
-        const content = await rawResponse.json();
-        // Now load this into NGL
-        conf.current = content[0];
-        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+        })
+          .then(response => {
+            // Now load this into NGL
+            conf.current = response.data[0];
+            loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+          })
+          .catch(error => {
+            setErrorMessage(error);
+          });
       }
     };
 

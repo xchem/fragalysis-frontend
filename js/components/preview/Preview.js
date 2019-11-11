@@ -15,6 +15,7 @@ import HandleUnrecognisedTarget from '../handleUnrecognisedTarget';
 
 import { withUpdatingTarget } from './withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
+import { VIEWS } from '../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   gridItemLhs: {
@@ -48,7 +49,7 @@ const Preview = memo(({ isStateLoaded }) => {
           </Grid>
           <Grid item container className={classes.gridItemRhs} spacing={2}>
             <Grid item lg={6} md={12}>
-              <NGLView div_id="major_view" height={screenHeight} />
+              <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
               <NglViewerControls />
             </Grid>
             <Grid item lg={6} md={12}>
