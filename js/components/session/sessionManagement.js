@@ -171,7 +171,7 @@ const SessionManagement = memo(
 
     const redeployVectorsLocal = useCallback(
       url => {
-        api({ method: METHOD.GET, url })
+        api({ url })
           .then(response => handleVector(response.data['vectors']))
           .catch(error => deployErrorModal(error));
       },
@@ -339,8 +339,8 @@ const SessionManagement = memo(
             method: METHOD.POST,
             headers: {
               'X-CSRFToken': getCsrfToken(),
-              Accept: 'application/json',
-              'Content-Type': 'application/json'
+              accept: 'application/json',
+              'content-type': 'application/json'
             },
             data: JSON.stringify(formattedState)
           })
@@ -359,8 +359,8 @@ const SessionManagement = memo(
             method: METHOD.PATCH,
             headers: {
               'X-CSRFToken': getCsrfToken(),
-              Accept: 'application/json',
-              'Content-Type': 'application/json'
+              accept: 'application/json',
+              'content-type': 'application/json'
             },
             data: JSON.stringify(formattedState)
           })
@@ -383,8 +383,8 @@ const SessionManagement = memo(
             method: METHOD.POST,
             headers: {
               'X-CSRFToken': getCsrfToken(),
-              Accept: 'application/json',
-              'Content-Type': 'application/json'
+              accept: 'application/json',
+              'content-type': 'application/json'
             },
             data: JSON.stringify(formattedState)
           })

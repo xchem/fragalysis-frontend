@@ -55,8 +55,8 @@ const SessionList = memo(
           method: METHOD.PATCH,
           headers: {
             'X-CSRFToken': getCsrfToken(),
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
+            accept: 'application/json',
+            'content-type': 'application/json'
           },
           body: JSON.stringify(formattedState)
         }).catch(error => {
@@ -86,8 +86,8 @@ const SessionList = memo(
         url: sceneUrl,
         method: METHOD.DELETE,
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          accept: 'application/json',
+          'content-type': 'application/json',
           'X-CSRFToken': getCsrfToken()
         }
       }).catch(error => {

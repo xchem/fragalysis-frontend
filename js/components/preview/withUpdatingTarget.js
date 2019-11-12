@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import * as apiActions from '../../reducers/api/apiActions';
 import { HeaderLoadingContext } from '../header/loadingContext';
 import * as selectionActions from '../../reducers/selection/selectionActions';
-import { api, METHOD } from '../../utils/api';
+import { api } from '../../utils/api';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
@@ -56,13 +56,12 @@ export const withUpdatingTarget = WrappedContainer => {
         if (targetUnrecognisedFlag === false) {
           setIsLoading(true);
           api({
-            url: window.location.protocol + '//' + window.location.host + '/api/targets/?title=' + target,
-            method: METHOD.GET
+            url: `${window.location.protocol}//${window.location.host}/api/targets/?title=${target}`
           })
             .then(response => {
-              setIsLoading(false);
               return setTargetOn(response.data['results'][0].id);
             })
+            .finally(() => setIsLoading(false))
             .catch(error => {
               deployErrorModal(error);
             });

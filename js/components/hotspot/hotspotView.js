@@ -92,8 +92,8 @@ class HotspotView extends React.PureComponent {
       url: '/api/hotspots/' + hotspotQuery,
       method: METHOD.GET,
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
+        accept: 'application/json',
+        'content-type': 'application/json'
       }
     })
       .then(response => {

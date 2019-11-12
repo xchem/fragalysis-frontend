@@ -80,8 +80,8 @@ const ModalStateSave = memo(
         url: '/api/viewscene/?uuid=' + latestSession,
         method: 'get',
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+          accept: 'application/json',
+          'content-type': 'application/json'
         }
       })
         .then(response => {
@@ -109,8 +109,8 @@ const ModalStateSave = memo(
           method: 'PATCH',
           headers: {
             'X-CSRFToken': csrfToken,
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
+            accept: 'application/json',
+            'content-type': 'application/json'
           },
           body: JSON.stringify(formattedState)
         }).catch(error => {

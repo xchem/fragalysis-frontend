@@ -25,8 +25,8 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
         url: '/api/hotspots/?map_type=DO&prot_id=' + molecule_list[0].prot_id.toString(),
         method: METHOD.GET,
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+          accept: 'application/json',
+          'content-type': 'application/json'
         }
       })
         .then(response => {

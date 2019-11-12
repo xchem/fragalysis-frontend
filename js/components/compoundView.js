@@ -10,7 +10,7 @@ import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';
 import * as apiActions from '../reducers/api/apiActions';
-import { api, METHOD } from '../utils/api';
+import { api, getCsrfToken, METHOD } from '../utils/api';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -77,20 +77,6 @@ const CompoundView = memo(
       Object.keys(get_params).forEach(p => url.searchParams.append(p, get_params[p]));
     }
 
-    const getCookie = name => {
-      if (!document.cookie) {
-        return null;
-      }
-      const xsrfCookies = document.cookie
-        .split(';')
-        .map(c => c.trim())
-        .filter(c => c.startsWith(name + '='));
-      if (xsrfCookies.length === 0) {
-        return null;
-      }
-      return decodeURIComponent(xsrfCookies[0].split('=')[1]);
-    };
-
     const checkInList = useCallback(() => {
       let isHighlightedTemp = false;
       if (highlightedCompound.smiles === send_obj.smiles) {
@@ -142,7 +128,6 @@ const CompoundView = memo(
         deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
       } else {
         // This needs currying
-        const csrfToken = getCookie('csrftoken');
         var post_data = {
           INPUT_VECTOR: send_obj.vector,
           INPUT_SMILES: [send_obj.smiles],
@@ -152,10 +137,10 @@ const CompoundView = memo(
           url: base_url + '/scoring/gen_conf_from_vect/',
           method: METHOD.POST,
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            accept: 'application/json',
+            'content-type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': csrfToken
+            'X-CSRFToken': getCsrfToken()
           },
           body: JSON.stringify(post_data)
         })
