@@ -10,7 +10,7 @@ import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as listTypes from '../listTypes';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
-import { isEmpty } from 'ramda';
+import { isEmpty } from 'lodash';
 import { store } from '../root';
 import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
 

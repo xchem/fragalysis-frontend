@@ -5,7 +5,7 @@
 import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import SVGInline from 'react-svg-inline';
-import { fetchWithMemoize } from '../utils/api';
+import { api } from '../utils/api';
 import * as apiActions from '../reducers/api/apiActions';
 
 const img_data_init =
@@ -46,8 +46,8 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
     };
     Object.keys(get_params).forEach(key => url.current.searchParams.append(key, get_params[key]));
     if (url.current.toString() !== oldUrl.current) {
-      fetchWithMemoize(url.current)
-        .then(text => setImg_data(text))
+      api({ url: url.current })
+        .then(response => setImg_data(response.data))
         .catch(error => {
           setErrorMessage(error);
         });

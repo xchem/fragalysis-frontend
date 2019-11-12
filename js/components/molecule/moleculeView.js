@@ -11,7 +11,7 @@ import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
-import { fetchWithMemoize } from '../../utils/api';
+import { api } from '../../utils/api';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
@@ -82,12 +82,6 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   }
 }));
-
-const controlValues = {
-  COMPLEX: 1,
-  LIGAND: 2,
-  VECTOR: 3
-};
 
 const colourList = [
   '#EFCDB8',
@@ -338,16 +332,16 @@ const MoleculeView = memo(
         removeFromVectorOnList(generateMolId());
       } else {
         vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
-        fetchWithMemoize(getViewUrl('vector'))
-          .then(json => handleVector(json['vectors']))
+        api({ url: getViewUrl('vector') })
+          .then(response => handleVector(response.data['vectors']))
           .catch(error => {
             setErrorMessage(error);
           });
         // Set this
         getFullGraph(data);
         // Do the query
-        fetchWithMemoize(getViewUrl('graph'))
-          .then(json => gotFullGraph(json['graph']))
+        api({ url: getViewUrl('graph') })
+          .then(response => gotFullGraph(response.data['graph']))
           .catch(error => {
             setErrorMessage(error);
           });

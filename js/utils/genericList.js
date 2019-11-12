@@ -1,5 +1,5 @@
 import * as listTypes from '../components/listTypes';
-import { fetchWithMemoize } from './api';
+import { api } from './api';
 
 // START of functions from GenericList
 export const getUrl = ({
@@ -119,14 +119,14 @@ export const loadFromServer = ({
     if (beforePush) {
       beforePush();
     }
-    return fetchWithMemoize(url, cancel)
-      .then(json => {
-        setObjectList(processResults({ json, list_type, seshListSaving, setSeshListSaving, afterPush }));
+    return api({ url, cancel })
+      .then(response => {
+        setObjectList(processResults({ json: response.data, list_type, seshListSaving, setSeshListSaving, afterPush }));
         // if we are handling molecule list and molecule data for mol_group are fetched
         if (list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
           // update cached mol lists
           const newMolLists = Object.assign({}, cached_mol_lists, {
-            [mol_group_on]: json
+            [mol_group_on]: response.data
           });
           setCachedMolLists(newMolLists);
         }

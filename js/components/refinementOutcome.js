@@ -6,10 +6,8 @@ import status_6 from '../img/status_6.svg';
 import status_6_gray from '../img/status_6_gray.svg';
 import status_5 from '../img/status_5.svg';
 import status_4 from '../img/status_4.svg';
-import { fetchWithMemoize } from '../utils/api';
+import { api } from '../utils/api';
 import { connect } from 'react-redux';
-import * as selectionActions from '../reducers/selection/selectionActions';
-import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import * as apiActions from '../reducers/api/apiActions';
 
 class RefinementOutcome extends React.PureComponent {
@@ -43,8 +41,8 @@ class RefinementOutcome extends React.PureComponent {
 
   componentDidMount() {
     const url = this.getUrl();
-    fetchWithMemoize(url)
-      .then(json => this.convertJson(json))
+    api({ url })
+      .then(response => this.convertJson(response.data))
       .catch(error => {
         this.props.setErrorMessage(error);
       });

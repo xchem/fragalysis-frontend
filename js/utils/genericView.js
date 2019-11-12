@@ -1,4 +1,4 @@
-import { fetchWithMemoize } from './api';
+import { api } from './api';
 
 export const loadFromServer = ({ width, height, key, old_url, setImg_data, setOld_url, url, cancel }) => {
   var get_params = {
@@ -8,18 +8,18 @@ export const loadFromServer = ({ width, height, key, old_url, setImg_data, setOl
   Object.keys(get_params).forEach(param => url.searchParams.append(param, get_params[param]));
   if (key === undefined) {
     if (url.toString() !== old_url) {
-      return fetchWithMemoize(url, cancel)
-        .then(text => setImg_data(text))
+      return api({ url, cancel })
+        .then(response => setImg_data(response.data))
         .finally(() => {
           setOld_url(url.toString());
         });
     }
   } else {
     if (url.toString() !== old_url) {
-      fetchWithMemoize(url, cancel)
-        .then(text => {
-          if (text !== undefined && text.hasOwnProperty(key)) {
-            setImg_data(text[key]);
+      api({ url, cancel })
+        .then(response => {
+          if (response.data !== undefined && response.data.hasOwnProperty(key)) {
+            setImg_data(response.data[key]);
           }
         })
         .finally(() => {
