@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 08/03/2018.
  */
-import { combineReducers } from 'redux-starter-kit';
+import { combineReducers } from 'redux';
 import apiRed from './api/apiReducers';
 import nglRed from './ngl/nglReducers';
 import selectionRed from './selection/selectionReducers';

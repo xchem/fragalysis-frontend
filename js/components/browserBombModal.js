@@ -8,7 +8,7 @@ import { Button } from '@material-ui/core';
 
 const BrowserBomb = memo(props => {
   const [currentBrowser, setCurrentBrowser] = useState();
-  const [notSupported, setNotSupported] = useState();
+  const [notSupported, setNotSupported] = useState(false);
 
   const checkBrowser = useCallback(() => {
     if (typeof InstallTrigger !== 'undefined') {
