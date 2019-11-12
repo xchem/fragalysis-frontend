@@ -3,24 +3,8 @@
  */
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import ReactModal from 'react-modal';
+import Modal from './common/modal';
 import { Button } from '@material-ui/core';
-
-const customStyles = {
-  overlay: {
-    zIndex: 50,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)'
-  },
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-20%',
-    transform: 'translate(-50%, -50%)',
-    border: '10px solid #7a7a7a'
-  }
-};
 
 const BrowserBomb = memo(props => {
   const [currentBrowser, setCurrentBrowser] = useState();
@@ -44,15 +28,11 @@ const BrowserBomb = memo(props => {
   };
 
   useEffect(() => {
-    ReactModal.setAppElement('body');
-  }, []);
-
-  useEffect(() => {
     checkBrowser();
   }, [checkBrowser]);
 
   return (
-    <ReactModal isOpen={notSupported} style={customStyles}>
+    <Modal open={notSupported}>
       <div>
         <h4>
           {currentBrowser}
@@ -63,7 +43,7 @@ const BrowserBomb = memo(props => {
           Close
         </Button>
       </div>
-    </ReactModal>
+    </Modal>
   );
 });
 
