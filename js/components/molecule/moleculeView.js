@@ -15,7 +15,6 @@ import { api } from '../../utils/api';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
-import * as apiActions from '../../reducers/api/apiActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -138,9 +137,9 @@ const MoleculeView = memo(
     appendVectorOnList,
     removeFromVectorOnList,
     appendFragmentDisplayList,
-    removeFromFragmentDisplayList,
-    setErrorMessage
+    removeFromFragmentDisplayList
   }) => {
+    const [state, setState] = useState();
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
@@ -275,25 +274,16 @@ const MoleculeView = memo(
           url,
           cancel: onCanel
         }).catch(error => {
-          setErrorMessage(error);
+          setState(() => {
+            throw error;
+          });
         });
         refOnCancel.current = onCanel;
       }
       return () => {
         refOnCancel.current();
       };
-    }, [
-      complexList,
-      data.id,
-      data.smiles,
-      fragmentDisplayList,
-      height,
-      to_query,
-      url,
-      vectorOnList,
-      width,
-      setErrorMessage
-    ]);
+    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
     const svg_image = <SVGInline svg={img_data} />;
     // Here add the logic that updates this based on the information
@@ -335,7 +325,9 @@ const MoleculeView = memo(
         api({ url: getViewUrl('vector') })
           .then(response => handleVector(response.data['vectors']))
           .catch(error => {
-            setErrorMessage(error);
+            setState(() => {
+              throw error;
+            });
           });
         // Set this
         getFullGraph(data);
@@ -343,7 +335,9 @@ const MoleculeView = memo(
         api({ url: getViewUrl('graph') })
           .then(response => gotFullGraph(response.data['graph']))
           .catch(error => {
-            setErrorMessage(error);
+            setState(() => {
+              throw error;
+            });
           });
         appendVectorOnList(generateMolId());
         selectVector(undefined);
@@ -473,12 +467,8 @@ const mapDispatchToProps = {
   appendVectorOnList: selectionActions.appendVectorOnList,
   removeFromVectorOnList: selectionActions.removeFromVectorOnList,
   appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
-  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
-  setErrorMessage: apiActions.setErrorMessage
+  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList
 };
 
 MoleculeView.displayName = 'MoleculeView';
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MoleculeView);
+export default connect(mapStateToProps, mapDispatchToProps)(MoleculeView);

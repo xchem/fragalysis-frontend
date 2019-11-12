@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 import * as apiActions from '../reducers/api/apiActions';
 import TargetList from './targetList';
-import { ErrorReport } from './errorReport';
+import { ErrorReport } from './header/errorReport';
 import { Modal } from './common/modal';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list, children }) => {
@@ -81,7 +81,4 @@ const mapDispatchToProps = {
   setTargetUnrecognised: apiActions.setTargetUnrecognised
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HandleUnrecognisedTarget);
+export default connect(mapStateToProps, mapDispatchToProps)(HandleUnrecognisedTarget);

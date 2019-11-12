@@ -9,7 +9,6 @@ import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';
-import * as apiActions from '../reducers/api/apiActions';
 import { api, getCsrfToken, METHOD } from '../utils/api';
 
 const img_data_init =
@@ -42,8 +41,7 @@ const CompoundView = memo(
     setHighlighted,
     height,
     width,
-    data,
-    setErrorMessage
+    data
   }) => {
     const not_selected_style = {
       width: (width + 5).toString() + 'px',
@@ -150,7 +148,7 @@ const CompoundView = memo(
             loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
           })
           .catch(error => {
-            setErrorMessage(error);
+            throw error;
           });
       }
     };
@@ -167,14 +165,14 @@ const CompoundView = memo(
           setOld_url: newUrl => setOldUrl(newUrl),
           url
         }).catch(error => {
-          setErrorMessage(error);
+          throw error;
         });
         if (to_buy_list.length !== 0) {
           checkInList();
         }
         refDidMount.current = true;
       }
-    }, [height, key, url, width, checkInList, to_buy_list.length, setErrorMessage]);
+    }, [height, key, url, width, checkInList, to_buy_list.length]);
 
     useEffect(() => {
       checkInList();
@@ -215,11 +213,7 @@ const mapDispatchToProps = {
   deleteObject: nglLoadActions.deleteObject,
   removeFromToBuyList: selectionActions.removeFromToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
-  setHighlighted: selectionActions.setHighlighted,
-  setErrorMessage: apiActions.setErrorMessage
+  setHighlighted: selectionActions.setHighlighted
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CompoundView);
+export default connect(mapStateToProps, mapDispatchToProps)(CompoundView);

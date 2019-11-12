@@ -6,7 +6,6 @@ import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { api } from '../utils/api';
-import * as apiActions from '../reducers/api/apiActions';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -25,7 +24,7 @@ const img_data_init =
   '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
   '</svg>';
 
-const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height, setErrorMessage }) => {
+const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height }) => {
   const [img_data, setImg_data] = useState(img_data_init);
   const [isToggleOn, setIsToggleOn] = useState(false);
   const oldUrl = useRef('');
@@ -49,11 +48,11 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
       api({ url: url.current })
         .then(response => setImg_data(response.data))
         .catch(error => {
-          setErrorMessage(error);
+          throw error;
         });
     }
     setOldUrl(url.current.toString());
-  }, [height, width, setErrorMessage]);
+  }, [height, width]);
 
   const getAtomIndices = useCallback(() => {
     if (currentVector === undefined) {
@@ -111,11 +110,4 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {
-  setErrorMessage: apiActions.setErrorMessage
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SummaryCmpd);
+export default connect(mapStateToProps, null)(SummaryCmpd);

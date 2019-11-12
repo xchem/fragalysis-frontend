@@ -10,7 +10,6 @@ import Sessions from '../sessionHolder';
 import Funders from '../fundersHolder';
 import { withLoadingTargetList } from './withLoadingTargetIdList';
 import { HeaderLoadingProvider } from '../header/loadingContext';
-import ModalErrorMessage from '../session/modalErrorDisplay';
 import { BrowserBomb } from '../browserBombModal';
 
 const useStyles = makeStyles(theme => ({
@@ -53,7 +52,6 @@ const Routes = memo(() => {
           <Route exact path="/viewer/react/funders" component={Funders} />
         </Switch>
       </HeaderLoadingProvider>
-      <ModalErrorMessage />
       <BrowserBomb />
     </div>
   );

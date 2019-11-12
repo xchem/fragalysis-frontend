@@ -4,14 +4,12 @@
 
 import { ListGroupItem, ListGroup, Col, Checkbox, Row } from 'react-bootstrap';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { connect } from 'react-redux';
 import * as listType from './listTypes';
 import { withRouter } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../utils/genericList';
-import * as apiActions from '../reducers/api/apiActions';
-// import {withRouter, Link} from "react-router-dom";
 
-const ProposalList = memo(({ setErrorMessage }) => {
+const ProposalList = memo(() => {
+  const [state, setState] = useState();
   const list_type = listType.SESSIONS;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -61,9 +59,11 @@ const ProposalList = memo(({ setErrorMessage }) => {
       old_url: oldUrl.current,
       list_type
     }).catch(error => {
-      setErrorMessage(error);
+      setState(() => {
+        throw error;
+      });
     });
-  }, [list_type, setErrorMessage]);
+  }, [list_type]);
 
   // const userPk = DJANGO_CONTEXT["pk"]
   // const username = DJANGO_CONTEXT["username"]
@@ -138,17 +138,4 @@ const ProposalList = memo(({ setErrorMessage }) => {
   }
 });
 
-function mapStateToProps(state) {
-  return {};
-}
-
-const mapDispatchToProps = {
-  setErrorMessage: apiActions.setErrorMessage
-};
-
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(ProposalList)
-);
+export default withRouter(ProposalList);

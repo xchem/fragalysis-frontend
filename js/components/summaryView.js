@@ -11,20 +11,9 @@ import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
 import { VIEWS } from '../constants/constants';
 import { api } from '../utils/api';
-import * as apiActions from '../reducers/api/apiActions';
 
 const SummaryView = memo(
-  ({
-    duck_yank_data,
-    to_buy_list,
-    to_select,
-    vector_list,
-    querying,
-    to_query,
-    compoundClasses,
-    loadObject,
-    setErrorMessage
-  }) => {
+  ({ duck_yank_data, to_buy_list, to_select, vector_list, querying, to_query, compoundClasses, loadObject }) => {
     const dockingScripts = new DockingScripts();
     // Number vectors and series to be incorporated later
     const ref_vector_list = useRef();
@@ -34,6 +23,7 @@ const SummaryView = memo(
     const [num_series, setNum_series] = useState(0);
     const [smiles, setSmiles] = useState('');
     const [interaction_select, setInteraction_select] = useState('');
+    const [state, setState] = useState();
 
     const getColour = useCallback(
       item => {
@@ -160,18 +150,24 @@ const SummaryView = memo(
       let url =
         window.location.protocol + '//' + window.location.host + '/api/molecules/' + complex_id.toString() + '/';
       const mol_response = await api({ url }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
       const mol_json = await mol_response.data;
       var prot_id = mol_json['prot_id'];
       url = window.location.protocol + '//' + window.location.host + '/api/protpdb/' + prot_id + '/';
       const prot_response = await api({ url }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
       const prot_json = await prot_response.data;
       url = window.location.protocol + '//' + window.location.host + '/api/proteins/' + prot_id + '/';
       const prot_data_response = await api({ url }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
       const prot_data_json = await prot_data_response.data;
       const prot_code = prot_data_json['code'];
@@ -245,11 +241,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadObject: nglLoadActions.loadObject,
-  setErrorMessage: apiActions.setErrorMessage
+  loadObject: nglLoadActions.loadObject
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SummaryView);
+export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);

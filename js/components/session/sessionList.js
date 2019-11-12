@@ -3,7 +3,7 @@
  */
 
 import { ListGroupItem, ListGroup, Row, Col, ButtonToolbar } from 'react-bootstrap';
-import React, { Fragment, memo, useEffect, useRef } from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
@@ -15,15 +15,8 @@ import { Button } from '../common/inputs/button';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
 
 const SessionList = memo(
-  ({
-    sessionIdList,
-    seshListSaving,
-    setSessionIdList,
-    updateSessionIdList,
-    setSeshListSaving,
-    setErrorMessage,
-    location
-  }) => {
+  ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving, location }) => {
+    const [/* state */ setState] = useState();
     const list_type = listType.SESSIONS;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -60,7 +53,9 @@ const SessionList = memo(
           },
           body: JSON.stringify(formattedState)
         }).catch(error => {
-          setErrorMessage(error);
+          setState(() => {
+            throw error;
+          });
         });
       }
     };
@@ -91,7 +86,9 @@ const SessionList = memo(
           'X-CSRFToken': getCsrfToken()
         }
       }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
     };
 
@@ -199,9 +196,11 @@ const SessionList = memo(
         setObjectList: setSessionIdList,
         seshListSaving
       }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
-    }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving, setErrorMessage]);
+    }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving, setState]);
 
     let sessionListTitle;
     if ((sessionIdList.length !== 0 && sessionIdList.length <= 10) || pathname !== '/viewer/react/sessions') {
@@ -270,13 +269,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setSessionIdList: apiActions.setSessionIdList,
   updateSessionIdList: apiActions.updateSessionIdList,
-  setSeshListSaving: apiActions.setSeshListSaving,
-  setErrorMessage: apiActions.setErrorMessage
+  setSeshListSaving: apiActions.setSeshListSaving
 };
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(SessionList)
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionList));

@@ -2,14 +2,15 @@
  * Created by abradley on 19/04/2018.
  */
 
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/apiActions';
 import * as listType from '../components/listTypes';
 import { getUrl, loadFromServer } from '../utils/genericList';
 
 export const withLoadingEventList = WrappedComponent => {
-  const EventList = memo(({ target_on, pandda_site_on, setObjectList, setErrorMessage }) => {
+  const EventList = memo(({ target_on, pandda_site_on, setObjectList }) => {
+    const [state, setState] = useState();
     const list_type = listType.PANDDA_EVENT;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -24,9 +25,11 @@ export const withLoadingEventList = WrappedComponent => {
         list_type,
         setObjectList
       }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
-    }, [list_type, setObjectList, target_on, pandda_site_on, setErrorMessage]);
+    }, [list_type, setObjectList, target_on, pandda_site_on]);
 
     return <WrappedComponent />;
   });
@@ -39,11 +42,7 @@ export const withLoadingEventList = WrappedComponent => {
   }
 
   const mapDispatchToProps = {
-    setObjectList: apiActions.setPanddaEventList,
-    setErrorMessage: apiActions.setErrorMessage
+    setObjectList: apiActions.setPanddaEventList
   };
-  return connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(EventList);
+  return connect(mapStateToProps, mapDispatchToProps)(EventList);
 };

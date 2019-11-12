@@ -1,11 +1,12 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import * as listType from '../listTypes';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import * as apiActions from '../../reducers/api/apiActions';
 import { connect } from 'react-redux';
 
 export const withLoadingTargetList = WrappedComponent => {
-  const LoadTargetList = memo(({ setTargetIdList, setErrorMessage }) => {
+  const LoadTargetList = memo(({ setTargetIdList }) => {
+    const [state, setState] = useState();
     const oldUrl = useRef('');
     const setOldUrl = url => {
       oldUrl.current = url;
@@ -21,9 +22,11 @@ export const withLoadingTargetList = WrappedComponent => {
         setObjectList: setTargetIdList,
         list_type
       }).catch(error => {
-        setErrorMessage(error);
+        setState(() => {
+          throw error;
+        });
       });
-    }, [setTargetIdList, setErrorMessage]);
+    }, [setTargetIdList]);
 
     return <WrappedComponent />;
   });
@@ -32,11 +35,7 @@ export const withLoadingTargetList = WrappedComponent => {
     return {};
   }
   const mapDispatchToProps = {
-    setTargetIdList: apiActions.setTargetIdList,
-    setErrorMessage: apiActions.setErrorMessage
+    setTargetIdList: apiActions.setTargetIdList
   };
-  return connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(LoadTargetList);
+  return connect(mapStateToProps, mapDispatchToProps)(LoadTargetList);
 };

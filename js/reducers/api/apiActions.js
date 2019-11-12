@@ -26,7 +26,6 @@ import {
   SET_SESSION_ID,
   SET_SESSION_ID_LIST,
   UPDATE_SESSION_ID_LIST,
-  SET_ERROR_MESSAGE,
   SET_TARGET_UNRECOGNISED,
   SET_UUID,
   RESET_TARGET_STATE
@@ -191,13 +190,6 @@ export const updateSessionIdList = function(input_json) {
   return {
     type: UPDATE_SESSION_ID_LIST,
     sessionIdList: input_json
-  };
-};
-
-export const setErrorMessage = function(errorMessage) {
-  return {
-    type: SET_ERROR_MESSAGE,
-    errorMessage: errorMessage
   };
 };
 

@@ -44,7 +44,6 @@ const SessionManagement = memo(
     reloadSelectionState,
     setLatestSession,
     setLatestSnapshot,
-    setErrorMessage,
     setStageColor,
     setSessionId,
     setUuid,
@@ -54,6 +53,7 @@ const SessionManagement = memo(
     setTargetUnrecognised,
     setLoadingState
   }) => {
+    const [/* state */ setState] = useState();
     const [saveType, setSaveType] = useState('');
     const [nextUuid, setNextUuid] = useState('');
     const [newSessionFlag, setNewSessionFlag] = useState(0);
@@ -104,13 +104,6 @@ const SessionManagement = memo(
       postToServer(savingStateConst.savingSnapshot);
       setSaveType(savingTypeConst.snapshotNew);
     };
-
-    const deployErrorModal = useCallback(
-      error => {
-        setErrorMessage(error);
-      },
-      [setErrorMessage]
-    );
 
     const restoreOrientation = useCallback(
       myOrientDict => {
@@ -173,9 +166,13 @@ const SessionManagement = memo(
       url => {
         api({ url })
           .then(response => handleVector(response.data['vectors']))
-          .catch(error => deployErrorModal(error));
+          .catch(error => {
+            setState(() => {
+              throw error;
+            });
+          });
       },
-      [handleVector, deployErrorModal]
+      [handleVector, setState]
     );
 
     const reloadSession = useCallback(
@@ -256,9 +253,11 @@ const SessionManagement = memo(
             : setSessionTitle('')
         )
         .catch(error => {
-          setErrorMessage(error);
+          setState(() => {
+            throw error;
+          });
         });
-    }, [latestSession, setErrorMessage, setSessionTitle]);
+    }, [latestSession, setSessionTitle, setState]);
 
     const updateFraggleBox = useCallback(
       myJson => {
@@ -288,7 +287,9 @@ const SessionManagement = memo(
         api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid })
           .then(response => handleJson(response.data.results[0]))
           .catch(error => {
-            deployErrorModal(error);
+            setState(() => {
+              throw error;
+            });
           });
       }
       for (var key in nglOrientations) {
@@ -348,7 +349,9 @@ const SessionManagement = memo(
               updateFraggleBox(response.data);
             })
             .catch(error => {
-              deployErrorModal(error);
+              setState(() => {
+                throw error;
+              });
             });
         } else if (saveType === savingTypeConst.sessionSave) {
           formattedState = {
@@ -368,7 +371,9 @@ const SessionManagement = memo(
               updateFraggleBox(response.data);
             })
             .catch(error => {
-              deployErrorModal(error);
+              setState(() => {
+                throw error;
+              });
             });
         } else if (saveType === savingTypeConst.snapshotNew) {
           const uuidv4 = require('uuid/v4');
@@ -392,23 +397,13 @@ const SessionManagement = memo(
               updateFraggleBox(response.data);
             })
             .catch(error => {
-              deployErrorModal(error);
+              setState(() => {
+                throw error;
+              });
             });
         }
       }
-    }, [
-      deployErrorModal,
-      generateNextUuid,
-      handleJson,
-      newSessionFlag,
-      nextUuid,
-      nglOrientations,
-      saveType,
-      sessionId,
-      setUuid,
-      updateFraggleBox,
-      uuid
-    ]);
+    }, [generateNextUuid, handleJson, newSessionFlag, nextUuid, nglOrientations, saveType, sessionId, setState, setUuid, updateFraggleBox, uuid]);
 
     const { pathname } = location;
     let buttons = null;
@@ -490,7 +485,6 @@ const mapDispatchToProps = {
   reloadSelectionState: selectionActions.reloadSelectionState,
   setLatestSession: apiActions.setLatestSession,
   setLatestSnapshot: apiActions.setLatestSnapshot,
-  setErrorMessage: apiActions.setErrorMessage,
   setStageColor: nglLoadActions.setStageColor,
   setSessionId: apiActions.setSessionId,
   setUuid: apiActions.setUuid,
@@ -500,9 +494,4 @@ const mapDispatchToProps = {
   setTargetUnrecognised: apiActions.setTargetUnrecognised,
   setLoadingState: nglLoadActions.setLoadingState
 };
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(SessionManagement)
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionManagement));

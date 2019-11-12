@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 13/03/2018.
  */
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as listType from '../components/listTypes';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
@@ -13,17 +13,8 @@ import { OBJECT_TYPE } from '../components/nglView/constants';
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
   const MolGroupList = memo(
-    ({
-      object_list,
-      deleteObject,
-      loadObject,
-      target_on,
-      group_type,
-      setObjectList,
-      isStateLoaded,
-      setErrorMessage,
-      ...rest
-    }) => {
+    ({ object_list, deleteObject, loadObject, target_on, group_type, setObjectList, isStateLoaded, ...rest }) => {
+      const [state, setState] = useState();
       const list_type = listType.MOLGROUPS;
       const oldUrl = useRef('');
       const setOldUrl = url => {
@@ -86,10 +77,12 @@ export const withLoadingMolGroupList = WrappedComponent => {
             list_type,
             setObjectList
           }).catch(error => {
-            setErrorMessage(error);
+            setState(() => {
+              throw error;
+            });
           });
         }
-      }, [target_on, afterPush, beforePush, group_type, list_type, setObjectList, isStateLoaded, setErrorMessage]);
+      }, [target_on, afterPush, beforePush, group_type, list_type, setObjectList, isStateLoaded]);
 
       return <WrappedComponent {...rest} />;
     }
@@ -105,11 +98,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
   const mapDispatchToProps = {
     deleteObject: nglLoadActions.deleteObject,
     loadObject: nglLoadActions.loadObject,
-    setObjectList: apiActions.setMolGroupList,
-    setErrorMessage: apiActions.setErrorMessage
+    setObjectList: apiActions.setMolGroupList
   };
-  return connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(MolGroupList);
+  return connect(mapStateToProps, mapDispatchToProps)(MolGroupList);
 };

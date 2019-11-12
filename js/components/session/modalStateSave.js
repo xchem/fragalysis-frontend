@@ -24,11 +24,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ModalStateSave = memo(
-  ({ savingState, latestSession, latestSnapshot, sessionId, setSavingState, setSessionTitle, setErrorMessage }) => {
+  ({ savingState, latestSession, latestSnapshot, sessionId, setSavingState, setSessionTitle }) => {
     const [fraggleBoxLoc, setFraggleBoxLoc] = useState();
     const [snapshotLoc, setSnapshotLoc] = useState();
     const [title, setTitle] = useState('');
     const classes = useStyles();
+    const [state, setState] = useState();
 
     let urlToCopy = '';
     const port = window.location.port ? `:${window.location.port}` : '';
@@ -91,7 +92,9 @@ const ModalStateSave = memo(
         })
         .then(t => setTitle(t))
         .catch(error => {
-          setErrorMessage(error);
+          setState(() => {
+            throw error;
+          });
         });
     };
 
@@ -114,7 +117,9 @@ const ModalStateSave = memo(
           },
           body: JSON.stringify(formattedState)
         }).catch(error => {
-          setErrorMessage(error);
+          setState(() => {
+            throw error;
+          });
         });
       }
     };
@@ -234,11 +239,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   setSavingState: apiActions.setSavingState,
-  setSessionTitle: apiActions.setSessionTitle,
-  setErrorMessage: apiActions.setErrorMessage
+  setSessionTitle: apiActions.setSessionTitle
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ModalStateSave);
+export default connect(mapStateToProps, mapDispatchToProps)(ModalStateSave);

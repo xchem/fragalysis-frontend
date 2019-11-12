@@ -7,8 +7,6 @@ import status_6_gray from '../img/status_6_gray.svg';
 import status_5 from '../img/status_5.svg';
 import status_4 from '../img/status_4.svg';
 import { api } from '../utils/api';
-import { connect } from 'react-redux';
-import * as apiActions from '../reducers/api/apiActions';
 
 class RefinementOutcome extends React.PureComponent {
   constructor(props) {
@@ -44,7 +42,9 @@ class RefinementOutcome extends React.PureComponent {
     api({ url })
       .then(response => this.convertJson(response.data))
       .catch(error => {
-        this.props.setErrorMessage(error);
+        this.setState(() => {
+          throw error;
+        });
       });
   }
 
@@ -73,13 +73,4 @@ class RefinementOutcome extends React.PureComponent {
   }
 }
 
-function mapStateToProps(state) {
-  return {};
-}
-const mapDispatchToProps = {
-  setErrorMessage: apiActions.setErrorMessage
-};
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(RefinementOutcome);
+export default RefinementOutcome;

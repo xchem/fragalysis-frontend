@@ -12,7 +12,6 @@ import { hot } from 'react-hot-loader';
 import thunkMiddleware from 'redux-thunk';
 //import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
-import { ErrorBoundary } from './errorBoundary';
 
 //const loggerMiddleware = createLogger();
 
@@ -29,13 +28,11 @@ saveStore(store);
 class Root extends PureComponent {
   render() {
     return (
-      <ErrorBoundary>
-        <Provider store={store}>
-          <BrowserRouter>
-            <Routes />
-          </BrowserRouter>
-        </Provider>
-      </ErrorBoundary>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes />
+        </BrowserRouter>
+      </Provider>
     );
   }
 }

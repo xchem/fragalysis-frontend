@@ -2,10 +2,9 @@
  * Created by abradley on 08/10/2018.
  */
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Button, makeStyles } from '@material-ui/core';
 const uuidv4 = require('uuid/v4');
-// import { showReportDialog } from '@sentry/browser';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -18,13 +17,14 @@ const useStyles = makeStyles(theme => ({
 
 export const ErrorReport = memo(() => {
   const classes = useStyles();
-  const reportError = () => {
-    // Set a custom user error to invoke sentry
+  const [error, setError] = useState();
+
+  if (error) {
     throw new Error('Custom user error.' + uuidv4());
-  };
+  }
 
   return (
-    <Button variant="contained" color="secondary" className={classes.button} onClick={reportError}>
+    <Button variant="contained" color="secondary" className={classes.button} onClick={() => setError(true)}>
       Report Error
     </Button>
   );

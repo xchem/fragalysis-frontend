@@ -9,10 +9,13 @@ module.exports = {
   entry: ['webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr', './js/index'],
 
   output: {
+    crossOriginLoading: 'anonymous',
     path: path.resolve('./bundles'),
     filename: '[name]-[hash].js',
     publicPath: 'http://localhost:3030/bundles/' // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
+
+  devtool: 'cheap-module-source-map',
 
   stats: {
     // Configure the console output
@@ -55,7 +58,6 @@ module.exports = {
       }
     ]
   },
-  devtool: 'source-map',
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx'],

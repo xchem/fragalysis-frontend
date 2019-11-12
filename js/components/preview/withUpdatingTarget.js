@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import * as apiActions from '../../reducers/api/apiActions';
@@ -13,7 +13,6 @@ export const withUpdatingTarget = WrappedContainer => {
       targetIdList,
       setTargetUnrecognised,
       setTargetOn,
-      setErrorMessage,
       target_on,
       setUuid,
       setLatestSession,
@@ -24,13 +23,7 @@ export const withUpdatingTarget = WrappedContainer => {
     }) => {
       const target = match.params.target;
       const { isLoading, setIsLoading } = useContext(HeaderLoadingContext);
-
-      const deployErrorModal = useCallback(
-        error => {
-          setErrorMessage(error);
-        },
-        [setErrorMessage]
-      );
+      const [/* state */ setState] = useState();
 
       useEffect(() => {
         if (resetSelection) {
@@ -63,10 +56,12 @@ export const withUpdatingTarget = WrappedContainer => {
             })
             .finally(() => setIsLoading(false))
             .catch(error => {
-              deployErrorModal(error);
+              setState(() => {
+                throw error;
+              });
             });
         }
-      }, [target, setTargetUnrecognised, targetIdList, deployErrorModal, setTargetOn, setIsLoading]);
+      }, [target, targetIdList, setTargetUnrecognised, setIsLoading, setTargetOn, setState]);
 
       useEffect(() => {
         updateTarget();
@@ -101,17 +96,11 @@ export const withUpdatingTarget = WrappedContainer => {
   const mapDispatchToProps = {
     setTargetOn: apiActions.setTargetOn,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
-    setErrorMessage: apiActions.setErrorMessage,
     setUuid: apiActions.setUuid,
     setLatestSession: apiActions.setLatestSession,
     resetSelectionState: selectionActions.resetSelectionState,
     resetTargetState: apiActions.resetTargetState
   };
 
-  return withRouter(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps
-    )(UpdateTarget)
-  );
+  return withRouter(connect(mapStateToProps, mapDispatchToProps)(UpdateTarget));
 };

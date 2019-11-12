@@ -91,8 +91,7 @@ const MoleculeList = memo(
     mol_group_on,
     setObjectList,
     setCachedMolLists,
-    mol_group_list,
-    setErrorMessage
+    mol_group_list
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -147,9 +146,9 @@ const MoleculeList = memo(
         mol_group_on,
         cached_mol_lists
       }).catch(error => {
-        setErrorMessage(error);
+        throw error;
       });
-    }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists, setErrorMessage]);
+    }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const titleRightElement = (
       <Button
@@ -278,11 +277,7 @@ const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject,
-  setErrorMessage: apiActions.setErrorMessage
+  loadObject: nglLoadActions.loadObject
 };
 MoleculeList.displayName = 'MoleculeList';
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MoleculeList);
+export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);

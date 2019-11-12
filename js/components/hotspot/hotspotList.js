@@ -11,7 +11,7 @@ import { getUrl, loadFromServer } from '../../utils/genericList';
 import { api, METHOD } from '../../utils/api';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
-const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on, setErrorMessage }) => {
+const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {
   const list_type = listType.MOLECULE;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -33,10 +33,10 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
           setHsCount(response.data);
         })
         .catch(error => {
-          setErrorMessage(error);
+          throw error;
         });
     }
-  }, [molecule_list, setErrorMessage]);
+  }, [molecule_list]);
 
   useEffect(() => {
     updateCount();
@@ -50,9 +50,9 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
       list_type,
       setObjectList
     }).catch(error => {
-      setErrorMessage(error);
+      throw error;
     });
-  }, [list_type, setObjectList, mol_group_on, target_on, setErrorMessage]);
+  }, [list_type, setObjectList, mol_group_on, target_on]);
 
   if (hsCount > 0) {
     return (
@@ -76,11 +76,7 @@ function mapStateToProps(state) {
   };
 }
 const mapDispatchToProps = {
-  setObjectList: apiActions.setMoleculeList,
-  setErrorMessage: apiActions.setErrorMessage
+  setObjectList: apiActions.setMoleculeList
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HotspotList);
+export default connect(mapStateToProps, mapDispatchToProps)(HotspotList);

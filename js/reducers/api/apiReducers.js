@@ -30,7 +30,6 @@ const INITIAL_STATE = {
   seshListSaving: false,
   latestSession: undefined,
   latestSnapshot: undefined,
-  errorMessage: undefined,
   targetUnrecognised: undefined,
   uuid: savingStateConst.UNSET,
   sessionId: undefined,
@@ -62,7 +61,6 @@ const RESET_TARGET_STATE = {
   seshListSaving: false,
   latestSession: undefined,
   latestSnapshot: undefined,
-  errorMessage: undefined,
   targetUnrecognised: undefined,
   uuid: savingStateConst.UNSET,
   sessionId: undefined,
@@ -220,11 +218,6 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       }
       return Object.assign({}, state, {
         sessionIdList: sessionSummary
-      });
-
-    case actions.SET_ERROR_MESSAGE:
-      return Object.assign({}, state, {
-        errorMessage: action.errorMessage
       });
 
     case actions.SET_TARGET_UNRECOGNISED:

@@ -6,12 +6,10 @@ import { Col, Row, Image, Panel, Grid } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
-import * as apiActions from '../../reducers/api/apiActions';
 import Toggle from 'react-bootstrap-toggle';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { VIEWS } from '../../constants/constants';
 import { api, METHOD } from '../../utils/api';
-import { setErrorMessage } from '../../reducers/api/apiActions';
 
 class HotspotView extends React.PureComponent {
   constructor(props) {
@@ -111,7 +109,7 @@ class HotspotView extends React.PureComponent {
       })
       .then(hotspotObject => this.handleHotspot(hotspotObject, loadState))
       .catch(error => {
-        setErrorMessage(error);
+        throw error;
       });
   }
 
@@ -181,11 +179,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject,
-  setErrorMessage: apiActions.setErrorMessage
+  loadObject: nglLoadActions.loadObject
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HotspotView);
+export default connect(mapStateToProps, mapDispatchToProps)(HotspotView);

@@ -6,7 +6,7 @@ import React, { Fragment, memo, useContext } from 'react';
 import { Grid, makeStyles, LinearProgress } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
-import { ErrorReport } from '../errorReport';
+import { ErrorReport } from './errorReport';
 import { HeaderLoadingContext } from './loadingContext';
 import { Button } from '../common/inputs/button';
 

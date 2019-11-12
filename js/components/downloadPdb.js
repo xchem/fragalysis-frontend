@@ -5,12 +5,10 @@ import React, { memo, useState } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
-import fetch from 'cross-fetch';
 import FileSaver from 'file-saver';
 import { api } from '../utils/api';
-import * as apiActions from '../reducers/api/apiActions';
 
-const DownloadPdb = memo(({ targetOn, targetOnName, setErrorMessage }) => {
+const DownloadPdb = memo(({ targetOn, targetOnName }) => {
   const [downloading, setDownloading] = useState(false);
 
   const handlePdbDownload = async () => {
@@ -20,12 +18,12 @@ const DownloadPdb = memo(({ targetOn, targetOnName, setErrorMessage }) => {
     var proteinsUrl =
       window.location.protocol + '//' + window.location.host + '/api/proteins/?target_id=' + targetOn.toString();
     const protResponse = await api({ url: proteinsUrl }).catch(error => {
-      setErrorMessage(error);
+      throw error;
     });
     const protJson = await protResponse.data;
     const protInfo = protJson.results;
     const pdbResponse = await api({ url: protPdbUrl }).catch(error => {
-      setErrorMessage(error);
+      throw error;
     });
     const pdbJson = await pdbResponse.data;
     const pdbInfo = pdbJson.results;
@@ -82,11 +80,4 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {
-  setErrorMessage: apiActions.setErrorMessage
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DownloadPdb);
+export default connect(mapStateToProps, null)(DownloadPdb);
