@@ -51,9 +51,10 @@ const molGroupSelector = memo(
     vector_list,
     setVectorOnList,
     setVectorList,
-    resetSelectionState
+    resetSelectionState,
+    setExpanded,
+    expanded
   }) => {
-    const [expanded, setExpanded] = useState(true);
     const classes = useStyles();
 
     const handleTitleButtonClick = () => {
@@ -148,9 +149,4 @@ const mapDispatchToProps = {
   setVectorList: selectionActions.setVectorList,
   resetSelectionState: selectionActions.resetSelectionState
 };
-export default withLoadingMolGroupList(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(molGroupSelector)
-);
+export default withLoadingMolGroupList(connect(mapStateToProps, mapDispatchToProps)(molGroupSelector));

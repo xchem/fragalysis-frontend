@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo } from 'react';
+import React, { Fragment, memo, useEffect, useState } from 'react';
 import { Grid, makeStyles, Box } from '@material-ui/core';
 import NGLView from '../nglView/nglComponents';
 import MoleculeList from '../molecule/moleculeList';
@@ -31,22 +31,41 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded }) => {
+const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
+  const [expandedMolGroups, setExpandedMolGroups] = useState(true);
 
   const screenHeight = window.innerHeight * (0.7).toString() + 'px';
-  const molListHeight = window.innerHeight * (0.45).toString() + 'px';
+  //const molListHeight = window.innerHeight * (0.45).toString() + 'px';
 
+  const [molGroupsHeight, setMolGroupsHeight] = useState(0);
+
+  const moleculeListHeight = `calc(100vh ${expandedMolGroups === true ? '-' : '+'} ${headerHeight}px ${
+    expandedMolGroups === true ? '-' : '+'
+  } ${molGroupsHeight}px - 58px)`;
+
+  console.log(expandedMolGroups, moleculeListHeight);
   return (
     <Fragment>
       <HandleUnrecognisedTarget>
         <Grid container justify="space-between" alignItems="stretch" className={classes.root}>
           <Grid item xs={12} md={6} xl={4} container direction="column" spacing={2}>
-            <Grid item>
-              <MolGroupSelector isStateLoaded={isStateLoaded} />
+            <Grid
+              item
+              ref={ref => {
+                if (ref && ref.offsetHeight !== molGroupsHeight) {
+                  setMolGroupsHeight(ref.offsetHeight);
+                }
+              }}
+            >
+              <MolGroupSelector
+                isStateLoaded={isStateLoaded}
+                expanded={expandedMolGroups}
+                setExpanded={setExpandedMolGroups}
+              />
             </Grid>
             <Grid item>
-              <MoleculeList height={molListHeight} />
+              <MoleculeList height={moleculeListHeight} />
             </Grid>
           </Grid>
           <Grid item xs={12} md={6} xl={4}>

@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, useEffect } from 'react';
+import React, { memo, useState } from 'react';
 import { Box } from '@material-ui/core';
 import Header from '../header';
 import { Route, Switch } from 'react-router-dom';
@@ -14,20 +14,19 @@ import { BrowserBomb } from '../browserBombModal';
 
 const Routes = memo(() => {
   const [headerHeight, setHeaderHeight] = useState(0);
-  const headerRef = useRef();
-
-  useEffect(() => {
-    if (headerRef.current) {
-      setHeaderHeight(headerRef.current.offsetHeight);
-    }
-  }, []);
 
   const contentHeight = `calc(100vh - ${headerHeight}px)`;
 
   return (
     <Box minHeight="100vh" width="100%">
       <HeaderLoadingProvider>
-        <Header ref={headerRef} />
+        <Header
+          ref={ref => {
+            if (ref && ref.offsetHeight !== headerHeight) {
+              setHeaderHeight(ref.offsetHeight);
+            }
+          }}
+        />
         <Box minHeight={contentHeight} width="inherit">
           <Switch>
             <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
@@ -36,16 +35,16 @@ const Routes = memo(() => {
             <Route
               exact
               path="/viewer/react/preview/target/:target"
-              render={routeProps => <Preview resetSelection {...routeProps} />}
+              render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
             />
             <Route exact path="/viewer/react/sessions" component={Sessions} />
             <Route
               path="/viewer/react/fragglebox/:uuid"
-              render={routeProps => <Preview isStateLoaded {...routeProps} />}
+              render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
             />
             <Route
               path="/viewer/react/snapshot/:snapshotUuid"
-              render={routeProps => <Preview isStateLoaded {...routeProps} />}
+              render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
             />
             <Route exact path="/viewer/react/funders" component={Funders} />
           </Switch>

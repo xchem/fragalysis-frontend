@@ -3,7 +3,7 @@
  */
 
 import { Grid, Chip, Tooltip, Button, makeStyles, CircularProgress } from '@material-ui/core';
-import React, { useMemo, useState, useEffect, memo, useRef } from 'react';
+import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
@@ -167,11 +167,10 @@ const MoleculeList = memo(
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
     return (
-      <div>
+      <Fragment>
         {!!(filterSettings || {}).active && (
-          <div>
+          <Fragment>
             Filters:
-            <br />
             <div className={classes.filtersRow}>
               {filterSettings.priorityOrder.map(attr => (
                 <Tooltip
@@ -191,7 +190,7 @@ const MoleculeList = memo(
                 </Tooltip>
               ))}
             </div>
-          </div>
+          </Fragment>
         )}
         <BorderedView title="hit navigator" rightElement={titleRightElement}>
           {sortDialogOpen && (
@@ -257,7 +256,7 @@ const MoleculeList = memo(
             )}
           </Grid>
         </BorderedView>
-      </div>
+      </Fragment>
     );
   }
 );
