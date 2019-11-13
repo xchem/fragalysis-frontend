@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { makeStyles } from '@material-ui/core';
+import React, { memo, useState, useRef, useEffect } from 'react';
+import { Box } from '@material-ui/core';
 import Header from '../header';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from '../targetManagementHolder';
@@ -12,48 +12,47 @@ import { withLoadingTargetList } from './withLoadingTargetIdList';
 import { HeaderLoadingProvider } from '../header/loadingContext';
 import { BrowserBomb } from '../browserBombModal';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-    padding: theme.spacing(2)
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
-}));
-
 const Routes = memo(() => {
-  const classes = useStyles();
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef();
+
+  useEffect(() => {
+    if (headerRef.current) {
+      setHeaderHeight(headerRef.current.offsetHeight);
+    }
+  }, []);
+
+  const contentHeight = `calc(100vh - ${headerHeight}px)`;
 
   return (
-    <div className={classes.root}>
+    <Box minHeight="100vh" width="100%">
       <HeaderLoadingProvider>
-        <Header />
-        <Switch>
-          <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
-          <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
-          <Route exact path="/viewer/react/landing" component={Landing} />
-          <Route
-            exact
-            path="/viewer/react/preview/target/:target"
-            render={routeProps => <Preview resetSelection {...routeProps} />}
-          />
-          <Route exact path="/viewer/react/sessions" component={Sessions} />
-          <Route
-            path="/viewer/react/fragglebox/:uuid"
-            render={routeProps => <Preview isStateLoaded {...routeProps} />}
-          />
-          <Route
-            path="/viewer/react/snapshot/:snapshotUuid"
-            render={routeProps => <Preview isStateLoaded {...routeProps} />}
-          />
-          <Route exact path="/viewer/react/funders" component={Funders} />
-        </Switch>
+        <Header ref={headerRef} />
+        <Box minHeight={contentHeight} width="inherit">
+          <Switch>
+            <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
+            <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
+            <Route exact path="/viewer/react/landing" component={Landing} />
+            <Route
+              exact
+              path="/viewer/react/preview/target/:target"
+              render={routeProps => <Preview resetSelection {...routeProps} />}
+            />
+            <Route exact path="/viewer/react/sessions" component={Sessions} />
+            <Route
+              path="/viewer/react/fragglebox/:uuid"
+              render={routeProps => <Preview isStateLoaded {...routeProps} />}
+            />
+            <Route
+              path="/viewer/react/snapshot/:snapshotUuid"
+              render={routeProps => <Preview isStateLoaded {...routeProps} />}
+            />
+            <Route exact path="/viewer/react/funders" component={Funders} />
+          </Switch>
+        </Box>
       </HeaderLoadingProvider>
       <BrowserBomb />
-    </div>
+    </Box>
   );
 });
 

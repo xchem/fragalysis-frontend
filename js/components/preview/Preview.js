@@ -3,7 +3,7 @@
  */
 
 import React, { Fragment, memo } from 'react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles, Box } from '@material-ui/core';
 import NGLView from '../nglView/nglComponents';
 import MoleculeList from '../molecule/moleculeList';
 import MolGroupSelector from '../molGroupSelector';
@@ -18,14 +18,16 @@ import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
-  gridItemLhs: {
-    width: '500px'
-  },
   gridItemRhs: {
     width: 'calc(100% - 500px)'
   },
   fullWidth: {
     width: '100%'
+  },
+  root: {
+    minHeight: 'inherit',
+    width: 'inherit',
+    padding: 8
   }
 }));
 
@@ -38,26 +40,32 @@ const Preview = memo(({ isStateLoaded }) => {
   return (
     <Fragment>
       <HandleUnrecognisedTarget>
-        <Grid container spacing={2}>
-          <Grid item container direction="column" alignItems="stretch" spacing={2} className={classes.gridItemLhs}>
-            <Grid item className={classes.fullWidth}>
+        <Grid container justify="space-between" alignItems="stretch" className={classes.root}>
+          <Grid item xs={12} md={6} xl={4} container direction="column" spacing={2}>
+            <Grid item>
               <MolGroupSelector isStateLoaded={isStateLoaded} />
             </Grid>
             <Grid item>
               <MoleculeList height={molListHeight} />
             </Grid>
           </Grid>
-          <Grid item container className={classes.gridItemRhs} spacing={2}>
-            <Grid item lg={6} md={12}>
-              <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
-              <NglViewerControls />
-            </Grid>
-            <Grid item lg={6} md={12}>
-              <SummaryView />
-              <CompoundList />
-              <HotspotList />
+          <Grid item xs={12} md={6} xl={4}>
+            <Grid container direction="column" spacing={2} justify="space-between">
+              <Grid item>
+                <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
+              </Grid>
+              <Grid item>
+                <NglViewerControls />
+              </Grid>
             </Grid>
           </Grid>
+          {/*
+          <Grid item xs={12} md={6} xl={4}>
+            <SummaryView />
+            <CompoundList />
+            <HotspotList />
+          </Grid>
+          */}
         </Grid>
       </HandleUnrecognisedTarget>
       <ModalStateSave />

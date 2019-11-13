@@ -4,13 +4,15 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
-import { Button, ButtonToolbar, Well, Col, Row } from 'react-bootstrap';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import SummaryCmpd from './SummaryCmpd';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
 import { VIEWS } from '../constants/constants';
 import { api } from '../utils/api';
+import { Button } from './common/inputs/button';
+import { Paper } from './common/surfaces/paper';
+import { Grid } from '@material-ui/core';
 
 const SummaryView = memo(
   ({ duck_yank_data, to_buy_list, to_select, vector_list, querying, to_query, compoundClasses, loadObject }) => {
@@ -190,40 +192,42 @@ const SummaryView = memo(
     var interaction_selectComponent = interaction_select === undefined ? 'Not selected' : interaction_select;
 
     return (
-      <div>
-        <Well>
-          <Row>
-            <Col xs={6} md={6}>
-              <h5>
-                Number picked: <b>{list_len}</b>
-              </h5>
-              <h5>
-                Number vectors explored: <b>{num_vectors}</b>
-              </h5>
-              <h5>
-                Number series explored: <b>{num_series}</b>
-              </h5>
-              <h5>
-                Estimated cost: <b>£{cost}</b>
-              </h5>
-              <ButtonToolbar>
-                <Button bsSize="sm" bsStyle="success" onClick={handleExport}>
-                  Download CSV (Chrome)
-                </Button>
-                <Button bsSize="sm" bsStyle="success" onClick={handleYankDuck}>
-                  Download Yank/Duck
-                </Button>
-              </ButtonToolbar>
-              <h5>
-                Selected Interaction: <b>{interaction_selectComponent}</b>
-              </h5>
-            </Col>
-            <Col xs={6} md={6}>
-              <SummaryCmpd height={150} width={150} key={'QUERY'} />
-            </Col>
-          </Row>
-        </Well>
-      </div>
+      <Paper>
+        <Grid container>
+          <Grid item xs={12} md={6}>
+            <h5>
+              Number picked: <b>{list_len}</b>
+            </h5>
+            <h5>
+              Number vectors explored: <b>{num_vectors}</b>
+            </h5>
+            <h5>
+              Number series explored: <b>{num_series}</b>
+            </h5>
+            <h5>
+              Estimated cost: <b>£{cost}</b>
+            </h5>
+            <h5>
+              Selected Interaction: <b>{interaction_selectComponent}</b>
+            </h5>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <SummaryCmpd height={150} width={150} key={'QUERY'} />
+          </Grid>
+        </Grid>
+        <Grid container direction="row" justify="space-evenly" alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Button color="primary" onClick={handleExport}>
+              Download CSV (Chrome)
+            </Button>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Button color="primary" onClick={handleYankDuck}>
+              Download Yank/Duck
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
     );
   }
 );

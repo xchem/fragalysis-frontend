@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import { Button } from 'react-bootstrap';
 import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
+import { Paper } from '../common/surfaces/paper';
 
 const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {
   const handleStageColor = () => {
@@ -26,12 +27,12 @@ const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNg
   };
 
   return (
-    <div>
+    <Paper>
       <h3>Viewer controls</h3>
       <Button bsSize="sm" bsStyle="success" onClick={handleStageColor}>
         Change background colour
       </Button>
-    </div>
+    </Paper>
   );
 });
 
@@ -47,7 +48,4 @@ const mapDispatchToProps = {
   setNglProtStyle: nglLoadActions.setNglProtStyle
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NglViewerControls);
+export default connect(mapStateToProps, mapDispatchToProps)(NglViewerControls);

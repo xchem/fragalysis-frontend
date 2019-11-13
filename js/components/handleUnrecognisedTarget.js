@@ -2,7 +2,7 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React, { memo } from 'react';
+import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 import * as apiActions from '../reducers/api/apiActions';
@@ -63,10 +63,10 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
   }
 
   return (
-    <div>
+    <Fragment>
       {children}
       {modal}
-    </div>
+    </Fragment>
   );
 });
 

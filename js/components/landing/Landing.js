@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import { Grid } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import React, { memo, useEffect } from 'react';
 import TargetList from '../targetList';
 import SessionList from '../session/sessionList';
@@ -9,8 +9,20 @@ import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    minHeight: 'inherit',
+    width: 'inherit',
+    padding: 8
+  },
+  paddingItem: {
+    padding: 8
+  }
+}));
+
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {
-  var text_div;
+  const classes = useStyles();
+  let text_div;
   // eslint-disable-next-line no-undef
   if (DJANGO_CONTEXT['authenticated'] === true) {
     // eslint-disable-next-line no-undef
@@ -19,7 +31,7 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
   } else {
     text_div = (
       <h3>
-        {'\n'}To view own targets login here:{' '}
+        To view own targets login here:
         <a className="inline" href="/accounts/login">
           FedID Login
         </a>
@@ -33,14 +45,22 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
   }, [resetTargetState, resetSelectionState]);
 
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={1} md={1} />
-      <Grid item xs={2} md={2}>
-        <Grid container>
-          <h1>Welcome to Fragalysis{'\n'}</h1>
+    <Grid container className={classes.root}>
+      <Grid
+        container
+        item
+        xs={12}
+        md={6}
+        lg={4}
+        direction="column"
+        justify="flex-start"
+        className={classes.paddingItem}
+      >
+        <Grid item>
+          <h1>Welcome to Fragalysis</h1>
           {text_div}
         </Grid>
-        <Grid container>
+        <Grid item>
           <p>
             <a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">
               Target status overview
@@ -49,17 +69,12 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
           </p>
         </Grid>
       </Grid>
-      <Grid item xs={4} md={4}>
-        <div>
-          <TargetList key="TARGLIST" />
-        </div>
+      <Grid item xs={12} md={6} lg={4} className={classes.paddingItem}>
+        <TargetList key="TARGLIST" />
       </Grid>
-      <Grid item xs={4} md={4}>
-        <div>
-          <SessionList key="SESSIONLIST" />
-        </div>
+      <Grid item xs={12} md={6} lg={4} className={classes.paddingItem}>
+        <SessionList key="SESSIONLIST" />
       </Grid>
-      <Grid item xs={1} md={1} />
     </Grid>
   );
 });
@@ -72,7 +87,4 @@ const mapDispatchToProps = {
   resetTargetState: apiActions.resetTargetState
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Landing);
+export default connect(mapStateToProps, mapDispatchToProps)(Landing);
