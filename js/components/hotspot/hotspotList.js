@@ -21,13 +21,15 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
 
   const updateCount = useCallback(() => {
     if (molecule_list && molecule_list.length > 0) {
+      let onCancel = () => {};
       api({
         url: '/api/hotspots/?map_type=DO&prot_id=' + molecule_list[0].prot_id.toString(),
         method: METHOD.GET,
         headers: {
           accept: 'application/json',
           'content-type': 'application/json'
-        }
+        },
+        cancel: onCancel
       })
         .then(response => {
           setHsCount(response.data);
@@ -35,6 +37,9 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
         .catch(error => {
           throw error;
         });
+      return () => {
+        onCancel();
+      };
     }
   }, [molecule_list]);
 
@@ -43,15 +48,20 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
   }, [updateCount]);
 
   useEffect(() => {
+    let onCancel = () => {};
     loadFromServer({
       url: getUrl({ list_type, mol_group_on, target_on }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl.current,
       list_type,
-      setObjectList
+      setObjectList,
+      cancel: onCancel
     }).catch(error => {
       throw error;
     });
+    return () => {
+      onCancel();
+    };
   }, [list_type, setObjectList, mol_group_on, target_on]);
 
   if (hsCount > 0) {

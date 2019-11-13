@@ -18,17 +18,22 @@ export const withLoadingEventList = WrappedComponent => {
     };
 
     useEffect(() => {
+      let onCancel = () => {};
       loadFromServer({
         url: getUrl({ list_type, target_on, pandda_site_on }),
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
-        setObjectList
+        setObjectList,
+        cancel: onCancel
       }).catch(error => {
         setState(() => {
           throw error;
         });
       });
+      return () => {
+        onCancel();
+      };
     }, [list_type, setObjectList, target_on, pandda_site_on]);
 
     return <WrappedComponent />;

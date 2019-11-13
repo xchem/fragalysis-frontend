@@ -14,18 +14,22 @@ export const withLoadingTargetList = WrappedComponent => {
 
     useEffect(() => {
       const list_type = listType.TARGET;
-
+      let onCancel = () => {};
       loadFromServer({
         url: getUrl({ list_type }),
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         setObjectList: setTargetIdList,
-        list_type
+        list_type,
+        cancel: onCancel
       }).catch(error => {
         setState(() => {
           throw error;
         });
       });
+      return () => {
+        onCancel();
+      };
     }, [setTargetIdList]);
 
     return <WrappedComponent />;

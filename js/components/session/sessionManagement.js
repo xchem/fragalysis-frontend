@@ -403,7 +403,19 @@ const SessionManagement = memo(
             });
         }
       }
-    }, [generateNextUuid, handleJson, newSessionFlag, nextUuid, nglOrientations, saveType, sessionId, setState, setUuid, updateFraggleBox, uuid]);
+    }, [
+      generateNextUuid,
+      handleJson,
+      newSessionFlag,
+      nextUuid,
+      nglOrientations,
+      saveType,
+      sessionId,
+      setState,
+      setUuid,
+      updateFraggleBox,
+      uuid
+    ]);
 
     const { pathname } = location;
     let buttons = null;

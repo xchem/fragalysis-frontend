@@ -56,7 +56,7 @@ const CompoundView = memo(
     const [isHighlighted, setIsHighlighted] = useState(false);
     const [compoundClass, setCompoundClass] = useState();
     const [isConfOn, setIsConfOn] = useState(false);
-    const refDidMount = useRef(false);
+    const refOnCancel = useRef();
     const conf = useRef(false);
     const oldUrl = useRef('');
     const setOldUrl = newUrl => {
@@ -155,7 +155,8 @@ const CompoundView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (refDidMount.current === false) {
+      if (refOnCancel.current === undefined) {
+        let onCancel = () => {};
         loadFromServer({
           width,
           height,
@@ -163,15 +164,21 @@ const CompoundView = memo(
           old_url: oldUrl.current,
           setImg_data,
           setOld_url: newUrl => setOldUrl(newUrl),
-          url
+          url,
+          cancel: onCancel
         }).catch(error => {
           throw error;
         });
         if (to_buy_list.length !== 0) {
           checkInList();
         }
-        refDidMount.current = true;
+        refOnCancel.current = onCancel;
       }
+      return () => {
+        if (refOnCancel) {
+          refOnCancel.current();
+        }
+      };
     }, [height, key, url, width, checkInList, to_buy_list.length]);
 
     useEffect(() => {

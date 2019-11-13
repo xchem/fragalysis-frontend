@@ -58,6 +58,7 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
     );
 
     useEffect(() => {
+      let onCancel = () => {};
       loadFromServer({
         url: getUrl({ list_type, target_on, group_type }),
         setOldUrl: url => setOldUrl(url),
@@ -65,12 +66,16 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
         list_type,
         setObjectList,
         beforePush,
-        afterPush
+        afterPush,
+        cancel: onCancel
       }).catch(error => {
         setState(() => {
           throw error;
         });
       });
+      return () => {
+        onCancel();
+      };
     }, [list_type, setObjectList, target_on, beforePush, afterPush, group_type, setState]);
 
     return <WrappedComponent />;

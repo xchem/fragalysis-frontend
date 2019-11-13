@@ -188,18 +188,23 @@ const SessionList = memo(
     };
 
     useEffect(() => {
+      let onCancel = () => {};
       loadFromServer({
         url: getUrl({ list_type, setSeshListSaving }),
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
         setObjectList: setSessionIdList,
-        seshListSaving
+        seshListSaving,
+        cancel: onCancel
       }).catch(error => {
         setState(() => {
           throw error;
         });
       });
+      return () => {
+        onCancel();
+      };
     }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving, setState]);
 
     let sessionListTitle;

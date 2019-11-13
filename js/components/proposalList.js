@@ -53,16 +53,21 @@ const ProposalList = memo(() => {
   };
 
   useEffect(() => {
+    let onCancel = () => {};
     loadFromServer({
       url: getUrl({ list_type }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl.current,
-      list_type
+      list_type,
+      cancel: onCancel
     }).catch(error => {
       setState(() => {
         throw error;
       });
     });
+    return () => {
+      onCancel();
+    };
   }, [list_type]);
 
   // const userPk = DJANGO_CONTEXT["pk"]

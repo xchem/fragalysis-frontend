@@ -20,6 +20,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
       const setOldUrl = url => {
         oldUrl.current = url;
       };
+      const refOnCancel = useRef(false);
 
       const generateObject = useCallback(
         (data, selected = false) => {
@@ -68,6 +69,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
 
       useEffect(() => {
         if (target_on && !isStateLoaded) {
+          let onCancel = () => {};
           loadFromServer({
             url: getUrl({ list_type, target_on, group_type }),
             setOldUrl: url => setOldUrl(url),
@@ -75,13 +77,20 @@ export const withLoadingMolGroupList = WrappedComponent => {
             afterPush: afterPush,
             beforePush: beforePush,
             list_type,
-            setObjectList
+            setObjectList,
+            cancel: onCancel
           }).catch(error => {
             setState(() => {
               throw error;
             });
           });
+          refOnCancel.current = onCancel;
         }
+        return () => {
+          if (refOnCancel.current) {
+            refOnCancel.current();
+          }
+        };
       }, [target_on, afterPush, beforePush, group_type, list_type, setObjectList, isStateLoaded]);
 
       return <WrappedComponent {...rest} />;
