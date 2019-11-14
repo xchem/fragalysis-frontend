@@ -1,11 +1,14 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { Row, Button, ButtonToolbar } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
 import { Paper } from './common/surfaces/paper';
+import { Button } from './common/inputs/button';
+import { TextField } from './common/inputs/textField';
+import { Grid, Box } from '@material-ui/core';
 import * as selectionActions from '../reducers/selection/selectionActions';
 
 const molStyle = { height: '400px', overflow: 'scroll' };
@@ -21,7 +24,8 @@ const CompoundList = memo(
     setToBuyList,
     appendToBuyList,
     setCompoundClasses,
-    setCurrentCompoundClass
+    setCurrentCompoundClass,
+    height
   }) => {
     const [compoundClassesLocal, setCompoundClassesLocal] = useState({
       1: 'blue',
@@ -107,63 +111,10 @@ const CompoundList = memo(
     if (to_query === '' || to_query === undefined) {
       mol_string = '';
     }
+
     if (to_query !== undefined) {
-      var totArray = [];
-      totArray.push(
-        <p key={'breakup'}>
-          <br />
-        </p>
-      );
-      totArray.push(
-        <input
-          id="1"
-          key="CLASS_1"
-          style={{ width: 100 }}
-          defaultValue={compoundClassesLocal[1]}
-          onKeyDown={handleClassNaming}
-        />
-      );
-      totArray.push(
-        <input
-          id="2"
-          key="CLASS_2"
-          style={{ width: 100 }}
-          defaultValue={compoundClassesLocal[2]}
-          onKeyDown={handleClassNaming}
-        />
-      );
-      totArray.push(
-        <input
-          id="3"
-          key="CLASS_3"
-          style={{ width: 100 }}
-          defaultValue={compoundClassesLocal[3]}
-          onKeyDown={handleClassNaming}
-        />
-      );
-      totArray.push(
-        <input
-          id="4"
-          key="CLASS_4"
-          style={{ width: 100 }}
-          defaultValue={compoundClassesLocal[4]}
-          onKeyDown={handleClassNaming}
-        />
-      );
-      totArray.push(
-        <input
-          id="5"
-          key="CLASS_5"
-          style={{ width: 100 }}
-          defaultValue={compoundClassesLocal[5]}
-          onKeyDown={handleClassNaming}
-        />
-      );
-      totArray.push(
-        <p key={'breakdown'}>
-          <br />
-        </p>
-      );
+      let totArray = [];
+
       var retArray = [];
       for (var key in thisVectorList) {
         const vector_smi = thisVectorList[key]['vector'];
@@ -186,20 +137,34 @@ const CompoundList = memo(
           {retArray}
         </Row>
       );
+
       return (
         <Paper>
-          <h3>
-            <b>{querying ? 'Loading....' : mol_string}</b>
-          </h3>
-          <ButtonToolbar>
-            <Button bsSize="sm" bsStyle="success" onClick={selectAll}>
+          <Box height={height}>
+            <h3>
+              <b>{querying ? 'Loading....' : mol_string}</b>
+            </h3>
+
+            <Button color="primary" onClick={selectAll}>
               Select All
             </Button>
-            <Button bsSize="sm" bsStyle="success" onClick={clearAll}>
+            <Button color="primary" onClick={clearAll}>
               Clear Selection
             </Button>
-          </ButtonToolbar>
-          <div>{totArray}</div>
+            <Grid container direction="row" justify="space-between" alignItems="center">
+              {[1, 2, 3, 4, 5].map(item => (
+                <Grid item key={item}>
+                  <TextField
+                    id={`${item}`}
+                    key={`CLASS_${item}`}
+                    label={compoundClassesLocal[item]}
+                    onKeyDown={handleClassNaming}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            {/*<div>{totArray}</div>*/}
+          </Box>
         </Paper>
       );
     } else {

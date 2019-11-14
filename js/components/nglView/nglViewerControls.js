@@ -2,10 +2,10 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React, { forwardRef, memo } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
-import { Button } from 'react-bootstrap';
+import { Button } from '../common/inputs/button';
 import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
 import { Paper } from '../common/surfaces/paper';
 
@@ -29,7 +29,7 @@ const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNg
   return (
     <Paper>
       <h3>Viewer controls</h3>
-      <Button bsSize="sm" bsStyle="success" onClick={handleStageColor}>
+      <Button color="primary" onClick={handleStageColor}>
         Change background colour
       </Button>
     </Paper>

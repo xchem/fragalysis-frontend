@@ -193,8 +193,8 @@ const SummaryView = memo(
 
     return (
       <Paper>
-        <Grid container>
-          <Grid item xs={12} md={6}>
+        <Grid container justify="space-between">
+          <Grid item>
             <h5>
               Number picked: <b>{list_len}</b>
             </h5>
@@ -211,22 +211,16 @@ const SummaryView = memo(
               Selected Interaction: <b>{interaction_selectComponent}</b>
             </h5>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item>
             <SummaryCmpd height={150} width={150} key={'QUERY'} />
           </Grid>
         </Grid>
-        <Grid container direction="row" justify="space-evenly" alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Button color="primary" onClick={handleExport}>
-              Download CSV (Chrome)
-            </Button>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Button color="primary" onClick={handleYankDuck}>
-              Download Yank/Duck
-            </Button>
-          </Grid>
-        </Grid>
+        <Button color="primary" onClick={handleExport}>
+          Download CSV (Chrome)
+        </Button>
+        <Button color="primary" onClick={handleYankDuck}>
+          Download Yank/Duck
+        </Button>
       </Paper>
     );
   }
