@@ -1,7 +1,6 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { Row } from 'react-bootstrap';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
@@ -10,8 +9,6 @@ import { Button } from './common/inputs/button';
 import { TextField } from './common/inputs/textField';
 import { Grid, Box } from '@material-ui/core';
 import * as selectionActions from '../reducers/selection/selectionActions';
-
-const molStyle = { height: '400px', overflow: 'scroll' };
 
 const CompoundList = memo(
   ({
@@ -113,8 +110,6 @@ const CompoundList = memo(
     }
 
     if (to_query !== undefined) {
-      let totArray = [];
-
       var retArray = [];
       for (var key in thisVectorList) {
         const vector_smi = thisVectorList[key]['vector'];
@@ -132,18 +127,11 @@ const CompoundList = memo(
           retArray.push(<CompoundView height={100} width={100} key={ele + '__' + key} data={input_data} />);
         }
       }
-      totArray.push(
-        <Row style={molStyle} key={'CMPD_ROW'}>
-          {retArray}
-        </Row>
-      );
 
       return (
         <Paper>
-          <Box height={height}>
-            <h3>
-              <b>{querying ? 'Loading....' : mol_string}</b>
-            </h3>
+          <Box height={height} overflow="auto">
+            <h3>{querying ? 'Loading....' : mol_string}</h3>
 
             <Button color="primary" onClick={selectAll}>
               Select All
@@ -163,7 +151,15 @@ const CompoundList = memo(
                 </Grid>
               ))}
             </Grid>
-            {/*<div>{totArray}</div>*/}
+            <Box overflow="auto">
+              <Grid container justify="flex-start">
+                {retArray.map((item, index) => (
+                  <Grid item key={index}>
+                    {item}
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
           </Box>
         </Paper>
       );

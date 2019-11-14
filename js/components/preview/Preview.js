@@ -37,7 +37,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const screenHeight = `calc(100vh - ${headerHeight}px - ${viewControlsHeight}px - 16px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${summaryViewHeight}px - 80px)`;
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${summaryViewHeight}px - 62px)`;
 
   return (
     <Fragment>

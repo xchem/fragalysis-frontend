@@ -3,7 +3,7 @@
  */
 import * as Sentry from '@sentry/browser';
 import React, { Fragment, Component } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button } from '../common/inputs/button';
 import Modal from '../common/modal';
 
 export class ErrorBoundary extends Component {
@@ -43,12 +43,11 @@ export class ErrorBoundary extends Component {
           <div>
             <h3>Something went wrong - unexpected error. Please contact Fragalysis support!</h3>
             <div>{msg}</div>
-            <Button bsSize="sm" bsStyle="success" onClick={() => this.setState({ error: null })}>
+            <Button color="primary" onClick={() => this.setState({ error: null })}>
               Close
             </Button>
             <Button
-              bsSize="sm"
-              bsStyle="success"
+              color="primary"
               onClick={() => {
                 this.setState({ error: null });
                 Sentry.showReportDialog();
