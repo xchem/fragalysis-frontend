@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo, useEffect, useState } from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, Box } from '@material-ui/core';
 import NGLView from '../nglView/nglComponents';
 import MoleculeList from '../molecule/moleculeList';
@@ -18,73 +18,74 @@ import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
-  gridItemRhs: {
-    width: 'calc(100% - 500px)'
-  },
-  fullWidth: {
-    width: '100%'
-  },
   root: {
     minHeight: 'inherit',
-    width: 'inherit',
-    padding: 8
+    width: '100%'
+  },
+  itemPadding: {
+    padding: theme.spacing(1)
   }
 }));
 
 const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
-  const [expandedMolGroups, setExpandedMolGroups] = useState(true);
-
-  const screenHeight = window.innerHeight * (0.7).toString() + 'px';
-  //const molListHeight = window.innerHeight * (0.45).toString() + 'px';
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${molGroupsHeight}px - 74px)`;
 
-  const moleculeListHeight = `calc(100vh ${expandedMolGroups === true ? '-' : '+'} ${headerHeight}px ${
-    expandedMolGroups === true ? '-' : '+'
-  } ${molGroupsHeight}px - 58px)`;
+  const [viewControlsHeight, setViewControlsHeight] = useState(0);
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${viewControlsHeight}px - 16px)`;
 
-  console.log(expandedMolGroups, moleculeListHeight);
+  const [summaryViewHeight, setSummaryViewHeight] = useState(0);
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${summaryViewHeight}px - 16px)`;
+
   return (
     <Fragment>
       <HandleUnrecognisedTarget>
-        <Grid container justify="space-between" alignItems="stretch" className={classes.root}>
-          <Grid item xs={12} md={6} xl={4} container direction="column" spacing={2}>
-            <Grid
-              item
-              ref={ref => {
-                if (ref && ref.offsetHeight !== molGroupsHeight) {
-                  setMolGroupsHeight(ref.offsetHeight);
-                }
-              }}
-            >
-              <MolGroupSelector
-                isStateLoaded={isStateLoaded}
-                expanded={expandedMolGroups}
-                setExpanded={setExpandedMolGroups}
-              />
+        <Grid container justify="space-between" className={classes.root}>
+          <Grid item xs={12} md={6} xl={4} container direction="column">
+            <Grid item className={classes.itemPadding}>
+              <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
             </Grid>
-            <Grid item>
+            <Grid item className={classes.itemPadding}>
               <MoleculeList height={moleculeListHeight} />
             </Grid>
           </Grid>
-          <Grid item xs={12} md={6} xl={4}>
-            <Grid container direction="column" spacing={2} justify="space-between">
-              <Grid item>
-                <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
-              </Grid>
-              <Grid item>
-                <NglViewerControls />
-              </Grid>
+          <Grid item xs={12} md={6} xl={4} container direction="column">
+            <Grid item className={classes.itemPadding}>
+              <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
+            </Grid>
+            <Grid
+              item
+              ref={ref => {
+                if (ref && ref.offsetHeight !== viewControlsHeight) {
+                  setViewControlsHeight(ref.offsetHeight);
+                }
+              }}
+              className={classes.itemPadding}
+            >
+              <NglViewerControls />
             </Grid>
           </Grid>
-          {/*
-          <Grid item xs={12} md={6} xl={4}>
-            <SummaryView />
-            <CompoundList />
+          <Grid item xs={12} md={6} xl={4} container direction="column">
+            <Grid
+              item
+              className={classes.itemPadding}
+              ref={ref => {
+                if (ref && ref.offsetHeight !== summaryViewHeight) {
+                  setSummaryViewHeight(ref.offsetHeight);
+                }
+              }}
+            >
+              <SummaryView />
+            </Grid>
+            <Grid item className={classes.itemPadding}>
+              <CompoundList />
+            </Grid>
+          </Grid>
+          <Grid item>
             <HotspotList />
           </Grid>
-          */}
         </Grid>
       </HandleUnrecognisedTarget>
       <ModalStateSave />

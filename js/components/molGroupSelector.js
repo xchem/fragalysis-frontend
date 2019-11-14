@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useRef, useEffect } from 'react';
 import { Grid, makeStyles, Button } from '@material-ui/core';
 import BorderedView from './borderedView';
 import NGLView from './nglView/nglComponents';
@@ -15,12 +15,10 @@ import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 const useStyles = makeStyles(() => ({
   containerExpanded: {
-    height: '208px',
-    transition: 'height 0.2s'
+    height: '208px'
   },
   containerCollapsed: {
-    height: '0px',
-    transition: 'height 0.2s'
+    height: '0px'
   },
   nglViewItem: {
     paddingLeft: '4px'
@@ -52,10 +50,19 @@ const molGroupSelector = memo(
     setVectorOnList,
     setVectorList,
     resetSelectionState,
-    setExpanded,
-    expanded
+    handleHeightChange
   }) => {
     const classes = useStyles();
+    const ref = useRef(null);
+    const [expanded, setExpanded] = useState(true);
+
+    useEffect(() => {}, [ref]);
+
+    useEffect(() => {
+      if (ref.current && handleHeightChange instanceof Function) {
+        handleHeightChange(ref.current.offsetHeight);
+      }
+    }, [expanded, handleHeightChange]);
 
     const handleTitleButtonClick = () => {
       setExpanded(!expanded);
@@ -111,21 +118,23 @@ const molGroupSelector = memo(
     );
 
     return (
-      <BorderedView title="hit cluster selector" rightElement={titleRightElement}>
-        <Grid
-          item
-          container
-          alignItems="center"
-          className={expanded ? classes.containerExpanded : classes.containerCollapsed}
-        >
-          <Grid item xs={5} className={classes.nglViewItem}>
-            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={expanded ? '200px' : '0px'} />
+      <div ref={ref}>
+        <BorderedView title="hit cluster selector" rightElement={titleRightElement}>
+          <Grid
+            item
+            container
+            alignItems="center"
+            className={expanded ? classes.containerExpanded : classes.containerCollapsed}
+          >
+            <Grid item xs={5} className={classes.nglViewItem}>
+              <NGLView div_id={VIEWS.SUMMARY_VIEW} height={expanded ? '200px' : '0px'} />
+            </Grid>
+            <Grid item xs={7} className={classes.checklistItem}>
+              {expanded && <MolGroupChecklist />}
+            </Grid>
           </Grid>
-          <Grid item xs={7} className={classes.checklistItem}>
-            {expanded && <MolGroupChecklist />}
-          </Grid>
-        </Grid>
-      </BorderedView>
+        </BorderedView>
+      </div>
     );
   }
 );

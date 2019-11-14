@@ -2,7 +2,7 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import { Button } from 'react-bootstrap';

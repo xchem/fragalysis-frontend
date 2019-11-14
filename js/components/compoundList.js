@@ -1,10 +1,11 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { Row, Well, Button, ButtonToolbar } from 'react-bootstrap';
+import { Row, Button, ButtonToolbar } from 'react-bootstrap';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
+import { Paper } from './common/surfaces/paper';
 import * as selectionActions from '../reducers/selection/selectionActions';
 
 const molStyle = { height: '400px', overflow: 'scroll' };
@@ -186,7 +187,7 @@ const CompoundList = memo(
         </Row>
       );
       return (
-        <Well>
+        <Paper>
           <h3>
             <b>{querying ? 'Loading....' : mol_string}</b>
           </h3>
@@ -199,7 +200,7 @@ const CompoundList = memo(
             </Button>
           </ButtonToolbar>
           <div>{totArray}</div>
-        </Well>
+        </Paper>
       );
     } else {
       return null;
@@ -224,7 +225,4 @@ const mapDispatchToProps = {
   setCurrentCompoundClass: selectionActions.setCurrentCompoundClass
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CompoundList);
+export default connect(mapStateToProps, mapDispatchToProps)(CompoundList);

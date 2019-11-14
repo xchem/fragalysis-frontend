@@ -27,7 +27,7 @@ const Routes = memo(() => {
             }
           }}
         />
-        <Box minHeight={contentHeight} width="inherit">
+        <Box minHeight={contentHeight} width="100%">
           <Switch>
             <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
             <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
