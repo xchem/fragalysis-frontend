@@ -9,10 +9,22 @@ import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import { CircularProgress } from '@material-ui/core';
+import { TextField } from '../common/inputs/textField';
 import { updateClipboard } from './helpers';
 import { Button } from '../common/inputs/button';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
+import { List, ListItem, ListItemText, CircularProgress, makeStyles, ListItemSecondaryAction } from '@material-ui/core';
+
+const useStyles = makeStyles(theme => ({
+  list: {
+    backgroundColor: theme.palette.background.paper
+  },
+  listItem: {
+    borderColor: '#dddddd',
+    borderWidth: 1,
+    borderStyle: 'solid'
+  }
+}));
 
 const SessionList = memo(
   ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving, location }) => {
@@ -23,6 +35,7 @@ const SessionList = memo(
       oldUrl.current = url;
     };
     const { pathname } = location;
+    const classes = useStyles();
 
     const renameStateSession = (id, title) => {
       let currentSessionList = sessionIdList;
@@ -93,96 +106,62 @@ const SessionList = memo(
     };
 
     const renderDeleteButton = data => (
-      <button
+      <Button
+        color="secondary"
         onClick={function onClick() {
           deleteSession(data.id);
         }}
       >
         Delete
-      </button>
+      </Button>
     );
 
     const renderCopyUrlButton = data => {
       const urlToCopy =
         window.location.protocol + '//' + window.location.hostname + '/viewer/react/fragglebox/' + data.uuid;
-      return <Button onClick={() => updateClipboard(urlToCopy)}>Copy link</Button>;
+      return (
+        <Button color="primary" onClick={() => updateClipboard(urlToCopy)}>
+          Copy link
+        </Button>
+      );
     };
 
     const render_method = data => {
       var fragglebox = '/viewer/react/fragglebox/' + data.uuid;
       if (pathname === '/viewer/react/sessions') {
         return (
-          <ListGroupItem key={data.id}>
-            <Row>
-              <Col xs={3} md={3}>
-                <Row />
-                <p />
-                <Row>
-                  <p>
-                    Title:{' '}
-                    <Link to={fragglebox}>{sessionIdList[sessionIdList.findIndex(x => x.id === data.id)].title}</Link>
-                  </p>
-                </Row>
-              </Col>
-              <Col xs={3} md={3}>
-                <Row />
-                <p />
-                <Row>
-                  <p>
-                    Last modified on {data.modified.slice(0, 10)} at {data.modified.slice(11, 19)}
-                  </p>
-                </Row>
-              </Col>
-              <Col xs={1} md={1}>
-                <Row />
-                <p />
-                <Row>
-                  <p>Target: {data.target_on_name}</p>
-                </Row>
-              </Col>
-              <Col xs={3} md={3}>
-                <input
-                  id={data.id}
-                  key="sessRnm"
-                  style={{ width: 250 }}
-                  defaultValue={data.title}
-                  onKeyDown={handleSessionNaming}
-                />
-                <sup>
-                  <br />
-                  To rename, type new title & press enter.
-                </sup>
-              </Col>
-              <Col xs={2} md={2}>
-                <ButtonToolbar>
-                  {renderCopyUrlButton(data)} {renderDeleteButton(data)}
-                </ButtonToolbar>
-              </Col>
-            </Row>
-          </ListGroupItem>
+          <ListItem key={data.id} className={classes.listItem}>
+            <ListItemText
+              primary={
+                <Link to={fragglebox}>{sessionIdList[sessionIdList.findIndex(x => x.id === data.id)].title}</Link>
+              }
+              secondary={`Target: ${data.target_on_name}, Last modified on ${data.modified.slice(
+                0,
+                10
+              )} at ${data.modified.slice(11, 19)}`}
+            />
+            <ListItemSecondaryAction>
+              <TextField
+                id={`${data.id}`}
+                key="sessRnm"
+                style={{ width: 250 }}
+                value={data.title}
+                onKeyDown={handleSessionNaming}
+                helperText="To rename, type new title & press enter."
+              />
+              {renderCopyUrlButton(data)}
+              {renderDeleteButton(data)}
+            </ListItemSecondaryAction>
+          </ListItem>
         );
       } else {
         return (
-          <ListGroupItem key={data.id}>
-            <Row>
-              <Col xs={12} sm={12} md={6} lgOffset={1} lg={7}>
-                <Row />
-                <p />
-                <Row>
-                  <p>
-                    Title: <Link to={fragglebox}>{data.title}</Link>
-                  </p>
-                </Row>
-              </Col>
-              <Col xsHidden smHidden md={6} lg={4}>
-                <Row />
-                <p />
-                <Row>
-                  <p>Target: {data.target_on_name}</p>
-                </Row>
-              </Col>
-            </Row>
-          </ListGroupItem>
+          <ListItem key={data.id} className={classes.listItem}>
+            <Link to={fragglebox}>
+              <ListItemText primary={data.title} />
+            </Link>
+            <ListItemSecondaryAction>Target: {data.target_on_name}</ListItemSecondaryAction>
+          </ListItem>
         );
       }
     };
@@ -241,20 +220,24 @@ const SessionList = memo(
         } else {
           if (pathname !== '/viewer/react/sessions') {
             return (
-              <div>
+              <Fragment>
                 {sessionListTitle}
-                <ListGroup>{sessionIdList.slice(0, 10).map(data => render_method(data))}</ListGroup>
+                <List component="nav" className={classes.list}>
+                  {sessionIdList.slice(0, 10).map(data => render_method(data))}
+                </List>
                 <p>
                   Full list and session management here: <a href="/viewer/react/sessions">Sessions</a>
                 </p>
-              </div>
+              </Fragment>
             );
           } else {
             return (
-              <div>
+              <Fragment>
                 {sessionListTitle}
-                <ListGroup>{sessionIdList.map(data => render_method(data))}</ListGroup>
-              </div>
+                <List component="nav" className={classes.list}>
+                  {sessionIdList.map(data => render_method(data))}
+                </List>
+              </Fragment>
             );
           }
         }
