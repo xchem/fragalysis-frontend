@@ -37,10 +37,10 @@ const SessionList = memo(
     const classes = useStyles();
 
     const renameStateSession = (id, title) => {
-      let currentSessionList = sessionIdList;
-      currentSessionList.forEach(session => {
-        if (currentSessionList[session].id === id) {
-          Object.assign(currentSessionList[session], { title: title });
+      let currentSessionList = JSON.parse(JSON.stringify(sessionIdList));
+      currentSessionList.forEach((session, index) => {
+        if (`${session.id}` === `${id}`) {
+          currentSessionList[index] = { ...session, title };
         }
       });
       updateSessionIdList(currentSessionList);
@@ -59,9 +59,9 @@ const SessionList = memo(
           url: '/api/viewscene/' + id,
           method: METHOD.PATCH,
           headers: {
-            'X-CSRFToken': getCsrfToken(),
             accept: 'application/json',
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
           },
           body: JSON.stringify(formattedState)
         }).catch(error => {
@@ -73,10 +73,10 @@ const SessionList = memo(
     };
 
     const deleteStateSession = id => {
-      let currentSessionList = sessionIdList;
-      currentSessionList.forEach(session => {
-        if (currentSessionList[session].id === id) {
-          currentSessionList.splice(session, 1);
+      let currentSessionList = JSON.parse(JSON.stringify(sessionIdList));
+      currentSessionList.forEach((session, index) => {
+        if (`${session.id}` === `${id}`) {
+          currentSessionList.splice(index, 1);
         }
       });
       updateSessionIdList(currentSessionList);
@@ -144,7 +144,7 @@ const SessionList = memo(
                 id={`${data.id}`}
                 key="sessRnm"
                 style={{ width: 250 }}
-                value={data.title}
+                defaultValue={data.title}
                 onKeyDown={handleSessionNaming}
                 helperText="To rename, type new title & press enter."
               />
