@@ -24,7 +24,7 @@ const middlewareEnhancer = applyMiddleware(
 const enhancers = [middlewareEnhancer];
 const composedEnhancers = composeWithDevTools(...enhancers);
 
-const store = createStore(rootReducer, undefined, composedEnhancers);
+export const store = createStore(rootReducer, undefined, composedEnhancers);
 
 saveStore(store);
 
