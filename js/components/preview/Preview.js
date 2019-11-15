@@ -2,8 +2,8 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
-import { Grid, makeStyles, Box } from '@material-ui/core';
+import React, { Fragment, memo, useState } from 'react';
+import { Grid, makeStyles } from '@material-ui/core';
 import NGLView from '../nglView/nglComponents';
 import MoleculeList from '../molecule/moleculeList';
 import MolGroupSelector from '../molGroupSelector';
@@ -31,13 +31,14 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
-  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${molGroupsHeight}px - 74px)`;
+
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${molGroupsHeight}px - 88px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
   const screenHeight = `calc(100vh - ${headerHeight}px - ${viewControlsHeight}px - 16px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${summaryViewHeight}px - 62px)`;
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${summaryViewHeight}px - 102px)`;
 
   return (
     <Fragment>

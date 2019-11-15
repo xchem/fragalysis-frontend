@@ -4,7 +4,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
-import { Paper } from './common/surfaces/paper';
+import { Panel } from './common/surfaces/panel';
 import { Button } from './common/inputs/button';
 import { TextField } from './common/inputs/textField';
 import { Grid, Box } from '@material-ui/core';
@@ -129,10 +129,8 @@ const CompoundList = memo(
       }
 
       return (
-        <Paper>
+        <Panel hasHeader title={querying ? 'Loading....' : mol_string}>
           <Box height={height} overflow="auto">
-            <h3>{querying ? 'Loading....' : mol_string}</h3>
-
             <Button color="primary" onClick={selectAll}>
               Select All
             </Button>
@@ -161,7 +159,7 @@ const CompoundList = memo(
               </Grid>
             </Box>
           </Box>
-        </Paper>
+        </Panel>
       );
     } else {
       return null;

@@ -13,7 +13,7 @@ import thunkMiddleware from 'redux-thunk';
 //import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
 import { ThemeProvider, createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
-import { indigo, yellow } from '@material-ui/core/colors';
+import { indigo, red } from '@material-ui/core/colors';
 import { NoSsr } from '@material-ui/core';
 //const loggerMiddleware = createLogger();
 
@@ -31,7 +31,7 @@ saveStore(store);
 let theme = createMuiTheme({
   palette: {
     primary: indigo,
-    secondary: yellow
+    secondary: red
   }
 });
 

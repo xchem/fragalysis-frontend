@@ -1,10 +1,10 @@
-import React, { useState, memo, useRef, useEffect } from 'react';
-import { Grid, makeStyles, Button } from '@material-ui/core';
-import BorderedView from './borderedView';
+import React, { memo, useRef } from 'react';
+import { Grid, makeStyles } from '@material-ui/core';
+
+import { Panel } from './common/surfaces/panel';
+import { Button } from './common/inputs/button';
 import NGLView from './nglView/nglComponents';
 import MolGroupChecklist from './molGroupChecklist';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import ExpandLess from '@material-ui/icons/ExpandLess';
 import * as apiActions from '../reducers/api/apiActions';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
@@ -13,7 +13,7 @@ import * as selectionActions from '../reducers/selection/selectionActions';
 import { generateMolObject, generateObject, getJoinedMoleculeList } from '../utils/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   containerExpanded: {
     height: '208px'
   },
@@ -26,13 +26,9 @@ const useStyles = makeStyles(() => ({
   checklistItem: {
     height: '100%'
   },
-  button: {
-    minWidth: 'unset'
-  },
-  sortFilterButtonStyle: {
-    textTransform: 'none',
-    fontWeight: 'bold',
-    fontSize: 'larger'
+  header: {
+    backgroundColor: '#f1f1f1',
+    height: theme.spacing(2)
   }
 }));
 
@@ -54,19 +50,6 @@ const molGroupSelector = memo(
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
-    const [expanded, setExpanded] = useState(true);
-
-    useEffect(() => {}, [ref]);
-
-    useEffect(() => {
-      if (ref.current && handleHeightChange instanceof Function) {
-        handleHeightChange(ref.current.offsetHeight);
-      }
-    }, [expanded, handleHeightChange]);
-
-    const handleTitleButtonClick = () => {
-      setExpanded(!expanded);
-    };
 
     const handleClearSelection = () => {
       // loop through all molecules
@@ -106,35 +89,33 @@ const molGroupSelector = memo(
       setVectorList([]);
     };
 
-    const titleRightElement = (
-      <div>
-        <Button onClick={handleClearSelection} className={classes.button}>
-          <span className={classes.sortFilterButtonStyle}>clear selection</span>
-        </Button>
-        <Button onClick={handleTitleButtonClick} className={classes.button}>
-          {expanded ? <ExpandLess /> : <ExpandMore />}
-        </Button>
-      </div>
-    );
-
     return (
-      <div ref={ref}>
-        <BorderedView title="hit cluster selector" rightElement={titleRightElement}>
-          <Grid
-            item
-            container
-            alignItems="center"
-            className={expanded ? classes.containerExpanded : classes.containerCollapsed}
-          >
-            <Grid item xs={5} className={classes.nglViewItem}>
-              <NGLView div_id={VIEWS.SUMMARY_VIEW} height={expanded ? '200px' : '0px'} />
-            </Grid>
-            <Grid item xs={7} className={classes.checklistItem}>
-              {expanded && <MolGroupChecklist />}
-            </Grid>
+      <Panel
+        ref={ref}
+        hasHeader
+        hasExpansion
+        defaultExpanded
+        title="hit cluster selector"
+        headerActions={[
+          <Button onClick={handleClearSelection} color="primary" variant="text">
+            clear selection
+          </Button>
+        ]}
+        onExpandChange={expand => {
+          if (ref.current && handleHeightChange instanceof Function) {
+            handleHeightChange(ref.current.offsetHeight);
+          }
+        }}
+      >
+        <Grid container justify="space-between" className={classes.containerExpanded}>
+          <Grid item xs={5} className={classes.nglViewItem}>
+            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={'200px'} />
           </Grid>
-        </BorderedView>
-      </div>
+          <Grid item xs={7} className={classes.checklistItem}>
+            <MolGroupChecklist />
+          </Grid>
+        </Grid>
+      </Panel>
     );
   }
 );

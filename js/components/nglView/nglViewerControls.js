@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import { Button } from '../common/inputs/button';
 import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
-import { Paper } from '../common/surfaces/paper';
+import { Panel } from '../common/surfaces/panel';
 
 const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {
   const handleStageColor = () => {
@@ -27,12 +27,11 @@ const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNg
   };
 
   return (
-    <Paper>
-      <h3>Viewer controls</h3>
+    <Panel hasHeader title="Viewer controls">
       <Button color="primary" onClick={handleStageColor}>
         Change background colour
       </Button>
-    </Paper>
+    </Panel>
   );
 });
 

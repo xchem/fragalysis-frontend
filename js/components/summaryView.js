@@ -11,7 +11,7 @@ import { DockingScripts } from '../utils/script_utils';
 import { VIEWS } from '../constants/constants';
 import { api } from '../utils/api';
 import { Button } from './common/inputs/button';
-import { Paper } from './common/surfaces/paper';
+import { Panel } from './common/surfaces/panel';
 import { Grid } from '@material-ui/core';
 
 const SummaryView = memo(
@@ -192,7 +192,7 @@ const SummaryView = memo(
     var interaction_selectComponent = interaction_select === undefined ? 'Not selected' : interaction_select;
 
     return (
-      <Paper>
+      <Panel>
         <Grid container justify="space-between">
           <Grid item>
             <h5>
@@ -221,7 +221,7 @@ const SummaryView = memo(
         <Button color="primary" onClick={handleYankDuck}>
           Download Yank/Duck
         </Button>
-      </Paper>
+      </Panel>
     );
   }
 );

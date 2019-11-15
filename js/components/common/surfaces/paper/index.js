@@ -8,7 +8,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Paper = ({ children, ...rest }) => {
+export const Paper = ({ header, children, ...rest }) => {
   const classes = useStyles();
 
   return (

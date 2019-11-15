@@ -2,19 +2,20 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, Chip, Tooltip, Button, makeStyles, CircularProgress } from '@material-ui/core';
+import { Grid, Chip, Tooltip, makeStyles, CircularProgress } from '@material-ui/core';
 import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import MoleculeView from './moleculeView';
-import BorderedView from '../borderedView';
 import classNames from 'classnames';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from '../../utils/molecules_helpers';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
+import { Button } from '../common/inputs/button';
+import { Panel } from '../common/surfaces/panel';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -46,11 +47,6 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
-  },
-  sortFilterButtonStyle: {
-    textTransform: 'none',
-    fontWeight: 'bold',
-    fontSize: 'larger'
   },
   filtersRow: {
     display: 'flex',
@@ -150,24 +146,33 @@ const MoleculeList = memo(
       });
     }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
 
-    const titleRightElement = (
-      <Button
-        onClick={handleDialog(!sortDialogOpen)}
-        className={classNames(classes.button, {
-          [classes.buttonActive]: !!(filterSettings || {}).active
-        })}
-        disabled={!(object_selection || []).length}
-      >
-        <span className={classes.sortFilterButtonStyle}>sort/filter</span>
-      </Button>
-    );
-
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
     return (
-      <Fragment>
+      <Panel
+        hasHeader
+        title="hit navigator"
+        headerActions={[
+          <Button
+            onClick={handleDialog(!sortDialogOpen)}
+            color={!!filterSettings ? 'secondary' : 'primary'}
+            disabled={!(object_selection || []).length}
+            variant="outlined"
+          >
+            sort/filter
+          </Button>
+        ]}
+      >
+        {sortDialogOpen && (
+          <MoleculeListSortFilterDialog
+            handleClose={handleDialogClose}
+            molGroupSelection={object_selection}
+            cachedMolList={cached_mol_lists}
+            filterSettings={filterSettings}
+          />
+        )}
         {!!(filterSettings || {}).active && (
           <Fragment>
             Filters:
@@ -192,71 +197,61 @@ const MoleculeList = memo(
             </div>
           </Fragment>
         )}
-        <BorderedView title="hit navigator" rightElement={titleRightElement}>
-          {sortDialogOpen && (
-            <MoleculeListSortFilterDialog
-              handleClose={handleDialogClose}
-              molGroupSelection={object_selection}
-              cachedMolList={cached_mol_lists}
-              filterSettings={filterSettings}
-            />
-          )}
-          <Grid container direction="column" className={classes.container} style={{ height: height }}>
-            <Grid item container direction="row" className={classes.gridItemHeader}>
-              <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                site
-              </Grid>
-              <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
-                cont.
-              </Grid>
-              <Grid
-                container
-                direction="column"
-                justify="center"
-                alignItems="center"
-                className={classes.gridItemHeaderHoriz}
-              >
-                <Grid item>code</Grid>
-                <Grid item>status</Grid>
-              </Grid>
-              <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
-                image
-              </Grid>
-              <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
-                properties
-              </Grid>
+        <Grid container direction="column" className={classes.container} style={{ height: height }}>
+          <Grid item container direction="row" className={classes.gridItemHeader}>
+            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+              site
             </Grid>
-            {currentMolecules.length > 0 && (
-              <div className={classes.gridItemList}>
-                <InfiniteScroll
-                  threshold={1}
-                  pageStart={0}
-                  loadMore={loadNextMolecules}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
-                      >
-                        <CircularProgress />
-                      </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
-                  ))}
-                </InfiniteScroll>
-              </div>
-            )}
+            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+              cont.
+            </Grid>
+            <Grid
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+              className={classes.gridItemHeaderHoriz}
+            >
+              <Grid item>code</Grid>
+              <Grid item>status</Grid>
+            </Grid>
+            <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
+              image
+            </Grid>
+            <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
+              properties
+            </Grid>
           </Grid>
-        </BorderedView>
-      </Fragment>
+          {currentMolecules.length > 0 && (
+            <div className={classes.gridItemList}>
+              <InfiniteScroll
+                threshold={1}
+                pageStart={0}
+                loadMore={loadNextMolecules}
+                hasMore={canLoadMore}
+                loader={
+                  <div className="loader" key={0}>
+                    <Grid
+                      container
+                      direction="row"
+                      justify="center"
+                      alignItems="center"
+                      className={classes.paddingProgress}
+                    >
+                      <CircularProgress />
+                    </Grid>
+                  </div>
+                }
+                useWindow={false}
+              >
+                {currentMolecules.map(data => (
+                  <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
+                ))}
+              </InfiniteScroll>
+            </div>
+          )}
+        </Grid>
+      </Panel>
     );
   }
 );
