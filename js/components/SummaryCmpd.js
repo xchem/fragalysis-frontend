@@ -6,6 +6,7 @@ import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { api } from '../utils/api';
+import { Box } from '@material-ui/core';
 
 const img_data_init =
   '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
@@ -96,9 +97,9 @@ const SummaryCmpd = memo(({ to_query, bondColorMap, currentVector, width, height
   }, [update]);
 
   return (
-    <div onClick={handleClick}>
+    <Box onClick={handleClick} height={height} width={width}>
       <SVGInline svg={img_data} />
-    </div>
+    </Box>
   );
 });
 
