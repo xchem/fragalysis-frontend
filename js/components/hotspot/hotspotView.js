@@ -7,7 +7,7 @@ import { Paper } from '../common/surfaces/paper';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
-import Toggle from 'react-bootstrap-toggle';
+import { Switch } from '@material-ui/core';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { VIEWS } from '../../constants/constants';
 import { api, METHOD } from '../../utils/api';
@@ -131,17 +131,7 @@ class HotspotView extends React.PureComponent {
 
   buttonRender(strength, type) {
     var _this = this;
-    return React.createElement(Toggle, {
-      onClick: function onClick() {
-        _this.onHotspot(strength, type);
-      },
-      on: React.createElement('p', null, strength + ' ' + type + ' on'),
-      off: React.createElement('p', null, strength + ' ' + type + ' Off'),
-      size: 'lg',
-      onstyle: this.state.hsParams[type].buttonStyle,
-      offstyle: this.state.hsParams[type].buttonStyle,
-      active: this.state.hsDict[type][strength]
-    });
+    return <Switch onChange={() => _this.onHotspot(strength, type)} />;
   }
 
   render() {
