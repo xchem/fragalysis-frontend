@@ -2,7 +2,6 @@
  * Created by ricgillams on 29/10/2018.
  */
 
-import { ListGroupItem, ListGroup, Row, Col, ButtonToolbar } from 'react-bootstrap';
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';

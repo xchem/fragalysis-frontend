@@ -1,7 +1,6 @@
 /**
  * Created by ricgillams on 04/07/2018.
  */
-import { Row, Well } from 'react-bootstrap';
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
@@ -9,6 +8,7 @@ import * as listType from '../listTypes';
 import HotspotView from './hotspotView';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import { api, METHOD } from '../../utils/api';
+import { Paper } from '../common/surfaces/paper';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {
@@ -66,13 +66,13 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
 
   if (hsCount > 0) {
     return (
-      <Well>
-        <Row style={molStyle}>
+      <Paper>
+        <div style={molStyle}>
           {molecule_list.map(data => (
             <HotspotView key={data.id} data={data} />
           ))}
-        </Row>
-      </Well>
+        </div>
+      </Paper>
     );
   } else {
     return null;

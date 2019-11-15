@@ -2,7 +2,8 @@
  * Created by ricgillams on 05/07/2018.
  */
 
-import { Col, Row, Image, Panel, Grid } from 'react-bootstrap';
+import { Grid } from '@material-ui/core';
+import { Paper } from '../common/surfaces/paper';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
@@ -145,30 +146,28 @@ class HotspotView extends React.PureComponent {
 
   render() {
     return (
-      <div>
-        <Grid>
-          <Col xs={3} md={3}>
-            <Panel style={this.colorToggle()}>
-              <Image src={this.img_url + '&dummy=png'} responsive rounded />
-            </Panel>
-          </Col>
-          <Col xs={3} md={3}>
-            <Row> {this.buttonRender('Tepid', 'donor')} </Row>
-            <Row> {this.buttonRender('Tepid', 'acceptor')} </Row>
-            <Row> {this.buttonRender('Tepid', 'apolar')} </Row>
-          </Col>
-          <Col xs={3} md={3}>
-            <Row> {this.buttonRender('Warm', 'donor')} </Row>
-            <Row> {this.buttonRender('Warm', 'acceptor')} </Row>
-            <Row> {this.buttonRender('Warm', 'apolar')} </Row>
-          </Col>
-          <Col xs={3} md={3}>
-            <Row> {this.buttonRender('Hot', 'donor')} </Row>
-            <Row> {this.buttonRender('Hot', 'acceptor')} </Row>
-            <Row> {this.buttonRender('Hot', 'apolar')} </Row>
-          </Col>
+      <Grid container>
+        <Grid item xs={3} md={3}>
+          <Paper style={this.colorToggle()}>
+            <img src={this.img_url + '&dummy=png'} />
+          </Paper>
         </Grid>
-      </div>
+        <Grid container item xs={3} md={3}>
+          <Grid item> {this.buttonRender('Tepid', 'donor')} </Grid>
+          <Grid item> {this.buttonRender('Tepid', 'acceptor')} </Grid>
+          <Grid item> {this.buttonRender('Tepid', 'apolar')} </Grid>
+        </Grid>
+        <Grid container item xs={3} md={3}>
+          <Grid item> {this.buttonRender('Warm', 'donor')} </Grid>
+          <Grid item> {this.buttonRender('Warm', 'acceptor')} </Grid>
+          <Grid item> {this.buttonRender('Warm', 'apolar')} </Grid>
+        </Grid>
+        <Grid container item xs={3} md={3}>
+          <Grid item> {this.buttonRender('Hot', 'donor')} </Grid>
+          <Grid item> {this.buttonRender('Hot', 'acceptor')} </Grid>
+          <Grid item> {this.buttonRender('Hot', 'apolar')} </Grid>
+        </Grid>
+      </Grid>
     );
   }
 }

@@ -7,8 +7,10 @@ import * as apiActions from '../reducers/api/apiActions';
 import * as nglActions from '../reducers/ngl/nglLoadActions';
 import { PREFIX, VIEWS } from '../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';
-import { Pager, Well } from 'react-bootstrap';
 import { OBJECT_TYPE } from './nglView/constants';
+import { Paper } from './common/surfaces/paper';
+import { Button } from './common/inputs/button';
+import { Grid } from '@material-ui/core';
 
 const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, deleteObject, setObjectOn, setEventOn }) => {
   const slider_name = 'Pandda Site';
@@ -69,12 +71,14 @@ const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, delet
   }, [currentlySelected, handleOnChange, object_list, object_on, checkForUpdate]);
 
   const pager = (
-    <Pager>
-      <Pager.Item onClick={() => handleBackward({ currentlySelected, object_list, handleOnChange })}>
-        Previous
-      </Pager.Item>{' '}
-      <Pager.Item onClick={() => handleForward({ currentlySelected, object_list, handleOnChange })}>Next</Pager.Item>
-    </Pager>
+    <Grid container justify="space-between">
+      <Grid item>
+        <Button onClick={() => handleBackward({ currentlySelected, object_list, handleOnChange })}>Previous</Button>
+      </Grid>
+      <Grid item>
+        <Button onClick={() => handleForward({ currentlySelected, object_list, handleOnChange })}>Next</Button>
+      </Grid>
+    </Grid>
   );
   const error_text = 'No ' + slider_name + ' available';
   var meat_of_div;
@@ -85,10 +89,10 @@ const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, delet
   }
 
   return (
-    <Well bsSize="small">
+    <Paper>
       <h3>{slider_name} Selector</h3> {progress_string}
       {meat_of_div}
-    </Well>
+    </Paper>
   );
 });
 
@@ -105,7 +109,4 @@ const mapDispatchToProps = {
   setObjectOn: apiActions.setPanddaSiteOn,
   setEventOn: apiActions.setPanddaEventOn
 };
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PanddaSlider);
+export default connect(mapStateToProps, mapDispatchToProps)(PanddaSlider);
