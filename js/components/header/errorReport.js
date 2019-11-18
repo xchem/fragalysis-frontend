@@ -3,7 +3,8 @@
  */
 
 import React, { memo, useState } from 'react';
-import { Button, makeStyles } from '@material-ui/core';
+import { ListItem, ListItemIcon, ListItemText, makeStyles } from '@material-ui/core';
+import { ReportProblem } from '@material-ui/icons';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -24,8 +25,11 @@ export const ErrorReport = memo(() => {
   }
 
   return (
-    <Button variant="contained" color="secondary" className={classes.button} onClick={() => setError(true)}>
-      Report Error
-    </Button>
+    <ListItem button onClick={() => setError(true)}>
+      <ListItemIcon>
+        <ReportProblem />
+      </ListItemIcon>
+      <ListItemText primary="Report Error" />
+    </ListItem>
   );
 });

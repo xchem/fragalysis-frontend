@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { Box } from '@material-ui/core';
 import Header from '../header';
+import Footer from '../footer';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from '../targetManagementHolder';
 import Tindspect from '../Tindspect';
@@ -15,7 +16,8 @@ import { BrowserBomb } from '../browserBombModal';
 const Routes = memo(() => {
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  const contentHeight = `calc(100vh - ${headerHeight}px)`;
+  // 64px is footer
+  const contentHeight = `calc(100vh - ${headerHeight}px -64px )`;
 
   return (
     <Box minHeight="100vh" width="100%">
@@ -23,32 +25,35 @@ const Routes = memo(() => {
         <Header
           ref={ref => {
             if (ref && ref.offsetHeight !== headerHeight) {
-              setHeaderHeight(ref.offsetHeight);
+              // 64px is footer
+              setHeaderHeight(ref.offsetHeight + 64);
             }
           }}
-        />
-        <Box minHeight={contentHeight} width="100%">
-          <Switch>
-            <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
-            <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
-            <Route exact path="/viewer/react/landing" component={Landing} />
-            <Route
-              exact
-              path="/viewer/react/preview/target/:target"
-              render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
-            />
-            <Route exact path="/viewer/react/sessions" component={Sessions} />
-            <Route
-              path="/viewer/react/fragglebox/:uuid"
-              render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
-            />
-            <Route
-              path="/viewer/react/snapshot/:snapshotUuid"
-              render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
-            />
-            <Route exact path="/viewer/react/funders" component={Funders} />
-          </Switch>
-        </Box>
+        >
+          <Box minHeight={contentHeight} width="100%">
+            <Switch>
+              <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
+              <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
+              <Route exact path="/viewer/react/landing" component={Landing} />
+              <Route
+                exact
+                path="/viewer/react/preview/target/:target"
+                render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
+              />
+              <Route exact path="/viewer/react/sessions" component={Sessions} />
+              <Route
+                path="/viewer/react/fragglebox/:uuid"
+                render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
+              />
+              <Route
+                path="/viewer/react/snapshot/:snapshotUuid"
+                render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
+              />
+              <Route exact path="/viewer/react/funders" component={Funders} />
+            </Switch>
+          </Box>
+        </Header>
+        <Footer />
       </HeaderLoadingProvider>
       <BrowserBomb />
     </Box>

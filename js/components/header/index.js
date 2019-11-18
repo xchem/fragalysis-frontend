@@ -3,33 +3,129 @@
  */
 
 import React, { Fragment, memo, useContext, forwardRef } from 'react';
-import { Grid, makeStyles, LinearProgress } from '@material-ui/core';
+import clsx from 'clsx';
+import {
+  Grid,
+  makeStyles,
+  LinearProgress,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  CssBaseline,
+  Drawer,
+  Hidden,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useTheme,
+  Divider,
+  Menu,
+  MenuItem,
+  Avatar,
+  Tabs,
+  Tab
+} from '@material-ui/core';
+import {
+  Menu as MenuIcon,
+  MoveToInbox as InboxIcon,
+  Mail as MailIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  PowerSettingsNew,
+  Input,
+  Person,
+  Info,
+  Home,
+  Storage
+} from '@material-ui/icons';
 import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
 import { ErrorReport } from './errorReport';
 import { HeaderLoadingContext } from './loadingContext';
-import { Button } from '../common/Inputs/Button';
+import { Button } from '../common';
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
-  header: {
-    backgroundColor: '#ffffff',
-    borderColor: '#eeeeee',
-    border: '1px solid transparent',
-    width: 'inherit',
-    padding: theme.spacing(1)
-  },
-  progressBar: {
-    width: '100%'
-  },
   root: {
-    padding: theme.spacing(1)
+    display: 'flex'
+  },
+  avatar: {
+    margin: 10
+  },
+  appBar: {
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen
+    })
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    })
+  },
+  menuButton: {
+    marginRight: theme.spacing(2)
+  },
+  headerPadding: {
+    paddingLeft: theme.spacing(2)
+  },
+  hide: {
+    display: 'none'
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0
+  },
+  drawerPaper: {
+    width: drawerWidth
+  },
+  drawerHeader: {
+    ...theme.mixins.toolbar,
+    padding: theme.spacing(0, 1),
+    backgroundColor: theme.palette.background.default
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen
+    }),
+    marginLeft: -drawerWidth
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    marginLeft: 0
+  },
+  title: {
+    flexGrow: 1
   }
 }));
 
 const Index = memo(
-  forwardRef(({ history }, ref) => {
+  forwardRef(({ history, children }, ref) => {
     const classes = useStyles();
     const { isLoading } = useContext(HeaderLoadingContext);
+
+    const theme = useTheme();
+    const [open, setOpen] = React.useState(false);
+
+    const handleDrawerOpen = () => {
+      setOpen(true);
+    };
+
+    const handleDrawerClose = () => {
+      setOpen(false);
+    };
 
     const openXchem = () => {
       window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -43,94 +139,188 @@ const Index = memo(
       window.location.href = 'https://www.sgc.ox.ac.uk/';
     };
 
-    const showFunders = () => {
-      window.location.href = '/viewer/react/funders';
-    };
-
     const landing = '/viewer/react/landing';
+    const sessions = '/viewer/react/sessions';
+
     const prodLanding = 'https://fragalysis.diamond.ac.uk/viewer/react/landing';
     const login = '/accounts/login';
     const logout = '/accounts/logout';
-    let new_ele = null;
-    let navbarBrand = null;
-    // eslint-disable-next-line no-undef
-    var username = DJANGO_CONTEXT['username'];
+    let authListItem = null;
+    let envNavbar = '';
 
-    if (username === 'NOT_LOGGED_IN') {
-      new_ele = (
-        <Button color="primary" href={login}>
-          Login
-        </Button>
+    let username = null;
+
+    // eslint-disable-next-line no-undef
+    if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
+      authListItem = (
+        <ListItem
+          button
+          onClick={() => {
+            window.location.replace(login);
+          }}
+        >
+          <ListItemIcon>
+            <Input />
+          </ListItemIcon>
+          <ListItemText primary="Login" />
+        </ListItem>
       );
     } else {
-      new_ele = (
-        <Fragment>
-          <Button color="primary" href={logout}>
-            Logout
-          </Button>
-          <b>{username}</b>
-        </Fragment>
+      authListItem = (
+        <ListItem
+          button
+          onClick={() => {
+            window.location.replace(logout);
+          }}
+        >
+          <ListItemIcon>
+            <PowerSettingsNew />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItem>
       );
+      // eslint-disable-next-line no-undef
+      username = DJANGO_CONTEXT['username'];
     }
+
+    const prodSite = (
+      <p>
+        Please use:{' '}
+        <a href={prodLanding} data-toggle="tooltip" title="https://fragalysis.diamond.ac.uk">
+          production site
+        </a>
+      </p>
+    );
 
     if (document.location.host.startsWith('fragalysis.diamond') !== true) {
-      navbarBrand = (
-        <Grid container direction="column" justify="center" alignItems="center">
-          <Grid item>
-            <h4 onClick={() => history.push(landing)}>
-              <a>
-                Fragalysis <b>DEVELOPMENT </b>
-              </a>
-            </h4>
-          </Grid>
-          <Grid item>
-            <p>
-              Please use:{' '}
-              <a href={prodLanding} data-toggle="tooltip" title="https://fragalysis.diamond.ac.uk">
-                production site
-              </a>
-            </p>
-          </Grid>
-        </Grid>
-      );
+      envNavbar = 'DEVELOPMENT';
     } else {
-      navbarBrand = <h4 onClick={() => history.push(landing)}>FragalysisHome</h4>;
+      envNavbar = 'Home';
     }
 
-    return (
-      <div ref={ref} className={classes.root}>
-        <div className={classes.header}>
-          <Grid container direction="row" alignItems="center">
-            <Grid item xs={2}>
-              {navbarBrand}
-            </Grid>
-            <Grid item xs={1}>
-              {new_ele}
-            </Grid>
-            <Grid item xs={6}>
-              <SessionManagement />
-            </Grid>
+    const [value, setValue] = React.useState(0);
 
-            <Grid item xs={3}>
-              <Grid container direction="column" justify="center" alignItems="center">
-                <Grid item>
-                  <img src={require('../../img/xchemLogo.png')} width="67" height="31" onClick={openXchem} />
-                  <img src={require('../../img/dlsLogo.png')} width="100" height="31" onClick={openDiamond} />{' '}
-                  <img src={require('../../img/sgcLogo.png')} width="65" height="31" onClick={openSgc} />
-                  <ErrorReport />
-                </Grid>
-                <Grid item>
-                  <p onClick={showFunders}>Supported by...</p>
-                </Grid>
-              </Grid>
+    const handleChange = (event, newValue) => {
+      setValue(newValue);
+      switch (newValue) {
+        case 0: {
+          history.push(landing);
+          break;
+        }
+        case 1: {
+          history.push(sessions);
+          break;
+        }
+        case 1: {
+          history.push(sessions);
+          break;
+        }
+        default:
+          break;
+      }
+    };
+
+    return (
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar
+          position="fixed"
+          className={clsx(classes.appBar, {
+            [classes.appBarShift]: open
+          })}
+        >
+          <Grid direction="row" justify="space-between" alignItems="center" container className={classes.headerPadding}>
+            <Grid item>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                className={clsx(classes.menuButton, open && classes.hide)}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <Typography variant="h5" className={classes.title} color="inherit" onClick={() => history.push(landing)}>
+                Fragalysis <b>{envNavbar}</b>
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Tabs value={value} onChange={handleChange} variant="fullWidth">
+                <Tab label="Home" />
+                <Tab label="Sessions" />
+              </Tabs>
+            </Grid>
+            <Grid item>
+              <IconButton color="inherit">
+                <Person />
+              </IconButton>
             </Grid>
           </Grid>
-        </div>
-        {isLoading === true && (
-          <div className={classes.progressBar}>
-            <LinearProgress />
-          </div>
-        )}
+        </AppBar>
+        <Drawer
+          className={classes.drawer}
+          variant="persistent"
+          anchor="left"
+          open={open}
+          classes={{
+            paper: classes.drawerPaper
+          }}
+        >
+          <Grid container justify="space-between" alignItems="center" className={classes.drawerHeader}>
+            <Grid item container direction="column" xs={10}>
+              <Grid item>
+                <Avatar className={classes.avatar}>
+                  <Person />
+                </Avatar>
+              </Grid>
+              <Grid item>{username}</Grid>
+              <Grid item>{prodSite}</Grid>
+            </Grid>
+            <Grid item xs={2}>
+              <IconButton onClick={handleDrawerClose}>
+                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+              </IconButton>
+            </Grid>
+          </Grid>
+
+          <Divider />
+          <List>
+            <ListItem button onClick={() => history.push(landing)}>
+              <ListItemIcon>
+                <Home />
+              </ListItemIcon>
+              <ListItemText primary="Home" />
+            </ListItem>
+            <ListItem button onClick={() => history.push(sessions)}>
+              <ListItemIcon>
+                <Storage />
+              </ListItemIcon>
+              <ListItemText primary="Sessions" />
+            </ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ErrorReport />
+            {authListItem}
+          </List>
+        </Drawer>
+        <main
+          className={clsx(classes.content, {
+            [classes.contentShift]: open
+          })}
+        >
+          <div className={classes.drawerHeader} />
+          {/*{isLoading === true ? (
+            <div className={classes.progressBar}>
+              <LinearProgress />
+            </div>
+          ) : (
+            children
+          )}*/}
+          {children}
+        </main>
       </div>
     );
   })
