@@ -30,16 +30,16 @@ const TargetList = memo(({ target_id_list }) => {
 
     return (
       <ListItem key={data.id} className={classes.listItem}>
+        <Link to={preview}>
+          <ListItemText primary={data.title} />
+        </Link>
         {sgcUploaded.includes(data.title) && (
-          <Link to={preview}>
-            <ListItemText primary={data.title} />
-          </Link>
+          <ListItemSecondaryAction>
+            <a href={sgcUrl} target="new">
+              Open SGC summary
+            </a>
+          </ListItemSecondaryAction>
         )}
-        <ListItemSecondaryAction>
-          <a href={sgcUrl} target="new">
-            Open SGC summary
-          </a>
-        </ListItemSecondaryAction>
       </ListItem>
     );
   };
