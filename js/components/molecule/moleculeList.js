@@ -14,8 +14,8 @@ import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from
 import { getJoinedMoleculeList } from '../../utils/molecules_helpers';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Button } from '../common/inputs/button';
-import { Panel } from '../common/surfaces/panel';
+import { Button } from '../common/Inputs/Button';
+import { Panel } from '../common/Surfaces/Panel';
 
 const useStyles = makeStyles(theme => ({
   container: {

@@ -8,22 +8,10 @@ import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import { withRouter, Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import { TextField } from '../common/inputs/textField';
+import { List, ListItem, Button, TextField, Panel } from '../common';
 import { updateClipboard } from './helpers';
-import { Button } from '../common/inputs/button';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
-import { List, ListItem, ListItemText, CircularProgress, makeStyles, ListItemSecondaryAction } from '@material-ui/core';
-
-const useStyles = makeStyles(theme => ({
-  list: {
-    backgroundColor: theme.palette.background.paper
-  },
-  listItem: {
-    borderColor: '#dddddd',
-    borderWidth: 1,
-    borderStyle: 'solid'
-  }
-}));
+import { ListItemText, CircularProgress, ListItemSecondaryAction } from '@material-ui/core';
 
 const SessionList = memo(
   ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving, location }) => {
@@ -34,7 +22,6 @@ const SessionList = memo(
       oldUrl.current = url;
     };
     const { pathname } = location;
-    const classes = useStyles();
 
     const renameStateSession = (id, title) => {
       let currentSessionList = JSON.parse(JSON.stringify(sessionIdList));
@@ -129,7 +116,7 @@ const SessionList = memo(
       var fragglebox = '/viewer/react/fragglebox/' + data.uuid;
       if (pathname === '/viewer/react/sessions') {
         return (
-          <ListItem key={data.id} className={classes.listItem}>
+          <ListItem key={data.id}>
             <ListItemText
               primary={
                 <Link to={fragglebox}>{sessionIdList[sessionIdList.findIndex(x => x.id === data.id)].title}</Link>
@@ -155,7 +142,7 @@ const SessionList = memo(
         );
       } else {
         return (
-          <ListItem key={data.id} className={classes.listItem}>
+          <ListItem key={data.id}>
             <Link to={fragglebox}>
               <ListItemText primary={data.title} />
             </Link>
@@ -185,24 +172,13 @@ const SessionList = memo(
       };
     }, [list_type, setSessionIdList, setSeshListSaving, seshListSaving, setState]);
 
-    let sessionListTitle;
-    if ((sessionIdList.length !== 0 && sessionIdList.length <= 10) || pathname !== '/viewer/react/sessions') {
-      sessionListTitle = <h3>Session List:</h3>;
-    } else if (sessionIdList.length > 10) {
-      sessionListTitle = (
-        <h3>
-          You have {sessionIdList.length} sessions. Please consider deleting old/unused{' '}
-          <a href="/viewer/react/sessions">sessions</a> to improve performance.
-        </h3>
-      );
-    }
+    const sessionListTitle = 'Session List';
 
     if (seshListSaving === true) {
       return (
-        <Fragment>
-          {sessionListTitle}
+        <Panel hasHeader title={sessionListTitle}>
           <CircularProgress />
-        </Fragment>
+        </Panel>
       );
     } else {
       if (sessionIdList) {
@@ -211,32 +187,26 @@ const SessionList = memo(
           return <h3>Please log in to view session history.</h3>;
         } else if (sessionIdList.length === 0) {
           return (
-            <div>
+            <Panel hasHeader title={sessionListTitle}>
               <h3>You do not own any sessions!</h3>
               <p>Proceed to a target to generate sessions.</p>
-            </div>
+            </Panel>
           );
         } else {
           if (pathname !== '/viewer/react/sessions') {
             return (
-              <Fragment>
-                {sessionListTitle}
-                <List component="nav" className={classes.list}>
-                  {sessionIdList.slice(0, 10).map(data => render_method(data))}
-                </List>
+              <Panel hasHeader title={sessionListTitle}>
+                <List>{sessionIdList.slice(0, 10).map(data => render_method(data))}</List>
                 <p>
                   Full list and session management here: <a href="/viewer/react/sessions">Sessions</a>
                 </p>
-              </Fragment>
+              </Panel>
             );
           } else {
             return (
-              <Fragment>
-                {sessionListTitle}
-                <List component="nav" className={classes.list}>
-                  {sessionIdList.map(data => render_method(data))}
-                </List>
-              </Fragment>
+              <Panel hasHeader title={sessionListTitle}>
+                <List>{sessionIdList.map(data => render_method(data))}</List>
+              </Panel>
             );
           }
         }

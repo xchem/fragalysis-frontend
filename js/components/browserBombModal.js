@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import Modal from './common/modal';
+import Modal from './common/Modal';
 import { Button } from '@material-ui/core';
 
 const BrowserBomb = memo(props => {

@@ -10,8 +10,8 @@ import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
 import { VIEWS } from '../constants/constants';
 import { api } from '../utils/api';
-import { Button } from './common/inputs/button';
-import { Panel } from './common/surfaces/panel';
+import { Button } from './common/Inputs/Button';
+import { Panel } from './common/Surfaces/Panel';
 import { Grid } from '@material-ui/core';
 
 const SummaryView = memo(

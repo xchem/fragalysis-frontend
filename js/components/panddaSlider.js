@@ -8,8 +8,8 @@ import * as nglActions from '../reducers/ngl/nglLoadActions';
 import { PREFIX, VIEWS } from '../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';
 import { OBJECT_TYPE } from './nglView/constants';
-import { Paper } from './common/surfaces/paper';
-import { Button } from './common/inputs/button';
+import { Paper } from './common/Surfaces/Paper';
+import { Button } from './common/Inputs/Button';
 import { Grid } from '@material-ui/core';
 
 const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, deleteObject, setObjectOn, setEventOn }) => {

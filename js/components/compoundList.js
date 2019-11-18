@@ -4,9 +4,9 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
-import { Panel } from './common/surfaces/panel';
-import { Button } from './common/inputs/button';
-import { TextField } from './common/inputs/textField';
+import { Panel } from './common/Surfaces/Panel';
+import { Button } from './common/Inputs/Button';
+import { TextField } from './common/Inputs/TextField';
 import { Grid, Box } from '@material-ui/core';
 import * as selectionActions from '../reducers/selection/selectionActions';
 

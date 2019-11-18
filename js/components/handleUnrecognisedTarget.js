@@ -8,7 +8,7 @@ import { Button } from '@material-ui/core';
 import * as apiActions from '../reducers/api/apiActions';
 import TargetList from './targetList';
 import { ErrorReport } from './header/errorReport';
-import { Modal } from './common/modal';
+import { Modal } from './common/Modal';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list, children }) => {
   const closeModal = () => {

@@ -5,9 +5,9 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
-import { Button } from '../common/inputs/button';
+import { Button } from '../common/Inputs/Button';
 import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
-import { Panel } from '../common/surfaces/panel';
+import { Panel } from '../common/Surfaces/Panel';
 
 const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {
   const handleStageColor = () => {

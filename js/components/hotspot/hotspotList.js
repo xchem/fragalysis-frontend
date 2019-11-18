@@ -8,7 +8,7 @@ import * as listType from '../listTypes';
 import HotspotView from './hotspotView';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import { api, METHOD } from '../../utils/api';
-import { Paper } from '../common/surfaces/paper';
+import { Paper } from '../common/Surfaces/Paper';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {

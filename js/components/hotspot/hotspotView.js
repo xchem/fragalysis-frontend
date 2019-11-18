@@ -3,7 +3,7 @@
  */
 
 import { Grid } from '@material-ui/core';
-import { Paper } from '../common/surfaces/paper';
+import { Paper } from '../common/Surfaces/Paper';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';

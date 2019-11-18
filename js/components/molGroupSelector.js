@@ -1,8 +1,8 @@
 import React, { memo, useRef } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 
-import { Panel } from './common/surfaces/panel';
-import { Button } from './common/inputs/button';
+import { Panel } from './common/Surfaces/Panel';
+import { Button } from './common/Inputs/Button';
 import NGLView from './nglView/nglComponents';
 import MolGroupChecklist from './molGroupChecklist';
 import * as apiActions from '../reducers/api/apiActions';

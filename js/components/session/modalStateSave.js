@@ -4,11 +4,11 @@
 
 import React, { memo, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Modal from '../common/modal';
+import Modal from '../common/Modal';
 import { Grid, makeStyles } from '@material-ui/core';
 import * as apiActions from '../../reducers/api/apiActions';
-import { TextField } from '../common/inputs/textField';
-import { Button } from '../common/inputs/button';
+import { TextField } from '../common/Inputs/TextField';
+import { Button } from '../common/Inputs/Button';
 import { savingStateConst } from './constants';
 import { updateClipboard } from './helpers';
 import { api } from '../../utils/api';

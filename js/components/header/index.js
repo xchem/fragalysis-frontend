@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
 import { ErrorReport } from './errorReport';
 import { HeaderLoadingContext } from './loadingContext';
-import { Button } from '../common/inputs/button';
+import { Button } from '../common/Inputs/Button';
 
 const useStyles = makeStyles(theme => ({
   header: {

@@ -3,8 +3,8 @@
  */
 import * as Sentry from '@sentry/browser';
 import React, { Fragment, Component } from 'react';
-import { Button } from '../common/inputs/button';
-import Modal from '../common/modal';
+import { Button } from '../common/Inputs/Button';
+import Modal from '../common/Modal';
 
 export class ErrorBoundary extends Component {
   constructor(props) {
