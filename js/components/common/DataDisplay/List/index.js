@@ -7,8 +7,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const List = memo(({ ...rest }) => {
+export const List = memo(({ children, ...rest }) => {
   const classes = useStyles();
 
-  return <MaterialList className={classes.list} {...rest} />;
+  return (
+    <MaterialList className={classes.list} {...rest}>
+      {children}
+    </MaterialList>
+  );
 });

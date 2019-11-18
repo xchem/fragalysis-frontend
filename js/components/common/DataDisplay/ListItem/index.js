@@ -1,16 +1,11 @@
-import React, { memo } from 'react';
-import { ListItem as MaterialListItem, makeStyles } from '@material-ui/core';
-
-const useStyles = makeStyles(theme => ({
-  listItem: {
-    borderColor: '#dddddd',
-    borderWidth: 1,
-    borderStyle: 'solid'
-  }
-}));
+import React, { Fragment, memo } from 'react';
+import { Divider, ListItem as MaterialListItem } from '@material-ui/core';
 
 export const ListItem = memo(({ ...rest }) => {
-  const classes = useStyles();
-
-  return <MaterialListItem className={classes.listItem} {...rest} />;
+  return (
+    <Fragment>
+      <MaterialListItem {...rest} />
+      <Divider />
+    </Fragment>
+  );
 });

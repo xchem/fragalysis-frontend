@@ -5,6 +5,7 @@ import * as apiActions from '../../reducers/api/apiActions';
 import { HeaderLoadingContext } from '../header/loadingContext';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { api } from '../../utils/api';
+import HandleUnrecognisedTarget from '../handleUnrecognisedTarget';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
@@ -79,8 +80,10 @@ export const withUpdatingTarget = WrappedContainer => {
         }
       }, [match.params.snapshotUuid, match.params.uuid, setUuid, setLatestSession]);
 
-      if (isLoading === true || target_on === undefined) {
+      if (isLoading === true) {
         return null;
+      } else if (target_on === undefined) {
+        return <HandleUnrecognisedTarget />;
       } else {
         return <WrappedContainer {...rest} />;
       }

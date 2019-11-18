@@ -11,7 +11,6 @@ import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
 import NglViewerControls from '../nglView/nglViewerControls';
 import HotspotList from '../hotspot/hotspotList';
-import HandleUnrecognisedTarget from '../handleUnrecognisedTarget';
 
 import { withUpdatingTarget } from './withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
@@ -42,53 +41,51 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
 
   return (
     <Fragment>
-      <HandleUnrecognisedTarget>
-        <Grid container justify="space-between" className={classes.root}>
-          <Grid item xs={12} md={6} xl={4} container direction="column">
-            <Grid item className={classes.itemPadding}>
-              <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
-            </Grid>
-            <Grid item className={classes.itemPadding}>
-              <MoleculeList height={moleculeListHeight} />
-            </Grid>
+      <Grid container justify="space-between" className={classes.root}>
+        <Grid item xs={12} md={6} xl={4} container direction="column">
+          <Grid item className={classes.itemPadding}>
+            <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
-          <Grid item xs={12} md={6} xl={4} container direction="column">
-            <Grid item className={classes.itemPadding}>
-              <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
-            </Grid>
-            <Grid
-              item
-              ref={ref => {
-                if (ref && ref.offsetHeight !== viewControlsHeight) {
-                  setViewControlsHeight(ref.offsetHeight);
-                }
-              }}
-              className={classes.itemPadding}
-            >
-              <NglViewerControls />
-            </Grid>
-          </Grid>
-          <Grid item xs={12} md={6} xl={4} container direction="column">
-            <Grid
-              item
-              className={classes.itemPadding}
-              ref={ref => {
-                if (ref && ref.offsetHeight !== summaryViewHeight) {
-                  setSummaryViewHeight(ref.offsetHeight);
-                }
-              }}
-            >
-              <SummaryView />
-            </Grid>
-            <Grid item className={classes.itemPadding}>
-              <CompoundList height={compoundHeight} />
-            </Grid>
-          </Grid>
-          <Grid item>
-            <HotspotList />
+          <Grid item className={classes.itemPadding}>
+            <MoleculeList height={moleculeListHeight} />
           </Grid>
         </Grid>
-      </HandleUnrecognisedTarget>
+        <Grid item xs={12} md={6} xl={4} container direction="column">
+          <Grid item className={classes.itemPadding}>
+            <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
+          </Grid>
+          <Grid
+            item
+            ref={ref => {
+              if (ref && ref.offsetHeight !== viewControlsHeight) {
+                setViewControlsHeight(ref.offsetHeight);
+              }
+            }}
+            className={classes.itemPadding}
+          >
+            <NglViewerControls />
+          </Grid>
+        </Grid>
+        <Grid item xs={12} md={6} xl={4} container direction="column">
+          <Grid
+            item
+            className={classes.itemPadding}
+            ref={ref => {
+              if (ref && ref.offsetHeight !== summaryViewHeight) {
+                setSummaryViewHeight(ref.offsetHeight);
+              }
+            }}
+          >
+            <SummaryView />
+          </Grid>
+          <Grid item className={classes.itemPadding}>
+            <CompoundList height={compoundHeight} />
+          </Grid>
+        </Grid>
+        <Grid item>
+          <HotspotList />
+        </Grid>
+      </Grid>
       <ModalStateSave />
     </Fragment>
   );

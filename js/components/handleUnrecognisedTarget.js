@@ -10,12 +10,12 @@ import TargetList from './targetList';
 import { ErrorReport } from './header/errorReport';
 import { Modal } from './common/Modal';
 
-const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list, children }) => {
+const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list }) => {
   const closeModal = () => {
     setTargetUnrecognised(undefined);
   };
 
-  let modal = null;
+  let modalBody = null;
 
   let request = null;
   // eslint-disable-next-line no-undef
@@ -36,27 +36,15 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
 
   if (targetUnrecognised === true) {
     if (target_id_list && target_id_list.length === 0) {
-      modal = (
-        <Modal open={targetUnrecognised}>
-          <h3>The target was not recognised and there are no other available targets.</h3>
-          <Button bsSize="sm" bsStyle="success" onClick={closeModal}>
-            Close
-          </Button>
-          <ErrorReport />
-        </Modal>
-      );
+      modalBody = <h3>The target was not recognised and there are no other available targets.</h3>;
     } else {
-      modal = (
+      modalBody = (
         <Modal open={targetUnrecognised}>
           <h3>
             Target was not recognised or you do not have authentication to access target. <br />
           </h3>
           {request}
           <TargetList key="TARGLIST" />
-          <Button color="secondary" onClick={closeModal}>
-            Close
-          </Button>
-          <ErrorReport />
         </Modal>
       );
     }
@@ -64,8 +52,13 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
 
   return (
     <Fragment>
-      {children}
-      {modal}
+      <Modal open={targetUnrecognised !== undefined ? targetUnrecognised : false}>
+        {modalBody}
+        <Button color="secondary" onClick={closeModal}>
+          Close
+        </Button>
+        <ErrorReport />
+      </Modal>
     </Fragment>
   );
 });
