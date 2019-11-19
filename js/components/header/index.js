@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { Fragment, memo, useContext, forwardRef } from 'react';
+import React, { Fragment, memo, useContext, forwardRef, useState } from 'react';
 import clsx from 'clsx';
 import {
   Grid,
@@ -14,7 +14,6 @@ import {
   Typography,
   CssBaseline,
   Drawer,
-  Hidden,
   List,
   ListItem,
   ListItemIcon,
@@ -25,7 +24,9 @@ import {
   MenuItem,
   Avatar,
   Tabs,
-  Tab
+  Tab,
+  Hidden,
+  useMediaQuery
 } from '@material-ui/core';
 import {
   Menu as MenuIcon,
@@ -38,13 +39,14 @@ import {
   Person,
   Info,
   Home,
-  Storage
+  Storage,
+  ReportProblem
 } from '@material-ui/icons';
 import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
-import { ErrorReport } from './errorReport';
 import { HeaderLoadingContext } from './loadingContext';
 import { Button } from '../common';
+const uuidv4 = require('uuid/v4');
 
 const drawerWidth = 240;
 
@@ -52,8 +54,8 @@ const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex'
   },
-  avatar: {
-    margin: 10
+  padding: {
+    margin: theme.spacing(2)
   },
   appBar: {
     transition: theme.transitions.create(['margin', 'width'], {
@@ -115,6 +117,13 @@ const Index = memo(
   forwardRef(({ history, children }, ref) => {
     const classes = useStyles();
     const { isLoading } = useContext(HeaderLoadingContext);
+    const [error, setError] = useState();
+    const [anchorElProfileMenu, setAnchorElProfileMenu] = React.useState(null);
+    const showMobileMenu = useMediaQuery(theme => theme.breakpoints.down('sm'));
+
+    if (error) {
+      throw new Error('Custom user error.' + uuidv4());
+    }
 
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -127,16 +136,12 @@ const Index = memo(
       setOpen(false);
     };
 
-    const openXchem = () => {
-      window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
+    const handleOpenProfileMenu = event => {
+      setAnchorElProfileMenu(event.currentTarget);
     };
 
-    const openDiamond = () => {
-      window.location.href = 'https://www.diamond.ac.uk/Home.html';
-    };
-
-    const openSgc = () => {
-      window.location.href = 'https://www.sgc.ox.ac.uk/';
+    const handleCloseProfileMenu = () => {
+      setAnchorElProfileMenu(null);
     };
 
     const landing = '/viewer/react/landing';
@@ -146,9 +151,19 @@ const Index = memo(
     const login = '/accounts/login';
     const logout = '/accounts/logout';
     let authListItem = null;
+    let authMenuItem = null;
     let envNavbar = '';
 
     let username = null;
+
+    const reportErrorMenuItem = (
+      <ListItem button onClick={() => setError(true)}>
+        <ListItemIcon>
+          <ReportProblem />
+        </ListItemIcon>
+        <ListItemText primary="Report Error" />
+      </ListItem>
+    );
 
     // eslint-disable-next-line no-undef
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
@@ -179,13 +194,14 @@ const Index = memo(
           <ListItemText primary="Logout" />
         </ListItem>
       );
+
       // eslint-disable-next-line no-undef
       username = DJANGO_CONTEXT['username'];
     }
 
     const prodSite = (
       <p>
-        Please use:{' '}
+        Please use:
         <a href={prodLanding} data-toggle="tooltip" title="https://fragalysis.diamond.ac.uk">
           production site
         </a>
@@ -211,13 +227,23 @@ const Index = memo(
           history.push(sessions);
           break;
         }
-        case 1: {
-          history.push(sessions);
-          break;
-        }
         default:
           break;
       }
+    };
+
+    const profileDetail = (rest, container, item) => {
+      return (
+        <Grid item={item} container={container} {...rest}>
+          <Grid item>
+            <Avatar className={classes.padding}>
+              <Person />
+            </Avatar>
+          </Grid>
+          <Grid item>{username}</Grid>
+          <Grid item>{prodSite}</Grid>
+        </Grid>
+      );
     };
 
     return (
@@ -229,36 +255,66 @@ const Index = memo(
             [classes.appBarShift]: open
           })}
         >
-          <Grid direction="row" justify="space-between" alignItems="center" container className={classes.headerPadding}>
-            <Grid item>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                className={clsx(classes.menuButton, open && classes.hide)}
-              >
-                <MenuIcon />
-              </IconButton>
-            </Grid>
+          <Grid
+            direction="row"
+            justify={!showMobileMenu ? 'space-between' : 'flex-start'}
+            alignItems="center"
+            container
+            className={classes.headerPadding}
+          >
+            {showMobileMenu && (
+              <Grid item>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  className={clsx(classes.menuButton, open && classes.hide)}
+                >
+                  <MenuIcon />
+                </IconButton>
+              </Grid>
+            )}
             <Grid item>
               <Typography variant="h5" className={classes.title} color="inherit" onClick={() => history.push(landing)}>
                 Fragalysis <b>{envNavbar}</b>
               </Typography>
             </Grid>
-            <Grid item>
-              <Tabs value={value} onChange={handleChange} variant="fullWidth">
-                <Tab label="Home" />
-                <Tab label="Sessions" />
-              </Tabs>
-            </Grid>
-            <Grid item>
-              <IconButton color="inherit">
-                <Person />
-              </IconButton>
-            </Grid>
+            {!showMobileMenu && (
+              <Fragment>
+                <Grid item>
+                  <Tabs value={value} onChange={handleChange} variant="fullWidth">
+                    <Tab icon={<Home />} label="Home" />
+                    <Tab icon={<Storage />} label="Sessions" />
+                  </Tabs>
+                </Grid>
+                <Grid item>
+                  <Tab color="inherit" onClick={handleOpenProfileMenu} icon={<Person />} label="Account" />
+                </Grid>
+              </Fragment>
+            )}
           </Grid>
         </AppBar>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorElProfileMenu}
+          keepMounted
+          open={Boolean(anchorElProfileMenu)}
+          onClose={handleCloseProfileMenu}
+        >
+          {profileDetail(
+            {
+              direction: 'column',
+              justify: 'center',
+              alignItems: 'center',
+              className: classes.drawerHeader
+            },
+            true
+          )}
+          <Divider />
+          {authListItem}
+          {reportErrorMenuItem}
+        </Menu>
         <Drawer
           className={classes.drawer}
           variant="persistent"
@@ -269,15 +325,7 @@ const Index = memo(
           }}
         >
           <Grid container justify="space-between" alignItems="center" className={classes.drawerHeader}>
-            <Grid item container direction="column" xs={10}>
-              <Grid item>
-                <Avatar className={classes.avatar}>
-                  <Person />
-                </Avatar>
-              </Grid>
-              <Grid item>{username}</Grid>
-              <Grid item>{prodSite}</Grid>
-            </Grid>
+            {profileDetail({ direction: 'column', xs: 10 }, true, true)}
             <Grid item xs={2}>
               <IconButton onClick={handleDrawerClose}>
                 {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
@@ -302,7 +350,7 @@ const Index = memo(
           </List>
           <Divider />
           <List>
-            <ErrorReport />
+            {reportErrorMenuItem}
             {authListItem}
           </List>
         </Drawer>
