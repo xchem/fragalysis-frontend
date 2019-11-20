@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Box } from '@material-ui/core';
+import { Box, makeStyles, useTheme } from '@material-ui/core';
 import Header from '../header';
 import { Route, Switch } from 'react-router-dom';
 import TargetManagement from '../targetManagementHolder';
@@ -12,16 +12,25 @@ import { withLoadingTargetList } from './withLoadingTargetIdList';
 import { HeaderLoadingProvider } from '../header/loadingContext';
 import { BrowserBomb } from '../browserBombModal';
 
-const Routes = memo(() => {
-  const [headerHeight, setHeaderHeight] = useState(0);
+const useStyles = makeStyles(theme => ({
+  content: {
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(1)
+  }
+}));
 
-  const contentHeight = `calc(100vh - ${headerHeight}px)`;
+const Routes = memo(() => {
+  const classes = useStyles();
+  const theme = useTheme();
+
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
 
   return (
     <Box minHeight="100vh" width="100%">
       <HeaderLoadingProvider>
         <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
-        <Box minHeight={contentHeight} width="100%">
+        <Box className={classes.content} minHeight={contentHeight} width="100%">
           <Switch>
             <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
             <Route exact path="/viewer/react/fraginpect" component={Tindspect} />

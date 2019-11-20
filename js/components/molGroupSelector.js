@@ -1,5 +1,6 @@
 import React, { memo, useRef } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
+import { Delete } from '@material-ui/icons';
 
 import { Panel } from './common/Surfaces/Panel';
 import { Button } from './common/Inputs/Button';
@@ -25,10 +26,6 @@ const useStyles = makeStyles(theme => ({
   },
   checklistItem: {
     height: '100%'
-  },
-  header: {
-    backgroundColor: '#f1f1f1',
-    height: theme.spacing(2)
   }
 }));
 
@@ -95,10 +92,10 @@ const molGroupSelector = memo(
         hasHeader
         hasExpansion
         defaultExpanded
-        title="hit cluster selector"
+        title="Hit cluster selector"
         headerActions={[
-          <Button onClick={handleClearSelection} color="primary" variant="text">
-            clear selection
+          <Button onClick={handleClearSelection} color="inherit" variant="text" size="small" startIcon={<Delete />}>
+            Clear selection
           </Button>
         ]}
         onExpandChange={expand => {
@@ -109,7 +106,7 @@ const molGroupSelector = memo(
       >
         <Grid container justify="space-between" className={classes.containerExpanded}>
           <Grid item xs={5} className={classes.nglViewItem}>
-            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={'200px'} />
+            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={'208px'} />
           </Grid>
           <Grid item xs={7} className={classes.checklistItem}>
             <MolGroupChecklist />

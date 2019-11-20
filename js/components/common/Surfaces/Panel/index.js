@@ -5,7 +5,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    backgroundColor: theme.palette.grey
+    backgroundColor: theme.palette.background.paper
   },
   body: {
     padding: theme.spacing(1)
@@ -13,7 +13,9 @@ const useStyles = makeStyles(theme => ({
   header: {
     color: theme.palette.white,
     backgroundColor: theme.palette.primary.main,
-    height: theme.spacing(5)
+    height: theme.spacing(5),
+    borderTopLeftRadius: theme.spacing(1) / 2,
+    borderTopRightRadius: theme.spacing(1) / 2
   },
   headerTitle: {
     paddingLeft: theme.spacing(1)

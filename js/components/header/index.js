@@ -19,7 +19,8 @@ import {
   Tab,
   Avatar,
   useMediaQuery,
-  Box
+  Box,
+  ButtonGroup
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -238,22 +239,18 @@ const Index = memo(
                 </Grid>
                 <Grid item>
                   <Button startIcon={<SupervisorAccount />} variant="text" onClick={() => history.push(funders)}>
-                    Supported by...
+                    Supported by
                   </Button>
                 </Grid>
               </Grid>
             </Grid>
             <Grid item>
-              <Grid container direction="row" justify="flex-end" alignItems="center">
-                <Grid item>
-                  <SessionManagement />
-                </Grid>
-                <Grid item>
-                  <Button variant="text" onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
-                    Menu
-                  </Button>
-                </Grid>
-              </Grid>
+              <ButtonGroup variant="text">
+                <SessionManagement />
+                <Button variant="text" onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
+                  Menu
+                </Button>
+              </ButtonGroup>
             </Grid>
           </Grid>
         </AppBar>
@@ -291,7 +288,7 @@ const Index = memo(
             <ListItemIcon>
               <SupervisorAccount />
             </ListItemIcon>
-            <ListItemText primary="Supported by..." />
+            <ListItemText primary="Supported by" />
           </ListItem>
           <Divider />
           {authListItem}

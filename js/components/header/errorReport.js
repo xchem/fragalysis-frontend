@@ -24,7 +24,7 @@ export const ErrorReport = memo(() => {
   }
 
   return (
-    <Button variant="contained" color="secondary" className={classes.button} onClick={() => setError(true)}>
+    <Button variant="contained" color="primary" className={classes.button} onClick={() => setError(true)}>
       Report Error
     </Button>
   );

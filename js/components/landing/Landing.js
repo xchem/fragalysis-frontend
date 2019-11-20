@@ -12,11 +12,10 @@ import * as selectionActions from '../../reducers/selection/selectionActions';
 const useStyles = makeStyles(theme => ({
   root: {
     minHeight: 'inherit',
-    width: 'inherit',
-    padding: 8
+    width: 'inherit'
   },
   paddingItem: {
-    padding: 8
+    padding: theme.spacing(1)
   }
 }));
 

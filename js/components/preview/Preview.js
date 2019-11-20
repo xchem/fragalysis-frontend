@@ -3,7 +3,7 @@
  */
 
 import React, { Fragment, memo, useState } from 'react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglComponents';
 import MoleculeList from '../molecule/moleculeList';
 import MolGroupSelector from '../molGroupSelector';
@@ -28,16 +28,18 @@ const useStyles = makeStyles(theme => ({
 
 const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
+  const theme = useTheme();
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
 
-  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${molGroupsHeight}px - 88px)`;
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${2 *
+    theme.spacing(1)}px - ${molGroupsHeight}px - 88px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
-  const screenHeight = `calc(100vh - ${headerHeight}px - ${viewControlsHeight}px - 16px)`;
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${viewControlsHeight}px - 16px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${summaryViewHeight}px - 72px)`;
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${summaryViewHeight}px - 72px)`;
 
   return (
     <Fragment>

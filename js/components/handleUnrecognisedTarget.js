@@ -4,11 +4,12 @@
 
 import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
-import { Button } from '@material-ui/core';
+import { Button } from './common';
 import * as apiActions from '../reducers/api/apiActions';
 import TargetList from './targetList';
 import { ErrorReport } from './header/errorReport';
 import { Modal } from './common/Modal';
+import { URLS } from './routes/constants';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list }) => {
   const closeModal = () => {
@@ -23,8 +24,7 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
     request = (
       <h3>
         Please
-        <a className="inline" href="/accounts/login">
-          {' '}
+        <a className="inline" href={URLS.login}>
           sign in
         </a>
         , or select a target:
@@ -54,7 +54,7 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
     <Fragment>
       <Modal open={targetUnrecognised !== undefined ? targetUnrecognised : false}>
         {modalBody}
-        <Button color="secondary" onClick={closeModal}>
+        <Button color="primary" onClick={closeModal}>
           Close
         </Button>
         <ErrorReport />

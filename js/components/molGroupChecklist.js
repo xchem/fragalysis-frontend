@@ -1,13 +1,13 @@
-import React, { memo } from 'react';
+import React, { memo, Fragment } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/apiActions';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   divContainer: {
     height: '100%',
     width: '100%',
-    padding: '16px 16px 8px 8px'
+    paddingTop: theme.spacing(1) / 2
   },
   divScrollable: {
     height: '100%',
@@ -15,19 +15,19 @@ const useStyles = makeStyles(() => ({
     border: 'solid 1px #DEDEDE',
     overflow: 'auto'
   },
-  checkboxRoot: {
-    color: 'black'
-  },
   selectedLine: {
-    color: 'blue',
+    color: theme.palette.primary.main,
     fontWeight: 'bold'
   },
   title: {
     position: 'relative',
-    top: '-196px',
-    backgroundColor: 'white',
+    top: '-214px',
+    backgroundColor: theme.palette.white,
     width: 'fit-content',
-    fontSize: '16px'
+    fontWeight: 'bold'
+  },
+  rowItem: {
+    height: theme.spacing(3)
   }
 }));
 
@@ -48,35 +48,36 @@ const molGroupChecklist = memo(({ mol_group_list, mol_group_selection, setMolGro
   };
 
   return (
-    <div className={classes.divContainer}>
-      <div className={classes.divScrollable}>
-        <Grid container direction="column">
-          {mol_group_list &&
-            mol_group_list.map((o, idx) => {
-              const checked = mol_group_selection.some(i => i === o.id);
-              const site = idx + 1;
-              return (
-                <Grid item container alignItems="center" key={`mol-checklist-item-${idx}`}>
-                  <Grid item>
-                    <Checkbox
-                      color="default"
-                      checked={checked}
-                      onChange={handleOnSelect(o)}
-                      classes={{
-                        root: classes.checkboxRoot
-                      }}
-                    />
+    <Fragment>
+      <div className={classes.divContainer}>
+        <div className={classes.divScrollable}>
+          <Grid container direction="column">
+            {mol_group_list &&
+              mol_group_list.map((o, idx) => {
+                const checked = mol_group_selection.some(i => i === o.id);
+                const site = idx + 1;
+                return (
+                  <Grid
+                    item
+                    container
+                    alignItems="center"
+                    key={`mol-checklist-item-${idx}`}
+                    className={classes.rowItem}
+                  >
+                    <Grid item>
+                      <Checkbox color="primary" checked={checked} onChange={handleOnSelect(o)} />
+                    </Grid>
+                    <Grid item className={checked ? classes.selectedLine : null}>
+                      {`Site ${site} - (${o.id})`}
+                    </Grid>
                   </Grid>
-                  <Grid item className={checked ? classes.selectedLine : null}>
-                    {`Site ${site} - (${o.id})`}
-                  </Grid>
-                </Grid>
-              );
-            })}
-        </Grid>
+                );
+              })}
+          </Grid>
+        </div>
       </div>
-      <div className={classes.title}>selected sites:</div>
-    </div>
+      <div className={classes.title}>Selected sites:</div>
+    </Fragment>
   );
 });
 
@@ -91,7 +92,4 @@ const mapDispatchToProps = {
   setMolGroupOn: apiActions.setMolGroupOn,
   setMolGroupSelection: apiActions.setMolGroupSelection
 };
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(molGroupChecklist);
+export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);
