@@ -244,53 +244,59 @@ const Index = memo(
               </Grid>
             </Grid>
             <Grid item>
-              <SessionManagement />
-              <Button variant="text" onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
-                Menu
-              </Button>
-              <Menu
-                id="simple-menu"
-                anchorEl={anchorElProfileMenu}
-                keepMounted
-                open={Boolean(anchorElProfileMenu)}
-                onClose={handleCloseProfileMenu}
-              >
-                {profileDetail(
-                  {
-                    direction: 'column',
-                    justify: 'center',
-                    alignItems: 'center',
-                    className: classes.drawerHeader
-                  },
-                  true
-                )}
-                <Divider />
-                <ListItem button onClick={() => history.push(URLS.landing)}>
-                  <ListItemIcon>
-                    <Home />
-                  </ListItemIcon>
-                  <ListItemText primary="Home" />
-                </ListItem>
-
-                <ListItem button onClick={() => history.push(URLS.sessions)}>
-                  <ListItemIcon>
-                    <Storage />
-                  </ListItemIcon>
-                  <ListItemText primary="Sessions" />
-                </ListItem>
-                <ListItem button onClick={() => history.push(funders)}>
-                  <ListItemIcon>
-                    <SupervisorAccount />
-                  </ListItemIcon>
-                  <ListItemText primary="Supported by..." />
-                </ListItem>
-                <Divider />
-                {authListItem}
-                {reportErrorMenuItem}
-              </Menu>
+              <Grid container direction="row" justify="flex-end" alignItems="center">
+                <Grid item>
+                  <SessionManagement />
+                </Grid>
+                <Grid item>
+                  <Button variant="text" onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
+                    Menu
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </AppBar>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorElProfileMenu}
+          keepMounted
+          open={Boolean(anchorElProfileMenu)}
+          onClose={handleCloseProfileMenu}
+        >
+          {profileDetail(
+            {
+              direction: 'column',
+              justify: 'center',
+              alignItems: 'center',
+              className: classes.drawerHeader
+            },
+            true
+          )}
+          <Divider />
+          <ListItem button onClick={() => history.push(URLS.landing)}>
+            <ListItemIcon>
+              <Home />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItem>
+
+          <ListItem button onClick={() => history.push(URLS.sessions)}>
+            <ListItemIcon>
+              <Storage />
+            </ListItemIcon>
+            <ListItemText primary="Sessions" />
+          </ListItem>
+          <ListItem button onClick={() => history.push(funders)}>
+            <ListItemIcon>
+              <SupervisorAccount />
+            </ListItemIcon>
+            <ListItemText primary="Supported by..." />
+          </ListItem>
+          <Divider />
+          {authListItem}
+          {reportErrorMenuItem}
+        </Menu>
         <Box width="100%" paddingTop={`${headerHeight}px`}>
           {isLoading === true && <LinearProgress color="secondary" />}
         </Box>

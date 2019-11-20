@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 import FileSaver from 'file-saver';
 import { api } from '../utils/api';
+import { CloudDownload, Loop } from '@material-ui/icons';
 
 const DownloadPdb = memo(({ targetOn, targetOnName }) => {
   const [downloading, setDownloading] = useState(false);
@@ -54,19 +55,19 @@ const DownloadPdb = memo(({ targetOn, targetOnName }) => {
 
   if (targetOnName === undefined) {
     return (
-      <Button color="secondary" disabled>
+      <Button color="primary" disabled startIcon={<Loop />}>
         Loading...
       </Button>
     );
   } else if (downloading === true) {
     return (
-      <Button color="secondary" disabled>
+      <Button color="primary" disabled startIcon={<CloudDownload />}>
         Downloading...
       </Button>
     );
   } else {
     return (
-      <Button color="secondary" onClick={handlePdbDownload}>
+      <Button color="primary" onClick={handlePdbDownload} startIcon={<CloudDownload />}>
         Download {targetOnName.toString()} structures
       </Button>
     );

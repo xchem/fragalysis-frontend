@@ -6,7 +6,8 @@ import React, { Fragment, memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as apiActions from '../../reducers/api/apiActions';
-import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
+import { Button, ButtonGroup, makeStyles, Snackbar, IconButton } from '@material-ui/core';
+import { Close, Save, SaveOutlined, Share } from '@material-ui/icons';
 import { getStore } from '../globalStore';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { withRouter } from 'react-router-dom';
@@ -347,6 +348,7 @@ const SessionManagement = memo(
           })
             .then(response => {
               updateFraggleBox(response.data);
+              setOpen(true);
             })
             .catch(error => {
               setState(() => {
@@ -369,6 +371,7 @@ const SessionManagement = memo(
           })
             .then(response => {
               updateFraggleBox(response.data);
+              setOpen(true);
             })
             .catch(error => {
               setState(() => {
@@ -395,6 +398,7 @@ const SessionManagement = memo(
           })
             .then(response => {
               updateFraggleBox(response.data);
+              setOpen(true);
             })
             .catch(error => {
               setState(() => {
@@ -417,6 +421,20 @@ const SessionManagement = memo(
       uuid
     ]);
 
+    const [open, setOpen] = React.useState(true);
+
+    const handleClick = () => {
+      setOpen(true);
+    };
+
+    const handleClose = (event, reason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+
+      setOpen(false);
+    };
+
     const { pathname } = location;
     let buttons = null;
     if (
@@ -428,37 +446,83 @@ const SessionManagement = memo(
       if (sessionTitle === undefined || sessionTitle === 'undefined') {
         buttons = (
           <Fragment>
-            <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
-              <Button color="primary" disabled>
+            <ButtonGroup variant="text" className={classes.button} disabled={disableButtons}>
+              <Button color="primary" disabled startIcon={<SaveOutlined />}>
                 Save Session
               </Button>
-              <Button color="primary" onClick={newSession}>
+              <Button color="primary" onClick={newSession} startIcon={<Save />}>
                 Save Session As...
               </Button>
-              <Button color="primary" onClick={newSnapshot}>
+              <Button color="primary" onClick={newSnapshot} startIcon={<Share />}>
                 Share Snapshot
               </Button>
               <DownloadPdb />
             </ButtonGroup>
-            Currently no active session.
+            <Snackbar
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right'
+              }}
+              open={open}
+              autoHideDuration={60000}
+              onClose={handleClose}
+              ContentProps={{
+                'aria-describedby': 'message-id'
+              }}
+              message={<span id="message-id">Currently no active session.</span>}
+              action={[
+                <IconButton
+                  key="close"
+                  aria-label="close"
+                  color="inherit"
+                  className={classes.close}
+                  onClick={handleClose}
+                >
+                  <Close />
+                </IconButton>
+              ]}
+            />
           </Fragment>
         );
       } else {
         buttons = (
           <Fragment>
-            <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
-              <Button color="primary" onClick={saveSession}>
+            <ButtonGroup variant="text" className={classes.button} disabled={disableButtons}>
+              <Button color="primary" onClick={saveSession} startIcon={<SaveOutlined />}>
                 Save Session
               </Button>
-              <Button color="primary" onClick={newSession}>
+              <Button color="primary" onClick={newSession} startIcon={<Save />}>
                 Save Session As...
               </Button>
-              <Button color="primary" onClick={newSnapshot}>
+              <Button color="primary" onClick={newSnapshot} startIcon={<Share />}>
                 Share Snapshot
               </Button>
               <DownloadPdb />
             </ButtonGroup>
-            Session: {sessionTitle}
+            <Snackbar
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right'
+              }}
+              open={open}
+              autoHideDuration={60000}
+              onClose={handleClose}
+              ContentProps={{
+                'aria-describedby': 'message-id'
+              }}
+              message={<span id="message-id">Session: {sessionTitle}</span>}
+              action={[
+                <IconButton
+                  key="close"
+                  aria-label="close"
+                  color="inherit"
+                  className={classes.close}
+                  onClick={handleClose}
+                >
+                  <Close />
+                </IconButton>
+              ]}
+            />
           </Fragment>
         );
       }
