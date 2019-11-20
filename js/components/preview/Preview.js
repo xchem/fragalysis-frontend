@@ -10,7 +10,7 @@ import MolGroupSelector from '../molGroupSelector';
 import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
 import NglViewerControls from '../nglView/nglViewerControls';
-import HotspotList from '../hotspot/hotspotList';
+//import HotspotList from '../hotspot/hotspotList';
 
 import { withUpdatingTarget } from './withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
@@ -18,8 +18,7 @@ import { VIEWS } from '../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    minHeight: 'inherit',
-    width: '100%'
+    minHeight: 'inherit'
   },
   itemPadding: {
     padding: theme.spacing(1)
@@ -33,27 +32,28 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
 
   const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${2 *
-    theme.spacing(1)}px - ${molGroupsHeight}px - 88px)`;
+    theme.spacing(1)}px - ${molGroupsHeight}px - ${theme.spacing(8)}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
-  const screenHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${viewControlsHeight}px - 16px)`;
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${viewControlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${summaryViewHeight}px - 72px)`;
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${2 *
+    theme.spacing(1)}px - ${summaryViewHeight}px - ${theme.spacing(7)}px)`;
 
   return (
     <Fragment>
-      <Grid container justify="space-between" className={classes.root}>
-        <Grid item xs={12} sm={6} md={4} container direction="column">
-          <Grid item className={classes.itemPadding}>
+      <Grid container justify="space-between" className={classes.root} spacing={1}>
+        <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
+          <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
-          <Grid item className={classes.itemPadding}>
+          <Grid item>
             <MoleculeList height={moleculeListHeight} />
           </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={4} container direction="column">
-          <Grid item className={classes.itemPadding}>
+        <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
+          <Grid item>
             <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
           </Grid>
           <Grid
@@ -63,15 +63,13 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
                 setViewControlsHeight(ref.offsetHeight);
               }
             }}
-            className={classes.itemPadding}
           >
             <NglViewerControls />
           </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={4} container direction="column">
+        <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
           <Grid
             item
-            className={classes.itemPadding}
             ref={ref => {
               if (ref && ref.offsetHeight !== summaryViewHeight) {
                 setSummaryViewHeight(ref.offsetHeight);
@@ -80,13 +78,13 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
           >
             <SummaryView />
           </Grid>
-          <Grid item className={classes.itemPadding}>
+          <Grid item>
             <CompoundList height={compoundHeight} />
           </Grid>
         </Grid>
-        <Grid item>
+        {/*<Grid item item xs={12} sm={6} md={4} >
           <HotspotList />
-        </Grid>
+        </Grid>*/}
       </Grid>
       <ModalStateSave />
     </Fragment>

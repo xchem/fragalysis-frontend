@@ -209,7 +209,12 @@ const Index = memo(
             <Grid item>
               <Grid container direction="row" justify="center" alignItems="center">
                 <Grid item>
-                  <Typography variant="h5" onClick={() => history.push(URLS.landing)} className={classes.sponsorImg}>
+                  <Typography
+                    variant="h5"
+                    color="textPrimary"
+                    onClick={() => history.push(URLS.landing)}
+                    className={classes.sponsorImg}
+                  >
                     Fragalysis <b>{envNavbar}</b>
                   </Typography>
                 </Grid>

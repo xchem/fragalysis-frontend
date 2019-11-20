@@ -24,9 +24,13 @@ init({
   dsn: 'https://27fa0675f555431aa02ca552e93d8cfb@sentry.io/1298290'
 });
 
+const doc = document;
+doc.body.style.margin = '0px';
+
+doc.head.querySelector('link').remove();
 render(
   <ErrorBoundary>
     <Root />
   </ErrorBoundary>,
-  document.getElementById('app')
+  doc.getElementById('app')
 );

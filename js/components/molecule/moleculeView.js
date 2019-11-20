@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Button, makeStyles } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import * as listTypes from '../listTypes';
@@ -18,7 +18,7 @@ import { OBJECT_TYPE } from '../nglView/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    width: '100%',
+    // width: '100%',
     padding: '4px 0',
     color: 'black'
   },
@@ -410,7 +410,9 @@ const MoleculeView = memo(
         <Grid item container className={classes.detailsCol}>
           <Grid item container direction="column" alignItems="center" justify="center" className={classes.statusCol}>
             <Grid item className={classes.textBold}>
-              {data.protein_code}
+              <Typography variant="subtitle2" noWrap>
+                {data.protein_code}
+              </Typography>
             </Grid>
             <Grid item container justify="space-around" className={classes.statusColStatusRow}>
               {Object.values(molStatusTypes).map(type => (

@@ -25,12 +25,13 @@ const Routes = memo(() => {
 
   const [headerHeight, setHeaderHeight] = useState(0);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
+  const contentWidth = `calc(100% - ${2 * theme.spacing(1)}px)`;
 
   return (
-    <Box minHeight="100vh" width="100%">
+    <Box minHeight="100vh" width="100%" margin={0}>
       <HeaderLoadingProvider>
         <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
-        <Box className={classes.content} minHeight={contentHeight} width="100%">
+        <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
           <Switch>
             <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
             <Route exact path="/viewer/react/fraginpect" component={Tindspect} />

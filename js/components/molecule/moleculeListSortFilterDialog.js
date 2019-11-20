@@ -354,7 +354,6 @@ export const MoleculeListSortFilterDialog = memo(
         <DialogTitle classes={{ root: classes.title }} disableTypography id="form-dialog-title">
           <Grid container justify="space-between">
             <Grid item>
-              {' '}
               <h4>Sort and filter</h4>
             </Grid>
             <Grid item>

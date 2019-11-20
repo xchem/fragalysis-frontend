@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import React, { memo, useEffect } from 'react';
 import TargetList from '../targetList';
 import SessionList from '../session/sessionList';
@@ -9,18 +9,7 @@ import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    minHeight: 'inherit',
-    width: 'inherit'
-  },
-  paddingItem: {
-    padding: theme.spacing(1)
-  }
-}));
-
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {
-  const classes = useStyles();
   let text_div;
   // eslint-disable-next-line no-undef
   if (DJANGO_CONTEXT['authenticated'] === true) {
@@ -44,17 +33,8 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
   }, [resetTargetState, resetSelectionState]);
 
   return (
-    <Grid container className={classes.root}>
-      <Grid
-        container
-        item
-        xs={12}
-        sm={6}
-        md={4}
-        direction="column"
-        justify="flex-start"
-        className={classes.paddingItem}
-      >
+    <Grid container spacing={2}>
+      <Grid container item xs={12} sm={6} md={4} direction="column" justify="flex-start">
         <Grid item>
           <h1>Welcome to Fragalysis</h1>
           {text_div}
@@ -68,10 +48,10 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
           </p>
         </Grid>
       </Grid>
-      <Grid item xs={12} sm={6} md={4} className={classes.paddingItem}>
+      <Grid item xs={12} sm={6} md={4}>
         <TargetList key="TARGLIST" />
       </Grid>
-      <Grid item xs={12} sm={6} md={4} className={classes.paddingItem}>
+      <Grid item xs={12} sm={6} md={4}>
         <SessionList key="SESSIONLIST" />
       </Grid>
     </Grid>
