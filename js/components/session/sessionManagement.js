@@ -2,7 +2,7 @@
  * Created by ricgillams on 13/06/2018.
  */
 
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as apiActions from '../../reducers/api/apiActions';
@@ -427,47 +427,39 @@ const SessionManagement = memo(
     ) {
       if (sessionTitle === undefined || sessionTitle === 'undefined') {
         buttons = (
-          <Grid container direction="column" justify="center" alignItems="center">
-            <Grid item>
-              <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
-                <Button color="primary" disabled>
-                  Save Session
-                </Button>
-                <Button color="primary" onClick={newSession}>
-                  Save Session As...
-                </Button>
-                <Button color="primary" onClick={newSnapshot}>
-                  Share Snapshot
-                </Button>
-                <DownloadPdb />
-              </ButtonGroup>
-            </Grid>
-            <Grid item>
-              <p>Currently no active session.</p>
-            </Grid>
-          </Grid>
+          <Fragment>
+            <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
+              <Button color="primary" disabled>
+                Save Session
+              </Button>
+              <Button color="primary" onClick={newSession}>
+                Save Session As...
+              </Button>
+              <Button color="primary" onClick={newSnapshot}>
+                Share Snapshot
+              </Button>
+              <DownloadPdb />
+            </ButtonGroup>
+            Currently no active session.
+          </Fragment>
         );
       } else {
         buttons = (
-          <Grid container direction="column" justify="center" alignItems="center">
-            <Grid item>
-              <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
-                <Button color="primary" onClick={saveSession}>
-                  Save Session
-                </Button>
-                <Button color="primary" onClick={newSession}>
-                  Save Session As...
-                </Button>
-                <Button color="primary" onClick={newSnapshot}>
-                  Share Snapshot
-                </Button>
-                <DownloadPdb />
-              </ButtonGroup>
-            </Grid>
-            <Grid item>
-              <p>Session: {sessionTitle}</p>
-            </Grid>
-          </Grid>
+          <Fragment>
+            <ButtonGroup variant="contained" className={classes.button} disabled={disableButtons}>
+              <Button color="primary" onClick={saveSession}>
+                Save Session
+              </Button>
+              <Button color="primary" onClick={newSession}>
+                Save Session As...
+              </Button>
+              <Button color="primary" onClick={newSnapshot}>
+                Share Snapshot
+              </Button>
+              <DownloadPdb />
+            </ButtonGroup>
+            Session: {sessionTitle}
+          </Fragment>
         );
       }
     }

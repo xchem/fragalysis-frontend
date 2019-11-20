@@ -42,7 +42,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   return (
     <Fragment>
       <Grid container justify="space-between" className={classes.root}>
-        <Grid item xs={12} md={6} xl={4} container direction="column">
+        <Grid item xs={12} sm={6} md={4} container direction="column">
           <Grid item className={classes.itemPadding}>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
@@ -50,7 +50,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             <MoleculeList height={moleculeListHeight} />
           </Grid>
         </Grid>
-        <Grid item xs={12} md={6} xl={4} container direction="column">
+        <Grid item xs={12} sm={6} md={4} container direction="column">
           <Grid item className={classes.itemPadding}>
             <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
           </Grid>
@@ -66,7 +66,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             <NglViewerControls />
           </Grid>
         </Grid>
-        <Grid item xs={12} md={6} xl={4} container direction="column">
+        <Grid item xs={12} sm={6} md={4} container direction="column">
           <Grid
             item
             className={classes.itemPadding}

@@ -50,8 +50,8 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
         container
         item
         xs={12}
-        md={6}
-        lg={4}
+        sm={6}
+        md={4}
         direction="column"
         justify="flex-start"
         className={classes.paddingItem}
@@ -69,10 +69,10 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
           </p>
         </Grid>
       </Grid>
-      <Grid item xs={12} md={6} lg={4} className={classes.paddingItem}>
+      <Grid item xs={12} sm={6} md={4} className={classes.paddingItem}>
         <TargetList key="TARGLIST" />
       </Grid>
-      <Grid item xs={12} md={6} lg={4} className={classes.paddingItem}>
+      <Grid item xs={12} sm={6} md={4} className={classes.paddingItem}>
         <SessionList key="SESSIONLIST" />
       </Grid>
     </Grid>

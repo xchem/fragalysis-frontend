@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useEffect, useState } from 'react';
-import { Paper as MaterialPaper, makeStyles, Grid, IconButton } from '@material-ui/core';
+import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography } from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 
@@ -11,7 +11,8 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1)
   },
   header: {
-    backgroundColor: '#f1f1f1',
+    color: theme.palette.white,
+    backgroundColor: theme.palette.primary.main,
     height: theme.spacing(5)
   },
   headerTitle: {
@@ -56,8 +57,10 @@ export const Panel = memo(
                 alignItems="center"
                 className={classes.headerGrid}
               >
-                <Grid item xs={5}>
-                  <div className={classes.headerTitle}>{title}</div>
+                <Grid item xs={5} className={classes.headerTitle}>
+                  <Typography variant="h5" color="inherit">
+                    {title}
+                  </Typography>
                 </Grid>
                 <Grid item container justify="flex-end" xs={7}>
                   {headerActions &&
@@ -67,7 +70,7 @@ export const Panel = memo(
                       </Grid>
                     ))}
                   {hasExpansion && (
-                    <IconButton onClick={handleTitleButtonClick}>
+                    <IconButton onClick={handleTitleButtonClick} color="inherit">
                       {expanded ? <ExpandLess /> : <ExpandMore />}
                     </IconButton>
                   )}

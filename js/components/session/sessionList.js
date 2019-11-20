@@ -11,7 +11,8 @@ import { getUrl, loadFromServer } from '../../utils/genericList';
 import { List, ListItem, Button, TextField, Panel } from '../common';
 import { updateClipboard } from './helpers';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
-import { ListItemText, CircularProgress, ListItemSecondaryAction } from '@material-ui/core';
+import { ListItemText, CircularProgress, ListItemSecondaryAction, makeStyles } from '@material-ui/core';
+import { URLS } from '../routes/constants';
 
 const SessionList = memo(
   ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving, location }) => {
@@ -198,7 +199,7 @@ const SessionList = memo(
               <Panel hasHeader title={sessionListTitle}>
                 <List>{sessionIdList.slice(0, 10).map(data => render_method(data))}</List>
                 <p>
-                  Full list and session management here: <a href="/viewer/react/sessions">Sessions</a>
+                  Full list and session management here: <Link to={URLS.sessions}>Sessions</Link>
                 </p>
               </Panel>
             );
