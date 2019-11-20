@@ -71,8 +71,6 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1)
   },
   sponsorImg: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
     paddingLeft: 2,
     paddingRight: 2,
     paddingTop: 6,
