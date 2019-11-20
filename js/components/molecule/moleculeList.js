@@ -3,6 +3,7 @@
  */
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress } from '@material-ui/core';
+import { FilterList } from '@material-ui/icons';
 import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
@@ -21,7 +22,7 @@ const useStyles = makeStyles(theme => ({
   container: {
     height: '100%',
     width: '100%',
-    color: 'black'
+    color: theme.palette.black
   },
   gridItemHeader: {
     height: '32px',
@@ -41,7 +42,7 @@ const useStyles = makeStyles(theme => ({
   gridItemList: {
     overflow: 'auto',
     // - 48px for title and header items
-    height: 'calc(100% - 48px)'
+    height: `calc(100% - ${theme.spacing(6)}px)`
   },
   centered: {
     display: 'flex',
@@ -153,13 +154,15 @@ const MoleculeList = memo(
     return (
       <Panel
         hasHeader
-        title="hit navigator"
+        title="Hit navigator"
         headerActions={[
           <Button
             onClick={handleDialog(!sortDialogOpen)}
-            color={!!filterSettings ? 'secondary' : 'primary'}
+            color={'inherit'}
             disabled={!(object_selection || []).length}
-            variant="outlined"
+            variant="text"
+            startIcon={<FilterList />}
+            size="small"
           >
             sort/filter
           </Button>
