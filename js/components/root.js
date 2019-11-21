@@ -14,7 +14,7 @@ import thunkMiddleware from 'redux-thunk';
 //import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { NoSsr } from '@material-ui/core';
+import { CssBaseline } from '@material-ui/core';
 import { getTheme } from '../theme';
 //const loggerMiddleware = createLogger();
 
@@ -31,7 +31,7 @@ saveStore(store);
 
 const Root = () => {
   return (
-    <NoSsr>
+    <CssBaseline>
       <ThemeProvider theme={getTheme()}>
         <Provider store={store}>
           <BrowserRouter>
@@ -39,7 +39,7 @@ const Root = () => {
           </BrowserRouter>
         </Provider>
       </ThemeProvider>
-    </NoSsr>
+    </CssBaseline>
   );
 };
 

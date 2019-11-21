@@ -59,12 +59,12 @@ export const Panel = memo(
                 alignItems="center"
                 className={classes.headerGrid}
               >
-                <Grid item xs={5} className={classes.headerTitle}>
-                  <Typography variant="h5" color="inherit">
+                <Grid item xs={6} className={classes.headerTitle}>
+                  <Typography variant="h6" color="inherit">
                     {title}
                   </Typography>
                 </Grid>
-                <Grid item container justify="flex-end" xs={7}>
+                <Grid item container justify="flex-end" xs={6}>
                   {headerActions &&
                     headerActions.map((action, index) => (
                       <Grid item key={index}>

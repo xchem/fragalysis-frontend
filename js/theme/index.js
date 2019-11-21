@@ -10,12 +10,7 @@ export const getTheme = () => {
     },
     typography: {
       // overides from bootstrap config
-      //  htmlFontSize: 16,
-      fontSize: 9,
-      fontFamily: '"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif',
-      subtitle2: {
-        fontWeight: 600
-      }
+      fontSize: 12
     }
   });
 };

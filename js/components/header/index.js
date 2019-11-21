@@ -2,21 +2,18 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { Fragment, memo, useContext, forwardRef, useState, useEffect, useLayoutEffect } from 'react';
-import clsx from 'clsx';
+import React, { Fragment, memo, useContext, forwardRef, useState, useEffect } from 'react';
 import {
   Grid,
   makeStyles,
   LinearProgress,
   AppBar,
   Typography,
-  CssBaseline,
   ListItem,
   ListItemIcon,
   Divider,
   Menu,
   ListItemText,
-  Tab,
   Avatar,
   useMediaQuery,
   Box,
@@ -62,19 +59,14 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(2)
   },
   headerPadding: {
-    paddingLeft: theme.spacing(2)
+    paddingLeft: theme.spacing(1),
+    paddingRIGHT: theme.spacing(1)
   },
   title: {
     flexGrow: 1
   },
   sponsors: {
     padding: theme.spacing(1)
-  },
-  sponsorImg: {
-    paddingLeft: 2,
-    paddingRight: 2,
-    paddingTop: 6,
-    paddingBottom: 6
   },
   appBar: {
     backgroundColor: theme.palette.white
@@ -205,52 +197,37 @@ const Index = memo(
         <AppBar position="absolute" ref={combinedRef} className={classes.appBar}>
           <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerPadding}>
             <Grid item>
-              <Grid container direction="row" justify="center" alignItems="center">
+              <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
                 <Grid item>
-                  <Typography
-                    variant="h5"
-                    color="textPrimary"
-                    onClick={() => history.push(URLS.landing)}
-                    className={classes.sponsorImg}
-                  >
+                  <Typography variant="h5" color="textPrimary" onClick={() => history.push(URLS.landing)}>
                     Fragalysis <b>{envNavbar}</b>
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <img
-                    src={require('../../img/xchemLogo.png')}
-                    height="28"
-                    onClick={openXchem}
-                    className={classes.sponsorImg}
-                  />
+                  <img src={require('../../img/xchemLogo.png')} height="20" onClick={openXchem} />
                 </Grid>
                 <Grid item>
-                  <img
-                    src={require('../../img/dlsLogo.png')}
-                    height="28"
-                    onClick={openDiamond}
-                    className={classes.sponsorImg}
-                  />
+                  <img src={require('../../img/dlsLogo.png')} height="20" onClick={openDiamond} />
                 </Grid>
                 <Grid item>
-                  <img
-                    src={require('../../img/sgcLogo.png')}
-                    height="28"
-                    onClick={openSgc}
-                    className={classes.sponsorImg}
-                  />
+                  <img src={require('../../img/sgcLogo.png')} height="20" onClick={openSgc} />
                 </Grid>
                 <Grid item>
-                  <Button startIcon={<SupervisorAccount />} variant="text" onClick={() => history.push(funders)}>
+                  <Button
+                    startIcon={<SupervisorAccount />}
+                    variant="text"
+                    size="small"
+                    onClick={() => history.push(funders)}
+                  >
                     Supported by
                   </Button>
                 </Grid>
               </Grid>
             </Grid>
             <Grid item>
-              <ButtonGroup variant="text">
+              <ButtonGroup variant="text" size="small">
                 <SessionManagement />
-                <Button variant="text" onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
+                <Button onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
                   Menu
                 </Button>
               </ButtonGroup>
