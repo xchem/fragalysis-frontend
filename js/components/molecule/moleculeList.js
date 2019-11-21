@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     color: '#7B7B7B'
   },
   gridItemHeaderVert: {
-    width: '24px',
+    width: theme.spacing(2),
     transform: 'rotate(-90deg)'
   },
   gridItemHeaderHoriz: {

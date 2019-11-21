@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import * as listTypes from '../listTypes';
@@ -16,18 +16,17 @@ import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
 
+const containerHeight = 76;
+
 const useStyles = makeStyles(theme => ({
   container: {
-    // width: '100%',
-    padding: '4px 0',
-    color: 'black'
+    padding: theme.spacing(1) / 4,
+    color: 'black',
+    height: containerHeight
   },
-  siteCol: {
-    width: theme.spacing(3),
-    fontSize: theme.spacing(3)
-  },
-  contCol: {
-    width: theme.spacing(3)
+  contButtonsDimensions: {
+    width: theme.spacing(2),
+    height: theme.spacing(2)
   },
   contColButton: {
     padding: 0,
@@ -45,39 +44,22 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.contrastText
   },
   detailsCol: {
-    // - 24px (siteCol) - 24px (contCol)
-    width: `calc(100% - ${theme.spacing(3)}px - ${theme.spacing(3)}px)`,
     border: 'solid 1px #DEDEDE'
   },
   statusCol: {
-    //  width: '30%',
+    width: 'fit-content',
     height: '100%',
     paddingLeft: 1
   },
-  statusColStatusRow: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: 1,
-    height: 'inherit'
-  },
-  statusColStatusRowItem: {
-    width: '33%'
-  },
-  imageCol: {
-    width: '30%',
-    display: 'flex',
-    justifyContent: 'center'
-  },
   propsCol: {
-    width: '40%',
     fontSize: '10px'
   },
-  propsColItem: {
-    width: '20%'
+  fitContentWidth: {
+    width: 'fit-content',
+    padding: theme.spacing(1) / 4
   },
-  centered: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+  fitContentHeight: {
+    height: 'fit-content'
   }
 }));
 
@@ -138,6 +120,7 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList
   }) => {
+    const theme = useTheme();
     const [state, setState] = useState();
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
@@ -286,7 +269,7 @@ const MoleculeView = memo(
       };
     }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
-    const svg_image = <SVGInline svg={img_data} height={height} width={width} />;
+    const svg_image = <SVGInline svg={img_data} height={containerHeight - theme.spacing(1)} width={width} />;
     // Here add the logic that updates this based on the information
     // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
     const selected_style = {
@@ -351,15 +334,24 @@ const MoleculeView = memo(
     };
 
     return (
-      <Grid container className={classes.container}>
+      <Grid container justify="flex-start" direction="row" className={classes.container} wrap="nowrap">
         {/* Site number */}
-        <Grid item className={classNames(classes.siteCol, classes.centered)}>
-          {data.site}
+        <Grid item container justify="center" direction="column" className={classes.fitContentWidth}>
+          <Grid item>
+            <Typography variant="h4">{data.site}</Typography>
+          </Grid>
         </Grid>
 
         {/* Control Buttons A, L, C, V */}
-        <Grid item container direction="column" alignItems="stretch" className={classes.contCol}>
-          <Grid item>
+        <Grid
+          item
+          container
+          direction="column"
+          justify="flex-start"
+          alignItems="center"
+          className={classes.fitContentWidth}
+        >
+          <Grid item className={classes.contButtonsDimensions}>
             <Button
               variant="outlined"
               fullWidth
@@ -368,10 +360,10 @@ const MoleculeView = memo(
               })}
               onClick={onSelectAll}
             >
-              <Typography variant="subtitle2">A</Typography>
+              <Typography variant="caption">A</Typography>
             </Button>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.contButtonsDimensions}>
             <Button
               variant="outlined"
               fullWidth
@@ -380,10 +372,10 @@ const MoleculeView = memo(
               })}
               onClick={onLigand}
             >
-              <Typography variant="subtitle2">L</Typography>
+              <Typography variant="caption">L</Typography>
             </Button>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.contButtonsDimensions}>
             <Button
               variant="outlined"
               fullWidth
@@ -392,10 +384,10 @@ const MoleculeView = memo(
               })}
               onClick={onComplex}
             >
-              <Typography variant="subtitle2">C</Typography>
+              <Typography variant="caption">C</Typography>
             </Button>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.contButtonsDimensions}>
             <Button
               variant="outlined"
               fullWidth
@@ -404,37 +396,21 @@ const MoleculeView = memo(
               })}
               onClick={onVector}
             >
-              <Typography variant="subtitle2">V</Typography>
+              <Typography variant="caption">V</Typography>
             </Button>
           </Grid>
         </Grid>
-
-        {/* Status code */}
         <Grid item container className={classes.detailsCol} wrap="nowrap">
-          <Grid
-            item
-            container
-            direction="column"
-            // alignItems="stretch"
-            justify="space-between"
-            className={classes.statusCol}
-          >
+          {/* Status code */}
+          <Grid item container direction="column" justify="space-between" className={classes.statusCol}>
             <Grid item>
-              <Typography variant="subtitle2">{data.protein_code}</Typography>
+              <Typography variant="subtitle2" noWrap>
+                {data.protein_code}
+              </Typography>
             </Grid>
-            <Grid
-              item
-              container
-              justify="space-around"
-              direction="row"
-              //   alignItems="stretch"
-              // className={classes.statusColStatusRow}
-            >
+            <Grid item container justify="space-around" direction="row">
               {Object.values(molStatusTypes).map(type => (
-                <Grid
-                  item
-                  key={`molecule-status-${type}`} //className={classes.statusColStatusRowItem}
-                >
+                <Grid item key={`molecule-status-${type}`} className={classes.fitContentHeight}>
                   <MoleculeStatusView type={type} data={data} />
                 </Grid>
               ))}
@@ -442,12 +418,12 @@ const MoleculeView = memo(
           </Grid>
 
           {/* Image */}
-          <Grid item className={classes.imageCol}>
+          <Grid item>
             <div style={current_style}>{svg_image}</div>
           </Grid>
 
           {/* Molecule preperties */}
-          {/*<Grid item container className={classes.propsCol} wrap="nowrap">
+          <Grid item container className={classes.propsCol}>
             {getCalculatedProps().map(p => (
               <Grid
                 item
@@ -456,15 +432,15 @@ const MoleculeView = memo(
                 alignItems="center"
                 direction="column"
                 key={`calc-prop-${p.name}`}
-                className={classes.propsColItem}
+                className={classes.fitContentWidth}
               >
-                <Grid item className={classes.textBold}>
-                  {p.name}
+                <Grid item>
+                  <Typography variant="subtitle2">{p.name}</Typography>
                 </Grid>
                 <Grid item>{p.value}</Grid>
               </Grid>
             ))}
-          </Grid>*/}
+          </Grid>
         </Grid>
       </Grid>
     );
