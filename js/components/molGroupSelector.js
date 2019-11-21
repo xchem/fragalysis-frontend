@@ -14,15 +14,17 @@ import * as selectionActions from '../reducers/selection/selectionActions';
 import { generateMolObject, generateObject, getJoinedMoleculeList } from '../utils/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
+export const heightOfBody = '164px';
+
 const useStyles = makeStyles(theme => ({
   containerExpanded: {
-    height: '208px'
+    height: heightOfBody
   },
   containerCollapsed: {
-    height: '0px'
+    height: 0
   },
   nglViewItem: {
-    paddingLeft: '4px'
+    paddingLeft: theme.spacing(1) / 2
   },
   checklistItem: {
     height: '100%'
@@ -106,7 +108,7 @@ const molGroupSelector = memo(
       >
         <Grid container justify="space-between" className={classes.containerExpanded}>
           <Grid item xs={5} className={classes.nglViewItem}>
-            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={'208px'} />
+            <NGLView div_id={VIEWS.SUMMARY_VIEW} height={heightOfBody} />
           </Grid>
           <Grid item xs={7} className={classes.checklistItem}>
             <MolGroupChecklist />

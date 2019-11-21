@@ -23,45 +23,44 @@ const useStyles = makeStyles(theme => ({
     color: 'black'
   },
   siteCol: {
-    width: '24px',
-    fontSize: '24px'
+    width: theme.spacing(3),
+    fontSize: theme.spacing(3)
   },
   contCol: {
-    width: '24px'
-  },
-  contColGridItem: {
-    height: '16px',
-    display: 'flex'
+    width: theme.spacing(3)
   },
   contColButton: {
     padding: 0,
     minWidth: 'unset',
     borderRadius: 0,
     borderColor: 'white',
-    backgroundColor: '#D8E7F4',
+    backgroundColor: theme.palette.primary.light,
     '&:hover': {
-      backgroundColor: '#2B69AA'
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText
     }
   },
   contColButtonSelected: {
-    backgroundColor: '#2B69AA'
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText
   },
   detailsCol: {
     // - 24px (siteCol) - 24px (contCol)
-    width: 'calc(100% - 24px - 24px)',
+    width: `calc(100% - ${theme.spacing(3)}px - ${theme.spacing(3)}px)`,
     border: 'solid 1px #DEDEDE'
   },
   statusCol: {
-    width: '30%'
+    //  width: '30%',
+    height: '100%',
+    paddingLeft: 1
   },
   statusColStatusRow: {
-    paddingTop: '8px'
+    paddingTop: theme.spacing(1),
+    paddingBottom: 1,
+    height: 'inherit'
   },
   statusColStatusRowItem: {
     width: '33%'
-  },
-  textBold: {
-    fontWeight: 'bold'
   },
   imageCol: {
     width: '30%',
@@ -287,14 +286,13 @@ const MoleculeView = memo(
       };
     }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
-    const svg_image = <SVGInline svg={img_data} />;
+    const svg_image = <SVGInline svg={img_data} height={height} width={width} />;
     // Here add the logic that updates this based on the information
     // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
     const selected_style = {
-      height: height.toString() + 'px',
       backgroundColor: colourToggle
     };
-    const not_selected_style = { height: height.toString() + 'px' };
+    const not_selected_style = {};
     const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
 
     const onLigand = () => {
@@ -354,11 +352,14 @@ const MoleculeView = memo(
 
     return (
       <Grid container className={classes.container}>
+        {/* Site number */}
         <Grid item className={classNames(classes.siteCol, classes.centered)}>
           {data.site}
         </Grid>
+
+        {/* Control Buttons A, L, C, V */}
         <Grid item container direction="column" alignItems="stretch" className={classes.contCol}>
-          <Grid item className={classes.contColGridItem}>
+          <Grid item>
             <Button
               variant="outlined"
               fullWidth
@@ -367,10 +368,10 @@ const MoleculeView = memo(
               })}
               onClick={onSelectAll}
             >
-              A
+              <Typography variant="subtitle2">A</Typography>
             </Button>
           </Grid>
-          <Grid item className={classes.contColGridItem}>
+          <Grid item>
             <Button
               variant="outlined"
               fullWidth
@@ -379,10 +380,10 @@ const MoleculeView = memo(
               })}
               onClick={onLigand}
             >
-              L
+              <Typography variant="subtitle2">L</Typography>
             </Button>
           </Grid>
-          <Grid item className={classes.contColGridItem}>
+          <Grid item>
             <Button
               variant="outlined"
               fullWidth
@@ -391,10 +392,10 @@ const MoleculeView = memo(
               })}
               onClick={onComplex}
             >
-              C
+              <Typography variant="subtitle2">C</Typography>
             </Button>
           </Grid>
-          <Grid item className={classes.contColGridItem}>
+          <Grid item>
             <Button
               variant="outlined"
               fullWidth
@@ -403,29 +404,50 @@ const MoleculeView = memo(
               })}
               onClick={onVector}
             >
-              V
+              <Typography variant="subtitle2">V</Typography>
             </Button>
           </Grid>
         </Grid>
-        <Grid item container className={classes.detailsCol}>
-          <Grid item container direction="column" alignItems="center" justify="center" className={classes.statusCol}>
-            <Grid item className={classes.textBold}>
-              <Typography variant="subtitle2" noWrap>
-                {data.protein_code}
-              </Typography>
+
+        {/* Status code */}
+        <Grid item container className={classes.detailsCol} wrap="nowrap">
+          <Grid
+            item
+            container
+            direction="column"
+            // alignItems="stretch"
+            justify="space-between"
+            className={classes.statusCol}
+          >
+            <Grid item>
+              <Typography variant="subtitle2">{data.protein_code}</Typography>
             </Grid>
-            <Grid item container justify="space-around" className={classes.statusColStatusRow}>
+            <Grid
+              item
+              container
+              justify="space-around"
+              direction="row"
+              //   alignItems="stretch"
+              // className={classes.statusColStatusRow}
+            >
               {Object.values(molStatusTypes).map(type => (
-                <Grid item key={`molecule-status-${type}`} className={classes.statusColStatusRowItem}>
+                <Grid
+                  item
+                  key={`molecule-status-${type}`} //className={classes.statusColStatusRowItem}
+                >
                   <MoleculeStatusView type={type} data={data} />
                 </Grid>
               ))}
             </Grid>
           </Grid>
+
+          {/* Image */}
           <Grid item className={classes.imageCol}>
             <div style={current_style}>{svg_image}</div>
           </Grid>
-          <Grid item container className={classes.propsCol}>
+
+          {/* Molecule preperties */}
+          {/*<Grid item container className={classes.propsCol} wrap="nowrap">
             {getCalculatedProps().map(p => (
               <Grid
                 item
@@ -442,7 +464,7 @@ const MoleculeView = memo(
                 <Grid item>{p.value}</Grid>
               </Grid>
             ))}
-          </Grid>
+          </Grid>*/}
         </Grid>
       </Grid>
     );

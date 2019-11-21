@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import Routes from './routes/Routes';
 import { BrowserRouter } from 'react-router-dom';
 import { saveStore } from './globalStore';
-import { hot } from 'react-hot-loader';
+import { hot, AppContainer } from 'react-hot-loader';
 import thunkMiddleware from 'redux-thunk';
 //import { createLogger } from 'redux-logger';
 import { rootReducer } from '../reducers/rootReducer';
@@ -31,15 +31,17 @@ saveStore(store);
 
 const Root = () => {
   return (
-    <CssBaseline>
-      <ThemeProvider theme={getTheme()}>
-        <Provider store={store}>
-          <BrowserRouter>
-            <Routes />
-          </BrowserRouter>
-        </Provider>
-      </ThemeProvider>
-    </CssBaseline>
+    <AppContainer>
+      <CssBaseline>
+        <ThemeProvider theme={getTheme()}>
+          <Provider store={store}>
+            <BrowserRouter>
+              <Routes />
+            </BrowserRouter>
+          </Provider>
+        </ThemeProvider>
+      </CssBaseline>
+    </AppContainer>
   );
 };
 

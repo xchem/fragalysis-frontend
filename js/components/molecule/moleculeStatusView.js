@@ -51,7 +51,7 @@ export default memo(props => {
       label = 'qual.';
       // TODO: decide color based on provided data
       valueElement = (
-        <Grid container alignItems="center" direction="column" style={{ color: 'orange' }}>
+        <Grid container alignItems="center" direction="column" justify="flex-start" style={{ color: 'orange' }}>
           <Grid item className={classes.qualCircle} style={{ backgroundColor: 'orange' }} />
           <Grid item className={classes.qualValue}>
             {3.6}
@@ -68,7 +68,14 @@ export default memo(props => {
   }
 
   return (
-    <Grid container alignItems="center" justify="space-around" className={classes.container}>
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      justify="space-between"
+      className={classes.container}
+      spacing={1}
+    >
       <Grid item className={classes.labelItem}>
         {label}
       </Grid>

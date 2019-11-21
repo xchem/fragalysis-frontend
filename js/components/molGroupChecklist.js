@@ -2,6 +2,7 @@ import React, { memo, Fragment } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/apiActions';
+import { heightOfBody } from './molGroupSelector';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -21,13 +22,14 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     position: 'relative',
-    top: '-214px',
+    top: `calc(0px - 6px - ${heightOfBody})`,
+    marginLeft: theme.spacing(1),
     backgroundColor: theme.palette.white,
     width: 'fit-content',
     fontWeight: 'bold'
   },
   rowItem: {
-    height: theme.spacing(3)
+    height: 22
   }
 }));
 

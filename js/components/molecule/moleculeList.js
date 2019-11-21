@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress } from '@material-ui/core';
+import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
 import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -49,19 +49,6 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  filtersRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap'
-  },
-  filterChip: {
-    marginBottom: theme.spacing(1),
-    fontWeight: 'bolder',
-    fontSize: '1rem'
-  },
-  filterTooltip: {
-    fontSize: '1rem'
-  },
   button: {
     minWidth: 'unset'
   },
@@ -76,6 +63,13 @@ const useStyles = makeStyles(theme => ({
   },
   paddingProgress: {
     padding: theme.spacing(1)
+  },
+  filterSection: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
+  },
+  filterTitle: {
+    transform: 'rotate(-90deg)'
   }
 }));
 
@@ -178,26 +172,32 @@ const MoleculeList = memo(
         )}
         {!!(filterSettings || {}).active && (
           <Fragment>
-            Filters:
-            <div className={classes.filtersRow}>
-              {filterSettings.priorityOrder.map(attr => (
-                <Tooltip
-                  key={`Mol-Tooltip-${attr}`}
-                  classes={{ tooltip: classes.filterTooltip }}
-                  title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
-                    filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                  }`}
-                  placement="top"
-                >
-                  <Chip
-                    size="small"
-                    label={attr}
-                    className={classes.filterChip}
-                    style={{ backgroundColor: getAttrDefinition(attr).color }}
-                  />
-                </Tooltip>
-              ))}
+            <div className={classes.filterSection}>
+              <Grid container spacing={1}>
+                <Grid item xs={1} container alignItems="center">
+                  <Typography variant="subtitle2" className={classes.filterTitle}>
+                    Filters
+                  </Typography>
+                </Grid>
+                <Grid item xs={11}>
+                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                    {filterSettings.priorityOrder.map(attr => (
+                      <Grid item key={`Mol-Tooltip-${attr}`}>
+                        <Tooltip
+                          title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
+                            filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
+                          placement="top"
+                        >
+                          <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
+                        </Tooltip>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Grid>
+              </Grid>
             </div>
+            <Divider />
           </Fragment>
         )}
         <Grid container direction="column" className={classes.container} style={{ height: height }}>

@@ -9,7 +9,6 @@ export const getTheme = () => {
       drawer: 1100
     },
     typography: {
-      // overides from bootstrap config
       fontSize: 12
     }
   });

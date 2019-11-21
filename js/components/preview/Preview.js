@@ -20,8 +20,8 @@ const useStyles = makeStyles(theme => ({
   root: {
     minHeight: 'inherit'
   },
-  itemPadding: {
-    padding: theme.spacing(1)
+  inheritWidth: {
+    width: 'inherit'
   }
 }));
 
@@ -52,19 +52,21 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             <MoleculeList height={moleculeListHeight} />
           </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
-          <Grid item>
-            <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
-          </Grid>
-          <Grid
-            item
-            ref={ref => {
-              if (ref && ref.offsetHeight !== viewControlsHeight) {
-                setViewControlsHeight(ref.offsetHeight);
-              }
-            }}
-          >
-            <NglViewerControls />
+        <Grid item xs={12} sm={6} md={4}>
+          <Grid container direction="column" spacing={1}>
+            <Grid item className={classes.inheritWidth}>
+              <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
+            </Grid>
+            <Grid
+              item
+              ref={ref => {
+                if (ref && ref.offsetHeight !== viewControlsHeight) {
+                  setViewControlsHeight(ref.offsetHeight);
+                }
+              }}
+            >
+              <NglViewerControls />
+            </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
