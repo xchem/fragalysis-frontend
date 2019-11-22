@@ -64,22 +64,21 @@ export const Panel = memo(
                     {title}
                   </Typography>
                 </Grid>
-                {headerActions ||
-                  (hasExpansion && (
-                    <Grid item container justify="flex-end" xs={6}>
-                      {headerActions &&
-                        headerActions.map((action, index) => (
-                          <Grid item key={index}>
-                            {action}
-                          </Grid>
-                        ))}
-                      {hasExpansion && (
-                        <IconButton onClick={handleTitleButtonClick} color="inherit">
-                          {expanded ? <ExpandLess /> : <ExpandMore />}
-                        </IconButton>
-                      )}
-                    </Grid>
-                  ))}
+                {(headerActions || hasExpansion) && (
+                  <Grid item container justify="flex-end" xs={6}>
+                    {headerActions &&
+                      headerActions.map((action, index) => (
+                        <Grid item key={index}>
+                          {action}
+                        </Grid>
+                      ))}
+                    {hasExpansion && (
+                      <IconButton onClick={handleTitleButtonClick} color="inherit">
+                        {expanded ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    )}
+                  </Grid>
+                )}
               </Grid>
             </div>
           )}

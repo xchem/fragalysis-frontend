@@ -22,12 +22,6 @@ const useStyles = makeStyles(theme => ({
   },
   inheritWidth: {
     width: 'inherit'
-  },
-  firstColumn: {
-    //  minWidth: 490
-  },
-  secondColumn: {
-    minWidth: 490
   }
 }));
 
@@ -51,17 +45,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   return (
     <Fragment>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid
-          item
-          sm={12}
-          md={6}
-          lg={4}
-          xl={3}
-          container
-          direction="column"
-          spacing={1}
-          className={classes.firstColumn}
-        >
+        <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
