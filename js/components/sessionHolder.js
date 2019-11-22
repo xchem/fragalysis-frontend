@@ -4,21 +4,9 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import SessionList from './session/sessionList';
-import { makeStyles } from '@material-ui/core';
-
-const useStyles = makeStyles(theme => ({
-  itemPadding: {
-    padding: theme.spacing(1)
-  }
-}));
 
 const Sessions = memo(() => {
-  const classes = useStyles();
-  return (
-    <div className={classes.itemPadding}>
-      <SessionList key="SESSIONLIST" />
-    </div>
-  );
+  return <SessionList key="SESSIONLIST" />;
 });
 
 function mapStateToProps(state) {
