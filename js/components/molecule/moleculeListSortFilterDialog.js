@@ -11,21 +11,9 @@ import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 
-const useStyles = makeStyles({
-  button: {
-    fontSize: 10
-  },
+const useStyles = makeStyles(theme => ({
   title: {
     fontSize: 22
-  },
-  applyButton: {
-    borderColor: '#009000',
-    color: '#009000',
-    '&:hover': {
-      backgroundColor: '#E3EEDA',
-      borderColor: '#003f00',
-      color: '#003f00'
-    }
   },
   numberOfHits: {
     flexGrow: 1
@@ -56,18 +44,11 @@ const useStyles = makeStyles({
     top: 2
   },
   formControl: {
-    margin: 8,
+    margin: theme.spacing(1),
     minWidth: 120,
     fontSize: '1.2rem'
-  },
-  selectEmpty: {
-    marginTop: 16,
-    fontSize: 'larger'
-  },
-  fontLarger: {
-    fontSize: 'larger'
   }
-});
+}));
 
 const widthPrio = 50;
 const widthOrder = 60;
@@ -358,7 +339,7 @@ export const MoleculeListSortFilterDialog = memo(
             </Grid>
             <Grid item>
               <FormControl className={classes.formControl}>
-                <InputLabel shrink htmlFor="predefined-label-placeholder" className={classes.fontLarger}>
+                <InputLabel shrink htmlFor="predefined-label-placeholder">
                   Predefined filter
                 </InputLabel>
                 <Select
@@ -370,7 +351,6 @@ export const MoleculeListSortFilterDialog = memo(
                   }}
                   displayEmpty
                   name="predefined"
-                  className={classes.selectEmpty}
                 >
                   {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
                     <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
@@ -437,16 +417,10 @@ export const MoleculeListSortFilterDialog = memo(
               </div>
             )}
           </div>
-          <Button classes={{ root: classes.button }} onClick={handleClear} color="secondary" variant="outlined">
+          <Button onClick={handleClear} color="secondary" variant="contained">
             Clear
           </Button>
-          <Button
-            classes={{ root: classes.button }}
-            className={classes.applyButton}
-            onClick={handleCloseVerify}
-            color="primary"
-            variant="outlined"
-          >
+          <Button onClick={handleCloseVerify} color="primary" variant="contained">
             Apply
           </Button>
         </DialogActions>

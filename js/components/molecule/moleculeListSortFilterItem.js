@@ -63,7 +63,6 @@ const useStyles = makeStyles({
     paddingRight: 8
   },
   propertyChip: {
-    fontSize: '1.1rem',
     fontWeight: 'bolder'
   }
 });
