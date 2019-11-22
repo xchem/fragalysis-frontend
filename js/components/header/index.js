@@ -12,7 +12,7 @@ import {
   ListItem,
   ListItemIcon,
   Divider,
-  Menu,
+  Drawer,
   ListItemText,
   Avatar,
   useMediaQuery,
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   },
   headerPadding: {
     paddingLeft: theme.spacing(1),
-    paddingRIGHT: theme.spacing(1)
+    paddingRight: theme.spacing(1)
   },
   title: {
     flexGrow: 1
@@ -53,6 +53,10 @@ const useStyles = makeStyles(theme => ({
   },
   appBar: {
     backgroundColor: theme.palette.white
+  },
+  drawerHeader: {
+    padding: theme.spacing(1),
+    backgroundColor: theme.palette.background.default
   }
 }));
 
@@ -62,21 +66,13 @@ const Index = memo(
     const { isLoading } = useContext(HeaderLoadingContext);
 
     const [error, setError] = useState();
-    const [anchorElProfileMenu, setAnchorElProfileMenu] = React.useState(null);
+    const [openMenu, setOpenMenu] = React.useState(false);
     const xsDown = useMediaQuery(theme => theme.breakpoints.down('xs'));
     const mdDown = useMediaQuery(theme => theme.breakpoints.down('md'));
 
     if (error) {
       throw new Error('Custom user error.' + uuidv4());
     }
-
-    const handleOpenProfileMenu = event => {
-      setAnchorElProfileMenu(event.currentTarget);
-    };
-
-    const handleCloseProfileMenu = () => {
-      setAnchorElProfileMenu(null);
-    };
 
     const openXchem = () => {
       window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -140,12 +136,12 @@ const Index = memo(
     }
 
     const prodSite = (
-      <p>
+      <Typography variant="body2">
         Please use:
         <a href={URLS.prodLanding} data-toggle="tooltip" title="https://fragalysis.diamond.ac.uk">
           production site
         </a>
-      </p>
+      </Typography>
     );
 
     if (document.location.host.startsWith('fragalysis.diamond') !== true) {
@@ -153,20 +149,6 @@ const Index = memo(
     } else {
       envNavbar = 'Home';
     }
-
-    const profileDetail = (rest, container, item) => {
-      return (
-        <Grid item={item} container={container} {...rest}>
-          <Grid item>
-            <Avatar className={classes.padding}>
-              <Person />
-            </Avatar>
-          </Grid>
-          <Grid item>{username}</Grid>
-          <Grid item>{prodSite}</Grid>
-        </Grid>
-      );
-    };
 
     const innerRef = React.useRef(null);
     const combinedRef = useCombinedRefs(ref, innerRef);
@@ -210,29 +192,37 @@ const Index = memo(
             <Grid item>
               <ButtonGroup variant="text" size="small">
                 <SessionManagement />
-                <Button onClick={handleOpenProfileMenu} startIcon={<MenuIcon />}>
+                <Button
+                  onClick={() => {
+                    setOpenMenu(true);
+                  }}
+                  startIcon={<MenuIcon />}
+                >
                   Menu
                 </Button>
               </ButtonGroup>
             </Grid>
           </Grid>
         </AppBar>
-        <Menu
-          id="simple-menu"
-          anchorEl={anchorElProfileMenu}
-          keepMounted
-          open={Boolean(anchorElProfileMenu)}
-          onClose={handleCloseProfileMenu}
+        <Drawer
+          anchor="right"
+          open={openMenu}
+          onClose={() => {
+            setOpenMenu(false);
+          }}
         >
-          {profileDetail(
-            {
-              direction: 'column',
-              justify: 'center',
-              alignItems: 'center',
-              className: classes.drawerHeader
-            },
-            true
-          )}
+          <Grid container direction="column" justify="center" alignItems="center" className={classes.drawerHeader}>
+            <Grid item>
+              <Avatar className={classes.padding}>
+                <Person />
+              </Avatar>
+            </Grid>
+            <Grid item>
+              <Typography variant="subtitle2">{username}</Typography>
+            </Grid>
+            <Grid item>{prodSite}</Grid>
+          </Grid>
+
           <Divider />
           <ListItem button onClick={() => history.push(URLS.landing)}>
             <ListItemIcon>
@@ -256,7 +246,7 @@ const Index = memo(
           <Divider />
           {authListItem}
           {reportErrorMenuItem}
-        </Menu>
+        </Drawer>
         <Box width="100%" paddingTop={`${headerHeight}px`}>
           {isLoading === true && <LinearProgress color="secondary" />}
         </Box>
