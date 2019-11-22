@@ -59,24 +59,27 @@ export const Panel = memo(
                 alignItems="center"
                 className={classes.headerGrid}
               >
-                <Grid item xs={6} className={classes.headerTitle}>
+                <Grid item xs={hasExpansion || headerActions ? 6 : 12} className={classes.headerTitle}>
                   <Typography variant="h6" color="inherit">
                     {title}
                   </Typography>
                 </Grid>
-                <Grid item container justify="flex-end" xs={6}>
-                  {headerActions &&
-                    headerActions.map((action, index) => (
-                      <Grid item key={index}>
-                        {action}
-                      </Grid>
-                    ))}
-                  {hasExpansion && (
-                    <IconButton onClick={handleTitleButtonClick} color="inherit">
-                      {expanded ? <ExpandLess /> : <ExpandMore />}
-                    </IconButton>
-                  )}
-                </Grid>
+                {headerActions ||
+                  (hasExpansion && (
+                    <Grid item container justify="flex-end" xs={6}>
+                      {headerActions &&
+                        headerActions.map((action, index) => (
+                          <Grid item key={index}>
+                            {action}
+                          </Grid>
+                        ))}
+                      {hasExpansion && (
+                        <IconButton onClick={handleTitleButtonClick} color="inherit">
+                          {expanded ? <ExpandLess /> : <ExpandMore />}
+                        </IconButton>
+                      )}
+                    </Grid>
+                  ))}
               </Grid>
             </div>
           )}
