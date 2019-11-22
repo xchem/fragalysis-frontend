@@ -49,14 +49,22 @@ const useStyles = makeStyles(theme => ({
   statusCol: {
     width: 'fit-content',
     height: '100%',
-    paddingLeft: 1
+    paddingLeft: 2
   },
   propsCol: {
-    fontSize: '10px'
+    fontSize: '10px',
+    minWidth: 190
   },
   fitContentWidth: {
+    width: 'fit-content'
+    //   padding: theme.spacing(1) / 4,
+  },
+  fitContentWidthAndPadding: {
     width: 'fit-content',
-    padding: theme.spacing(1) / 4
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingTop: theme.spacing(1) / 4,
+    paddingBottom: theme.spacing(1) / 4
   },
   fitContentHeight: {
     height: 'fit-content'
@@ -269,7 +277,7 @@ const MoleculeView = memo(
       };
     }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
-    const svg_image = <SVGInline svg={img_data} height={containerHeight - theme.spacing(1)} width={width} />;
+    const svg_image = <SVGInline svg={img_data} height={`${containerHeight - theme.spacing(1)}`} width={`{width}`} />;
     // Here add the logic that updates this based on the information
     // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
     const selected_style = {
@@ -423,7 +431,7 @@ const MoleculeView = memo(
           </Grid>
 
           {/* Molecule preperties */}
-          <Grid item container className={classes.propsCol}>
+          <Grid item container className={classes.propsCol} justify="flex-start">
             {getCalculatedProps().map(p => (
               <Grid
                 item
@@ -432,7 +440,7 @@ const MoleculeView = memo(
                 alignItems="center"
                 direction="column"
                 key={`calc-prop-${p.name}`}
-                className={classes.fitContentWidth}
+                className={classes.fitContentWidthAndPadding}
               >
                 <Grid item>
                   <Typography variant="subtitle2">{p.name}</Typography>

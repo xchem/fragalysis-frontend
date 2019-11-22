@@ -2,15 +2,14 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
+import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography, useTheme } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
+import React, { useMemo, useState, useEffect, memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import MoleculeView from './moleculeView';
-import classNames from 'classnames';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from '../../utils/molecules_helpers';
 import { getUrl, loadFromServer } from '../../utils/genericList';
@@ -21,7 +20,7 @@ import { Panel } from '../common/Surfaces/Panel';
 const useStyles = makeStyles(theme => ({
   container: {
     height: '100%',
-    width: '100%',
+    width: 'inherit',
     color: theme.palette.black
   },
   gridItemHeader: {
@@ -30,14 +29,11 @@ const useStyles = makeStyles(theme => ({
     color: '#7B7B7B'
   },
   gridItemHeaderVert: {
-    width: theme.spacing(2),
-    transform: 'rotate(-90deg)'
+    transform: 'rotate(-90deg)',
+    height: 'fit-content'
   },
   gridItemHeaderHoriz: {
-    width: 'calc((100% - 48px) * 0.3)'
-  },
-  gridItemHeaderHorizWider: {
-    width: 'calc((100% - 48px) * 0.4)'
+    width: 'fit-content'
   },
   gridItemList: {
     overflow: 'auto',
@@ -82,9 +78,12 @@ const MoleculeList = memo(
     mol_group_on,
     setObjectList,
     setCachedMolLists,
-    mol_group_list
+    mol_group_list,
+    setFilterItemsHeight,
+    filterItemsHeight
   }) => {
     const classes = useStyles();
+    const theme = useTheme();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -98,6 +97,19 @@ const MoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 80;
     const imgWidth = 100;
+
+    const isActiveFilter = !!(filterSettings || {}).active;
+    const filterRef = useRef(null);
+
+    useEffect(() => {
+      if (filterRef && filterRef.current) {
+        if (filterItemsHeight !== filterRef.current.offsetHeight) {
+          setFilterItemsHeight(filterRef.current.offsetHeight + theme.spacing(1) / 2);
+        }
+      } else if (filterItemsHeight !== 0) {
+        setFilterItemsHeight(0);
+      }
+    }, [filterRef, isActiveFilter, filterItemsHeight, setFilterItemsHeight, theme]);
 
     let joinedMoleculeLists = useMemo(
       () => getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }),
@@ -116,7 +128,7 @@ const MoleculeList = memo(
       handleDialog(false)();
     };
 
-    if (!!(filterSettings || {}).active) {
+    if (isActiveFilter) {
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
     } else {
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -170,8 +182,8 @@ const MoleculeList = memo(
             filterSettings={filterSettings}
           />
         )}
-        {!!(filterSettings || {}).active && (
-          <Fragment>
+        {isActiveFilter && (
+          <div ref={filterRef}>
             <div className={classes.filterSection}>
               <Grid container spacing={1}>
                 <Grid item xs={1} container alignItems="center">
@@ -198,17 +210,19 @@ const MoleculeList = memo(
               </Grid>
             </div>
             <Divider />
-          </Fragment>
+          </div>
         )}
         <Grid container direction="column" className={classes.container} style={{ height: height }}>
-          <Grid item container direction="row" className={classes.gridItemHeader}>
-            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+          <Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
+            <Grid item className={classes.gridItemHeaderVert}>
               site
             </Grid>
-            <Grid item className={classNames(classes.gridItemHeaderVert, classes.centered)}>
+            <Grid item className={classes.gridItemHeaderVert}>
               cont.
             </Grid>
             <Grid
+              item
+              xs={3}
               container
               direction="column"
               justify="center"
@@ -218,10 +232,10 @@ const MoleculeList = memo(
               <Grid item>code</Grid>
               <Grid item>status</Grid>
             </Grid>
-            <Grid item className={classNames(classes.gridItemHeaderHoriz, classes.centered)}>
+            <Grid item xs={2}>
               image
             </Grid>
-            <Grid item className={classNames(classes.gridItemHeaderHorizWider, classes.centered)}>
+            <Grid item xs={3}>
               properties
             </Grid>
           </Grid>

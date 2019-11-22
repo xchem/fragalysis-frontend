@@ -34,25 +34,8 @@ import SessionManagement from '../session/sessionManagement';
 import { HeaderLoadingContext } from './loadingContext';
 import { Button } from '../common';
 import { URLS } from '../routes/constants';
+import { useCombinedRefs } from '../../utils/refHelpers';
 const uuidv4 = require('uuid/v4');
-
-function useCombinedRefs(...refs) {
-  const targetRef = React.useRef();
-
-  React.useEffect(() => {
-    refs.forEach(ref => {
-      if (!ref) return;
-
-      if (typeof ref === 'function') {
-        ref(targetRef.current);
-      } else {
-        ref.current = targetRef.current;
-      }
-    });
-  }, [refs]);
-
-  return targetRef;
-}
 
 const useStyles = makeStyles(theme => ({
   padding: {

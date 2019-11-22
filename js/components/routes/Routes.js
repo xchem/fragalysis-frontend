@@ -25,7 +25,7 @@ const Routes = memo(() => {
 
   const [headerHeight, setHeaderHeight] = useState(0);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
-  const contentWidth = `calc(100% - ${2 * theme.spacing(1)}px)`;
+  const contentWidth = `100%`;
 
   return (
     <Box minHeight="100vh" width="100%" margin={0}>

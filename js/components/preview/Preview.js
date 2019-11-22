@@ -22,6 +22,12 @@ const useStyles = makeStyles(theme => ({
   },
   inheritWidth: {
     width: 'inherit'
+  },
+  firstColumn: {
+    //  minWidth: 490
+  },
+  secondColumn: {
+    minWidth: 490
   }
 }));
 
@@ -30,9 +36,10 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const theme = useTheme();
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
+  const [filterItemsHeight, setFilterItemsHeight] = useState(0);
 
   const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${2 *
-    theme.spacing(1)}px - ${molGroupsHeight}px - ${theme.spacing(8)}px)`;
+    theme.spacing(1)}px - ${molGroupsHeight}px - ${filterItemsHeight}px - ${theme.spacing(8)}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
   const screenHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${viewControlsHeight}px)`;
@@ -44,15 +51,29 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   return (
     <Fragment>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
+        <Grid
+          item
+          sm={12}
+          md={6}
+          lg={4}
+          xl={3}
+          container
+          direction="column"
+          spacing={1}
+          className={classes.firstColumn}
+        >
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
           <Grid item>
-            <MoleculeList height={moleculeListHeight} />
+            <MoleculeList
+              height={moleculeListHeight}
+              setFilterItemsHeight={setFilterItemsHeight}
+              filterItemsHeight={filterItemsHeight}
+            />
           </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item sm={12} md={6} lg={4} xl={6}>
           <Grid container direction="column" spacing={1}>
             <Grid item className={classes.inheritWidth}>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
@@ -69,7 +90,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={4} container direction="column" spacing={1}>
+        <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
           <Grid
             item
             ref={ref => {
