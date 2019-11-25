@@ -68,6 +68,9 @@ const useStyles = makeStyles(theme => ({
   },
   fitContentHeight: {
     height: 'fit-content'
+  },
+  imageMargin: {
+    marginTop: -theme.spacing(2)
   }
 }));
 
@@ -87,7 +90,7 @@ const colourList = [
 ];
 
 const img_data_init =
-  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50px" height="50px"><g>' +
+  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>' +
   '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
   '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
   '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
@@ -277,7 +280,20 @@ const MoleculeView = memo(
       };
     }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
 
-    const svg_image = <SVGInline svg={img_data} height={`${containerHeight - theme.spacing(1)}`} width={`{width}`} />;
+    const svg_image = (
+      <SVGInline
+        component="div"
+        svg={img_data}
+        height="inherit"
+        width="inherit"
+        className={classes.imageMargin}
+        style={{
+          height: `${height}px`,
+          width: `${width}px`,
+          marginTop: `-10px`
+        }}
+      />
+    );
     // Here add the logic that updates this based on the information
     // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
     const selected_style = {
@@ -426,28 +442,52 @@ const MoleculeView = memo(
           </Grid>
 
           {/* Image */}
-          <Grid item>
-            <div style={current_style}>{svg_image}</div>
+          <Grid item style={current_style}>
+            <div>{svg_image}</div>
           </Grid>
 
           {/* Molecule preperties */}
-          <Grid item container className={classes.propsCol} justify="flex-start">
-            {getCalculatedProps().map(p => (
-              <Grid
-                item
-                container
-                justify="space-around"
-                alignItems="center"
-                direction="column"
-                key={`calc-prop-${p.name}`}
-                className={classes.fitContentWidthAndPadding}
-              >
-                <Grid item>
-                  <Typography variant="subtitle2">{p.name}</Typography>
-                </Grid>
-                <Grid item>{p.value}</Grid>
-              </Grid>
-            ))}
+          <Grid item container className={classes.propsCol} direction="row" justify="center">
+            <Grid item xs={12} container direction="row" justify="flex-end">
+              {getCalculatedProps()
+                .slice(0, 5)
+                .map(p => (
+                  <Grid
+                    item
+                    container
+                    justify="space-around"
+                    alignItems="center"
+                    direction="column"
+                    key={`calc-prop-${p.name}`}
+                    className={classes.fitContentWidthAndPadding}
+                  >
+                    <Grid item>
+                      <Typography variant="subtitle2">{p.name}</Typography>
+                    </Grid>
+                    <Grid item>{p.value}</Grid>
+                  </Grid>
+                ))}
+            </Grid>
+            <Grid item xs={12} container direction="row" justify="flex-end">
+              {getCalculatedProps()
+                .slice(5)
+                .map(p => (
+                  <Grid
+                    item
+                    container
+                    justify="space-around"
+                    alignItems="center"
+                    direction="column"
+                    key={`calc-prop-${p.name}`}
+                    className={classes.fitContentWidthAndPadding}
+                  >
+                    <Grid item>
+                      <Typography variant="subtitle2">{p.name}</Typography>
+                    </Grid>
+                    <Grid item>{p.value}</Grid>
+                  </Grid>
+                ))}
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
