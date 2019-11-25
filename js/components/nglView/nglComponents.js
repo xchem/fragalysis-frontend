@@ -588,27 +588,24 @@ const NGLView = memo(
       setNGLOrientation(local_div_id, 'SET');
     }, [local_div_id, setNGLOrientation, setOrientation]);
 
-    const registerMouseEvents = e => {
-      // console.log(e.target);
-      refStage.current.handleResize();
+    const handleResize = () => {
+      if (refStage.current) {
+        refStage.current.handleResize();
+      }
     };
 
     useEffect(
       () => {
         if (refStage.current === undefined) {
           refStage.current = new Stage(local_div_id);
-          console.log('Mount ');
-          window.addEventListener('resize', registerMouseEvents, false);
+          window.addEventListener('resize', handleResize, false);
           if (refSetClickFunction.current === false) {
             refStage.current.mouseControls.add('clickPick-left', showPick);
             refSetClickFunction.current = true;
           }
-        } else {
-          refStage.current.handleResize();
         }
         return () => {
-          console.log('Unmount');
-          window.removeEventListener('resize', registerMouseEvents, false);
+          window.removeEventListener('resize', handleResize, false);
 
           refStage.current.mouseControls.remove('clickPick-left', showPick);
           refStage.current.dispose();
@@ -617,6 +614,8 @@ const NGLView = memo(
       }, // eslint-disable-next-line react-hooks/exhaustive-deps
       [local_div_id]
     );
+
+    handleResize();
 
     useEffect(() => {
       updateOrientation();

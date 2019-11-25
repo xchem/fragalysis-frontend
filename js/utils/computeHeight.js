@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 
 export const ComputeHeight = memo(({ componentRef, height, setHeight }) => {
   const registerResize = useRef(false);

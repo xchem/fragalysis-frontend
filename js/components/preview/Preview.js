@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo, useState } from 'react';
+import React, { Fragment, memo, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglComponents';
 import MoleculeList from '../molecule/moleculeList';
@@ -10,6 +10,7 @@ import MolGroupSelector from '../molGroupSelector';
 import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
 import NglViewerControls from '../nglView/nglViewerControls';
+import { ComputeHeight } from '../../utils/computeHeight';
 //import HotspotList from '../hotspot/hotspotList';
 
 import { withUpdatingTarget } from './withUpdatingTarget';
@@ -28,6 +29,7 @@ const useStyles = makeStyles(theme => ({
 const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
   const theme = useTheme();
+  const nglViewerControlsRef = useRef(null);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
@@ -62,15 +64,13 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             <Grid item className={classes.inheritWidth}>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
-            <Grid
-              item
-              ref={ref => {
-                if (ref && ref.offsetHeight !== viewControlsHeight) {
-                  setViewControlsHeight(ref.offsetHeight);
-                }
-              }}
-            >
+            <Grid item ref={nglViewerControlsRef}>
               <NglViewerControls />
+              <ComputeHeight
+                componentRef={nglViewerControlsRef.current}
+                height={viewControlsHeight}
+                setHeight={setViewControlsHeight}
+              />
             </Grid>
           </Grid>
         </Grid>
