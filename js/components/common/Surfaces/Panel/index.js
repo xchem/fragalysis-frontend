@@ -49,7 +49,7 @@ export const Panel = memo(
       }, [expanded, onExpandChange]);
 
       return (
-        <MaterialPaper className={classes.root} {...rest} ref={ref}>
+        <MaterialPaper className={classes.root} ref={ref} {...rest}>
           {hasHeader && (
             <div className={classes.header}>
               <Grid

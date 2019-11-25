@@ -31,9 +31,7 @@ const CompoundList = memo(
     appendToBuyList,
     setCompoundClasses,
     setCurrentCompoundClass,
-    height,
-    panelHeight,
-    setPanelHeight
+    height
   }) => {
     const classes = useStyles();
     const panelRef = useRef(null);

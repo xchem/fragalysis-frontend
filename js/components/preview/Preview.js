@@ -39,6 +39,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   )}px - ${molGroupsHeight}px - ${filterItemsHeight}px - ${theme.spacing(8)}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
+
   const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
@@ -65,18 +66,19 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
             <Grid item ref={nglViewerControlsRef}>
-              <NglViewerControls />
               <ComputeHeight
                 componentRef={nglViewerControlsRef.current}
                 height={viewControlsHeight}
                 setHeight={setViewControlsHeight}
-              />
+              >
+                <NglViewerControls />
+              </ComputeHeight>
             </Grid>
           </Grid>
         </Grid>
         <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
           <Grid item>
-            <SummaryView height={summaryViewHeight} setSummaryViewHeight={setSummaryViewHeight} />
+            <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
           </Grid>
           <Grid item>
             <CompoundList height={compoundHeight} />

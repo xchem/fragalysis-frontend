@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useEffect, useRef, useCallback, Fragment } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
@@ -36,7 +36,7 @@ const SummaryView = memo(
     summaryViewHeight
   }) => {
     const classes = useStyles();
-    const panelRef = useRef(null);
+    const panelRef = useRef(undefined);
     const dockingScripts = new DockingScripts();
     // Number vectors and series to be incorporated later
     const ref_vector_list = useRef();
@@ -213,8 +213,8 @@ const SummaryView = memo(
     var interaction_selectComponent = interaction_select === undefined ? 'Not selected' : interaction_select;
 
     return (
-      <Fragment>
-        <Panel ref={panelRef}>
+      <Panel ref={panelRef}>
+        <ComputeHeight componentRef={panelRef.current} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
           <Grid container justify="space-between">
             <Grid
               item
@@ -250,9 +250,8 @@ const SummaryView = memo(
           <Button color="primary" onClick={handleYankDuck} startIcon={<CloudDownload />}>
             Download Yank/Duck
           </Button>
-        </Panel>
-        <ComputeHeight componentRef={panelRef.current} height={summaryViewHeight} setHeight={setSummaryViewHeight} />
-      </Fragment>
+        </ComputeHeight>
+      </Panel>
     );
   }
 );
