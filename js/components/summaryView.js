@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback, Fragment } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
@@ -12,10 +12,31 @@ import { VIEWS } from '../constants/constants';
 import { api } from '../utils/api';
 import { Button } from './common/Inputs/Button';
 import { Panel } from './common/Surfaces/Panel';
-import { Grid } from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { CloudDownload } from '@material-ui/icons';
+import { ComputeHeight } from '../utils/computeHeight';
+
+const useStyles = makeStyles(theme => ({
+  widthFitContent: {
+    width: 'fit-content'
+  }
+}));
 
 const SummaryView = memo(
-  ({ duck_yank_data, to_buy_list, to_select, vector_list, querying, to_query, compoundClasses, loadObject }) => {
+  ({
+    duck_yank_data,
+    to_buy_list,
+    to_select,
+    vector_list,
+    querying,
+    to_query,
+    compoundClasses,
+    loadObject,
+    setSummaryViewHeight,
+    summaryViewHeight
+  }) => {
+    const classes = useStyles();
+    const panelRef = useRef(null);
     const dockingScripts = new DockingScripts();
     // Number vectors and series to be incorporated later
     const ref_vector_list = useRef();
@@ -192,36 +213,46 @@ const SummaryView = memo(
     var interaction_selectComponent = interaction_select === undefined ? 'Not selected' : interaction_select;
 
     return (
-      <Panel>
-        <Grid container justify="space-between">
-          <Grid item>
-            <h5>
-              Number picked: <b>{list_len}</b>
-            </h5>
-            <h5>
-              Number vectors explored: <b>{num_vectors}</b>
-            </h5>
-            <h5>
-              Number series explored: <b>{num_series}</b>
-            </h5>
-            <h5>
-              Estimated cost: <b>£{cost}</b>
-            </h5>
-            <h5>
-              Selected Interaction: <b>{interaction_selectComponent}</b>
-            </h5>
+      <Fragment>
+        <Panel ref={panelRef}>
+          <Grid container justify="space-between">
+            <Grid
+              item
+              container
+              direction="column"
+              justify="flex-start"
+              alignItems="flex-start"
+              className={classes.widthFitContent}
+            >
+              <Grid item>
+                <Typography variant="subtitle2">Number picked: {list_len}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="subtitle2">Number vectors explored: {num_vectors}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="subtitle2">Number series explored: {num_series}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="subtitle2">Estimated cost: £{cost}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="subtitle2">Selected Interaction: {interaction_selectComponent}</Typography>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <SummaryCmpd height={150} width={150} key={'QUERY'} />
+            </Grid>
           </Grid>
-          <Grid item>
-            <SummaryCmpd height={150} width={150} key={'QUERY'} />
-          </Grid>
-        </Grid>
-        <Button color="primary" onClick={handleExport}>
-          Download CSV (Chrome)
-        </Button>
-        <Button color="primary" onClick={handleYankDuck}>
-          Download Yank/Duck
-        </Button>
-      </Panel>
+          <Button color="primary" onClick={handleExport} startIcon={<CloudDownload />}>
+            Download CSV (Chrome)
+          </Button>
+          <Button color="primary" onClick={handleYankDuck} startIcon={<CloudDownload />}>
+            Download Yank/Duck
+          </Button>
+        </Panel>
+        <ComputeHeight componentRef={panelRef.current} height={summaryViewHeight} setHeight={setSummaryViewHeight} />
+      </Fragment>
     );
   }
 );

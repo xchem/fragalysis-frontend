@@ -40,9 +40,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
-    2
-  )}px - ${summaryViewHeight}px - ${theme.spacing(7)}px)`;
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 113px)`;
 
   return (
     <Fragment>
@@ -77,15 +75,8 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
           </Grid>
         </Grid>
         <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
-          <Grid
-            item
-            ref={ref => {
-              if (ref && ref.offsetHeight !== summaryViewHeight) {
-                setSummaryViewHeight(ref.offsetHeight);
-              }
-            }}
-          >
-            <SummaryView />
+          <Grid item>
+            <SummaryView height={summaryViewHeight} setSummaryViewHeight={setSummaryViewHeight} />
           </Grid>
           <Grid item>
             <CompoundList height={compoundHeight} />

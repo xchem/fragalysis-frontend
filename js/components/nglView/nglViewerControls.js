@@ -8,6 +8,7 @@ import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import { Button } from '../common/Inputs/Button';
 import { MOL_REPRESENTATION, STAGE_COLOR } from './constants';
 import { Panel } from '../common/Surfaces/Panel';
+import { InvertColors } from '@material-ui/icons';
 
 const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNglProtStyle }) => {
   const handleStageColor = () => {
@@ -28,7 +29,7 @@ const NglViewerControls = memo(({ stageColor, nglProtStyle, setStageColor, setNg
 
   return (
     <Panel hasHeader title="Viewer controls">
-      <Button color="primary" onClick={handleStageColor}>
+      <Button color="primary" onClick={handleStageColor} startIcon={<InvertColors />}>
         Change background colour
       </Button>
     </Panel>

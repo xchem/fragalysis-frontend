@@ -589,7 +589,7 @@ const NGLView = memo(
     }, [local_div_id, setNGLOrientation, setOrientation]);
 
     const registerMouseEvents = e => {
-      console.log(e.target);
+      // console.log(e.target);
       refStage.current.handleResize();
     };
 

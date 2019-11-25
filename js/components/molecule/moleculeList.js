@@ -38,7 +38,8 @@ const useStyles = makeStyles(theme => ({
   gridItemList: {
     overflow: 'auto',
     // - 48px for title and header items
-    height: `calc(100% - ${theme.spacing(6)}px)`
+    height: `calc(100% - ${theme.spacing(6)}px)`,
+    width: `calc(100% - ${theme.spacing(1) / 2}px)`
   },
   centered: {
     display: 'flex',
@@ -232,17 +233,17 @@ const MoleculeList = memo(
               <Grid item>code</Grid>
               <Grid item>status</Grid>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={5}>
               image
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={2}>
               properties
             </Grid>
           </Grid>
           {currentMolecules.length > 0 && (
             <div className={classes.gridItemList}>
               <InfiniteScroll
-                threshold={1}
+                //  threshold={1}
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}

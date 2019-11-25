@@ -1,14 +1,23 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
 import { Panel } from './common/Surfaces/Panel';
 import { Button } from './common/Inputs/Button';
 import { TextField } from './common/Inputs/TextField';
-import { Grid, Box } from '@material-ui/core';
+import { Grid, Box, makeStyles } from '@material-ui/core';
+import { SelectAll, Delete } from '@material-ui/icons';
 import * as selectionActions from '../reducers/selection/selectionActions';
+
+const useStyles = makeStyles(theme => ({
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 50
+  }
+}));
 
 const CompoundList = memo(
   ({
@@ -22,8 +31,12 @@ const CompoundList = memo(
     appendToBuyList,
     setCompoundClasses,
     setCurrentCompoundClass,
-    height
+    height,
+    panelHeight,
+    setPanelHeight
   }) => {
+    const classes = useStyles();
+    const panelRef = useRef(null);
     const [compoundClassesLocal, setCompoundClassesLocal] = useState({
       1: 'blue',
       2: 'red',
@@ -129,14 +142,8 @@ const CompoundList = memo(
       }
 
       return (
-        <Panel hasHeader title={querying ? 'Loading....' : mol_string}>
+        <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
           <Box height={height} overflow="auto">
-            <Button color="primary" onClick={selectAll}>
-              Select All
-            </Button>
-            <Button color="primary" onClick={clearAll}>
-              Clear Selection
-            </Button>
             <Grid container direction="row" justify="space-between" alignItems="center">
               {[1, 2, 3, 4, 5].map(item => (
                 <Grid item key={item}>
@@ -145,6 +152,7 @@ const CompoundList = memo(
                     key={`CLASS_${item}`}
                     label={compoundClassesLocal[item]}
                     onKeyDown={handleClassNaming}
+                    className={classes.textField}
                   />
                 </Grid>
               ))}
@@ -159,6 +167,12 @@ const CompoundList = memo(
               </Grid>
             </Box>
           </Box>
+          <Button color="primary" onClick={selectAll} startIcon={<SelectAll />}>
+            Select All
+          </Button>
+          <Button color="primary" onClick={clearAll} startIcon={<Delete />}>
+            Clear Selection
+          </Button>
         </Panel>
       );
     } else {
