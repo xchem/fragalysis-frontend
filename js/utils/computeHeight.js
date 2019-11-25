@@ -15,16 +15,12 @@ export const ComputeHeight = memo(({ componentRef, height, setHeight }) => {
   useEffect(() => {
     const registeringResize = registerResize.current;
     if (componentRef !== undefined && componentRef !== null && registeringResize === false) {
-      console.log('Register');
       window.addEventListener('resize', resize, false);
       registerResize.current = true;
       resize();
     }
     return () => {
-      if (componentRef !== undefined && componentRef !== null && registeringResize === true) {
-        console.log('UnRegister');
-        window.removeEventListener('resize', resize, false);
-      }
+      window.removeEventListener('resize', resize, false);
     };
   }, [resize, componentRef]);
 
