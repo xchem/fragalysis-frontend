@@ -32,15 +32,17 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
 
-  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${2 *
-    theme.spacing(1)}px - ${molGroupsHeight}px - ${filterItemsHeight}px - ${theme.spacing(8)}px)`;
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
+    2
+  )}px - ${molGroupsHeight}px - ${filterItemsHeight}px - ${theme.spacing(8)}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
-  const screenHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px - ${viewControlsHeight}px)`;
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${2 *
-    theme.spacing(1)}px - ${summaryViewHeight}px - ${theme.spacing(7)}px)`;
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
+    2
+  )}px - ${summaryViewHeight}px - ${theme.spacing(7)}px)`;
 
   return (
     <Fragment>

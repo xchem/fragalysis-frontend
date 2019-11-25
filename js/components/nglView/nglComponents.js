@@ -13,6 +13,7 @@ import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
 import { store } from '../root';
 import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
+import { Box } from '@material-ui/core';
 
 const NGLView = memo(
   ({
@@ -587,34 +588,27 @@ const NGLView = memo(
       setNGLOrientation(local_div_id, 'SET');
     }, [local_div_id, setNGLOrientation, setOrientation]);
 
+    const registerMouseEvents = e => {
+      console.log(e.target);
+      refStage.current.handleResize();
+    };
+
     useEffect(
       () => {
-        refStage.current = new Stage(local_div_id);
-        window.addEventListener(
-          'resize',
-          event => {
-            if (refStage.current) {
-              refStage.current.handleResize();
-            }
-          },
-          false
-        );
-
-        if (refSetClickFunction.current === false) {
-          refStage.current.mouseControls.add('clickPick-left', showPick);
-          refSetClickFunction.current = true;
+        if (refStage.current === undefined) {
+          refStage.current = new Stage(local_div_id);
+          console.log('Mount ');
+          window.addEventListener('resize', registerMouseEvents, false);
+          if (refSetClickFunction.current === false) {
+            refStage.current.mouseControls.add('clickPick-left', showPick);
+            refSetClickFunction.current = true;
+          }
+        } else {
+          refStage.current.handleResize();
         }
-
         return () => {
-          window.removeEventListener(
-            'resize',
-            event => {
-              if (refStage.current) {
-                refStage.current.handleResize();
-              }
-            },
-            false
-          );
+          console.log('Unmount');
+          window.removeEventListener('resize', registerMouseEvents, false);
 
           refStage.current.mouseControls.remove('clickPick-left', showPick);
           refStage.current.dispose();
@@ -697,7 +691,7 @@ const NGLView = memo(
       }
     }, [checkForTargetChange, targetIdList]);
 
-    return <div style={{ height: height || '600px' }} id={local_div_id} />;
+    return <Box id={local_div_id} height={height || '600px'} />;
   }
 );
 function mapStateToProps(state) {
@@ -739,7 +733,4 @@ const mapDispatchToProps = {
 
 NGLView.displayName = 'NGLView';
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NGLView);
+export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
