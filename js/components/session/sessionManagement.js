@@ -459,9 +459,6 @@ const SessionManagement = memo(
       if (sessionTitle === undefined || sessionTitle === 'undefined') {
         buttons = (
           <Fragment>
-            <Button color="primary" disabled startIcon={<SaveOutlined />}>
-              Save Session
-            </Button>
             <Button color="primary" onClick={newSession} startIcon={<Save />} disabled={disableButtons}>
               Save Session As
             </Button>

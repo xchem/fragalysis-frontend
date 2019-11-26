@@ -136,11 +136,11 @@ const NGLView = memo(
             name: input_dict['interaction'] + SUFFIX.INTERACTION,
             OBJECT_TYPE: OBJECT_TYPE.ARROW
           });
-        } else if (pickingProxy.object.name) {
-          let name = pickingProxy.object.name;
+        } else if (pickingProxy.component.object.name) {
+          let name = pickingProxy.component.object.name;
           // Ok so now perform logic
-          const type = name.split('_')[0].split('(')[1];
-          const pk = parseInt(name.split('_')[1].split(')')[0], 10);
+          const type = name.split('_')[0];
+          const pk = parseInt(name.split('_')[1], 10);
           if (type === listTypes.MOLGROUPS) {
             toggleMolGroup(pk);
           } else if (type === listTypes.MOLGROUPS_SELECT) {
@@ -151,7 +151,7 @@ const NGLView = memo(
           //else if (type === listTypes.MOLECULE) {
           //}
           else if (type === listTypes.VECTOR) {
-            const vectorSmi = name.split('_')[1].slice(0, -1);
+            const vectorSmi = name.split('_')[1];
             selectVector(vectorSmi);
           }
         }
@@ -606,7 +606,6 @@ const NGLView = memo(
         }
         return () => {
           window.removeEventListener('resize', handleResize, false);
-
           refStage.current.mouseControls.remove('clickPick-left', showPick);
           refStage.current.dispose();
           refStage.current = undefined;

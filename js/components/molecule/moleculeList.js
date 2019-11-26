@@ -243,7 +243,6 @@ const MoleculeList = memo(
           {currentMolecules.length > 0 && (
             <div className={classes.gridItemList}>
               <InfiniteScroll
-                //  threshold={1}
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}
