@@ -57,7 +57,6 @@ const useStyles = makeStyles(theme => ({
   },
   fitContentWidth: {
     width: 'fit-content'
-    //   padding: theme.spacing(1) / 4,
   },
   fitContentWidthAndPadding: {
     width: 'fit-content',
@@ -89,22 +88,10 @@ const colourList = [
   '#ADADD6'
 ];
 
-const img_data_init =
-  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>' +
-  '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
-  '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="100" cy="50" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="93.3012702" cy="75" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="75" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="50" cy="100" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="25" cy="93.3012702" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="6.6987298" cy="75" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="0" cy="50" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="6.6987298" cy="25" r="5" transform="translate(5 5)"/> ' +
-  '<circle cx="25" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
-  '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
-  '</svg>';
+const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
+  <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
+    <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+  </circle>  '</svg>`;
 
 const MoleculeView = memo(
   ({
@@ -129,7 +116,8 @@ const MoleculeView = memo(
     appendVectorOnList,
     removeFromVectorOnList,
     appendFragmentDisplayList,
-    removeFromFragmentDisplayList
+    removeFromFragmentDisplayList,
+    setIsLoadingVector
   }) => {
     const theme = useTheme();
     const [state, setState] = useState();
@@ -246,13 +234,6 @@ const MoleculeView = memo(
       { name: '#cpd', value: '???' }
     ];
 
-    const handleVector = json => {
-      var objList = generateObjectList(json['3d']);
-      setVectorList(objList);
-      var vectorBondColorMap = generateBondColorMap(json['indices']);
-      setBondColorMap(vectorBondColorMap);
-    };
-
     // componentDidMount
     useEffect(() => {
       if (refOnCancel.current === undefined) {
@@ -322,6 +303,13 @@ const MoleculeView = memo(
       }
     };
 
+    const handleVector = json => {
+      var objList = generateObjectList(json['3d']);
+      setVectorList(objList);
+      var vectorBondColorMap = generateBondColorMap(json['indices']);
+      setBondColorMap(vectorBondColorMap);
+    };
+
     const onVector = () => {
       if (isVectorOn) {
         vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
@@ -329,23 +317,28 @@ const MoleculeView = memo(
         removeFromVectorOnList(generateMolId());
       } else {
         vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
-        api({ url: getViewUrl('vector') })
-          .then(response => handleVector(response.data['vectors']))
-          .catch(error => {
-            setState(() => {
-              throw error;
-            });
-          });
         // Set this
         getFullGraph(data);
         // Do the query
-        api({ url: getViewUrl('graph') })
-          .then(response => gotFullGraph(response.data['graph']))
-          .catch(error => {
-            setState(() => {
-              throw error;
-            });
-          });
+        setIsLoadingVector(true);
+        Promise.all([
+          api({ url: getViewUrl('vector') })
+            .then(response => handleVector(response.data['vectors']))
+            .catch(error => {
+              setState(() => {
+                throw error;
+              });
+            }),
+          api({ url: getViewUrl('graph') })
+            .then(response => gotFullGraph(response.data['graph']))
+            .catch(error => {
+              setState(() => {
+                throw error;
+              });
+            })
+        ]).finally(() => {
+          setIsLoadingVector(false);
+        });
         appendVectorOnList(generateMolId());
         selectVector(undefined);
       }
@@ -517,7 +510,8 @@ const mapDispatchToProps = {
   appendVectorOnList: selectionActions.appendVectorOnList,
   removeFromVectorOnList: selectionActions.removeFromVectorOnList,
   appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
-  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList
+  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
+  setIsLoadingVector: selectionActions.setIsLoadingVector
 };
 
 MoleculeView.displayName = 'MoleculeView';

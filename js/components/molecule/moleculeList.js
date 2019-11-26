@@ -11,7 +11,7 @@ import * as listType from '../listTypes';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
-import { getJoinedMoleculeList } from '../../utils/molecules_helpers';
+import { getJoinedMoleculeList } from './molecules_helpers';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';

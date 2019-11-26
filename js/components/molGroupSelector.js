@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import * as selectionActions from '../reducers/selection/selectionActions';
-import { generateMolObject, generateObject, getJoinedMoleculeList } from '../utils/molecules_helpers';
+import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecule/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 export const heightOfBody = '164px';
@@ -45,7 +45,8 @@ const molGroupSelector = memo(
     setVectorOnList,
     setVectorList,
     resetSelectionState,
-    handleHeightChange
+    handleHeightChange,
+    isLoadingVector
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
@@ -96,7 +97,14 @@ const molGroupSelector = memo(
         defaultExpanded
         title="Hit cluster selector"
         headerActions={[
-          <Button onClick={handleClearSelection} color="inherit" variant="text" size="small" startIcon={<Delete />}>
+          <Button
+            onClick={handleClearSelection}
+            disabled={isLoadingVector}
+            color="inherit"
+            variant="text"
+            size="small"
+            startIcon={<Delete />}
+          >
             Clear selection
           </Button>
         ]}
@@ -124,7 +132,8 @@ function mapStateToProps(state) {
     object_selection: state.apiReducers.present.mol_group_selection,
     cached_mol_lists: state.apiReducers.present.cached_mol_lists,
     mol_group_list: state.apiReducers.present.mol_group_list,
-    vector_list: state.selectionReducers.present.vector_list
+    vector_list: state.selectionReducers.present.vector_list,
+    isLoadingVector: state.selectionReducers.present.isLoadingVector
   };
 }
 const mapDispatchToProps = {

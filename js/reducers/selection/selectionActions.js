@@ -27,6 +27,7 @@ import {
   SET_BOND_COLOR_MAP,
   RESET_SELECTION_STATE
 } from '../actonTypes';
+import { constants } from './selectionConstants';
 
 export const setToBuyList = function(to_buy_list) {
   return {
@@ -185,5 +186,11 @@ export const reloadSelectionState = function(savedSelectionReducers) {
 export const resetSelectionState = function() {
   return {
     type: RESET_SELECTION_STATE
+  };
+};
+export const setIsLoadingVector = isLoadingVector => {
+  return {
+    type: constants.IS_LOADING_VECTOR,
+    payload: isLoadingVector
   };
 };

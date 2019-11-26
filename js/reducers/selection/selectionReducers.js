@@ -2,6 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import * as actions from '../actonTypes';
+import { constants } from './selectionConstants';
 
 const INITIAL_STATE = {
   to_buy_list: [],
@@ -26,7 +27,8 @@ const INITIAL_STATE = {
     4: 'Purple',
     5: 'Apricot'
   },
-  currentCompoundClass: 1
+  currentCompoundClass: 1,
+  isLoadingVector: false
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -231,6 +233,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         complexList: new Set(state.complexList.clear()),
         vectorOnList: new Set(state.vectorOnList.clear())
       });
+
+    case constants.IS_LOADING_VECTOR: {
+      return Object.assign({}, state, {
+        isLoadingVector: action.payload
+      });
+    }
 
     // Cases like: @@redux/INIT
     default:
