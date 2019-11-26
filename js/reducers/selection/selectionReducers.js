@@ -28,7 +28,7 @@ const INITIAL_STATE = {
     5: 'Apricot'
   },
   currentCompoundClass: 1,
-  isLoadingVector: false
+  countOfPendingVectorLoadRequests: 0
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -234,9 +234,14 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         vectorOnList: new Set(state.vectorOnList.clear())
       });
 
-    case constants.IS_LOADING_VECTOR: {
+    case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
       return Object.assign({}, state, {
-        isLoadingVector: action.payload
+        countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests + 1
+      });
+    }
+    case constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
+      return Object.assign({}, state, {
+        countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests - 1
       });
     }
 

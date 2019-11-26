@@ -46,7 +46,7 @@ const molGroupSelector = memo(
     setVectorList,
     resetSelectionState,
     handleHeightChange,
-    isLoadingVector
+    countOfPendingVectorLoadRequests
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
@@ -99,7 +99,7 @@ const molGroupSelector = memo(
         headerActions={[
           <Button
             onClick={handleClearSelection}
-            disabled={isLoadingVector}
+            disabled={countOfPendingVectorLoadRequests > 0}
             color="inherit"
             variant="text"
             size="small"
@@ -133,7 +133,7 @@ function mapStateToProps(state) {
     cached_mol_lists: state.apiReducers.present.cached_mol_lists,
     mol_group_list: state.apiReducers.present.mol_group_list,
     vector_list: state.selectionReducers.present.vector_list,
-    isLoadingVector: state.selectionReducers.present.isLoadingVector
+    countOfPendingVectorLoadRequests: state.selectionReducers.present.countOfPendingVectorLoadRequests
   };
 }
 const mapDispatchToProps = {

@@ -37,6 +37,10 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       backgroundColor: theme.palette.primary.main,
       color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white'
     }
   },
   contColButtonSelected: {
@@ -93,6 +97,12 @@ const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" wid
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
+const loadingButtons = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin:auto;background:#fff;display:block;" width="16px" height="72px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+<circle cx="50" cy="44.6197" r="32" fill="#3f51b5">
+  <animate attributeName="cy" dur="0.8403361344537814s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.9 0.55;0 0.45 0.55 0.9" keyTimes="0;0.5;1" values="15;85;15"></animate>
+</circle>
+</svg>`;
+
 const MoleculeView = memo(
   ({
     height,
@@ -117,7 +127,9 @@ const MoleculeView = memo(
     removeFromVectorOnList,
     appendFragmentDisplayList,
     removeFromFragmentDisplayList,
-    setIsLoadingVector
+    incrementCountOfPendingVectorLoadRequests,
+    decrementCountOfPendingVectorLoadRequests,
+    countOfPendingVectorLoadRequests
   }) => {
     const theme = useTheme();
     const [state, setState] = useState();
@@ -320,7 +332,7 @@ const MoleculeView = memo(
         // Set this
         getFullGraph(data);
         // Do the query
-        setIsLoadingVector(true);
+        incrementCountOfPendingVectorLoadRequests();
         Promise.all([
           api({ url: getViewUrl('vector') })
             .then(response => handleVector(response.data['vectors']))
@@ -337,7 +349,7 @@ const MoleculeView = memo(
               });
             })
         ]).finally(() => {
-          setIsLoadingVector(false);
+          decrementCountOfPendingVectorLoadRequests();
         });
         appendVectorOnList(generateMolId());
         selectVector(undefined);
@@ -376,6 +388,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: hasAllValuesOn
               })}
               onClick={onSelectAll}
+              disabled={countOfPendingVectorLoadRequests > 0}
             >
               <Typography variant="caption">A</Typography>
             </Button>
@@ -388,6 +401,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isLigandOn
               })}
               onClick={onLigand}
+              disabled={countOfPendingVectorLoadRequests > 0}
             >
               <Typography variant="caption">L</Typography>
             </Button>
@@ -400,6 +414,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isComplexOn
               })}
               onClick={onComplex}
+              disabled={countOfPendingVectorLoadRequests > 0}
             >
               <Typography variant="caption">C</Typography>
             </Button>
@@ -412,6 +427,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isVectorOn
               })}
               onClick={onVector}
+              disabled={countOfPendingVectorLoadRequests > 0}
             >
               <Typography variant="caption">V</Typography>
             </Button>
@@ -493,7 +509,8 @@ function mapStateToProps(state) {
     vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList
+    vectorOnList: state.selectionReducers.present.vectorOnList,
+    countOfPendingVectorLoadRequests: state.selectionReducers.present.countOfPendingVectorLoadRequests
   };
 }
 const mapDispatchToProps = {
@@ -511,7 +528,8 @@ const mapDispatchToProps = {
   removeFromVectorOnList: selectionActions.removeFromVectorOnList,
   appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
-  setIsLoadingVector: selectionActions.setIsLoadingVector
+  incrementCountOfPendingVectorLoadRequests: selectionActions.incrementCountOfPendingVectorLoadRequests,
+  decrementCountOfPendingVectorLoadRequests: selectionActions.decrementCountOfPendingVectorLoadRequests
 };
 
 MoleculeView.displayName = 'MoleculeView';

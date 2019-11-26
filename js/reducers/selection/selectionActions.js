@@ -188,9 +188,14 @@ export const resetSelectionState = function() {
     type: RESET_SELECTION_STATE
   };
 };
-export const setIsLoadingVector = isLoadingVector => {
+export const incrementCountOfPendingVectorLoadRequests = () => {
   return {
-    type: constants.IS_LOADING_VECTOR,
-    payload: isLoadingVector
+    type: constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
+  };
+};
+
+export const decrementCountOfPendingVectorLoadRequests = () => {
+  return {
+    type: constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
   };
 };
