@@ -118,7 +118,7 @@ const NGLView = memo(
     const showPick = (stage, pickingProxy) => {
       if (pickingProxy) {
         // For assigning the ligand interaction
-        if (pickingProxy.object.type === 'hydrogen bond') {
+        if (pickingProxy.bond) {
           let input_dict = processInt(pickingProxy);
           if (duck_yank_data['interaction'] !== undefined) {
             deleteObject({
