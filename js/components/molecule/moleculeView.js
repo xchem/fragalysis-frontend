@@ -157,6 +157,24 @@ const MoleculeView = memo(
       return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
     };
 
+    const generateArrowObject = (start, end, name, colour) => ({
+      name: listTypes.VECTOR + '_' + name,
+      OBJECT_TYPE: OBJECT_TYPE.ARROW,
+      start: start,
+      end: end,
+      colour: colour,
+      site: data.site
+    });
+
+    const generateCylinderObject = (start, end, name, colour) => ({
+      name: listTypes.VECTOR + '_' + name,
+      OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
+      start: start,
+      end: end,
+      colour: colour,
+      site: data.site
+    });
+
     /**
      * Convert the JSON into a list of arrow objects
      */
@@ -186,22 +204,6 @@ const MoleculeView = memo(
 
       return outList;
     };
-
-    const generateArrowObject = (start, end, name, colour) => ({
-      name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: OBJECT_TYPE.ARROW,
-      start: start,
-      end: end,
-      colour: colour
-    });
-
-    const generateCylinderObject = (start, end, name, colour) => ({
-      name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
-      start: start,
-      end: end,
-      colour: colour
-    });
 
     const generateMolObject = () => ({
       name: 'MOLLOAD' + '_' + data.id.toString(),
