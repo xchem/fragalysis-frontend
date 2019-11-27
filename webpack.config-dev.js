@@ -15,7 +15,7 @@ module.exports = {
     publicPath: 'http://localhost:3030/bundles/' // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
-  devtool: 'cheap-module-source-map',
+  devtool: 'source-map',
 
   stats: {
     // Configure the console output

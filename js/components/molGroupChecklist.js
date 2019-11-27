@@ -50,7 +50,6 @@ const molGroupChecklist = memo(
     const classes = useStyles();
 
     const handleSiteClearSelection = molGroupSelectionId => {
-      console.log(molGroupSelectionId);
       let site;
       // loop through all molecules
       getJoinedMoleculeList({ object_selection: [molGroupSelectionId], cached_mol_lists, mol_group_list }).forEach(

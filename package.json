@@ -40,7 +40,7 @@
     "jszip": "^3.2.2",
     "lodash": "^4.17.15",
     "logrocket": "^1.0.3",
-    "ngl": "^2.0.0-dev.37",
+    "ngl": "2.0.0-dev.37",
     "react": "^16.11.0",
     "react-dom": "^16.2.0",
     "react-hot-loader": "^4.12.16",
