@@ -11,7 +11,12 @@ import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 import { VIEWS } from '../constants/constants';
 import * as selectionActions from '../reducers/selection/selectionActions';
-import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecule/molecules_helpers';
+import {
+  generateMolObject,
+  generateObject,
+  generateResetFocusObject,
+  getJoinedMoleculeList
+} from './molecule/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
 
 export const heightOfBody = '164px';
@@ -67,6 +72,9 @@ const molGroupSelector = memo(
           )
         );
       });
+      // reset focus
+      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateResetFocusObject()));
+
       // remove all Vectors
       vector_list.forEach(item => {
         deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item));

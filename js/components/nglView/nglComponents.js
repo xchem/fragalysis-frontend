@@ -3,7 +3,7 @@
  */
 
 import { Stage, Shape, Selection, concatStructures } from 'ngl';
-import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
+import React, { memo, useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
@@ -73,7 +73,7 @@ const NGLView = memo(
     }
     const refStage = useRef();
     const refSetClickFunction = useRef(false);
-    const [focus_let, setFocus_let] = useState(95);
+    const defaultFocus = 0;
     const origTarget = useRef(-1);
 
     /*
@@ -233,7 +233,7 @@ const NGLView = memo(
         stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
         stage.loadFile(stringBlob, { ext: 'sdf' }),
         stage,
-        focus_let,
+        defaultFocus,
         object_name,
         input_dict.colour
       ]).then(ol => renderComplex(ol));
@@ -514,6 +514,11 @@ const NGLView = memo(
             const comps = refStage.current.getComponentsByName(nglKey);
             for (let component in comps.list) {
               refStage.current.removeComponent(comps.list[component]);
+            }
+            // Reset focus after receive ResetFocus object
+            if (objectsToDelete[nglKey].OBJECT_TYPE === OBJECT_TYPE.RESET_FOCUS) {
+              refStage.current.setFocus(defaultFocus);
+              refStage.current.autoView();
             }
             deleteObjectSuccess(objectsToDelete[nglKey]);
           }

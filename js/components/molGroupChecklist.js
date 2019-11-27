@@ -3,7 +3,7 @@ import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
-import { generateMolId, generateMolObject, generateObject, getJoinedMoleculeList } from './molecule/molecules_helpers';
+import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecule/molecules_helpers';
 import { VIEWS } from '../constants/constants';
 import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
 
@@ -55,7 +55,6 @@ const molGroupChecklist = memo(
       getJoinedMoleculeList({ object_selection: [molGroupSelectionId], cached_mol_lists, mol_group_list }).forEach(
         mol => {
           site = mol.site;
-          console.log(mol);
           // remove Ligand
           deleteObject(
             Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(mol.id.toString(), mol.sdf_info))

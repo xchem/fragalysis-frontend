@@ -41,3 +41,9 @@ export const generateMolId = id => {
     id: id
   };
 };
+
+export const generateResetFocusObject = () => {
+  return {
+    OBJECT_TYPE: OBJECT_TYPE.RESET_FOCUS
+  };
+};
