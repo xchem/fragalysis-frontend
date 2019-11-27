@@ -9,9 +9,8 @@ import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
-import { MOL_ATTRIBUTES } from './moleculeListSortFilterDialog';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   centered: {
     display: 'flex',
     alignItems: 'center',
@@ -59,17 +58,17 @@ const useStyles = makeStyles({
     textAlign: 'center'
   },
   slider: {
-    paddingLeft: 8,
-    paddingRight: 8
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1)
   },
   propertyChip: {
     fontWeight: 'bolder'
   }
-});
+}));
 
 const widthPrio = 50;
 const widthOrder = 60;
-const widthProperty = 200;
+const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 

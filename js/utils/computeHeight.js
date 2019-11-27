@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
-export const ComputeHeight = ({ componentRef, setHeight, height, children }) => {
+export const ComputeHeight = ({ componentRef, setHeight, height, children, forceCompute }) => {
   const resize = useCallback(
     e => {
       const newHeight = componentRef && componentRef.offsetHeight ? componentRef.offsetHeight : null;
@@ -10,6 +10,12 @@ export const ComputeHeight = ({ componentRef, setHeight, height, children }) => 
     },
     [componentRef, height, setHeight]
   );
+
+  useEffect(() => {
+    if (componentRef && forceCompute) {
+      resize();
+    }
+  }, [componentRef, forceCompute, resize]);
 
   useEffect(() => {
     if (componentRef) {

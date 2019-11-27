@@ -6,6 +6,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Select, InputLabel, MenuItem, FormControl } from '@material-ui/core';
+import { Delete, Done } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
@@ -52,7 +53,7 @@ const useStyles = makeStyles(theme => ({
 
 const widthPrio = 50;
 const widthOrder = 60;
-const widthProperty = 200;
+const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
@@ -417,10 +418,10 @@ export const MoleculeListSortFilterDialog = memo(
               </div>
             )}
           </div>
-          <Button onClick={handleClear} color="secondary" variant="contained">
+          <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
             Clear
           </Button>
-          <Button onClick={handleCloseVerify} color="primary" variant="contained">
+          <Button onClick={handleCloseVerify} color="primary" variant="contained" startIcon={<Done />}>
             Apply
           </Button>
         </DialogActions>

@@ -34,9 +34,9 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
 
-  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
-    2
-  )}px - ${molGroupsHeight}px - ${filterItemsHeight}px - ${theme.spacing(8)}px)`;
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${molGroupsHeight}px - ${
+    filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
+  }px - ${theme.spacing(8)}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
 

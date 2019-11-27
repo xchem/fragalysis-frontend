@@ -2,9 +2,9 @@
  * Created by abradley on 14/03/2018.
  */
 
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography, useTheme } from '@material-ui/core';
+import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useMemo, useState, useEffect, memo, useRef } from 'react';
+import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
@@ -16,6 +16,7 @@ import { getUrl, loadFromServer } from '../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
+import { ComputeHeight } from '../../utils/computeHeight';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -84,7 +85,6 @@ const MoleculeList = memo(
     filterItemsHeight
   }) => {
     const classes = useStyles();
-    const theme = useTheme();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -100,17 +100,7 @@ const MoleculeList = memo(
     const imgWidth = 100;
 
     const isActiveFilter = !!(filterSettings || {}).active;
-    const filterRef = useRef(null);
-
-    useEffect(() => {
-      if (filterRef && filterRef.current) {
-        if (filterItemsHeight !== filterRef.current.offsetHeight) {
-          setFilterItemsHeight(filterRef.current.offsetHeight + theme.spacing(1) / 2);
-        }
-      } else if (filterItemsHeight !== 0) {
-        setFilterItemsHeight(0);
-      }
-    }, [filterRef, isActiveFilter, filterItemsHeight, setFilterItemsHeight, theme]);
+    const filterRef = useRef();
 
     let joinedMoleculeLists = useMemo(
       () => getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }),
@@ -159,116 +149,129 @@ const MoleculeList = memo(
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
     return (
-      <Panel
-        hasHeader
-        title="Hit navigator"
-        headerActions={[
-          <Button
-            onClick={handleDialog(!sortDialogOpen)}
-            color={'inherit'}
-            disabled={!(object_selection || []).length}
-            variant="text"
-            startIcon={<FilterList />}
-            size="small"
-          >
-            sort/filter
-          </Button>
-        ]}
+      <ComputeHeight
+        componentRef={filterRef.current}
+        setHeight={setFilterItemsHeight}
+        height={filterItemsHeight}
+        forceCompute={isActiveFilter}
       >
-        {sortDialogOpen && (
-          <MoleculeListSortFilterDialog
-            handleClose={handleDialogClose}
-            molGroupSelection={object_selection}
-            cachedMolList={cached_mol_lists}
-            filterSettings={filterSettings}
-          />
-        )}
-        {isActiveFilter && (
-          <div ref={filterRef}>
-            <div className={classes.filterSection}>
-              <Grid container spacing={1}>
-                <Grid item xs={1} container alignItems="center">
-                  <Typography variant="subtitle2" className={classes.filterTitle}>
-                    Filters
-                  </Typography>
-                </Grid>
-                <Grid item xs={11}>
-                  <Grid container direction="row" justify="flex-start" spacing={1}>
-                    {filterSettings.priorityOrder.map(attr => (
-                      <Grid item key={`Mol-Tooltip-${attr}`}>
-                        <Tooltip
-                          title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
-                            filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
-                          placement="top"
-                        >
-                          <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
-                        </Tooltip>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Grid>
-              </Grid>
-            </div>
-            <Divider />
-          </div>
-        )}
-        <Grid container direction="column" className={classes.container} style={{ height: height }}>
-          <Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
-            <Grid item className={classes.gridItemHeaderVert}>
-              site
-            </Grid>
-            <Grid item className={classes.gridItemHeaderVert}>
-              cont.
-            </Grid>
-            <Grid
-              item
-              xs={3}
-              container
-              direction="column"
-              justify="center"
-              alignItems="center"
-              className={classes.gridItemHeaderHoriz}
+        <Panel
+          hasHeader
+          title="Hit navigator"
+          headerActions={[
+            <Button
+              onClick={handleDialog(!sortDialogOpen)}
+              color={'inherit'}
+              disabled={!(object_selection || []).length}
+              variant="text"
+              startIcon={<FilterList />}
+              size="small"
             >
-              <Grid item>code</Grid>
-              <Grid item>status</Grid>
-            </Grid>
-            <Grid item xs={5}>
-              image
-            </Grid>
-            <Grid item xs={2}>
-              properties
-            </Grid>
-          </Grid>
-          {currentMolecules.length > 0 && (
-            <div className={classes.gridItemList}>
-              <InfiniteScroll
-                pageStart={0}
-                loadMore={loadNextMolecules}
-                hasMore={canLoadMore}
-                loader={
-                  <div className="loader" key={0}>
-                    <Grid
-                      container
-                      direction="row"
-                      justify="center"
-                      alignItems="center"
-                      className={classes.paddingProgress}
-                    >
-                      <CircularProgress />
-                    </Grid>
-                  </div>
-                }
-                useWindow={false}
-              >
-                {currentMolecules.map(data => (
-                  <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
-                ))}
-              </InfiniteScroll>
-            </div>
+              sort/filter
+            </Button>
+          ]}
+        >
+          {sortDialogOpen && (
+            <MoleculeListSortFilterDialog
+              handleClose={handleDialogClose}
+              molGroupSelection={object_selection}
+              cachedMolList={cached_mol_lists}
+              filterSettings={filterSettings}
+            />
           )}
-        </Grid>
-      </Panel>
+          <div ref={filterRef}>
+            {isActiveFilter && (
+              <Fragment>
+                <div className={classes.filterSection}>
+                  <Grid container spacing={1}>
+                    <Grid item xs={1} container alignItems="center">
+                      <Typography variant="subtitle2" className={classes.filterTitle}>
+                        Filters
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={11}>
+                      <Grid container direction="row" justify="flex-start" spacing={1}>
+                        {filterSettings.priorityOrder.map(attr => (
+                          <Grid item key={`Mol-Tooltip-${attr}`}>
+                            <Tooltip
+                              title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
+                                filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                              }`}
+                              placement="top"
+                            >
+                              <Chip
+                                size="small"
+                                label={attr}
+                                style={{ backgroundColor: getAttrDefinition(attr).color }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </div>
+                <Divider />
+              </Fragment>
+            )}
+          </div>
+          <Grid container direction="column" className={classes.container} style={{ height: height }}>
+            <Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
+              <Grid item className={classes.gridItemHeaderVert}>
+                site
+              </Grid>
+              <Grid item className={classes.gridItemHeaderVert}>
+                cont.
+              </Grid>
+              <Grid
+                item
+                xs={3}
+                container
+                direction="column"
+                justify="center"
+                alignItems="center"
+                className={classes.gridItemHeaderHoriz}
+              >
+                <Grid item>code</Grid>
+                <Grid item>status</Grid>
+              </Grid>
+              <Grid item xs={5}>
+                image
+              </Grid>
+              <Grid item xs={2}>
+                properties
+              </Grid>
+            </Grid>
+            {currentMolecules.length > 0 && (
+              <div className={classes.gridItemList}>
+                <InfiniteScroll
+                  pageStart={0}
+                  loadMore={loadNextMolecules}
+                  hasMore={canLoadMore}
+                  loader={
+                    <div className="loader" key={0}>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="center"
+                        className={classes.paddingProgress}
+                      >
+                        <CircularProgress />
+                      </Grid>
+                    </div>
+                  }
+                  useWindow={false}
+                >
+                  {currentMolecules.map(data => (
+                    <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
+                  ))}
+                </InfiniteScroll>
+              </div>
+            )}
+          </Grid>
+        </Panel>
+      </ComputeHeight>
     );
   }
 );
