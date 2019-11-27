@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { Fragment, memo, useContext, forwardRef, useState, useEffect } from 'react';
+import React, { memo, useContext, forwardRef, useState } from 'react';
 import {
   Grid,
   makeStyles,
@@ -15,7 +15,6 @@ import {
   Drawer,
   ListItemText,
   Avatar,
-  useMediaQuery,
   Box,
   ButtonGroup
 } from '@material-ui/core';
@@ -35,6 +34,7 @@ import { HeaderLoadingContext } from './loadingContext';
 import { Button } from '../common';
 import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
+import { ComputeHeight } from '../../utils/computeHeight';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -67,8 +67,6 @@ const Index = memo(
 
     const [error, setError] = useState();
     const [openMenu, setOpenMenu] = React.useState(false);
-    const xsDown = useMediaQuery(theme => theme.breakpoints.down('xs'));
-    const mdDown = useMediaQuery(theme => theme.breakpoints.down('md'));
 
     if (error) {
       throw new Error('Custom user error.' + uuidv4());
@@ -153,12 +151,8 @@ const Index = memo(
     const innerRef = React.useRef(null);
     const combinedRef = useCombinedRefs(ref, innerRef);
 
-    useEffect(() => {
-      setHeaderHeight(combinedRef.current.offsetHeight);
-    }, [ref, combinedRef, xsDown, mdDown, setHeaderHeight]);
-
     return (
-      <Fragment>
+      <ComputeHeight componentRef={combinedRef.current} height={headerHeight} setHeight={setHeaderHeight}>
         <AppBar position="absolute" ref={combinedRef} className={classes.appBar}>
           <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerPadding}>
             <Grid item>
@@ -250,7 +244,7 @@ const Index = memo(
         <Box width="100%" paddingTop={`${headerHeight}px`}>
           {isLoading === true && <LinearProgress color="secondary" />}
         </Box>
-      </Fragment>
+      </ComputeHeight>
     );
   })
 );
