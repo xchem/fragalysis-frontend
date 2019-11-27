@@ -1,6 +1,6 @@
 import * as actions from '../actonTypes';
 import { OBJECT_TYPE } from '../../constants/constants';
-import { MOL_REPRESENTATION } from '../../components/nglView/constants';
+import { MOL_REPRESENTATION, STAGE_COLOR } from '../../components/nglView/constants';
 
 const INITIALSTATE = {
   // Lists storing the information of what is in the viewer
@@ -18,7 +18,7 @@ const INITIALSTATE = {
   hydrogen: true,
   orientationToSet: {},
   loadingState: true,
-  stageColor: 'black',
+  stageColor: STAGE_COLOR.black,
   nglProtStyle: MOL_REPRESENTATION.cartoon
 };
 

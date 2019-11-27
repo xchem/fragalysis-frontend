@@ -224,7 +224,6 @@ const NGLView = memo(
 
       comp.autoView('ligand');
       comp.stage.setFocus(focus_let_temp);
-      comp.stage.viewer.setBackground(stageColor);
     };
 
     const showComplex = (stage, input_dict, object_name) => {
@@ -527,7 +526,7 @@ const NGLView = memo(
     }, [deleteObjectSuccess, function_dict, local_div_id, objectLoading, objectsToDelete, objectsToLoad]);
 
     const renderColorChange = useCallback(() => {
-      refStage.current.viewer.setBackground(stageColor);
+      refStage.current.setParameters({ backgroundColor: stageColor });
     }, [stageColor]);
 
     const updateOrientation = useCallback(() => {
