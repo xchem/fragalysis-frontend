@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useContext, forwardRef, useState } from 'react';
+import React, { memo, useContext, forwardRef, useState, useEffect, useRef } from 'react';
 import {
   Grid,
   makeStyles,
@@ -146,12 +146,22 @@ const Index = memo(
     } else {
       envNavbar = 'Home';
     }
-
-    const innerRef = React.useRef(null);
+    const [forceCompute, setForceCompute] = useState();
+    const innerRef = React.useRef();
     const combinedRef = useCombinedRefs(ref, innerRef);
+    useEffect(() => {
+      if (combinedRef.current) {
+        setForceCompute(forceCompute === undefined);
+      }
+    }, [combinedRef, forceCompute]);
 
     return (
-      <ComputeHeight componentRef={combinedRef.current} height={headerHeight} setHeight={setHeaderHeight}>
+      <ComputeHeight
+        componentRef={combinedRef.current}
+        height={headerHeight}
+        setHeight={setHeaderHeight}
+        forceCompute={forceCompute === true}
+      >
         <AppBar position="absolute" ref={combinedRef} className={classes.appBar}>
           <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerPadding}>
             <Grid item>
