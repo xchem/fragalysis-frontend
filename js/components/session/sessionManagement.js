@@ -16,6 +16,7 @@ import DownloadPdb from '../downloadPdb';
 import { savingStateConst, savingTypeConst } from './constants';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   loader: {
@@ -310,7 +311,6 @@ const SessionManagement = memo(
           hour12: false
         };
         var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
-        // eslint-disable-next-line no-undef
         var userId = DJANGO_CONTEXT['pk'];
         var stateObject = JSON.parse(store);
         var newPresentObject = Object.assign(stateObject.apiReducers.present, {

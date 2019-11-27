@@ -10,6 +10,7 @@ import TargetList from './targetList';
 import { ErrorReport } from './header/errorReport';
 import { Modal } from './common/Modal';
 import { URLS } from './routes/constants';
+import { DJANGO_CONTEXT } from '../utils/djangoContext';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list }) => {
   const closeModal = () => {
@@ -19,7 +20,7 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
   let modalBody = null;
 
   let request = null;
-  // eslint-disable-next-line no-undef
+
   if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
     request = (
       <h3>

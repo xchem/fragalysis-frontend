@@ -35,6 +35,7 @@ import { Button } from '../common';
 import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeHeight } from '../../utils/computeHeight';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -99,7 +100,6 @@ const Index = memo(
       </ListItem>
     );
 
-    // eslint-disable-next-line no-undef
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
       authListItem = (
         <ListItem
@@ -129,7 +129,6 @@ const Index = memo(
         </ListItem>
       );
 
-      // eslint-disable-next-line no-undef
       username = DJANGO_CONTEXT['username'];
     }
 

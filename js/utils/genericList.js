@@ -1,5 +1,6 @@
 import * as listTypes from '../components/listTypes';
 import { api } from './api';
+import { DJANGO_CONTEXT } from './djangoContext';
 
 // START of functions from GenericList
 export const getUrl = ({
@@ -14,9 +15,8 @@ export const getUrl = ({
   let userId = null;
   // This should be defined by type
   let base_url = window.location.protocol + '//' + window.location.host;
-  // eslint-disable-next-line no-undef
+
   if (DJANGO_CONTEXT['pk'] !== undefined) {
-    // eslint-disable-next-line no-undef
     userId = DJANGO_CONTEXT['pk'].toString();
   }
 

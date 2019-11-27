@@ -2,6 +2,7 @@ import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
 import Root from './components/root';
+import { DJANGO_CONTEXT } from './utils/djangoContext';
 // Sentry logging
 import { init } from '@sentry/browser';
 // Setup log rocket logging
@@ -10,13 +11,9 @@ import { ErrorBoundary } from './components/errorBoundary';
 LogRocket.init('eoalzb/fragalysis');
 // This is the log rocket setup
 
-// eslint-disable-next-line no-undef
 LogRocket.identify(DJANGO_CONTEXT['username'], {
-  // eslint-disable-next-line no-undef
   pk: DJANGO_CONTEXT['pk'],
-  // eslint-disable-next-line no-undef
   name: DJANGO_CONTEXT['name'],
-  // eslint-disable-next-line no-undef
   email: DJANGO_CONTEXT['email']
 });
 

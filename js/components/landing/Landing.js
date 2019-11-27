@@ -8,12 +8,12 @@ import SessionList from '../session/sessionList';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {
   let text_div;
-  // eslint-disable-next-line no-undef
+
   if (DJANGO_CONTEXT['authenticated'] === true) {
-    // eslint-disable-next-line no-undef
     var entry_text = "You're logged in as " + DJANGO_CONTEXT['username'];
     text_div = <h3>{entry_text}</h3>;
   } else {

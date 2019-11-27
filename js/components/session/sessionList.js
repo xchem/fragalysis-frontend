@@ -2,7 +2,7 @@
  * Created by ricgillams on 29/10/2018.
  */
 
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
@@ -11,8 +11,9 @@ import { getUrl, loadFromServer } from '../../utils/genericList';
 import { List, ListItem, Button, TextField, Panel } from '../common';
 import { updateClipboard } from './helpers';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
-import { ListItemText, CircularProgress, ListItemSecondaryAction, makeStyles } from '@material-ui/core';
+import { ListItemText, CircularProgress, ListItemSecondaryAction } from '@material-ui/core';
 import { URLS } from '../routes/constants';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const SessionList = memo(
   ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving, location }) => {
@@ -183,7 +184,6 @@ const SessionList = memo(
       );
     } else {
       if (sessionIdList) {
-        // eslint-disable-next-line no-undef
         if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
           return <h3>Please log in to view session history.</h3>;
         } else if (sessionIdList.length === 0) {
