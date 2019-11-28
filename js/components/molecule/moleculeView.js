@@ -92,16 +92,10 @@ const colourList = [
   '#ADADD6'
 ];
 
-const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
+export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
-
-const loadingButtons = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin:auto;background:#fff;display:block;" width="16px" height="72px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
-<circle cx="50" cy="44.6197" r="32" fill="#3f51b5">
-  <animate attributeName="cy" dur="0.8403361344537814s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.9 0.55;0 0.45 0.55 0.9" keyTimes="0;0.5;1" values="15;85;15"></animate>
-</circle>
-</svg>`;
 
 const MoleculeView = memo(
   ({

@@ -1,7 +1,3 @@
-/**
- * Created by ricgillams on 13/06/2018.
- */
-
 import React, { Fragment, memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
@@ -17,6 +13,11 @@ import { savingStateConst, savingTypeConst } from './constants';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { notCheckTarget } from './helpers';
+
+/**
+ * Created by ricgillams on 13/06/2018.
+ */
 
 const useStyles = makeStyles(theme => ({
   loader: {
@@ -25,7 +26,6 @@ const useStyles = makeStyles(theme => ({
     borderCcolor: 'red'
   }
 }));
-
 const SessionManagement = memo(
   ({
     nglOrientations,
@@ -57,11 +57,12 @@ const SessionManagement = memo(
     const [nextUuid, setNextUuid] = useState('');
     const [newSessionFlag, setNewSessionFlag] = useState(0);
     const classes = useStyles();
+    const { pathname } = window.location;
+
     const disableButtons =
       (savingState &&
         (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
       false;
-
     const generateArrowObject = (start, end, name, colour) => {
       return {
         name: listTypes.VECTOR + '_' + name,
@@ -71,7 +72,6 @@ const SessionManagement = memo(
         colour: colour
       };
     };
-
     const generateCylinderObject = (start, end, name, colour) => {
       return {
         name: listTypes.VECTOR + '_' + name,
@@ -81,24 +81,20 @@ const SessionManagement = memo(
         colour: colour
       };
     };
-
     const postToServer = sessionState => {
       setSavingState(sessionState);
       for (var key in nglOrientations) {
         setOrientation(key, 'REFRESH');
       }
     };
-
     const newSession = () => {
       postToServer(savingStateConst.savingSession);
       setSaveType(savingTypeConst.sessionNew);
     };
-
     const saveSession = () => {
       postToServer(savingStateConst.overwritingSession);
       setSaveType(savingTypeConst.sessionNew);
     };
-
     const newSnapshot = () => {
       postToServer(savingStateConst.savingSnapshot);
       setSaveType(savingTypeConst.snapshotNew);
@@ -139,7 +135,6 @@ const SessionManagement = memo(
       }
       return outList;
     }, []);
-
     const generateBondColorMap = inputDict => {
       var out_d = {};
       for (let keyItem in inputDict) {
@@ -218,12 +213,14 @@ const SessionManagement = memo(
         if (targetUnrecognised === true) {
           setLoadingState(false);
         }
-        setTargetUnrecognised(targetUnrecognised);
+        if (notCheckTarget(pathname) === false) {
+          setTargetUnrecognised(targetUnrecognised);
+        }
         if (targetUnrecognised === false) {
           reloadSession(myJson);
         }
       },
-      [reloadSession, setLoadingState, setTargetUnrecognised, targetIdList]
+      [pathname, reloadSession, setLoadingState, setTargetUnrecognised, targetIdList]
     );
 
     const handleJson = useCallback(
@@ -419,12 +416,10 @@ const SessionManagement = memo(
     ]);
 
     const [openSnackBar, setOpenSnackBar] = React.useState(true);
-
     const handleClose = (event, reason) => {
       if (reason === 'clickaway') {
         return;
       }
-
       setOpenSnackBar(false);
     };
 
@@ -447,8 +442,6 @@ const SessionManagement = memo(
         ]}
       />
     );
-
-    const { pathname } = location;
     let buttons = null;
     if (
       pathname !== '/viewer/react/landing' &&

@@ -84,7 +84,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             <CompoundList height={compoundHeight} />
           </Grid>
         </Grid>
-        {/*<Grid item item xs={12} sm={6} md={4} >
+        {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
       </Grid>

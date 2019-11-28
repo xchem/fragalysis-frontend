@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useContext, forwardRef, useState, useEffect, useRef } from 'react';
+import React, { memo, useContext, forwardRef, useState, useEffect } from 'react';
 import {
   Grid,
   makeStyles,

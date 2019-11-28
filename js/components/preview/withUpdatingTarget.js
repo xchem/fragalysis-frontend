@@ -20,6 +20,7 @@ export const withUpdatingTarget = WrappedContainer => {
       resetSelection,
       resetSelectionState,
       resetTargetState,
+      notCheckTarget,
       ...rest
     }) => {
       const target = match.params.target;
@@ -34,39 +35,37 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [resetTargetState, resetSelectionState, resetSelection]);
 
       const updateTarget = useCallback(() => {
-        // Get from the REST API
-        let targetUnrecognisedFlag = true;
-        if (target !== undefined) {
-          if (targetIdList && targetIdList.length > 0) {
-            targetIdList.forEach(targetId => {
-              if (target === targetId.title) {
-                targetUnrecognisedFlag = false;
-              }
-            });
-          }
-          setTargetUnrecognised(targetUnrecognisedFlag);
-        }
-
-        if (targetUnrecognisedFlag === false) {
-          setIsLoading(true);
-          api({
-            url: `${window.location.protocol}//${window.location.host}/api/targets/?title=${target}`
-          })
-            .then(response => {
-              return setTargetOn(response.data['results'][0].id);
-            })
-            .finally(() => setIsLoading(false))
-            .catch(error => {
-              setState(() => {
-                throw error;
+        if (!notCheckTarget) {
+          // Get from the REST API
+          let targetUnrecognisedFlag = true;
+          if (target !== undefined) {
+            if (targetIdList && targetIdList.length > 0) {
+              targetIdList.forEach(targetId => {
+                if (target === targetId.title) {
+                  targetUnrecognisedFlag = false;
+                }
               });
-            });
-        }
-      }, [target, targetIdList, setTargetUnrecognised, setIsLoading, setTargetOn, setState]);
+            }
+            setTargetUnrecognised(targetUnrecognisedFlag);
+          }
 
-      useEffect(() => {
-        updateTarget();
-      }, [updateTarget]);
+          if (targetUnrecognisedFlag === false) {
+            setIsLoading(true);
+            api({
+              url: `${window.location.protocol}//${window.location.host}/api/targets/?title=${target}`
+            })
+              .then(response => {
+                return setTargetOn(response.data['results'][0].id);
+              })
+              .finally(() => setIsLoading(false))
+              .catch(error => {
+                setState(() => {
+                  throw error;
+                });
+              });
+          }
+        }
+      }, [target, targetIdList, setTargetUnrecognised, setIsLoading, setTargetOn, setState, notCheckTarget]);
 
       // Component DidMount - Fragglebox
       useEffect(() => {
@@ -79,6 +78,10 @@ export const withUpdatingTarget = WrappedContainer => {
           setUuid(snapshotUuid);
         }
       }, [match.params.snapshotUuid, match.params.uuid, setUuid, setLatestSession]);
+
+      useEffect(() => {
+        updateTarget();
+      }, [updateTarget]);
 
       if (isLoading === true) {
         return null;

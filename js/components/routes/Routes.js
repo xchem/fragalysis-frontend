@@ -11,6 +11,7 @@ import Funders from '../fundersHolder';
 import { withLoadingTargetList } from './withLoadingTargetIdList';
 import { HeaderLoadingProvider } from '../header/loadingContext';
 import { BrowserBomb } from '../browserBombModal';
+import { URLS } from './constants';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -43,12 +44,16 @@ const Routes = memo(() => {
             />
             <Route exact path="/viewer/react/sessions" component={Sessions} />
             <Route
-              path="/viewer/react/fragglebox/:uuid"
-              render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
+              path={`${URLS.fragglebox}:uuid`}
+              render={routeProps => (
+                <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />
+              )}
             />
             <Route
-              path="/viewer/react/snapshot/:snapshotUuid"
-              render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded {...routeProps} />}
+              path={`${URLS.snapshot}:snapshotUuid`}
+              render={routeProps => (
+                <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />
+              )}
             />
             <Route exact path="/viewer/react/funders" component={Funders} />
           </Switch>
