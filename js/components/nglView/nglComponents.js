@@ -4,14 +4,13 @@
 
 import { Stage, Shape, Selection, concatStructures } from 'ngl';
 import React, { memo, useEffect, useRef, useCallback } from 'react';
-import { connect } from 'react-redux';
+import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
 import * as listTypes from '../listTypes';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
-import { store } from '../root';
 import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
 import { Box } from '@material-ui/core';
 
@@ -50,6 +49,7 @@ const NGLView = memo(
     setMoleculeList,
     nglProtStyle
   }) => {
+    const store = useStore();
     const ref_data_dict = useRef({
       [listTypes.MOLGROUPS]: {
         oldGroupOn: -1,
