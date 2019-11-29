@@ -1,8 +1,8 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, memo } from 'react';
 
 export const HeaderContext = createContext();
 
-export const HeaderProvider = props => {
+export const HeaderProvider = memo(props => {
   const [isLoading, setIsLoading] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
 
@@ -11,4 +11,4 @@ export const HeaderProvider = props => {
       {props.children}
     </HeaderContext.Provider>
   );
-};
+});

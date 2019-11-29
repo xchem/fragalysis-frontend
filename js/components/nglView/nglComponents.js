@@ -3,7 +3,7 @@
  */
 
 import { Stage, Shape, Selection, concatStructures } from 'ngl';
-import React, { memo, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useEffect, useRef, useCallback, useContext } from 'react';
 import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
@@ -13,6 +13,7 @@ import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
 import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
 import { Box } from '@material-ui/core';
+import { NglContext } from './nglProvider';
 
 const NGLView = memo(
   ({
@@ -66,12 +67,10 @@ const NGLView = memo(
       }
     });
 
-    // Create NGL Stage object
-    let local_div_id = 'viewport';
-    if (div_id) {
-      local_div_id = div_id;
-    }
-    const refStage = useRef();
+    // connect to NGL Stage object
+    const { getNglView } = useContext(NglContext);
+    const refStage = getNglView(div_id);
+
     const refSetClickFunction = useRef(false);
     const defaultFocus = 0;
     const origTarget = useRef(-1);
@@ -160,20 +159,20 @@ const NGLView = memo(
 
     const checkIfLoading = useCallback(() => {
       for (let key in objectsToLoad) {
-        if (objectsToLoad[key]['display_div'] === local_div_id) {
+        if (objectsToLoad[key]['display_div'] === div_id) {
           setLoadingState(true);
           return false;
         }
       }
       for (let key in objectsLoading) {
-        if (objectsLoading[key]['display_div'] === local_div_id) {
+        if (objectsLoading[key]['display_div'] === div_id) {
           setLoadingState(true);
           return false;
         }
       }
       setLoadingState(false);
       return true;
-    }, [local_div_id, objectsLoading, setLoadingState, objectsToLoad]);
+    }, [div_id, objectsLoading, setLoadingState, objectsToLoad]);
 
     const showSphere = (stage, input_dict, object_name) => {
       let colour = input_dict.colour;
@@ -503,13 +502,13 @@ const NGLView = memo(
       if (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete)) {
         for (let nglKey in objectsToLoad) {
           let nglObject = objectsToLoad[nglKey];
-          if (local_div_id === nglObject.display_div) {
+          if (div_id === nglObject.display_div) {
             function_dict[nglObject.OBJECT_TYPE](refStage.current, nglObject, nglKey);
             objectLoading(nglObject);
           }
         }
         for (let nglKey in objectsToDelete) {
-          if (local_div_id === objectsToDelete[nglKey].display_div) {
+          if (div_id === objectsToDelete[nglKey].display_div) {
             const comps = refStage.current.getComponentsByName(nglKey);
             for (let component in comps.list) {
               refStage.current.removeComponent(comps.list[component]);
@@ -523,17 +522,17 @@ const NGLView = memo(
           }
         }
       }
-    }, [deleteObjectSuccess, function_dict, local_div_id, objectLoading, objectsToDelete, objectsToLoad]);
+    }, [objectsToLoad, objectsToDelete, div_id, function_dict, refStage, objectLoading, deleteObjectSuccess]);
 
     const renderColorChange = useCallback(() => {
       refStage.current.setParameters({ backgroundColor: stageColor });
-    }, [stageColor]);
+    }, [refStage, stageColor]);
 
     const updateOrientation = useCallback(() => {
       if (orientationToSet !== undefined) {
-        if (orientationToSet[local_div_id] !== 'SET') {
+        if (orientationToSet[div_id] !== 'SET') {
           if (checkIfLoading() === true) {
-            let ori = orientationToSet[local_div_id];
+            let ori = orientationToSet[div_id];
             let curr_orient = refStage.current.viewerControls.getOrientation();
             if (
               curr_orient &&
@@ -547,20 +546,20 @@ const NGLView = memo(
               }
             }
             refStage.current.viewerControls.orient(curr_orient);
-            setNGLOrientation(local_div_id, 'SET');
+            setNGLOrientation(div_id, 'SET');
           }
         }
       }
       if (nglOrientations !== undefined) {
-        if (nglOrientations[local_div_id] === 'REFRESH') {
+        if (nglOrientations[div_id] === 'REFRESH') {
           if (checkIfLoading() === true) {
             let objectsInThisDiv = {};
             for (let key in objectsInView) {
-              if (objectsInView[key]['display_div'] === local_div_id) {
+              if (objectsInView[key]['display_div'] === div_id) {
                 objectsInThisDiv[key] = objectsInView[key];
               }
             }
-            setOrientation(local_div_id, {
+            setOrientation(div_id, {
               orientation: refStage.current.viewerControls.getOrientation(),
               components: objectsInThisDiv
             });
@@ -569,28 +568,18 @@ const NGLView = memo(
       }
       for (let nglKey in objectsLoading) {
         let nglObject = objectsLoading[nglKey];
-        if (local_div_id === nglObject.display_div) {
+        if (div_id === nglObject.display_div) {
           if (refStage.current.getComponentsByName(nglKey).list.length > 0) {
             loadObjectSuccess(objectsLoading[nglKey]);
           }
         }
       }
-    }, [
-      checkIfLoading,
-      loadObjectSuccess,
-      local_div_id,
-      nglOrientations,
-      objectsInView,
-      orientationToSet,
-      setNGLOrientation,
-      setOrientation,
-      objectsLoading
-    ]);
+    }, [orientationToSet, nglOrientations, div_id, checkIfLoading, refStage, setNGLOrientation, setOrientation, objectsInView, objectsLoading, loadObjectSuccess]);
 
     useEffect(() => {
-      setOrientation(local_div_id, 'STARTED');
-      setNGLOrientation(local_div_id, 'SET');
-    }, [local_div_id, setNGLOrientation, setOrientation]);
+      setOrientation(div_id, 'STARTED');
+      setNGLOrientation(div_id, 'SET');
+    }, [div_id, setNGLOrientation, setOrientation]);
 
     const handleResize = () => {
       if (refStage.current) {
@@ -600,25 +589,21 @@ const NGLView = memo(
 
     useEffect(
       () => {
-        if (refStage.current === undefined) {
-          refStage.current = new Stage(local_div_id);
+        if (refSetClickFunction.current === false) {
           window.addEventListener('resize', handleResize, false);
-          if (refSetClickFunction.current === false) {
-            refStage.current.mouseControls.add('clickPick-left', showPick);
-            refSetClickFunction.current = true;
-          }
+          refStage.current.mouseControls.add('clickPick-left', showPick);
+          refSetClickFunction.current = true;
         }
         return () => {
           window.removeEventListener('resize', handleResize, false);
+          // eslint-disable-next-line react-hooks/exhaustive-deps
           refStage.current.mouseControls.remove('clickPick-left', showPick);
-          refStage.current.dispose();
-          refStage.current = undefined;
         };
       }, // eslint-disable-next-line react-hooks/exhaustive-deps
-      [local_div_id]
+      [div_id]
     );
 
-    handleResize();
+    // handleResize();
 
     useEffect(() => {
       updateOrientation();
@@ -693,7 +678,7 @@ const NGLView = memo(
       }
     }, [checkForTargetChange, targetIdList]);
 
-    return <Box id={local_div_id} height={height || '600px'} />;
+    return <Box id={div_id} height={height || '600px'} />;
   }
 );
 function mapStateToProps(state) {

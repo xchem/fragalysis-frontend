@@ -17,6 +17,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { getTheme } from '../theme';
 import { HeaderProvider } from './header/headerContext';
+import { NglProvider } from './nglView/nglProvider';
 //const loggerMiddleware = createLogger();
 
 const middlewareEnhancer = applyMiddleware(
@@ -37,9 +38,11 @@ const Root = () => {
         <ThemeProvider theme={getTheme()}>
           <Provider store={store}>
             <HeaderProvider>
-              <BrowserRouter>
-                <Routes />
-              </BrowserRouter>
+              <NglProvider>
+                <BrowserRouter>
+                  <Routes />
+                </BrowserRouter>
+              </NglProvider>
             </HeaderProvider>
           </Provider>
         </ThemeProvider>
