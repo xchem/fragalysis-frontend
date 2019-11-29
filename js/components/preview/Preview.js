@@ -9,7 +9,7 @@ import MoleculeList from '../molecule/moleculeList';
 import MolGroupSelector from '../molGroupSelector';
 import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
-import NglViewerControls from '../nglView/nglViewerControls';
+import NglViewerControls from './viewerControls';
 import { ComputeHeight } from '../../utils/computeHeight';
 //import HotspotList from '../hotspot/hotspotList';
 

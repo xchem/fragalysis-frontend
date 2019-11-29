@@ -30,7 +30,7 @@ import {
 } from '@material-ui/icons';
 import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
-import { HeaderLoadingContext } from './loadingContext';
+import { HeaderContext } from './headerContext';
 import { Button } from '../common';
 import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
@@ -64,7 +64,7 @@ const useStyles = makeStyles(theme => ({
 const Index = memo(
   forwardRef(({ history, children, setHeaderHeight, headerHeight = 0 }, ref) => {
     const classes = useStyles();
-    const { isLoading } = useContext(HeaderLoadingContext);
+    const { isLoading } = useContext(HeaderContext);
 
     const [error, setError] = useState();
     const [openMenu, setOpenMenu] = React.useState(false);

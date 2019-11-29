@@ -17,6 +17,13 @@ const useStyles = makeStyles(theme => ({
     borderTopLeftRadius: theme.spacing(1) / 2,
     borderTopRightRadius: theme.spacing(1) / 2
   },
+  headerSecondary: {
+    color: theme.palette.white,
+    backgroundColor: theme.palette.secondary.main,
+    height: theme.spacing(5),
+    borderTopLeftRadius: theme.spacing(1) / 2,
+    borderTopRightRadius: theme.spacing(1) / 2
+  },
   headerTitle: {
     paddingLeft: theme.spacing(1)
   },
@@ -32,7 +39,17 @@ const useStyles = makeStyles(theme => ({
 export const Panel = memo(
   forwardRef(
     (
-      { hasHeader, title, headerActions, hasExpansion, defaultExpanded = false, onExpandChange, children, ...rest },
+      {
+        hasHeader,
+        secondaryBackground,
+        title,
+        headerActions,
+        hasExpansion,
+        defaultExpanded = false,
+        onExpandChange,
+        children,
+        ...rest
+      },
       ref
     ) => {
       const classes = useStyles();
@@ -51,7 +68,7 @@ export const Panel = memo(
       return (
         <MaterialPaper className={classes.root} ref={ref} {...rest}>
           {hasHeader && (
-            <div className={classes.header}>
+            <div className={secondaryBackground ? classes.headerSecondary : classes.header}>
               <Grid
                 container
                 justify="space-between"

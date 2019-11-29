@@ -16,6 +16,7 @@ import { rootReducer } from '../reducers/rootReducer';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { getTheme } from '../theme';
+import { HeaderProvider } from './header/headerContext';
 //const loggerMiddleware = createLogger();
 
 const middlewareEnhancer = applyMiddleware(
@@ -35,9 +36,11 @@ const Root = () => {
       <CssBaseline>
         <ThemeProvider theme={getTheme()}>
           <Provider store={store}>
-            <BrowserRouter>
-              <Routes />
-            </BrowserRouter>
+            <HeaderProvider>
+              <BrowserRouter>
+                <Routes />
+              </BrowserRouter>
+            </HeaderProvider>
           </Provider>
         </ThemeProvider>
       </CssBaseline>

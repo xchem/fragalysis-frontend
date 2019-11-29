@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import * as apiActions from '../../reducers/api/apiActions';
-import { HeaderLoadingContext } from '../header/loadingContext';
+import { HeaderContext } from '../header/headerContext';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { api } from '../../utils/api';
 import HandleUnrecognisedTarget from '../handleUnrecognisedTarget';
@@ -24,7 +24,7 @@ export const withUpdatingTarget = WrappedContainer => {
       ...rest
     }) => {
       const target = match.params.target;
-      const { isLoading, setIsLoading } = useContext(HeaderLoadingContext);
+      const { isLoading, setIsLoading } = useContext(HeaderContext);
       const [/* state */ setState] = useState();
 
       useEffect(() => {
