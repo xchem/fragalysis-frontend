@@ -1,20 +1,23 @@
 /**
  * Created by abradley on 13/03/2018.
  */
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as listType from '../components/listTypes';
-import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
+import * as nglActions from '../reducers/ngl/nglActions';
 import * as apiActions from '../reducers/api/apiActions';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
+import { addObjectToNglView } from '../reducers/ngl/nglActions';
+import { NglContext } from '../components/nglView/nglProvider';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
   const MolGroupList = memo(
     ({ object_list, deleteObject, loadObject, target_on, group_type, setObjectList, isStateLoaded, ...rest }) => {
       const [state, setState] = useState();
+      const { getNglView } = useContext(NglContext);
       const list_type = listType.MOLGROUPS;
       const oldUrl = useRef('');
       const setOldUrl = url => {
@@ -50,6 +53,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
         [list_type]
       );
 
+      // call redux action for removing objects on NGL view
       const beforePush = useCallback(() => {
         if (object_list) {
           object_list.map(data =>
@@ -58,13 +62,19 @@ export const withLoadingMolGroupList = WrappedComponent => {
         }
       }, [deleteObject, generateObject, object_list]);
 
+      // call redux action for add objects on NGL view
       const afterPush = useCallback(
         data_list => {
           if (data_list) {
-            data_list.map(data => loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data))));
+            data_list.map(data =>
+              addObjectToNglView(
+                Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data)),
+                getNglView(VIEWS.SUMMARY_VIEW).stage
+              )
+            );
           }
         },
-        [generateObject, loadObject]
+        [generateObject, getNglView]
       );
 
       useEffect(() => {
@@ -75,7 +85,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
             setOldUrl: url => setOldUrl(url),
             old_url: oldUrl.current,
             afterPush: afterPush,
-            beforePush: beforePush,
+            //  beforePush: beforePush,
             list_type,
             setObjectList,
             cancel: onCancel
@@ -91,7 +101,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
             refOnCancel.current();
           }
         };
-      }, [target_on, afterPush, beforePush, group_type, list_type, setObjectList, isStateLoaded]);
+      }, [target_on, group_type, list_type, setObjectList, isStateLoaded, afterPush]);
 
       return <WrappedComponent {...rest} />;
     }
@@ -105,9 +115,10 @@ export const withLoadingMolGroupList = WrappedComponent => {
     };
   }
   const mapDispatchToProps = {
-    deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject,
-    setObjectList: apiActions.setMolGroupList
+    deleteObject: nglActions.deleteObject,
+    loadObject: nglActions.loadObject,
+    setObjectList: apiActions.setMolGroupList,
+    addObjectToNglView: nglActions.addObjectToNglView
   };
   return connect(mapStateToProps, mapDispatchToProps)(MolGroupList);
 };

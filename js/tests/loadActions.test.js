@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 07/03/2018.
  */
-import * as actions from '../reducers/ngl/nglLoadActions';
+import * as actions from '../reducers/ngl/nglActions';
 import * as types from '../reducers/actonTypes';
 
 const TEST_GROUP_CONST = 'GROUP';

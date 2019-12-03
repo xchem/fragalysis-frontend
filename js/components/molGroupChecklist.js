@@ -5,7 +5,7 @@ import * as apiActions from '../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
 import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecule/molecules_helpers';
 import { VIEWS } from '../constants/constants';
-import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglActions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {

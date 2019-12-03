@@ -1,6 +1,6 @@
 import React, { Fragment, memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import * as apiActions from '../../reducers/api/apiActions';
 import { Button, makeStyles, Snackbar, IconButton } from '@material-ui/core';
 import { Close, Save, SaveOutlined, Share } from '@material-ui/icons';
@@ -506,7 +506,7 @@ const mapDispatchToProps = {
   reloadSelectionState: selectionActions.reloadSelectionState,
   setLatestSession: apiActions.setLatestSession,
   setLatestSnapshot: apiActions.setLatestSnapshot,
-  setStageColor: nglLoadActions.setStageColor,
+  setStageColor: nglLoadActions.setBackgroundColor,
   setSessionId: apiActions.setSessionId,
   setUuid: apiActions.setUuid,
   setSessionTitle: apiActions.setSessionTitle,

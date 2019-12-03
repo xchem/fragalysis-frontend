@@ -4,7 +4,7 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglActions';
 import SummaryCmpd from './SummaryCmpd';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';

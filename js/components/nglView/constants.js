@@ -1,4 +1,4 @@
-export const STAGE_COLOR = {
+export const BACKGROUND_COLOR = {
   black: 'black',
   white: 'white'
 };

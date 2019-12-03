@@ -8,7 +8,7 @@ import NGLView from './nglView/nglView';
 import MolGroupChecklist from './molGroupChecklist';
 import * as apiActions from '../reducers/api/apiActions';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglActions';
 import { VIEWS } from '../constants/constants';
 import * as selectionActions from '../reducers/selection/selectionActions';
 import {

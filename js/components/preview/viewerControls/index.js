@@ -4,7 +4,7 @@
 
 import React, { memo, Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
 import { Button } from '../../common/Inputs/Button';
 import { MOL_REPRESENTATION } from '../../nglView/constants';
 import { Panel } from '../../common';

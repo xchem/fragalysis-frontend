@@ -5,7 +5,7 @@ import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as selectionActions from '../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
-import * as nglLoadActions from '../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../reducers/ngl/nglActions';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';

@@ -2,17 +2,18 @@
  * Created by abradley on 01/03/2018.
  */
 
-import { Stage, Shape, Selection, concatStructures } from 'ngl';
-import React, { memo, useEffect, useRef, useCallback, useContext } from 'react';
+import { Stage } from 'ngl';
+import React, { memo, useEffect, useRef, useCallback, useContext, useState } from 'react';
 import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
-import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as nglActions from '../../reducers/ngl/nglActions';
 import * as listTypes from '../listTypes';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
-import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
+import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
+import { defaultFocus, nglObjectDictionary } from '../../reducers/ngl/renderingHelpers';
 
 const NglView = memo(
   ({
@@ -47,7 +48,9 @@ const NglView = memo(
     targetIdList,
     target_on,
     setMoleculeList,
-    nglProtStyle
+    nglProtStyle,
+    clearNglView,
+    addObjectToNglView
   }) => {
     const store = useStore();
     const ref_data_dict = useRef({
@@ -68,11 +71,7 @@ const NglView = memo(
 
     // connect to NGL Stage object
     const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
-    const stageRef = useRef();
-    const nglView = getNglView(div_id);
-
-    const defaultFocus = 0;
-    const origTarget = useRef(-1);
+    const [stage, setStage] = useState();
 
     /*
     const showLine = (stage, input_dict, object_name) => {
@@ -106,10 +105,10 @@ const NglView = memo(
       if (objIdx === -1) {
         setMolGroupOn(groupId);
         selectionCopy.push(groupId);
-        setMolGroupSelection(selectionCopy);
+        setMolGroupSelection(selectionCopy, stage);
       } else {
         selectionCopy.splice(objIdx, 1);
-        setMolGroupSelection(selectionCopy);
+        setMolGroupSelection(selectionCopy, stage);
       }
     };
 
@@ -172,207 +171,6 @@ const NglView = memo(
       setLoadingState(false);
       return true;
     }, [div_id, objectsLoading, setLoadingState, objectsToLoad]);
-
-    const showSphere = (stage, input_dict, object_name) => {
-      let colour = input_dict.colour;
-      let radius = input_dict.radius;
-      let coords = input_dict.coords;
-      let shape = new Shape(object_name);
-      shape.addSphere(coords, colour, radius);
-      let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
-    };
-
-    const showMol = (stage, input_dict, object_name) => {
-      let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-      stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function(comp) {
-        comp.addRepresentation(MOL_REPRESENTATION.ballPlusStick, {
-          colorScheme: 'element',
-          colorValue: input_dict.colour,
-          multipleBond: true
-        });
-        comp.autoView('ligand');
-      });
-    };
-
-    const renderComplex = ol => {
-      console.log(ol);
-      let cs = concatStructures(
-        ol[4],
-        ol[0].structure.getView(new Selection('not ligand')),
-        ol[1].structure.getView(new Selection(''))
-      );
-      let stage = ol[2];
-      let focus_let_temp = ol[3];
-      let colour = ol[5];
-      // Set the object name
-      let comp = stage.addComponentFromObject(cs);
-
-      comp.addRepresentation(MOL_REPRESENTATION.cartoon);
-      comp.addRepresentation(MOL_REPRESENTATION.contact, {
-        masterModelIndex: 0,
-        weakHydrogenBond: true,
-        maxHbondDonPlaneAngle: 35,
-        sele: '/0 or /1'
-      });
-      comp.addRepresentation(MOL_REPRESENTATION.line, {
-        colorScheme: 'element',
-        colorValue: colour,
-        sele: '/0'
-      });
-
-      comp.autoView('ligand');
-      comp.stage.setFocus(focus_let_temp);
-    };
-
-    const showComplex = (stage, input_dict, object_name) => {
-      let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-      Promise.all([
-        stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
-        stage.loadFile(stringBlob, { ext: 'sdf' }),
-        stage,
-        defaultFocus,
-        object_name,
-        input_dict.colour
-      ]).then(ol => {
-        renderComplex(ol);
-      });
-    };
-
-    const showEvent = (stage, input_dict, object_name) => {
-      stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(comp => {
-        comp.addRepresentation(MOL_REPRESENTATION.cartoon, {});
-        let selection = new Selection('LIG');
-        let radius = 5;
-        let atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
-        let atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
-        let sele2 = atomSet2.toSeleString();
-        let sele1 = atomSet.toSeleString();
-        comp.addRepresentation(MOL_REPRESENTATION.contact, {
-          masterModelIndex: 0,
-          weakHydrogenBond: true,
-          maxHbondDonPlaneAngle: 35,
-          linewidth: 1,
-          sele: sele2 + ' or LIG'
-        });
-        comp.addRepresentation(MOL_REPRESENTATION.line, {
-          sele: sele1
-        });
-        comp.addRepresentation(MOL_REPRESENTATION.ballPlusStick, {
-          sele: 'LIG'
-        });
-        comp.autoView('LIG');
-      });
-
-      stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
-        comp.addRepresentation(MOL_REPRESENTATION.surface, {
-          color: 'mediumseagreen',
-          isolevel: 3,
-          boxSize: 10,
-          useWorker: false,
-          contour: true,
-          opaqueBack: false,
-          isolevelScroll: false
-        });
-        comp.addRepresentation(MOL_REPRESENTATION.surface, {
-          color: 'tomato',
-          isolevel: 3,
-          negateIsolevel: true,
-          boxSize: 10,
-          useWorker: false,
-          contour: true,
-          opaqueBack: false,
-          isolevelScroll: false
-        });
-      });
-    };
-
-    const showCylinder = (stage, input_dict, object_name) => {
-      let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
-      let radius = input_dict.radius === undefined ? 0.4 : input_dict.radius;
-      // Handle undefined start and finish
-      if (input_dict.start === undefined || input_dict.end === undefined) {
-        console.log('START OR END UNDEFINED FOR CYLINDER' + input_dict.toString());
-        return;
-      }
-      let shape = new Shape(object_name, { disableImpostor: true });
-      shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
-      let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
-    };
-
-    const showArrow = (stage, input_dict, object_name) => {
-      let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
-      let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
-      // Handle undefined start and finish
-      if (input_dict.start === undefined || input_dict.end === undefined) {
-        console.log('START OR END UNDEFINED FOR ARROW ' + input_dict.toString());
-        return;
-      }
-      let shape = new Shape(object_name, { disableImpostor: true });
-      shape.addArrow(input_dict.start, input_dict.end, colour, radius);
-      let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
-    };
-
-    const showProtein = (stage, input_dict, object_name) => {
-      stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' }).then(comp => {
-        comp.addRepresentation(input_dict.nglProtStyle, {});
-        comp.autoView();
-      });
-    };
-
-    const showHotspot = (stage, input_dict, object_name) => {
-      if (input_dict.map_type === 'AP') {
-        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-          comp.addRepresentation(MOL_REPRESENTATION.surface, {
-            color: '#FFFF00',
-            isolevelType: 'value',
-            isolevel: input_dict.isoLevel,
-            opacity: input_dict.opacity,
-            opaqueBack: false,
-            name: 'surf',
-            disablePicking: input_dict.disablePicking
-          });
-        });
-      } else if (input_dict.map_type === 'DO') {
-        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-          comp.addRepresentation(MOL_REPRESENTATION.surface, {
-            isolevelType: 'value',
-            isolevel: input_dict.isoLevel,
-            opacity: input_dict.opacity,
-            opaqueBack: false,
-            color: '#0000FF',
-            name: 'surf',
-            disablePicking: input_dict.disablePicking
-          });
-        });
-      } else if (input_dict.map_type === 'AC') {
-        stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-          comp.addRepresentation(MOL_REPRESENTATION.surface, {
-            color: '#FF0000',
-            isolevelType: 'value',
-            isolevel: input_dict.isoLevel,
-            opacity: input_dict.opacity,
-            opaqueBack: false,
-            name: 'surf',
-            disablePicking: input_dict.disablePicking
-          });
-        });
-      }
-    };
-
-    // Refactor this out into a utils directory
-    const function_dict = {
-      [OBJECT_TYPE.SPHERE]: showSphere,
-      [OBJECT_TYPE.MOLECULE]: showMol,
-      [OBJECT_TYPE.COMPLEX]: showComplex,
-      [OBJECT_TYPE.CYLINDER]: showCylinder,
-      [OBJECT_TYPE.ARROW]: showArrow,
-      [OBJECT_TYPE.PROTEIN]: showProtein,
-      [OBJECT_TYPE.EVENTMAP]: showEvent,
-      [OBJECT_TYPE.HOTSPOT]: showHotspot
-    };
 
     const getRadius = data => {
       if (data.mol_id === undefined) {
@@ -452,6 +250,7 @@ const NglView = memo(
       [deleteObject, generateSphere, loadObject, pandda_site_list, pandda_site_on]
     );
 
+    /*
     const showMultipleSelect = useCallback(
       (listType, view) => {
         let oldGroups = ref_data_dict.current[listType].oldGroupsOn;
@@ -497,48 +296,19 @@ const NglView = memo(
       [deleteObject, generateSphere, loadObject, mol_group_list, mol_group_selection]
     );
 
-    /**
-     * Function to deal with the logic of showing molecules
-     */
-    const renderDisplay = useCallback(() => {
-      if (nglView && (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete))) {
-        for (let nglKey in objectsToLoad) {
-          let nglObject = objectsToLoad[nglKey];
-          if (div_id === nglObject.display_div) {
-            function_dict[nglObject.OBJECT_TYPE](nglView.stage, nglObject, nglKey);
-            objectLoading(nglObject);
-          }
-        }
-        for (let nglKey in objectsToDelete) {
-          if (div_id === objectsToDelete[nglKey].display_div) {
-            const comps = nglView.stage.getComponentsByName(nglKey);
-            for (let component in comps.list) {
-              nglView.stage.removeComponent(comps.list[component]);
-            }
-            // Reset focus after receive ResetFocus object
-            if (objectsToDelete[nglKey].OBJECT_TYPE === OBJECT_TYPE.RESET_FOCUS) {
-              nglView.stage.setFocus(defaultFocus);
-              nglView.stage.autoView();
-            }
-            deleteObjectSuccess(objectsToDelete[nglKey]);
-          }
-        }
-      }
-    }, [objectsToLoad, objectsToDelete, div_id, function_dict, nglView, objectLoading, deleteObjectSuccess]);
-
-    const renderColorChange = useCallback(() => {
-      if (nglView) {
-        nglView.stage.setParameters({ backgroundColor: stageColor });
-      }
-    }, [nglView, stageColor]);
-
+    useEffect(() => {
+      showMultipleSelect(listTypes.MOLGROUPS, VIEWS.SUMMARY_VIEW);
+      showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
+    }, [showMultipleSelect, showSelect]);
+*/
+    /*
     const updateOrientation = useCallback(() => {
       if (orientationToSet !== undefined) {
         if (orientationToSet[div_id] !== 'SET') {
           if (checkIfLoading() === true) {
             let ori = orientationToSet[div_id];
-            if (nglView) {
-              let curr_orient = nglView.stage.viewerControls.getOrientation();
+            if (stage) {
+              let curr_orient = stage.viewerControls.getOrientation();
               if (
                 curr_orient &&
                 curr_orient.elements &&
@@ -550,7 +320,7 @@ const NglView = memo(
                   curr_orient.elements[i] = ori.elements[i];
                 }
               }
-              nglView.stage.viewerControls.orient(curr_orient);
+              stage.viewerControls.orient(curr_orient);
             }
             setNGLOrientation(div_id, 'SET');
           }
@@ -566,7 +336,7 @@ const NglView = memo(
               }
             }
             setOrientation(div_id, {
-              orientation: nglView.stage.viewerControls.getOrientation(),
+              orientation: stage.viewerControls.getOrientation(),
               components: objectsInThisDiv
             });
           }
@@ -575,7 +345,7 @@ const NglView = memo(
       for (let nglKey in objectsLoading) {
         let nglObject = objectsLoading[nglKey];
         if (div_id === nglObject.display_div) {
-          if (nglView.stage.getComponentsByName(nglKey).list.length > 0) {
+          if (stage.getComponentsByName(nglKey).list.length > 0) {
             loadObjectSuccess(objectsLoading[nglKey]);
           }
         }
@@ -585,13 +355,17 @@ const NglView = memo(
       nglOrientations,
       div_id,
       checkIfLoading,
-      nglView,
+      stage,
       setNGLOrientation,
       setOrientation,
       objectsInView,
       objectsLoading,
       loadObjectSuccess
     ]);
+
+
+
+
 
     useEffect(() => {
       setOrientation(div_id, 'STARTED');
@@ -602,22 +376,39 @@ const NglView = memo(
       updateOrientation();
     }, [updateOrientation]);
 
-    useEffect(() => {
-      renderDisplay();
-      if (targetOnName !== undefined) {
-        document.title = targetOnName + ': Fragalysis';
+
+*/
+
+    /**
+     * Function to deal with the logic of showing molecules
+     */
+    /*
+    const renderDisplay = useCallback(() => {
+      if (stage && (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete))) {
+        for (let nglKey in objectsToLoad) {
+          let nglObject = objectsToLoad[nglKey];
+          if (div_id === nglObject.display_div) {
+            nglObjectDictionary[nglObject.OBJECT_TYPE](stage, nglObject, nglKey);
+            objectLoading(nglObject);
+          }
+        }
+        for (let nglKey in objectsToDelete) {
+          if (div_id === objectsToDelete[nglKey].display_div) {
+            const comps = stage.getComponentsByName(nglKey);
+            for (let component in comps.list) {
+              stage.removeComponent(comps.list[component]);
+            }
+            // Reset focus after receive ResetFocus object
+            if (objectsToDelete[nglKey].OBJECT_TYPE === OBJECT_TYPE.RESET_FOCUS) {
+              stage.setFocus(defaultFocus);
+              stage.autoView();
+            }
+            deleteObjectSuccess(objectsToDelete[nglKey]);
+          }
+        }
       }
-    }, [renderDisplay, targetOnName]);
-
-    useEffect(() => {
-      showMultipleSelect(listTypes.MOLGROUPS, VIEWS.SUMMARY_VIEW);
-      showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
-    }, [showMultipleSelect, showSelect]);
-
-    useEffect(() => {
-      renderColorChange();
-    }, [renderColorChange]);
-
+    }, [stage, objectsToLoad, objectsToDelete, div_id, objectLoading, deleteObjectSuccess]);
+*/
     const generateTargetObject = useCallback(
       targetData => {
         // Now deal with this target
@@ -635,8 +426,8 @@ const NglView = memo(
       [nglProtStyle]
     );
 
-    const checkForTargetChange = useCallback(() => {
-      if (target_on !== origTarget.current && target_on !== undefined && targetIdList) {
+    const loadProtein = useCallback(() => {
+      if (target_on !== undefined && targetIdList && stage) {
         let targetData = null;
         targetIdList.forEach(thisTarget => {
           if (thisTarget.id === target_on && targetData === null) {
@@ -645,31 +436,35 @@ const NglView = memo(
         });
 
         setMoleculeList([]);
-
-        Object.keys(objectsInView).forEach(obj => {
-          deleteObject(objectsInView[obj]);
-        });
+        if (stage) {
+          clearNglView(stage);
+        }
 
         const targObject = generateTargetObject(targetData);
         if (targObject) {
-          loadObject(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }));
-          loadObject(
+          addObjectToNglView(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }), stage);
+          addObjectToNglView(
             Object.assign({}, targObject, {
               display_div: VIEWS.MAJOR_VIEW,
               name: targObject.name + SUFFIX.MAIN
-            })
+            }),
+            stage
           );
         }
-        origTarget.current = target_on;
       }
-    }, [generateTargetObject, loadObject, targetIdList, target_on, setMoleculeList, deleteObject, objectsInView]);
+    }, [addObjectToNglView, clearNglView, generateTargetObject, setMoleculeList, stage, targetIdList, target_on]);
 
-    // for loading protein
+    // for loading objects in NGL View
     useEffect(() => {
-      if (targetIdList && targetIdList.length > 0) {
-        checkForTargetChange();
+      if (targetIdList && targetIdList.length > 0 && stage) {
+        loadProtein();
+        if (targetOnName !== undefined) {
+          document.title = targetOnName + ': Fragalysis';
+        }
       }
-    }, [checkForTargetChange, targetIdList]);
+    }, [loadProtein, stage, targetIdList, targetOnName]);
+
+    console.log('Render nglView, ');
 
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
@@ -680,13 +475,14 @@ const NglView = memo(
     }, [div_id, getNglView]);
 
     useEffect(() => {
-      stageRef.current = new Stage(div_id);
-      registerNglView(div_id, stageRef.current);
+      const newStage = new Stage(div_id);
+      registerNglView(div_id, newStage);
       window.addEventListener('resize', handleResize);
-      stageRef.current.mouseControls.add('clickPick-left', showPick);
+      newStage.mouseControls.add('clickPick-left', showPick);
+      setStage(newStage);
       return () => {
         window.removeEventListener('resize', handleResize);
-        stageRef.current.mouseControls.remove('clickPick-left', showPick);
+        stage.mouseControls.remove('clickPick-left', showPick);
         unregisterNglView(div_id);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -709,7 +505,7 @@ function mapStateToProps(state) {
     objectsToDelete: state.nglReducers.present.objectsToDelete,
     objectsLoading: state.nglReducers.present.objectsLoading,
     objectsInView: state.nglReducers.present.objectsInView,
-    stageColor: state.nglReducers.present.stageColor,
+    stageColor: state.nglReducers.present.backgroundColor,
     targetOnName: state.apiReducers.present.target_on_name,
     targetIdList: state.apiReducers.present.target_id_list,
     target_on: state.apiReducers.present.target_on,
@@ -721,16 +517,18 @@ const mapDispatchToProps = {
   setMolGroupSelection: apiActions.setMolGroupSelection,
   selectVector: selectionActions.selectVector,
   setDuckYankData: apiActions.setDuckYankData,
-  setNGLOrientation: nglLoadActions.setNGLOrientation,
+  setNGLOrientation: nglActions.setNGLOrientation,
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
-  setOrientation: nglLoadActions.setOrientation,
-  objectLoading: nglLoadActions.objectLoading,
-  loadObjectSuccess: nglLoadActions.loadObjectSuccess,
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject,
-  deleteObjectSuccess: nglLoadActions.deleteObjectSuccess,
-  setLoadingState: nglLoadActions.setLoadingState,
-  setMoleculeList: apiActions.setMoleculeList
+  setOrientation: nglActions.setOrientation,
+  objectLoading: nglActions.objectLoading,
+  loadObjectSuccess: nglActions.loadObjectSuccess,
+  deleteObject: nglActions.deleteObject,
+  loadObject: nglActions.loadObject,
+  deleteObjectSuccess: nglActions.deleteObjectSuccess,
+  setLoadingState: nglActions.setLoadingState,
+  setMoleculeList: apiActions.setMoleculeList,
+  clearNglView: nglActions.clearNglView,
+  addObjectToNglView: nglActions.addObjectToNglView
 };
 
 NglView.displayName = 'NglView';

@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { useContext, memo } from 'react';
 import { Grid, Slider, Switch, TextField, Typography } from '@material-ui/core';
 import { Drawer } from '../../common/Navigation/Drawer';
-import { STAGE_COLOR } from '../../nglView/constants';
-import { useSelector } from 'react-redux';
-import { setStageColor } from '../../../reducers/ngl/nglLoadActions';
+import { BACKGROUND_COLOR } from '../../nglView/constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { setBackgroundColor } from '../../../reducers/ngl/nglActions';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
 
-export const SettingControls = ({ open, onClose }) => {
-  const stageColor = useSelector(state => state.nglReducers.present.stageColor);
+export const SettingControls = memo(({ open, onClose }) => {
+  const backgroundColor = useSelector(state => state.nglReducers.present.backgroundColor);
+  const dispatch = useDispatch();
+
+  const { getNglView } = useContext(NglContext);
+  const majorView = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const summaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const handleStageColor = () => {
-    if (stageColor === STAGE_COLOR.white) {
-      setStageColor(STAGE_COLOR.black);
+    if (backgroundColor === BACKGROUND_COLOR.white) {
+      dispatch(setBackgroundColor(BACKGROUND_COLOR.black, majorView));
+      dispatch(setBackgroundColor(BACKGROUND_COLOR.black, summaryView));
     } else {
-      setStageColor(STAGE_COLOR.white);
+      dispatch(setBackgroundColor(BACKGROUND_COLOR.white, majorView));
+      dispatch(setBackgroundColor(BACKGROUND_COLOR.white, summaryView));
     }
   };
 
@@ -58,4 +67,4 @@ export const SettingControls = ({ open, onClose }) => {
       </Grid>
     </Drawer>
   );
-};
+});

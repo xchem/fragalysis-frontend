@@ -6,7 +6,7 @@ import { Grid } from '@material-ui/core';
 import { Paper } from '../common/Surfaces/Paper';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import { Switch } from '@material-ui/core';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { VIEWS } from '../../constants/constants';

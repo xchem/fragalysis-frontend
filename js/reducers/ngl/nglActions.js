@@ -13,10 +13,12 @@ import {
   SET_ORIENTATION,
   SET_NGL_ORIENTATION,
   SET_LOADING_STATE,
-  SET_STAGE_COLOR,
+  SET_BACKGROUND_COLOR,
   SET_NGL_PROT_STYLE,
   REDEPLOY_VECTORS
 } from '../actonTypes';
+import { CONSTANTS } from './nglConstants';
+import { nglObjectDictionary } from './renderingHelpers';
 
 export const loadObject = function(group) {
   return {
@@ -101,13 +103,6 @@ export const setLoadingState = function(bool) {
   };
 };
 
-export const setStageColor = function(stageColor) {
-  return {
-    type: SET_STAGE_COLOR,
-    stageColor: stageColor
-  };
-};
-
 export const setNglProtStyle = function(nglProtStyle) {
   return {
     type: SET_NGL_PROT_STYLE,
@@ -120,4 +115,19 @@ export const redeployVectors = function(objectsWereInView) {
     type: REDEPLOY_VECTORS,
     objectsWereInView: objectsWereInView
   };
+};
+
+export const setBackgroundColor = (backgroundColor, stage) => ({
+  type: SET_BACKGROUND_COLOR,
+  backgroundColor,
+  stage
+});
+
+export const populateNglView = stage => ({ type: CONSTANTS.POPULATE_VIEW, stage });
+
+export const clearNglView = stage => ({ type: CONSTANTS.CLEAR_VIEW, stage });
+
+export const addObjectToNglView = (target, stage) => {
+  nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name);
+  return { type: CONSTANTS.ADD_OBJECT_TO_VIEW, target, stage };
 };

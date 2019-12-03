@@ -1,11 +1,12 @@
 import * as actions from '../actonTypes';
 import { OBJECT_TYPE } from '../../constants/constants';
-import { MOL_REPRESENTATION, STAGE_COLOR } from '../../components/nglView/constants';
+import { MOL_REPRESENTATION, BACKGROUND_COLOR } from '../../components/nglView/constants';
+import { CONSTANTS } from './nglConstants';
 
 const INITIALSTATE = {
   // Lists storing the information of what is in the viewer
-  objectsToLoad: {},
-  objectsToDelete: {},
+  objectsToLoad: {}, // must be as parameter in function
+  objectsToDelete: {}, // must be as parameter in function
   objectsInView: {},
   objectsLoading: {},
   nglOrientations: {},
@@ -18,7 +19,7 @@ const INITIALSTATE = {
   hydrogen: true,
   orientationToSet: {},
   loadingState: true,
-  stageColor: STAGE_COLOR.black,
+  backgroundColor: BACKGROUND_COLOR.black,
   nglProtStyle: MOL_REPRESENTATION.cartoon
 };
 
@@ -147,9 +148,11 @@ export default function nglReducers(state = INITIALSTATE, action = {}) {
         loadingState: action.loadingState
       });
 
-    case actions.SET_STAGE_COLOR:
+    case actions.SET_BACKGROUND_COLOR:
+      const color = action.backgroundColor;
+      action.stage.setParameters({ backgroundColor: color });
       return Object.assign({}, state, {
-        stageColor: action.stageColor
+        backgroundColor: color
       });
 
     case actions.SET_NGL_PROT_STYLE:
@@ -170,6 +173,17 @@ export default function nglReducers(state = INITIALSTATE, action = {}) {
       return Object.assign({}, state, {
         objectsToLoad: vectorList
       });
+
+    case CONSTANTS.POPULATE_VIEW:
+      return state;
+
+    case CONSTANTS.ADD_OBJECT_TO_VIEW:
+      return state;
+
+    case CONSTANTS.CLEAR_VIEW:
+      action.stage.removeAllComponents();
+      // clear all arrays of object
+      return state;
 
     // Cases like: @@redux/INIT
 

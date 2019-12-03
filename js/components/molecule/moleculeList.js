@@ -8,7 +8,7 @@ import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'rea
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as listType from '../listTypes';
-import * as nglLoadActions from '../../reducers/ngl/nglLoadActions';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './molecules_helpers';
