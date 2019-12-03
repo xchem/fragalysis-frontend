@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Grid } from '@material-ui/core';
-import NGLView from './nglView/nglComponents';
+import NGLView from './nglView/nglView';
 import { withLoadingEventList } from '../hoc/withLoadingEventList';
 import { withLoadingPanddaSiteList } from '../hoc/withPanddaSiteList';
 import PanddaSlider from './panddaSlider';

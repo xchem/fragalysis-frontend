@@ -25,7 +25,7 @@ export const withUpdatingTarget = WrappedContainer => {
     }) => {
       const target = match.params.target;
       const { isLoading, setIsLoading } = useContext(HeaderContext);
-      const [/* state */ setState] = useState();
+      const [state, setState] = useState();
 
       useEffect(() => {
         if (resetSelection) {

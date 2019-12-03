@@ -12,10 +12,9 @@ import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
 import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
-import { Box } from '@material-ui/core';
 import { NglContext } from './nglProvider';
 
-const NGLView = memo(
+const NglView = memo(
   ({
     nglOrientations,
     orientationToSet,
@@ -68,10 +67,10 @@ const NGLView = memo(
     });
 
     // connect to NGL Stage object
-    const { getNglView } = useContext(NglContext);
-    const refStage = getNglView(div_id);
+    const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
+    const stageRef = useRef();
+    const nglView = getNglView(div_id);
 
-    const refSetClickFunction = useRef(false);
     const defaultFocus = 0;
     const origTarget = useRef(-1);
 
@@ -197,6 +196,7 @@ const NGLView = memo(
     };
 
     const renderComplex = ol => {
+      console.log(ol);
       let cs = concatStructures(
         ol[4],
         ol[0].structure.getView(new Selection('not ligand')),
@@ -234,7 +234,9 @@ const NGLView = memo(
         defaultFocus,
         object_name,
         input_dict.colour
-      ]).then(ol => renderComplex(ol));
+      ]).then(ol => {
+        renderComplex(ol);
+      });
     };
 
     const showEvent = (stage, input_dict, object_name) => {
@@ -499,53 +501,57 @@ const NGLView = memo(
      * Function to deal with the logic of showing molecules
      */
     const renderDisplay = useCallback(() => {
-      if (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete)) {
+      if (nglView && (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete))) {
         for (let nglKey in objectsToLoad) {
           let nglObject = objectsToLoad[nglKey];
           if (div_id === nglObject.display_div) {
-            function_dict[nglObject.OBJECT_TYPE](refStage.current, nglObject, nglKey);
+            function_dict[nglObject.OBJECT_TYPE](nglView.stage, nglObject, nglKey);
             objectLoading(nglObject);
           }
         }
         for (let nglKey in objectsToDelete) {
           if (div_id === objectsToDelete[nglKey].display_div) {
-            const comps = refStage.current.getComponentsByName(nglKey);
+            const comps = nglView.stage.getComponentsByName(nglKey);
             for (let component in comps.list) {
-              refStage.current.removeComponent(comps.list[component]);
+              nglView.stage.removeComponent(comps.list[component]);
             }
             // Reset focus after receive ResetFocus object
             if (objectsToDelete[nglKey].OBJECT_TYPE === OBJECT_TYPE.RESET_FOCUS) {
-              refStage.current.setFocus(defaultFocus);
-              refStage.current.autoView();
+              nglView.stage.setFocus(defaultFocus);
+              nglView.stage.autoView();
             }
             deleteObjectSuccess(objectsToDelete[nglKey]);
           }
         }
       }
-    }, [objectsToLoad, objectsToDelete, div_id, function_dict, refStage, objectLoading, deleteObjectSuccess]);
+    }, [objectsToLoad, objectsToDelete, div_id, function_dict, nglView, objectLoading, deleteObjectSuccess]);
 
     const renderColorChange = useCallback(() => {
-      refStage.current.setParameters({ backgroundColor: stageColor });
-    }, [refStage, stageColor]);
+      if (nglView) {
+        nglView.stage.setParameters({ backgroundColor: stageColor });
+      }
+    }, [nglView, stageColor]);
 
     const updateOrientation = useCallback(() => {
       if (orientationToSet !== undefined) {
         if (orientationToSet[div_id] !== 'SET') {
           if (checkIfLoading() === true) {
             let ori = orientationToSet[div_id];
-            let curr_orient = refStage.current.viewerControls.getOrientation();
-            if (
-              curr_orient &&
-              curr_orient.elements &&
-              ori &&
-              ori.elements &&
-              curr_orient.elements.length === ori.elements.length
-            ) {
-              for (let i = 0; i < curr_orient.elements.length; i += 1) {
-                curr_orient.elements[i] = ori.elements[i];
+            if (nglView) {
+              let curr_orient = nglView.stage.viewerControls.getOrientation();
+              if (
+                curr_orient &&
+                curr_orient.elements &&
+                ori &&
+                ori.elements &&
+                curr_orient.elements.length === ori.elements.length
+              ) {
+                for (let i = 0; i < curr_orient.elements.length; i += 1) {
+                  curr_orient.elements[i] = ori.elements[i];
+                }
               }
+              nglView.stage.viewerControls.orient(curr_orient);
             }
-            refStage.current.viewerControls.orient(curr_orient);
             setNGLOrientation(div_id, 'SET');
           }
         }
@@ -560,7 +566,7 @@ const NGLView = memo(
               }
             }
             setOrientation(div_id, {
-              orientation: refStage.current.viewerControls.getOrientation(),
+              orientation: nglView.stage.viewerControls.getOrientation(),
               components: objectsInThisDiv
             });
           }
@@ -569,41 +575,28 @@ const NGLView = memo(
       for (let nglKey in objectsLoading) {
         let nglObject = objectsLoading[nglKey];
         if (div_id === nglObject.display_div) {
-          if (refStage.current.getComponentsByName(nglKey).list.length > 0) {
+          if (nglView.stage.getComponentsByName(nglKey).list.length > 0) {
             loadObjectSuccess(objectsLoading[nglKey]);
           }
         }
       }
-    }, [orientationToSet, nglOrientations, div_id, checkIfLoading, refStage, setNGLOrientation, setOrientation, objectsInView, objectsLoading, loadObjectSuccess]);
+    }, [
+      orientationToSet,
+      nglOrientations,
+      div_id,
+      checkIfLoading,
+      nglView,
+      setNGLOrientation,
+      setOrientation,
+      objectsInView,
+      objectsLoading,
+      loadObjectSuccess
+    ]);
 
     useEffect(() => {
       setOrientation(div_id, 'STARTED');
       setNGLOrientation(div_id, 'SET');
     }, [div_id, setNGLOrientation, setOrientation]);
-
-    const handleResize = () => {
-      if (refStage.current) {
-        refStage.current.handleResize();
-      }
-    };
-
-    useEffect(
-      () => {
-        if (refSetClickFunction.current === false) {
-          window.addEventListener('resize', handleResize, false);
-          refStage.current.mouseControls.add('clickPick-left', showPick);
-          refSetClickFunction.current = true;
-        }
-        return () => {
-          window.removeEventListener('resize', handleResize, false);
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          refStage.current.mouseControls.remove('clickPick-left', showPick);
-        };
-      }, // eslint-disable-next-line react-hooks/exhaustive-deps
-      [div_id]
-    );
-
-    // handleResize();
 
     useEffect(() => {
       updateOrientation();
@@ -678,7 +671,29 @@ const NGLView = memo(
       }
     }, [checkForTargetChange, targetIdList]);
 
-    return <Box id={div_id} height={height || '600px'} />;
+    // Initialization of NGL View component
+    const handleResize = useCallback(() => {
+      const newStage = getNglView(div_id);
+      if (newStage) {
+        newStage.stage.handleResize();
+      }
+    }, [div_id, getNglView]);
+
+    useEffect(() => {
+      stageRef.current = new Stage(div_id);
+      registerNglView(div_id, stageRef.current);
+      window.addEventListener('resize', handleResize);
+      stageRef.current.mouseControls.add('clickPick-left', showPick);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        stageRef.current.mouseControls.remove('clickPick-left', showPick);
+        unregisterNglView(div_id);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [div_id, handleResize, registerNglView, unregisterNglView]);
+    // End of Initialization NGL View component
+
+    return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;
   }
 );
 function mapStateToProps(state) {
@@ -718,6 +733,6 @@ const mapDispatchToProps = {
   setMoleculeList: apiActions.setMoleculeList
 };
 
-NGLView.displayName = 'NGLView';
+NglView.displayName = 'NglView';
 
-export default connect(mapStateToProps, mapDispatchToProps)(NGLView);
+export default connect(mapStateToProps, mapDispatchToProps)(NglView);

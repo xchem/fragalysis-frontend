@@ -12,6 +12,7 @@ import { withLoadingTargetList } from './withLoadingTargetIdList';
 import { BrowserBomb } from '../browserBombModal';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
+import { Temp } from '../Temp';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -50,6 +51,7 @@ const Routes = memo(() => {
             render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
           />
           <Route exact path="/viewer/react/funders" component={Funders} />
+          <Route exact path="/viewer/react/temp" component={Temp} />
         </Switch>
       </Box>
       <BrowserBomb />

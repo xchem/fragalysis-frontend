@@ -4,7 +4,7 @@ import { Delete } from '@material-ui/icons';
 
 import { Panel } from './common/Surfaces/Panel';
 import { Button } from './common/Inputs/Button';
-import NGLView from './nglView/nglComponents';
+import NGLView from './nglView/nglView';
 import MolGroupChecklist from './molGroupChecklist';
 import * as apiActions from '../reducers/api/apiActions';
 import { connect } from 'react-redux';
