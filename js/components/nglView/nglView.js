@@ -23,11 +23,6 @@ const NglView = memo(
     pandda_site_on,
     pandda_site_list,
     duck_yank_data,
-    objectsToLoad,
-    objectsToDelete,
-    objectsLoading,
-    objectsInView,
-    stageColor,
     targetOnName,
     setMolGroupOn,
     setMolGroupSelection,
@@ -45,7 +40,6 @@ const NglView = memo(
     targetIdList,
     target_on,
     setMoleculeList,
-    nglProtStyle,
     clearNglView
   }) => {
     const store = useStore();
@@ -150,7 +144,7 @@ const NglView = memo(
         }
       }
     };
-
+    /*
     const checkIfLoading = useCallback(() => {
       for (let key in objectsToLoad) {
         if (objectsToLoad[key]['display_div'] === div_id) {
@@ -167,6 +161,7 @@ const NglView = memo(
       setLoadingState(false);
       return true;
     }, [div_id, objectsLoading, setLoadingState, objectsToLoad]);
+    */
 
     const getRadius = data => {
       if (data.mol_id === undefined) {
@@ -338,42 +333,25 @@ const NglView = memo(
           }
         }
       }
-      for (let nglKey in objectsLoading) {
-        let nglObject = objectsLoading[nglKey];
-        if (div_id === nglObject.display_div) {
-          if (stage.getComponentsByName(nglKey).list.length > 0) {
-            loadObjectSuccess(objectsLoading[nglKey]);
-          }
-        }
-      }
     }, [
-      orientationToSet,
-      nglOrientations,
-      div_id,
       checkIfLoading,
-      stage,
+      div_id,
+      nglOrientations,
+      objectsInView,
+      orientationToSet,
       setNGLOrientation,
       setOrientation,
-      objectsInView,
-      objectsLoading,
-      loadObjectSuccess
+      stage
     ]);
 
-
-
-
-
+        useEffect(() => {
+      updateOrientation();
+    }, [updateOrientation]);
+*/
     useEffect(() => {
       setOrientation(div_id, 'STARTED');
       setNGLOrientation(div_id, 'SET');
     }, [div_id, setNGLOrientation, setOrientation]);
-
-    useEffect(() => {
-      updateOrientation();
-    }, [updateOrientation]);
-
-
-*/
 
     /**
      * Function to deal with the logic of showing molecules
@@ -481,15 +459,9 @@ function mapStateToProps(state) {
     pandda_site_on: state.apiReducers.present.pandda_site_on,
     pandda_site_list: state.apiReducers.present.pandda_site_list,
     duck_yank_data: state.apiReducers.present.duck_yank_data,
-    objectsToLoad: state.nglReducers.present.objectsToLoad,
-    objectsToDelete: state.nglReducers.present.objectsToDelete,
-    objectsLoading: state.nglReducers.present.objectsLoading,
-    objectsInView: state.nglReducers.present.objectsInView,
-    stageColor: state.nglReducers.present.backgroundColor,
     targetOnName: state.apiReducers.present.target_on_name,
     targetIdList: state.apiReducers.present.target_id_list,
-    target_on: state.apiReducers.present.target_on,
-    nglProtStyle: state.nglReducers.present.nglProtStyle
+    target_on: state.apiReducers.present.target_on
   };
 }
 const mapDispatchToProps = {
