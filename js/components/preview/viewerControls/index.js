@@ -4,9 +4,7 @@
 
 import React, { memo, Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../../reducers/ngl/nglActions';
 import { Button } from '../../common/Inputs/Button';
-import { MOL_REPRESENTATION } from '../../nglView/constants';
 import { Panel } from '../../common';
 import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
 import { Grid } from '@material-ui/core';
@@ -22,16 +20,8 @@ const drawers = {
 
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
-const Index = memo(({ nglProtStyle, setNglProtStyle }) => {
+const Index = memo(({}) => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
-
-  const handleNglProtStyle = () => {
-    if (nglProtStyle === MOL_REPRESENTATION.cartoon) {
-      setNglProtStyle(MOL_REPRESENTATION.hyperball);
-    } else if (nglProtStyle === MOL_REPRESENTATION.hyperball) {
-      setNglProtStyle(MOL_REPRESENTATION.cartoon);
-    }
-  };
 
   const openDrawer = key => {
     //close all and open selected by key
@@ -77,8 +67,6 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {
-  setNglProtStyle: nglLoadActions.setNglProtStyle
-};
+const mapDispatchToProps = {};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Index);

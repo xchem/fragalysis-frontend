@@ -3,6 +3,20 @@ import { concatStructures, Selection, Shape } from 'ngl';
 
 export const defaultFocus = 0;
 
+export const generateProteinObject = targetData => {
+  // Now deal with this target
+  const prot_to_load = window.location.protocol + '//' + window.location.host + targetData.template_protein;
+  if (JSON.stringify(prot_to_load) !== JSON.stringify(undefined)) {
+    return {
+      name: 'PROTEIN_' + targetData.id.toString(),
+      prot_url: prot_to_load,
+      OBJECT_TYPE: OBJECT_TYPE.PROTEIN,
+      nglProtStyle: MOL_REPRESENTATION.cartoon
+    };
+  }
+  return undefined;
+};
+
 const showSphere = (stage, input_dict, object_name) => {
   let colour = input_dict.colour;
   let radius = input_dict.radius;

@@ -13,7 +13,7 @@ import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
 import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
-import { defaultFocus, nglObjectDictionary } from '../../reducers/ngl/renderingHelpers';
+import { defaultFocus, generateProteinObject, nglObjectDictionary } from '../../reducers/ngl/renderingHelpers';
 
 const NglView = memo(
   ({
@@ -36,11 +36,8 @@ const NglView = memo(
     setNGLOrientation,
     setPanddaSiteOn,
     setOrientation,
-    objectLoading,
-    loadObjectSuccess,
     deleteObject,
     loadObject,
-    deleteObjectSuccess,
     setLoadingState,
     div_id,
     height,
@@ -49,8 +46,7 @@ const NglView = memo(
     target_on,
     setMoleculeList,
     nglProtStyle,
-    clearNglView,
-    addObjectToNglView
+    clearNglView
   }) => {
     const store = useStore();
     const ref_data_dict = useRef({
@@ -409,22 +405,6 @@ const NglView = memo(
       }
     }, [stage, objectsToLoad, objectsToDelete, div_id, objectLoading, deleteObjectSuccess]);
 */
-    const generateTargetObject = useCallback(
-      targetData => {
-        // Now deal with this target
-        const prot_to_load = window.location.protocol + '//' + window.location.host + targetData.template_protein;
-        if (JSON.stringify(prot_to_load) !== JSON.stringify(undefined)) {
-          return {
-            name: 'PROTEIN_' + targetData.id.toString(),
-            prot_url: prot_to_load,
-            OBJECT_TYPE: OBJECT_TYPE.PROTEIN,
-            nglProtStyle: nglProtStyle
-          };
-        }
-        return undefined;
-      },
-      [nglProtStyle]
-    );
 
     const loadProtein = useCallback(() => {
       if (target_on !== undefined && targetIdList && stage) {
@@ -440,10 +420,10 @@ const NglView = memo(
           clearNglView(stage);
         }
 
-        const targObject = generateTargetObject(targetData);
+        const targObject = generateProteinObject(targetData);
         if (targObject) {
-          addObjectToNglView(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }), stage);
-          addObjectToNglView(
+          loadObject(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }), stage);
+          loadObject(
             Object.assign({}, targObject, {
               display_div: VIEWS.MAJOR_VIEW,
               name: targObject.name + SUFFIX.MAIN
@@ -452,7 +432,7 @@ const NglView = memo(
           );
         }
       }
-    }, [addObjectToNglView, clearNglView, generateTargetObject, setMoleculeList, stage, targetIdList, target_on]);
+    }, [clearNglView, loadObject, setMoleculeList, stage, targetIdList, target_on]);
 
     // for loading objects in NGL View
     useEffect(() => {
@@ -520,15 +500,11 @@ const mapDispatchToProps = {
   setNGLOrientation: nglActions.setNGLOrientation,
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
   setOrientation: nglActions.setOrientation,
-  objectLoading: nglActions.objectLoading,
-  loadObjectSuccess: nglActions.loadObjectSuccess,
   deleteObject: nglActions.deleteObject,
   loadObject: nglActions.loadObject,
-  deleteObjectSuccess: nglActions.deleteObjectSuccess,
   setLoadingState: nglActions.setLoadingState,
   setMoleculeList: apiActions.setMoleculeList,
-  clearNglView: nglActions.clearNglView,
-  addObjectToNglView: nglActions.addObjectToNglView
+  clearNglView: nglActions.clearNglView
 };
 
 NglView.displayName = 'NglView';

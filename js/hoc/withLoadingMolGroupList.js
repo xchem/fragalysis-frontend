@@ -9,7 +9,6 @@ import * as apiActions from '../reducers/api/apiActions';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
-import { addObjectToNglView } from '../reducers/ngl/nglActions';
 import { NglContext } from '../components/nglView/nglProvider';
 
 // is responsible for loading molecules list
@@ -67,14 +66,14 @@ export const withLoadingMolGroupList = WrappedComponent => {
         data_list => {
           if (data_list) {
             data_list.map(data =>
-              addObjectToNglView(
+              loadObject(
                 Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data)),
                 getNglView(VIEWS.SUMMARY_VIEW).stage
               )
             );
           }
         },
-        [generateObject, getNglView]
+        [generateObject, getNglView, loadObject]
       );
 
       useEffect(() => {
@@ -117,8 +116,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
   const mapDispatchToProps = {
     deleteObject: nglActions.deleteObject,
     loadObject: nglActions.loadObject,
-    setObjectList: apiActions.setMolGroupList,
-    addObjectToNglView: nglActions.addObjectToNglView
+    setObjectList: apiActions.setMolGroupList
   };
   return connect(mapStateToProps, mapDispatchToProps)(MolGroupList);
 };

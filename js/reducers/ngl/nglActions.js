@@ -3,34 +3,22 @@
  */
 import {
   LOAD_OBJECT,
-  LOAD_OBJECT_SUCCESS,
-  LOAD_OBJECT_FAILURE,
-  OBJECT_LOADING,
   DELETE_OBJECT,
-  DELETE_OBJECT_FAILURE,
-  DELETE_OBJECT_SUCCESS,
-  DELETE_OBJECT_TYPE,
   SET_ORIENTATION,
   SET_NGL_ORIENTATION,
   SET_LOADING_STATE,
-  SET_BACKGROUND_COLOR,
-  SET_NGL_PROT_STYLE,
-  REDEPLOY_VECTORS
+  SET_BACKGROUND_COLOR
 } from '../actonTypes';
 import { CONSTANTS } from './nglConstants';
 import { nglObjectDictionary } from './renderingHelpers';
 
-export const loadObject = function(group) {
+export const loadObject = (target, stage) => {
+  if (stage) {
+    nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name);
+  }
   return {
     type: LOAD_OBJECT,
-    group: group
-  };
-};
-
-export const objectLoading = function(group) {
-  return {
-    type: OBJECT_LOADING,
-    group: group
+    target
   };
 };
 
@@ -42,21 +30,6 @@ export const setOrientation = function(div_id, orientation) {
   };
 };
 
-export const loadObjectSuccess = function(group) {
-  return {
-    type: LOAD_OBJECT_SUCCESS,
-    group: group,
-    success: true
-  };
-};
-
-export const deleteObjectType = function(object_type) {
-  return {
-    type: DELETE_OBJECT_TYPE,
-    object_type: object_type
-  };
-};
-
 export const setNGLOrientation = function(div_id, orientation) {
   return {
     type: SET_NGL_ORIENTATION,
@@ -65,34 +38,10 @@ export const setNGLOrientation = function(div_id, orientation) {
   };
 };
 
-export const loadObjectFailure = function(group) {
-  return {
-    type: LOAD_OBJECT_FAILURE,
-    group: group,
-    success: false
-  };
-};
-
-export const deleteObject = function(group) {
+export const deleteObject = (target, stage) => {
   return {
     type: DELETE_OBJECT,
-    group: group
-  };
-};
-
-export const deleteObjectSuccess = function(group) {
-  return {
-    type: DELETE_OBJECT_SUCCESS,
-    group: group,
-    success: true
-  };
-};
-
-export const deleteObjectFailure = function(group) {
-  return {
-    type: DELETE_OBJECT_FAILURE,
-    group: group,
-    success: false
+    target
   };
 };
 
@@ -103,31 +52,15 @@ export const setLoadingState = function(bool) {
   };
 };
 
-export const setNglProtStyle = function(nglProtStyle) {
+export const setBackgroundColor = (backgroundColor, stage) => {
+  stage.setParameters({ backgroundColor: backgroundColor });
   return {
-    type: SET_NGL_PROT_STYLE,
-    nglProtStyle: nglProtStyle
+    type: SET_BACKGROUND_COLOR,
+    backgroundColor,
+    stage
   };
 };
-
-export const redeployVectors = function(objectsWereInView) {
-  return {
-    type: REDEPLOY_VECTORS,
-    objectsWereInView: objectsWereInView
-  };
-};
-
-export const setBackgroundColor = (backgroundColor, stage) => ({
-  type: SET_BACKGROUND_COLOR,
-  backgroundColor,
-  stage
-});
 
 export const populateNglView = stage => ({ type: CONSTANTS.POPULATE_VIEW, stage });
 
 export const clearNglView = stage => ({ type: CONSTANTS.CLEAR_VIEW, stage });
-
-export const addObjectToNglView = (target, stage) => {
-  nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name);
-  return { type: CONSTANTS.ADD_OBJECT_TO_VIEW, target, stage };
-};

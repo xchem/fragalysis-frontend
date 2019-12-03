@@ -5,19 +5,8 @@
 // NGL loaders and deleters
 export const LOAD_OBJECT = 'LOAD_OBJECT';
 export const DELETE_OBJECT = 'DELETE_OBJECT';
-export const LOAD_OBJECT_SUCCESS = 'LOAD_OBJECT_SUCCESS';
-export const LOAD_OBJECT_FAILURE = 'LOAD_OBJECT_FAILURE';
-export const DELETE_OBJECT_SUCCESS = 'DELETE_OBJECT_SUCCESS';
-export const DELETE_OBJECT_FAILURE = 'DELETE_OBJECT_FAILURE';
 // NGL scene setters
-export const SET_COLOR = 'SET_COLOR';
-export const SET_STYLE = 'SET_STYLE';
-export const SET_SPIN = 'SET_SPIN';
-export const SET_WATER = 'SET_WATER';
-export const SET_HYDROGEN = 'SET_HYDROGEN';
 export const SET_BACKGROUND_COLOR = 'SET_BACKGROUND_COLOR';
-export const SET_NGL_PROT_STYLE = 'SET_NGL_PROT_STYLE';
-export const REDEPLOY_VECTORS = 'REDEPLOY_VECTORS';
 // Target, Site, Molecule, Protein, Compound
 export const LOAD_TARGETS = 'LOAD_TARGETS';
 export const LOAD_MOL_GROUPS = 'LOAD_MOL_GROUPS';
@@ -30,8 +19,6 @@ export const SET_MOLECULE_LIST = 'SET_MOLECULE_LIST';
 export const SET_CACHED_MOL_LISTS = 'SET_CACHED_MOL_LISTS';
 export const SET_MOL_GROUP_ON = 'SET_MOL_GROUP_ON';
 export const SET_MOL_GROUP_SELECTION = 'SET_MOL_GROUP_SELECTION';
-export const OBJECT_LOADING = 'OBJECT_LOADING';
-export const DELETE_OBJECT_TYPE = 'DELETE_OBJECT_TYPE';
 export const SET_TO_BUY_LIST = 'SET_TO_BUY_LIST:';
 export const APPEND_TO_BUY_LIST = 'APPEND_TO_BUY_LIST';
 export const REMOVE_FROM_TO_BUY_LIST = 'REMOVE_FROM_TO_BUY_LIST';

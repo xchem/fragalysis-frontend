@@ -1,128 +1,36 @@
 import * as actions from '../actonTypes';
-import { OBJECT_TYPE } from '../../constants/constants';
-import { MOL_REPRESENTATION, BACKGROUND_COLOR } from '../../components/nglView/constants';
+import { BACKGROUND_COLOR } from '../../components/nglView/constants';
 import { CONSTANTS } from './nglConstants';
 
-const INITIALSTATE = {
-  // Lists storing the information of what is in the viewer
-  objectsToLoad: {}, // must be as parameter in function
-  objectsToDelete: {}, // must be as parameter in function
+const INITIAL_STATE = {
+  // NGL Scene properties
   objectsInView: {},
-  objectsLoading: {},
   nglOrientations: {},
-  visible: true,
-  interactions: true,
-  color: 'blue',
-  style: 'xstick',
-  spin: false,
-  water: true,
-  hydrogen: true,
   orientationToSet: {},
   loadingState: true,
-  backgroundColor: BACKGROUND_COLOR.black,
-  nglProtStyle: MOL_REPRESENTATION.cartoon
+  backgroundColor: BACKGROUND_COLOR.black
 };
 
-export default function nglReducers(state = INITIALSTATE, action = {}) {
+export default function nglReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
 
     case actions.LOAD_OBJECT:
       // Append the input to objectsToLoad list
-      const newObjectsToLoad = JSON.parse(JSON.stringify(state.objectsToLoad));
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      if (!(action.group.name in newObjectsInView)) {
-        newObjectsToLoad[action.group.name] = action.group;
+      if (!(action.target.name in newObjectsInView)) {
+        newObjectsInView[action.target.name] = action.target;
       }
 
       return Object.assign({}, state, {
-        objectsToLoad: newObjectsToLoad
+        objectsInView: newObjectsInView
       });
-
-    case actions.LOAD_OBJECT_SUCCESS:
-      // Remove from objectsLoading List
-      const newObjectsLoading = JSON.parse(JSON.stringify(state.objectsLoading));
-      delete newObjectsLoading[action.group.name];
-      // Add to Objects in view list
-      const newTempObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      newTempObjectsInView[action.group.name] = action.group;
-      return Object.assign({}, state, {
-        objectsInView: newTempObjectsInView,
-        objectsLoading: newObjectsLoading
-      });
-
-    case actions.LOAD_OBJECT_FAILURE:
-      // Don't change state - but can be used later to count number of failures
-      return Object.assign({}, state, {});
 
     case actions.DELETE_OBJECT:
-      // Append the input to objectsToDelete list
-      const objectsToDeleteTemp = JSON.parse(JSON.stringify(state.objectsToDelete));
-      // Add to the list to delete if not
-      objectsToDeleteTemp[action.group.name] = action.group;
+      const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
+      delete objectsInViewTemp[action.target.name];
       return Object.assign({}, state, {
-        objectsToDelete: objectsToDeleteTemp
-      });
-
-    case actions.OBJECT_LOADING:
-      var objectsToLoad = JSON.parse(JSON.stringify(state.objectsToLoad));
-      delete objectsToLoad[action.group.name];
-      // Add to Objects in view list
-      var objectsLoading = JSON.parse(JSON.stringify(state.objectsLoading));
-      objectsLoading[action.group.name] = action.group;
-      return Object.assign({}, state, {
-        objectsToLoad: objectsToLoad,
-        objectsLoading: objectsLoading
-      });
-
-    case actions.DELETE_OBJECT_SUCCESS:
-      // Remove from objectsToDelete list
-      const objectsToDeleteHelp = JSON.parse(JSON.stringify(state.objectsToDelete));
-      delete objectsToDeleteHelp[action.group.name];
-      // Remove from ObjecsIn view list
-      const objectsInViewHelp = JSON.parse(JSON.stringify(state.objectsInView));
-      delete objectsInViewHelp[action.group.name];
-      return Object.assign({}, state, {
-        objectsToDelete: objectsToDeleteHelp,
-        objectsInView: objectsInViewHelp
-      });
-
-    case actions.DELETE_OBJECT_TYPE:
-      var objectsToDelete = JSON.parse(JSON.stringify(state.objectsToDelete));
-      var objectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      for (var key in objectsInView) {
-        if (key.split('_')[0] === action.object_type) {
-          objectsToDelete[key] = objectsInView[key];
-        }
-      }
-      return Object.assign({}, state, {
-        objectsToDelete: objectsToDelete
-      });
-
-    case actions.DELETE_OBJECT_FAILURE:
-      // Don't change state - but can be used later to count number of failures
-      return Object.assign({}, state, {});
-
-    case actions.SET_COLOR:
-      return Object.assign({}, state, {
-        color: action.color
-      });
-
-    case actions.SET_STYLE:
-      return Object.assign({}, state, {
-        style: action.style
-      });
-    case actions.SET_SPIN:
-      return Object.assign({}, state, {
-        spin: action.spin
-      });
-    case actions.SET_WATER:
-      return Object.assign({}, state, {
-        water: action.water
-      });
-    case actions.SET_HYDROGEN:
-      return Object.assign({}, state, {
-        hydrogen: action.hydrogen
+        objectsInView: objectsInViewTemp
       });
 
     case actions.SET_ORIENTATION:
@@ -149,35 +57,11 @@ export default function nglReducers(state = INITIALSTATE, action = {}) {
       });
 
     case actions.SET_BACKGROUND_COLOR:
-      const color = action.backgroundColor;
-      action.stage.setParameters({ backgroundColor: color });
       return Object.assign({}, state, {
-        backgroundColor: color
-      });
-
-    case actions.SET_NGL_PROT_STYLE:
-      return Object.assign({}, state, {
-        nglProtStyle: action.nglProtStyle
-      });
-
-    case actions.REDEPLOY_VECTORS:
-      var vectorList = [];
-      for (var object in action.objectsWereInView) {
-        if (
-          action.objectsWereInView[object].OBJECT_TYPE === OBJECT_TYPE.ARROW ||
-          action.objectsWereInView[object].OBJECT_TYPE === OBJECT_TYPE.CYLINDER
-        ) {
-          vectorList.push(action.objectsWereInView[object]);
-        }
-      }
-      return Object.assign({}, state, {
-        objectsToLoad: vectorList
+        backgroundColor: action.backgroundColor
       });
 
     case CONSTANTS.POPULATE_VIEW:
-      return state;
-
-    case CONSTANTS.ADD_OBJECT_TO_VIEW:
       return state;
 
     case CONSTANTS.CLEAR_VIEW:
