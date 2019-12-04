@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback, useContext } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglActions';
@@ -15,6 +15,7 @@ import { Panel } from './common/Surfaces/Panel';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import { ComputeHeight } from '../utils/computeHeight';
+import { NglContext } from './nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
   widthFitContent: {
@@ -47,6 +48,9 @@ const SummaryView = memo(
     const [smiles, setSmiles] = useState('');
     const [interaction_select, setInteraction_select] = useState('');
     const [state, setState] = useState();
+
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const getColour = useCallback(
       item => {
@@ -83,10 +87,10 @@ const SummaryView = memo(
       // Colour and then load the vectors in
       if (to_query !== '') {
         vector_list.forEach(item =>
-          loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item, getColour(item)))
+          loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item, getColour(item)), stage)
         );
       }
-    }, [getColour, loadObject, to_query, vector_list]);
+    }, [getColour, loadObject, stage, to_query, vector_list]);
 
     const update = useCallback(() => {
       setList_len(to_buy_list.length);

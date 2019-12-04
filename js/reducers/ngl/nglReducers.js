@@ -1,4 +1,3 @@
-import * as actions from '../actonTypes';
 import { BACKGROUND_COLOR } from '../../components/nglView/constants';
 import { CONSTANTS } from './nglConstants';
 
@@ -8,14 +7,15 @@ const INITIAL_STATE = {
   nglOrientations: {},
   orientationToSet: {},
   loadingState: true,
-  backgroundColor: BACKGROUND_COLOR.black
+  backgroundColor: BACKGROUND_COLOR.black,
+  defaultScene: {}
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
 
-    case actions.LOAD_OBJECT:
+    case CONSTANTS.LOAD_OBJECT:
       // Append the input to objectsToLoad list
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       if (!(action.target.name in newObjectsInView)) {
@@ -26,14 +26,14 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         objectsInView: newObjectsInView
       });
 
-    case actions.DELETE_OBJECT:
+    case CONSTANTS.DELETE_OBJECT:
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
       delete objectsInViewTemp[action.target.name];
       return Object.assign({}, state, {
         objectsInView: objectsInViewTemp
       });
 
-    case actions.SET_ORIENTATION:
+    case CONSTANTS.SET_ORIENTATION:
       const div_id = action.div_id;
       const orientation = action.orientation;
       const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
@@ -42,7 +42,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         nglOrientations: toSetDiv
       });
 
-    case actions.SET_NGL_ORIENTATION:
+    case CONSTANTS.SET_NGL_ORIENTATION:
       const set_div_id = action.div_id;
       const set_orientation = action.orientation;
       const toSetDivTemp = JSON.parse(JSON.stringify(state.orientationToSet));
@@ -51,23 +51,33 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         orientationToSet: toSetDivTemp
       });
 
-    case actions.SET_LOADING_STATE:
+    case CONSTANTS.SET_LOADING_STATE:
       return Object.assign({}, state, {
         loadingState: action.loadingState
       });
 
-    case actions.SET_BACKGROUND_COLOR:
+    case CONSTANTS.SET_BACKGROUND_COLOR:
       return Object.assign({}, state, {
         backgroundColor: action.backgroundColor
       });
 
-    case CONSTANTS.POPULATE_VIEW:
+    case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
+      // load state from default scene and replace current state by these data
       return state;
 
-    case CONSTANTS.CLEAR_VIEW:
+    case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
+      // load state from default scene and replace current state by these data
+      const stateWithoutScene = JSON.parse(JSON.stringify(state));
+      delete stateWithoutScene['defaultScene'];
+
+      return Object.assign({}, state, {
+        defaultScene: stateWithoutScene
+      });
+
+    case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
       action.stage.removeAllComponents();
       // clear all arrays of object
-      return state;
+      return Object.assign({}, state, INITIAL_STATE);
 
     // Cases like: @@redux/INIT
 

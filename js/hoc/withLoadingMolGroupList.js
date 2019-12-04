@@ -56,10 +56,13 @@ export const withLoadingMolGroupList = WrappedComponent => {
       const beforePush = useCallback(() => {
         if (object_list) {
           object_list.map(data =>
-            deleteObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data)))
+            deleteObject(
+              Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data)),
+              getNglView(VIEWS.SUMMARY_VIEW).stage
+            )
           );
         }
-      }, [deleteObject, generateObject, object_list]);
+      }, [deleteObject, generateObject, getNglView, object_list]);
 
       // call redux action for add objects on NGL view
       const afterPush = useCallback(
@@ -84,7 +87,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
             setOldUrl: url => setOldUrl(url),
             old_url: oldUrl.current,
             afterPush: afterPush,
-            //  beforePush: beforePush,
+            beforePush: beforePush,
             list_type,
             setObjectList,
             cancel: onCancel
@@ -100,7 +103,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
             refOnCancel.current();
           }
         };
-      }, [target_on, group_type, list_type, setObjectList, isStateLoaded, afterPush]);
+      }, [target_on, group_type, list_type, setObjectList, isStateLoaded, afterPush, beforePush]);
 
       return <WrappedComponent {...rest} />;
     }

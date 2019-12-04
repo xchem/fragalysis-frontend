@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useContext, useRef } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 
@@ -18,6 +18,7 @@ import {
   getJoinedMoleculeList
 } from './molecule/molecules_helpers';
 import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
+import { NglContext } from './nglView/nglProvider';
 
 export const heightOfBody = '164px';
 
@@ -56,12 +57,16 @@ const molGroupSelector = memo(
     const classes = useStyles();
     const ref = useRef(null);
 
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+
     const handleClearSelection = () => {
       // loop through all molecules
       getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }).forEach(mol => {
         // remove Ligand
         deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(mol.id.toString(), mol.sdf_info))
+          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(mol.id.toString(), mol.sdf_info)),
+          stage
         );
 
         // remove Complex
@@ -69,15 +74,16 @@ const molGroupSelector = memo(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
             generateObject(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
-          )
+          ),
+          stage
         );
       });
       // reset focus
-      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateResetFocusObject()));
+      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateResetFocusObject()), stage);
 
       // remove all Vectors
       vector_list.forEach(item => {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item));
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage);
       });
 
       // remove sites selection

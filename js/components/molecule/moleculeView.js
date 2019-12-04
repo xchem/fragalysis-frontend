@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
@@ -15,6 +15,7 @@ import { api } from '../../utils/api';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
+import { NglContext } from '../nglView/nglProvider';
 
 const containerHeight = 76;
 
@@ -133,6 +134,9 @@ const MoleculeView = memo(
     const base_url = window.location.protocol + '//' + window.location.host;
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
+
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const isLigandOn = (currentID && fragmentDisplayList.has(currentID)) || false;
     const isComplexOn = (currentID && complexList.has(currentID)) || false;
@@ -293,20 +297,20 @@ const MoleculeView = memo(
 
     const onLigand = () => {
       if (isLigandOn) {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject()));
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject()), stage);
         removeFromFragmentDisplayList(generateMolId());
       } else {
-        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(colourToggle)));
+        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(colourToggle)), stage);
         appendFragmentDisplayList(generateMolId());
       }
     };
 
     const onComplex = () => {
       if (isComplexOn) {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()));
+        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()), stage);
         removeFromComplexList(generateMolId());
       } else {
-        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()));
+        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()), stage);
         appendComplexList(generateMolId());
       }
     };
@@ -320,11 +324,11 @@ const MoleculeView = memo(
 
     const onVector = () => {
       if (isVectorOn) {
-        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
+        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
         setMol('');
         removeFromVectorOnList(generateMolId());
       } else {
-        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item)));
+        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
         // Set this
         getFullGraph(data);
         // Do the query

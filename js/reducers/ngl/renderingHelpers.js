@@ -25,23 +25,19 @@ const showSphere = (stage, input_dict, object_name) => {
   shape.addSphere(coords, colour, radius);
   let shapeComp = stage.addComponentFromObject(shape);
   shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
+  return Promise.resolve();
 };
 
 const showMol = (stage, input_dict, object_name) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-  stage
-    .loadFile(stringBlob, { name: object_name, ext: 'sdf' })
-    .then(function(comp) {
-      comp.addRepresentation(MOL_REPRESENTATION.ballPlusStick, {
-        colorScheme: 'element',
-        colorValue: input_dict.colour,
-        multipleBond: true
-      });
-      comp.autoView('ligand');
-    })
-    .catch(error => {
-      console.error(error);
+  return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(function(comp) {
+    comp.addRepresentation(MOL_REPRESENTATION.ballPlusStick, {
+      colorScheme: 'element',
+      colorValue: input_dict.colour,
+      multipleBond: true
     });
+    comp.autoView('ligand');
+  });
 };
 
 const renderComplex = ol => {
@@ -76,26 +72,21 @@ const renderComplex = ol => {
 
 const showComplex = (stage, input_dict, object_name) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-  Promise.all([
+  return Promise.all([
     stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
     stage.loadFile(stringBlob, { ext: 'sdf' }),
     stage,
     defaultFocus,
     object_name,
     input_dict.colour
-  ])
-    .then(ol => {
-      renderComplex(ol);
-    })
-    .catch(error => {
-      console.error(error);
-    });
+  ]).then(ol => {
+    renderComplex(ol);
+  });
 };
 
-const showEvent = (stage, input_dict, object_name) => {
-  stage
-    .loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' })
-    .then(comp => {
+const showEvent = (stage, input_dict, object_name) =>
+  Promise.all([
+    stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(comp => {
       comp.addRepresentation(MOL_REPRESENTATION.cartoon, {});
       let selection = new Selection('LIG');
       let radius = 5;
@@ -117,14 +108,9 @@ const showEvent = (stage, input_dict, object_name) => {
         sele: 'LIG'
       });
       comp.autoView('LIG');
-    })
-    .catch(error => {
-      console.error(error);
-    });
+    }),
 
-  stage
-    .loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' })
-    .then(comp => {
+    stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
       comp.addRepresentation(MOL_REPRESENTATION.surface, {
         color: 'mediumseagreen',
         isolevel: 3,
@@ -145,10 +131,7 @@ const showEvent = (stage, input_dict, object_name) => {
         isolevelScroll: false
       });
     })
-    .catch(error => {
-      console.error(error);
-    });
-};
+  ]);
 
 const showCylinder = (stage, input_dict, object_name) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
@@ -162,6 +145,7 @@ const showCylinder = (stage, input_dict, object_name) => {
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
   let shapeComp = stage.addComponentFromObject(shape);
   shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
+  return Promise.resolve();
 };
 
 const showArrow = (stage, input_dict, object_name) => {
@@ -176,72 +160,52 @@ const showArrow = (stage, input_dict, object_name) => {
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
   let shapeComp = stage.addComponentFromObject(shape);
   shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
+  return Promise.resolve();
 };
 
-const showProtein = (stage, input_dict, object_name) => {
-  stage
-    .loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' })
-    .then(comp => {
-      comp.addRepresentation(input_dict.nglProtStyle, {});
-      comp.autoView();
-    })
-    .catch(error => {
-      console.error(error);
-    });
-};
+const showProtein = (stage, input_dict, object_name) =>
+  stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' }).then(comp => {
+    comp.addRepresentation(input_dict.nglProtStyle, {});
+    comp.autoView();
+  });
 
 const showHotspot = (stage, input_dict, object_name) => {
   if (input_dict.map_type === 'AP') {
-    stage
-      .loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' })
-      .then(comp => {
-        comp.addRepresentation(MOL_REPRESENTATION.surface, {
-          color: '#FFFF00',
-          isolevelType: 'value',
-          isolevel: input_dict.isoLevel,
-          opacity: input_dict.opacity,
-          opaqueBack: false,
-          name: 'surf',
-          disablePicking: input_dict.disablePicking
-        });
-      })
-      .catch(error => {
-        console.error(error);
+    return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
+      comp.addRepresentation(MOL_REPRESENTATION.surface, {
+        color: '#FFFF00',
+        isolevelType: 'value',
+        isolevel: input_dict.isoLevel,
+        opacity: input_dict.opacity,
+        opaqueBack: false,
+        name: 'surf',
+        disablePicking: input_dict.disablePicking
       });
+    });
   } else if (input_dict.map_type === 'DO') {
-    stage
-      .loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' })
-      .then(comp => {
-        comp.addRepresentation(MOL_REPRESENTATION.surface, {
-          isolevelType: 'value',
-          isolevel: input_dict.isoLevel,
-          opacity: input_dict.opacity,
-          opaqueBack: false,
-          color: '#0000FF',
-          name: 'surf',
-          disablePicking: input_dict.disablePicking
-        });
-      })
-      .catch(error => {
-        console.error(error);
+    return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
+      comp.addRepresentation(MOL_REPRESENTATION.surface, {
+        isolevelType: 'value',
+        isolevel: input_dict.isoLevel,
+        opacity: input_dict.opacity,
+        opaqueBack: false,
+        color: '#0000FF',
+        name: 'surf',
+        disablePicking: input_dict.disablePicking
       });
+    });
   } else if (input_dict.map_type === 'AC') {
-    stage
-      .loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' })
-      .then(comp => {
-        comp.addRepresentation(MOL_REPRESENTATION.surface, {
-          color: '#FF0000',
-          isolevelType: 'value',
-          isolevel: input_dict.isoLevel,
-          opacity: input_dict.opacity,
-          opaqueBack: false,
-          name: 'surf',
-          disablePicking: input_dict.disablePicking
-        });
-      })
-      .catch(error => {
-        console.error(error);
+    return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
+      comp.addRepresentation(MOL_REPRESENTATION.surface, {
+        color: '#FF0000',
+        isolevelType: 'value',
+        isolevel: input_dict.isoLevel,
+        opacity: input_dict.opacity,
+        opaqueBack: false,
+        name: 'surf',
+        disablePicking: input_dict.disablePicking
       });
+    });
   }
 };
 

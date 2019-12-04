@@ -61,7 +61,9 @@ const NglView = memo(
 
     // connect to NGL Stage object
     const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
-    const [stage, setStage] = useState();
+    const stageRef = useRef();
+    const stage = stageRef.current;
+    //  const [stage, setStage] = useState();
 
     /*
     const showLine = (stage, input_dict, object_name) => {
@@ -114,15 +116,18 @@ const NglView = memo(
             });
           }
           setDuckYankData(input_dict);
-          loadObject({
-            start: pickingProxy.object.center1,
-            end: pickingProxy.object.center2,
-            radius: 0.2,
-            display_div: VIEWS.MAJOR_VIEW,
-            color: [1, 0, 0],
-            name: input_dict['interaction'] + SUFFIX.INTERACTION,
-            OBJECT_TYPE: OBJECT_TYPE.ARROW
-          });
+          loadObject(
+            {
+              start: pickingProxy.object.center1,
+              end: pickingProxy.object.center2,
+              radius: 0.2,
+              display_div: VIEWS.MAJOR_VIEW,
+              color: [1, 0, 0],
+              name: input_dict['interaction'] + SUFFIX.INTERACTION,
+              OBJECT_TYPE: OBJECT_TYPE.ARROW
+            },
+            stage
+          );
         } else if (pickingProxy.component.object.name) {
           let name = pickingProxy.component.object.name;
           // Ok so now perform logic
@@ -394,10 +399,14 @@ const NglView = memo(
         });
 
         setMoleculeList([]);
-        if (stage) {
+        /*  if (stage) {
           clearNglView(stage);
-        }
+        }*/
 
+        /*There will be two variants:
+          1. Generate new protein
+          2. Skip loading of protein and load everything from session
+        */
         const targObject = generateProteinObject(targetData);
         if (targObject) {
           loadObject(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }), stage);
@@ -410,7 +419,7 @@ const NglView = memo(
           );
         }
       }
-    }, [clearNglView, loadObject, setMoleculeList, stage, targetIdList, target_on]);
+    }, [loadObject, setMoleculeList, stage, targetIdList, target_on]);
 
     // for loading objects in NGL View
     useEffect(() => {
@@ -422,7 +431,9 @@ const NglView = memo(
       }
     }, [loadProtein, stage, targetIdList, targetOnName]);
 
-    console.log('Render nglView, ');
+    console.log(
+      'Render nglView, ' //, div_id, stage
+    );
 
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
@@ -433,18 +444,23 @@ const NglView = memo(
     }, [div_id, getNglView]);
 
     useEffect(() => {
-      const newStage = new Stage(div_id);
-      registerNglView(div_id, newStage);
-      window.addEventListener('resize', handleResize);
-      newStage.mouseControls.add('clickPick-left', showPick);
-      setStage(newStage);
+      if (stage === undefined) {
+        const newStage = new Stage(div_id);
+        registerNglView(div_id, newStage);
+        window.addEventListener('resize', handleResize);
+        newStage.mouseControls.add('clickPick-left', showPick);
+        stageRef.current = newStage;
+      }
       return () => {
-        window.removeEventListener('resize', handleResize);
-        stage.mouseControls.remove('clickPick-left', showPick);
-        unregisterNglView(div_id);
+        if (stage) {
+          //   clearNglView(stage);
+          window.removeEventListener('resize', handleResize);
+          stage.mouseControls.remove('clickPick-left', showPick);
+          unregisterNglView(div_id);
+        }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [div_id, handleResize, registerNglView, unregisterNglView]);
+    }, [div_id, handleResize, registerNglView, unregisterNglView, stage]);
     // End of Initialization NGL View component
 
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;

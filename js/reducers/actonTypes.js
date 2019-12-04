@@ -2,11 +2,6 @@
  * Created by abradley on 03/03/2018.
  */
 // Define all of the actions in my application
-// NGL loaders and deleters
-export const LOAD_OBJECT = 'LOAD_OBJECT';
-export const DELETE_OBJECT = 'DELETE_OBJECT';
-// NGL scene setters
-export const SET_BACKGROUND_COLOR = 'SET_BACKGROUND_COLOR';
 // Target, Site, Molecule, Protein, Compound
 export const LOAD_TARGETS = 'LOAD_TARGETS';
 export const LOAD_MOL_GROUPS = 'LOAD_MOL_GROUPS';
@@ -35,10 +30,7 @@ export const SELECT_VECTOR = 'SELECT_VECTOR';
 export const SET_MOL = 'SET_MOL';
 export const SET_VECTOR_LIST = 'SET_VECTOR_LIST';
 // State broadcast
-export const SET_NGL_ORIENTATION = 'SET_NGL_ORIENTATION';
-export const SET_ORIENTATION = 'SET_ORIENTATION';
 export const SET_UUID = 'SET_UUID';
-export const SET_LOADING_STATE = 'SET_LOADING_STATE';
 export const SET_DUCK_YANK_DATA = 'SET_DUCK_YANK_DATA';
 export const SET_FRAGMENT_DISPLAY_LIST = 'SET_FRAGMENT_DISPLAY_LIST';
 export const APPEND_FRAGMENT_DISPLAY_LIST = 'APPEND_FRAGMENT_DISPLAY_LIST';
