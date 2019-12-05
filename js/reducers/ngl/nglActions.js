@@ -7,21 +7,18 @@ import { OBJECT_TYPE } from '../../components/nglView/constants';
 
 export const loadObject = (target, stage) => dispatch => {
   if (stage) {
-    nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name)
-      .then(() => {
-        if (target.OBJECT_TYPE === OBJECT_TYPE.PROTEIN) {
-          // save scene after loading protein
-          dispatch(saveCurrentStateAsDefaultScene(stage));
-        }
-      })
+    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name)
+      .then(() =>
+        dispatch({
+          type: CONSTANTS.LOAD_OBJECT,
+          target
+        })
+      )
       .catch(error => {
         console.error(error);
       });
   }
-  return {
-    type: CONSTANTS.LOAD_OBJECT,
-    target
-  };
+  return Promise.reject('Instance of NGL View is missing');
 };
 
 export const setOrientation = function(div_id, orientation) {
@@ -77,3 +74,27 @@ export const resetNglView = stage => ({ type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAUL
 export const saveCurrentStateAsDefaultScene = stage => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE, stage });
 
 export const clearNglView = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
+
+// Helper actions for marking that protein and molecule groups are successful loaded
+export const setProteinsHasLoad = hasLoad => (dispatch, getState) => {
+  if (getState().nglReducers.present.countOfRemainingMoleculeGroups === 0 && hasLoad === true) {
+    dispatch(saveCurrentStateAsDefaultScene());
+  }
+  return { type: CONSTANTS.SET_PROTEINS_HAS_LOAD, payload: hasLoad };
+};
+
+export const setCountOfRemainingMoleculeGroups = count => ({
+  type: CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS,
+  payload: count
+});
+
+export const decrementCountOfRemainingMoleculeGroups = () => (dispatch, getState) => {
+  const decrementedCount = getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
+  if (decrementedCount === 0 && getState().nglReducers.present.proteinsHasLoad === true) {
+    dispatch(saveCurrentStateAsDefaultScene());
+  }
+  return {
+    type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
+    payload: decrementedCount
+  };
+};

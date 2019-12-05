@@ -8,7 +8,10 @@ const INITIAL_STATE = {
   orientationToSet: {},
   loadingState: true,
   backgroundColor: BACKGROUND_COLOR.black,
-  defaultScene: {}
+  defaultScene: {},
+  // Helper variables for marking that protein and molecule groups are successful loaded
+  countOfRemainingMoleculeGroups: 0,
+  proteinsHasLoad: false
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -22,6 +25,8 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         newObjectsInView[action.target.name] = action.target;
       }
 
+      //   console.log(' LOAD_OBJECT ', newObjectsInView);
+
       return Object.assign({}, state, {
         objectsInView: newObjectsInView
       });
@@ -29,6 +34,8 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     case CONSTANTS.DELETE_OBJECT:
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
       delete objectsInViewTemp[action.target.name];
+
+      console.log(' DELETE_OBJECT');
       return Object.assign({}, state, {
         objectsInView: objectsInViewTemp
       });
@@ -38,6 +45,8 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const orientation = action.orientation;
       const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
       toSetDiv[div_id] = orientation;
+
+      console.log(' SET_ORIENTATION');
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
       });
@@ -47,21 +56,25 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const set_orientation = action.orientation;
       const toSetDivTemp = JSON.parse(JSON.stringify(state.orientationToSet));
       toSetDivTemp[set_div_id] = set_orientation;
+      console.log(' SET_NGL_ORIENTATION');
       return Object.assign({}, state, {
         orientationToSet: toSetDivTemp
       });
 
     case CONSTANTS.SET_LOADING_STATE:
+      console.log(' SET_LOADING_STATE');
       return Object.assign({}, state, {
         loadingState: action.loadingState
       });
 
     case CONSTANTS.SET_BACKGROUND_COLOR:
+      console.log(' SET_BACKGROUND_COLOR');
       return Object.assign({}, state, {
         backgroundColor: action.backgroundColor
       });
 
     case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
+      console.log(' RESET_NGL_VIEW_TO_DEFAULT_SCENE');
       // load state from default scene and replace current state by these data
       return state;
 
@@ -69,17 +82,33 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       // load state from default scene and replace current state by these data
       const stateWithoutScene = JSON.parse(JSON.stringify(state));
       delete stateWithoutScene['defaultScene'];
+      delete stateWithoutScene['countOfRemainingMoleculeGroups'];
+      delete stateWithoutScene['proteinsHasLoad'];
+
+      console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
 
       return Object.assign({}, state, {
         defaultScene: stateWithoutScene
       });
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
+      console.log(' REMOVE_ALL_NGL_COMPONENTS');
       action.stage.removeAllComponents();
       // clear all arrays of object
       return Object.assign({}, state, INITIAL_STATE);
 
-    // Cases like: @@redux/INIT
+    // Helper actions for marking that protein and molecule groups are successful loaded
+    case CONSTANTS.SET_PROTEINS_HAS_LOAD:
+      console.log('SET_PROTEIN_HAS_LOAD');
+      return Object.assign({}, state, { proteinsHasLoad: action.payload });
+
+    case CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS:
+      console.log('SET_COUNT_OF_REMAINING_MOLECULE_GROUPS');
+      return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
+
+    case CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS:
+      console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
+      return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     default:
       return state;

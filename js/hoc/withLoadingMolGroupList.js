@@ -10,11 +10,21 @@ import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
 import { NglContext } from '../components/nglView/nglProvider';
+import { setCountOfRemainingMoleculeGroups, decrementCountOfRemainingMoleculeGroups } from '../reducers/ngl/nglActions';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
   const MolGroupList = memo(
-    ({ object_list, deleteObject, loadObject, target_on, group_type, setObjectList, isStateLoaded, ...rest }) => {
+    ({
+      loadObject,
+      target_on,
+      group_type,
+      setObjectList,
+      isStateLoaded,
+      setCountOfRemainingMoleculeGroups,
+      decrementCountOfRemainingMoleculeGroups,
+      ...rest
+    }) => {
       const [state, setState] = useState();
       const { getNglView } = useContext(NglContext);
       const list_type = listType.MOLGROUPS;
@@ -52,31 +62,26 @@ export const withLoadingMolGroupList = WrappedComponent => {
         [list_type]
       );
 
-      // call redux action for removing objects on NGL view
-      const beforePush = useCallback(() => {
-        if (object_list) {
-          object_list.map(data =>
-            deleteObject(
-              Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data)),
-              getNglView(VIEWS.SUMMARY_VIEW).stage
-            )
-          );
-        }
-      }, [deleteObject, generateObject, getNglView, object_list]);
-
       // call redux action for add objects on NGL view
       const afterPush = useCallback(
         data_list => {
           if (data_list) {
+            setCountOfRemainingMoleculeGroups(data_list.length);
             data_list.map(data =>
               loadObject(
                 Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateObject(data)),
                 getNglView(VIEWS.SUMMARY_VIEW).stage
-              )
+              ).then(() => decrementCountOfRemainingMoleculeGroups())
             );
           }
         },
-        [generateObject, getNglView, loadObject]
+        [
+          decrementCountOfRemainingMoleculeGroups,
+          generateObject,
+          getNglView,
+          loadObject,
+          setCountOfRemainingMoleculeGroups
+        ]
       );
 
       useEffect(() => {
@@ -87,7 +92,6 @@ export const withLoadingMolGroupList = WrappedComponent => {
             setOldUrl: url => setOldUrl(url),
             old_url: oldUrl.current,
             afterPush: afterPush,
-            beforePush: beforePush,
             list_type,
             setObjectList,
             cancel: onCancel
@@ -103,7 +107,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
             refOnCancel.current();
           }
         };
-      }, [target_on, group_type, list_type, setObjectList, isStateLoaded, afterPush, beforePush]);
+      }, [target_on, group_type, list_type, setObjectList, isStateLoaded, afterPush]);
 
       return <WrappedComponent {...rest} />;
     }
@@ -111,15 +115,15 @@ export const withLoadingMolGroupList = WrappedComponent => {
 
   function mapStateToProps(state) {
     return {
-      object_list: state.apiReducers.present.mol_group_list,
       group_type: state.apiReducers.present.group_type,
       target_on: state.apiReducers.present.target_on
     };
   }
   const mapDispatchToProps = {
-    deleteObject: nglActions.deleteObject,
     loadObject: nglActions.loadObject,
-    setObjectList: apiActions.setMolGroupList
+    setObjectList: apiActions.setMolGroupList,
+    setCountOfRemainingMoleculeGroups: setCountOfRemainingMoleculeGroups,
+    decrementCountOfRemainingMoleculeGroups: decrementCountOfRemainingMoleculeGroups
   };
   return connect(mapStateToProps, mapDispatchToProps)(MolGroupList);
 };

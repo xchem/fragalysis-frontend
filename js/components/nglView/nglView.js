@@ -17,13 +17,13 @@ import { defaultFocus, generateProteinObject, nglObjectDictionary } from '../../
 
 const NglView = memo(
   ({
-    nglOrientations,
-    orientationToSet,
-    mol_group_list,
+    //  nglOrientations,
+    //   orientationToSet,
+    //  mol_group_list,
     pandda_site_on,
     pandda_site_list,
     duck_yank_data,
-    targetOnName,
+    //  targetOnName,
     setMolGroupOn,
     setMolGroupSelection,
     selectVector,
@@ -33,13 +33,13 @@ const NglView = memo(
     setOrientation,
     deleteObject,
     loadObject,
-    setLoadingState,
+    //   setLoadingState,
     div_id,
     height,
-    mol_group_selection,
-    targetIdList,
-    target_on,
-    setMoleculeList,
+    //   mol_group_selection,
+    //  targetIdList,
+    //   target_on,
+    //  setMoleculeList,
     clearNglView
   }) => {
     const store = useStore();
@@ -63,7 +63,8 @@ const NglView = memo(
     const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
     const stageRef = useRef();
     const stage = stageRef.current;
-    //  const [stage, setStage] = useState();
+
+    console.log('Render nglView, ', div_id, height, stage);
 
     /*
     const showLine = (stage, input_dict, object_name) => {
@@ -353,11 +354,11 @@ const NglView = memo(
       updateOrientation();
     }, [updateOrientation]);
 */
-    useEffect(() => {
-      setOrientation(div_id, 'STARTED');
+    /* useEffect(() => {
+     setOrientation(div_id, 'STARTED');
       setNGLOrientation(div_id, 'SET');
     }, [div_id, setNGLOrientation, setOrientation]);
-
+*/
     /**
      * Function to deal with the logic of showing molecules
      */
@@ -389,52 +390,6 @@ const NglView = memo(
     }, [stage, objectsToLoad, objectsToDelete, div_id, objectLoading, deleteObjectSuccess]);
 */
 
-    const loadProtein = useCallback(() => {
-      if (target_on !== undefined && targetIdList && stage) {
-        let targetData = null;
-        targetIdList.forEach(thisTarget => {
-          if (thisTarget.id === target_on && targetData === null) {
-            targetData = thisTarget;
-          }
-        });
-
-        setMoleculeList([]);
-        /*  if (stage) {
-          clearNglView(stage);
-        }*/
-
-        /*There will be two variants:
-          1. Generate new protein
-          2. Skip loading of protein and load everything from session
-        */
-        const targObject = generateProteinObject(targetData);
-        if (targObject) {
-          loadObject(Object.assign({}, targObject, { display_div: VIEWS.SUMMARY_VIEW }), stage);
-          loadObject(
-            Object.assign({}, targObject, {
-              display_div: VIEWS.MAJOR_VIEW,
-              name: targObject.name + SUFFIX.MAIN
-            }),
-            stage
-          );
-        }
-      }
-    }, [loadObject, setMoleculeList, stage, targetIdList, target_on]);
-
-    // for loading objects in NGL View
-    useEffect(() => {
-      if (targetIdList && targetIdList.length > 0 && stage) {
-        loadProtein();
-        if (targetOnName !== undefined) {
-          document.title = targetOnName + ': Fragalysis';
-        }
-      }
-    }, [loadProtein, stage, targetIdList, targetOnName]);
-
-    console.log(
-      'Render nglView, ' //, div_id, stage
-    );
-
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
       const newStage = getNglView(div_id);
@@ -444,7 +399,7 @@ const NglView = memo(
     }, [div_id, getNglView]);
 
     useEffect(() => {
-      if (stage === undefined) {
+      if (stageRef.current === undefined) {
         const newStage = new Stage(div_id);
         registerNglView(div_id, newStage);
         window.addEventListener('resize', handleResize);
@@ -452,15 +407,15 @@ const NglView = memo(
         stageRef.current = newStage;
       }
       return () => {
-        if (stage) {
-          //   clearNglView(stage);
+        if (stageRef.current) {
+          clearNglView(stageRef.current);
           window.removeEventListener('resize', handleResize);
-          stage.mouseControls.remove('clickPick-left', showPick);
+          stageRef.current.mouseControls.remove('clickPick-left', showPick);
           unregisterNglView(div_id);
         }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [div_id, handleResize, registerNglView, unregisterNglView, stage]);
+    }, [div_id, handleResize, registerNglView, unregisterNglView]);
     // End of Initialization NGL View component
 
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;
@@ -468,16 +423,16 @@ const NglView = memo(
 );
 function mapStateToProps(state) {
   return {
-    nglOrientations: state.nglReducers.present.nglOrientations,
-    orientationToSet: state.nglReducers.present.orientationToSet,
-    mol_group_list: state.apiReducers.present.mol_group_list,
-    mol_group_selection: state.apiReducers.present.mol_group_selection,
+    // nglOrientations: state.nglReducers.present.nglOrientations,
+    //  orientationToSet: state.nglReducers.present.orientationToSet,
+    //   mol_group_list: state.apiReducers.present.mol_group_list,
+    //    mol_group_selection: state.apiReducers.present.mol_group_selection,
     pandda_site_on: state.apiReducers.present.pandda_site_on,
     pandda_site_list: state.apiReducers.present.pandda_site_list,
-    duck_yank_data: state.apiReducers.present.duck_yank_data,
-    targetOnName: state.apiReducers.present.target_on_name,
-    targetIdList: state.apiReducers.present.target_id_list,
-    target_on: state.apiReducers.present.target_on
+    duck_yank_data: state.apiReducers.present.duck_yank_data
+    //   targetOnName: state.apiReducers.present.target_on_name,
+    //   targetIdList: state.apiReducers.present.target_id_list,
+    //  target_on: state.apiReducers.present.target_on
   };
 }
 const mapDispatchToProps = {
@@ -490,8 +445,8 @@ const mapDispatchToProps = {
   setOrientation: nglActions.setOrientation,
   deleteObject: nglActions.deleteObject,
   loadObject: nglActions.loadObject,
-  setLoadingState: nglActions.setLoadingState,
-  setMoleculeList: apiActions.setMoleculeList,
+  // setLoadingState: nglActions.setLoadingState,
+  //  setMoleculeList: apiActions.setMoleculeList,
   clearNglView: nglActions.clearNglView
 };
 

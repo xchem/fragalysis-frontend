@@ -16,6 +16,7 @@ import { ComputeHeight } from '../../utils/computeHeight';
 import { withUpdatingTarget } from './withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
+import { withLoadingProtein } from './withLoadingProtein';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -93,4 +94,4 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   );
 });
 
-export default withUpdatingTarget(Preview);
+export default withUpdatingTarget(withLoadingProtein(Preview));
