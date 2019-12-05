@@ -41,17 +41,13 @@ export const withLoadingProtein = WrappedComponent => {
             */
             const targObject = generateProteinObject(targetData);
             if (targObject) {
+              console.log('___ loading proteins');
               setProteinsHasLoad(false);
-              Promise.all([
-                loadObject(Object.assign({}, targObject, { display_div: nglView.id }), nglView.stage),
-                loadObject(
-                  Object.assign({}, targObject, {
-                    display_div: VIEWS.MAJOR_VIEW,
-                    name: targObject.name + SUFFIX.MAIN
-                  }),
-                  nglView.stage
-                )
-              ])
+              let newParams = { display_div: nglView.id };
+              if (nglView.if === VIEWS.MAJOR_VIEW) {
+                newParams[name] = targObject.name + SUFFIX.MAIN;
+              }
+              loadObject(Object.assign({}, targObject, newParams), nglView.stage)
                 .then(() => setProteinsHasLoad(true))
                 .catch(() => setProteinsHasLoad(false));
             }

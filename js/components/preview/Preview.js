@@ -6,7 +6,7 @@ import React, { Fragment, memo, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from '../molecule/moleculeList';
-import MolGroupSelector from '../molGroupSelector';
+import MolGroupSelector from '../moleculeGroups/molGroupSelector';
 import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
 import NglViewerControls from './viewerControls';

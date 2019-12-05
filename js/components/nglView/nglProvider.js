@@ -1,36 +1,31 @@
-import React, { createContext, useState, memo } from 'react';
+import React, { createContext, memo, useRef } from 'react';
 
 export const NglContext = createContext();
 
 export const NglProvider = memo(props => {
-  const [nglViewList, setNGLViewList] = useState([]);
-  //let nglViewList = [];
+  const nglViewList = useRef([]);
 
   const registerNglView = (id, stage) => {
-    if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
-      console.error('Cannot register NGL View with used ID!');
+    if (nglViewList.current.filter(ngl => ngl.id === id).length > 0) {
+      console.error('Cannot register NGL View with used ID! ', id);
     } else {
-      // nglViewList.push({ id, stage });
-      let extendedList = nglViewList;
+      let extendedList = nglViewList.current;
       extendedList.push({ id, stage });
-      setNGLViewList(extendedList);
+      nglViewList.current = extendedList;
     }
   };
 
   const unregisterNglView = id => {
-    if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
-      console.error('Cannot remove NGL View with given ID!');
+    if (nglViewList.current.filter(ngl => ngl.id === id).length === 0) {
+      console.error('Cannot remove NGL View with given ID! ', id);
     } else {
-      /*  nglViewList = nglViewList.filter(value => {
-        return value.id !== id;
-      });*/
-      let filteredList = nglViewList.filter(value => value.id !== id);
-      setNGLViewList(filteredList);
+      nglViewList.current = nglViewList.current.filter(value => value.id !== id);
     }
   };
 
   const getNglView = id => {
-    const filteredList = nglViewList.length > 0 ? nglViewList.filter(ngl => ngl.id === id) : [];
+    const filteredList =
+      nglViewList.current && nglViewList.current.length > 0 ? nglViewList.current.filter(ngl => ngl.id === id) : [];
     switch (filteredList.length) {
       case 0:
         return undefined;
@@ -43,7 +38,7 @@ export const NglProvider = memo(props => {
   };
 
   return (
-    <NglContext.Provider value={{ nglViewList, registerNglView, getNglView, unregisterNglView }}>
+    <NglContext.Provider value={{ nglViewList: nglViewList.current, registerNglView, getNglView, unregisterNglView }}>
       {props.children}
     </NglContext.Provider>
   );

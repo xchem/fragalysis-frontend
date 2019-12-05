@@ -10,7 +10,7 @@ const INITIAL_STATE = {
   backgroundColor: BACKGROUND_COLOR.black,
   defaultScene: {},
   // Helper variables for marking that protein and molecule groups are successful loaded
-  countOfRemainingMoleculeGroups: 0,
+  countOfRemainingMoleculeGroups: null,
   proteinsHasLoad: false
 };
 
@@ -99,7 +99,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOAD:
-      console.log('SET_PROTEIN_HAS_LOAD');
+      console.log('SET_PROTEIN_HAS_LOAD ', action.payload);
       return Object.assign({}, state, { proteinsHasLoad: action.payload });
 
     case CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS:
@@ -107,7 +107,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
+      //    console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     default:

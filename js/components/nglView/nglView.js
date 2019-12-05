@@ -405,6 +405,7 @@ const NglView = memo(
         window.addEventListener('resize', handleResize);
         newStage.mouseControls.add('clickPick-left', showPick);
         stageRef.current = newStage;
+        console.log(' * REGISTER ', div_id);
       }
       return () => {
         if (stageRef.current) {
@@ -412,6 +413,7 @@ const NglView = memo(
           window.removeEventListener('resize', handleResize);
           stageRef.current.mouseControls.remove('clickPick-left', showPick);
           unregisterNglView(div_id);
+          console.log(' UNREGISTER ', div_id);
         }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps

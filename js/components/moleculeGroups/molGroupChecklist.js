@@ -1,11 +1,12 @@
 import React, { memo, Fragment } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
-import * as apiActions from '../reducers/api/apiActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
-import { generateMolObject, generateObject, getJoinedMoleculeList } from './molecule/molecules_helpers';
-import { VIEWS } from '../constants/constants';
-import * as nglLoadActions from '../reducers/ngl/nglActions';
+import { generateMolObject, generateObject, getJoinedMoleculeList } from '../molecule/molecules_helpers';
+import { VIEWS } from '../../constants/constants';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import { useEnableUserInteraction } from '../useEnableUserInteracion';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -42,12 +43,12 @@ const molGroupChecklist = memo(
     mol_group_selection,
     setMolGroupOn,
     setMolGroupSelection,
-    countOfPendingVectorLoadRequests,
     vector_list,
     cached_mol_lists,
     deleteObject
   }) => {
     const classes = useStyles();
+    const enableUserInteraction = useEnableUserInteraction();
 
     const handleSiteClearSelection = molGroupSelectionId => {
       let site;
@@ -119,7 +120,7 @@ const molGroupChecklist = memo(
                           color="primary"
                           checked={checked}
                           onChange={handleOnSelect(o)}
-                          disabled={countOfPendingVectorLoadRequests > 0}
+                          disabled={!enableUserInteraction}
                         />
                       </Grid>
                       <Grid item className={checked ? classes.selectedLine : null}>
@@ -141,7 +142,6 @@ const mapStateToProps = state => {
   return {
     mol_group_list: state.apiReducers.present.mol_group_list,
     mol_group_selection: state.apiReducers.present.mol_group_selection,
-    countOfPendingVectorLoadRequests: state.selectionReducers.present.countOfPendingVectorLoadRequests,
     cached_mol_lists: state.apiReducers.present.cached_mol_lists,
     vector_list: state.selectionReducers.present.vector_list
   };

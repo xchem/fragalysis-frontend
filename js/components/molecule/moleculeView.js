@@ -16,6 +16,7 @@ import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { NglContext } from '../nglView/nglProvider';
+import { useEnableUserInteraction } from '../useEnableUserInteracion';
 
 const containerHeight = 76;
 
@@ -123,8 +124,7 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList,
     incrementCountOfPendingVectorLoadRequests,
-    decrementCountOfPendingVectorLoadRequests,
-    countOfPendingVectorLoadRequests
+    decrementCountOfPendingVectorLoadRequests
   }) => {
     const theme = useTheme();
     const [state, setState] = useState();
@@ -142,6 +142,8 @@ const MoleculeView = memo(
     const isComplexOn = (currentID && complexList.has(currentID)) || false;
     const isVectorOn = (currentID && vectorOnList.has(currentID)) || false;
     const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
+
+    const enableUserInteraction = useEnableUserInteraction();
 
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -388,7 +390,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: hasAllValuesOn
               })}
               onClick={onSelectAll}
-              disabled={countOfPendingVectorLoadRequests > 0}
+              disabled={!enableUserInteraction}
             >
               <Typography variant="caption">A</Typography>
             </Button>
@@ -401,7 +403,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isLigandOn
               })}
               onClick={onLigand}
-              disabled={countOfPendingVectorLoadRequests > 0}
+              disabled={!enableUserInteraction}
             >
               <Typography variant="caption">L</Typography>
             </Button>
@@ -414,7 +416,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isComplexOn
               })}
               onClick={onComplex}
-              disabled={countOfPendingVectorLoadRequests > 0}
+              disabled={!enableUserInteraction}
             >
               <Typography variant="caption">C</Typography>
             </Button>
@@ -427,7 +429,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isVectorOn
               })}
               onClick={onVector}
-              disabled={countOfPendingVectorLoadRequests > 0}
+              disabled={!enableUserInteraction}
             >
               <Typography variant="caption">V</Typography>
             </Button>
@@ -509,8 +511,7 @@ function mapStateToProps(state) {
     vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList,
-    countOfPendingVectorLoadRequests: state.selectionReducers.present.countOfPendingVectorLoadRequests
+    vectorOnList: state.selectionReducers.present.vectorOnList
   };
 }
 const mapDispatchToProps = {

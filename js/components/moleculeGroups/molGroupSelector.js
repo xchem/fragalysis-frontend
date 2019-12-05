@@ -2,23 +2,24 @@ import React, { memo, useContext, useRef } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 
-import { Panel } from './common/Surfaces/Panel';
-import { Button } from './common/Inputs/Button';
-import NGLView from './nglView/nglView';
+import { Panel } from '../common/Surfaces/Panel';
+import { Button } from '../common/Inputs/Button';
+import NGLView from '../nglView/nglView';
 import MolGroupChecklist from './molGroupChecklist';
-import * as apiActions from '../reducers/api/apiActions';
+import * as apiActions from '../../reducers/api/apiActions';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../reducers/ngl/nglActions';
-import { VIEWS } from '../constants/constants';
-import * as selectionActions from '../reducers/selection/selectionActions';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import { VIEWS } from '../../constants/constants';
+import * as selectionActions from '../../reducers/selection/selectionActions';
 import {
   generateMolObject,
   generateObject,
   generateResetFocusObject,
   getJoinedMoleculeList
-} from './molecule/molecules_helpers';
-import { withLoadingMolGroupList } from '../hoc/withLoadingMolGroupList';
-import { NglContext } from './nglView/nglProvider';
+} from '../molecule/molecules_helpers';
+import { withLoadingMolGroupList } from '../../hoc/withLoadingMolGroupList';
+import { NglContext } from '../nglView/nglProvider';
+import { useEnableUserInteraction } from '../useEnableUserInteracion';
 
 export const heightOfBody = '164px';
 
@@ -51,14 +52,14 @@ const molGroupSelector = memo(
     setVectorOnList,
     setVectorList,
     resetSelectionState,
-    handleHeightChange,
-    countOfPendingVectorLoadRequests
+    handleHeightChange
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const enableUserInteraction = useEnableUserInteraction();
 
     const handleClearSelection = () => {
       // loop through all molecules
@@ -113,7 +114,7 @@ const molGroupSelector = memo(
         headerActions={[
           <Button
             onClick={handleClearSelection}
-            disabled={countOfPendingVectorLoadRequests > 0}
+            disabled={!enableUserInteraction}
             color="inherit"
             variant="text"
             size="small"
@@ -146,8 +147,7 @@ function mapStateToProps(state) {
     object_selection: state.apiReducers.present.mol_group_selection,
     cached_mol_lists: state.apiReducers.present.cached_mol_lists,
     mol_group_list: state.apiReducers.present.mol_group_list,
-    vector_list: state.selectionReducers.present.vector_list,
-    countOfPendingVectorLoadRequests: state.selectionReducers.present.countOfPendingVectorLoadRequests
+    vector_list: state.selectionReducers.present.vector_list
   };
 }
 const mapDispatchToProps = {

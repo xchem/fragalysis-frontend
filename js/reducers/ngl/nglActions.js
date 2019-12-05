@@ -77,10 +77,11 @@ export const clearNglView = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENT
 
 // Helper actions for marking that protein and molecule groups are successful loaded
 export const setProteinsHasLoad = hasLoad => (dispatch, getState) => {
-  if (getState().nglReducers.present.countOfRemainingMoleculeGroups === 0 && hasLoad === true) {
+  const state = getState();
+  if (state.nglReducers.present.countOfRemainingMoleculeGroups === 0 && hasLoad === true) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
-  return { type: CONSTANTS.SET_PROTEINS_HAS_LOAD, payload: hasLoad };
+  dispatch({ type: CONSTANTS.SET_PROTEINS_HAS_LOAD, payload: hasLoad });
 };
 
 export const setCountOfRemainingMoleculeGroups = count => ({
@@ -89,12 +90,13 @@ export const setCountOfRemainingMoleculeGroups = count => ({
 });
 
 export const decrementCountOfRemainingMoleculeGroups = () => (dispatch, getState) => {
-  const decrementedCount = getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
-  if (decrementedCount === 0 && getState().nglReducers.present.proteinsHasLoad === true) {
+  const state = getState();
+  const decrementedCount = state.nglReducers.present.countOfRemainingMoleculeGroups - 1;
+  if (decrementedCount === 0 && state.nglReducers.present.proteinsHasLoad === true) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
-  return {
+  dispatch({
     type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
     payload: decrementedCount
-  };
+  });
 };
