@@ -16,7 +16,7 @@ import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { useEnableUserInteraction } from '../useEnableUserInteracion';
+import { useDisableUserInteraction } from '../useEnableUserInteracion';
 
 const containerHeight = 76;
 
@@ -143,7 +143,7 @@ const MoleculeView = memo(
     const isVectorOn = (currentID && vectorOnList.has(currentID)) || false;
     const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
 
-    const enableUserInteraction = useEnableUserInteraction();
+    const disableUserInteraction = useDisableUserInteraction();
 
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -390,7 +390,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: hasAllValuesOn
               })}
               onClick={onSelectAll}
-              disabled={!enableUserInteraction}
+              disabled={disableUserInteraction}
             >
               <Typography variant="caption">A</Typography>
             </Button>
@@ -403,7 +403,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isLigandOn
               })}
               onClick={onLigand}
-              disabled={!enableUserInteraction}
+              disabled={disableUserInteraction}
             >
               <Typography variant="caption">L</Typography>
             </Button>
@@ -416,7 +416,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isComplexOn
               })}
               onClick={onComplex}
-              disabled={!enableUserInteraction}
+              disabled={disableUserInteraction}
             >
               <Typography variant="caption">C</Typography>
             </Button>
@@ -429,7 +429,7 @@ const MoleculeView = memo(
                 [classes.contColButtonSelected]: isVectorOn
               })}
               onClick={onVector}
-              disabled={!enableUserInteraction}
+              disabled={disableUserInteraction}
             >
               <Typography variant="caption">V</Typography>
             </Button>

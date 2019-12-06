@@ -6,7 +6,7 @@ import { heightOfBody } from './molGroupSelector';
 import { generateMolObject, generateObject, getJoinedMoleculeList } from '../molecule/molecules_helpers';
 import { VIEWS } from '../../constants/constants';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
-import { useEnableUserInteraction } from '../useEnableUserInteracion';
+import { useDisableUserInteraction } from '../useEnableUserInteracion';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -48,7 +48,7 @@ const molGroupChecklist = memo(
     deleteObject
   }) => {
     const classes = useStyles();
-    const enableUserInteraction = useEnableUserInteraction();
+    const disableUserInteraction = useDisableUserInteraction();
 
     const handleSiteClearSelection = molGroupSelectionId => {
       let site;
@@ -120,7 +120,7 @@ const molGroupChecklist = memo(
                           color="primary"
                           checked={checked}
                           onChange={handleOnSelect(o)}
-                          disabled={!enableUserInteraction}
+                          disabled={disableUserInteraction}
                         />
                       </Grid>
                       <Grid item className={checked ? classes.selectedLine : null}>

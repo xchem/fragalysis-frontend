@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-export const useEnableUserInteraction = () => {
-  const [enableInteraction, setEnableInteraction] = useState(false);
+export const useDisableUserInteraction = () => {
+  const [disableInteraction, setDisableInteraction] = useState(false);
   const countOfPendingVectorLoadRequests = useSelector(
     state => state.selectionReducers.present.countOfPendingVectorLoadRequests
   );
@@ -10,12 +10,16 @@ export const useEnableUserInteraction = () => {
   const proteinsHasLoad = useSelector(state => state.nglReducers.present.proteinsHasLoad);
 
   useEffect(() => {
-    if (countOfPendingVectorLoadRequests === 0 && countOfRemainingMoleculeGroups === 0 && proteinsHasLoad === true) {
-      setEnableInteraction(true);
+    if (
+      countOfPendingVectorLoadRequests === 0 &&
+      ((countOfRemainingMoleculeGroups === 0 && proteinsHasLoad === true) ||
+        (countOfRemainingMoleculeGroups === null && proteinsHasLoad === null))
+    ) {
+      setDisableInteraction(false);
     } else {
-      setEnableInteraction(false);
+      setDisableInteraction(true);
     }
   }, [countOfPendingVectorLoadRequests, countOfRemainingMoleculeGroups, proteinsHasLoad]);
 
-  return enableInteraction;
+  return disableInteraction;
 };

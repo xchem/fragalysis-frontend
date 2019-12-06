@@ -6,7 +6,6 @@ import React, { memo, useContext, forwardRef, useState, useEffect } from 'react'
 import {
   Grid,
   makeStyles,
-  LinearProgress,
   AppBar,
   Typography,
   ListItem,
@@ -16,7 +15,8 @@ import {
   ListItemText,
   Avatar,
   Box,
-  ButtonGroup
+  ButtonGroup,
+  CircularProgress
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -36,6 +36,7 @@ import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeHeight } from '../../utils/computeHeight';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { useDisableUserInteraction } from '../useEnableUserInteracion';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -58,6 +59,19 @@ const useStyles = makeStyles(theme => ({
   drawerHeader: {
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.default
+  },
+  loadingPaper: {
+    backgroundColor: theme.palette.background.default,
+    zIndex: 1,
+    width: '100%',
+    position: 'absolute',
+    opacity: 0.9,
+    pointerEvents: 'initial'
+  },
+  loadingWheel: {
+    top: '50%',
+    left: '50%',
+    position: 'fixed'
   }
 }));
 
@@ -65,6 +79,7 @@ const Index = memo(
   forwardRef(({ history, children, setHeaderHeight, headerHeight = 0 }, ref) => {
     const classes = useStyles();
     const { isLoading } = useContext(HeaderContext);
+    const disableUserInteraction = useDisableUserInteraction();
 
     const [error, setError] = useState();
     const [openMenu, setOpenMenu] = React.useState(false);
@@ -250,8 +265,18 @@ const Index = memo(
           {authListItem}
           {reportErrorMenuItem}
         </Drawer>
-        <Box width="100%" paddingTop={`${headerHeight}px`}>
-          {isLoading === true && <LinearProgress color="secondary" />}
+        <Box paddingTop={`${headerHeight}px`} width="100%">
+          {(isLoading === true || disableUserInteraction === true) && (
+            <Box
+              className={classes.loadingPaper}
+              width="100%"
+              height={`calc(${document.documentElement.offsetHeight}px - ${headerHeight}px)`}
+            >
+              <div className={classes.loadingWheel}>
+                <CircularProgress />
+              </div>
+            </Box>
+          )}
         </Box>
       </ComputeHeight>
     );

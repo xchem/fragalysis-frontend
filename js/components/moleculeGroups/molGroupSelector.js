@@ -19,7 +19,7 @@ import {
 } from '../molecule/molecules_helpers';
 import { withLoadingMolGroupList } from '../../hoc/withLoadingMolGroupList';
 import { NglContext } from '../nglView/nglProvider';
-import { useEnableUserInteraction } from '../useEnableUserInteracion';
+import { useDisableUserInteraction } from '../useEnableUserInteracion';
 
 export const heightOfBody = '164px';
 
@@ -59,7 +59,7 @@ const molGroupSelector = memo(
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-    const enableUserInteraction = useEnableUserInteraction();
+    const disableUserInteraction = useDisableUserInteraction();
 
     const handleClearSelection = () => {
       // loop through all molecules
@@ -114,7 +114,7 @@ const molGroupSelector = memo(
         headerActions={[
           <Button
             onClick={handleClearSelection}
-            disabled={!enableUserInteraction}
+            disabled={disableUserInteraction}
             color="inherit"
             variant="text"
             size="small"
