@@ -13,6 +13,7 @@ export const MOL_REPRESENTATION = {
   surface: 'surface'
 };
 
+// warning dont use underscore _ in constants!!!!!!
 export const OBJECT_TYPE = {
   SPHERE: 'SPHERE',
   COMPLEX: 'COMPLEX',
@@ -23,5 +24,6 @@ export const OBJECT_TYPE = {
   LINE: 'LINE',
   EVENTMAP: 'EVENTMAP',
   HOTSPOT: 'HOTSPOT',
-  RESET_FOCUS: 'RESET_FOCUS'
+  RESET_FOCUS: 'RESET-FOCUS',
+  MOLECULE_GROUP: 'MOLECULE-GROUP'
 };

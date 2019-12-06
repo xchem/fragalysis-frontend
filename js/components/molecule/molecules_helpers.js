@@ -1,4 +1,6 @@
 import { OBJECT_TYPE } from '../nglView/constants';
+import { useCallback } from 'react';
+import * as listType from '../listTypes';
 // concat molecule results for all selected molecule groups into single list
 
 export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_group_list }) => {
@@ -15,7 +17,7 @@ export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_
   return joinedMoleculeLists;
 };
 
-export const generateMolObject = (id, sdf_info) => {
+export const generateMolecule = (id, sdf_info) => {
   return {
     name: 'MOLLOAD' + '_' + id,
     OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
@@ -26,7 +28,7 @@ export const generateMolObject = (id, sdf_info) => {
 
 const base_url = window.location.protocol + '//' + window.location.host;
 
-export const generateObject = (id, protein_code, sdf_info, molecule_protein) => {
+export const generateComplex = (id, protein_code, sdf_info, molecule_protein) => {
   return {
     name: protein_code + '_COMP',
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
@@ -36,9 +38,28 @@ export const generateObject = (id, protein_code, sdf_info, molecule_protein) => 
   };
 };
 
-export const generateMolId = id => {
+export const generateSphere = (data, selected = false) => {
+  let sele = '';
+  var colour = [0, 0, 1];
+  var radius;
+  if (data.mol_id.length > 10) {
+    radius = 6.0;
+  } else if (data.mol_id.length > 5) {
+    radius = 4.0;
+  } else {
+    radius = 2.0;
+  }
+  if (selected) {
+    sele = 'SELECT';
+    colour = [0, 1, 0];
+  }
+  // Move this out of this
   return {
-    id: id
+    OBJECT_TYPE: OBJECT_TYPE.SPHERE,
+    name: OBJECT_TYPE.MOLECULE_GROUP + sele + '_' + +data.id.toString(),
+    radius: radius,
+    colour: colour,
+    coords: [data.x_com, data.y_com, data.z_com]
   };
 };
 

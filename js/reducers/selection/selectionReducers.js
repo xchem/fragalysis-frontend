@@ -28,7 +28,8 @@ const INITIAL_STATE = {
     5: 'Apricot'
   },
   currentCompoundClass: 1,
-  countOfPendingVectorLoadRequests: 0
+  countOfPendingVectorLoadRequests: 0,
+  mol_group_selection: []
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -223,7 +224,8 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         currentVector: action.savedSelectionReducers.currentVector,
         compoundClasses: action.savedSelectionReducers.compoundClasses,
         currentCompoundClass: action.savedSelectionReducers.currentCompoundClass,
-        highlightedCompound: action.savedSelectionReducers.highlightedCompound
+        highlightedCompound: action.savedSelectionReducers.highlightedCompound,
+        mol_group_selection: action.savedSelectionReducers.mol_group_selection
       });
 
     case actions.RESET_SELECTION_STATE:
@@ -244,6 +246,11 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests - 1
       });
     }
+
+    case actions.SET_MOL_GROUP_SELECTION:
+      return Object.assign({}, state, {
+        mol_group_selection: action.mol_group_selection
+      });
 
     // Cases like: @@redux/INIT
     default:

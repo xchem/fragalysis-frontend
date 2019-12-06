@@ -3,10 +3,11 @@ import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
-import { generateMolObject, generateObject, getJoinedMoleculeList } from '../molecule/molecules_helpers';
+import { generateMolecule, generateComplex, getJoinedMoleculeList } from '../molecule/molecules_helpers';
 import { VIEWS } from '../../constants/constants';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
+import * as selectionActions from '../../reducers/selection/selectionActions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -58,14 +59,14 @@ const molGroupChecklist = memo(
           site = mol.site;
           // remove Ligand
           deleteObject(
-            Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(mol.id.toString(), mol.sdf_info))
+            Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info))
           );
 
           // remove Complex
           deleteObject(
             Object.assign(
               { display_div: VIEWS.MAJOR_VIEW },
-              generateObject(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
+              generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
             )
           );
         }
@@ -141,7 +142,7 @@ const molGroupChecklist = memo(
 const mapStateToProps = state => {
   return {
     mol_group_list: state.apiReducers.present.mol_group_list,
-    mol_group_selection: state.apiReducers.present.mol_group_selection,
+    mol_group_selection: state.selectionReducers.present.mol_group_selection,
     cached_mol_lists: state.apiReducers.present.cached_mol_lists,
     vector_list: state.selectionReducers.present.vector_list
   };
@@ -149,7 +150,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
   setMolGroupOn: apiActions.setMolGroupOn,
-  setMolGroupSelection: apiActions.setMolGroupSelection,
+  setMolGroupSelection: selectionActions.setMolGroupSelection,
   deleteObject: nglLoadActions.deleteObject
 };
 export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);

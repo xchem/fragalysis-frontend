@@ -1,6 +1,7 @@
 import * as listTypes from '../components/listTypes';
 import { api } from './api';
 import { DJANGO_CONTEXT } from './djangoContext';
+import { OBJECT_TYPE } from '../components/nglView/constants';
 
 // START of functions from GenericList
 export const getUrl = ({
@@ -28,7 +29,7 @@ export const getUrl = ({
     if (project_id !== undefined) {
       get_params.project_id = project_id;
     }
-  } else if (list_type === listTypes.MOLGROUPS) {
+  } else if (list_type === OBJECT_TYPE.MOLECULE_GROUP) {
     if (target_on !== undefined) {
       get_params.target_id = target_on;
       base_url += 'molgroup/';
@@ -132,7 +133,7 @@ export const loadFromServer = ({
         }
 
         // TODO: Do we need to fetch all or wait for click on molecule group?
-        if (list_type === listTypes.MOLGROUPS) {
+        if (list_type === OBJECT_TYPE.MOLECULE_GROUP) {
           // json.results.forEach(molgroup => {
           //     const molgroup_id = molgroup.id;
           //     console.log(`Fetch data for mol_group ${molgroup_id}`);

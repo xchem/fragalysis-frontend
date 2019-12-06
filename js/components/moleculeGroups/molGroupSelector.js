@@ -12,8 +12,8 @@ import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import { VIEWS } from '../../constants/constants';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import {
-  generateMolObject,
-  generateObject,
+  generateMolecule,
+  generateComplex,
   generateResetFocusObject,
   getJoinedMoleculeList
 } from '../molecule/molecules_helpers';
@@ -66,7 +66,7 @@ const molGroupSelector = memo(
       getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }).forEach(mol => {
         // remove Ligand
         deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(mol.id.toString(), mol.sdf_info)),
+          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info)),
           stage
         );
 
@@ -74,7 +74,7 @@ const molGroupSelector = memo(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateObject(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
+            generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
           ),
           stage
         );
@@ -144,7 +144,7 @@ const molGroupSelector = memo(
 
 function mapStateToProps(state) {
   return {
-    object_selection: state.apiReducers.present.mol_group_selection,
+    object_selection: state.selectionReducers.present.mol_group_selection,
     cached_mol_lists: state.apiReducers.present.cached_mol_lists,
     mol_group_list: state.apiReducers.present.mol_group_list,
     vector_list: state.selectionReducers.present.vector_list
@@ -152,7 +152,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   setObjectOn: apiActions.setMolGroupOn,
-  setObjectSelection: apiActions.setMolGroupSelection,
+  setObjectSelection: selectionActions.setMolGroupSelection,
   deleteObject: nglLoadActions.deleteObject,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
   setFragmentDisplayList: selectionActions.setFragmentDisplayList,

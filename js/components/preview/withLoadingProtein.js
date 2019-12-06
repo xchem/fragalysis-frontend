@@ -35,10 +35,11 @@ export const withLoadingProtein = WrappedComponent => {
                 targetData = thisTarget;
               }
             });
-            /*There will be two variants:
-              1. Generate new protein
-              2. Skip loading of protein and load everything from session
-            */
+            /*TODO
+             *  There will be two variants:
+             *  1. Generate new protein
+             *  2. Skip loading of protein and load everything from session
+             */
             const targObject = generateProteinObject(targetData);
             if (targObject) {
               let newParams = { display_div: nglView.id };

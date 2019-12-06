@@ -25,7 +25,8 @@ import {
   SET_CURRENT_COMPOUND_CLASS,
   RELOAD_SELECTION_STATE,
   SET_BOND_COLOR_MAP,
-  RESET_SELECTION_STATE
+  RESET_SELECTION_STATE,
+  SET_MOL_GROUP_SELECTION
 } from '../actonTypes';
 import { constants } from './selectionConstants';
 
@@ -199,3 +200,8 @@ export const decrementCountOfPendingVectorLoadRequests = () => {
     type: constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
   };
 };
+
+export const setMolGroupSelection = mol_group_selection => ({
+  type: SET_MOL_GROUP_SELECTION,
+  mol_group_selection
+});

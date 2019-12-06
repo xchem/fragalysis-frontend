@@ -14,6 +14,7 @@ import { isEmpty } from 'lodash';
 import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
 import { defaultFocus, generateProteinObject, nglObjectDictionary } from '../../reducers/ngl/renderingHelpers';
+import { generateSphere } from '../molecule/molecules_helpers';
 
 const NglView = memo(
   ({
@@ -43,7 +44,7 @@ const NglView = memo(
   }) => {
     const store = useStore();
     const ref_data_dict = useRef({
-      [listTypes.MOLGROUPS]: {
+      [OBJECT_TYPE.MOLECULE_GROUP]: {
         oldGroupOn: -1,
         oldGroupsOn: [],
         list: 'mol_group_list',
@@ -91,16 +92,38 @@ const NglView = memo(
 
     const toggleMolGroup = groupId => {
       // Anti-pattern but connected prop (mol_group_selection) is undefined here
-      const mgs = store.getState().apiReducers.present.mol_group_selection;
-      const objIdx = mgs.indexOf(groupId);
-      const selectionCopy = mgs.slice();
+      const state = store.getState();
+      const molGroupSelection = state.selectionReducers.present.mol_group_selection;
+      const objIdx = molGroupSelection.indexOf(groupId);
+      const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${groupId}`;
+      const selectionCopy = molGroupSelection.slice();
+      const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === groupId);
+
+      const currentStage = getNglView(VIEWS.SUMMARY_VIEW).stage;
+
       if (objIdx === -1) {
         setMolGroupOn(groupId);
         selectionCopy.push(groupId);
         setMolGroupSelection(selectionCopy, stage);
+        deleteObject(
+          {
+            display_div: VIEWS.SUMMARY_VIEW,
+            name: currentMolGroupStringID
+          },
+          currentStage
+        );
+        loadObject(Object.assign({ display_div: div_id }, generateSphere(currentMolGroup, true)), currentStage);
       } else {
         selectionCopy.splice(objIdx, 1);
         setMolGroupSelection(selectionCopy, stage);
+        deleteObject(
+          {
+            display_div: VIEWS.SUMMARY_VIEW,
+            name: currentMolGroupStringID
+          },
+          currentStage
+        );
+        loadObject(Object.assign({ display_div: div_id }, generateSphere(currentMolGroup, false)), currentStage);
       }
     };
 
@@ -133,9 +156,9 @@ const NglView = memo(
           // Ok so now perform logic
           const type = name.split('_')[0];
           const pk = parseInt(name.split('_')[1], 10);
-          if (type === listTypes.MOLGROUPS) {
+          if (type === OBJECT_TYPE.MOLECULE_GROUP) {
             toggleMolGroup(pk);
-          } else if (type === listTypes.MOLGROUPS_SELECT) {
+          } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT) {
             toggleMolGroup(pk);
           } else if (type === listTypes.PANDDA_SITE) {
             setPanddaSiteOn(pk);
@@ -181,12 +204,12 @@ const NglView = memo(
     };
 
     const generateSphere = useCallback(
-      (data, selected = false, listType = listTypes.MOLGROUPS, view = VIEWS.SUMMARY_VIEW) => {
+      (data, selected = false, listType = OBJECT_TYPE.MOLECULE_GROUP, view = VIEWS.SUMMARY_VIEW) => {
         let sele = '';
         let color = [0, 0, 1];
         let getCoords = {};
 
-        getCoords[listTypes.MOLGROUPS] = [data.x_com, data.y_com, data.z_com];
+        getCoords[OBJECT_TYPE.MOLECULE_GROUP] = [data.x_com, data.y_com, data.z_com];
         getCoords[listTypes.PANDDA_SITE] = [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z];
         if (selected) {
           sele = 'SELECT';
@@ -293,7 +316,7 @@ const NglView = memo(
     );
 
     useEffect(() => {
-      showMultipleSelect(listTypes.MOLGROUPS, VIEWS.SUMMARY_VIEW);
+      showMultipleSelect(OBJECT_TYPE.MOLECULE_GROUP, VIEWS.SUMMARY_VIEW);
       showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
     }, [showMultipleSelect, showSelect]);
 */
@@ -425,7 +448,7 @@ function mapStateToProps(state) {
     // nglOrientations: state.nglReducers.present.nglOrientations,
     //  orientationToSet: state.nglReducers.present.orientationToSet,
     //   mol_group_list: state.apiReducers.present.mol_group_list,
-    //    mol_group_selection: state.apiReducers.present.mol_group_selection,
+    //    mol_group_selection: state.selectionReducers.present.mol_group_selection,
     pandda_site_on: state.apiReducers.present.pandda_site_on,
     pandda_site_list: state.apiReducers.present.pandda_site_list,
     duck_yank_data: state.apiReducers.present.duck_yank_data
@@ -436,7 +459,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   setMolGroupOn: apiActions.setMolGroupOn,
-  setMolGroupSelection: apiActions.setMolGroupSelection,
+  setMolGroupSelection: selectionActions.setMolGroupSelection,
   selectVector: selectionActions.selectVector,
   setDuckYankData: apiActions.setDuckYankData,
   setNGLOrientation: nglActions.setNGLOrientation,
