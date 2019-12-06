@@ -3,7 +3,7 @@
  */
 
 import { Stage } from 'ngl';
-import React, { memo, useEffect, useRef, useCallback, useContext, useState } from 'react';
+import React, { memo, useEffect, useRef, useCallback, useContext } from 'react';
 import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglActions from '../../reducers/ngl/nglActions';
@@ -15,6 +15,7 @@ import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
 import { defaultFocus, generateProteinObject, nglObjectDictionary } from '../../reducers/ngl/renderingHelpers';
 import { generateSphere } from '../molecule/molecules_helpers';
+import { clearAfterDeselectingMoleculeGroup } from '../moleculeGroups/molGroupHelpers';
 
 const NglView = memo(
   ({
@@ -90,20 +91,20 @@ const NglView = memo(
       return { interaction: tot_name, complex_id: mol_int };
     };
 
-    const toggleMolGroup = groupId => {
+    const toggleMolGroup = molGroupId => {
       // Anti-pattern but connected prop (mol_group_selection) is undefined here
       const state = store.getState();
       const molGroupSelection = state.selectionReducers.present.mol_group_selection;
-      const objIdx = molGroupSelection.indexOf(groupId);
-      const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${groupId}`;
+      const objIdx = molGroupSelection.indexOf(molGroupId);
+      const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${molGroupId}`;
       const selectionCopy = molGroupSelection.slice();
-      const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === groupId);
+      const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === molGroupId);
 
       const currentStage = getNglView(VIEWS.SUMMARY_VIEW).stage;
 
       if (objIdx === -1) {
-        setMolGroupOn(groupId);
-        selectionCopy.push(groupId);
+        setMolGroupOn(molGroupId);
+        selectionCopy.push(molGroupId);
         setMolGroupSelection(selectionCopy, stage);
         deleteObject(
           {
@@ -112,8 +113,12 @@ const NglView = memo(
           },
           currentStage
         );
-        loadObject(Object.assign({ display_div: div_id }, generateSphere(currentMolGroup, true)), currentStage);
+        loadObject(
+          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
+          currentStage
+        );
       } else {
+        const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
         selectionCopy.splice(objIdx, 1);
         setMolGroupSelection(selectionCopy, stage);
         deleteObject(
@@ -123,7 +128,18 @@ const NglView = memo(
           },
           currentStage
         );
-        loadObject(Object.assign({ display_div: div_id }, generateSphere(currentMolGroup, false)), currentStage);
+        loadObject(
+          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
+          currentStage
+        );
+        clearAfterDeselectingMoleculeGroup({
+          molGroupId,
+          majorViewStage,
+          cached_mol_lists: state.apiReducers.present.cached_mol_lists,
+          mol_group_list: state.apiReducers.present.mol_group_list,
+          vector_list: state.selectionReducers.present.vector_list,
+          deleteObject
+        });
       }
     };
 
@@ -203,6 +219,7 @@ const NglView = memo(
       }
     };
 
+    /*
     const generateSphere = useCallback(
       (data, selected = false, listType = OBJECT_TYPE.MOLECULE_GROUP, view = VIEWS.SUMMARY_VIEW) => {
         let sele = '';
@@ -227,7 +244,7 @@ const NglView = memo(
       },
       []
     );
-
+*/
     const showSelect = useCallback(
       (listType, view) => {
         let oldGroup = ref_data_dict.current[listType].oldGroupOn;
@@ -266,7 +283,7 @@ const NglView = memo(
           ref_data_dict.current[listType].oldGroupOn = onGroup;
         }
       },
-      [deleteObject, generateSphere, loadObject, pandda_site_list, pandda_site_on]
+      [deleteObject, loadObject, pandda_site_list, pandda_site_on]
     );
 
     /*

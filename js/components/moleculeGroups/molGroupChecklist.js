@@ -1,13 +1,21 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useContext } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
-import { generateMolecule, generateComplex, getJoinedMoleculeList } from '../molecule/molecules_helpers';
+import {
+  generateMolecule,
+  generateComplex,
+  getJoinedMoleculeList,
+  generateSphere
+} from '../molecule/molecules_helpers';
 import { VIEWS } from '../../constants/constants';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
 import * as selectionActions from '../../reducers/selection/selectionActions';
+import { NglContext } from '../nglView/nglProvider';
+import { OBJECT_TYPE } from '../nglView/constants';
+import { clearAfterDeselectingMoleculeGroup } from './molGroupHelpers';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -46,50 +54,56 @@ const molGroupChecklist = memo(
     setMolGroupSelection,
     vector_list,
     cached_mol_lists,
-    deleteObject
+    deleteObject,
+    loadObject
   }) => {
     const classes = useStyles();
     const disableUserInteraction = useDisableUserInteraction();
+    const { getNglView } = useContext(NglContext);
 
-    const handleSiteClearSelection = molGroupSelectionId => {
-      let site;
-      // loop through all molecules
-      getJoinedMoleculeList({ object_selection: [molGroupSelectionId], cached_mol_lists, mol_group_list }).forEach(
-        mol => {
-          site = mol.site;
-          // remove Ligand
-          deleteObject(
-            Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info))
-          );
-
-          // remove Complex
-          deleteObject(
-            Object.assign(
-              { display_div: VIEWS.MAJOR_VIEW },
-              generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
-            )
-          );
-        }
-      );
-
-      // remove all Vectors
-      vector_list
-        .filter(v => v.site === site)
-        .forEach(item => {
-          deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item));
-        });
-    };
-
-    const handleOnSelect = o => e => {
-      const objIdx = mol_group_selection.indexOf(o.id);
+    const handleOnSelect = selectedObject => e => {
+      const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW).stage;
+      const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
+      const objIdx = mol_group_selection.indexOf(selectedObject.id);
       const selectionCopy = mol_group_selection.slice();
+      const currentMolGroup = mol_group_list.find(o => o.id === selectedObject.id);
+      const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${selectedObject.id}`;
       if (e.target.checked && objIdx === -1) {
-        setMolGroupOn(o.id);
-        selectionCopy.push(o.id);
+        setMolGroupOn(selectedObject.id);
+        selectionCopy.push(selectedObject.id);
+        deleteObject(
+          {
+            display_div: VIEWS.SUMMARY_VIEW,
+            name: currentMolGroupStringID
+          },
+          stageSummaryView
+        );
+        loadObject(
+          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
+          stageSummaryView
+        );
         setMolGroupSelection(selectionCopy);
       } else if (!e.target.checked && objIdx > -1) {
-        handleSiteClearSelection(o.id);
+        clearAfterDeselectingMoleculeGroup({
+          molGroupId: selectedObject.id,
+          majorViewStage,
+          cached_mol_lists,
+          mol_group_list,
+          vector_list,
+          deleteObject
+        });
         selectionCopy.splice(objIdx, 1);
+        deleteObject(
+          {
+            display_div: VIEWS.SUMMARY_VIEW,
+            name: currentMolGroupStringID
+          },
+          stageSummaryView
+        );
+        loadObject(
+          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
+          stageSummaryView
+        );
         setMolGroupSelection(selectionCopy);
         if (selectionCopy.length > 0) {
           setMolGroupOn(selectionCopy.slice(-1)[0]);
@@ -151,6 +165,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
   setMolGroupOn: apiActions.setMolGroupOn,
   setMolGroupSelection: selectionActions.setMolGroupSelection,
-  deleteObject: nglLoadActions.deleteObject
+  deleteObject: nglLoadActions.deleteObject,
+  loadObject: nglLoadActions.loadObject
 };
 export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);
