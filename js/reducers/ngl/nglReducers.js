@@ -74,7 +74,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_DEFAULT_SCENE');
+      console.log(' RESET_NGL_VIEW_TO_DEFAULT_SCENE ');
+      const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
+      return Object.assign({}, state, newStateWithoutScene);
+
+    case CONSTANTS.RESET_NGL_VIEW_TO_LAST_SCENE:
+      console.log(' RESET_NGL_VIEW_TO_LAST_SCENE');
       // load state from default scene and replace current state by these data
       return state;
 

@@ -3,7 +3,7 @@
  */
 import { CONSTANTS } from './nglConstants';
 import { defaultFocus, nglObjectDictionary } from './renderingHelpers';
-import { OBJECT_TYPE } from '../../components/nglView/constants';
+import { BACKGROUND_COLOR, OBJECT_TYPE } from '../../components/nglView/constants';
 
 export const loadObject = (target, stage) => dispatch => {
   if (stage) {
@@ -64,12 +64,36 @@ export const setBackgroundColor = (backgroundColor, stage) => {
   stage.setParameters({ backgroundColor: backgroundColor });
   return {
     type: CONSTANTS.SET_BACKGROUND_COLOR,
-    backgroundColor,
-    stage
+    backgroundColor
   };
 };
 
-export const resetNglView = stage => ({ type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE, stage });
+export const resetNglViewToDefaultScene = (stage, display_div) => (dispatch, getState) => {
+  const defaultScene = getState().nglReducers.present.defaultScene;
+  dispatch({
+    type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE
+  });
+  // Remove all components in NGL View
+  stage.removeAllComponents();
+
+  // Reconstruction of state in NGL View from defaultScene data
+  // objectsInView
+  Object.keys(defaultScene.objectsInView).forEach(objInView => {
+    if (defaultScene.objectsInView[objInView].display_div === display_div) {
+      dispatch(loadObject(defaultScene.objectsInView[objInView], stage));
+    }
+  });
+  // backgroundColor
+  dispatch(setBackgroundColor(defaultScene.backgroundColor, stage));
+  // nglOrientations
+  // orientationToSet
+};
+
+export const resetNglViewToLastScene = (stage, stageId) => ({
+  type: CONSTANTS.RESET_NGL_VIEW_TO_LAST_SCENE,
+  stage,
+  stageId
+});
 
 export const saveCurrentStateAsDefaultScene = stage => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE, stage });
 

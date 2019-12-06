@@ -8,7 +8,7 @@ import NGLView from '../nglView/nglView';
 import MolGroupChecklist from './molGroupChecklist';
 import * as apiActions from '../../reducers/api/apiActions';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import * as nglActions from '../../reducers/ngl/nglActions';
 import { VIEWS } from '../../constants/constants';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import {
@@ -52,41 +52,23 @@ const molGroupSelector = memo(
     setVectorOnList,
     setVectorList,
     resetSelectionState,
-    handleHeightChange
+    handleHeightChange,
+    resetNglViewToDefaultScene
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
 
     const { getNglView } = useContext(NglContext);
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
     const disableUserInteraction = useDisableUserInteraction();
 
     const handleClearSelection = () => {
-      // loop through all molecules
-      getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }).forEach(mol => {
-        // remove Ligand
-        deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info)),
-          stage
-        );
+      // Reset NGL VIEWS to default state
+      const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+      const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
+      resetNglViewToDefaultScene(majorViewStage, VIEWS.MAJOR_VIEW);
+      resetNglViewToDefaultScene(summaryViewStage, VIEWS.SUMMARY_VIEW);
 
-        // remove Complex
-        deleteObject(
-          Object.assign(
-            { display_div: VIEWS.MAJOR_VIEW },
-            generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
-          ),
-          stage
-        );
-      });
-      // reset focus
-      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateResetFocusObject()), stage);
-
-      // remove all Vectors
-      vector_list.forEach(item => {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage);
-      });
-
+      // Reset selection reducer
       // remove sites selection
       setObjectOn(undefined);
       setObjectSelection([]);
@@ -153,12 +135,13 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setObjectOn: apiActions.setMolGroupOn,
   setObjectSelection: selectionActions.setMolGroupSelection,
-  deleteObject: nglLoadActions.deleteObject,
+  deleteObject: nglActions.deleteObject,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
   setFragmentDisplayList: selectionActions.setFragmentDisplayList,
   setComplexList: selectionActions.setComplexList,
   setVectorOnList: selectionActions.setVectorOnList,
   setVectorList: selectionActions.setVectorList,
-  resetSelectionState: selectionActions.resetSelectionState
+  resetSelectionState: selectionActions.resetSelectionState,
+  resetNglViewToDefaultScene: nglActions.resetNglViewToDefaultScene
 };
 export default withLoadingMolGroupList(connect(mapStateToProps, mapDispatchToProps)(molGroupSelector));
