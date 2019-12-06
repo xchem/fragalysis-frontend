@@ -11,12 +11,6 @@ import { connect } from 'react-redux';
 import * as nglActions from '../../reducers/ngl/nglActions';
 import { VIEWS } from '../../constants/constants';
 import * as selectionActions from '../../reducers/selection/selectionActions';
-import {
-  generateMolecule,
-  generateComplex,
-  generateResetFocusObject,
-  getJoinedMoleculeList
-} from '../molecule/molecules_helpers';
 import { withLoadingMolGroupList } from '../../hoc/withLoadingMolGroupList';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
@@ -42,13 +36,8 @@ const molGroupSelector = memo(
   ({
     setObjectOn,
     setObjectSelection,
-    object_selection,
-    cached_mol_lists,
-    mol_group_list,
-    deleteObject,
     setFragmentDisplayList,
     setComplexList,
-    vector_list,
     setVectorOnList,
     setVectorList,
     resetSelectionState,
@@ -125,17 +114,11 @@ const molGroupSelector = memo(
 );
 
 function mapStateToProps(state) {
-  return {
-    object_selection: state.selectionReducers.present.mol_group_selection,
-    cached_mol_lists: state.apiReducers.present.cached_mol_lists,
-    mol_group_list: state.apiReducers.present.mol_group_list,
-    vector_list: state.selectionReducers.present.vector_list
-  };
+  return {};
 }
 const mapDispatchToProps = {
   setObjectOn: apiActions.setMolGroupOn,
   setObjectSelection: selectionActions.setMolGroupSelection,
-  deleteObject: nglActions.deleteObject,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
   setFragmentDisplayList: selectionActions.setFragmentDisplayList,
   setComplexList: selectionActions.setComplexList,

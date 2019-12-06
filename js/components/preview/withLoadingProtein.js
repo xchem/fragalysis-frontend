@@ -43,23 +43,24 @@ export const withLoadingProtein = WrappedComponent => {
             const targObject = generateProteinObject(targetData);
             if (targObject) {
               let newParams = { display_div: nglView.id };
-              if (nglView.if === VIEWS.MAJOR_VIEW) {
-                newParams[name] = targObject.name + SUFFIX.MAIN;
+              if (nglView.id === VIEWS.MAJOR_VIEW) {
+                newParams.name = targObject.name + SUFFIX.MAIN;
               }
-              loadObject(Object.assign({}, targObject, newParams), nglView.stage)
-                .then(() => setProteinsHasLoad(true))
-                .catch(() => setProteinsHasLoad(false));
+              return loadObject(Object.assign({}, targObject, newParams), nglView.stage);
             }
           }
+          return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);
         },
-        [loadObject, setProteinsHasLoad, targetIdList, target_on]
+        [loadObject, targetIdList, target_on]
       );
 
       useEffect(() => {
         if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
-          setProteinsHasLoad(false);
           console.log('___ loading proteins for NGL views: ', nglViewList);
-          nglViewList.forEach(nglView => loadProtein(nglView));
+          setProteinsHasLoad(false);
+          Promise.all(nglViewList.map(nglView => loadProtein(nglView)))
+            .then(() => setProteinsHasLoad(true))
+            .catch(() => setProteinsHasLoad(false));
           if (targetOnName !== undefined) {
             document.title = targetOnName + ': Fragalysis';
           }

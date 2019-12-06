@@ -3,7 +3,7 @@
  */
 import { CONSTANTS } from './nglConstants';
 import { defaultFocus, nglObjectDictionary } from './renderingHelpers';
-import { BACKGROUND_COLOR, OBJECT_TYPE } from '../../components/nglView/constants';
+import { OBJECT_TYPE } from '../../components/nglView/constants';
 
 export const loadObject = (target, stage) => dispatch => {
   if (stage) {
