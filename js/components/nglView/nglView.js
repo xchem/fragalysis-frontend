@@ -35,12 +35,11 @@ const NglView = memo(
     loadObject,
     //   setLoadingState,
     div_id,
-    height,
+    height
     //   mol_group_selection,
     //  targetIdList,
     //   target_on,
-    //  setMoleculeList,
-    clearNglView
+    //  setMoleculeList
   }) => {
     const store = useStore();
     const ref_data_dict = useRef({
@@ -409,9 +408,9 @@ const NglView = memo(
       }
       return () => {
         if (stageRef.current) {
-          clearNglView(stageRef.current);
           window.removeEventListener('resize', handleResize);
           stageRef.current.mouseControls.remove('clickPick-left', showPick);
+          stageRef.current.dispose();
           unregisterNglView(div_id);
           console.log(' UNREGISTER ', div_id);
         }
@@ -446,10 +445,9 @@ const mapDispatchToProps = {
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
   setOrientation: nglActions.setOrientation,
   deleteObject: nglActions.deleteObject,
-  loadObject: nglActions.loadObject,
+  loadObject: nglActions.loadObject
   // setLoadingState: nglActions.setLoadingState,
-  //  setMoleculeList: apiActions.setMoleculeList,
-  clearNglView: nglActions.clearNglView
+  //  setMoleculeList: apiActions.setMoleculeList
 };
 
 NglView.displayName = 'NglView';

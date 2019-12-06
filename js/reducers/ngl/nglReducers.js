@@ -98,7 +98,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, INITIAL_STATE);
 
     // Helper actions for marking that protein and molecule groups are successful loaded
-    case CONSTANTS.SET_PROTEINS_HAS_LOAD:
+    case CONSTANTS.SET_PROTEINS_HAS_LOADED:
       console.log('SET_PROTEIN_HAS_LOAD ', action.payload);
       return Object.assign({}, state, { proteinsHasLoad: action.payload });
 

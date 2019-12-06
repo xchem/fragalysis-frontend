@@ -81,7 +81,7 @@ export const setProteinsHasLoad = hasLoad => (dispatch, getState) => {
   if (state.nglReducers.present.countOfRemainingMoleculeGroups === 0 && hasLoad === true) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
-  dispatch({ type: CONSTANTS.SET_PROTEINS_HAS_LOAD, payload: hasLoad });
+  dispatch({ type: CONSTANTS.SET_PROTEINS_HAS_LOADED, payload: hasLoad });
 };
 
 export const setCountOfRemainingMoleculeGroups = count => ({

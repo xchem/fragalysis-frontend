@@ -19,7 +19,12 @@ export const NglProvider = memo(props => {
     if (nglViewList.current.filter(ngl => ngl.id === id).length === 0) {
       console.error('Cannot remove NGL View with given ID! ', id);
     } else {
-      nglViewList.current = nglViewList.current.filter(value => value.id !== id);
+      for (let i = 0; i < nglViewList.current.length; i++) {
+        if (nglViewList.current[i].id === id) {
+          nglViewList.current.splice(i, 1);
+          break;
+        }
+      }
     }
   };
 
