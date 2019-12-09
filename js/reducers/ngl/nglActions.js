@@ -2,11 +2,11 @@
  * Created by abradley on 03/03/2018.
  */
 import { CONSTANTS } from './nglConstants';
-import { defaultFocus, nglObjectDictionary } from './renderingHelpers';
-import { OBJECT_TYPE } from '../../components/nglView/constants';
+import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
 export const loadObject = (target, stage) => dispatch => {
   if (stage) {
+    dispatch(incrementCountOfPendingNglObjects());
     return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name)
       .then(() =>
         dispatch({
@@ -16,7 +16,8 @@ export const loadObject = (target, stage) => dispatch => {
       )
       .catch(error => {
         console.error(error);
-      });
+      })
+      .finally(() => dispatch(decrementCountOfPendingNglObjects()));
   }
   return Promise.reject('Instance of NGL View is missing');
 };
@@ -41,11 +42,6 @@ export const deleteObject = (target, stage) => {
   const comps = stage.getComponentsByName(target.name);
   for (let component in comps.list) {
     stage.removeComponent(comps.list[component]);
-  }
-  // Reset focus after receive ResetFocus object
-  if (target.OBJECT_TYPE === OBJECT_TYPE.RESET_FOCUS) {
-    stage.setFocus(defaultFocus);
-    stage.autoView();
   }
   return {
     type: CONSTANTS.DELETE_OBJECT,
@@ -111,6 +107,14 @@ export const setProteinsHasLoad = hasLoad => (dispatch, getState) => {
 export const setCountOfRemainingMoleculeGroups = count => ({
   type: CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS,
   payload: count
+});
+
+export const incrementCountOfPendingNglObjects = () => ({
+  type: CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS
+});
+
+export const decrementCountOfPendingNglObjects = () => ({
+  type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS
 });
 
 export const decrementCountOfRemainingMoleculeGroups = () => (dispatch, getState) => {

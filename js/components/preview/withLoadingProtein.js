@@ -7,7 +7,7 @@ import * as nglActions from '../../reducers/ngl/nglActions';
 import * as apiActions from '../../reducers/api/apiActions';
 import { VIEWS, SUFFIX } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { generateProteinObject } from '../../reducers/ngl/renderingHelpers';
+import { generateProteinObject } from '../nglView/generatingObjects';
 import { setProteinsHasLoad } from '../../reducers/ngl/nglActions';
 
 // is responsible for loading molecules list

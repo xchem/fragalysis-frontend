@@ -13,7 +13,7 @@ import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { isEmpty } from 'lodash';
 import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
-import { defaultFocus, generateProteinObject, nglObjectDictionary } from '../../reducers/ngl/renderingHelpers';
+import { defaultFocus, generateProteinObject, nglObjectDictionary } from './generatingObjects';
 import { generateSphere } from '../molecule/molecules_helpers';
 import { clearAfterDeselectingMoleculeGroup } from '../moleculeGroups/molGroupHelpers';
 

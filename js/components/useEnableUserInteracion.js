@@ -8,18 +8,30 @@ export const useDisableUserInteraction = () => {
   );
   const countOfRemainingMoleculeGroups = useSelector(state => state.nglReducers.present.countOfRemainingMoleculeGroups);
   const proteinsHasLoad = useSelector(state => state.nglReducers.present.proteinsHasLoad);
+  const countOfPendingNglObjects = useSelector(state => state.nglReducers.present.countOfPendingNglObjects);
 
   useEffect(() => {
     if (
       countOfPendingVectorLoadRequests === 0 &&
+      countOfPendingNglObjects === 0 &&
       ((countOfRemainingMoleculeGroups === 0 && proteinsHasLoad === true) ||
         (countOfRemainingMoleculeGroups === null && proteinsHasLoad === null))
     ) {
-      setDisableInteraction(false);
+      if (disableInteraction === true) {
+        setDisableInteraction(false);
+      }
     } else {
-      setDisableInteraction(true);
+      if (disableInteraction === false) {
+        setDisableInteraction(true);
+      }
     }
-  }, [countOfPendingVectorLoadRequests, countOfRemainingMoleculeGroups, proteinsHasLoad]);
+  }, [
+    countOfPendingNglObjects,
+    countOfPendingVectorLoadRequests,
+    countOfRemainingMoleculeGroups,
+    disableInteraction,
+    proteinsHasLoad
+  ]);
 
   return disableInteraction;
 };

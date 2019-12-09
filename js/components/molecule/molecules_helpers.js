@@ -1,6 +1,4 @@
 import { OBJECT_TYPE } from '../nglView/constants';
-import { useCallback } from 'react';
-import * as listType from '../listTypes';
 // concat molecule results for all selected molecule groups into single list
 
 export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_group_list }) => {
@@ -19,7 +17,7 @@ export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_
 
 export const generateMolecule = (id, sdf_info) => {
   return {
-    name: 'MOLLOAD' + '_' + id,
+    name: OBJECT_TYPE.MOLECULE + '_' + id,
     OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
     colour: '#FFFFFF',
     sdf_info: sdf_info
@@ -58,11 +56,5 @@ export const generateSphere = (data, selected = false) => {
     radius: radius,
     colour: colour,
     coords: [data.x_com, data.y_com, data.z_com]
-  };
-};
-
-export const generateResetFocusObject = () => {
-  return {
-    OBJECT_TYPE: OBJECT_TYPE.RESET_FOCUS
   };
 };

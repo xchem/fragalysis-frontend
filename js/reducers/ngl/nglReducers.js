@@ -11,7 +11,8 @@ const INITIAL_STATE = {
   defaultScene: {},
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
-  proteinsHasLoad: null
+  proteinsHasLoad: null,
+  countOfPendingNglObjects: 0
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -89,6 +90,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       delete stateWithoutScene['defaultScene'];
       delete stateWithoutScene['countOfRemainingMoleculeGroups'];
       delete stateWithoutScene['proteinsHasLoad'];
+      delete stateWithoutScene['countOfPendingNglObjects'];
 
       console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
 
@@ -114,6 +116,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     case CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS:
       //    console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
+
+    case CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
+      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects - 1 });
+
+    case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
+      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
 
     default:
       return state;

@@ -2,9 +2,9 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef, useContext } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import * as listTypes from '../listTypes';
@@ -17,6 +17,13 @@ import { loadFromServer } from '../../utils/genericView';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
+import {
+  generateMoleculeObject,
+  generateArrowObject,
+  generateCylinderObject,
+  generateMoleculeId,
+  generateComplexObject
+} from '../nglView/generatingObjects';
 
 const containerHeight = 76;
 
@@ -126,8 +133,8 @@ const MoleculeView = memo(
     incrementCountOfPendingVectorLoadRequests,
     decrementCountOfPendingVectorLoadRequests
   }) => {
-    const theme = useTheme();
     const [state, setState] = useState();
+    const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
@@ -157,24 +164,6 @@ const MoleculeView = memo(
       return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
     };
 
-    const generateArrowObject = (start, end, name, colour) => ({
-      name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: OBJECT_TYPE.ARROW,
-      start: start,
-      end: end,
-      colour: colour,
-      site: data.site
-    });
-
-    const generateCylinderObject = (start, end, name, colour) => ({
-      name: listTypes.VECTOR + '_' + name,
-      OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
-      start: start,
-      end: end,
-      colour: colour,
-      site: data.site
-    });
-
     /**
      * Convert the JSON into a list of arrow objects
      */
@@ -187,42 +176,23 @@ const MoleculeView = memo(
       let outList = [];
 
       for (let item in deletions) {
-        outList.push(generateArrowObject(deletions[item][0], deletions[item][1], item.split('_')[0], colour));
+        outList.push(generateArrowObject(data, deletions[item][0], deletions[item][1], item.split('_')[0], colour));
       }
 
       for (let item in additions) {
-        outList.push(generateArrowObject(additions[item][0], additions[item][1], item.split('_')[0], colour));
+        outList.push(generateArrowObject(data, additions[item][0], additions[item][1], item.split('_')[0], colour));
       }
 
       for (let item in linkers) {
-        outList.push(generateCylinderObject(linkers[item][0], linkers[item][1], item.split('_')[0], colour));
+        outList.push(generateCylinderObject(data, linkers[item][0], linkers[item][1], item.split('_')[0], colour));
       }
 
       for (let item in rings) {
-        outList.push(generateCylinderObject(rings[item][0], rings[item][2], item.split('_')[0], colour));
+        outList.push(generateCylinderObject(data, rings[item][0], rings[item][2], item.split('_')[0], colour));
       }
 
       return outList;
     };
-
-    const generateMolObject = () => ({
-      name: 'MOLLOAD' + '_' + data.id.toString(),
-      OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
-      colour: colourToggle,
-      sdf_info: data.sdf_info
-    });
-
-    const generateMolId = () => ({
-      id: data.id
-    });
-
-    const generateObject = () => ({
-      name: data.protein_code + '_COMP',
-      OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-      sdf_info: data.sdf_info,
-      colour: colourToggle,
-      prot_url: base_url + data.molecule_protein
-    });
 
     const generateBondColorMap = inputDict => {
       var out_d = {};
@@ -297,23 +267,63 @@ const MoleculeView = memo(
     const not_selected_style = {};
     const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
 
-    const onLigand = () => {
-      if (isLigandOn) {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject()), stage);
-        removeFromFragmentDisplayList(generateMolId());
-      } else {
-        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(colourToggle)), stage);
-        appendFragmentDisplayList(generateMolId());
+    const addLigand = () => {
+      loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)), stage);
+      appendFragmentDisplayList(generateMoleculeId(data));
+    };
+
+    const removeLigand = () => {
+      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage);
+      removeFromFragmentDisplayList(generateMoleculeId(data));
+      selectedAll.current = false;
+    };
+
+    const onLigand = calledFromSelectAll => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        if (isLigandOn === false) {
+          addLigand();
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeLigand();
+      } else if (!calledFromSelectAll) {
+        if (isLigandOn === false) {
+          addLigand();
+        } else {
+          removeLigand();
+        }
       }
     };
 
-    const onComplex = () => {
-      if (isComplexOn) {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()), stage);
-        removeFromComplexList(generateMolId());
-      } else {
-        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateObject()), stage);
-        appendComplexList(generateMolId());
+    const removeComplex = () => {
+      deleteObject(
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+        stage
+      );
+      removeFromComplexList(generateMoleculeId(data));
+      selectedAll.current = false;
+    };
+
+    const addComplex = () => {
+      loadObject(
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+        stage
+      );
+      appendComplexList(generateMoleculeId(data));
+    };
+
+    const onComplex = calledFromSelectAll => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        if (isComplexOn === false) {
+          addComplex();
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeComplex();
+      } else if (!calledFromSelectAll) {
+        if (isComplexOn === false) {
+          addComplex();
+        } else {
+          removeComplex();
+        }
       }
     };
 
@@ -324,44 +334,55 @@ const MoleculeView = memo(
       setBondColorMap(vectorBondColorMap);
     };
 
-    const onVector = () => {
-      if (isVectorOn) {
-        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
-        setMol('');
-        removeFromVectorOnList(generateMolId());
-      } else {
-        vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
-        // Set this
-        getFullGraph(data);
-        // Do the query
-        incrementCountOfPendingVectorLoadRequests();
-        Promise.all([
-          api({ url: getViewUrl('vector') })
-            .then(response => handleVector(response.data['vectors']))
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            }),
-          api({ url: getViewUrl('graph') })
-            .then(response => gotFullGraph(response.data['graph']))
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            })
-        ]).finally(() => {
-          decrementCountOfPendingVectorLoadRequests();
-        });
-        appendVectorOnList(generateMolId());
-        selectVector(undefined);
-      }
+    const removeVector = () => {
+      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      setMol('');
+      removeFromVectorOnList(generateMoleculeId(data));
+      selectedAll.current = false;
     };
 
-    const onSelectAll = () => {
-      onLigand();
-      onComplex();
-      onVector();
+    const addVector = () => {
+      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      // Set this
+      getFullGraph(data);
+      // Do the query
+      incrementCountOfPendingVectorLoadRequests();
+      Promise.all([
+        api({ url: getViewUrl('vector') })
+          .then(response => handleVector(response.data['vectors']))
+          .catch(error => {
+            setState(() => {
+              throw error;
+            });
+          }),
+        api({ url: getViewUrl('graph') })
+          .then(response => gotFullGraph(response.data['graph']))
+          .catch(error => {
+            setState(() => {
+              throw error;
+            });
+          })
+      ]).finally(() => {
+        decrementCountOfPendingVectorLoadRequests();
+      });
+      appendVectorOnList(generateMoleculeId(data));
+      selectVector(undefined);
+    };
+
+    const onVector = calledFromSelectAll => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        if (isVectorOn === false) {
+          addVector();
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeVector();
+      } else if (!calledFromSelectAll) {
+        if (isVectorOn === false) {
+          addVector();
+        } else {
+          removeVector();
+        }
+      }
     };
 
     return (
@@ -389,7 +410,13 @@ const MoleculeView = memo(
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: hasAllValuesOn
               })}
-              onClick={onSelectAll}
+              onClick={() => {
+                selectedAll.current = !selectedAll.current;
+
+                onLigand(true);
+                onComplex(true);
+                onVector(true);
+              }}
               disabled={disableUserInteraction}
             >
               <Typography variant="caption">A</Typography>
@@ -402,7 +429,7 @@ const MoleculeView = memo(
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: isLigandOn
               })}
-              onClick={onLigand}
+              onClick={() => onLigand()}
               disabled={disableUserInteraction}
             >
               <Typography variant="caption">L</Typography>
@@ -415,7 +442,7 @@ const MoleculeView = memo(
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: isComplexOn
               })}
-              onClick={onComplex}
+              onClick={() => onComplex()}
               disabled={disableUserInteraction}
             >
               <Typography variant="caption">C</Typography>
@@ -428,7 +455,7 @@ const MoleculeView = memo(
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: isVectorOn
               })}
-              onClick={onVector}
+              onClick={() => onVector()}
               disabled={disableUserInteraction}
             >
               <Typography variant="caption">V</Typography>
