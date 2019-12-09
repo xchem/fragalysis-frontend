@@ -62,7 +62,12 @@ export const SettingControls = memo(({ open, onClose }) => {
           <Typography variant="body1">Background colour</Typography>
         </Grid>
         <Grid item xs={6}>
-          <Switch size="small" color="primary" onChange={handleStageColor} />
+          <Switch
+            size="small"
+            color="primary"
+            checked={backgroundColor === BACKGROUND_COLOR.white}
+            onChange={handleStageColor}
+          />
         </Grid>
       </Grid>
     </Drawer>
