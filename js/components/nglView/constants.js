@@ -3,6 +3,30 @@ export const BACKGROUND_COLOR = {
   white: 'white'
 };
 
+export const NGL_PARAMS = {
+  impostor: 'impostor',
+  quality: 'quality',
+  sampleLevel: 'sampleLevel',
+  theme: 'theme',
+  overview: 'overview',
+  rotateSpeed: 'rotateSpeed',
+  zoomSpeed: 'zoomSpeed',
+  panSpeed: 'panSpeed',
+  cameraFov: 'cameraFov',
+  cameraType: 'cameraType',
+  lightColor: 'lightColor',
+  lightIntensity: 'lightIntensity',
+  ambientColor: 'ambientColor',
+  ambientIntensity: 'ambientIntensity',
+  hoverTimeout: 'hoverTimeout',
+  backgroundColor: 'backgroundColor',
+  clipNear: 'clipNear',
+  clipFar: 'clipFar',
+  clipDist: 'clipDist',
+  fogNear: 'fogNear',
+  fogFar: 'fogFar'
+};
+
 export const MOL_REPRESENTATION = {
   cartoon: 'cartoon',
   hyperball: 'hyperball',

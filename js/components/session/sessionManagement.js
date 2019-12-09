@@ -506,7 +506,7 @@ const mapDispatchToProps = {
   reloadSelectionState: selectionActions.reloadSelectionState,
   setLatestSession: apiActions.setLatestSession,
   setLatestSnapshot: apiActions.setLatestSnapshot,
-  setStageColor: nglLoadActions.setBackgroundColor,
+  setStageColor: nglLoadActions.setNglViewParams,
   setSessionId: apiActions.setSessionId,
   setUuid: apiActions.setUuid,
   setSessionTitle: apiActions.setSessionTitle,

@@ -56,11 +56,12 @@ export const setLoadingState = function(bool) {
   };
 };
 
-export const setBackgroundColor = (backgroundColor, stage) => {
-  stage.setParameters({ backgroundColor: backgroundColor });
+export const setNglViewParams = (key, value, stage) => {
+  stage.setParameters({ [key]: value });
   return {
-    type: CONSTANTS.SET_BACKGROUND_COLOR,
-    backgroundColor
+    type: CONSTANTS.SET_NGL_VIEW_PARAMS,
+    key,
+    value
   };
 };
 
@@ -79,8 +80,12 @@ export const resetNglViewToDefaultScene = (stage, display_div) => (dispatch, get
       dispatch(loadObject(defaultScene.objectsInView[objInView], stage));
     }
   });
-  // backgroundColor
-  dispatch(setBackgroundColor(defaultScene.backgroundColor, stage));
+
+  // loop for every nglViewParam
+  Object.keys(defaultScene.viewParams).forEach(param => {
+    dispatch(setNglViewParams([defaultScene.viewParams[param]], defaultScene.viewParams[param], stage));
+  });
+
   // nglOrientations
   // orientationToSet
 };

@@ -1,4 +1,4 @@
-import { BACKGROUND_COLOR } from '../../components/nglView/constants';
+import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
 import { CONSTANTS } from './nglConstants';
 
 const INITIAL_STATE = {
@@ -7,7 +7,30 @@ const INITIAL_STATE = {
   nglOrientations: {},
   orientationToSet: {},
   loadingState: true,
-  backgroundColor: BACKGROUND_COLOR.black,
+  viewParams: {
+    /*
+    [NGL_PARAMS.impostor]: true,
+    [NGL_PARAMS.quality]: 'auto',
+    [NGL_PARAMS.sampleLevel]: 0,
+    [NGL_PARAMS.theme]: 'dark',
+    [NGL_PARAMS.overview]: true,
+    [NGL_PARAMS.rotateSpeed]: 2.0,
+    [NGL_PARAMS.zoomSpeed]: 1.2,
+    [NGL_PARAMS.panSpeed]: 0.8,
+    [NGL_PARAMS.cameraFov]: 40,
+    [NGL_PARAMS.cameraType]: 'perspective',
+    [NGL_PARAMS.lightColor]: 0xdddddd,
+    [NGL_PARAMS.lightIntensity]: 1.0,
+    [NGL_PARAMS.ambientColor]: 0xdddddd,
+    [NGL_PARAMS.ambientIntensity]: 0.2,
+    [NGL_PARAMS.hoverTimeout]: 0, */
+    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+    [NGL_PARAMS.clipNear]: 0,
+    [NGL_PARAMS.clipFar]: 100,
+    [NGL_PARAMS.clipDist]: 10,
+    [NGL_PARAMS.fogNear]: 50,
+    [NGL_PARAMS.fogFar]: 100
+  },
   defaultScene: {},
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
@@ -68,10 +91,13 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         loadingState: action.loadingState
       });
 
-    case CONSTANTS.SET_BACKGROUND_COLOR:
-      console.log(' SET_BACKGROUND_COLOR');
+    case CONSTANTS.SET_NGL_VIEW_PARAMS:
+      //   console.log(' SET_NGL_VIEW_PARAMS');
+      const newViewParams = JSON.parse(JSON.stringify(state.viewParams));
+      newViewParams[action.key] = action.value;
+
       return Object.assign({}, state, {
-        backgroundColor: action.backgroundColor
+        viewParams: newViewParams
       });
 
     case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
