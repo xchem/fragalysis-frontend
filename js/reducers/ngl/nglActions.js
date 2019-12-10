@@ -8,10 +8,11 @@ export const loadObject = (target, stage) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects());
     return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name)
-      .then(() =>
+      .then(representations =>
         dispatch({
           type: CONSTANTS.LOAD_OBJECT,
-          target
+          target,
+          representations
         })
       )
       .catch(error => {

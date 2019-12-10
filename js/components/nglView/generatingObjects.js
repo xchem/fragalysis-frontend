@@ -3,6 +3,14 @@ import * as listTypes from '../listTypes';
 
 export const defaultFocus = 0;
 
+export const createRepresentation = (id, params, comp) => {
+  // Is necessary check than params is undefined, because I access directly into NGL view instance and I will gain
+  // params of current representation
+  const definedParams = params !== undefined ? params : {};
+  comp.addRepresentation(id, definedParams);
+  return { id, params: definedParams };
+};
+
 export const generateProteinObject = targetData => {
   // Now deal with this target
   const prot_to_load = window.location.protocol + '//' + window.location.host + targetData.template_protein;

@@ -53,7 +53,6 @@ export const withLoadingProtein = WrappedComponent => {
         if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
           //  1. Generate new protein or skip this action and everything will be loaded from session
           if (!isStateLoaded) {
-            console.log('___ loading proteins for NGL views: ', nglViewList);
             setProteinsHasLoaded(false);
             Promise.all(nglViewList.map(nglView => loadProtein(nglView)))
               .then(() => setProteinsHasLoaded(true))

@@ -47,7 +47,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       // Append the input to objectsToLoad list
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       if (!(action.target.name in newObjectsInView)) {
-        newObjectsInView[action.target.name] = action.target;
+        newObjectsInView[action.target.name] = { ...action.target, representations: action.representations };
       }
 
       //   console.log(' LOAD_OBJECT ', newObjectsInView);

@@ -70,7 +70,6 @@ export const withLoadingMolGroupList = WrappedComponent => {
         } else if (target_on && isStateLoaded) {
           // to enable user interaction with application
           setCountOfRemainingMoleculeGroups(0);
-          // loop ever data from session a load to ngl view
         }
         return () => {
           if (refOnCancel.current) {

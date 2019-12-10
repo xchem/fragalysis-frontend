@@ -10,70 +10,30 @@ import * as nglActions from '../../reducers/ngl/nglActions';
 import * as listTypes from '../listTypes';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
-import { isEmpty } from 'lodash';
 import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
-import { defaultFocus, generateProteinObject, nglObjectDictionary } from './generatingObjects';
 import { generateSphere } from '../molecule/molecules_helpers';
 import { clearAfterDeselectingMoleculeGroup } from '../moleculeGroups/molGroupHelpers';
 
 const NglView = memo(
   ({
-    //  nglOrientations,
-    //   orientationToSet,
-    //  mol_group_list,
-    pandda_site_on,
-    pandda_site_list,
     duck_yank_data,
-    //  targetOnName,
     setMolGroupOn,
     setMolGroupSelection,
     selectVector,
     setDuckYankData,
-    setNGLOrientation,
     setPanddaSiteOn,
-    setOrientation,
     deleteObject,
-    loadObject,
-    //   setLoadingState,
     div_id,
-    height
-    //   mol_group_selection,
-    //  targetIdList,
-    //   target_on,
-    //  setMoleculeList
+    height,
+    loadObject
   }) => {
     const store = useStore();
-    const ref_data_dict = useRef({
-      [OBJECT_TYPE.MOLECULE_GROUP]: {
-        oldGroupOn: -1,
-        oldGroupsOn: [],
-        list: 'mol_group_list',
-        onGroup: 'mol_group_on',
-        onGroups: 'mol_group_selection'
-      },
-      [listTypes.PANDDA_SITE]: {
-        oldGroupOn: -1,
-        oldGroupsOn: [],
-        list: 'pandda_site_list',
-        onGroup: 'pandda_site_on'
-      }
-    });
 
     // connect to NGL Stage object
     const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
     const stageRef = useRef();
     const stage = stageRef.current;
-
-    console.log('Render nglView, ', div_id, height, stage);
-
-    /*
-    const showLine = (stage, input_dict, object_name) => {
-      let shape = new Shape(object_name);
-      shape.addLine();
-      let shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation(MOL_REPRESENTATION.buffer);
-    };*/
 
     const processInt = pickingProxy => {
       let atom_id = '';
@@ -188,246 +148,6 @@ const NglView = memo(
         }
       }
     };
-    /*
-    const checkIfLoading = useCallback(() => {
-      for (let key in objectsToLoad) {
-        if (objectsToLoad[key]['display_div'] === div_id) {
-          setLoadingState(true);
-          return false;
-        }
-      }
-      for (let key in objectsLoading) {
-        if (objectsLoading[key]['display_div'] === div_id) {
-          setLoadingState(true);
-          return false;
-        }
-      }
-      setLoadingState(false);
-      return true;
-    }, [div_id, objectsLoading, setLoadingState, objectsToLoad]);
-    */
-
-    const getRadius = data => {
-      if (data.mol_id === undefined) {
-        return 5.0;
-      } else if (data.mol_id.length > 10) {
-        return 5.0;
-      } else if (data.mol_id.length > 5) {
-        return 3.0;
-      } else {
-        return 2.0;
-      }
-    };
-
-    /*
-    const generateSphere = useCallback(
-      (data, selected = false, listType = OBJECT_TYPE.MOLECULE_GROUP, view = VIEWS.SUMMARY_VIEW) => {
-        let sele = '';
-        let color = [0, 0, 1];
-        let getCoords = {};
-
-        getCoords[OBJECT_TYPE.MOLECULE_GROUP] = [data.x_com, data.y_com, data.z_com];
-        getCoords[listTypes.PANDDA_SITE] = [data.site_native_com_x, data.site_native_com_y, data.site_native_com_z];
-        if (selected) {
-          sele = 'SELECT';
-          color = [0, 1, 0];
-        }
-        const radius = getRadius(data);
-        return Object.assign({}, data, {
-          name: listType + sele + '_' + +data.id.toString(),
-          display_div: view,
-          OBJECT_TYPE: OBJECT_TYPE.SPHERE,
-          coords: getCoords[listType],
-          radius: radius,
-          colour: color
-        });
-      },
-      []
-    );
-*/
-    const showSelect = useCallback(
-      (listType, view) => {
-        let oldGroup = ref_data_dict.current[listType].oldGroupOn;
-
-        const listOnTemp = ref_data_dict.current[listType].list;
-        const onGroupTemp = ref_data_dict.current[listType].onGroup;
-        let listOn = undefined;
-        let onGroup = undefined;
-        if (listOnTemp === 'pandda_site_list') {
-          listOn = pandda_site_list;
-        }
-        if (onGroupTemp === 'pandda_site_on') {
-          onGroup = pandda_site_on;
-        }
-
-        if (onGroup !== undefined && onGroup !== oldGroup) {
-          let old_data;
-          let new_data;
-          for (let index in listOn) {
-            if (listOn[index].id === onGroup) {
-              new_data = listOn[index];
-            }
-            if (listOn[index].id === oldGroup) {
-              old_data = listOn[index];
-            }
-          }
-          if (old_data) {
-            deleteObject(generateSphere(old_data, true, listType, view));
-            loadObject(generateSphere(old_data, false, listType, view));
-          }
-          // Delete the two old spheres
-          if (new_data) {
-            deleteObject(generateSphere(new_data, false, listType, view));
-            loadObject(generateSphere(new_data, true, listType, view));
-          }
-          ref_data_dict.current[listType].oldGroupOn = onGroup;
-        }
-      },
-      [deleteObject, loadObject, pandda_site_list, pandda_site_on]
-    );
-
-    /*
-    const showMultipleSelect = useCallback(
-      (listType, view) => {
-        let oldGroups = ref_data_dict.current[listType].oldGroupsOn;
-
-        const listOnTemp = ref_data_dict.current[listType].list;
-        const onGroupsTemp = ref_data_dict.current[listType].onGroups;
-
-        let listOn = undefined;
-        let onGroups = undefined;
-        if (listOnTemp === 'mol_group_list') {
-          listOn = mol_group_list;
-        }
-        if (onGroupsTemp !== undefined && onGroupsTemp === 'mol_group_selection') {
-          onGroups = mol_group_selection;
-        }
-
-        if (onGroups !== undefined && listOn !== undefined) {
-          const groupsToRemove = [];
-          const groupsToAdd = [];
-          listOn.forEach(list => {
-            const isInOldGroups = oldGroups.some(g => g === list.id);
-            const isInNewGroups = onGroups.some(g => g === list.id);
-            if (isInOldGroups && !isInNewGroups) {
-              groupsToRemove.push(list);
-            } else if (!isInOldGroups && isInNewGroups) {
-              groupsToAdd.push(list);
-            }
-          });
-          // change groups that shuld be 'removed'
-          groupsToRemove.forEach(data => {
-            deleteObject(generateSphere(data, true, listType, view));
-            loadObject(generateSphere(data, false, listType, view));
-          });
-          // change groups that should be 'added'
-          groupsToAdd.forEach(data => {
-            deleteObject(generateSphere(data, false, listType, view));
-            loadObject(generateSphere(data, true, listType, view));
-          });
-          // update oldGroupsOn array
-          ref_data_dict.current[listType].oldGroupsOn = onGroups;
-        }
-      },
-      [deleteObject, generateSphere, loadObject, mol_group_list, mol_group_selection]
-    );
-
-    useEffect(() => {
-      showMultipleSelect(OBJECT_TYPE.MOLECULE_GROUP, VIEWS.SUMMARY_VIEW);
-      showSelect(listTypes.PANDDA_SITE, VIEWS.PANDDA_MAJOR);
-    }, [showMultipleSelect, showSelect]);
-*/
-    /*
-    const updateOrientation = useCallback(() => {
-      if (orientationToSet !== undefined) {
-        if (orientationToSet[div_id] !== 'SET') {
-          if (checkIfLoading() === true) {
-            let ori = orientationToSet[div_id];
-            if (stage) {
-              let curr_orient = stage.viewerControls.getOrientation();
-              if (
-                curr_orient &&
-                curr_orient.elements &&
-                ori &&
-                ori.elements &&
-                curr_orient.elements.length === ori.elements.length
-              ) {
-                for (let i = 0; i < curr_orient.elements.length; i += 1) {
-                  curr_orient.elements[i] = ori.elements[i];
-                }
-              }
-              stage.viewerControls.orient(curr_orient);
-            }
-            setNGLOrientation(div_id, 'SET');
-          }
-        }
-      }
-      if (nglOrientations !== undefined) {
-        if (nglOrientations[div_id] === 'REFRESH') {
-          if (checkIfLoading() === true) {
-            let objectsInThisDiv = {};
-            for (let key in objectsInView) {
-              if (objectsInView[key]['display_div'] === div_id) {
-                objectsInThisDiv[key] = objectsInView[key];
-              }
-            }
-            setOrientation(div_id, {
-              orientation: stage.viewerControls.getOrientation(),
-              components: objectsInThisDiv
-            });
-          }
-        }
-      }
-    }, [
-      checkIfLoading,
-      div_id,
-      nglOrientations,
-      objectsInView,
-      orientationToSet,
-      setNGLOrientation,
-      setOrientation,
-      stage
-    ]);
-
-        useEffect(() => {
-      updateOrientation();
-    }, [updateOrientation]);
-*/
-    /* useEffect(() => {
-     setOrientation(div_id, 'STARTED');
-      setNGLOrientation(div_id, 'SET');
-    }, [div_id, setNGLOrientation, setOrientation]);
-*/
-    /**
-     * Function to deal with the logic of showing molecules
-     */
-    /*
-    const renderDisplay = useCallback(() => {
-      if (stage && (!isEmpty(objectsToLoad) || !isEmpty(objectsToDelete))) {
-        for (let nglKey in objectsToLoad) {
-          let nglObject = objectsToLoad[nglKey];
-          if (div_id === nglObject.display_div) {
-            nglObjectDictionary[nglObject.OBJECT_TYPE](stage, nglObject, nglKey);
-            objectLoading(nglObject);
-          }
-        }
-        for (let nglKey in objectsToDelete) {
-          if (div_id === objectsToDelete[nglKey].display_div) {
-            const comps = stage.getComponentsByName(nglKey);
-            for (let component in comps.list) {
-              stage.removeComponent(comps.list[component]);
-            }
-            // Reset focus after receive ResetFocus object
-            if (objectsToDelete[nglKey].OBJECT_TYPE === OBJECT_TYPE.RESET_FOCUS) {
-              stage.setFocus(defaultFocus);
-              stage.autoView();
-            }
-            deleteObjectSuccess(objectsToDelete[nglKey]);
-          }
-        }
-      }
-    }, [stage, objectsToLoad, objectsToDelete, div_id, objectLoading, deleteObjectSuccess]);
-*/
 
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
@@ -460,18 +180,10 @@ const NglView = memo(
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;
   }
 );
+
 function mapStateToProps(state) {
   return {
-    // nglOrientations: state.nglReducers.present.nglOrientations,
-    //  orientationToSet: state.nglReducers.present.orientationToSet,
-    //   mol_group_list: state.apiReducers.present.mol_group_list,
-    //    mol_group_selection: state.selectionReducers.present.mol_group_selection,
-    pandda_site_on: state.apiReducers.present.pandda_site_on,
-    pandda_site_list: state.apiReducers.present.pandda_site_list,
     duck_yank_data: state.apiReducers.present.duck_yank_data
-    //   targetOnName: state.apiReducers.present.target_on_name,
-    //   targetIdList: state.apiReducers.present.target_id_list,
-    //  target_on: state.apiReducers.present.target_on
   };
 }
 const mapDispatchToProps = {
@@ -479,13 +191,9 @@ const mapDispatchToProps = {
   setMolGroupSelection: selectionActions.setMolGroupSelection,
   selectVector: selectionActions.selectVector,
   setDuckYankData: apiActions.setDuckYankData,
-  setNGLOrientation: nglActions.setNGLOrientation,
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
-  setOrientation: nglActions.setOrientation,
   deleteObject: nglActions.deleteObject,
   loadObject: nglActions.loadObject
-  // setLoadingState: nglActions.setLoadingState,
-  //  setMoleculeList: apiActions.setMoleculeList
 };
 
 NglView.displayName = 'NglView';
