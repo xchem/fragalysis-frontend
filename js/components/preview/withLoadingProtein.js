@@ -8,7 +8,7 @@ import * as apiActions from '../../reducers/api/apiActions';
 import { VIEWS, SUFFIX } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { generateProteinObject } from '../nglView/generatingObjects';
-import { setProteinsHasLoad } from '../../reducers/ngl/nglActions';
+import { setProteinsHasLoaded } from '../../reducers/ngl/nglActions';
 
 // is responsible for loading molecules list
 export const withLoadingProtein = WrappedComponent => {
@@ -20,8 +20,8 @@ export const withLoadingProtein = WrappedComponent => {
       target_on,
       group_type,
       setObjectList,
+      setProteinsHasLoaded,
       isStateLoaded,
-      setProteinsHasLoad,
       ...rest
     }) => {
       const { nglViewList } = useContext(NglContext);
@@ -35,11 +35,6 @@ export const withLoadingProtein = WrappedComponent => {
                 targetData = thisTarget;
               }
             });
-            /*TODO
-             *  There will be two variants:
-             *  1. Generate new protein
-             *  2. Skip loading of protein and load everything from session
-             */
             const targObject = generateProteinObject(targetData);
             if (targObject) {
               let newParams = { display_div: nglView.id };
@@ -56,18 +51,23 @@ export const withLoadingProtein = WrappedComponent => {
 
       useEffect(() => {
         if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
-          console.log('___ loading proteins for NGL views: ', nglViewList);
-          setProteinsHasLoad(false);
-          Promise.all(nglViewList.map(nglView => loadProtein(nglView)))
-            .then(() => setProteinsHasLoad(true))
-            .catch(() => setProteinsHasLoad(false));
+          //  1. Generate new protein or skip this action and everything will be loaded from session
+          if (!isStateLoaded) {
+            console.log('___ loading proteins for NGL views: ', nglViewList);
+            setProteinsHasLoaded(false);
+            Promise.all(nglViewList.map(nglView => loadProtein(nglView)))
+              .then(() => setProteinsHasLoaded(true))
+              .catch(() => setProteinsHasLoaded(false));
+          } else {
+            setProteinsHasLoaded(true);
+          }
           if (targetOnName !== undefined) {
             document.title = targetOnName + ': Fragalysis';
           }
         }
-      }, [nglViewList, loadProtein, targetIdList, targetOnName, setProteinsHasLoad]);
+      }, [nglViewList, loadProtein, targetIdList, targetOnName, setProteinsHasLoaded, isStateLoaded]);
 
-      return <WrappedComponent {...rest} />;
+      return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
     }
   );
 
@@ -82,7 +82,7 @@ export const withLoadingProtein = WrappedComponent => {
   const mapDispatchToProps = {
     loadObject: nglActions.loadObject,
     setObjectList: apiActions.setMolGroupList,
-    setProteinsHasLoad: setProteinsHasLoad
+    setProteinsHasLoaded: setProteinsHasLoaded
   };
   return connect(mapStateToProps, mapDispatchToProps)(ProteinLoader);
 };

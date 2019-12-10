@@ -1,5 +1,5 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
-import { CONSTANTS } from './nglConstants';
+import { CONSTANTS, SCENES } from './nglConstants';
 
 const INITIAL_STATE = {
   // NGL Scene properties
@@ -31,10 +31,11 @@ const INITIAL_STATE = {
     [NGL_PARAMS.fogNear]: 50,
     [NGL_PARAMS.fogFar]: 100
   },
-  defaultScene: {},
+  [SCENES.defaultScene]: {},
+  [SCENES.sessionScene]: {},
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
-  proteinsHasLoad: null,
+  proteinsHasLoaded: null,
   countOfPendingNglObjects: 0
 };
 
@@ -105,23 +106,37 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
       return Object.assign({}, state, newStateWithoutScene);
 
-    case CONSTANTS.RESET_NGL_VIEW_TO_LAST_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_LAST_SCENE');
+    case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
+      console.log(' RESET_NGL_VIEW_TO_SESSION_SCENE');
       // load state from default scene and replace current state by these data
-      return state;
+      return Object.assign({}, state, action.payload);
 
     case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
       // load state from default scene and replace current state by these data
       const stateWithoutScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutScene['defaultScene'];
+      delete stateWithoutScene[SCENES.defaultScene];
       delete stateWithoutScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutScene['proteinsHasLoad'];
+      delete stateWithoutScene['proteinsHasLoaded'];
       delete stateWithoutScene['countOfPendingNglObjects'];
 
       console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
 
       return Object.assign({}, state, {
-        defaultScene: stateWithoutScene
+        [SCENES.defaultScene]: stateWithoutScene
+      });
+
+    case CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE:
+      // load state from default scene and replace current state by these data
+      const stateWithoutSessionScene = JSON.parse(JSON.stringify(state));
+      delete stateWithoutSessionScene[SCENES.sessionScene];
+      delete stateWithoutSessionScene['countOfRemainingMoleculeGroups'];
+      delete stateWithoutSessionScene['proteinsHasLoaded'];
+      delete stateWithoutSessionScene['countOfPendingNglObjects'];
+
+      console.log(' SAVE_NGL_STATE_AS_SESSION_SCENE');
+
+      return Object.assign({}, state, {
+        [SCENES.sessionScene]: stateWithoutSessionScene
       });
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
@@ -133,7 +148,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOADED:
       //   console.log('SET_PROTEIN_HAS_LOAD ', action.payload);
-      return Object.assign({}, state, { proteinsHasLoad: action.payload });
+      return Object.assign({}, state, { proteinsHasLoaded: action.payload });
 
     case CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS:
       //    console.log('SET_COUNT_OF_REMAINING_MOLECULE_GROUPS');

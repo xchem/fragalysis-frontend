@@ -7,15 +7,15 @@ export const useDisableUserInteraction = () => {
     state => state.selectionReducers.present.countOfPendingVectorLoadRequests
   );
   const countOfRemainingMoleculeGroups = useSelector(state => state.nglReducers.present.countOfRemainingMoleculeGroups);
-  const proteinsHasLoad = useSelector(state => state.nglReducers.present.proteinsHasLoad);
+  const proteinsHasLoaded = useSelector(state => state.nglReducers.present.proteinsHasLoaded);
   const countOfPendingNglObjects = useSelector(state => state.nglReducers.present.countOfPendingNglObjects);
 
   useEffect(() => {
     if (
       countOfPendingVectorLoadRequests === 0 &&
       countOfPendingNglObjects === 0 &&
-      ((countOfRemainingMoleculeGroups === 0 && proteinsHasLoad === true) ||
-        (countOfRemainingMoleculeGroups === null && proteinsHasLoad === null))
+      ((countOfRemainingMoleculeGroups === 0 && proteinsHasLoaded === true) ||
+        (countOfRemainingMoleculeGroups === null && proteinsHasLoaded === null))
     ) {
       if (disableInteraction === true) {
         setDisableInteraction(false);
@@ -30,7 +30,7 @@ export const useDisableUserInteraction = () => {
     countOfPendingVectorLoadRequests,
     countOfRemainingMoleculeGroups,
     disableInteraction,
-    proteinsHasLoad
+    proteinsHasLoaded
   ]);
 
   return disableInteraction;

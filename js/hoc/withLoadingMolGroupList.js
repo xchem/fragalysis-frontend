@@ -67,13 +67,25 @@ export const withLoadingMolGroupList = WrappedComponent => {
             });
           });
           refOnCancel.current = onCancel;
+        } else if (target_on && isStateLoaded) {
+          // to enable user interaction with application
+          setCountOfRemainingMoleculeGroups(0);
+          // loop ever data from session a load to ngl view
         }
         return () => {
           if (refOnCancel.current) {
             refOnCancel.current();
           }
         };
-      }, [target_on, group_type, list_type, setObjectList, isStateLoaded, afterPush]);
+      }, [
+        target_on,
+        group_type,
+        list_type,
+        setObjectList,
+        isStateLoaded,
+        afterPush,
+        setCountOfRemainingMoleculeGroups
+      ]);
 
       return <WrappedComponent {...rest} />;
     }

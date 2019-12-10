@@ -14,6 +14,7 @@ import * as selectionActions from '../../reducers/selection/selectionActions';
 import { withLoadingMolGroupList } from '../../hoc/withLoadingMolGroupList';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
+import { SCENES } from '../../reducers/ngl/nglConstants';
 
 export const heightOfBody = '164px';
 
@@ -42,7 +43,7 @@ const molGroupSelector = memo(
     setVectorList,
     resetSelectionState,
     handleHeightChange,
-    resetNglViewToDefaultScene
+    reloadNglViewFromScene
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
@@ -54,8 +55,8 @@ const molGroupSelector = memo(
       // Reset NGL VIEWS to default state
       const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
       const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
-      resetNglViewToDefaultScene(majorViewStage, VIEWS.MAJOR_VIEW);
-      resetNglViewToDefaultScene(summaryViewStage, VIEWS.SUMMARY_VIEW);
+      reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene);
+      reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene);
 
       // Reset selection reducer
       // remove sites selection
@@ -125,6 +126,6 @@ const mapDispatchToProps = {
   setVectorOnList: selectionActions.setVectorOnList,
   setVectorList: selectionActions.setVectorList,
   resetSelectionState: selectionActions.resetSelectionState,
-  resetNglViewToDefaultScene: nglActions.resetNglViewToDefaultScene
+  reloadNglViewFromScene: nglActions.reloadNglViewFromScene
 };
 export default withLoadingMolGroupList(connect(mapStateToProps, mapDispatchToProps)(molGroupSelector));

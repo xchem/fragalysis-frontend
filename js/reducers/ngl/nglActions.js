@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import { CONSTANTS } from './nglConstants';
+import { CONSTANTS, SCENES } from './nglConstants';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
 export const loadObject = (target, stage) => dispatch => {
@@ -65,43 +65,58 @@ export const setNglViewParams = (key, value, stage) => {
   };
 };
 
-export const resetNglViewToDefaultScene = (stage, display_div) => (dispatch, getState) => {
-  const defaultScene = getState().nglReducers.present.defaultScene;
-  dispatch({
-    type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE
-  });
+/**
+ *
+ * @param stage - instance of NGL view
+ * @param display_div - id of NGL View div
+ * @param scene - type of scene (default or session)
+ * @param sessionData - new session data loaded from API
+ * @returns {function(...[*]=)}
+ */
+export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) => (dispatch, getState) => {
+  const currentScene =
+    sessionData !== undefined ? sessionData.nglReducers.present[scene] : getState().nglReducers.present[scene];
+  switch (scene) {
+    case SCENES.defaultScene:
+      dispatch({
+        type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE
+      });
+      break;
+    case SCENES.sessionScene:
+      dispatch({
+        type: CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE,
+        payload: sessionData
+      });
+      break;
+  }
   // Remove all components in NGL View
   stage.removeAllComponents();
 
-  // Reconstruction of state in NGL View from defaultScene data
+  // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  Object.keys(defaultScene.objectsInView).forEach(objInView => {
-    if (defaultScene.objectsInView[objInView].display_div === display_div) {
-      dispatch(loadObject(defaultScene.objectsInView[objInView], stage));
+  Object.keys(currentScene.objectsInView).forEach(objInView => {
+    if (currentScene.objectsInView[objInView].display_div === display_div) {
+      dispatch(loadObject(currentScene.objectsInView[objInView], stage));
     }
   });
 
-  // loop for every nglViewParam
-  Object.keys(defaultScene.viewParams).forEach(param => {
-    dispatch(setNglViewParams([defaultScene.viewParams[param]], defaultScene.viewParams[param], stage));
+  // loop over nglViewParams
+  Object.keys(currentScene.viewParams).forEach(param => {
+    dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
   });
 
-  // nglOrientations
-  // orientationToSet
+  // nglOrientations???
+  // orientationToSet???
 };
 
-export const resetNglViewToLastScene = (stage, stageId) => ({
-  type: CONSTANTS.RESET_NGL_VIEW_TO_LAST_SCENE,
-  stage,
-  stageId
-});
+export const saveCurrentStateAsDefaultScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE });
 
-export const saveCurrentStateAsDefaultScene = stage => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE, stage });
+export const saveCurrentStateAsSessionScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE });
 
 export const clearNglView = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
 
 // Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoad = hasLoad => (dispatch, getState) => {
+export const setProteinsHasLoaded = hasLoad => (dispatch, getState) => {
   const state = getState();
   if (state.nglReducers.present.countOfRemainingMoleculeGroups === 0 && hasLoad === true) {
     dispatch(saveCurrentStateAsDefaultScene());

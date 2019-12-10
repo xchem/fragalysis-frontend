@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, memo, useCallback, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import * as apiActions from '../../reducers/api/apiActions';
@@ -14,6 +14,8 @@ import { OBJECT_TYPE } from '../nglView/constants';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { notCheckTarget } from './helpers';
+import { NglContext } from '../nglView/nglProvider';
+import { SCENES } from '../../reducers/ngl/nglConstants';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -43,14 +45,15 @@ const SessionManagement = memo(
     reloadSelectionState,
     setLatestSession,
     setLatestSnapshot,
-    setStageColor,
     setSessionId,
     setUuid,
     setSessionTitle,
     setVectorList,
     setBondColorMap,
     setTargetUnrecognised,
-    setLoadingState
+    setLoadingState,
+    saveCurrentStateAsSessionScene,
+    reloadNglViewFromScene
   }) => {
     const [/* state */ setState] = useState();
     const [saveType, setSaveType] = useState('');
@@ -58,6 +61,7 @@ const SessionManagement = memo(
     const [newSessionFlag, setNewSessionFlag] = useState(0);
     const classes = useStyles();
     const { pathname } = window.location;
+    const { nglViewList } = useContext(NglContext);
 
     const disableButtons =
       (savingState &&
@@ -82,6 +86,7 @@ const SessionManagement = memo(
       };
     };
     const postToServer = sessionState => {
+      saveCurrentStateAsSessionScene();
       setSavingState(sessionState);
       for (var key in nglOrientations) {
         setOrientation(key, 'REFRESH');
@@ -135,6 +140,7 @@ const SessionManagement = memo(
       }
       return outList;
     }, []);
+
     const generateBondColorMap = inputDict => {
       var out_d = {};
       for (let keyItem in inputDict) {
@@ -174,7 +180,9 @@ const SessionManagement = memo(
         var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
         reloadApiState(jsonOfView.apiReducers.present);
         reloadSelectionState(jsonOfView.selectionReducers.present);
-        setStageColor(jsonOfView.nglReducers.present.stageColor);
+        nglViewList.forEach(nglView => {
+          reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
+        });
         restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
         if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
           var url =
@@ -190,13 +198,14 @@ const SessionManagement = memo(
         setSessionId(myJson.id);
       },
       [
-        redeployVectorsLocal,
         reloadApiState,
         reloadSelectionState,
+        nglViewList,
         restoreOrientation,
-        setSessionId,
         setSessionTitle,
-        setStageColor
+        setSessionId,
+        reloadNglViewFromScene,
+        redeployVectorsLocal
       ]
     );
 
@@ -506,13 +515,14 @@ const mapDispatchToProps = {
   reloadSelectionState: selectionActions.reloadSelectionState,
   setLatestSession: apiActions.setLatestSession,
   setLatestSnapshot: apiActions.setLatestSnapshot,
-  setStageColor: nglLoadActions.setNglViewParams,
   setSessionId: apiActions.setSessionId,
   setUuid: apiActions.setUuid,
   setSessionTitle: apiActions.setSessionTitle,
   setVectorList: selectionActions.setVectorList,
   setBondColorMap: selectionActions.setBondColorMap,
   setTargetUnrecognised: apiActions.setTargetUnrecognised,
-  setLoadingState: nglLoadActions.setLoadingState
+  setLoadingState: nglLoadActions.setLoadingState,
+  saveCurrentStateAsSessionScene: nglLoadActions.saveCurrentStateAsSessionScene,
+  reloadNglViewFromScene: nglLoadActions.reloadNglViewFromScene
 };
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionManagement));
