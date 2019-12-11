@@ -10,6 +10,17 @@ const useStyles = makeStyles(theme => ({
   body: {
     padding: theme.spacing(1)
   },
+  bodyOverflowHeader: {
+    padding: theme.spacing(1),
+    // 100% - header
+    height: `calc( 100% - ${theme.spacing(5)}px )`,
+    overflowY: 'auto'
+  },
+  bodyOverflow: {
+    padding: theme.spacing(1),
+    height: `100%`,
+    overflowY: 'auto'
+  },
   header: {
     color: theme.palette.white,
     backgroundColor: theme.palette.primary.main,
@@ -48,12 +59,22 @@ export const Panel = memo(
         defaultExpanded = false,
         onExpandChange,
         children,
+        bodyOverflow,
         ...rest
       },
       ref
     ) => {
       const classes = useStyles();
       const [expanded, setExpanded] = useState(defaultExpanded);
+
+      let bodyClass = classes.body;
+      if (bodyOverflow) {
+        if (hasHeader) {
+          bodyClass = classes.bodyOverflowHeader;
+        } else {
+          bodyClass = classes.bodyOverflow;
+        }
+      }
 
       const handleTitleButtonClick = () => {
         setExpanded(!expanded);
@@ -99,8 +120,8 @@ export const Panel = memo(
               </Grid>
             </div>
           )}
-          {hasExpansion && <div className={expanded === true ? classes.body : classes.hidden}>{children}</div>}
-          {!hasExpansion && <div className={classes.body}>{children}</div>}
+          {hasExpansion && <div className={expanded === true ? bodyClass : classes.hidden}>{children}</div>}
+          {!hasExpansion && <div className={bodyClass}>{children}</div>}
         </MaterialPaper>
       );
     }

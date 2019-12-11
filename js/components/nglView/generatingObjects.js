@@ -11,12 +11,12 @@ export const createRepresentation = (id, params, comp) => {
   return { id, params: definedParams };
 };
 
-export const generateProteinObject = targetData => {
+export const generateProteinObject = data => {
   // Now deal with this target
-  const prot_to_load = window.location.protocol + '//' + window.location.host + targetData.template_protein;
+  const prot_to_load = window.location.protocol + '//' + window.location.host + data.template_protein;
   if (JSON.stringify(prot_to_load) !== JSON.stringify(undefined)) {
     return {
-      name: 'PROTEIN_' + targetData.id.toString(),
+      name: OBJECT_TYPE.PROTEIN + '_' + data.id.toString(),
       prot_url: prot_to_load,
       OBJECT_TYPE: OBJECT_TYPE.PROTEIN,
       nglProtStyle: MOL_REPRESENTATION.cartoon
@@ -25,11 +25,11 @@ export const generateProteinObject = targetData => {
   return undefined;
 };
 
-export const generateMoleculeObject = (targetData, colourToggle) => ({
-  name: OBJECT_TYPE.MOLECULE + '_' + targetData.id.toString(),
+export const generateMoleculeObject = (data, colourToggle) => ({
+  name: OBJECT_TYPE.MOLECULE + '_' + data.id.toString(),
   OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
   colour: colourToggle,
-  sdf_info: targetData.sdf_info
+  sdf_info: data.sdf_info
 });
 
 export const generateArrowObject = (data, start, end, name, colour) => ({

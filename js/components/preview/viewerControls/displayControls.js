@@ -11,13 +11,10 @@ import {
   removeComponentRepresentation,
   updateComponentRepresentation
 } from '../../../reducers/ngl/nglActions';
-import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: 216,
-    flexGrow: 1,
-    maxWidth: 400
+    overflow: 'auto'
   },
   itemRow: {
     height: theme.spacing(3)
@@ -59,7 +56,10 @@ export const DisplayControls = ({ open, onClose }) => {
       comp.removeRepresentation(foundedRepresentation);
       // update in redux
       if (comp.reprList.length === 0) {
-        dispatch(deleteObject(objectsInView[parentKey], nglView.stage));
+        const targetObject = objectsInView[parentKey];
+        // remove from nglReducer
+        dispatch(deleteObject(targetObject, nglView.stage));
+        // remove from selectionReducer
       } else {
         dispatch(removeComponentRepresentation(parentKey, representation.id));
       }
@@ -113,7 +113,23 @@ export const DisplayControls = ({ open, onClose }) => {
           <TreeItem
             nodeId={objectsInView[parentItem].name}
             key={objectsInView[parentItem].name}
-            label={objectsInView[parentItem].name}
+            label={
+              <Grid
+                container
+                justify="space-between"
+                direction="row"
+                wrap="nowrap"
+                alignItems="center"
+                //   className={classes.itemRow}
+              >
+                <Grid item>{objectsInView[parentItem].name}</Grid>
+                <Grid item>
+                  <IconButton>
+                    <Delete />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            }
           >
             {objectsInView[parentItem].representations &&
               objectsInView[parentItem].representations.map((representation, index) =>
