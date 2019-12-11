@@ -1,10 +1,17 @@
-import React, { Fragment } from 'react';
+import React, { useContext } from 'react';
 import { Drawer } from '../../common/Navigation/Drawer';
 import { makeStyles, Grid, IconButton } from '@material-ui/core';
 import TreeView from '@material-ui/lab/TreeView';
-import { ChevronRight, ExpandMore, Edit, Visibility, Delete } from '@material-ui/icons';
+import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff } from '@material-ui/icons';
 import TreeItem from '@material-ui/lab/TreeItem';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { NglContext } from '../../nglView/nglProvider';
+import {
+  deleteObject,
+  removeComponentRepresentation,
+  updateComponentRepresentation
+} from '../../../reducers/ngl/nglActions';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -19,7 +26,45 @@ const useStyles = makeStyles(theme => ({
 
 export const DisplayControls = ({ open, onClose }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
+  const { getNglView } = useContext(NglContext);
+
+  const changeVisibility = (representation, parentKey) => {
+    const nglView = getNglView(objectsInView[parentKey].display_div);
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    comp.eachRepresentation(r => {
+      if (r.name === representation.id) {
+        const newVisibility = !r.getVisibility();
+        // update in redux
+        representation.params.visible = newVisibility;
+        dispatch(updateComponentRepresentation(parentKey, representation.id, representation));
+        // update in nglView
+        r.setVisibility(newVisibility);
+      }
+    });
+  };
+
+  const removeRepresentation = (representation, parentKey) => {
+    const nglView = getNglView(objectsInView[parentKey].display_div);
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    let foundedRepresentation = undefined;
+    comp.eachRepresentation(r => {
+      if (r.name === representation.id) {
+        foundedRepresentation = r;
+      }
+    });
+    if (foundedRepresentation) {
+      // update in nglView
+      comp.removeRepresentation(foundedRepresentation);
+      // update in redux
+      if (comp.reprList.length === 0) {
+        dispatch(deleteObject(objectsInView[parentKey], nglView.stage));
+      } else {
+        dispatch(removeComponentRepresentation(parentKey, representation.id));
+      }
+    }
+  };
 
   const renderSubtreeItem = (representation, item, index) => (
     <TreeItem
@@ -34,7 +79,7 @@ export const DisplayControls = ({ open, onClose }) => {
           alignItems="center"
           className={classes.itemRow}
         >
-          <Grid item>{representation.id}</Grid>
+          <Grid item>{representation && representation.id}</Grid>
           <Grid item container justify="flex-end" direction="row">
             <Grid item>
               <IconButton>
@@ -42,12 +87,16 @@ export const DisplayControls = ({ open, onClose }) => {
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton>
-                <Visibility />
+              <IconButton onClick={() => changeVisibility(representation, item)}>
+                {representation && representation.params && representation.params.visible === true ? (
+                  <Visibility />
+                ) : (
+                  <VisibilityOff />
+                )}
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton>
+              <IconButton onClick={() => removeRepresentation(representation, item)}>
                 <Delete />
               </IconButton>
             </Grid>

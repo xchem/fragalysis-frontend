@@ -56,6 +56,36 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         objectsInView: newObjectsInView
       });
 
+    case CONSTANTS.UPDATE_COMPONENT_REPRESENTATION:
+      const newObjInView = JSON.parse(JSON.stringify(state.objectsInView));
+      let newRepresentation = newObjInView[action.objectInViewID].representations.find(
+        r => r.id === action.representationID
+      );
+      if (newRepresentation) {
+        newRepresentation = action.newRepresentation;
+      }
+
+      return Object.assign({}, state, {
+        objectsInView: newObjInView
+      });
+
+    case CONSTANTS.REMOVE_COMPONENT_REPRESENTATION:
+      const newObjInViewWithRemovedRepresentation = JSON.parse(JSON.stringify(state.objectsInView));
+      if (newObjInViewWithRemovedRepresentation[action.objectInViewID].representations) {
+        for (let i = 0; i < newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.length; i++) {
+          if (
+            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations[i].id ===
+            action.representationID
+          ) {
+            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.splice(i, 1);
+            break;
+          }
+        }
+      }
+      return Object.assign({}, state, {
+        objectsInView: newObjInViewWithRemovedRepresentation
+      });
+
     case CONSTANTS.DELETE_OBJECT:
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
       delete objectsInViewTemp[action.target.name];

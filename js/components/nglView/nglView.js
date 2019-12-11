@@ -160,6 +160,7 @@ const NglView = memo(
     useEffect(() => {
       if (stageRef.current === undefined) {
         const newStage = new Stage(div_id);
+        newStage.getComponentsByName();
         registerNglView(div_id, newStage);
         window.addEventListener('resize', handleResize);
         newStage.mouseControls.add('clickPick-left', showPick);

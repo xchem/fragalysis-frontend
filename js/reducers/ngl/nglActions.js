@@ -23,6 +23,19 @@ export const loadObject = (target, stage) => dispatch => {
   return Promise.reject('Instance of NGL View is missing');
 };
 
+export const updateComponentRepresentation = (objectInViewID, representationID, newRepresentation) => ({
+  type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION,
+  representationID,
+  newRepresentation,
+  objectInViewID
+});
+
+export const removeComponentRepresentation = (objectInViewID, representationID) => ({
+  type: CONSTANTS.REMOVE_COMPONENT_REPRESENTATION,
+  representationID,
+  objectInViewID
+});
+
 export const setOrientation = function(div_id, orientation) {
   return {
     type: CONSTANTS.SET_ORIENTATION,
