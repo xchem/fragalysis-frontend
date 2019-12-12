@@ -68,7 +68,9 @@ export const DisplayControls = ({ open, onClose }) => {
     }
   };
 
-  const removeMoleculeWithRepresentations = parentKey => {
+  // Removing with Cascade
+  const removeMoleculeWithRepresentations = (parentKey, e) => {
+    e.stopPropagation();
     const targetObject = objectsInView[parentKey];
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
@@ -76,6 +78,41 @@ export const DisplayControls = ({ open, onClose }) => {
 
     // remove from nglReducer and selectionReducer
     dispatch(deleteObject(targetObject, nglView.stage, true));
+  };
+
+  // ChangeVisibility with cascade
+  const changeVisibilityMoleculeRepresentations = (parentKey, e) => {
+    e.stopPropagation();
+    const representations = (objectsInView[parentKey] && objectsInView[parentKey].representations) || [];
+    const nglView = getNglView(objectsInView[parentKey].display_div);
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    let newVisibility = false;
+    representations.forEach((representation, index) => {
+      if (index === 0) {
+        newVisibility = !representation.params.visible;
+      }
+      comp.eachRepresentation(r => {
+        if (r.name === representation.id) {
+          representation.params.visible = newVisibility;
+          // update in nglView
+          r.setVisibility(newVisibility);
+          // update in redux
+          dispatch(updateComponentRepresentation(parentKey, representation.id, representation));
+        }
+      });
+    });
+  };
+
+  const hasAllRepresentationVisibled = parentKey => {
+    const representations = (objectsInView[parentKey] && objectsInView[parentKey].representations) || [];
+    let countOfNonVisibled = 0;
+
+    representations.forEach(r => {
+      if (r.params.visible === false) {
+        countOfNonVisibled++;
+      }
+    });
+    return countOfNonVisibled !== representations.length;
   };
 
   const renderSubtreeItem = (representation, item, index) => (
@@ -137,12 +174,15 @@ export const DisplayControls = ({ open, onClose }) => {
                 <Grid container justify="space-between" direction="row" wrap="nowrap" alignItems="center">
                   <Grid item>{objectsInView[parentItem].name}</Grid>
                   <Grid item>
+                    <IconButton onClick={e => changeVisibilityMoleculeRepresentations(parentItem, e)}>
+                      {hasAllRepresentationVisibled(parentItem) === true ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
                     <IconButton
                       disabled={
                         objectsInView[parentItem].selectionType === SELECTION_TYPE.VECTOR ||
                         objectsInView[parentItem].OBJECT_TYPE === OBJECT_TYPE.PROTEIN
                       }
-                      onClick={() => removeMoleculeWithRepresentations(parentItem)}
+                      onClick={e => removeMoleculeWithRepresentations(parentItem, e)}
                     >
                       <Delete />
                     </IconButton>

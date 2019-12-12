@@ -58,12 +58,15 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.UPDATE_COMPONENT_REPRESENTATION:
       const newObjInView = JSON.parse(JSON.stringify(state.objectsInView));
-      let newRepresentation = newObjInView[action.objectInViewID].representations.find(
-        r => r.id === action.representationID
-      );
-      if (newRepresentation) {
-        newRepresentation = action.newRepresentation;
-      }
+      let newRepresentations = [];
+      newObjInView[action.objectInViewID].representations.forEach(r => {
+        if (r.id === action.representationID) {
+          newRepresentations.push(action.newRepresentation);
+        } else {
+          newRepresentations.push(r);
+        }
+      });
+      newObjInView[action.objectInViewID].representations = newRepresentations;
 
       return Object.assign({}, state, {
         objectsInView: newObjInView
