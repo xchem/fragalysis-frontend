@@ -68,6 +68,16 @@ export const DisplayControls = ({ open, onClose }) => {
     }
   };
 
+  const removeMoleculeWithRepresentations = parentKey => {
+    const targetObject = objectsInView[parentKey];
+    const nglView = getNglView(objectsInView[parentKey].display_div);
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation.id)));
+
+    // remove from nglReducer and selectionReducer
+    dispatch(deleteObject(targetObject, nglView.stage, true));
+  };
+
   const renderSubtreeItem = (representation, item, index) => (
     <TreeItem
       nodeId={`${objectsInView[item].name}___${index}`}
@@ -101,7 +111,8 @@ export const DisplayControls = ({ open, onClose }) => {
               <IconButton
                 onClick={() => removeRepresentation(representation, item)}
                 disabled={
-                  objectsInView[item].selectionType === SELECTION_TYPE.VECTOR || objectsInView[item].OBJECT_TYPE.PROTEIN
+                  objectsInView[item].selectionType === SELECTION_TYPE.VECTOR ||
+                  objectsInView[item].OBJECT_TYPE === OBJECT_TYPE.PROTEIN
                 }
               >
                 <Delete />
@@ -129,8 +140,9 @@ export const DisplayControls = ({ open, onClose }) => {
                     <IconButton
                       disabled={
                         objectsInView[parentItem].selectionType === SELECTION_TYPE.VECTOR ||
-                        objectsInView[parentItem].OBJECT_TYPE.PROTEIN
+                        objectsInView[parentItem].OBJECT_TYPE === OBJECT_TYPE.PROTEIN
                       }
+                      onClick={() => removeMoleculeWithRepresentations(parentItem)}
                     >
                       <Delete />
                     </IconButton>
