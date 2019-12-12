@@ -28,13 +28,28 @@ export const NGL_PARAMS = {
 };
 
 export const MOL_REPRESENTATION = {
-  cartoon: 'cartoon',
-  hyperball: 'hyperball',
-  contact: 'contact',
+  axes: 'axes',
+  backbone: 'backbone',
   ballPlusStick: 'ball+stick',
-  buffer: 'buffer',
+  base: 'base',
+  cartoon: 'cartoon',
+  contact: 'contact',
+  distance: 'distance',
+  helixorient: 'helixorient',
+  hyperball: 'hyperball',
+  label: 'label',
+  licorice: 'licorice',
   line: 'line',
-  surface: 'surface'
+  point: 'point',
+  ribbon: 'ribbon',
+  rocket: 'rocket',
+  rope: 'rope',
+  spacefill: 'spacefill',
+  surface: 'surface',
+  trace: 'trace',
+  tube: 'tube',
+  unitcell: 'unitcell',
+  validation: 'validation'
 };
 
 // warning dont use underscore _ in constants!!!!!!

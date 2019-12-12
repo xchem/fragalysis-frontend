@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Drawer } from '../../common/Navigation/Drawer';
-import { makeStyles, Grid, IconButton } from '@material-ui/core';
+import { makeStyles, Grid, IconButton, Select, MenuItem } from '@material-ui/core';
 import TreeView from '@material-ui/lab/TreeView';
 import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff } from '@material-ui/icons';
 import TreeItem from '@material-ui/lab/TreeItem';
@@ -11,7 +11,7 @@ import {
   removeComponentRepresentation,
   updateComponentRepresentation
 } from '../../../reducers/ngl/nglActions';
-import { OBJECT_TYPE, SELECTION_TYPE } from '../../nglView/constants';
+import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../nglView/constants';
 import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -40,6 +40,21 @@ export const DisplayControls = ({ open, onClose }) => {
         dispatch(updateComponentRepresentation(parentKey, representation.id, representation));
         // update in nglView
         r.setVisibility(newVisibility);
+      }
+    });
+  };
+  const changeMolecularRepresentation = (representation, parentKey, e) => {
+    const newRepresentation = e.target.value;
+    const oldRepresentationId = JSON.parse(JSON.stringify(representation.id));
+    const nglView = getNglView(objectsInView[parentKey].display_div);
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    comp.eachRepresentation(r => {
+      if (r.name === oldRepresentationId) {
+        // update in redux
+        representation.id = newRepresentation;
+        dispatch(updateComponentRepresentation(parentKey, oldRepresentationId, representation));
+        // update in nglView
+        r.setSelection(newRepresentation);
       }
     });
   };
@@ -128,8 +143,20 @@ export const DisplayControls = ({ open, onClose }) => {
           alignItems="center"
           className={classes.itemRow}
         >
-          <Grid item>{representation && representation.id}</Grid>
-          <Grid item container justify="flex-end" direction="row">
+          <Grid item xs={6}>
+            <Select
+              native
+              value={representation && representation.id}
+              onChange={e => changeMolecularRepresentation(representation, item, e)}
+            >
+              {Object.keys(MOL_REPRESENTATION).map(option => (
+                <option key={MOL_REPRESENTATION[option]} value={MOL_REPRESENTATION[option]}>
+                  {MOL_REPRESENTATION[option]}
+                </option>
+              ))}
+            </Select>
+          </Grid>
+          <Grid item xs={6} container justify="flex-end" direction="row">
             <Grid item>
               <IconButton>
                 <Edit />
