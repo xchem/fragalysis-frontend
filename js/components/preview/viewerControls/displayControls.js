@@ -11,6 +11,8 @@ import {
   removeComponentRepresentation,
   updateComponentRepresentation
 } from '../../../reducers/ngl/nglActions';
+import { OBJECT_TYPE, SELECTION_TYPE } from '../../nglView/constants';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -55,11 +57,11 @@ export const DisplayControls = ({ open, onClose }) => {
       // update in nglView
       comp.removeRepresentation(foundedRepresentation);
       // update in redux
+      const targetObject = objectsInView[parentKey];
+
       if (comp.reprList.length === 0) {
-        const targetObject = objectsInView[parentKey];
-        // remove from nglReducer
-        dispatch(deleteObject(targetObject, nglView.stage));
-        // remove from selectionReducer
+        // remove from nglReducer and selectionReducer
+        dispatch(deleteObject(targetObject, nglView.stage, true));
       } else {
         dispatch(removeComponentRepresentation(parentKey, representation.id));
       }
@@ -96,7 +98,12 @@ export const DisplayControls = ({ open, onClose }) => {
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton onClick={() => removeRepresentation(representation, item)}>
+              <IconButton
+                onClick={() => removeRepresentation(representation, item)}
+                disabled={
+                  objectsInView[item].selectionType === SELECTION_TYPE.VECTOR || objectsInView[item].OBJECT_TYPE.PROTEIN
+                }
+              >
                 <Delete />
               </IconButton>
             </Grid>
@@ -109,34 +116,34 @@ export const DisplayControls = ({ open, onClose }) => {
   return (
     <Drawer title="Display controls" open={open} onClose={onClose}>
       <TreeView className={classes.root} defaultCollapseIcon={<ExpandMore />} defaultExpandIcon={<ChevronRight />}>
-        {Object.keys(objectsInView).map(parentItem => (
-          <TreeItem
-            nodeId={objectsInView[parentItem].name}
-            key={objectsInView[parentItem].name}
-            label={
-              <Grid
-                container
-                justify="space-between"
-                direction="row"
-                wrap="nowrap"
-                alignItems="center"
-                //   className={classes.itemRow}
-              >
-                <Grid item>{objectsInView[parentItem].name}</Grid>
-                <Grid item>
-                  <IconButton>
-                    <Delete />
-                  </IconButton>
+        {Object.keys(objectsInView)
+          .filter(item => objectsInView[item].display_div === VIEWS.MAJOR_VIEW)
+          .map(parentItem => (
+            <TreeItem
+              nodeId={objectsInView[parentItem].name}
+              key={objectsInView[parentItem].name}
+              label={
+                <Grid container justify="space-between" direction="row" wrap="nowrap" alignItems="center">
+                  <Grid item>{objectsInView[parentItem].name}</Grid>
+                  <Grid item>
+                    <IconButton
+                      disabled={
+                        objectsInView[parentItem].selectionType === SELECTION_TYPE.VECTOR ||
+                        objectsInView[parentItem].OBJECT_TYPE.PROTEIN
+                      }
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Grid>
                 </Grid>
-              </Grid>
-            }
-          >
-            {objectsInView[parentItem].representations &&
-              objectsInView[parentItem].representations.map((representation, index) =>
-                renderSubtreeItem(representation, parentItem, index)
-              )}
-          </TreeItem>
-        ))}
+              }
+            >
+              {objectsInView[parentItem].representations &&
+                objectsInView[parentItem].representations.map((representation, index) =>
+                  renderSubtreeItem(representation, parentItem, index)
+                )}
+            </TreeItem>
+          ))}
       </TreeView>
     </Drawer>
   );

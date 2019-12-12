@@ -3,6 +3,12 @@
  */
 import { CONSTANTS, SCENES } from './nglConstants';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
+import { SELECTION_TYPE } from '../../components/nglView/constants';
+import {
+  removeFromComplexList,
+  removeFromFragmentDisplayList,
+  removeFromVectorOnList
+} from '../selection/selectionActions';
 
 export const loadObject = (target, stage) => dispatch => {
   if (stage) {
@@ -52,15 +58,28 @@ export const setNGLOrientation = function(div_id, orientation) {
   };
 };
 
-export const deleteObject = (target, stage) => {
+export const deleteObject = (target, stage, deleteFromSelections) => (dispatch, getState) => {
   const comps = stage.getComponentsByName(target.name);
-  for (let component in comps.list) {
-    stage.removeComponent(comps.list[component]);
+  comps.list.forEach(component => stage.removeComponent(component));
+  if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
+    const objectId = { id: target.moleculeId };
+    switch (target.selectionType) {
+      case SELECTION_TYPE.LIGAND:
+        dispatch(removeFromFragmentDisplayList(objectId));
+        break;
+      case SELECTION_TYPE.COMPLEX:
+        dispatch(removeFromComplexList(objectId));
+        break;
+      case SELECTION_TYPE.VECTOR:
+        dispatch(removeFromVectorOnList(objectId));
+        break;
+    }
   }
-  return {
+
+  dispatch({
     type: CONSTANTS.DELETE_OBJECT,
     target
-  };
+  });
 };
 
 export const setLoadingState = function(bool) {

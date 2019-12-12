@@ -1,4 +1,4 @@
-import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
+import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
 import * as listTypes from '../listTypes';
 
 export const defaultFocus = 0;
@@ -25,39 +25,51 @@ export const generateProteinObject = data => {
   return undefined;
 };
 
+// Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
   name: OBJECT_TYPE.MOLECULE + '_' + data.id.toString(),
   OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
   colour: colourToggle,
-  sdf_info: data.sdf_info
+  sdf_info: data.sdf_info,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.LIGAND
 });
 
+// Vector
 export const generateArrowObject = (data, start, end, name, colour) => ({
   name: listTypes.VECTOR + '_' + name,
   OBJECT_TYPE: OBJECT_TYPE.ARROW,
   start: start,
   end: end,
   colour: colour,
-  site: data.site
+  site: data.site,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.VECTOR
 });
 
+// Vector
 export const generateCylinderObject = (data, start, end, name, colour) => ({
   name: listTypes.VECTOR + '_' + name,
   OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
   start: start,
   end: end,
   colour: colour,
-  site: data.site
+  site: data.site,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.VECTOR
 });
 
-export const generateMoleculeId = data => ({
-  id: data.id
-});
-
+// Complex
 export const generateComplexObject = (data, colourToggle, base_url) => ({
   name: data.protein_code + '_COMP',
   OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: base_url + data.molecule_protein
+  prot_url: base_url + data.molecule_protein,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.COMPLEX
+});
+
+export const generateMoleculeId = data => ({
+  id: data.id
 });
