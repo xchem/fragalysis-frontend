@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Drawer } from '../../common/Navigation/Drawer';
-import { makeStyles, Grid, IconButton, Select, MenuItem } from '@material-ui/core';
+import { makeStyles, Grid, IconButton, Select } from '@material-ui/core';
 import TreeView from '@material-ui/lab/TreeView';
 import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff } from '@material-ui/icons';
 import TreeItem from '@material-ui/lab/TreeItem';
@@ -36,7 +36,7 @@ export const DisplayControls = ({ open, onClose }) => {
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     comp.eachRepresentation(r => {
-      if (r.name === representation.id) {
+      if (r.uuid === representation.uuid) {
         const newVisibility = !r.getVisibility();
         // update in redux
         representation.params.visible = newVisibility;
@@ -53,7 +53,12 @@ export const DisplayControls = ({ open, onClose }) => {
     const comp = nglView.stage.getComponentsByName(parentKey).first;
 
     // add representation to NGL
-    const newRepresentation = createRepresentation(newRepresentationType, oldRepresentation.params, comp);
+    const newRepresentation = createRepresentation(
+      newRepresentationType,
+      oldRepresentation.params,
+      comp,
+      oldRepresentation.uuid
+    );
     // add new representation to redux
     dispatch(addComponentRepresentation(parentKey, newRepresentation));
 
@@ -66,7 +71,7 @@ export const DisplayControls = ({ open, onClose }) => {
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     let foundedRepresentation = undefined;
     comp.eachRepresentation(r => {
-      if (r.name === representation.id) {
+      if (r.uuid === representation.uuid) {
         foundedRepresentation = r;
       }
     });
@@ -80,7 +85,7 @@ export const DisplayControls = ({ open, onClose }) => {
         // remove from nglReducer and selectionReducer
         dispatch(deleteObject(targetObject, nglView.stage, true));
       } else {
-        dispatch(removeComponentRepresentation(parentKey, representation.id));
+        dispatch(removeComponentRepresentation(parentKey, representation.uuid));
       }
     }
   };
@@ -91,7 +96,7 @@ export const DisplayControls = ({ open, onClose }) => {
     const targetObject = objectsInView[parentKey];
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
-    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation.id)));
+    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation.uuid)));
 
     // remove from nglReducer and selectionReducer
     dispatch(deleteObject(targetObject, nglView.stage, true));
@@ -109,12 +114,12 @@ export const DisplayControls = ({ open, onClose }) => {
         newVisibility = !representation.params.visible;
       }
       comp.eachRepresentation(r => {
-        if (r.name === representation.id) {
+        if (r.uuid === representation.uuid) {
           representation.params.visible = newVisibility;
           // update in nglView
           r.setVisibility(newVisibility);
           // update in redux
-          dispatch(updateComponentRepresentation(parentKey, representation.id, representation));
+          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
         }
       });
     });
@@ -148,7 +153,7 @@ export const DisplayControls = ({ open, onClose }) => {
           <Grid item xs={6}>
             <Select
               native
-              value={representation && representation.id}
+              value={representation && representation.type}
               onChange={e => changeMolecularRepresentation(representation, item, e)}
             >
               {Object.keys(MOL_REPRESENTATION).map(option => (
@@ -220,9 +225,9 @@ export const DisplayControls = ({ open, onClose }) => {
               }
             >
               {objectsInView[parentItem].representations &&
-                objectsInView[parentItem].representations.map((representation, index) =>
-                  renderSubtreeItem(representation, parentItem, index)
-                )}
+                objectsInView[parentItem].representations
+                  .sort((a, b) => (a.id > b.id ? 1 : -1))
+                  .map((representation, index) => renderSubtreeItem(representation, parentItem, index))}
             </TreeItem>
           ))}
       </TreeView>

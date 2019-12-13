@@ -3,12 +3,17 @@ import * as listTypes from '../listTypes';
 
 export const defaultFocus = 0;
 
-export const createRepresentation = (id, params, comp) => {
+export const createRepresentation = (type, params, comp, lastKnownID) => {
   // Is necessary check than params is undefined, because I access directly into NGL view instance and I will gain
   // params of current representation
   const definedParams = params !== undefined ? params : {};
-  comp.addRepresentation(id, definedParams);
-  return { id, params: definedParams };
+  const createdRepresentation = comp.addRepresentation(type, definedParams);
+  return {
+    id: lastKnownID ? lastKnownID : createdRepresentation.uuid,
+    uuid: createdRepresentation.uuid,
+    type,
+    params: definedParams
+  };
 };
 
 export const generateProteinObject = data => {

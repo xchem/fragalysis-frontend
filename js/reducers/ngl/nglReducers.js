@@ -60,7 +60,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const newObjInView = JSON.parse(JSON.stringify(state.objectsInView));
       let newRepresentations = [];
       newObjInView[action.objectInViewID].representations.forEach(r => {
-        if (r.id === action.representationID) {
+        if (r.uuid === action.representationID) {
           newRepresentations.push(action.newRepresentation);
         } else {
           newRepresentations.push(r);
@@ -85,7 +85,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       if (newObjInViewWithRemovedRepresentation[action.objectInViewID].representations) {
         for (let i = 0; i < newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.length; i++) {
           if (
-            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations[i].id ===
+            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations[i].uuid ===
             action.representationID
           ) {
             newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.splice(i, 1);
