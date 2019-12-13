@@ -9,7 +9,7 @@ import { Panel } from '../../common';
 import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
 import { Grid } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
-import { DisplayControls } from './displayControls';
+import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
 
 const drawers = {
@@ -20,7 +20,7 @@ const drawers = {
 
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
-const Index = memo(({}) => {
+const ViewerControls = memo(({}) => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
 
   const openDrawer = key => {
@@ -69,4 +69,4 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Index);
+export default connect(mapStateToProps, mapDispatchToProps)(ViewerControls);

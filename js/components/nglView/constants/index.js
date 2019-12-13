@@ -27,6 +27,26 @@ export const NGL_PARAMS = {
   fogFar: 'fogFar'
 };
 
+// warning dont use underscore _ in constants!!!!!!
+export const OBJECT_TYPE = {
+  SPHERE: 'SPHERE',
+  COMPLEX: 'COMPLEX',
+  MOLECULE: 'MOLECULE',
+  PROTEIN: 'PROTEIN',
+  ARROW: 'ARROW',
+  CYLINDER: 'CYLINDER',
+  LINE: 'LINE',
+  EVENTMAP: 'EVENTMAP',
+  HOTSPOT: 'HOTSPOT',
+  MOLECULE_GROUP: 'MOLECULE-GROUP'
+};
+
+export const SELECTION_TYPE = {
+  COMPLEX: 'COMPLEX',
+  LIGAND: 'LIGAND',
+  VECTOR: 'VECTOR'
+};
+
 export const MOL_REPRESENTATION = {
   axes: 'axes',
   backbone: 'backbone',
@@ -50,24 +70,4 @@ export const MOL_REPRESENTATION = {
   tube: 'tube',
   unitcell: 'unitcell',
   validation: 'validation'
-};
-
-// warning dont use underscore _ in constants!!!!!!
-export const OBJECT_TYPE = {
-  SPHERE: 'SPHERE',
-  COMPLEX: 'COMPLEX',
-  MOLECULE: 'MOLECULE',
-  PROTEIN: 'PROTEIN',
-  ARROW: 'ARROW',
-  CYLINDER: 'CYLINDER',
-  LINE: 'LINE',
-  EVENTMAP: 'EVENTMAP',
-  HOTSPOT: 'HOTSPOT',
-  MOLECULE_GROUP: 'MOLECULE-GROUP'
-};
-
-export const SELECTION_TYPE = {
-  COMPLEX: 'COMPLEX',
-  LIGAND: 'LIGAND',
-  VECTOR: 'VECTOR'
 };

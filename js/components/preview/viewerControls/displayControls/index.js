@@ -1,20 +1,21 @@
-import React, { useContext } from 'react';
-import { Drawer } from '../../common/Navigation/Drawer';
+import React, { useContext, memo } from 'react';
+import { Drawer } from '../../../common/Navigation/Drawer';
 import { makeStyles, Grid, IconButton, Select } from '@material-ui/core';
 import TreeView from '@material-ui/lab/TreeView';
 import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff } from '@material-ui/icons';
 import TreeItem from '@material-ui/lab/TreeItem';
 import { useDispatch, useSelector } from 'react-redux';
-import { NglContext } from '../../nglView/nglProvider';
+import { NglContext } from '../../../nglView/nglProvider';
 import {
   addComponentRepresentation,
   deleteObject,
   removeComponentRepresentation,
   updateComponentRepresentation
-} from '../../../reducers/ngl/nglActions';
-import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../nglView/constants';
-import { VIEWS } from '../../../constants/constants';
-import { createRepresentation } from '../../nglView/generatingObjects';
+} from '../../../../reducers/ngl/nglActions';
+import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
+import { VIEWS } from '../../../../constants/constants';
+import { createRepresentation } from '../../../nglView/generatingObjects';
+import { EditRepresentationMenu } from './editRepresentationMenu';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,11 +27,21 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const DisplayControls = ({ open, onClose }) => {
+export default memo(({ open, onClose }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
   const { getNglView } = useContext(NglContext);
+
+  const [editMenuAnchor, setEditMenuAnchor] = React.useState(null);
+
+  const openRepresentationEditMenu = event => {
+    setEditMenuAnchor(event.currentTarget);
+  };
+
+  const closeRepresentationEditMenu = () => {
+    setEditMenuAnchor(null);
+  };
 
   const changeVisibility = (representation, parentKey) => {
     const nglView = getNglView(objectsInView[parentKey].display_div);
@@ -165,9 +176,15 @@ export const DisplayControls = ({ open, onClose }) => {
           </Grid>
           <Grid item xs={6} container justify="flex-end" direction="row">
             <Grid item>
-              <IconButton>
+              <IconButton onClick={openRepresentationEditMenu}>
                 <Edit />
               </IconButton>
+              <EditRepresentationMenu
+                editMenuAnchor={editMenuAnchor}
+                closeRepresentationEditMenu={closeRepresentationEditMenu}
+                representation={representation}
+                parentKey={item}
+              />
             </Grid>
             <Grid item>
               <IconButton onClick={() => changeVisibility(representation, item)}>
@@ -233,4 +250,4 @@ export const DisplayControls = ({ open, onClose }) => {
       </TreeView>
     </Drawer>
   );
-};
+});

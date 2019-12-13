@@ -8,11 +8,18 @@ export const createRepresentation = (type, params, comp, lastKnownID) => {
   // params of current representation
   const definedParams = params !== undefined ? params : {};
   const createdRepresentation = comp.addRepresentation(type, definedParams);
+
+  const templateParams = {};
+  Object.keys(createdRepresentation.repr.parameters).forEach(
+    key => (templateParams[key] = createdRepresentation.repr[key])
+  );
   return {
     id: lastKnownID ? lastKnownID : createdRepresentation.uuid,
     uuid: createdRepresentation.uuid,
     type,
-    params: definedParams
+    params: definedParams,
+    representationTemplateParams: createdRepresentation.repr.parameters,
+    representationParams: templateParams
   };
 };
 
