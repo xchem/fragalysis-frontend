@@ -7,16 +7,19 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../nglView/nglProvider';
 import {
+  addComponentRepresentation,
   deleteObject,
   removeComponentRepresentation,
   updateComponentRepresentation
 } from '../../../reducers/ngl/nglActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../nglView/constants';
 import { VIEWS } from '../../../constants/constants';
+import { createRepresentation } from '../../nglView/generatingObjects';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    overflow: 'auto'
+    overflow: 'auto',
+    height: '100%'
   },
   itemRow: {
     height: theme.spacing(3)
@@ -44,19 +47,18 @@ export const DisplayControls = ({ open, onClose }) => {
     });
   };
   const changeMolecularRepresentation = (representation, parentKey, e) => {
-    const newRepresentation = e.target.value;
-    const oldRepresentationId = JSON.parse(JSON.stringify(representation.id));
+    const newRepresentationType = e.target.value;
+    const oldRepresentation = JSON.parse(JSON.stringify(representation));
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
-    comp.eachRepresentation(r => {
-      if (r.name === oldRepresentationId) {
-        // update in redux
-        representation.id = newRepresentation;
-        dispatch(updateComponentRepresentation(parentKey, oldRepresentationId, representation));
-        // update in nglView
-        r.setSelection(newRepresentation);
-      }
-    });
+
+    // add representation to NGL
+    const newRepresentation = createRepresentation(newRepresentationType, oldRepresentation.params, comp);
+    // add new representation to redux
+    dispatch(addComponentRepresentation(parentKey, newRepresentation));
+
+    // remove previous representation from NGL
+    removeRepresentation(representation, parentKey);
   };
 
   const removeRepresentation = (representation, parentKey) => {

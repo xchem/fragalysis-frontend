@@ -72,6 +72,14 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         objectsInView: newObjInView
       });
 
+    case CONSTANTS.ADD_COMPONENT_REPRESENTATION:
+      const newObjInView2 = JSON.parse(JSON.stringify(state.objectsInView));
+      newObjInView2[action.objectInViewID].representations.push(action.newRepresentation);
+
+      return Object.assign({}, state, {
+        objectsInView: newObjInView2
+      });
+
     case CONSTANTS.REMOVE_COMPONENT_REPRESENTATION:
       const newObjInViewWithRemovedRepresentation = JSON.parse(JSON.stringify(state.objectsInView));
       if (newObjInViewWithRemovedRepresentation[action.objectInViewID].representations) {
