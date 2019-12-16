@@ -51,7 +51,7 @@ export default memo(({ open, onClose }) => {
         const newVisibility = !r.getVisibility();
         // update in redux
         representation.params.visible = newVisibility;
-        dispatch(updateComponentRepresentation(parentKey, representation.id, representation));
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
         // update in nglView
         r.setVisibility(newVisibility);
       }

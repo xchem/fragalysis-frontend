@@ -1,11 +1,15 @@
-import React, { memo, useContext } from 'react';
-import { Menu, MenuItem, Grid, makeStyles } from '@material-ui/core';
+import React, { Fragment, memo, useContext, useState } from 'react';
+import { Menu, MenuItem, Grid, makeStyles, Checkbox, TextField } from '@material-ui/core';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
+import { updateComponentRepresentation } from '../../../../reducers/ngl/nglActions';
 
 const useStyles = makeStyles(theme => ({
   menu: {
     width: 'content-fit'
+  },
+  gridItem: {
+    padding: theme.spacing(1)
   }
 }));
 
@@ -20,26 +24,99 @@ export const EditRepresentationMenu = memo(
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
 
-    // console.log(r.setParameters({ opacity: 0.5 }));
+    const handleRepresentationPropertyChange = (key, value) => {
+      comp.eachRepresentation(r => {
+        if (r.uuid === representation.uuid) {
+          // update in ngl
+          console.log({ [key]: value });
+          r.setParameters({ [key]: value });
+          //update in redux
+          representation.representationParams[key] = value;
+          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+        }
+      });
+    };
 
-    const handleRepresentationPropertyChange = e => {};
+    const renderRepresentationValue = (templateItem, representationItem, key) => {
+      let representationComponent = null;
+
+      const numericType = (
+        <TextField
+          type="number"
+          value={`${representationItem}`}
+          InputProps={{
+            inputProps: { min: templateItem.min, max: templateItem.max, step: templateItem.precision }
+          }}
+          onKeyDown={e => e.stopPropagation()}
+          onChange={e => handleRepresentationPropertyChange(key, Number(e.target.value))}
+        />
+      );
+
+      switch (templateItem.type) {
+        case 'boolean':
+          representationComponent = (
+            <Checkbox
+              checked={representationItem}
+              onChange={e => handleRepresentationPropertyChange(key, e.target.checked)}
+            />
+          );
+          break;
+        case 'number':
+          representationComponent = numericType;
+          break;
+        case 'integer':
+          representationComponent = numericType;
+          break;
+        case 'select':
+          break;
+        case 'vector3':
+          break;
+        // this will be probably not rendered
+        case 'hidden':
+          break;
+        // slider!!!!!
+        case 'range':
+          break;
+        case 'color':
+          break;
+      }
+
+      if (representationComponent === null) {
+        return `not defined, ${key}`;
+      }
+
+      return (
+        <Fragment>
+          <Grid item>{key}</Grid>
+          <Grid item>{representationComponent}</Grid>
+        </Fragment>
+      );
+    };
 
     return (
       <Menu
         id="representationEditMenu"
         anchorEl={editMenuAnchor}
-        keepMounted
+        //   keepMounted
         open={Boolean(editMenuAnchor)}
         onClose={closeRepresentationEditMenu}
         className={classes.menu}
       >
-        {Object.keys(representation.representationTemplateParams).map(template => (
-          <MenuItem onClick={handleRepresentationPropertyChange} key={template}>
-            <Grid container justify="space-between" spacing={1} direction="row">
-              <Grid item>{template}</Grid>
-              <Grid item>{representation.representationTemplateParams[template].type}</Grid>
-            </Grid>
-          </MenuItem>
+        {Object.keys(representation.representationTemplateParams).map(key => (
+          <Grid
+            container
+            justify="space-between"
+            className={classes.gridItem}
+            direction="row"
+            alignItems="center"
+            key={key}
+          >
+            {renderRepresentationValue(
+              representation.representationTemplateParams[key],
+              representation.representationParams[key],
+              key
+            )}
+          </Grid>
         ))}
       </Menu>
     );

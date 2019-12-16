@@ -112,7 +112,6 @@ const ProposalList = memo(() => {
               <h3>Target List</h3>
               <p> For each proposal approved in the left column, the related targets will appear in the list below.</p>
               <p>
-                {' '}
                 Upon checking the private box, the target will becoming visible to users from the relevant proposal.
               </p>
               <p>
