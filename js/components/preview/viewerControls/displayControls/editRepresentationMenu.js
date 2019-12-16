@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import { Menu, Slider, Grid, makeStyles, Checkbox, TextField } from '@material-ui/core';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,13 +7,12 @@ import { throttle } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   menu: {
-    width: 'content-fit'
+    minWidth: 332,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1)
   },
-  gridItem: {
-    padding: theme.spacing(1)
-  },
-  slider: {
-    width: 150
+  itemWidth: {
+    width: 180
   }
 }));
 
@@ -35,6 +34,7 @@ export const EditRepresentationMenu = memo(
             // update in ngl
             r.setParameters({ [key]: value });
             //update in redux
+            console.log('(key, value) ', key, value);
             oldRepresentation.representationParams[key] = value;
             dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation));
           }
@@ -47,13 +47,22 @@ export const EditRepresentationMenu = memo(
 
       const numericType = (
         <TextField
+          className={classes.itemWidth}
           type="number"
-          value={`${representationItem}`}
+          value={
+            representationItem && (representationItem !== null || isNaN(representationItem) === false)
+              ? representationItem
+              : undefined
+          }
           InputProps={{
             inputProps: { min: templateItem.min, max: templateItem.max, step: templateItem.precision }
           }}
           onKeyDown={e => e.stopPropagation()}
-          onChange={e => handleRepresentationPropertyChange(key, Number(e.target.value))}
+          onChange={e => {
+            const value = e.target.valueNumber;
+            console.log(value);
+            handleRepresentationPropertyChange(key, isNaN(value) === false ? Number(value) : undefined);
+          }}
         />
       );
 
@@ -82,7 +91,7 @@ export const EditRepresentationMenu = memo(
         case 'range':
           representationComponent = (
             <Slider
-              className={classes.slider}
+              className={classes.itemWidth}
               value={representationItem}
               onChange={(e, value) => handleRepresentationPropertyChange(key, value)}
               aria-labelledby="continuous-slider"
@@ -98,15 +107,10 @@ export const EditRepresentationMenu = memo(
       }
 
       if (representationComponent === null) {
-        return `not defined, ${key}`;
+        return `NaN`;
       }
 
-      return (
-        <Fragment>
-          <Grid item>{key}</Grid>
-          <Grid item>{representationComponent}</Grid>
-        </Fragment>
-      );
+      return representationComponent;
     };
 
     return (
@@ -115,24 +119,21 @@ export const EditRepresentationMenu = memo(
         anchorEl={editMenuAnchor}
         open={Boolean(editMenuAnchor)}
         onClose={closeRepresentationEditMenu}
-        className={classes.menu}
       >
-        {Object.keys(representation.representationTemplateParams).map(key => (
-          <Grid
-            container
-            justify="space-between"
-            direction="row"
-            alignItems="center"
-            key={key}
-            className={classes.gridItem}
-          >
-            {renderRepresentationValue(
-              representation.representationTemplateParams[key],
-              representation.representationParams[key],
-              key
-            )}
-          </Grid>
-        ))}
+        <div className={classes.menu}>
+          {Object.keys(representation.representationTemplateParams).map(key => (
+            <Grid container justify="space-between" direction="row" alignItems="center" key={key} spacing={1}>
+              <Grid item>{key}</Grid>
+              <Grid item>
+                {renderRepresentationValue(
+                  representation.representationTemplateParams[key],
+                  representation.representationParams[key],
+                  key
+                )}
+              </Grid>
+            </Grid>
+          ))}
+        </div>
       </Menu>
     );
   }
