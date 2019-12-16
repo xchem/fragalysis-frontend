@@ -1,8 +1,9 @@
-import React, { Fragment, memo, useContext, useState } from 'react';
-import { Menu, MenuItem, Grid, makeStyles, Checkbox, TextField } from '@material-ui/core';
+import React, { Fragment, memo, useContext } from 'react';
+import { Menu, Slider, Grid, makeStyles, Checkbox, TextField } from '@material-ui/core';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateComponentRepresentation } from '../../../../reducers/ngl/nglActions';
+import { throttle } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   menu: {
@@ -10,6 +11,9 @@ const useStyles = makeStyles(theme => ({
   },
   gridItem: {
     padding: theme.spacing(1)
+  },
+  slider: {
+    width: 150
   }
 }));
 
@@ -24,18 +28,19 @@ export const EditRepresentationMenu = memo(
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
 
-    const handleRepresentationPropertyChange = (key, value) => {
-      comp.eachRepresentation(r => {
-        if (r.uuid === representation.uuid) {
-          // update in ngl
-          console.log({ [key]: value });
-          r.setParameters({ [key]: value });
-          //update in redux
-          representation.representationParams[key] = value;
-          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
-        }
-      });
-    };
+    const handleRepresentationPropertyChange = throttle(
+      (key, value) =>
+        comp.eachRepresentation(r => {
+          if (r.uuid === representation.uuid) {
+            // update in ngl
+            r.setParameters({ [key]: value });
+            //update in redux
+            oldRepresentation.representationParams[key] = value;
+            dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation));
+          }
+        }),
+      250
+    );
 
     const renderRepresentationValue = (templateItem, representationItem, key) => {
       let representationComponent = null;
@@ -74,8 +79,19 @@ export const EditRepresentationMenu = memo(
         // this will be probably not rendered
         case 'hidden':
           break;
-        // slider!!!!!
         case 'range':
+          representationComponent = (
+            <Slider
+              className={classes.slider}
+              value={representationItem}
+              onChange={(e, value) => handleRepresentationPropertyChange(key, value)}
+              aria-labelledby="continuous-slider"
+              valueLabelDisplay="auto"
+              min={templateItem.min}
+              max={templateItem.max}
+              step={templateItem.step}
+            />
+          );
           break;
         case 'color':
           break;
@@ -97,7 +113,6 @@ export const EditRepresentationMenu = memo(
       <Menu
         id="representationEditMenu"
         anchorEl={editMenuAnchor}
-        //   keepMounted
         open={Boolean(editMenuAnchor)}
         onClose={closeRepresentationEditMenu}
         className={classes.menu}
@@ -106,10 +121,10 @@ export const EditRepresentationMenu = memo(
           <Grid
             container
             justify="space-between"
-            className={classes.gridItem}
             direction="row"
             alignItems="center"
             key={key}
+            className={classes.gridItem}
           >
             {renderRepresentationValue(
               representation.representationTemplateParams[key],
