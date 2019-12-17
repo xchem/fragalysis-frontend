@@ -33,14 +33,14 @@ export default memo(({ open, onClose }) => {
   const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
   const { getNglView } = useContext(NglContext);
 
-  const [editMenuAnchor, setEditMenuAnchor] = React.useState(null);
+  const [editMenuAnchors, setEditMenuAnchors] = React.useState({});
 
-  const openRepresentationEditMenu = event => {
-    setEditMenuAnchor(event.currentTarget);
+  const openRepresentationEditMenu = (event, key) => {
+    setEditMenuAnchors({ ...editMenuAnchors, [key]: event.currentTarget });
   };
 
-  const closeRepresentationEditMenu = () => {
-    setEditMenuAnchor(null);
+  const closeRepresentationEditMenu = key => e => {
+    setEditMenuAnchors({ ...editMenuAnchors, [key]: null });
   };
 
   const changeVisibility = (representation, parentKey) => {
@@ -148,69 +148,72 @@ export default memo(({ open, onClose }) => {
     return countOfNonVisibled !== representations.length;
   };
 
-  const renderSubtreeItem = (representation, item, index) => (
-    <TreeItem
-      nodeId={`${objectsInView[item].name}___${index}`}
-      key={`${objectsInView[item].name}___${index}`}
-      label={
-        <Grid
-          container
-          justify="space-between"
-          direction="row"
-          wrap="nowrap"
-          alignItems="center"
-          className={classes.itemRow}
-        >
-          <Grid item xs={6}>
-            <Select
-              native
-              value={representation && representation.type}
-              onChange={e => changeMolecularRepresentation(representation, item, e)}
-            >
-              {Object.keys(MOL_REPRESENTATION).map(option => (
-                <option key={MOL_REPRESENTATION[option]} value={MOL_REPRESENTATION[option]}>
-                  {MOL_REPRESENTATION[option]}
-                </option>
-              ))}
-            </Select>
-          </Grid>
-          <Grid item xs={6} container justify="flex-end" direction="row">
-            <Grid item>
-              <IconButton onClick={openRepresentationEditMenu}>
-                <Edit />
-              </IconButton>
-              <EditRepresentationMenu
-                editMenuAnchor={editMenuAnchor}
-                closeRepresentationEditMenu={closeRepresentationEditMenu}
-                representation={representation}
-                parentKey={item}
-              />
-            </Grid>
-            <Grid item>
-              <IconButton onClick={() => changeVisibility(representation, item)}>
-                {representation && representation.params && representation.params.visible === true ? (
-                  <Visibility />
-                ) : (
-                  <VisibilityOff />
-                )}
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton
-                onClick={() => removeRepresentation(representation, item)}
-                disabled={
-                  objectsInView[item].selectionType === SELECTION_TYPE.VECTOR ||
-                  objectsInView[item].OBJECT_TYPE === OBJECT_TYPE.PROTEIN
-                }
+  const renderSubtreeItem = (representation, item, index) => {
+    const representationKey = `${objectsInView[item].name}___${index}`;
+    return (
+      <TreeItem
+        nodeId={representationKey}
+        key={representationKey}
+        label={
+          <Grid
+            container
+            justify="space-between"
+            direction="row"
+            wrap="nowrap"
+            alignItems="center"
+            className={classes.itemRow}
+          >
+            <Grid item xs={6}>
+              <Select
+                native
+                value={representation && representation.type}
+                onChange={e => changeMolecularRepresentation(representation, item, e)}
               >
-                <Delete />
-              </IconButton>
+                {Object.keys(MOL_REPRESENTATION).map(option => (
+                  <option key={MOL_REPRESENTATION[option]} value={MOL_REPRESENTATION[option]}>
+                    {MOL_REPRESENTATION[option]}
+                  </option>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item xs={6} container justify="flex-end" direction="row">
+              <Grid item>
+                <IconButton onClick={e => openRepresentationEditMenu(e, representationKey)}>
+                  <Edit />
+                </IconButton>
+                <EditRepresentationMenu
+                  editMenuAnchor={editMenuAnchors[representationKey]}
+                  closeRepresentationEditMenu={closeRepresentationEditMenu(representationKey)}
+                  representation={representation}
+                  parentKey={item}
+                />
+              </Grid>
+              <Grid item>
+                <IconButton onClick={() => changeVisibility(representation, item)}>
+                  {representation && representation.params && representation.params.visible === true ? (
+                    <Visibility />
+                  ) : (
+                    <VisibilityOff />
+                  )}
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  onClick={() => removeRepresentation(representation, item)}
+                  disabled={
+                    objectsInView[item].selectionType === SELECTION_TYPE.VECTOR ||
+                    objectsInView[item].OBJECT_TYPE === OBJECT_TYPE.PROTEIN
+                  }
+                >
+                  <Delete />
+                </IconButton>
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      }
-    />
-  );
+        }
+      />
+    );
+  };
 
   return (
     <Drawer title="Display controls" open={open} onClose={onClose}>

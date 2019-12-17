@@ -59,19 +59,21 @@ export const EditRepresentationMenu = memo(
           className={classes.itemWidth}
           type="number"
           value={representationItem && isNaN(representationItem) === false ? representationItem : ''}
-          InputProps={{
-            inputProps: {
-              min: templateItem.min,
-              max: templateItem.max,
-              step: (templateItem.precision && templateItem.precision * templateItem.min) || 1
+          InputProps={
+            templateItem && {
+              inputProps: {
+                min: templateItem.min,
+                max: templateItem.max,
+                step: (templateItem.precision && templateItem.precision * templateItem.min) || 1
+              }
             }
-          }}
+          }
           onKeyDown={e => e.stopPropagation()}
           onChange={e => handleRepresentationPropertyChange(key, e.target.value)}
         />
       );
 
-      switch (templateItem.type) {
+      switch ((templateItem && templateItem.type) || undefined) {
         case 'boolean':
           representationComponent = (
             <Checkbox

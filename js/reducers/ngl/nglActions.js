@@ -144,6 +144,8 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
     dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
   });
 
+  // loop over representations
+
   // nglOrientations???
   // orientationToSet???
 };
