@@ -1,9 +1,10 @@
 import React, { memo, useContext } from 'react';
-import { Menu, Slider, Grid, makeStyles, Checkbox, TextField } from '@material-ui/core';
+import { Menu, Slider, Grid, makeStyles, Checkbox, TextField, Select } from '@material-ui/core';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateComponentRepresentation } from '../../../../reducers/ngl/nglActions';
 import { throttle } from 'lodash';
+import { MOL_REPRESENTATION } from '../../../nglView/constants';
 
 const useStyles = makeStyles(theme => ({
   menu: {
@@ -81,6 +82,20 @@ export const EditRepresentationMenu = memo(
           representationComponent = numericType;
           break;
         case 'select':
+          representationComponent = (
+            <Select
+              native
+              value={representationItem}
+              className={classes.itemWidth}
+              onChange={e => handleRepresentationPropertyChange(key, e.target.value)}
+            >
+              {Object.keys(templateItem.options).map(option => (
+                <option key={option} value={option}>
+                  {templateItem.options[option]}
+                </option>
+              ))}
+            </Select>
+          );
           break;
         case 'vector3':
           break;
