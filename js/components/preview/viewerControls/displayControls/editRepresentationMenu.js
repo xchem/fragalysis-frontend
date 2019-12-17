@@ -14,6 +14,9 @@ const useStyles = makeStyles(theme => ({
   },
   itemWidth: {
     width: 180
+  },
+  checkbox: {
+    margin: theme.spacing(-1)
   }
 }));
 
@@ -49,11 +52,7 @@ export const EditRepresentationMenu = memo(
         <TextField
           className={classes.itemWidth}
           type="number"
-          value={
-            representationItem && (representationItem !== null || isNaN(representationItem) === false)
-              ? representationItem
-              : ''
-          }
+          value={representationItem && isNaN(representationItem) === false ? representationItem : ''}
           InputProps={{
             inputProps: {
               min: templateItem.min,
@@ -70,6 +69,7 @@ export const EditRepresentationMenu = memo(
         case 'boolean':
           representationComponent = (
             <Checkbox
+              className={classes.checkbox}
               checked={representationItem}
               onChange={e => handleRepresentationPropertyChange(key, e.target.checked)}
             />
@@ -98,6 +98,27 @@ export const EditRepresentationMenu = memo(
           );
           break;
         case 'vector3':
+          representationComponent = (
+            <Grid container direction="row" justify="space-between" className={classes.itemWidth}>
+              {['x', 'y', 'z'].map(axis => (
+                <Grid item xs={4} key={axis}>
+                  <TextField
+                    label={`${axis}:`}
+                    type="number"
+                    value={
+                      representationItem[axis] && isNaN(representationItem[axis]) === false
+                        ? representationItem[axis]
+                        : ''
+                    }
+                    onKeyDown={e => e.stopPropagation()}
+                    onChange={e => {
+                      handleRepresentationPropertyChange(key, { ...representationItem, [axis]: e.target.value });
+                    }}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          );
           break;
         // this will be probably not rendered
         case 'hidden':
