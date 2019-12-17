@@ -43,6 +43,7 @@
     "logrocket": "^1.0.3",
     "ngl": "2.0.0-dev.37",
     "react": "^16.11.0",
+    "react-color": "^2.17.3",
     "react-dom": "^16.2.0",
     "react-hot-loader": "^4.12.16",
     "react-infinite-scroller": "^1.2.4",

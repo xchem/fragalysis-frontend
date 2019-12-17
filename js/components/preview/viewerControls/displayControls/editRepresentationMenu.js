@@ -1,10 +1,10 @@
-import React, { memo, useContext } from 'react';
-import { Menu, Slider, Grid, makeStyles, Checkbox, TextField, Select } from '@material-ui/core';
+import React, { memo, useContext, Fragment } from 'react';
+import { Menu, Popover, Slider, Grid, makeStyles, Checkbox, TextField, Select, Box } from '@material-ui/core';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateComponentRepresentation } from '../../../../reducers/ngl/nglActions';
 import { throttle } from 'lodash';
-import { MOL_REPRESENTATION } from '../../../nglView/constants';
+import { PhotoshopPicker } from 'react-color';
 
 const useStyles = makeStyles(theme => ({
   menu: {
@@ -25,11 +25,17 @@ export const EditRepresentationMenu = memo(
     const classes = useStyles();
     const { getNglView } = useContext(NglContext);
     const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
+    const [colorMenus, setColorMenus] = React.useState({});
 
     const dispatch = useDispatch();
     const oldRepresentation = JSON.parse(JSON.stringify(representation));
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+    const closeColorMenu = menuKey => setColorMenus({ ...colorMenus, [menuKey]: null });
+
+    const openColorMenu = (menuKey, anchorEl, previousColor) =>
+      setColorMenus({ ...colorMenus, [menuKey]: { menu: anchorEl, previousColor } });
 
     const handleRepresentationPropertyChange = throttle(
       (key, value) =>
@@ -138,14 +144,65 @@ export const EditRepresentationMenu = memo(
           );
           break;
         case 'color':
+          const color = `#${representationItem.toString(16)}` || `#000`;
+          representationComponent = (
+            <Fragment>
+              <Box
+                border="1px solid black"
+                bgcolor={color}
+                width={24}
+                height={24}
+                spacing={1}
+                onClick={e => openColorMenu(key, e.currentTarget, color)}
+              />
+              <Popover
+                id={`color-menu-${key}`}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left'
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right'
+                }}
+                anchorEl={(colorMenus[key] && colorMenus[key].menu) || null}
+                open={(colorMenus[key] && Boolean(colorMenus[key].menu)) || false}
+                onClose={() => closeColorMenu(key)}
+              >
+                <PhotoshopPicker
+                  header={key}
+                  color={color}
+                  onChangeComplete={c => {
+                    handleRepresentationPropertyChange(key, parseInt(c.hex.replace(/^#/, ''), 16));
+                  }}
+                  onCancel={() => {
+                    handleRepresentationPropertyChange(
+                      key,
+                      parseInt(colorMenus[key].previousColor.replace(/^#/, ''), 16)
+                    );
+                    closeColorMenu(key);
+                  }}
+                  onAccept={() => {
+                    closeColorMenu(key);
+                  }}
+                />
+              </Popover>
+            </Fragment>
+          );
+
           break;
       }
 
       if (representationComponent === null) {
-        return `NaN`;
+        return null;
       }
 
-      return representationComponent;
+      return (
+        <Grid container justify="space-between" direction="row" alignItems="center" key={key} spacing={1}>
+          <Grid item>{key}</Grid>
+          <Grid item>{representationComponent}</Grid>
+        </Grid>
+      );
     };
 
     return (
@@ -156,18 +213,13 @@ export const EditRepresentationMenu = memo(
         onClose={closeRepresentationEditMenu}
       >
         <div className={classes.menu}>
-          {Object.keys(representation.representationTemplateParams).map(key => (
-            <Grid container justify="space-between" direction="row" alignItems="center" key={key} spacing={1}>
-              <Grid item>{key}</Grid>
-              <Grid item>
-                {renderRepresentationValue(
-                  representation.representationTemplateParams[key],
-                  representation.representationParams[key],
-                  key
-                )}
-              </Grid>
-            </Grid>
-          ))}
+          {Object.keys(representation.representationTemplateParams).map(key =>
+            renderRepresentationValue(
+              representation.representationTemplateParams[key],
+              representation.representationParams[key],
+              key
+            )
+          )}
         </div>
       </Menu>
     );
