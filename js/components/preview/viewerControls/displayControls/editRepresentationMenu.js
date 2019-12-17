@@ -34,7 +34,6 @@ export const EditRepresentationMenu = memo(
             // update in ngl
             r.setParameters({ [key]: value });
             //update in redux
-            console.log('(key, value) ', key, value);
             oldRepresentation.representationParams[key] = value;
             dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation));
           }
@@ -52,17 +51,17 @@ export const EditRepresentationMenu = memo(
           value={
             representationItem && (representationItem !== null || isNaN(representationItem) === false)
               ? representationItem
-              : undefined
+              : ''
           }
           InputProps={{
-            inputProps: { min: templateItem.min, max: templateItem.max, step: templateItem.precision }
+            inputProps: {
+              min: templateItem.min,
+              max: templateItem.max,
+              step: (templateItem.precision && templateItem.precision * templateItem.min) || 1
+            }
           }}
           onKeyDown={e => e.stopPropagation()}
-          onChange={e => {
-            const value = e.target.valueNumber;
-            console.log(value);
-            handleRepresentationPropertyChange(key, isNaN(value) === false ? Number(value) : undefined);
-          }}
+          onChange={e => handleRepresentationPropertyChange(key, e.target.value)}
         />
       );
 
