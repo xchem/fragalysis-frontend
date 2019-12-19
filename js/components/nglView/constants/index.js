@@ -52,7 +52,6 @@ export const MOL_REPRESENTATION = {
   backbone: 'backbone',
   ballPlusStick: 'ball+stick',
   base: 'base',
-  buffer: 'buffer',
   cartoon: 'cartoon',
   contact: 'contact',
   distance: 'distance',
@@ -72,3 +71,5 @@ export const MOL_REPRESENTATION = {
   unitcell: 'unitcell',
   validation: 'validation'
 };
+
+export const MOL_REPRESENTATION_BUFFER = 'buffer';

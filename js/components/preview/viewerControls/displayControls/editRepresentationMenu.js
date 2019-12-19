@@ -38,7 +38,7 @@ export const EditRepresentationMenu = memo(
       setColorMenus({ ...colorMenus, [menuKey]: { menu: anchorEl, previousColor } });
 
     const handleRepresentationPropertyChange = throttle((key, value) => {
-      const r = comp.reprList.find(rep => rep.uuid === representation.lastKnownID);
+      const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
       if (r) {
         // update in ngl
         r.setParameters({ [key]: value });

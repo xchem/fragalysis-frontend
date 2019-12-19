@@ -1,4 +1,4 @@
-import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
+import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE } from './constants';
 import { concatStructures, Selection, Shape } from 'ngl';
 import {
   assignRepresentationArrayToComp,
@@ -15,7 +15,7 @@ const showSphere = (stage, input_dict, object_name, representations) => {
   shape.addSphere(coords, colour, radius);
   let comp = stage.addComponentFromObject(shape);
   let reprArray =
-    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION.buffer, {})]);
+    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
@@ -159,7 +159,7 @@ const showCylinder = (stage, input_dict, object_name, representations) => {
   let comp = stage.addComponentFromObject(shape);
 
   const reprArray =
-    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION.buffer, {})]);
+    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
@@ -176,7 +176,7 @@ const showArrow = (stage, input_dict, object_name, representations) => {
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
   const reprArray =
-    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION.buffer, {})]);
+    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };

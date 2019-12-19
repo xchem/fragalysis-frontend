@@ -11,10 +11,10 @@ import {
 } from '../selection/selectionActions';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 
-export const loadObject = (target, stage, representations) => dispatch => {
+export const loadObject = (target, stage, previousRepresentations) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects());
-    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, representations)
+    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, previousRepresentations)
       .then(representations =>
         dispatch({
           type: CONSTANTS.LOAD_OBJECT,
