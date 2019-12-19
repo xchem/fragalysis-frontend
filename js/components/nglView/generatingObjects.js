@@ -2,26 +2,25 @@ import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
 import * as listTypes from '../listTypes';
 
 export const defaultFocus = 0;
+export const createRepresentationStructure = (type, params, lastKnownID = undefined) => ({ type, params, lastKnownID });
 
-export const createRepresentation = (type, params, comp, lastKnownID) => {
-  // Is necessary check than params is undefined, because I access directly into NGL view instance and I will gain
-  // params of current representation
-  const definedParams = params !== undefined ? params : {};
-  const createdRepresentation = comp.addRepresentation(type, definedParams);
+export const createRepresentationsArray = representations =>
+  representations && representations.map(r => createRepresentationStructure(r.type, r.params, r.lastKnownID));
 
-  const templateParams = {};
-  Object.keys(createdRepresentation.repr.parameters).forEach(
-    key => (templateParams[key] = createdRepresentation.repr[key])
-  );
+export const assignRepresentationToComp = (type, params, comp, lastKnownID = undefined) => {
+  const createdRepresentation = comp.addRepresentation(type, params || {});
+
   return {
-    id: lastKnownID ? lastKnownID : createdRepresentation.uuid,
+    lastKnownID: lastKnownID || createdRepresentation.uuid,
     uuid: createdRepresentation.uuid,
     type,
-    params: definedParams,
-    representationTemplateParams: createdRepresentation.repr.parameters,
-    representationParams: templateParams
+    params: createdRepresentation.getParameters(),
+    templateParams: createdRepresentation.repr.parameters
   };
 };
+
+export const assignRepresentationArrayToComp = (representations, comp) =>
+  representations.map(rep => assignRepresentationToComp(rep.type, rep.params, comp, rep.lastKnownID));
 
 export const generateProteinObject = data => {
   // Now deal with this target

@@ -37,19 +37,16 @@ export const EditRepresentationMenu = memo(
     const openColorMenu = (menuKey, anchorEl, previousColor) =>
       setColorMenus({ ...colorMenus, [menuKey]: { menu: anchorEl, previousColor } });
 
-    const handleRepresentationPropertyChange = throttle(
-      (key, value) =>
-        comp.eachRepresentation(r => {
-          if (r.uuid === representation.uuid) {
-            // update in ngl
-            r.setParameters({ [key]: value });
-            //update in redux
-            oldRepresentation.representationParams[key] = value;
-            dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation));
-          }
-        }),
-      250
-    );
+    const handleRepresentationPropertyChange = throttle((key, value) => {
+      const r = comp.reprList.find(rep => rep.uuid === representation.lastKnownID);
+      if (r) {
+        // update in ngl
+        r.setParameters({ [key]: value });
+        //update in redux
+        oldRepresentation.params[key] = value;
+        dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation));
+      }
+    }, 250);
 
     const renderRepresentationValue = (templateItem, representationItem, key) => {
       let representationComponent = null;
@@ -215,12 +212,8 @@ export const EditRepresentationMenu = memo(
         onClose={closeRepresentationEditMenu}
       >
         <div className={classes.menu}>
-          {Object.keys(representation.representationTemplateParams).map(key =>
-            renderRepresentationValue(
-              representation.representationTemplateParams[key],
-              representation.representationParams[key],
-              key
-            )
+          {Object.keys(representation.templateParams).map(key =>
+            renderRepresentationValue(representation.templateParams[key], representation.params[key], key)
           )}
         </div>
       </Menu>

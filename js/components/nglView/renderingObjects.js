@@ -1,40 +1,45 @@
 import { MOL_REPRESENTATION, OBJECT_TYPE } from './constants';
 import { concatStructures, Selection, Shape } from 'ngl';
-import { createRepresentation, defaultFocus } from './generatingObjects';
+import {
+  assignRepresentationArrayToComp,
+  createRepresentationsArray,
+  createRepresentationStructure,
+  defaultFocus
+} from './generatingObjects';
 
-const showSphere = (stage, input_dict, object_name) => {
+const showSphere = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour;
   let radius = input_dict.radius;
   let coords = input_dict.coords;
   let shape = new Shape(object_name);
   shape.addSphere(coords, colour, radius);
-  let shapeComp = stage.addComponentFromObject(shape);
-  const representation = createRepresentation(MOL_REPRESENTATION.buffer, undefined, shapeComp);
+  let comp = stage.addComponentFromObject(shape);
+  let reprArray =
+    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION.buffer, {})]);
 
-  return Promise.resolve([representation]);
+  return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showMol = (stage, input_dict, object_name) => {
+const showMol = (stage, input_dict, object_name, representations) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
-    const representation = createRepresentation(
-      MOL_REPRESENTATION.ballPlusStick,
-      {
-        colorScheme: 'element',
-        colorValue: input_dict.colour,
-        multipleBond: true
-      },
-      comp
-    );
+    const reprArray =
+      representations ||
+      createRepresentationsArray([
+        createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
+          colorScheme: 'element',
+          colorValue: input_dict.colour,
+          multipleBond: true
+        })
+      ]);
 
     comp.autoView('ligand');
 
-    return [representation];
+    return assignRepresentationArrayToComp(reprArray, comp);
   });
 };
 
-const renderComplex = ol => {
-  let representations = [];
+const renderComplex = (ol, representations) => {
   let cs = concatStructures(
     ol[4],
     ol[0].structure.getView(new Selection('not ligand')),
@@ -46,40 +51,30 @@ const renderComplex = ol => {
   // Set the object name
   let comp = stage.addComponentFromObject(cs);
 
-  representations.push(createRepresentation(MOL_REPRESENTATION.cartoon, undefined, comp));
+  const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
 
-  representations.push(
-    createRepresentation(
-      MOL_REPRESENTATION.contact,
-      {
-        masterModelIndex: 0,
-        weakHydrogenBond: true,
-        maxHbondDonPlaneAngle: 35,
-        sele: '/0 or /1'
-      },
-      comp
-    )
-  );
+  const repr2 = createRepresentationStructure(MOL_REPRESENTATION.contact, {
+    masterModelIndex: 0,
+    weakHydrogenBond: true,
+    maxHbondDonPlaneAngle: 35,
+    sele: '/0 or /1'
+  });
 
-  representations.push(
-    createRepresentation(
-      MOL_REPRESENTATION.line,
-      {
-        colorScheme: 'element',
-        colorValue: colour,
-        sele: '/0'
-      },
-      comp
-    )
-  );
+  const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
+    colorScheme: 'element',
+    colorValue: colour,
+    sele: '/0'
+  });
+
+  const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3]);
 
   comp.autoView('ligand');
   comp.stage.setFocus(focus_let_temp);
 
-  return representations;
+  return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const showComplex = (stage, input_dict, object_name) => {
+const showComplex = (stage, input_dict, object_name, representations) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return Promise.all([
     stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
@@ -88,16 +83,14 @@ const showComplex = (stage, input_dict, object_name) => {
     defaultFocus,
     object_name,
     input_dict.colour
-  ]).then(ol => renderComplex(ol));
+  ]).then(ol => renderComplex(ol, representations));
 };
 
-const showEvent = (stage, input_dict, object_name) =>
+const showEvent = (stage, input_dict, object_name, representations) =>
   Promise.all(
     [
       stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(comp => {
-        const representations = [];
-        representations.push(createRepresentation(MOL_REPRESENTATION.cartoon, undefined, comp));
-
+        const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
         let selection = new Selection('LIG');
         let radius = 5;
         let atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
@@ -105,86 +98,55 @@ const showEvent = (stage, input_dict, object_name) =>
         let sele2 = atomSet2.toSeleString();
         let sele1 = atomSet.toSeleString();
 
-        representations.push(
-          createRepresentation(
-            MOL_REPRESENTATION.contact,
-            {
-              masterModelIndex: 0,
-              weakHydrogenBond: true,
-              maxHbondDonPlaneAngle: 35,
-              linewidth: 1,
-              sele: sele2 + ' or LIG'
-            },
-            comp
-          )
-        );
+        const repr2 = createRepresentationStructure(MOL_REPRESENTATION.contact, {
+          masterModelIndex: 0,
+          weakHydrogenBond: true,
+          maxHbondDonPlaneAngle: 35,
+          linewidth: 1,
+          sele: sele2 + ' or LIG'
+        });
 
-        representations.push(
-          createRepresentation(
-            MOL_REPRESENTATION.line,
-            {
-              sele: sele1
-            },
-            comp
-          )
-        );
+        const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
+          sele: sele1
+        });
 
-        representations.push(
-          createRepresentation(
-            MOL_REPRESENTATION.ballPlusStick,
-            {
-              sele: 'LIG'
-            },
-            comp
-          )
-        );
-
+        const repr4 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
+          sele: 'LIG'
+        });
         comp.autoView('LIG');
 
-        return representations;
+        const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3, repr4]);
+        return assignRepresentationArrayToComp(reprArray, comp);
       }),
 
       stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
-        const representations = [];
-        representations.push(
-          createRepresentation(
-            MOL_REPRESENTATION.surface,
-            {
-              color: 'mediumseagreen',
-              isolevel: 3,
-              boxSize: 10,
-              useWorker: false,
-              contour: true,
-              opaqueBack: false,
-              isolevelScroll: false
-            },
-            comp
-          )
-        );
+        const repr1 = createRepresentationStructure(MOL_REPRESENTATION.surface, {
+          color: 'mediumseagreen',
+          isolevel: 3,
+          boxSize: 10,
+          useWorker: false,
+          contour: true,
+          opaqueBack: false,
+          isolevelScroll: false
+        });
 
-        representations.push(
-          createRepresentation(
-            MOL_REPRESENTATION.surface,
-            {
-              color: 'tomato',
-              isolevel: 3,
-              negateIsolevel: true,
-              boxSize: 10,
-              useWorker: false,
-              contour: true,
-              opaqueBack: false,
-              isolevelScroll: false
-            },
-            comp
-          )
-        );
-
-        return representations;
+        const repr2 = createRepresentationStructure(MOL_REPRESENTATION.surface, {
+          color: 'tomato',
+          isolevel: 3,
+          negateIsolevel: true,
+          boxSize: 10,
+          useWorker: false,
+          contour: true,
+          opaqueBack: false,
+          isolevelScroll: false
+        });
+        const reprArray = representations || createRepresentationsArray([repr1, repr2]);
+        return assignRepresentationArrayToComp(reprArray, comp);
       })
     ].then(values => [...values])
   );
 
-const showCylinder = (stage, input_dict, object_name) => {
+const showCylinder = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.4 : input_dict.radius;
   // Handle undefined start and finish
@@ -194,13 +156,15 @@ const showCylinder = (stage, input_dict, object_name) => {
   }
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
-  let shapeComp = stage.addComponentFromObject(shape);
-  const representation = createRepresentation(MOL_REPRESENTATION.buffer, undefined, shapeComp);
+  let comp = stage.addComponentFromObject(shape);
 
-  return Promise.resolve([representation]);
+  const reprArray =
+    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION.buffer, {})]);
+
+  return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showArrow = (stage, input_dict, object_name) => {
+const showArrow = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
   // Handle undefined start and finish
@@ -210,26 +174,29 @@ const showArrow = (stage, input_dict, object_name) => {
   }
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
-  let shapeComp = stage.addComponentFromObject(shape);
-  const representation = createRepresentation(MOL_REPRESENTATION.buffer, undefined, shapeComp);
+  let comp = stage.addComponentFromObject(shape);
+  const reprArray =
+    representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION.buffer, {})]);
 
-  return Promise.resolve([representation]);
+  return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showProtein = (stage, input_dict, object_name) =>
+const showProtein = (stage, input_dict, object_name, representations) =>
   stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' }).then(comp => {
-    const representation = createRepresentation(input_dict.nglProtStyle, undefined, comp);
+    const reprArray =
+      representations || createRepresentationsArray([createRepresentationStructure(input_dict.nglProtStyle, {})]);
+
     comp.autoView();
-    return [representation];
+    return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });
 
-const showHotspot = (stage, input_dict, object_name) => {
+const showHotspot = (stage, input_dict, object_name, representations) => {
   if (input_dict.map_type === 'AP') {
     return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-      return [
-        createRepresentation(
-          MOL_REPRESENTATION.surface,
-          {
+      const reprArray =
+        representations ||
+        createRepresentationsArray([
+          createRepresentationStructure(MOL_REPRESENTATION.surface, {
             color: '#FFFF00',
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
@@ -237,17 +204,17 @@ const showHotspot = (stage, input_dict, object_name) => {
             opaqueBack: false,
             name: 'surf',
             disablePicking: input_dict.disablePicking
-          },
-          comp
-        )
-      ];
+          })
+        ]);
+
+      return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
     });
   } else if (input_dict.map_type === 'DO') {
     return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-      return [
-        createRepresentation(
-          MOL_REPRESENTATION.surface,
-          {
+      const reprArray =
+        representations ||
+        createRepresentationsArray([
+          createRepresentationStructure(MOL_REPRESENTATION.surface, {
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
             opacity: input_dict.opacity,
@@ -255,17 +222,17 @@ const showHotspot = (stage, input_dict, object_name) => {
             color: '#0000FF',
             name: 'surf',
             disablePicking: input_dict.disablePicking
-          },
-          comp
-        )
-      ];
+          })
+        ]);
+
+      return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
     });
   } else if (input_dict.map_type === 'AC') {
     return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
-      return [
-        createRepresentation(
-          MOL_REPRESENTATION.surface,
-          {
+      const reprArray =
+        representations ||
+        createRepresentationsArray([
+          createRepresentationStructure(MOL_REPRESENTATION.surface, {
             color: '#FF0000',
             isolevelType: 'value',
             isolevel: input_dict.isoLevel,
@@ -273,10 +240,10 @@ const showHotspot = (stage, input_dict, object_name) => {
             opaqueBack: false,
             name: 'surf',
             disablePicking: input_dict.disablePicking
-          },
-          comp
-        )
-      ];
+          })
+        ]);
+
+      return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
     });
   }
 };

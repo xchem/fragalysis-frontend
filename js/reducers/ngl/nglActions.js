@@ -9,11 +9,12 @@ import {
   removeFromFragmentDisplayList,
   removeFromVectorOnList
 } from '../selection/selectionActions';
+import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 
-export const loadObject = (target, stage) => dispatch => {
+export const loadObject = (target, stage, representations) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects());
-    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name)
+    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, representations)
       .then(representations =>
         dispatch({
           type: CONSTANTS.LOAD_OBJECT,
@@ -133,9 +134,15 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  Object.keys(currentScene.objectsInView).forEach(objInView => {
+  Object.keys(currentScene.objectsInView || {}).forEach(objInView => {
     if (currentScene.objectsInView[objInView].display_div === display_div) {
-      dispatch(loadObject(currentScene.objectsInView[objInView], stage));
+      dispatch(
+        loadObject(
+          currentScene.objectsInView[objInView],
+          stage,
+          createRepresentationsArray(currentScene.objectsInView[objInView].representations)
+        )
+      );
     }
   });
 
@@ -143,8 +150,6 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
   Object.keys(currentScene.viewParams).forEach(param => {
     dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
   });
-
-  // loop over representations
 
   // nglOrientations???
   // orientationToSet???

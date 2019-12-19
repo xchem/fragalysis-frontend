@@ -52,6 +52,7 @@ export const MOL_REPRESENTATION = {
   backbone: 'backbone',
   ballPlusStick: 'ball+stick',
   base: 'base',
+  buffer: 'buffer',
   cartoon: 'cartoon',
   contact: 'contact',
   distance: 'distance',

@@ -14,7 +14,7 @@ import {
 } from '../../../../reducers/ngl/nglActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
-import { createRepresentation } from '../../../nglView/generatingObjects';
+import { assignRepresentationToComp } from '../../../nglView/generatingObjects';
 import { EditRepresentationMenu } from './editRepresentationMenu';
 
 const useStyles = makeStyles(theme => ({
@@ -64,7 +64,7 @@ export default memo(({ open, onClose }) => {
     const comp = nglView.stage.getComponentsByName(parentKey).first;
 
     // add representation to NGL
-    const newRepresentation = createRepresentation(
+    const newRepresentation = assignRepresentationToComp(
       newRepresentationType,
       oldRepresentation.params,
       comp,
@@ -246,7 +246,7 @@ export default memo(({ open, onClose }) => {
             >
               {objectsInView[parentItem].representations &&
                 objectsInView[parentItem].representations
-                  .sort((a, b) => (a.id > b.id ? 1 : -1))
+                  .sort((a, b) => (a.lastKnownID > b.lastKnownID ? 1 : -1))
                   .map((representation, index) => renderSubtreeItem(representation, parentItem, index))}
             </TreeItem>
           ))}
