@@ -59,6 +59,7 @@ const SessionManagement = memo(
     const [saveType, setSaveType] = useState('');
     const [nextUuid, setNextUuid] = useState('');
     const [newSessionFlag, setNewSessionFlag] = useState(0);
+    const [loadedSession, setLoadedSession] = useState();
     const classes = useStyles();
     const { pathname } = window.location;
     const { nglViewList } = useContext(NglContext);
@@ -209,9 +210,10 @@ const SessionManagement = memo(
       ]
     );
 
-    const checkTarget = useCallback(
-      myJson => {
-        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+    // After fetching scene from session
+    useEffect(() => {
+      if (loadedSession) {
+        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
         var target = jsonOfView.apiReducers.present.target_on_name;
         var targetUnrecognised = true;
         for (var i in targetIdList) {
@@ -225,22 +227,11 @@ const SessionManagement = memo(
         if (notCheckTarget(pathname) === false) {
           setTargetUnrecognised(targetUnrecognised);
         }
-        if (targetUnrecognised === false) {
-          reloadSession(myJson);
+        if (targetUnrecognised === false && targetIdList.length > 0) {
+          reloadSession(loadedSession);
         }
-      },
-      [pathname, reloadSession, setLoadingState, setTargetUnrecognised, targetIdList]
-    );
-
-    const handleJson = useCallback(
-      myJson => {
-        if (myJson.scene === undefined) {
-          return;
-        }
-        checkTarget(myJson);
-      },
-      [checkTarget]
-    );
+      }
+    }, [pathname, reloadSession, setLoadingState, setTargetUnrecognised, targetIdList, loadedSession]);
 
     const generateNextUuid = useCallback(() => {
       if (nextUuid === '') {
@@ -290,7 +281,7 @@ const SessionManagement = memo(
       var hasBeenRefreshed = true;
       if (uuid !== 'UNSET') {
         api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid })
-          .then(response => handleJson(response.data.results[0]))
+          .then(response => setLoadedSession(response.data.results[0]))
           .catch(error => {
             setState(() => {
               throw error;
@@ -412,7 +403,6 @@ const SessionManagement = memo(
       }
     }, [
       generateNextUuid,
-      handleJson,
       newSessionFlag,
       nextUuid,
       nglOrientations,

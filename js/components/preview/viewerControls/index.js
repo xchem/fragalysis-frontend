@@ -44,12 +44,12 @@ const ViewerControls = memo(({}) => {
           </Grid>
           <Grid item>
             <Button color="primary" onClick={() => openDrawer(drawers.display)} startIcon={<PersonalVideo />}>
-              Display controls
+              Display
             </Button>
           </Grid>
           <Grid item>
             <Button color="primary" onClick={() => openDrawer(drawers.mouse)} startIcon={<Mouse />}>
-              Mouse controls
+              Mouse
             </Button>
           </Grid>
         </Grid>

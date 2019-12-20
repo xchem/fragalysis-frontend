@@ -136,13 +136,8 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
   // objectsInView
   Object.keys(currentScene.objectsInView || {}).forEach(objInView => {
     if (currentScene.objectsInView[objInView].display_div === display_div) {
-      dispatch(
-        loadObject(
-          currentScene.objectsInView[objInView],
-          stage,
-          createRepresentationsArray(currentScene.objectsInView[objInView].representations)
-        )
-      );
+      let representations = currentScene.objectsInView[objInView].representations;
+      dispatch(loadObject(currentScene.objectsInView[objInView], stage, createRepresentationsArray(representations)));
     }
   });
 
