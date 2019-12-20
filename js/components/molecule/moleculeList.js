@@ -16,7 +16,7 @@ import { getUrl, loadFromServer } from '../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
-import { ComputeHeight } from '../../utils/computeHeight';
+import { ComputeSize } from '../../utils/computeSize';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -149,7 +149,7 @@ const MoleculeList = memo(
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
     return (
-      <ComputeHeight
+      <ComputeSize
         componentRef={filterRef.current}
         setHeight={setFilterItemsHeight}
         height={filterItemsHeight}
@@ -271,7 +271,7 @@ const MoleculeList = memo(
             )}
           </Grid>
         </Panel>
-      </ComputeHeight>
+      </ComputeSize>
     );
   }
 );

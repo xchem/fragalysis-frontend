@@ -34,7 +34,7 @@ import { HeaderContext } from './headerContext';
 import { Button } from '../common';
 import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
-import { ComputeHeight } from '../../utils/computeHeight';
+import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
 const uuidv4 = require('uuid/v4');
@@ -171,7 +171,7 @@ const Index = memo(
     }, [combinedRef, forceCompute]);
 
     return (
-      <ComputeHeight
+      <ComputeSize
         componentRef={combinedRef.current}
         height={headerHeight}
         setHeight={setHeaderHeight}
@@ -278,7 +278,7 @@ const Index = memo(
             </Box>
           )}
         </Box>
-      </ComputeHeight>
+      </ComputeSize>
     );
   })
 );

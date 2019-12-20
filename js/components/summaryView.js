@@ -14,7 +14,7 @@ import { Button } from './common/Inputs/Button';
 import { Panel } from './common/Surfaces/Panel';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
-import { ComputeHeight } from '../utils/computeHeight';
+import { ComputeSize } from '../utils/computeSize';
 import { NglContext } from './nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
@@ -218,7 +218,7 @@ const SummaryView = memo(
 
     return (
       <Panel ref={panelRef}>
-        <ComputeHeight componentRef={panelRef.current} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
+        <ComputeSize componentRef={panelRef.current} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
           <Grid container justify="space-between">
             <Grid
               item
@@ -254,7 +254,7 @@ const SummaryView = memo(
           <Button color="primary" onClick={handleYankDuck} startIcon={<CloudDownload />}>
             Download Yank/Duck
           </Button>
-        </ComputeHeight>
+        </ComputeSize>
       </Panel>
     );
   }

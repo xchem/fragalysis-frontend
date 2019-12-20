@@ -10,7 +10,7 @@ import MolGroupSelector from '../moleculeGroups/molGroupSelector';
 import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
 import NglViewerControls from './viewerControls';
-import { ComputeHeight } from '../../utils/computeHeight';
+import { ComputeSize } from '../../utils/computeSize';
 //import HotspotList from '../hotspot/hotspotList';
 
 import { withUpdatingTarget } from './withUpdatingTarget';
@@ -67,13 +67,13 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
             <Grid item ref={nglViewerControlsRef}>
-              <ComputeHeight
+              <ComputeSize
                 componentRef={nglViewerControlsRef.current}
                 height={viewControlsHeight}
                 setHeight={setViewControlsHeight}
               >
                 <NglViewerControls />
-              </ComputeHeight>
+              </ComputeSize>
             </Grid>
           </Grid>
         </Grid>

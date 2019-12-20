@@ -2,19 +2,17 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
-import * as listTypes from '../listTypes';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
 import { api } from '../../utils/api';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
-import { OBJECT_TYPE } from '../nglView/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
 import {
@@ -24,6 +22,7 @@ import {
   generateMoleculeId,
   generateComplexObject
 } from '../nglView/generatingObjects';
+import { ComputeSize } from '../../utils/computeSize';
 
 const containerHeight = 76;
 
@@ -66,7 +65,7 @@ const useStyles = makeStyles(theme => ({
   },
   propsCol: {
     fontSize: '10px',
-    minWidth: 190
+    width: 183
   },
   fitContentWidth: {
     width: 'fit-content'
@@ -133,6 +132,10 @@ const MoleculeView = memo(
     incrementCountOfPendingVectorLoadRequests,
     decrementCountOfPendingVectorLoadRequests
   }) => {
+    const theme = useTheme();
+    const statusCodeRef = useRef(null);
+    const [statusCodeWidth, setStatusCodeWidth] = useState(0);
+
     const [state, setState] = useState();
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
@@ -462,26 +465,44 @@ const MoleculeView = memo(
             </Button>
           </Grid>
         </Grid>
-        <Grid item container className={classes.detailsCol} wrap="nowrap">
+        <Grid item container className={classes.detailsCol} wrap="nowrap" justify="space-between">
           {/* Status code */}
-          <Grid item container direction="column" justify="space-between" className={classes.statusCol}>
-            <Grid item>
-              <Typography variant="subtitle2" noWrap>
-                {data.protein_code}
-              </Typography>
-            </Grid>
-            <Grid item container justify="space-around" direction="row">
-              {Object.values(molStatusTypes).map(type => (
-                <Grid item key={`molecule-status-${type}`} className={classes.fitContentHeight}>
-                  <MoleculeStatusView type={type} data={data} />
-                </Grid>
-              ))}
-            </Grid>
+          <Grid
+            item
+            container
+            direction="column"
+            justify="space-between"
+            className={classes.statusCol}
+            ref={statusCodeRef}
+          >
+            <ComputeSize componentRef={statusCodeRef.current} width={statusCodeWidth} setWidth={setStatusCodeWidth}>
+              <Grid item>
+                <Typography variant="subtitle2" noWrap>
+                  {data.protein_code}
+                </Typography>
+              </Grid>
+              <Grid item container justify="space-around" direction="row">
+                {Object.values(molStatusTypes).map(type => (
+                  <Grid item key={`molecule-status-${type}`} className={classes.fitContentHeight}>
+                    <MoleculeStatusView type={type} data={data} />
+                  </Grid>
+                ))}
+              </Grid>
+            </ComputeSize>
           </Grid>
 
           {/* Image */}
-          <Grid item style={current_style}>
-            <div>{svg_image}</div>
+          <Grid
+            item
+            style={{
+              ...current_style,
+              width: `calc(100% - 183px - ${statusCodeWidth}px - ${theme.spacing(1) / 2}px)`,
+              marginLeft: theme.spacing(1) / 2
+            }}
+            container
+            justify="center"
+          >
+            <Grid item>{svg_image}</Grid>
           </Grid>
 
           {/* Molecule preperties */}
