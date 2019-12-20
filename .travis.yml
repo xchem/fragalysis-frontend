@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "8"
 script:
-  - yarn install && yarn test
+  - yarn install && yarn test --passWithNoTests
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     yarn run build;
