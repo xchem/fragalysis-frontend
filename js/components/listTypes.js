@@ -3,7 +3,7 @@
  */
 export const TARGET = 'TARGET';
 export const MOLECULE = 'MOLECULE';
-export const MOLGROUPS = 'MOLGROUPS';
+export const MOLGROUPS_SELECT = 'MOLGROUPSSELECT';
 export const COMPOUNDS = 'COMPOUNDS';
 export const VECTOR = 'VECTOR';
 export const PANDDA_SITE = 'PANDDASITE';
