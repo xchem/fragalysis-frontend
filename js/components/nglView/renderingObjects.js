@@ -151,8 +151,8 @@ const showCylinder = (stage, input_dict, object_name, representations) => {
   let radius = input_dict.radius === undefined ? 0.4 : input_dict.radius;
   // Handle undefined start and finish
   if (input_dict.start === undefined || input_dict.end === undefined) {
-    console.log('START OR END UNDEFINED FOR CYLINDER' + input_dict.toString());
-    return;
+    const msgs = 'START OR END UNDEFINED FOR CYLINDER' + input_dict.toString();
+    return Promise.reject(msgs);
   }
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
@@ -169,8 +169,8 @@ const showArrow = (stage, input_dict, object_name, representations) => {
   let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
   // Handle undefined start and finish
   if (input_dict.start === undefined || input_dict.end === undefined) {
-    console.log('START OR END UNDEFINED FOR ARROW ' + input_dict.toString());
-    return;
+    const msgs = 'START OR END UNDEFINED FOR ARROW ' + input_dict.toString();
+    return Promise.reject(msgs);
   }
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);

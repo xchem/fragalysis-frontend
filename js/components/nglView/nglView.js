@@ -115,18 +115,16 @@ const NglView = memo(
             });
           }
           setDuckYankData(input_dict);
-          loadObject(
-            {
-              start: pickingProxy.object.center1,
-              end: pickingProxy.object.center2,
-              radius: 0.2,
-              display_div: VIEWS.MAJOR_VIEW,
-              color: [1, 0, 0],
-              name: input_dict['interaction'] + SUFFIX.INTERACTION,
-              OBJECT_TYPE: OBJECT_TYPE.ARROW
-            },
-            stage
-          );
+          const objToLoad = {
+            start: pickingProxy.object.center1,
+            end: pickingProxy.object.center2,
+            radius: 0.2,
+            display_div: VIEWS.MAJOR_VIEW,
+            color: [1, 0, 0],
+            name: input_dict['interaction'] + SUFFIX.INTERACTION,
+            OBJECT_TYPE: OBJECT_TYPE.ARROW
+          };
+          loadObject(objToLoad, stage);
         } else if (pickingProxy.component.object.name) {
           let name = pickingProxy.component.object.name;
           // Ok so now perform logic
