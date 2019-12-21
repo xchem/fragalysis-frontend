@@ -111,7 +111,7 @@ const CompoundView = memo(
       } else {
         // This needs currying
         var post_data = {
-          INPUT_VECTOR: send_obj.vector,
+          // INPUT_VECTOR: send_obj.vector,
           INPUT_SMILES: [send_obj.smiles],
           INPUT_MOL_BLOCK: to_query_sdf_info
         };
