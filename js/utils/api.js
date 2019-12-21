@@ -19,12 +19,12 @@ export const getCsrfToken = () => getCookie('csrftoken');
 
 export const METHOD = { GET: 'GET', POST: 'POST', PUT: 'PUT', DELETE: 'DELETE', PATCH: 'PATCH' };
 
-export const api = ({ url, method, headers, data, cancel }) =>
+export const api = ({ url, method, headers, body, cancel }) =>
   axios({
     url,
     method: method !== undefined ? method : METHOD.GET,
     headers,
-    data,
+    body,
     cancelToken: new CancelToken(function executor(c) {
       // An executor function receives a cancel function as a parameter
       cancel = c;
