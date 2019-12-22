@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     zIndex: 1,
     position: 'fixed',
     overflowY: 'auto',
-    minWidth: 446
+    minWidth: 314
   }
 }));
 
