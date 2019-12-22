@@ -114,13 +114,11 @@ export const setNglViewParams = (key, value, stage) => {
  * @returns {function(...[*]=)}
  */
 export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) => (dispatch, getState) => {
-  const currentScene =
-    sessionData !== undefined ? sessionData.nglReducers.present[scene] : getState().nglReducers.present[scene];
+  const currentScene = (sessionData && sessionData.nglReducers.present[scene]) || getState().nglReducers.present[scene];
   switch (scene) {
     case SCENES.defaultScene:
       dispatch({
-        type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE,
-        payload: sessionData
+        type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE
       });
       break;
     case SCENES.sessionScene:
