@@ -8,10 +8,9 @@ import SVGInline from 'react-svg-inline';
 import * as nglLoadActions from '../reducers/ngl/nglActions';
 import { VIEWS } from '../constants/constants';
 import { loadFromServer } from '../utils/genericView';
-import { OBJECT_TYPE } from './nglView/constants';
+import { OBJECT_TYPE, SELECTION_TYPE } from './nglView/constants';
 import { api, getCsrfToken, METHOD } from '../utils/api';
 import { img_data_init } from './molecule/moleculeView';
-import { generateMolecule} from "./molecule/molecules_helpers";
 
 const CompoundView = memo(
   ({
@@ -103,7 +102,9 @@ const CompoundView = memo(
       name: 'CONFLOAD_' + identifier,
       OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
       colour: 'cyan',
-      sdf_info: sdf_info
+      sdf_info: sdf_info,
+      moleculeId: identifier,
+      selectionType: SELECTION_TYPE.LIGAND
     });
 
     const handleConf = () => {
@@ -124,12 +125,12 @@ const CompoundView = memo(
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': getCsrfToken()
           },
-          data: JSON.stringify(post_data)
+          data1: JSON.stringify(post_data)
         })
           .then(response => {
             // Now load this into NGL
             conf.current = response.data[0];
-            loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(data.smiles, conf.current)));
+            loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
           })
           .catch(error => {
             throw error;
