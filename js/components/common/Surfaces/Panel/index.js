@@ -98,7 +98,7 @@ export const Panel = memo(
                 className={classes.headerGrid}
               >
                 <Grid item xs={hasExpansion || headerActions ? 6 : 12} className={classes.headerTitle}>
-                  <Typography variant="h6" color="inherit">
+                  <Typography variant="h6" color="inherit" noWrap>
                     {title}
                   </Typography>
                 </Grid>
