@@ -119,7 +119,8 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
   switch (scene) {
     case SCENES.defaultScene:
       dispatch({
-        type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE
+        type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE,
+        payload: sessionData
       });
       break;
     case SCENES.sessionScene:
@@ -157,9 +158,13 @@ export const saveCurrentStateAsSessionScene = () => ({ type: CONSTANTS.SAVE_NGL_
 export const clearNglView = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
 
 // Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = hasLoad => (dispatch, getState) => {
+export const setProteinsHasLoaded = (hasLoad, withoutSavingToDefaultState = false) => (dispatch, getState) => {
   const state = getState();
-  if (state.nglReducers.present.countOfRemainingMoleculeGroups === 0 && hasLoad === true) {
+  if (
+    state.nglReducers.present.countOfRemainingMoleculeGroups === 0 &&
+    hasLoad === true &&
+    withoutSavingToDefaultState === false
+  ) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
   dispatch({ type: CONSTANTS.SET_PROTEINS_HAS_LOADED, payload: hasLoad });

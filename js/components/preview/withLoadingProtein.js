@@ -58,7 +58,7 @@ export const withLoadingProtein = WrappedComponent => {
               .then(() => setProteinsHasLoaded(true))
               .catch(() => setProteinsHasLoaded(false));
           } else {
-            setProteinsHasLoaded(true);
+            setProteinsHasLoaded(true, true);
           }
           if (targetOnName !== undefined) {
             document.title = targetOnName + ': Fragalysis';

@@ -43,7 +43,8 @@ const molGroupSelector = memo(
     setVectorList,
     resetSelectionState,
     handleHeightChange,
-    reloadNglViewFromScene
+    reloadNglViewFromScene,
+    defaultScene
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
@@ -55,8 +56,8 @@ const molGroupSelector = memo(
       // Reset NGL VIEWS to default state
       const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
       const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
-      reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene);
-      reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene);
+      reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene, defaultScene);
+      reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene, defaultScene);
 
       // Reset selection reducer
       // remove sites selection
@@ -115,7 +116,9 @@ const molGroupSelector = memo(
 );
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    defaultScene: state.nglReducers.defaultScene
+  };
 }
 const mapDispatchToProps = {
   setObjectOn: apiActions.setMolGroupOn,

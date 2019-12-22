@@ -47,7 +47,7 @@ export default memo(({ open, onClose }) => {
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     comp.eachRepresentation(r => {
-      if (r.uuid === representation.uuid) {
+      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
         const newVisibility = !r.getVisibility();
         // update in redux
         representation.params.visible = newVisibility;
@@ -82,7 +82,7 @@ export default memo(({ open, onClose }) => {
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     let foundedRepresentation = undefined;
     comp.eachRepresentation(r => {
-      if (r.uuid === representation.uuid) {
+      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
         foundedRepresentation = r;
       }
     });
@@ -125,7 +125,7 @@ export default memo(({ open, onClose }) => {
         newVisibility = !representation.params.visible;
       }
       comp.eachRepresentation(r => {
-        if (r.uuid === representation.uuid) {
+        if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
           representation.params.visible = newVisibility;
           // update in nglView
           r.setVisibility(newVisibility);
