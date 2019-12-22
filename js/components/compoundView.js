@@ -11,6 +11,7 @@ import { loadFromServer } from '../utils/genericView';
 import { OBJECT_TYPE } from './nglView/constants';
 import { api, getCsrfToken, METHOD } from '../utils/api';
 import { img_data_init } from './molecule/moleculeView';
+import { generateMolecule} from "./molecule/molecules_helpers";
 
 const CompoundView = memo(
   ({
@@ -111,7 +112,6 @@ const CompoundView = memo(
       } else {
         // This needs currying
         var post_data = {
-          // INPUT_VECTOR: send_obj.vector,
           INPUT_SMILES: [send_obj.smiles],
           INPUT_MOL_BLOCK: to_query_sdf_info
         };
@@ -124,12 +124,12 @@ const CompoundView = memo(
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': getCsrfToken()
           },
-          body: JSON.stringify(post_data)
+          data1: JSON.stringify(post_data)
         })
           .then(response => {
             // Now load this into NGL
             conf.current = response.data[0];
-            loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+            loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(data.smiles, conf.current)));
           })
           .catch(error => {
             throw error;
