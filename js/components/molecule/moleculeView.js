@@ -20,8 +20,7 @@ import {
   generateArrowObject,
   generateCylinderObject,
   generateMoleculeId,
-  generateComplexObject,
-  getVectorColor
+  generateComplexObject
 } from '../nglView/generatingObjects';
 import { ComputeSize } from '../../utils/computeSize';
 

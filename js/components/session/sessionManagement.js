@@ -38,7 +38,7 @@ const SessionManagement = memo(
     sessionTitle,
     targetIdList,
     setSavingState,
-    setOrientation,
+    // setOrientation,
     setNGLOrientation,
     loadObject,
     reloadApiState,
@@ -89,9 +89,9 @@ const SessionManagement = memo(
     const postToServer = sessionState => {
       saveCurrentStateAsSessionScene();
       setSavingState(sessionState);
-      for (var key in nglOrientations) {
+      /*  for (var key in nglOrientations) {
         setOrientation(key, 'REFRESH');
-      }
+      }*/
     };
     const newSession = () => {
       postToServer(savingStateConst.savingSession);
@@ -498,7 +498,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   setSavingState: apiActions.setSavingState,
-  setOrientation: nglLoadActions.setOrientation,
+  // setOrientation: nglLoadActions.setOrientation,
   setNGLOrientation: nglLoadActions.setNGLOrientation,
   loadObject: nglLoadActions.loadObject,
   reloadApiState: apiActions.reloadApiState,
