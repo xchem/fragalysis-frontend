@@ -14,6 +14,7 @@ import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
 import { generateSphere } from '../molecule/molecules_helpers';
 import { clearAfterDeselectingMoleculeGroup } from '../moleculeGroups/molGroupHelpers';
+import { throttle } from 'lodash';
 
 const NglView = memo(
   ({
@@ -26,7 +27,8 @@ const NglView = memo(
     deleteObject,
     div_id,
     height,
-    loadObject
+    loadObject,
+    setOrientation
   }) => {
     const store = useStore();
 
@@ -147,6 +149,17 @@ const NglView = memo(
       }
     };
 
+    const handleOrientationChanged = useCallback(
+      throttle(() => {
+        const newStage = getNglView(div_id);
+        if (newStage) {
+          const currentOrientation = newStage.stage.viewerControls.getOrientation();
+          setOrientation(div_id, currentOrientation);
+        }
+      }, 250),
+      [div_id, getNglView, setOrientation]
+    );
+
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
       const newStage = getNglView(div_id);
@@ -162,18 +175,26 @@ const NglView = memo(
         registerNglView(div_id, newStage);
         window.addEventListener('resize', handleResize);
         newStage.mouseControls.add('clickPick-left', showPick);
+
+        newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
+        newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
+        newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
         stageRef.current = newStage;
       }
       return () => {
         if (stageRef.current) {
           window.removeEventListener('resize', handleResize);
           stageRef.current.mouseControls.remove('clickPick-left', showPick);
+
+          stageRef.current.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
+          stageRef.current.mouseObserver.signals.dropped.remove(handleOrientationChanged);
+          stageRef.current.mouseObserver.signals.dragged.remove(handleOrientationChanged);
           stageRef.current.dispose();
           unregisterNglView(div_id);
         }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [div_id, handleResize, registerNglView, unregisterNglView]);
+    }, [div_id, handleResize, registerNglView, unregisterNglView, handleOrientationChanged]);
     // End of Initialization NGL View component
 
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;
@@ -192,7 +213,8 @@ const mapDispatchToProps = {
   setDuckYankData: apiActions.setDuckYankData,
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
   deleteObject: nglActions.deleteObject,
-  loadObject: nglActions.loadObject
+  loadObject: nglActions.loadObject,
+  setOrientation: nglActions.setOrientation
 };
 
 NglView.displayName = 'NglView';

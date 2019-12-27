@@ -5,7 +5,6 @@ const INITIAL_STATE = {
   // NGL Scene properties
   objectsInView: {},
   nglOrientations: {},
-  orientationToSet: {},
   loadingState: true,
   viewParams: {
     /*
@@ -113,16 +112,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       console.log(' SET_ORIENTATION');
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
-      });
-
-    case CONSTANTS.SET_NGL_ORIENTATION:
-      const set_div_id = action.div_id;
-      const set_orientation = action.orientation;
-      const toSetDivTemp = JSON.parse(JSON.stringify(state.orientationToSet));
-      toSetDivTemp[set_div_id] = set_orientation;
-      console.log(' SET_NGL_ORIENTATION');
-      return Object.assign({}, state, {
-        orientationToSet: toSetDivTemp
       });
 
     case CONSTANTS.SET_LOADING_STATE:
