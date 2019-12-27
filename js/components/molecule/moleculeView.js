@@ -131,8 +131,7 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList,
     incrementCountOfPendingVectorLoadRequests,
-    decrementCountOfPendingVectorLoadRequests,
-    to_select
+    decrementCountOfPendingVectorLoadRequests
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -180,20 +179,20 @@ const MoleculeView = memo(
       const rings = out_data.ring;
       let outList = [];
 
-      for (let item in deletions) {
-        outList.push(generateArrowObject(data, deletions[item][0], deletions[item][1], item.split('_')[0], colour));
+      for (let d in deletions) {
+        outList.push(generateArrowObject(data, deletions[d][0], deletions[d][1], d, colour));
       }
 
-      for (let item in additions) {
-        outList.push(generateArrowObject(data, additions[item][0], additions[item][1], item.split('_')[0], colour));
+      for (let a in additions) {
+        outList.push(generateArrowObject(data, additions[a][0], additions[a][1], a, colour));
       }
 
-      for (let item in linkers) {
-        outList.push(generateCylinderObject(data, linkers[item][0], linkers[item][1], item.split('_')[0], colour));
+      for (let l in linkers) {
+        outList.push(generateCylinderObject(data, linkers[l][0], linkers[l][1], l, colour));
       }
 
-      for (let item in rings) {
-        outList.push(generateCylinderObject(data, rings[item][0], rings[item][2], item.split('_')[0], colour));
+      for (let r in rings) {
+        outList.push(generateCylinderObject(data, rings[r][0], rings[r][2], r, colour));
       }
 
       return outList;
@@ -336,9 +335,7 @@ const MoleculeView = memo(
       var objList = generateObjectList(json['3d']);
       setVectorList(objList);
       // loading vector objects
-      objList.forEach(item =>
-        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item, getVectorColor(item, to_select)), stage)
-      );
+      objList.forEach(item => loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
       var vectorBondColorMap = generateBondColorMap(json['indices']);
       setBondColorMap(vectorBondColorMap);
     };
@@ -565,8 +562,7 @@ function mapStateToProps(state) {
     vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList,
-    to_select: state.selectionReducers.present.to_select
+    vectorOnList: state.selectionReducers.present.vectorOnList
   };
 }
 const mapDispatchToProps = {
