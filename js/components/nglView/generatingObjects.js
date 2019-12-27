@@ -1,5 +1,5 @@
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
-import * as listTypes from '../../constants/listTypes';
+import * as listTypes from '../listTypes';
 
 export const defaultFocus = 0;
 export const createRepresentationStructure = (type, params, lastKnownID = undefined) => ({ type, params, lastKnownID });
@@ -35,14 +35,6 @@ export const generateProteinObject = data => {
   }
   return undefined;
 };
-
-// after Shift + click on compound
-export const generateCompoundMolObject = (sdf_info, identifier) => ({
-  name: 'CONFLOAD_' + identifier,
-  OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
-  colour: 'cyan',
-  sdf_info: sdf_info
-});
 
 // Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
@@ -93,31 +85,30 @@ export const generateMoleculeId = data => ({
   id: data.id
 });
 
-export const getVectorWithColorByCountOfCompounds = (item, to_select) => {
+export const getVectorColor = (item, to_select) => {
   var thisSmi = item.name.split('VECTOR_')[1];
   var counter = 0;
-  Object.keys(to_select).forEach(key => {
+  for (var key in to_select) {
     var smi = key.split('_')[0];
     if (smi === thisSmi) {
       counter += to_select[key]['addition'].length;
     }
-  });
-
+  }
   var colour = [1, 0, 0];
 
   if (counter > 50) {
     colour = [0, 1, 0];
-    return { ...item, colour: colour, radius: 0.5 };
+    return { colour: colour, radius: 0.8 };
   }
 
   if (counter > 10) {
     colour = [0.5, 1, 0];
-    return { ...item, colour: colour, radius: 0.4 };
+    return { colour: colour, radius: 0.6 };
   }
 
   if (counter > 0) {
     colour = [1, 1, 0];
-    return { ...item, colour: colour, radius: 0.35 };
+    return { colour: colour, radius: 0.5 };
   }
-  return { ...item, colour: colour, radius: 0.3 };
+  return { colour: colour, radius: 0.3 };
 };
