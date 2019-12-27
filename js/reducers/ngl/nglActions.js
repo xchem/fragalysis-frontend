@@ -49,20 +49,16 @@ export const removeComponentRepresentation = (objectInViewID, representationID) 
   objectInViewID
 });
 
-export const setOrientation = function(div_id, orientation) {
-  return {
-    type: CONSTANTS.SET_ORIENTATION,
-    orientation: orientation,
-    div_id: div_id
-  };
-};
+export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
+  const nglOrientations = getState().nglReducers.present.nglOrientations;
 
-export const setNGLOrientation = function(div_id, orientation) {
-  return {
-    type: CONSTANTS.SET_NGL_ORIENTATION,
-    orientation: orientation,
-    div_id: div_id
-  };
+  if (nglOrientations && orientation !== nglOrientations[div_id]) {
+    dispatch({
+      type: CONSTANTS.SET_ORIENTATION,
+      orientation: orientation,
+      div_id: div_id
+    });
+  }
 };
 
 export const deleteObject = (target, stage, deleteFromSelections) => (dispatch, getState) => {
@@ -145,8 +141,11 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
     dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
   });
 
-  // nglOrientations???
-  // orientationToSet???
+  // nglOrientations
+  const newOrientation = currentScene.nglOrientations[display_div];
+  if (newOrientation) {
+    stage.viewerControls.orient(newOrientation);
+  }
 };
 
 export const saveCurrentStateAsDefaultScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE });
