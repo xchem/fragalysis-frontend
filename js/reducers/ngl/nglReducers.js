@@ -158,6 +158,16 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       delete stateWithoutScene['proteinsHasLoaded'];
       delete stateWithoutScene['countOfPendingNglObjects'];
 
+      Object.keys(stateWithoutScene.objectsInView).forEach(objInView => {
+        stateWithoutScene.objectsInView[objInView].representations = stateWithoutScene.objectsInView[
+          objInView
+        ].representations.map(item => {
+          delete item['lastKnownID'];
+          delete item['uuid'];
+          return item;
+        });
+      });
+
       console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
 
       return Object.assign({}, state, {
@@ -171,6 +181,16 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       delete stateWithoutSessionScene['countOfRemainingMoleculeGroups'];
       delete stateWithoutSessionScene['proteinsHasLoaded'];
       delete stateWithoutSessionScene['countOfPendingNglObjects'];
+
+      Object.keys(stateWithoutSessionScene.objectsInView).forEach(objInView => {
+        stateWithoutSessionScene.objectsInView[objInView].representations = stateWithoutSessionScene.objectsInView[
+          objInView
+        ].representations.map(item => {
+          delete item['lastKnownID'];
+          delete item['uuid'];
+          return item;
+        });
+      });
 
       console.log(' SAVE_NGL_STATE_AS_SESSION_SCENE');
 
