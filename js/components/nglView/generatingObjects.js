@@ -84,3 +84,31 @@ export const generateComplexObject = (data, colourToggle, base_url) => ({
 export const generateMoleculeId = data => ({
   id: data.id
 });
+
+export const getVectorColor = (item, to_select) => {
+  var thisSmi = item.name.split('VECTOR_')[1];
+  var counter = 0;
+  for (var key in to_select) {
+    var smi = key.split('_')[0];
+    if (smi === thisSmi) {
+      counter += to_select[key]['addition'].length;
+    }
+  }
+  var colour = [1, 0, 0];
+
+  if (counter > 50) {
+    colour = [0, 1, 0];
+    return { colour: colour, radius: 0.8 };
+  }
+
+  if (counter > 10) {
+    colour = [0.5, 1, 0];
+    return { colour: colour, radius: 0.6 };
+  }
+
+  if (counter > 0) {
+    colour = [1, 1, 0];
+    return { colour: colour, radius: 0.5 };
+  }
+  return { colour: colour, radius: 0.3 };
+};

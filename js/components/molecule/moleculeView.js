@@ -20,7 +20,8 @@ import {
   generateArrowObject,
   generateCylinderObject,
   generateMoleculeId,
-  generateComplexObject
+  generateComplexObject,
+  getVectorColor
 } from '../nglView/generatingObjects';
 import { ComputeSize } from '../../utils/computeSize';
 
@@ -130,7 +131,8 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList,
     incrementCountOfPendingVectorLoadRequests,
-    decrementCountOfPendingVectorLoadRequests
+    decrementCountOfPendingVectorLoadRequests,
+    to_select
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -333,6 +335,10 @@ const MoleculeView = memo(
     const handleVector = json => {
       var objList = generateObjectList(json['3d']);
       setVectorList(objList);
+      // loading vector objects
+      objList.forEach(item =>
+        loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item, getVectorColor(item, to_select)), stage)
+      );
       var vectorBondColorMap = generateBondColorMap(json['indices']);
       setBondColorMap(vectorBondColorMap);
     };
@@ -559,7 +565,8 @@ function mapStateToProps(state) {
     vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList
+    vectorOnList: state.selectionReducers.present.vectorOnList,
+    to_select: state.selectionReducers.present.to_select
   };
 }
 const mapDispatchToProps = {

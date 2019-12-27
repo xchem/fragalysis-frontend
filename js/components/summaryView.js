@@ -1,21 +1,19 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useEffect, useRef, useCallback, useContext } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../reducers/ngl/nglActions';
 import SummaryCmpd from './SummaryCmpd';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../utils/script_utils';
-import { VIEWS } from '../constants/constants';
 import { api } from '../utils/api';
 import { Button } from './common/Inputs/Button';
 import { Panel } from './common/Surfaces/Panel';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import { ComputeSize } from '../utils/computeSize';
-import { NglContext } from './nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
   widthFitContent: {
@@ -24,23 +22,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const SummaryView = memo(
-  ({
-    duck_yank_data,
-    to_buy_list,
-    to_select,
-    vector_list,
-    querying,
-    to_query,
-    compoundClasses,
-    loadObject,
-    setSummaryViewHeight,
-    summaryViewHeight
-  }) => {
+  ({ duck_yank_data, to_buy_list, to_query, compoundClasses, setSummaryViewHeight, summaryViewHeight }) => {
     const classes = useStyles();
     const panelRef = useRef(undefined);
     const dockingScripts = new DockingScripts();
     // Number vectors and series to be incorporated later
-    const ref_vector_list = useRef();
     const [list_len, setList_len] = useState(0);
     const [cost, setCost] = useState(0);
     const [num_vectors, setNum_vectors] = useState(0);
@@ -48,49 +34,6 @@ const SummaryView = memo(
     const [smiles, setSmiles] = useState('');
     const [interaction_select, setInteraction_select] = useState('');
     const [state, setState] = useState();
-
-    const { getNglView } = useContext(NglContext);
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-
-    const getColour = useCallback(
-      item => {
-        var thisSmi = item.name.split('VECTOR_')[1];
-        var counter = 0;
-        for (var key in to_select) {
-          var smi = key.split('_')[0];
-          if (smi === thisSmi) {
-            counter += to_select[key]['addition'].length;
-          }
-        }
-        var colour = [1, 0, 0];
-
-        if (counter > 50) {
-          colour = [0, 1, 0];
-          return { colour: colour, radius: 0.8 };
-        }
-
-        if (counter > 10) {
-          colour = [0.5, 1, 0];
-          return { colour: colour, radius: 0.6 };
-        }
-
-        if (counter > 0) {
-          colour = [1, 1, 0];
-          return { colour: colour, radius: 0.5 };
-        }
-        return { colour: colour, radius: 0.3 };
-      },
-      [to_select]
-    );
-
-    const loadVectors = useCallback(() => {
-      // Colour and then load the vectors in
-      if (to_query !== '') {
-        vector_list.forEach(item =>
-          loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item, getColour(item)), stage)
-        );
-      }
-    }, [getColour, loadObject, stage, to_query, vector_list]);
 
     const update = useCallback(() => {
       setList_len(to_buy_list.length);
@@ -111,12 +54,7 @@ const SummaryView = memo(
       setNum_series(new Set(mol_list_temp).size);
       setSmiles(to_query);
       setInteraction_select(duck_yank_data['interaction']);
-
-      if (vector_list !== ref_vector_list.current && querying === false) {
-        loadVectors();
-        ref_vector_list.current = vector_list;
-      }
-    }, [duck_yank_data, loadVectors, querying, to_buy_list, to_query, vector_list]);
+    }, [duck_yank_data, to_buy_list, to_query]);
 
     useEffect(() => {
       update();
@@ -264,9 +202,6 @@ function mapStateToProps(state) {
   return {
     duck_yank_data: state.apiReducers.present.duck_yank_data,
     to_buy_list: state.selectionReducers.present.to_buy_list,
-    to_select: state.selectionReducers.present.to_select,
-    vector_list: state.selectionReducers.present.vector_list,
-    querying: state.selectionReducers.present.querying,
     to_query: state.selectionReducers.present.to_query,
     compoundClasses: state.selectionReducers.present.compoundClasses
   };
