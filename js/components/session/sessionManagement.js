@@ -184,7 +184,7 @@ const SessionManagement = memo(
         nglViewList.forEach(nglView => {
           reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
         });
-        restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
+        //restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
         if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
           var url =
             window.location.protocol +
@@ -202,7 +202,7 @@ const SessionManagement = memo(
         reloadApiState,
         reloadSelectionState,
         nglViewList,
-        restoreOrientation,
+        //   restoreOrientation,
         setSessionTitle,
         setSessionId,
         reloadNglViewFromScene,

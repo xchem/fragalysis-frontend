@@ -3,12 +3,7 @@ import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
-import {
-  generateMolecule,
-  generateComplex,
-  getJoinedMoleculeList,
-  generateSphere
-} from '../molecule/molecules_helpers';
+import { generateSphere } from '../molecule/molecules_helpers';
 import { VIEWS } from '../../constants/constants';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
