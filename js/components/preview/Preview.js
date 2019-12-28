@@ -50,9 +50,11 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
     <Fragment>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
+          {/* Hit cluster selector */}
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
+          {/* Hit navigator */}
           <Grid item>
             <MoleculeList
               height={moleculeListHeight}
