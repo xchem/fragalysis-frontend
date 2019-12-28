@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import * as apiActions from '../../reducers/api/apiActions';
 import { HeaderContext } from '../header/headerContext';
 import * as selectionActions from '../../reducers/selection/selectionActions';
@@ -108,5 +107,5 @@ export const withUpdatingTarget = WrappedContainer => {
     resetTargetState: apiActions.resetTargetState
   };
 
-  return withRouter(connect(mapStateToProps, mapDispatchToProps)(UpdateTarget));
+  return connect(mapStateToProps, mapDispatchToProps)(UpdateTarget);
 };

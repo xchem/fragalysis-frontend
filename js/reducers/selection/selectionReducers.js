@@ -14,10 +14,10 @@ const INITIAL_STATE = {
   this_vector_list: {},
   querying: false,
   to_query: undefined,
-  fragmentDisplayList: new Set(),
+  fragmentDisplayList: new Set(null),
   bondColorMap: undefined,
-  complexList: new Set(),
-  vectorOnList: new Set(),
+  complexList: new Set(null),
+  vectorOnList: new Set(null),
   currentVector: undefined,
   highlightedCompound: {},
   compoundClasses: {
@@ -205,10 +205,13 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case actions.RELOAD_SELECTION_STATE:
       var this_vector_list = {};
       for (var to_select_item in action.savedSelectionReducers.to_select) {
-        if (to_select_item.split('_')[0] === action.savedSelectionReducers.currentVector) {
+        if (to_select_item === action.savedSelectionReducers.currentVector) {
           this_vector_list[to_select_item] = action.savedSelectionReducers.to_select[to_select_item];
         }
       }
+      state.fragmentDisplayList.clear();
+      state.complexList.clear();
+      state.vectorOnList.clear();
       return Object.assign({}, state, {
         this_vector_list: this_vector_list,
         fragmentDisplayList: new Set(action.savedSelectionReducers.fragmentDisplayList),
@@ -229,11 +232,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case actions.RESET_SELECTION_STATE:
+      console.log('RESET_SELECTION_STATE');
+      state.fragmentDisplayList.clear();
+      state.complexList.clear();
+      state.vectorOnList.clear();
       return Object.assign({}, state, {
-        ...INITIAL_STATE,
-        fragmentDisplayList: new Set(state.fragmentDisplayList.clear()),
-        complexList: new Set(state.complexList.clear()),
-        vectorOnList: new Set(state.vectorOnList.clear())
+        ...INITIAL_STATE
       });
 
     case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
