@@ -11,7 +11,6 @@ import {
 } from '../selection/selectionActions';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 import { isEqual, isEmpty } from 'lodash';
-import { Matrix4 } from 'ngl';
 
 export const loadObject = (target, stage, previousRepresentations) => dispatch => {
   if (stage) {
@@ -55,11 +54,10 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
   const nglOrientations = getState().nglReducers.present.nglOrientations;
 
   if (
-    (orientation &&
-      nglOrientations &&
-      nglOrientations[div_id] &&
-      !isEqual(orientation.elements, nglOrientations[div_id].elements)) ||
-    isEmpty(nglOrientations)
+    orientation &&
+    ((nglOrientations && nglOrientations[div_id] && !isEqual(orientation.elements, nglOrientations[div_id].elements)) ||
+      isEmpty(nglOrientations) ||
+      (nglOrientations && nglOrientations[div_id] === undefined))
   ) {
     dispatch({
       type: CONSTANTS.SET_ORIENTATION,
@@ -169,7 +167,7 @@ export const saveCurrentStateAsSessionScene = () => ({ type: CONSTANTS.SAVE_NGL_
 export const clearNglView = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
 
 // Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = (hasLoad, withoutSavingToDefaultState = false) => (dispatch, getState) => {
+export const setProteinsHasLoaded = (hasLoad = false, withoutSavingToDefaultState = false) => (dispatch, getState) => {
   const state = getState();
   if (
     state.nglReducers.present.countOfRemainingMoleculeGroups === 0 &&
