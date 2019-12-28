@@ -8,7 +8,7 @@ import * as apiActions from '../../reducers/api/apiActions';
 import { VIEWS, SUFFIX } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { generateProteinObject } from '../nglView/generatingObjects';
-import { setProteinsHasLoaded } from '../../reducers/ngl/nglActions';
+import { setProteinsHasLoaded, setOrientation } from '../../reducers/ngl/nglActions';
 
 // is responsible for loading molecules list
 export const withLoadingProtein = WrappedComponent => {
@@ -22,6 +22,7 @@ export const withLoadingProtein = WrappedComponent => {
       setObjectList,
       setProteinsHasLoaded,
       isStateLoaded,
+      setOrientation,
       ...rest
     }) => {
       const { nglViewList } = useContext(NglContext);
@@ -54,7 +55,13 @@ export const withLoadingProtein = WrappedComponent => {
           //  1. Generate new protein or skip this action and everything will be loaded from session
           if (!isStateLoaded) {
             setProteinsHasLoaded(false);
-            Promise.all(nglViewList.map(nglView => loadProtein(nglView)))
+            Promise.all(
+              nglViewList.map(nglView =>
+                loadProtein(nglView).finally(() => {
+                  setOrientation(nglView.id, nglView.stage.viewerControls.getOrientation());
+                })
+              )
+            )
               .then(() => setProteinsHasLoaded(true))
               .catch(() => setProteinsHasLoaded(false));
           } else {
@@ -64,7 +71,7 @@ export const withLoadingProtein = WrappedComponent => {
             document.title = targetOnName + ': Fragalysis';
           }
         }
-      }, [nglViewList, loadProtein, targetIdList, targetOnName, setProteinsHasLoaded, isStateLoaded]);
+      }, [nglViewList, loadProtein, targetIdList, targetOnName, setProteinsHasLoaded, isStateLoaded, setOrientation]);
 
       return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
     }
@@ -81,7 +88,8 @@ export const withLoadingProtein = WrappedComponent => {
   const mapDispatchToProps = {
     loadObject: nglActions.loadObject,
     setObjectList: apiActions.setMolGroupList,
-    setProteinsHasLoaded: setProteinsHasLoaded
+    setProteinsHasLoaded,
+    setOrientation
   };
   return connect(mapStateToProps, mapDispatchToProps)(ProteinLoader);
 };
