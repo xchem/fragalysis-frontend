@@ -6,7 +6,6 @@ import { Button, makeStyles, Snackbar, IconButton } from '@material-ui/core';
 import { Close, Save, SaveOutlined, Share } from '@material-ui/icons';
 import { getStore } from '../globalStore';
 import * as selectionActions from '../../reducers/selection/selectionActions';
-import { withRouter } from 'react-router-dom';
 import * as listTypes from '../listTypes';
 import DownloadPdb from '../downloadPdb';
 import { savingStateConst, savingTypeConst } from './constants';
@@ -21,7 +20,7 @@ import { SCENES } from '../../reducers/ngl/nglConstants';
  * Created by ricgillams on 13/06/2018.
  */
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   loader: {
     display: 'block',
     margin: '0 auto',
@@ -30,7 +29,6 @@ const useStyles = makeStyles(theme => ({
 }));
 const SessionManagement = memo(
   ({
-    nglOrientations,
     savingState,
     uuid,
     latestSession,
@@ -38,9 +36,6 @@ const SessionManagement = memo(
     sessionTitle,
     targetIdList,
     setSavingState,
-    // setOrientation,
-    setNGLOrientation,
-    loadObject,
     reloadApiState,
     reloadSelectionState,
     setLatestSession,
@@ -89,9 +84,6 @@ const SessionManagement = memo(
     const postToServer = sessionState => {
       saveCurrentStateAsSessionScene();
       setSavingState(sessionState);
-      /*  for (var key in nglOrientations) {
-        setOrientation(key, 'REFRESH');
-      }*/
     };
     const newSession = () => {
       postToServer(savingStateConst.savingSession);
@@ -106,58 +98,44 @@ const SessionManagement = memo(
       setSaveType(savingTypeConst.snapshotNew);
     };
 
-    const restoreOrientation = useCallback(
-      myOrientDict => {
-        for (var div_id in myOrientDict) {
-          var orientation = myOrientDict[div_id]['orientation'];
-          var components = myOrientDict[div_id]['components'];
-          for (var component in components) {
-            loadObject(components[component]);
-          }
-          setNGLOrientation(div_id, orientation);
-        }
-      },
-      [loadObject, setNGLOrientation]
-    );
-
     const generateObjectList = useCallback(out_data => {
-      var colour = [1, 0, 0];
-      var deletions = out_data.deletions;
-      var outList = [];
-      for (var key in deletions) {
+      let colour = [1, 0, 0];
+      let deletions = out_data.deletions;
+      let outList = [];
+      for (let key in deletions) {
         outList.push(generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
       }
-      var additions = out_data.additions;
-      for (var key in additions) {
+      let additions = out_data.additions;
+      for (let key in additions) {
         outList.push(generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
       }
-      var linker = out_data.linkers;
-      for (var key in linker) {
+      let linker = out_data.linkers;
+      for (let key in linker) {
         outList.push(generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
       }
-      var rings = out_data.ring;
-      for (var key in rings) {
+      let rings = out_data.ring;
+      for (let key in rings) {
         outList.push(generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
       }
       return outList;
     }, []);
 
     const generateBondColorMap = inputDict => {
-      var out_d = {};
-      for (let keyItem in inputDict) {
-        for (let vector in inputDict[keyItem]) {
-          const vect = vector.split('_')[0];
-          out_d[vect] = inputDict[keyItem][vector];
-        }
-      }
+      let out_d = {};
+      Object.keys(inputDict || {}).forEach(keyItem => {
+        Object.keys(inputDict[keyItem] || {}).forEach(vector => {
+          const v = vector.split('_')[0];
+          out_d[v] = inputDict[keyItem][vector];
+        });
+      });
       return out_d;
     };
 
     const handleVector = useCallback(
       json => {
-        var objList = generateObjectList(json['3d']);
+        let objList = generateObjectList(json['3d']);
         setVectorList(objList);
-        var vectorBondColorMap = generateBondColorMap(json['indices']);
+        let vectorBondColorMap = generateBondColorMap(json['indices']);
         setBondColorMap(vectorBondColorMap);
       },
       [generateObjectList, setBondColorMap, setVectorList]
@@ -178,15 +156,14 @@ const SessionManagement = memo(
 
     const reloadSession = useCallback(
       myJson => {
-        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+        let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
         reloadApiState(jsonOfView.apiReducers.present);
         reloadSelectionState(jsonOfView.selectionReducers.present);
         nglViewList.forEach(nglView => {
           reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
         });
-        //restoreOrientation(jsonOfView.nglReducers.present.nglOrientations);
         if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
-          var url =
+          let url =
             window.location.protocol +
             '//' +
             window.location.host +
@@ -202,7 +179,6 @@ const SessionManagement = memo(
         reloadApiState,
         reloadSelectionState,
         nglViewList,
-        //   restoreOrientation,
         setSessionTitle,
         setSessionId,
         reloadNglViewFromScene,
@@ -213,14 +189,15 @@ const SessionManagement = memo(
     // After fetching scene from session
     useEffect(() => {
       if (loadedSession) {
-        var jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
-        var target = jsonOfView.apiReducers.present.target_on_name;
-        var targetUnrecognised = true;
-        for (var i in targetIdList) {
-          if (target === targetIdList[i].title) {
+        let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
+        let target = jsonOfView.apiReducers.present.target_on_name;
+        let targetUnrecognised = true;
+        targetIdList.forEach(item => {
+          if (target === item.title) {
             targetUnrecognised = false;
           }
-        }
+        });
+
         if (targetUnrecognised === true) {
           setLoadingState(false);
         }
@@ -278,7 +255,7 @@ const SessionManagement = memo(
     // componentDidUpdate
     useEffect(() => {
       generateNextUuid();
-      var hasBeenRefreshed = true;
+      let hasBeenRefreshed = true;
       if (uuid !== 'UNSET') {
         api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid })
           .then(response => setLoadedSession(response.data.results[0]))
@@ -288,16 +265,8 @@ const SessionManagement = memo(
             });
           });
       }
-      for (var key in nglOrientations) {
-        if (nglOrientations[key] === 'REFRESH') {
-          hasBeenRefreshed = false;
-        }
-        if (nglOrientations[key] === 'STARTED') {
-          hasBeenRefreshed = false;
-        }
-      }
       if (hasBeenRefreshed === true) {
-        var store = JSON.stringify(getStore().getState());
+        let store = JSON.stringify(getStore().getState());
         const timeOptions = {
           year: 'numeric',
           month: 'numeric',
@@ -307,10 +276,10 @@ const SessionManagement = memo(
           second: 'numeric',
           hour12: false
         };
-        var TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
-        var userId = DJANGO_CONTEXT['pk'];
-        var stateObject = JSON.parse(store);
-        var newPresentObject = Object.assign(stateObject.apiReducers.present, {
+        let TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
+        let userId = DJANGO_CONTEXT['pk'];
+        let stateObject = JSON.parse(store);
+        let newPresentObject = Object.assign(stateObject.apiReducers.present, {
           latestSession: nextUuid
         });
 
@@ -324,7 +293,7 @@ const SessionManagement = memo(
 
         if (saveType === savingTypeConst.sessionNew && newSessionFlag === 1) {
           setNewSessionFlag(0);
-          var formattedState = {
+          const formattedState = {
             uuid: nextUuid,
             title: TITLE,
             user_id: userId,
@@ -350,7 +319,7 @@ const SessionManagement = memo(
               });
             });
         } else if (saveType === savingTypeConst.sessionSave) {
-          formattedState = {
+          const formattedState = {
             scene: JSON.stringify(JSON.stringify(fullState))
           };
           api({
@@ -374,7 +343,7 @@ const SessionManagement = memo(
             });
         } else if (saveType === savingTypeConst.snapshotNew) {
           const uuidv4 = require('uuid/v4');
-          formattedState = {
+          const formattedState = {
             uuid: uuidv4(),
             title: 'undefined',
             user_id: userId,
@@ -401,18 +370,7 @@ const SessionManagement = memo(
             });
         }
       }
-    }, [
-      generateNextUuid,
-      newSessionFlag,
-      nextUuid,
-      nglOrientations,
-      saveType,
-      sessionId,
-      setState,
-      setUuid,
-      updateFraggleBox,
-      uuid
-    ]);
+    }, [generateNextUuid, newSessionFlag, nextUuid, saveType, sessionId, setState, setUuid, updateFraggleBox, uuid]);
 
     const [openSnackBar, setOpenSnackBar] = React.useState(true);
     const handleClose = (event, reason) => {
@@ -486,7 +444,6 @@ const SessionManagement = memo(
 
 function mapStateToProps(state) {
   return {
-    nglOrientations: state.nglReducers.present.nglOrientations,
     savingState: state.apiReducers.present.savingState,
     uuid: state.apiReducers.present.uuid,
     latestSession: state.apiReducers.present.latestSession,
@@ -498,9 +455,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   setSavingState: apiActions.setSavingState,
-  // setOrientation: nglLoadActions.setOrientation,
-  setNGLOrientation: nglLoadActions.setNGLOrientation,
-  loadObject: nglLoadActions.loadObject,
   reloadApiState: apiActions.reloadApiState,
   reloadSelectionState: selectionActions.reloadSelectionState,
   setLatestSession: apiActions.setLatestSession,
@@ -515,4 +469,4 @@ const mapDispatchToProps = {
   saveCurrentStateAsSessionScene: nglLoadActions.saveCurrentStateAsSessionScene,
   reloadNglViewFromScene: nglLoadActions.reloadNglViewFromScene
 };
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionManagement));
+export default connect(mapStateToProps, mapDispatchToProps)(SessionManagement);
