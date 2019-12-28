@@ -10,6 +10,8 @@ import {
   removeFromVectorOnList
 } from '../selection/selectionActions';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
+import { isEqual, isEmpty } from 'lodash';
+import { Matrix4 } from 'ngl';
 
 export const loadObject = (target, stage, previousRepresentations) => dispatch => {
   if (stage) {
@@ -52,11 +54,17 @@ export const removeComponentRepresentation = (objectInViewID, representationID) 
 export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
   const nglOrientations = getState().nglReducers.present.nglOrientations;
 
-  if (nglOrientations && orientation !== nglOrientations[div_id]) {
+  if (
+    (orientation &&
+      nglOrientations &&
+      nglOrientations[div_id] &&
+      !isEqual(orientation.elements, nglOrientations[div_id].elements)) ||
+    isEmpty(nglOrientations)
+  ) {
     dispatch({
       type: CONSTANTS.SET_ORIENTATION,
-      orientation: orientation,
-      div_id: div_id
+      orientation,
+      div_id
     });
   }
 };
@@ -129,23 +137,29 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  Object.keys(currentScene.objectsInView || {}).forEach(objInView => {
-    if (currentScene.objectsInView[objInView].display_div === display_div) {
-      let representations = currentScene.objectsInView[objInView].representations;
-      dispatch(loadObject(currentScene.objectsInView[objInView], stage, createRepresentationsArray(representations)));
+  Promise.all(
+    Object.keys(currentScene.objectsInView || {}).map(objInView => {
+      if (currentScene.objectsInView[objInView].display_div === display_div) {
+        let representations = currentScene.objectsInView[objInView].representations;
+        return dispatch(
+          loadObject(currentScene.objectsInView[objInView], stage, createRepresentationsArray(representations))
+        );
+      } else {
+        return Promise.resolve();
+      }
+    })
+  ).finally(() => {
+    // loop over nglViewParams
+    Object.keys(currentScene.viewParams).forEach(param => {
+      dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
+    });
+
+    // nglOrientations
+    const newOrientation = currentScene.nglOrientations[display_div];
+    if (newOrientation) {
+      stage.viewerControls.orient(newOrientation.elements);
     }
   });
-
-  // loop over nglViewParams
-  Object.keys(currentScene.viewParams).forEach(param => {
-    dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
-  });
-
-  // nglOrientations
-  const newOrientation = currentScene.nglOrientations[display_div];
-  if (newOrientation) {
-    stage.viewerControls.orient(newOrientation);
-  }
 };
 
 export const saveCurrentStateAsDefaultScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE });
