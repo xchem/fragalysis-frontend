@@ -157,7 +157,7 @@ const showCylinder = (stage, input_dict, object_name, representations) => {
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-
+  comp.autoView();
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
@@ -175,6 +175,7 @@ const showArrow = (stage, input_dict, object_name, representations) => {
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
+  comp.autoView();
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
