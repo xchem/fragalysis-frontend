@@ -130,7 +130,8 @@ const MoleculeView = memo(
     appendFragmentDisplayList,
     removeFromFragmentDisplayList,
     incrementCountOfPendingVectorLoadRequests,
-    decrementCountOfPendingVectorLoadRequests
+    decrementCountOfPendingVectorLoadRequests,
+    setOrientation
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -271,7 +272,13 @@ const MoleculeView = memo(
     const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
 
     const addLigand = () => {
-      loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)), stage);
+      loadObject(
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+        stage
+      ).finally(() => {
+        const currentOrientation = stage.viewerControls.getOrientation();
+        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
+      });
       appendFragmentDisplayList(generateMoleculeId(data));
     };
 
@@ -310,7 +317,10 @@ const MoleculeView = memo(
       loadObject(
         Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
         stage
-      );
+      ).finally(() => {
+        const currentOrientation = stage.viewerControls.getOrientation();
+        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
+      });
       appendComplexList(generateMoleculeId(data));
     };
 
@@ -334,7 +344,7 @@ const MoleculeView = memo(
       var objList = generateObjectList(json['3d']);
       setVectorList(objList);
       // loading vector objects
-      objList.forEach(item => loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      objList.map(item => loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
       var vectorBondColorMap = generateBondColorMap(json['indices']);
       setBondColorMap(vectorBondColorMap);
     };
@@ -369,6 +379,8 @@ const MoleculeView = memo(
           })
       ]).finally(() => {
         decrementCountOfPendingVectorLoadRequests();
+        const currentOrientation = stage.viewerControls.getOrientation();
+        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
       });
       appendVectorOnList(generateMoleculeId(data));
       selectVector(undefined);
@@ -580,7 +592,8 @@ const mapDispatchToProps = {
   appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
   incrementCountOfPendingVectorLoadRequests: selectionActions.incrementCountOfPendingVectorLoadRequests,
-  decrementCountOfPendingVectorLoadRequests: selectionActions.decrementCountOfPendingVectorLoadRequests
+  decrementCountOfPendingVectorLoadRequests: selectionActions.decrementCountOfPendingVectorLoadRequests,
+  setOrientation: nglLoadActions.setOrientation
 };
 
 MoleculeView.displayName = 'MoleculeView';

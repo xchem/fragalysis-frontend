@@ -1,11 +1,11 @@
 import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE } from './constants';
+import { concatStructures, Selection, Shape } from 'ngl';
 import {
   assignRepresentationArrayToComp,
   createRepresentationsArray,
   createRepresentationStructure,
   defaultFocus
 } from './generatingObjects';
-import { concatStructures, Selection, Shape } from 'ngl';
 
 const showSphere = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour;
@@ -50,8 +50,8 @@ const renderComplex = (ol, representations) => {
   let colour = ol[5];
   // Set the object name
   let comp = stage.addComponentFromObject(cs);
-  // duplication of protein
-  // const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
+
+  const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
 
   const repr2 = createRepresentationStructure(MOL_REPRESENTATION.contact, {
     masterModelIndex: 0,
@@ -66,7 +66,7 @@ const renderComplex = (ol, representations) => {
     sele: '/0'
   });
 
-  const reprArray = representations || createRepresentationsArray([repr2, repr3]);
+  const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3]);
 
   comp.autoView('ligand');
   comp.stage.setFocus(focus_let_temp);
@@ -86,7 +86,6 @@ const showComplex = (stage, input_dict, object_name, representations) => {
   ]).then(ol => renderComplex(ol, representations));
 };
 
-// ligand
 const showEvent = (stage, input_dict, object_name, representations) =>
   Promise.all(
     [
@@ -147,8 +146,7 @@ const showEvent = (stage, input_dict, object_name, representations) =>
     ].then(values => [...values])
   );
 
-// vector
-const showCylinder = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showCylinder = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.4 : input_dict.radius;
   // Handle undefined start and finish
@@ -159,19 +157,14 @@ const showCylinder = (stage, input_dict, object_name, representations, orientati
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else {
-    comp.autoView();
-  }
+  comp.autoView();
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-// vector
-const showArrow = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showArrow = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
   // Handle undefined start and finish
@@ -182,12 +175,7 @@ const showArrow = (stage, input_dict, object_name, representations, orientationM
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else {
-    comp.autoView();
-  }
-
+  comp.autoView();
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
