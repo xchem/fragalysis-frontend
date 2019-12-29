@@ -14,10 +14,10 @@ const INITIAL_STATE = {
   this_vector_list: {},
   querying: false,
   to_query: undefined,
-  fragmentDisplayList: new Set(null),
+  fragmentDisplayList: new Set(),
   bondColorMap: undefined,
-  complexList: new Set(null),
-  vectorOnList: new Set(null),
+  complexList: new Set(),
+  vectorOnList: new Set(),
   currentVector: undefined,
   highlightedCompound: {},
   compoundClasses: {
@@ -130,57 +130,54 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case actions.SET_FRAGMENT_DISPLAY_LIST:
-      return Object.assign({}, state, {
-        fragmentDisplayList: new Set(action.fragmentDisplayList)
+      console.log('SET_FRAGMENT_DISPLAY_LIST');
+      state.fragmentDisplayList.clear();
+      action.fragmentDisplayList.forEach(f => {
+        state.fragmentDisplayList.add(f);
       });
+
+      return state;
 
     case actions.APPEND_FRAGMENT_DISPLAY_LIST:
-      return Object.assign({}, state, {
-        fragmentDisplayList: new Set(state.fragmentDisplayList.add(action.item.id))
-      });
+      console.log('APPEND_FRAGMENT_DISPLAY_LIST');
+      state.fragmentDisplayList.add(action.item.id);
+      return state;
 
     case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
-      const diminishedFragmentDisplayList = new Set(state.fragmentDisplayList);
-      diminishedFragmentDisplayList.delete(action.item.id);
-      return Object.assign({}, state, {
-        fragmentDisplayList: diminishedFragmentDisplayList
-      });
+      console.log('REMOVE_FROM_FRAGMENT_DISPLAY_LIST');
+      state.fragmentDisplayList.delete(action.item.id);
+      return state;
 
     case actions.SET_COMPLEX_LIST:
-      return Object.assign({}, state, {
-        complexList: new Set(action.complexList)
+      state.complexList.clear();
+      action.complexList.forEach(f => {
+        state.complexList.add(f);
       });
+      return state;
 
     case actions.APPEND_COMPLEX_LIST:
-      return Object.assign({}, state, {
-        complexList: new Set(state.complexList.add(action.item.id))
-      });
+      state.complexList.add(action.item.id);
+      return state;
 
     case actions.REMOVE_FROM_COMPLEX_LIST:
-      const diminishedComplexList = new Set(state.complexList);
-      diminishedComplexList.delete(action.item.id);
-      return Object.assign({}, state, {
-        complexList: diminishedComplexList
-      });
+      state.complexList.delete(action.item.id);
+      return state;
 
     case actions.SET_VECTOR_ON_LIST:
-      return Object.assign({}, state, {
-        vectorOnList: new Set(action.vectorOnList)
+      state.vectorOnList.clear();
+      action.vectorOnList.forEach(v => {
+        state.vectorOnList.add(v);
       });
+      return state;
 
     case actions.APPEND_VECTOR_ON_LIST:
-      const newVectorOnList = new Set(state.vectorOnList.clear());
-      newVectorOnList.add(action.item.id);
-      return Object.assign({}, state, {
-        vectorOnList: newVectorOnList
-      });
+      state.vectorOnList.clear();
+      state.vectorOnList.add(action.item.id);
+      return state;
 
     case actions.REMOVE_FROM_VECTOR_ON_LIST:
-      const diminishedVectorOnList = new Set(state.vectorOnList);
-      diminishedVectorOnList.delete(action.item.id);
-      return Object.assign({}, state, {
-        vectorOnList: diminishedVectorOnList
-      });
+      state.vectorOnList.delete(action.item.id);
+      return state;
 
     case actions.SET_HIGHLIGHTED:
       return Object.assign({}, state, {
@@ -210,25 +207,23 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         }
       }
       state.fragmentDisplayList.clear();
+      action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
+        state.fragmentDisplayList.add(f);
+      });
       state.complexList.clear();
+      action.savedSelectionReducers.complexList.forEach(c => {
+        state.complexList.add(c);
+      });
       state.vectorOnList.clear();
+      action.savedSelectionReducers.vectorOnList.forEach(v => {
+        state.vectorOnList.add(v);
+      });
       return Object.assign({}, state, {
         this_vector_list: this_vector_list,
-        fragmentDisplayList: new Set(action.savedSelectionReducers.fragmentDisplayList),
-        complexList: new Set(action.savedSelectionReducers.complexList),
-        vectorOnList: new Set(action.savedSelectionReducers.vectorOnList),
-        to_query: action.savedSelectionReducers.to_query,
-        vector_list: action.savedSelectionReducers.vector_list,
-        to_select: action.savedSelectionReducers.to_select,
-        to_buy_list: action.savedSelectionReducers.to_buy_list,
-        to_query_pk: action.savedSelectionReducers.to_query_pk,
-        to_query_prot: action.savedSelectionReducers.to_query_prot,
-        to_query_sdf_info: action.savedSelectionReducers.to_query_sdf_info,
-        currentVector: action.savedSelectionReducers.currentVector,
-        compoundClasses: action.savedSelectionReducers.compoundClasses,
-        currentCompoundClass: action.savedSelectionReducers.currentCompoundClass,
-        highlightedCompound: action.savedSelectionReducers.highlightedCompound,
-        mol_group_selection: action.savedSelectionReducers.mol_group_selection
+        ...action.savedSelectionReducers,
+        fragmentDisplayList: state.fragmentDisplayList,
+        complexList: state.complexList,
+        vectorOnList: state.vectorOnList
       });
 
     case actions.RESET_SELECTION_STATE:
@@ -237,7 +232,10 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       state.complexList.clear();
       state.vectorOnList.clear();
       return Object.assign({}, state, {
-        ...INITIAL_STATE
+        ...INITIAL_STATE,
+        fragmentDisplayList: state.fragmentDisplayList,
+        complexList: state.complexList,
+        vectorOnList: state.vectorOnList
       });
 
     case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
