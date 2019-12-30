@@ -164,7 +164,7 @@ export const saveCurrentStateAsDefaultScene = () => ({ type: CONSTANTS.SAVE_NGL_
 
 export const saveCurrentStateAsSessionScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE });
 
-export const clearNglView = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
+export const removeAllNglComponents = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
 
 // Helper actions for marking that protein and molecule groups are successful loaded
 export const setProteinsHasLoaded = (hasLoad = false, withoutSavingToDefaultState = false) => (dispatch, getState) => {
