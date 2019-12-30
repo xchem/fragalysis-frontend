@@ -2,10 +2,11 @@
  * Created by abradley on 13/03/2018.
  */
 
+import { FillMe } from './generalComponents';
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { ListItemText, ListItemSecondaryAction } from '@material-ui/core';
-import { List, ListItem, Panel } from '../common';
+import { List, ListItem, Panel } from './common';
 import { Link } from 'react-router-dom';
 
 const TargetList = memo(({ target_id_list }) => {
@@ -37,13 +38,13 @@ const TargetList = memo(({ target_id_list }) => {
       </Panel>
     );
   } else {
-    return <h1>FILL ME UP PLEASE</h1>;
+    return <FillMe />;
   }
 });
 
 function mapStateToProps(state) {
   return {
-    target_id_list: state.apiReducers.target_id_list
+    target_id_list: state.apiReducers.present.target_id_list
   };
 }
 export default connect(mapStateToProps, null)(TargetList);
