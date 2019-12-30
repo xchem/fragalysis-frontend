@@ -12,7 +12,7 @@ import { savingStateConst, savingTypeConst } from './constants';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { api, METHOD, getCsrfToken } from '../../utils/api';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { notCheckTarget } from './helpers';
+import { canCheckTarget } from './helpers';
 import { NglContext } from '../nglView/nglProvider';
 import { SCENES } from '../../reducers/ngl/nglConstants';
 
@@ -156,6 +156,7 @@ const SessionManagement = memo(
 
     const reloadSession = useCallback(
       myJson => {
+        debugger;
         let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
         reloadApiState(jsonOfView.apiReducers.present);
         reloadSelectionState(jsonOfView.selectionReducers.present);
@@ -201,10 +202,10 @@ const SessionManagement = memo(
         if (targetUnrecognised === true) {
           setLoadingState(false);
         }
-        if (notCheckTarget(pathname) === false) {
+        if (canCheckTarget(pathname) === false) {
           setTargetUnrecognised(targetUnrecognised);
         }
-        if (targetUnrecognised === false && targetIdList.length > 0) {
+        if (targetUnrecognised === false && targetIdList.length > 0 && canCheckTarget(pathname) === true) {
           reloadSession(loadedSession);
         }
       }
