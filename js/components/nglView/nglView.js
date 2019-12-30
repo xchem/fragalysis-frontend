@@ -28,7 +28,8 @@ const NglView = memo(
     div_id,
     height,
     loadObject,
-    setOrientation
+    setOrientation,
+    removeAllNglComponents
   }) => {
     const store = useStore();
 
@@ -190,6 +191,7 @@ const NglView = memo(
           stageRef.current.mouseObserver.signals.dropped.remove(handleOrientationChanged);
           stageRef.current.mouseObserver.signals.dragged.remove(handleOrientationChanged);
           stageRef.current.dispose();
+          removeAllNglComponents(stageRef.current);
           unregisterNglView(div_id);
         }
       };
@@ -214,7 +216,8 @@ const mapDispatchToProps = {
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
   deleteObject: nglActions.deleteObject,
   loadObject: nglActions.loadObject,
-  setOrientation: nglActions.setOrientation
+  setOrientation: nglActions.setOrientation,
+  removeAllNglComponents: nglActions.removeAllNglComponents
 };
 
 NglView.displayName = 'NglView';

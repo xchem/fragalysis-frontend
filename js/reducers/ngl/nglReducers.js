@@ -191,7 +191,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       console.log(' REMOVE_ALL_NGL_COMPONENTS');
       action.stage.removeAllComponents();
       // clear all arrays of object
-      return Object.assign({}, state, INITIAL_STATE);
+      return INITIAL_STATE;
 
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOADED:
