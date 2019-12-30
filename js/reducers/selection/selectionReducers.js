@@ -231,12 +231,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       state.fragmentDisplayList.clear();
       state.complexList.clear();
       state.vectorOnList.clear();
-      return Object.assign({}, state, {
-        ...INITIAL_STATE,
-        fragmentDisplayList: state.fragmentDisplayList,
-        complexList: state.complexList,
-        vectorOnList: state.vectorOnList
-      });
+      return INITIAL_STATE;
 
     case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
       return Object.assign({}, state, {
