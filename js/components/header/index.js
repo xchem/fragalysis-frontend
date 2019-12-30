@@ -28,7 +28,6 @@ import {
   SupervisorAccount,
   Menu as MenuIcon
 } from '@material-ui/icons';
-import { withRouter } from 'react-router-dom';
 import SessionManagement from '../session/sessionManagement';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -37,6 +36,7 @@ import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../useEnableUserInteracion';
+import { useHistory } from 'react-router-dom';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -75,8 +75,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Index = memo(
-  forwardRef(({ history, children, setHeaderHeight, headerHeight = 0 }, ref) => {
+export default memo(
+  forwardRef(({ children, setHeaderHeight, headerHeight = 0 }, ref) => {
+    let history = useHistory();
     const classes = useStyles();
     const { isLoading } = useContext(HeaderContext);
     const disableUserInteraction = useDisableUserInteraction();
@@ -282,13 +283,3 @@ const Index = memo(
     );
   })
 );
-
-const withRouterAndRef = Wrapped => {
-  const WithRouter = withRouter(({ forwardRef, ...otherProps }) => <Wrapped ref={forwardRef} {...otherProps} />);
-  const WithRouterAndRef = React.forwardRef((props, ref) => <WithRouter {...props} forwardRef={ref} />);
-  const name = Wrapped.displayName || Wrapped.name;
-  WithRouterAndRef.displayName = `withRouterAndRef(${name})`;
-  return WithRouterAndRef;
-};
-
-export default withRouterAndRef(Index);

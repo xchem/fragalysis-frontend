@@ -4,7 +4,6 @@
 /*
 import keydown from 'react-keydown';
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as selectionActions from '../actions/selectionActions';
 import Switches from './switches';
@@ -106,10 +105,9 @@ const mapDispatchToProps = {
   removeFromToBuyList: selectionActions.removeFromToBuyList
 };
 
-export default withRouter(
+export default
   connect(
     mapStateToProps,
     mapDispatchToProps
-  )(UserInputCapture)
-);
+  )(UserInputCapture);
 */

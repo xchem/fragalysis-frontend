@@ -4,7 +4,6 @@
 import { Grid, makeStyles, Checkbox, ListItemSecondaryAction, List, ListItem, ListItemText } from '@material-ui/core';
 import React, { memo, useState } from 'react';
 // import * as listType from './listTypes';
-import { withRouter } from 'react-router-dom';
 
 // import { getUrl, loadFromServer } from '../utils/genericList';
 
@@ -154,4 +153,4 @@ const ProposalList = memo(() => {
   }
 });
 
-export default withRouter(ProposalList);
+export default ProposalList;

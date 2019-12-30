@@ -156,7 +156,6 @@ const SessionManagement = memo(
 
     const reloadSession = useCallback(
       myJson => {
-        debugger;
         let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
         reloadApiState(jsonOfView.apiReducers.present);
         reloadSelectionState(jsonOfView.selectionReducers.present);
