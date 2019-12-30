@@ -158,22 +158,24 @@ const SessionManagement = memo(
       myJson => {
         let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
         reloadApiState(jsonOfView.apiReducers.present);
-        reloadSelectionState(jsonOfView.selectionReducers.present);
-        nglViewList.forEach(nglView => {
-          reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
-        });
-        if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
-          let url =
-            window.location.protocol +
-            '//' +
-            window.location.host +
-            '/api/vector/' +
-            jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
-            '/';
-          redeployVectorsLocal(url);
-        }
-        setSessionTitle(myJson.title);
         setSessionId(myJson.id);
+        if (nglViewList.length > 0) {
+          reloadSelectionState(jsonOfView.selectionReducers.present);
+          nglViewList.forEach(nglView => {
+            reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
+          });
+          if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
+            let url =
+              window.location.protocol +
+              '//' +
+              window.location.host +
+              '/api/vector/' +
+              jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
+              '/';
+            redeployVectorsLocal(url);
+          }
+          setSessionTitle(myJson.title);
+        }
       },
       [
         reloadApiState,
