@@ -7,8 +7,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { ListItemText, ListItemSecondaryAction } from '@material-ui/core';
 import { List, ListItem, Panel } from './common';
-
-import { withRouter, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const TargetList = memo(({ target_id_list }) => {
   const render_method = data => {
@@ -48,4 +47,4 @@ function mapStateToProps(state) {
     target_id_list: state.apiReducers.present.target_id_list
   };
 }
-export default withRouter(connect(mapStateToProps, null)(TargetList));
+export default connect(mapStateToProps, null)(TargetList);
