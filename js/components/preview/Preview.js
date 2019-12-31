@@ -11,12 +11,12 @@ import SummaryView from '../summaryView';
 import CompoundList from '../compoundList';
 import NglViewerControls from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
-//import HotspotList from '../hotspot/hotspotList';
-
 import { withUpdatingTarget } from './withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
+import { withSessionManagement } from '../session/withSessionManagement';
+//import HotspotList from '../hotspot/hotspotList';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -96,4 +96,4 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   );
 });
 
-export default withUpdatingTarget(withLoadingProtein(Preview));
+export default withSessionManagement(withUpdatingTarget(withLoadingProtein(Preview)));

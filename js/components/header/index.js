@@ -28,7 +28,6 @@ import {
   SupervisorAccount,
   Menu as MenuIcon
 } from '@material-ui/icons';
-import SessionManagement from '../session/sessionManagement';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
 import { URLS } from '../routes/constants';
@@ -76,10 +75,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default memo(
-  forwardRef(({ children, setHeaderHeight, headerHeight = 0 }, ref) => {
+  forwardRef(({ headerHeight = 0, setHeaderHeight }, ref) => {
     let history = useHistory();
     const classes = useStyles();
-    const { isLoading } = useContext(HeaderContext);
+    const { isLoading, headerButtons } = useContext(HeaderContext);
     const disableUserInteraction = useDisableUserInteraction();
 
     const [error, setError] = useState();
@@ -210,8 +209,9 @@ export default memo(
             </Grid>
             <Grid item>
               <ButtonGroup variant="text" size="small">
-                <SessionManagement />
+                {headerButtons && headerButtons.map(item => item)}
                 <Button
+                  key="menu"
                   onClick={() => {
                     setOpenMenu(true);
                   }}
