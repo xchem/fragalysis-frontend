@@ -9,7 +9,7 @@ import FileSaver from 'file-saver';
 import { api } from '../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
 
-const DownloadPdb = memo(({ targetOn, targetOnName }) => {
+const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   const [downloading, setDownloading] = useState(false);
 
   const handlePdbDownload = async () => {
@@ -55,19 +55,19 @@ const DownloadPdb = memo(({ targetOn, targetOnName }) => {
 
   if (targetOnName === undefined) {
     return (
-      <Button color="primary" disabled startIcon={<Loop />}>
+      <Button key={key} color="primary" disabled startIcon={<Loop />}>
         Loading...
       </Button>
     );
   } else if (downloading === true) {
     return (
-      <Button color="primary" disabled startIcon={<CloudDownload />}>
+      <Button key={key} color="primary" disabled startIcon={<CloudDownload />}>
         Downloading...
       </Button>
     );
   } else {
     return (
-      <Button color="primary" onClick={handlePdbDownload} startIcon={<CloudDownload />}>
+      <Button key={key} color="primary" onClick={handlePdbDownload} startIcon={<CloudDownload />}>
         Download {targetOnName.toString()} structures
       </Button>
     );
