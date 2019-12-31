@@ -5,7 +5,7 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/apiActions';
-import * as listType from '../components/listTypes';
+import * as listType from '../constants/listTypes';
 import { getUrl, loadFromServer } from '../utils/genericList';
 
 export const withLoadingEventList = WrappedComponent => {

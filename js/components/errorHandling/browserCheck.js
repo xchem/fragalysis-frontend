@@ -3,10 +3,10 @@
  */
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import Modal from './common/Modal';
+import Modal from '../common/Modal';
 import { Button } from '@material-ui/core';
 
-const BrowserBomb = memo(props => {
+export const BrowserCheck = memo(props => {
   const [currentBrowser, setCurrentBrowser] = useState();
   const [notSupported, setNotSupported] = useState(false);
 
@@ -46,5 +46,3 @@ const BrowserBomb = memo(props => {
     </Modal>
   );
 });
-
-export { BrowserBomb };

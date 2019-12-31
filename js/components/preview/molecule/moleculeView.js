@@ -5,24 +5,24 @@
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
-import * as selectionActions from '../../reducers/selection/selectionActions';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
-import { api } from '../../utils/api';
-import { VIEWS } from '../../constants/constants';
-import { loadFromServer } from '../../utils/genericView';
-import { NglContext } from '../nglView/nglProvider';
-import { useDisableUserInteraction } from '../useEnableUserInteracion';
+import { api } from '../../../utils/api';
+import { VIEWS } from '../../../constants/constants';
+import { loadFromServer } from '../../../utils/genericView';
+import { NglContext } from '../../nglView/nglProvider';
+import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import {
   generateMoleculeObject,
   generateArrowObject,
   generateCylinderObject,
   generateMoleculeId,
   generateComplexObject
-} from '../nglView/generatingObjects';
-import { ComputeSize } from '../../utils/computeSize';
+} from '../../nglView/generatingObjects';
+import { ComputeSize } from '../../../utils/computeSize';
 
 const containerHeight = 76;
 

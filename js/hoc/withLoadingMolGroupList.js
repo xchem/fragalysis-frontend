@@ -10,7 +10,7 @@ import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
 import { NglContext } from '../components/nglView/nglProvider';
 import { setCountOfRemainingMoleculeGroups, decrementCountOfRemainingMoleculeGroups } from '../reducers/ngl/nglActions';
-import { generateSphere } from '../components/molecule/molecules_helpers';
+import { generateSphere } from '../components/preview/molecule/molecules_helpers';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {

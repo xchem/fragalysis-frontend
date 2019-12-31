@@ -4,7 +4,7 @@ import * as apiActions from '../../reducers/api/apiActions';
 import { HeaderContext } from '../header/headerContext';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { api } from '../../utils/api';
-import HandleUnrecognisedTarget from '../handleUnrecognisedTarget';
+import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(

@@ -4,16 +4,16 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../reducers/ngl/nglActions';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
 import SummaryCmpd from './SummaryCmpd';
 import FileSaver from 'file-saver';
-import { DockingScripts } from '../utils/script_utils';
-import { api } from '../utils/api';
-import { Button } from './common/Inputs/Button';
-import { Panel } from './common/Surfaces/Panel';
+import { DockingScripts } from '../../../utils/script_utils';
+import { api } from '../../../utils/api';
+import { Button } from '../../common/Inputs/Button';
+import { Panel } from '../../common/Surfaces/Panel';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
-import { ComputeSize } from '../utils/computeSize';
+import { ComputeSize } from '../../../utils/computeSize';
 
 const useStyles = makeStyles(theme => ({
   widthFitContent: {

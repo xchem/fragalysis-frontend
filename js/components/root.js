@@ -8,7 +8,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { Provider } from 'react-redux';
 import Routes from './routes/Routes';
 import { BrowserRouter } from 'react-router-dom';
-import { saveStore } from './globalStore';
+import { saveStore } from './helpers/globalStore';
 import { hot, AppContainer } from 'react-hot-loader';
 import thunkMiddleware from 'redux-thunk';
 //import { createLogger } from 'redux-logger';

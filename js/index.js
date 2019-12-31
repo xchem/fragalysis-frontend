@@ -7,7 +7,7 @@ import { DJANGO_CONTEXT } from './utils/djangoContext';
 import { init } from '@sentry/browser';
 // Setup log rocket logging
 import LogRocket from 'logrocket';
-import { ErrorBoundary } from './components/errorBoundary';
+import { ErrorBoundary } from './components/errorHandling/errorBoundary';
 LogRocket.init('eoalzb/fragalysis');
 // This is the log rocket setup
 

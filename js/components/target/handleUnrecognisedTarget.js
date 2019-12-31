@@ -4,13 +4,13 @@
 
 import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
-import { Button } from './common';
-import * as apiActions from '../reducers/api/apiActions';
+import { Button } from '../common';
+import * as apiActions from '../../reducers/api/apiActions';
 import TargetList from './targetList';
-import { ErrorReport } from './header/errorReport';
-import { Modal } from './common/Modal';
-import { URLS } from './routes/constants';
-import { DJANGO_CONTEXT } from '../utils/djangoContext';
+import { ErrorReport } from '../header/errorReport';
+import { Modal } from '../common/Modal';
+import { URLS } from '../routes/constants';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list }) => {
   const closeModal = () => {

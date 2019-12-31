@@ -2,10 +2,7 @@
  * Created by ricgillams on 29/10/2018.
  */
 import { Grid, makeStyles, Checkbox, ListItemSecondaryAction, List, ListItem, ListItemText } from '@material-ui/core';
-import React, { memo, useState } from 'react';
-// import * as listType from './listTypes';
-
-// import { getUrl, loadFromServer } from '../utils/genericList';
+import React, { memo } from 'react';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,25 +23,19 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ProposalList = memo(() => {
+export const Management = memo(() => {
   const classes = useStyles();
-  //  const [state, setState] = useState();
-  //  const list_type = listType.SESSIONS;
-  //  const oldUrl = useRef('');
-  //  const setOldUrl = url => {
-  //    oldUrl.current = url;
-  //  };
-  const [proposalList, setProposalList] = useState([
+
+  const proposalList = [
     { id: 'LB-test1', owner: 'qwu18777' },
     { id: 'LB-test2', owner: 'qwu18777' },
     { id: 'LB-test3', owner: 'qwu18777' }
-  ]);
-  const [targetList, setTargetList] = useState([
+  ];
+  const targetList = [
     { id: 'target-test1', proposalId: 'LB-test1', owner: 'qwu18777' },
     { id: 'target-test2', proposalId: 'LB-test1', owner: 'qwu18777' },
     { id: 'target-test3', proposalId: 'LB-test2', owner: 'qwu18777' }
-  ]);
-  //  const [checkedProposals, setCheckedProposals] = useState([]);
+  ];
 
   const render_method = (data, type) => {
     if (type === 'proposalList') {
@@ -71,28 +62,6 @@ const ProposalList = memo(() => {
     }
   };
 
-  /*
-  useEffect(() => {
-    let onCancel = () => {};
-    loadFromServer({
-      url: getUrl({ list_type }),
-      setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl.current,
-      list_type,
-      cancel: onCancel
-    }).catch(error => {
-      setState(() => {
-        throw error;
-      });
-    });
-    return () => {
-      onCancel();
-    };
-  }, [list_type]);
-*/
-  // const userPk = DJANGO_CONTEXT["pk"]
-  // const username = DJANGO_CONTEXT["username"]
-  // const {pathname} = this.props.location;
   if (proposalList) {
     return (
       <Grid container direction="column" justify="space-between" className={classes.root}>
@@ -152,5 +121,3 @@ const ProposalList = memo(() => {
     return null;
   }
 });
-
-export default ProposalList;

@@ -1,15 +1,15 @@
 import React, { memo, Fragment, useContext } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/apiActions';
+import * as apiActions from '../../../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
 import { generateSphere } from '../molecule/molecules_helpers';
-import { VIEWS } from '../../constants/constants';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
-import { useDisableUserInteraction } from '../useEnableUserInteracion';
-import * as selectionActions from '../../reducers/selection/selectionActions';
-import { NglContext } from '../nglView/nglProvider';
-import { OBJECT_TYPE } from '../nglView/constants';
+import { VIEWS } from '../../../constants/constants';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+import * as selectionActions from '../../../reducers/selection/selectionActions';
+import { NglContext } from '../../nglView/nglProvider';
+import { OBJECT_TYPE } from '../../nglView/constants';
 import { clearAfterDeselectingMoleculeGroup } from './molGroupHelpers';
 
 const useStyles = makeStyles(theme => ({
