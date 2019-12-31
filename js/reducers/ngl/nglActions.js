@@ -126,7 +126,7 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
     case SCENES.sessionScene:
       dispatch({
         type: CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE,
-        payload: sessionData
+        payload: currentScene
       });
       break;
   }

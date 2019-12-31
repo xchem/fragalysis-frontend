@@ -136,7 +136,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
       console.log(' RESET_NGL_VIEW_TO_SESSION_SCENE');
-      // load state from default scene and replace current state by these data
       return Object.assign({}, state, action.payload);
 
     case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
