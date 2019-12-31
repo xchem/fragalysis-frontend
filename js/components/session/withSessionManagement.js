@@ -41,7 +41,6 @@ export const withSessionManagement = WrappedComponent => {
       setVectorList,
       setBondColorMap,
       setTargetUnrecognised,
-      setLoadingState,
       saveCurrentStateAsSessionScene,
       reloadNglViewFromScene,
       ...rest
@@ -202,9 +201,6 @@ export const withSessionManagement = WrappedComponent => {
             }
           });
 
-          if (targetUnrecognised === true) {
-            setLoadingState(false);
-          }
           if (canCheckTarget(pathname) === false) {
             setTargetUnrecognised(targetUnrecognised);
           }
@@ -212,7 +208,7 @@ export const withSessionManagement = WrappedComponent => {
             reloadSession(loadedSession);
           }
         }
-      }, [pathname, reloadSession, setLoadingState, setTargetUnrecognised, targetIdList, loadedSession]);
+      }, [pathname, reloadSession, setTargetUnrecognised, targetIdList, loadedSession]);
 
       const generateNextUuid = useCallback(() => {
         if (nextUuid === '') {
@@ -441,7 +437,6 @@ export const withSessionManagement = WrappedComponent => {
     setVectorList: selectionActions.setVectorList,
     setBondColorMap: selectionActions.setBondColorMap,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
-    setLoadingState: nglLoadActions.setLoadingState,
     saveCurrentStateAsSessionScene: nglLoadActions.saveCurrentStateAsSessionScene,
     reloadNglViewFromScene: nglLoadActions.reloadNglViewFromScene
   };
