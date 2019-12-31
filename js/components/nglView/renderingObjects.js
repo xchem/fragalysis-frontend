@@ -50,8 +50,8 @@ const renderComplex = (ol, representations) => {
   let colour = ol[5];
   // Set the object name
   let comp = stage.addComponentFromObject(cs);
-
-  const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
+  // duplication of protein
+  // const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
 
   const repr2 = createRepresentationStructure(MOL_REPRESENTATION.contact, {
     masterModelIndex: 0,
@@ -66,7 +66,7 @@ const renderComplex = (ol, representations) => {
     sele: '/0'
   });
 
-  const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3]);
+  const reprArray = representations || createRepresentationsArray([repr2, repr3]);
 
   comp.autoView('ligand');
   comp.stage.setFocus(focus_let_temp);
