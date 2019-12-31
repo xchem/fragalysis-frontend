@@ -3,14 +3,14 @@
  */
 
 import { Grid } from '@material-ui/core';
-import { Paper } from '../common/Surfaces/Paper';
+import { Paper } from '../../common/Surfaces/Paper';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
 import { Switch } from '@material-ui/core';
-import { OBJECT_TYPE } from '../nglView/constants';
-import { VIEWS } from '../../constants/constants';
-import { api, METHOD } from '../../utils/api';
+import { OBJECT_TYPE } from '../../nglView/constants';
+import { VIEWS } from '../../../constants/constants';
+import { api, METHOD } from '../../../utils/api';
 
 class HotspotView extends React.PureComponent {
   constructor(props) {
