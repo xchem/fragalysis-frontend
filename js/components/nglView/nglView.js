@@ -196,7 +196,7 @@ const NglView = memo(
         }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [div_id, handleResize, registerNglView, unregisterNglView, handleOrientationChanged]);
+    }, [div_id, handleResize, registerNglView, unregisterNglView, handleOrientationChanged, removeAllNglComponents]);
     // End of Initialization NGL View component
 
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;

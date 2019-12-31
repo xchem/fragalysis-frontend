@@ -6,7 +6,7 @@ import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 import FileSaver from 'file-saver';
-import { api } from '../../utils/api';
+import { api } from '../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
 
 const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
@@ -68,7 +68,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   } else {
     return (
       <Button key={key} color="primary" onClick={handlePdbDownload} startIcon={<CloudDownload />}>
-        Download structures
+        Download {targetOnName.toString()} structures
       </Button>
     );
   }
@@ -76,8 +76,8 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
 
 function mapStateToProps(state) {
   return {
-    targetOn: state.apiReducers.target_on,
-    targetOnName: state.apiReducers.target_on_name
+    targetOn: state.apiReducers.present.target_on,
+    targetOnName: state.apiReducers.present.target_on_name
   };
 }
 

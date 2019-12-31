@@ -2,17 +2,18 @@ import React, { memo, useContext } from 'react';
 import { Box, IconButton, makeStyles, Snackbar, useTheme } from '@material-ui/core';
 import Header from '../header';
 import { Route, Switch } from 'react-router-dom';
-import { Management } from '../management/management';
-import Tindspect from '../tindspect/Tindspect';
+import TargetManagement from '../targetManagementHolder';
+import Tindspect from '../Tindspect';
 import Landing from '../landing/Landing';
 import Preview from '../preview/Preview';
-import Funders from '../funders/fundersHolder';
-import { withLoadingTargetList } from '../target/withLoadingTargetIdList';
-import { BrowserCheck } from '../errorHandling/browserCheck';
+import Sessions from '../sessionHolder';
+import Funders from '../fundersHolder';
+import { withLoadingTargetList } from './withLoadingTargetIdList';
+import { BrowserBomb } from '../browserBombModal';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
+import { Temp } from '../Temp';
 import { Close } from '@material-ui/icons';
-import SessionList from '../session/sessionList';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -40,15 +41,15 @@ const Routes = memo(() => {
       <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
-          <Route exact path={URLS.management} component={Management} />
+          <Route exact path="/viewer/react/targetmanagement" component={TargetManagement} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
-          <Route exact path={URLS.landing} component={Landing} />
+          <Route exact path="/viewer/react/landing" component={Landing} />
           <Route
             exact
             path="/viewer/react/preview/target/:target"
             render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
           />
-          <Route exact path={URLS.sessions} component={SessionList} />
+          <Route exact path="/viewer/react/sessions" component={Sessions} />
           <Route
             path={`${URLS.fragglebox}:uuid`}
             render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
@@ -57,10 +58,11 @@ const Routes = memo(() => {
             path={`${URLS.snapshot}:snapshotUuid`}
             render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
           />
-          <Route exact path={URLS.funders} component={Funders} />
+          <Route exact path="/viewer/react/funders" component={Funders} />
+          <Route exact path="/viewer/react/temp" component={Temp} />
         </Switch>
       </Box>
-      <BrowserCheck />
+      <BrowserBomb />
       {/* SnackBar is populated by Header Provider */}
       <Snackbar
         anchorOrigin={{
@@ -68,18 +70,17 @@ const Routes = memo(() => {
           horizontal: 'right'
         }}
         open={snackBarTitle !== null}
-        autoHideDuration={60000}
         onClose={handleCloseSnackbar}
         ContentProps={{
           'aria-describedby': 'message-id'
         }}
         message={<span id="message-id">{snackBarTitle}</span>}
-        action={
+        action={[
           <IconButton key="close" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
             <Close />
           </IconButton>
-        }
-      ></Snackbar>
+        ]}
+      />
     </Box>
   );
 });
