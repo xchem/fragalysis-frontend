@@ -3,8 +3,8 @@
  */
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/actions';
-import { deleteObject, loadObject } from '../../reducers/ngl/dispatchActions';
+import * as apiActions from '../../reducers/api/apiActions';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
 import { PREFIX, VIEWS } from '../../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../../utils/genericSlider';
 import { OBJECT_TYPE } from '../nglView/constants';
@@ -106,13 +106,13 @@ const EventSlider = memo(({ object_list, object_on, setObjectOn, deleteObject, l
 
 function mapStateToProps(state) {
   return {
-    object_list: state.apiReducers.pandda_event_list,
-    object_on: state.apiReducers.pandda_event_on
+    object_list: state.apiReducers.present.pandda_event_list,
+    object_on: state.apiReducers.present.pandda_event_on
   };
 }
 const mapDispatchToProps = {
   setObjectOn: apiActions.setPanddaEventOn,
-  deleteObject,
-  loadObject
+  deleteObject: nglLoadActions.deleteObject,
+  loadObject: nglLoadActions.loadObject
 };
 export default connect(mapStateToProps, mapDispatchToProps)(EventSlider);

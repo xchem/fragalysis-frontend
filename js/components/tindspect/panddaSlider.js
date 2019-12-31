@@ -3,8 +3,8 @@
  */
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/actions';
-import { deleteObject } from '../../reducers/ngl/dispatchActions';
+import * as apiActions from '../../reducers/api/apiActions';
+import * as nglActions from '../../reducers/ngl/nglActions';
 import { PREFIX, VIEWS } from '../../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../../utils/genericSlider';
 import { OBJECT_TYPE } from '../nglView/constants';
@@ -98,14 +98,14 @@ const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, delet
 
 function mapStateToProps(state) {
   return {
-    event_on: state.apiReducers.pandda_event_on,
-    event_list: state.apiReducers.pandda_event_list,
-    object_list: state.apiReducers.pandda_site_list,
-    object_on: state.apiReducers.pandda_site_on
+    event_on: state.apiReducers.present.pandda_event_on,
+    event_list: state.apiReducers.present.pandda_event_list,
+    object_list: state.apiReducers.present.pandda_site_list,
+    object_on: state.apiReducers.present.pandda_site_on
   };
 }
 const mapDispatchToProps = {
-  deleteObject,
+  deleteObject: nglActions.deleteObject,
   setObjectOn: apiActions.setPanddaSiteOn,
   setEventOn: apiActions.setPanddaEventOn
 };

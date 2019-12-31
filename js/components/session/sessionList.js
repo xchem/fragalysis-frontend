@@ -5,7 +5,7 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
-import * as listType from '../listTypes';
+import * as listType from '../../constants/listTypes';
 import { Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import { List, ListItem, Button, TextField, Panel } from '../common';
@@ -215,7 +215,6 @@ const SessionList = memo(
         }
       } else {
         return null;
-        x;
       }
     }
   }

@@ -2,40 +2,45 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
+import React, { memo, useEffect, useState, useRef, useContext } from 'react';
+import { connect } from 'react-redux';
+import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
+import { api } from '../../../utils/api';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
-import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLigand } from './redux/dispatchActions';
-import { base_url } from '../../routes/constants';
-import { moleculeProperty } from './helperConstants';
-import { api } from '../../../utils/api';
-import { generateObjectList } from '../../session/helpers';
-import { getTotalCountOfCompounds } from './molecules_helpers';
+import {
+  generateMoleculeObject,
+  generateArrowObject,
+  generateCylinderObject,
+  generateMoleculeId,
+  generateComplexObject
+} from '../../nglView/generatingObjects';
+import { ComputeSize } from '../../../utils/computeSize';
+
+const containerHeight = 76;
 
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: 54
+    height: containerHeight
   },
-  contButtonsMargin: {
-    margin: theme.spacing(1) / 2
+  contButtonsDimensions: {
+    width: theme.spacing(2),
+    height: theme.spacing(2)
   },
   contColButton: {
-    minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 8,
-    paddingTop: theme.spacing(1) / 8,
+    padding: 0,
+    minWidth: 'unset',
     borderRadius: 0,
-    borderColor: theme.palette.primary.main,
+    borderColor: 'white',
     backgroundColor: theme.palette.primary.light,
     '&:hover': {
       backgroundColor: theme.palette.primary.main,
@@ -48,69 +53,39 @@ const useStyles = makeStyles(theme => ({
   },
   contColButtonSelected: {
     backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
-    }
-  },
-  contColButtonHalfSelected: {
-    backgroundColor: theme.palette.primary.semidark,
-    color: theme.palette.primary.contrastText,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
-    }
-  },
-  contColButtonHalfSelected: {
-    backgroundColor: theme.palette.primary.semidark
+    color: theme.palette.primary.contrastText
   },
   detailsCol: {
-    border: 'solid 1px',
-    borderColor: theme.palette.background.divider,
-    borderStyle: 'solid none solid solid'
+    border: 'solid 1px #DEDEDE'
   },
-  image: {
-    border: 'solid 1px',
-    borderColor: theme.palette.background.divider,
-    borderStyle: 'solid solid solid none'
+  statusCol: {
+    width: 'fit-content',
+    height: '100%',
+    paddingLeft: 2
   },
-  imageMargin: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1)
+  propsCol: {
+    fontSize: '10px',
+    width: 183
   },
-  rightBorder: {
-    borderRight: '1px solid',
-    borderRightColor: theme.palette.background.divider,
-    fontWeight: 'bold',
-    fontSize: 11,
+  fitContentWidth: {
+    width: 'fit-content'
+  },
+  fitContentWidthAndPadding: {
+    width: 'fit-content',
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
-    width: 25,
-    textAlign: 'center',
-    '&:last-child': {
-      borderRight: 'none',
-      width: 32
-    }
+    paddingTop: theme.spacing(1) / 4,
+    paddingBottom: theme.spacing(1) / 4
   },
-  fullHeight: {
-    height: '100%'
+  fitContentHeight: {
+    height: 'fit-content'
   },
-  site: {
-    width: theme.spacing(3),
-    textAlign: 'center',
-    backgroundColor: theme.palette.background.default,
-    border: `solid 1px`,
-    borderColor: theme.palette.background.divider
-  },
-  qualityLabel: {
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4
+  imageMargin: {
+    marginTop: -theme.spacing(2)
   }
 }));
 
-export const colourList = [
+const colourList = [
   '#EFCDB8',
   '#CC6666',
   '#FF6E4A',
@@ -130,334 +105,496 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
-  // const [countOfVectors, setCountOfVectors] = useState('-');
-  // const [cmpds, setCmpds] = useState('-');
-  const selectedAll = useRef(false);
-  const currentID = (data && data.id) || undefined;
-  const classes = useStyles();
-  const key = 'mol_image';
+const MoleculeView = memo(
+  ({
+    height,
+    width,
+    data,
+    to_query,
+    vector_list,
+    complexList,
+    fragmentDisplayList,
+    vectorOnList,
+    getFullGraph,
+    setVectorList,
+    setBondColorMap,
+    selectVector,
+    gotFullGraph,
+    setMol,
+    deleteObject,
+    loadObject,
+    appendComplexList,
+    removeFromComplexList,
+    appendVectorOnList,
+    removeFromVectorOnList,
+    appendFragmentDisplayList,
+    removeFromFragmentDisplayList,
+    incrementCountOfPendingVectorLoadRequests,
+    decrementCountOfPendingVectorLoadRequests,
+    setOrientation
+  }) => {
+    const theme = useTheme();
+    const statusCodeRef = useRef(null);
+    const [statusCodeWidth, setStatusCodeWidth] = useState(0);
 
-  const dispatch = useDispatch();
-  const to_query = useSelector(state => state.selectionReducers.to_query);
-  const complexList = useSelector(state => state.selectionReducers.complexList);
-  const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-  const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
-  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
+    const [state, setState] = useState();
+    const selectedAll = useRef(false);
+    const currentID = (data && data.id) || undefined;
+    const classes = useStyles();
+    const key = 'mol_image';
+    const base_url = window.location.protocol + '//' + window.location.host;
+    const url = new URL(base_url + '/api/molimg/' + data.id + '/');
+    const [img_data, setImg_data] = useState(img_data_init);
 
-  const url = new URL(base_url + '/api/molimg/' + data.id + '/');
-  const [img_data, setImg_data] = useState(img_data_init);
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-  const { getNglView } = useContext(NglContext);
-  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const isLigandOn = (currentID && fragmentDisplayList.has(currentID)) || false;
+    const isComplexOn = (currentID && complexList.has(currentID)) || false;
+    const isVectorOn = (currentID && vectorOnList.has(currentID)) || false;
+    const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
 
-  const isLigandOn = (currentID && fragmentDisplayList.includes(currentID)) || false;
-  const isComplexOn = (currentID && complexList.includes(currentID)) || false;
-  const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
+    const disableUserInteraction = useDisableUserInteraction();
 
-  const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
-  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isComplexOn || isVectorOn);
+    const oldUrl = useRef('');
+    const setOldUrl = url => {
+      oldUrl.current = url;
+    };
+    const refOnCancel = useRef();
+    const getRandomColor = () => colourList[data.id % colourList.length];
+    const colourToggle = getRandomColor();
 
-  const disableUserInteraction = useDisableUserInteraction();
+    const getViewUrl = get_view => {
+      return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
+    };
 
-  const oldUrl = useRef('');
-  const setOldUrl = url => {
-    oldUrl.current = url;
-  };
-  const refOnCancel = useRef();
-  const getRandomColor = () => colourList[data.id % colourList.length];
-  const colourToggle = getRandomColor();
+    /**
+     * Convert the JSON into a list of arrow objects
+     */
+    const generateObjectList = out_data => {
+      const colour = [1, 0, 0];
+      const deletions = out_data.deletions;
+      const additions = out_data.additions;
+      const linkers = out_data.linkers;
+      const rings = out_data.ring;
+      let outList = [];
 
-  const getCalculatedProps = useCallback(
-    () => [
-      { name: moleculeProperty.mw, value: data.mw },
-      { name: moleculeProperty.logP, value: data.logp },
-      { name: moleculeProperty.tpsa, value: data.tpsa },
-      { name: moleculeProperty.ha, value: data.ha },
-      { name: moleculeProperty.hacc, value: data.hacc },
-      { name: moleculeProperty.hdon, value: data.hdon },
-      { name: moleculeProperty.rots, value: data.rots },
-      { name: moleculeProperty.rings, value: data.rings },
-      { name: moleculeProperty.velec, value: data.velec }
-      //   { name: moleculeProperty.vectors, value: countOfVectors },
-      //   { name: moleculeProperty.cpd, value: cmpds }
-    ],
-    [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
-  );
+      for (let d in deletions) {
+        outList.push(generateArrowObject(data, deletions[d][0], deletions[d][1], d, colour));
+      }
 
-  // componentDidMount
-  useEffect(() => {
-    if (refOnCancel.current === undefined) {
-      let onCancel = () => {};
-      Promise.all([
+      for (let a in additions) {
+        outList.push(generateArrowObject(data, additions[a][0], additions[a][1], a, colour));
+      }
+
+      for (let l in linkers) {
+        outList.push(generateCylinderObject(data, linkers[l][0], linkers[l][1], l, colour));
+      }
+
+      for (let r in rings) {
+        outList.push(generateCylinderObject(data, rings[r][0], rings[r][2], r, colour));
+      }
+
+      return outList;
+    };
+
+    const generateBondColorMap = inputDict => {
+      var out_d = {};
+      for (let keyItem in inputDict) {
+        for (let vector in inputDict[keyItem]) {
+          const vect = vector.split('_')[0];
+          out_d[vect] = inputDict[keyItem][vector];
+        }
+      }
+      return out_d;
+    };
+
+    const getCalculatedProps = () => [
+      { name: 'MW', value: data.mw },
+      { name: 'logP', value: data.logp },
+      { name: 'TPSA', value: data.tpsa },
+      { name: 'HA', value: data.ha },
+      { name: 'Hacc', value: data.hacc },
+      { name: 'Hdon', value: data.hdon },
+      { name: 'Rots', value: data.rots },
+      { name: 'Rings', value: data.rings },
+      { name: 'Velec', value: data.velec },
+      { name: '#cpd', value: '???' }
+    ];
+
+    // componentDidMount
+    useEffect(() => {
+      if (refOnCancel.current === undefined) {
+        let onCancel = () => {};
         loadFromServer({
-          width: imageHeight,
-          height: imageWidth,
+          width,
+          height,
           key,
           old_url: oldUrl.current,
           setImg_data,
           setOld_url: newUrl => setOldUrl(newUrl),
           url,
           cancel: onCancel
-        })
-        /*  api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
-          const vectors = response.data.vectors['3d'];
-          setCountOfVectors(generateObjectList(vectors).length);
-        }),
-        api({ url: `${base_url}/api/graph/${data.id}` }).then(response => {
-          setCmpds(getTotalCountOfCompounds(response.data.graph));
-        })*/
-      ]).catch(error => {
-        throw new Error(error);
+        }).catch(error => {
+          setState(() => {
+            throw error;
+          });
+        });
+        refOnCancel.current = onCancel;
+      }
+      return () => {
+        if (refOnCancel) {
+          refOnCancel.current();
+        }
+      };
+    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
+
+    const svg_image = (
+      <SVGInline
+        component="div"
+        svg={img_data}
+        height="inherit"
+        width="inherit"
+        className={classes.imageMargin}
+        style={{
+          height: `${height}px`,
+          width: `${width}px`,
+          marginTop: `-10px`
+        }}
+      />
+    );
+    // Here add the logic that updates this based on the information
+    // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
+    const selected_style = {
+      backgroundColor: colourToggle
+    };
+    const not_selected_style = {};
+    const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
+
+    const addLigand = () => {
+      loadObject(
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+        stage
+      ).finally(() => {
+        const currentOrientation = stage.viewerControls.getOrientation();
+        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
       });
-      refOnCancel.current = onCancel;
-    }
-    return () => {
-      if (refOnCancel) {
-        refOnCancel.current();
+      appendFragmentDisplayList(generateMoleculeId(data));
+    };
+
+    const removeLigand = () => {
+      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage);
+      removeFromFragmentDisplayList(generateMoleculeId(data));
+      selectedAll.current = false;
+    };
+
+    const onLigand = calledFromSelectAll => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        if (isLigandOn === false) {
+          addLigand();
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeLigand();
+      } else if (!calledFromSelectAll) {
+        if (isLigandOn === false) {
+          addLigand();
+        } else {
+          removeLigand();
+        }
       }
     };
-  }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, to_query, url, vectorOnList, imageWidth]);
 
-  const svg_image = (
-    <SVGInline
-      component="div"
-      svg={img_data}
-      className={classes.imageMargin}
-      style={{
-        height: `${imageHeight}px`,
-        width: `${imageWidth}px`
-      }}
-    />
-  );
-  // Here add the logic that updates this based on the information
-  // const refinement = <Label bsStyle="success">{"Refined"}</Label>;
-  const selected_style = {
-    backgroundColor: colourToggle
-  };
-  const not_selected_style = {};
-  const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
+    const removeComplex = () => {
+      deleteObject(
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+        stage
+      );
+      removeFromComplexList(generateMoleculeId(data));
+      selectedAll.current = false;
+    };
 
-  const addNewLigand = () => {
-    dispatch(addLigand(stage, data, colourToggle));
-  };
+    const addComplex = () => {
+      loadObject(
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+        stage
+      ).finally(() => {
+        const currentOrientation = stage.viewerControls.getOrientation();
+        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
+      });
+      appendComplexList(generateMoleculeId(data));
+    };
 
-  const removeSelectedLigand = () => {
-    dispatch(removeLigand(stage, data));
-    selectedAll.current = false;
-  };
-
-  const onLigand = calledFromSelectAll => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      if (isLigandOn === false) {
-        addNewLigand();
+    const onComplex = calledFromSelectAll => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        if (isComplexOn === false) {
+          addComplex();
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeComplex();
+      } else if (!calledFromSelectAll) {
+        if (isComplexOn === false) {
+          addComplex();
+        } else {
+          removeComplex();
+        }
       }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
-      removeSelectedLigand();
-    } else if (!calledFromSelectAll) {
-      if (isLigandOn === false) {
-        addNewLigand();
-      } else {
-        removeSelectedLigand();
+    };
+
+    const handleVector = json => {
+      var objList = generateObjectList(json['3d']);
+      setVectorList(objList);
+      // loading vector objects
+      objList.map(item => loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      var vectorBondColorMap = generateBondColorMap(json['indices']);
+      setBondColorMap(vectorBondColorMap);
+    };
+
+    const removeVector = () => {
+      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      setMol('');
+      removeFromVectorOnList(generateMoleculeId(data));
+      selectedAll.current = false;
+    };
+
+    const addVector = () => {
+      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      // Set this
+      getFullGraph(data);
+      // Do the query
+      incrementCountOfPendingVectorLoadRequests();
+      Promise.all([
+        api({ url: getViewUrl('vector') })
+          .then(response => handleVector(response.data['vectors']))
+          .catch(error => {
+            setState(() => {
+              throw error;
+            });
+          }),
+        api({ url: getViewUrl('graph') })
+          .then(response => gotFullGraph(response.data['graph']))
+          .catch(error => {
+            setState(() => {
+              throw error;
+            });
+          })
+      ]).finally(() => {
+        decrementCountOfPendingVectorLoadRequests();
+        const currentOrientation = stage.viewerControls.getOrientation();
+        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
+      });
+      appendVectorOnList(generateMoleculeId(data));
+      selectVector(undefined);
+    };
+
+    const onVector = calledFromSelectAll => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        if (isVectorOn === false) {
+          addVector();
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeVector();
+      } else if (!calledFromSelectAll) {
+        if (isVectorOn === false) {
+          addVector();
+        } else {
+          removeVector();
+        }
       }
-    }
-  };
+    };
 
-  const removeSelectedComplex = () => {
-    dispatch(removeComplex(stage, data, colourToggle));
-    selectedAll.current = false;
-  };
-
-  const addNewComplex = () => {
-    dispatch(addComplex(stage, data, colourToggle));
-  };
-
-  const onComplex = calledFromSelectAll => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      if (isComplexOn === false) {
-        addNewComplex();
-      }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
-      removeSelectedComplex();
-    } else if (!calledFromSelectAll) {
-      if (isComplexOn === false) {
-        addNewComplex();
-      } else {
-        removeSelectedComplex();
-      }
-    }
-  };
-
-  const removeSelectedVector = () => {
-    dispatch(removeVector(stage, data));
-    selectedAll.current = false;
-  };
-
-  const addNewVector = () => {
-    dispatch(addVector(stage, data)).catch(error => {
-      throw new Error(error);
-    });
-  };
-
-  const onVector = calledFromSelectAll => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      if (isVectorOn === false) {
-        addNewVector();
-      }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
-      removeSelectedVector();
-    } else if (!calledFromSelectAll) {
-      if (isVectorOn === false) {
-        addNewVector();
-      } else {
-        removeSelectedVector();
-      }
-    }
-  };
-
-  return (
-    <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
-      {/* Site number */}
-      <Grid item container justify="center" direction="column" className={classes.site}>
-        <Grid item>
-          <Typography variant="subtitle2">{data.site}</Typography>
-        </Grid>
-      </Grid>
-
-      <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
-        {/* Title label */}
-        <Grid item>
-          <Typography variant="button" noWrap>
-            {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
-          </Typography>
-        </Grid>
-        {/* Status code */}
-        <Grid item>
-          <Grid container direction="row" justify="space-between" alignItems="center">
-            {Object.values(molStatusTypes).map(type => (
-              <Grid item key={`molecule-status-${type}`} className={classes.qualityLabel}>
-                <MoleculeStatusView type={type} data={data} />
-              </Grid>
-            ))}
+    return (
+      <Grid container justify="flex-start" direction="row" className={classes.container} wrap="nowrap">
+        {/* Site number */}
+        <Grid item container justify="center" direction="column" className={classes.fitContentWidth}>
+          <Grid item>
+            <Typography variant="h4">{data.site}</Typography>
           </Grid>
         </Grid>
 
         {/* Control Buttons A, L, C, V */}
-        <Grid item>
-          <Grid
-            container
-            direction="row"
-            justify="flex-start"
-            alignItems="center"
-            wrap="nowrap"
-            className={classes.contButtonsMargin}
-          >
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(
-                  classes.contColButton,
-                  {
-                    [classes.contColButtonSelected]: hasAllValuesOn
-                  },
-                  {
-                    [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                  }
-                )}
-                onClick={() => {
-                  // always deselect all if are selected only some of options
-                  selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+        <Grid
+          item
+          container
+          direction="column"
+          justify="flex-start"
+          alignItems="center"
+          className={classes.fitContentWidth}
+        >
+          <Grid item className={classes.contButtonsDimensions}>
+            <Button
+              variant="outlined"
+              fullWidth
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: hasAllValuesOn
+              })}
+              onClick={() => {
+                selectedAll.current = !selectedAll.current;
 
-                  onLigand(true);
-                  onComplex(true);
-                  onVector(true);
-                }}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">A</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isLigandOn
-                })}
-                onClick={() => onLigand()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">L</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isComplexOn
-                })}
-                onClick={() => onComplex()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">C</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isVectorOn
-                })}
-                onClick={() => onVector()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">V</Typography>
-              </Button>
-            </Grid>
+                onLigand(true);
+                onComplex(true);
+                onVector(true);
+              }}
+              disabled={disableUserInteraction}
+            >
+              <Typography variant="caption">A</Typography>
+            </Button>
+          </Grid>
+          <Grid item className={classes.contButtonsDimensions}>
+            <Button
+              variant="outlined"
+              fullWidth
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isLigandOn
+              })}
+              onClick={() => onLigand()}
+              disabled={disableUserInteraction}
+            >
+              <Typography variant="caption">L</Typography>
+            </Button>
+          </Grid>
+          <Grid item className={classes.contButtonsDimensions}>
+            <Button
+              variant="outlined"
+              fullWidth
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isComplexOn
+              })}
+              onClick={() => onComplex()}
+              disabled={disableUserInteraction}
+            >
+              <Typography variant="caption">C</Typography>
+            </Button>
+          </Grid>
+          <Grid item className={classes.contButtonsDimensions}>
+            <Button
+              variant="outlined"
+              fullWidth
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isVectorOn
+              })}
+              onClick={() => onVector()}
+              disabled={disableUserInteraction}
+            >
+              <Typography variant="caption">V</Typography>
+            </Button>
           </Grid>
         </Grid>
-        <Grid item xs={12}>
-          {/* Molecule properties */}
+        <Grid item container className={classes.detailsCol} wrap="nowrap" justify="space-between">
+          {/* Status code */}
           <Grid
             item
             container
-            justify="flex-start"
-            alignItems="flex-end"
-            direction="row"
-            wrap="nowrap"
-            className={classes.fullHeight}
+            direction="column"
+            justify="space-between"
+            className={classes.statusCol}
+            ref={statusCodeRef}
           >
-            {getCalculatedProps().map(item => (
-              <Tooltip title={item.name} key={item.name}>
-                <Grid item className={classes.rightBorder}>
-                  {item.name === moleculeProperty.mw && Math.round(item.value)}
-                  {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
-                  {item.name === moleculeProperty.tpsa && Math.round(item.value)}
-                  {item.name !== moleculeProperty.mw &&
-                    item.name !== moleculeProperty.logP &&
-                    item.name !== moleculeProperty.tpsa &&
-                    item.value}
-                </Grid>
-              </Tooltip>
-            ))}
+            <ComputeSize componentRef={statusCodeRef.current} width={statusCodeWidth} setWidth={setStatusCodeWidth}>
+              <Grid item>
+                <Typography variant="subtitle2" noWrap>
+                  {data.protein_code}
+                </Typography>
+              </Grid>
+              <Grid item container justify="space-around" direction="row">
+                {Object.values(molStatusTypes).map(type => (
+                  <Grid item key={`molecule-status-${type}`} className={classes.fitContentHeight}>
+                    <MoleculeStatusView type={type} data={data} />
+                  </Grid>
+                ))}
+              </Grid>
+            </ComputeSize>
+          </Grid>
+
+          {/* Image */}
+          <Grid
+            item
+            style={{
+              ...current_style,
+              width: `calc(100% - 183px - ${statusCodeWidth}px - ${theme.spacing(1) / 2}px)`,
+              marginLeft: theme.spacing(1) / 2
+            }}
+            container
+            justify="center"
+          >
+            <Grid item>{svg_image}</Grid>
+          </Grid>
+
+          {/* Molecule preperties */}
+          <Grid item container className={classes.propsCol} direction="row" justify="center">
+            <Grid item xs={12} container direction="row" justify="flex-end">
+              {getCalculatedProps()
+                .slice(0, 5)
+                .map(p => (
+                  <Grid
+                    item
+                    container
+                    justify="space-around"
+                    alignItems="center"
+                    direction="column"
+                    key={`calc-prop-${p.name}`}
+                    className={classes.fitContentWidthAndPadding}
+                  >
+                    <Grid item>
+                      <Typography variant="subtitle2">{p.name}</Typography>
+                    </Grid>
+                    <Grid item>{p.value}</Grid>
+                  </Grid>
+                ))}
+            </Grid>
+            <Grid item xs={12} container direction="row" justify="flex-end">
+              {getCalculatedProps()
+                .slice(5)
+                .map(p => (
+                  <Grid
+                    item
+                    container
+                    justify="space-around"
+                    alignItems="center"
+                    direction="column"
+                    key={`calc-prop-${p.name}`}
+                    className={classes.fitContentWidthAndPadding}
+                  >
+                    <Grid item>
+                      <Typography variant="subtitle2">{p.name}</Typography>
+                    </Grid>
+                    <Grid item>{p.value}</Grid>
+                  </Grid>
+                ))}
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
-      {/* Image */}
-      <Grid
-        item
-        style={{
-          ...current_style,
-          width: imageWidth
-        }}
-        container
-        justify="center"
-        className={classes.image}
-      >
-        <Grid item>{svg_image}</Grid>
-      </Grid>
-    </Grid>
-  );
-});
+    );
+  }
+);
+function mapStateToProps(state) {
+  return {
+    to_query: state.selectionReducers.present.to_query,
+    vector_list: state.selectionReducers.present.vector_list,
+    complexList: state.selectionReducers.present.complexList,
+    fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
+    vectorOnList: state.selectionReducers.present.vectorOnList
+  };
+}
+const mapDispatchToProps = {
+  getFullGraph: selectionActions.getFullGraph,
+  setVectorList: selectionActions.setVectorList,
+  setBondColorMap: selectionActions.setBondColorMap,
+  selectVector: selectionActions.selectVector,
+  gotFullGraph: selectionActions.gotFullGraph,
+  setMol: selectionActions.setMol,
+  deleteObject: nglLoadActions.deleteObject,
+  loadObject: nglLoadActions.loadObject,
+  appendComplexList: selectionActions.appendComplexList,
+  removeFromComplexList: selectionActions.removeFromComplexList,
+  appendVectorOnList: selectionActions.appendVectorOnList,
+  removeFromVectorOnList: selectionActions.removeFromVectorOnList,
+  appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
+  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
+  incrementCountOfPendingVectorLoadRequests: selectionActions.incrementCountOfPendingVectorLoadRequests,
+  decrementCountOfPendingVectorLoadRequests: selectionActions.decrementCountOfPendingVectorLoadRequests,
+  setOrientation: nglLoadActions.setOrientation
+};
 
 MoleculeView.displayName = 'MoleculeView';
-export default MoleculeView;
+export default connect(mapStateToProps, mapDispatchToProps)(MoleculeView);

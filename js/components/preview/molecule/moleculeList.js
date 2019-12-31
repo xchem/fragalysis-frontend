@@ -3,24 +3,20 @@
  */
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
-import { FilterList, ClearAll } from '@material-ui/icons';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import * as apiActions from '../../../reducers/api/actions';
+import { FilterList } from '@material-ui/icons';
+import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
+import { connect } from 'react-redux';
+import * as apiActions from '../../../reducers/api/apiActions';
 import * as listType from '../../../constants/listTypes';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
-import { getJoinedMoleculeList } from './redux/selectors';
+import { getJoinedMoleculeList } from './molecules_helpers';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
-import { moleculeProperty } from './helperConstants';
-import { setSortDialogOpen } from './redux/actions';
-import { VIEWS } from '../../../constants/constants';
-import { NglContext } from '../../nglView/nglProvider';
-import { hideAllSelectedMolecules } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -42,7 +38,9 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px)`
+    // - 48px for title and header items
+    height: `calc(100% - ${theme.spacing(6)}px)`,
+    width: `calc(100% - ${theme.spacing(1) / 2}px)`
   },
   centered: {
     display: 'flex',
@@ -70,26 +68,6 @@ const useStyles = makeStyles(theme => ({
   },
   filterTitle: {
     transform: 'rotate(-90deg)'
-  },
-  molHeader: {
-    marginLeft: 19,
-    width: 'inherit'
-  },
-  rightBorder: {
-    borderRight: '1px solid',
-    borderRightColor: theme.palette.background.divider,
-    fontWeight: 'bold',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    fontSize: 8,
-    width: 25,
-    textAlign: 'center',
-    '&:last-child': {
-      borderRight: 'none',
-      width: 32
-    }
   }
 }));
 
@@ -100,14 +78,11 @@ const MoleculeList = memo(
     cached_mol_lists,
     target_on,
     mol_group_on,
-    setMoleculeList,
+    setObjectList,
     setCachedMolLists,
+    mol_group_list,
     setFilterItemsHeight,
-    filterItemsHeight,
-    getJoinedMoleculeList,
-    filterSettings,
-    sortDialogOpen,
-    setSortDialogOpen
+    filterItemsHeight
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -115,26 +90,34 @@ const MoleculeList = memo(
     const setOldUrl = url => {
       oldUrl.current = url;
     };
-    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
+    const [sortDialogOpen, setSortDialogOpen] = useState(false);
+    const [filterSettings, setFilterSettings] = useState();
     const moleculesPerPage = 5;
+    // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
+    // stav sa tym padom strati
     const [currentPage, setCurrentPage] = useState(0);
-    const imgHeight = 34;
-    const imgWidth = 150;
+    const imgHeight = 80;
+    const imgWidth = 100;
 
     const isActiveFilter = !!(filterSettings || {}).active;
-
-    const dispatch = useDispatch();
-    const { getNglView } = useContext(NglContext);
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-
     const filterRef = useRef();
 
-    let joinedMoleculeLists = getJoinedMoleculeList;
+    let joinedMoleculeLists = useMemo(
+      () => getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }),
+      [object_selection, cached_mol_lists, mol_group_list]
+    );
 
-    // TODO Reset Infinity scroll
-    /*useEffect(() => {
-      // setCurrentPage(0);
-    }, [object_selection]);*/
+    // Reset Infinity scroll
+    useEffect(() => {
+      setCurrentPage(0);
+    }, [object_selection]);
+
+    const handleDialog = () => open => setSortDialogOpen(open);
+
+    const handleDialogClose = filter => {
+      setFilterSettings(filter);
+      handleDialog(false)();
+    };
 
     if (isActiveFilter) {
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
@@ -152,26 +135,18 @@ const MoleculeList = memo(
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
-        setObjectList: moleculeList => {
-          setMoleculeList(moleculeList);
-        },
+        setObjectList,
         setCachedMolLists,
         mol_group_on,
         cached_mol_lists
       }).catch(error => {
-        throw new Error(error);
+        throw error;
       });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
+    }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
-
-    useEffect(() => {
-      if (isActiveFilter === false) {
-        setFilterItemsHeight(0);
-      }
-    }, [isActiveFilter, setFilterItemsHeight]);
 
     return (
       <ComputeSize
@@ -185,25 +160,7 @@ const MoleculeList = memo(
           title="Hit navigator"
           headerActions={[
             <Button
-              color={'inherit'}
-              size="small"
-              variant="text"
-              startIcon={<ClearAll />}
-              disabled={!(object_selection || []).length}
-              onClick={() => dispatch(hideAllSelectedMolecules(stage, currentMolecules))}
-            >
-              Hide all
-            </Button>,
-            <Button
-              onClick={event => {
-                if (sortDialogOpen === false) {
-                  setSortDialogAnchorEl(event.currentTarget);
-                  setSortDialogOpen(true);
-                } else {
-                  setSortDialogAnchorEl(null);
-                  setSortDialogOpen(false);
-                }
-              }}
+              onClick={handleDialog(!sortDialogOpen)}
               color={'inherit'}
               disabled={!(object_selection || []).length}
               variant="text"
@@ -216,8 +173,7 @@ const MoleculeList = memo(
         >
           {sortDialogOpen && (
             <MoleculeListSortFilterDialog
-              open={sortDialogOpen}
-              anchorEl={sortDialogAnchorEl}
+              handleClose={handleDialogClose}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
               filterSettings={filterSettings}
@@ -225,7 +181,7 @@ const MoleculeList = memo(
           )}
           <div ref={filterRef}>
             {isActiveFilter && (
-              <>
+              <Fragment>
                 <div className={classes.filterSection}>
                   <Grid container spacing={1}>
                     <Grid item xs={1} container alignItems="center">
@@ -256,29 +212,38 @@ const MoleculeList = memo(
                   </Grid>
                 </div>
                 <Divider />
-              </>
+              </Fragment>
             )}
           </div>
-          <Grid
-            container
-            direction="column"
-            justify="flex-start"
-            className={classes.container}
-            style={{ height: height }}
-          >
-            <Grid item>
-              <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                <Grid item container justify="flex-start" direction="row">
-                  {Object.keys(moleculeProperty).map(key => (
-                    <Grid item key={key} className={classes.rightBorder}>
-                      {moleculeProperty[key]}
-                    </Grid>
-                  ))}
-                </Grid>
+          <Grid container direction="column" className={classes.container} style={{ height: height }}>
+            <Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
+              <Grid item className={classes.gridItemHeaderVert}>
+                site
+              </Grid>
+              <Grid item className={classes.gridItemHeaderVert}>
+                cont.
+              </Grid>
+              <Grid
+                item
+                xs={3}
+                container
+                direction="column"
+                justify="center"
+                alignItems="center"
+                className={classes.gridItemHeaderHoriz}
+              >
+                <Grid item>code</Grid>
+                <Grid item>status</Grid>
+              </Grid>
+              <Grid item xs={5}>
+                image
+              </Grid>
+              <Grid item xs={2}>
+                properties
               </Grid>
             </Grid>
             {currentMolecules.length > 0 && (
-              <Grid item className={classes.gridItemList}>
+              <div className={classes.gridItemList}>
                 <InfiniteScroll
                   pageStart={0}
                   loadMore={loadNextMolecules}
@@ -299,10 +264,10 @@ const MoleculeList = memo(
                   useWindow={false}
                 >
                   {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
+                    <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
                   ))}
                 </InfiniteScroll>
-              </Grid>
+              </div>
             )}
           </Grid>
         </Panel>
@@ -313,21 +278,20 @@ const MoleculeList = memo(
 
 function mapStateToProps(state) {
   return {
-    group_type: state.apiReducers.group_type,
-    target_on: state.apiReducers.target_on,
-    mol_group_on: state.apiReducers.mol_group_on,
-    object_selection: state.selectionReducers.mol_group_selection,
-    object_list: state.apiReducers.molecule_list,
-    cached_mol_lists: state.apiReducers.cached_mol_lists,
-    getJoinedMoleculeList: getJoinedMoleculeList(state),
-    filterSettings: state.selectionReducers.filterSettings,
-    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
+    group_type: state.apiReducers.present.group_type,
+    target_on: state.apiReducers.present.target_on,
+    mol_group_on: state.apiReducers.present.mol_group_on,
+    object_selection: state.selectionReducers.present.mol_group_selection,
+    object_list: state.apiReducers.present.molecule_list,
+    cached_mol_lists: state.apiReducers.present.cached_mol_lists,
+    mol_group_list: state.apiReducers.present.mol_group_list
   };
 }
 const mapDispatchToProps = {
-  setMoleculeList: apiActions.setMoleculeList,
+  setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
-  setSortDialogOpen
+  deleteObject: nglLoadActions.deleteObject,
+  loadObject: nglLoadActions.loadObject
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);

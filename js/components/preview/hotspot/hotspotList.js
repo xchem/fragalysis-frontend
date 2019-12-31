@@ -3,12 +3,12 @@
  */
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../../reducers/api/actions';
-import * as listType from '../../../constants/listTypes';
+import * as apiActions from '../../reducers/api/apiActions';
+import * as listType from '../../constants/listTypes';
 import HotspotView from './hotspotView';
-import { getUrl, loadFromServer } from '../../../utils/genericList';
-import { api, METHOD } from '../../../utils/api';
-import { Paper } from '../../common/Surfaces/Paper';
+import { getUrl, loadFromServer } from '../../utils/genericList';
+import { api, METHOD } from '../../utils/api';
+import { Paper } from '../common/Surfaces/Paper';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {
@@ -35,7 +35,7 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
           setHsCount(response.data);
         })
         .catch(error => {
-          throw new Error(error);
+          throw error;
         });
       return () => {
         onCancel();
@@ -57,7 +57,7 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
       setObjectList,
       cancel: onCancel
     }).catch(error => {
-      throw new Error(error);
+      throw error;
     });
     return () => {
       onCancel();
@@ -80,9 +80,9 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
 });
 function mapStateToProps(state) {
   return {
-    molecule_list: state.apiReducers.molecule_list,
-    target_on: state.apiReducers.target_on,
-    mol_group_on: state.apiReducers.mol_group_on
+    molecule_list: state.apiReducers.present.molecule_list,
+    target_on: state.apiReducers.present.target_on,
+    mol_group_on: state.apiReducers.present.mol_group_on
   };
 }
 const mapDispatchToProps = {

@@ -1,5 +1,5 @@
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
-import * as listTypes from '../listTypes';
+import * as listTypes from '../../constants/listTypes';
 
 export const defaultFocus = 0;
 export const createRepresentationStructure = (type, params, lastKnownID = undefined) => ({ type, params, lastKnownID });

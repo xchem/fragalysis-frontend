@@ -6,7 +6,7 @@ import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 import FileSaver from 'file-saver';
-import { api } from '../utils/api';
+import { api } from '../../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
 
 const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {

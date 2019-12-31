@@ -1,4 +1,19 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
+// concat molecule results for all selected molecule groups into single list
+
+export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_group_list }) => {
+  let joinedMoleculeLists = [];
+  if (object_selection) {
+    object_selection.forEach(obj => {
+      const cachedData = cached_mol_lists[obj];
+      const site = (mol_group_list || []).findIndex(group => group.id === obj) + 1;
+      if (cachedData && cachedData.results) {
+        cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
+      }
+    });
+  }
+  return joinedMoleculeLists;
+};
 
 export const generateMolecule = (id, sdf_info) => {
   return {
@@ -42,15 +57,4 @@ export const generateSphere = (data, selected = false) => {
     colour: colour,
     coords: [data.x_com, data.y_com, data.z_com]
   };
-};
-
-export const getTotalCountOfCompounds = graph => {
-  let tot_num = 0;
-
-  if (graph) {
-    Object.keys(graph).forEach(key => {
-      tot_num += graph[key].addition ? Object.keys(graph[key].addition).length : 0;
-    });
-  }
-  return tot_num;
 };

@@ -7,13 +7,13 @@ import React, { memo, useEffect, useRef, useCallback, useContext } from 'react';
 import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglActions from '../../reducers/ngl/nglActions';
-import * as listTypes from '../listTypes';
+import * as listTypes from '../../constants/listTypes';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
 import { OBJECT_TYPE } from './constants';
 import { NglContext } from './nglProvider';
-import { generateSphere } from '../molecule/molecules_helpers';
-import { clearAfterDeselectingMoleculeGroup } from '../moleculeGroups/molGroupHelpers';
+import { generateSphere } from '../preview/molecule/molecules_helpers';
+import { clearAfterDeselectingMoleculeGroup } from '../preview/moleculeGroups/molGroupHelpers';
 import { throttle } from 'lodash';
 
 const NglView = memo(

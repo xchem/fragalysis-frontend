@@ -5,7 +5,7 @@
 import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 import { Button } from '../common';
-import * as apiActions from '../../reducers/api/actions';
+import * as apiActions from '../../reducers/api/apiActions';
 import TargetList from './targetList';
 import { ErrorReport } from '../header/errorReport';
 import { Modal } from '../common/Modal';
@@ -66,8 +66,8 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
 
 function mapStateToProps(state) {
   return {
-    targetUnrecognised: state.apiReducers.targetUnrecognised,
-    target_id_list: state.apiReducers.target_id_list
+    targetUnrecognised: state.apiReducers.present.targetUnrecognised,
+    target_id_list: state.apiReducers.present.target_id_list
   };
 }
 
