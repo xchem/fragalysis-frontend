@@ -5,13 +5,13 @@
 import React, { Fragment, memo, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
-import MoleculeList from '../molecule/moleculeList';
-import MolGroupSelector from '../moleculeGroups/molGroupSelector';
-import SummaryView from '../summaryView';
-import CompoundList from '../compoundList';
+import MoleculeList from './molecule/moleculeList';
+import MolGroupSelector from './moleculeGroups/molGroupSelector';
+import SummaryView from './summary/summaryView';
+import CompoundList from './compound/compoundList';
 import NglViewerControls from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
-import { withUpdatingTarget } from './withUpdatingTarget';
+import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';

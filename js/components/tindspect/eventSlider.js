@@ -3,14 +3,14 @@
  */
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../reducers/api/apiActions';
-import * as nglLoadActions from '../reducers/ngl/nglActions';
-import { PREFIX, VIEWS } from '../constants/constants';
-import { handleBackward, handleChange, handleForward } from '../utils/genericSlider';
-import { OBJECT_TYPE } from './nglView/constants';
+import * as apiActions from '../../reducers/api/apiActions';
+import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import { PREFIX, VIEWS } from '../../constants/constants';
+import { handleBackward, handleChange, handleForward } from '../../utils/genericSlider';
+import { OBJECT_TYPE } from '../nglView/constants';
 import { Grid } from '@material-ui/core';
-import { Button } from './common/Inputs/Button';
-import { Paper } from './common/Surfaces/Paper';
+import { Button } from '../common/Inputs/Button';
+import { Paper } from '../common/Surfaces/Paper';
 
 const EventSlider = memo(({ object_list, object_on, setObjectOn, deleteObject, loadObject }) => {
   const slider_name = 'Pandda Event';

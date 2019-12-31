@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
 import { Grid } from '@material-ui/core';
-import NGLView from './nglView/nglView';
-import { withLoadingEventList } from '../hoc/withLoadingEventList';
-import { withLoadingPanddaSiteList } from '../hoc/withPanddaSiteList';
+import NGLView from '../nglView/nglView';
+import { withLoadingEventList } from '../../hoc/withLoadingEventList';
+import { withLoadingPanddaSiteList } from '../../hoc/withPanddaSiteList';
 import PanddaSlider from './panddaSlider';
 import EventSlider from './eventSlider';
-import { VIEWS } from '../constants/constants';
+import { VIEWS } from '../../constants/constants';
 
 const Tindspect = memo(() => {
   return (

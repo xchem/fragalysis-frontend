@@ -4,12 +4,12 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import CompoundView from './compoundView';
-import { Panel } from './common/Surfaces/Panel';
-import { Button } from './common/Inputs/Button';
-import { TextField } from './common/Inputs/TextField';
+import { Panel } from '../../common/Surfaces/Panel';
+import { Button } from '../../common/Inputs/Button';
+import { TextField } from '../../common/Inputs/TextField';
 import { Grid, Box, makeStyles } from '@material-ui/core';
 import { SelectAll, Delete } from '@material-ui/icons';
-import * as selectionActions from '../reducers/selection/selectionActions';
+import * as selectionActions from '../../../reducers/selection/selectionActions';
 
 const useStyles = makeStyles(theme => ({
   textField: {

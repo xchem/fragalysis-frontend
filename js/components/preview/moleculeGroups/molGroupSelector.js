@@ -2,19 +2,19 @@ import React, { memo, useContext, useRef } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 
-import { Panel } from '../common/Surfaces/Panel';
-import { Button } from '../common/Inputs/Button';
-import NGLView from '../nglView/nglView';
+import { Panel } from '../../common/Surfaces/Panel';
+import { Button } from '../../common/Inputs/Button';
+import NGLView from '../../nglView/nglView';
 import MolGroupChecklist from './molGroupChecklist';
-import * as apiActions from '../../reducers/api/apiActions';
+import * as apiActions from '../../../reducers/api/apiActions';
 import { connect } from 'react-redux';
-import * as nglActions from '../../reducers/ngl/nglActions';
-import { VIEWS } from '../../constants/constants';
-import * as selectionActions from '../../reducers/selection/selectionActions';
-import { withLoadingMolGroupList } from '../../hoc/withLoadingMolGroupList';
-import { NglContext } from '../nglView/nglProvider';
-import { useDisableUserInteraction } from '../useEnableUserInteracion';
-import { SCENES } from '../../reducers/ngl/nglConstants';
+import * as nglActions from '../../../reducers/ngl/nglActions';
+import { VIEWS } from '../../../constants/constants';
+import * as selectionActions from '../../../reducers/selection/selectionActions';
+import { withLoadingMolGroupList } from '../../../hoc/withLoadingMolGroupList';
+import { NglContext } from '../../nglView/nglProvider';
+import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+import { SCENES } from '../../../reducers/ngl/nglConstants';
 
 export const heightOfBody = '164px';
 

@@ -5,7 +5,7 @@
 import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import SVGInline from 'react-svg-inline';
-import { api } from '../utils/api';
+import { api } from '../../../utils/api';
 import { Box } from '@material-ui/core';
 
 const img_data_init =

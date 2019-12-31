@@ -26,7 +26,8 @@ import {
   Storage,
   ReportProblem,
   SupervisorAccount,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Work
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -34,7 +35,7 @@ import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { useDisableUserInteraction } from '../useEnableUserInteracion';
+import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 const uuidv4 = require('uuid/v4');
 
@@ -255,6 +256,12 @@ export default memo(
               <Storage />
             </ListItemIcon>
             <ListItemText primary="Sessions" />
+          </ListItem>
+          <ListItem button onClick={() => history.push(URLS.management)}>
+            <ListItemIcon>
+              <Work />
+            </ListItemIcon>
+            <ListItemText primary="Management" />
           </ListItem>
           <ListItem button onClick={() => history.push(funders)}>
             <ListItemIcon>

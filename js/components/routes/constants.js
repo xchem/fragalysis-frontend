@@ -5,5 +5,7 @@ export const URLS = {
   snapshot: '/viewer/react/snapshot/',
   prodLanding: 'https://fragalysis.diamond.ac.uk/viewer/react/landing',
   login: '/accounts/login',
-  logout: '/accounts/logout'
+  logout: '/accounts/logout',
+  management: '/viewer/react/management',
+  funders: '/viewer/react/funders'
 };

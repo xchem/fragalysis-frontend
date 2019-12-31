@@ -1,4 +1,4 @@
-import { VIEWS } from '../../constants/constants';
+import { VIEWS } from '../../../constants/constants';
 import { generateComplex, generateMolecule, getJoinedMoleculeList } from '../molecule/molecules_helpers';
 
 export const clearAfterDeselectingMoleculeGroup = ({

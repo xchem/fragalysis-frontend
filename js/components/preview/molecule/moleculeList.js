@@ -6,17 +6,17 @@ import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography 
 import { FilterList } from '@material-ui/icons';
 import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/apiActions';
-import * as listType from '../listTypes';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import * as apiActions from '../../../reducers/api/apiActions';
+import * as listType from '../../../constants/listTypes';
+import * as nglLoadActions from '../../../reducers/ngl/nglActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './molecules_helpers';
-import { getUrl, loadFromServer } from '../../utils/genericList';
+import { getUrl, loadFromServer } from '../../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Button } from '../common/Inputs/Button';
-import { Panel } from '../common/Surfaces/Panel';
-import { ComputeSize } from '../../utils/computeSize';
+import { Button } from '../../common/Inputs/Button';
+import { Panel } from '../../common/Surfaces/Panel';
+import { ComputeSize } from '../../../utils/computeSize';
 
 const useStyles = makeStyles(theme => ({
   container: {

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
-import RefinementOutcome from '../refinementOutcome';
+import RefinementOutcome from './refinementOutcome';
 
 const useStyles = makeStyles(() => ({
   container: {

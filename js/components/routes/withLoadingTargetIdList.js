@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import * as listType from '../listTypes';
+import * as listType from '../../constants/listTypes';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import * as apiActions from '../../reducers/api/apiActions';
 import { connect } from 'react-redux';
