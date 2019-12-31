@@ -5,7 +5,6 @@ const INITIAL_STATE = {
   // NGL Scene properties
   objectsInView: {},
   nglOrientations: {},
-  loadingState: true,
   viewParams: {
     /*
     [NGL_PARAMS.impostor]: true,
@@ -112,12 +111,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       console.log(' SET_ORIENTATION');
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
-      });
-
-    case CONSTANTS.SET_LOADING_STATE:
-      console.log(' SET_LOADING_STATE');
-      return Object.assign({}, state, {
-        loadingState: action.loadingState
       });
 
     case CONSTANTS.SET_NGL_VIEW_PARAMS:

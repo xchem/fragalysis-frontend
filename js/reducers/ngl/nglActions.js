@@ -67,7 +67,7 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
   }
 };
 
-export const deleteObject = (target, stage, deleteFromSelections) => (dispatch, getState) => {
+export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
   const comps = stage.getComponentsByName(target.name);
   comps.list.forEach(component => stage.removeComponent(component));
   if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
@@ -89,13 +89,6 @@ export const deleteObject = (target, stage, deleteFromSelections) => (dispatch, 
     type: CONSTANTS.DELETE_OBJECT,
     target
   });
-};
-
-export const setLoadingState = function(bool) {
-  return {
-    type: CONSTANTS.SET_LOADING_STATE,
-    loadingState: bool
-  };
 };
 
 export const setNglViewParams = (key, value, stage) => {
