@@ -2,18 +2,12 @@ const path = require('path');
 const webpack = require('webpack');
 const BundleTracker = require('webpack-bundle-tracker');
 const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
-const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: 'development',
   context: __dirname,
 
-  entry: [
-    'babel-polyfill',
-    'react-hot-loader/patch',
-    'webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr',
-    './js/index'
-  ],
+  entry: ['webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr', './js/index'],
 
   output: {
     crossOriginLoading: 'anonymous',
@@ -35,19 +29,28 @@ module.exports = {
   plugins: [
     new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }),
     new ErrorOverlayPlugin(),
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
-    new Dotenv()
+    new webpack.HotModuleReplacementPlugin()
   ],
 
   module: {
     rules: [
+      // we pass the output from babel loader to react-hot loader
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        loader: 'babel-loader'
+        use: [
+          {
+            loader: 'react-hot-loader/webpack'
+          },
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['env', 'react', 'es2015'],
+              plugins: ['transform-class-properties', 'transform-decorators-legacy', 'emotion']
+            }
+          }
+        ]
       },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       {

@@ -49,6 +49,15 @@ export class ErrorBoundary extends Component {
             <Button color="primary" onClick={() => this.setState({ error: null })}>
               Close
             </Button>
+            <Button
+              color="primary"
+              onClick={() => {
+                this.setState({ error: null, errorInfo: null });
+                Sentry.showReportDialog();
+              }}
+            >
+              Report feedback
+            </Button>
           </div>
         </Modal>
       </Fragment>

@@ -43,50 +43,48 @@ class FundersHolder extends PureComponent {
   render() {
     var logoWidth = window.innerWidth * (0.16).toString();
     return (
-      <div>
-        <Grid container>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/xchemLogo.png')} width={logoWidth} onClick={this.openXchem} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/dlsLogo.png')} width={logoWidth} onClick={this.openDls} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/sgcLogo.png')} width={logoWidth} onClick={this.openSgc} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/mrcLogo.png')} width={logoWidth} onClick={this.openMrc} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/wtLogo.png')} width={logoWidth} onClick={this.openWt} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/inextLogo.png')} width={logoWidth} onClick={this.openInext} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/jffLogo.jpg')} width={logoWidth} onClick={this.openJff} />
-            </div>
-          </Grid>
-          <Grid item xs={4} md={4}>
-            <div className="text-center">
-              <img src={require('../../img/nfLogo.png')} width={logoWidth} onClick={this.openNf} />
-            </div>
-          </Grid>
+      <Grid container>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/xchemLogo.png')} width={logoWidth} onClick={this.openXchem} />
+          </div>
         </Grid>
-      </div>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/dlsLogo.png')} width={logoWidth} onClick={this.openDls} />
+          </div>
+        </Grid>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/sgcLogo.png')} width={logoWidth} onClick={this.openSgc} />
+          </div>
+        </Grid>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/mrcLogo.png')} width={logoWidth} onClick={this.openMrc} />
+          </div>
+        </Grid>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/wtLogo.png')} width={logoWidth} onClick={this.openWt} />
+          </div>
+        </Grid>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/inextLogo.png')} width={logoWidth} onClick={this.openInext} />
+          </div>
+        </Grid>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/jffLogo.jpg')} width={logoWidth} onClick={this.openJff} />
+          </div>
+        </Grid>
+        <Grid item xs={4} md={4}>
+          <div className="text-center">
+            <img src={require('../../img/nfLogo.png')} width={logoWidth} onClick={this.openNf} />
+          </div>
+        </Grid>
+      </Grid>
     );
   }
 }
