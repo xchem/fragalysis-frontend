@@ -14,10 +14,10 @@ const INITIAL_STATE = {
   this_vector_list: {},
   querying: false,
   to_query: undefined,
-  fragmentDisplayList: new Set(),
+  fragmentDisplayList: [],
   bondColorMap: undefined,
-  complexList: new Set(),
-  vectorOnList: new Set(),
+  complexList: [],
+  vectorOnList: [],
   currentVector: undefined,
   highlightedCompound: {},
   compoundClasses: {
@@ -75,7 +75,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         to_buy_list.splice(itemIndex, 1);
         return Object.assign({}, state, { to_buy_list: to_buy_list });
       } else {
-        return state;
+        return Object.assign({}, state);
       }
 
     case actions.GET_FULL_GRAPH:
@@ -131,53 +131,60 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case actions.SET_FRAGMENT_DISPLAY_LIST:
       console.log('SET_FRAGMENT_DISPLAY_LIST');
-      state.fragmentDisplayList.clear();
+      //  state.fragmentDisplayList.clear();
+      let newFragmentSet = new Set();
       action.fragmentDisplayList.forEach(f => {
-        state.fragmentDisplayList.add(f);
+        newFragmentSet.add(f);
       });
 
-      return state;
+      return Object.assign({}, state, {
+        fragmentDisplayList: [...newFragmentSet]
+      });
 
     case actions.APPEND_FRAGMENT_DISPLAY_LIST:
       console.log('APPEND_FRAGMENT_DISPLAY_LIST');
-      state.fragmentDisplayList.add(action.item.id);
-      return state;
+      return Object.assign({}, state, {
+        fragmentDisplayList: [...new Set([...state.fragmentDisplayList, action.item.id])]
+      });
 
     case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
       console.log('REMOVE_FROM_FRAGMENT_DISPLAY_LIST');
-      state.fragmentDisplayList.delete(action.item.id);
-      return state;
+      let diminishedFragmentList = new Set(state.fragmentDisplayList);
+      diminishedFragmentList.delete(action.item.id);
+      return Object.assign({}, state, {
+        fragmentDisplayList: [...diminishedFragmentList]
+      });
 
     case actions.SET_COMPLEX_LIST:
-      state.complexList.clear();
+      let newComplexList = newSet();
       action.complexList.forEach(f => {
-        state.complexList.add(f);
+        newComplexList.add(f);
       });
-      return state;
+      return Object.assign({}, state, { complexList: [...newComplexList] });
 
     case actions.APPEND_COMPLEX_LIST:
-      state.complexList.add(action.item.id);
-      return state;
+      return Object.assign({}, state, { complexList: [...new Set([...state.complexList, action.item.id])] });
 
     case actions.REMOVE_FROM_COMPLEX_LIST:
-      state.complexList.delete(action.item.id);
-      return state;
+      let diminishedComplexList = new Set(state.complexList);
+      diminishedComplexList.delete(action.item.id);
+      return Object.assign({}, state, { complexList: [...diminishedComplexList] });
 
     case actions.SET_VECTOR_ON_LIST:
-      state.vectorOnList.clear();
+      let newVectorOnList = new Set();
+
       action.vectorOnList.forEach(v => {
-        state.vectorOnList.add(v);
+        newVectorOnList.add(v);
       });
-      return state;
+      return Object.assign({}, state, { vectorOnList: [...newVectorOnList] });
 
     case actions.APPEND_VECTOR_ON_LIST:
-      state.vectorOnList.clear();
-      state.vectorOnList.add(action.item.id);
-      return state;
+      return Object.assign({}, state, { vectorOnList: [action.item.id] });
 
     case actions.REMOVE_FROM_VECTOR_ON_LIST:
-      state.vectorOnList.delete(action.item.id);
-      return state;
+      let diminishedVectorOnList = new Set(state.vectorOnList);
+      diminishedVectorOnList.delete(action.item.id);
+      return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList] });
 
     case actions.SET_HIGHLIGHTED:
       return Object.assign({}, state, {
@@ -206,31 +213,28 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
           this_vector_list[to_select_item] = action.savedSelectionReducers.to_select[to_select_item];
         }
       }
-      state.fragmentDisplayList.clear();
+      let newFraments = new Set();
       action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
-        state.fragmentDisplayList.add(f);
+        newFraments.add(f);
       });
-      state.complexList.clear();
+      let newComplexes = new Set();
       action.savedSelectionReducers.complexList.forEach(c => {
-        state.complexList.add(c);
+        newComplexes.add(c);
       });
-      state.vectorOnList.clear();
+      let newVectors = new Set();
       action.savedSelectionReducers.vectorOnList.forEach(v => {
-        state.vectorOnList.add(v);
+        newVectors.add(v);
       });
       return Object.assign({}, state, {
         this_vector_list: this_vector_list,
         ...action.savedSelectionReducers,
-        fragmentDisplayList: state.fragmentDisplayList,
-        complexList: state.complexList,
-        vectorOnList: state.vectorOnList
+        fragmentDisplayList: [...newFraments],
+        complexList: [...newComplexes],
+        vectorOnList: [...newVectors]
       });
 
     case actions.RESET_SELECTION_STATE:
       console.log('RESET_SELECTION_STATE');
-      state.fragmentDisplayList.clear();
-      state.complexList.clear();
-      state.vectorOnList.clear();
       return INITIAL_STATE;
 
     case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {

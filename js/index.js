@@ -25,9 +25,18 @@ const doc = document;
 doc.body.style.margin = '0px';
 
 doc.head.querySelector('link').remove();
-render(
-  <ErrorBoundary>
-    <Root />
-  </ErrorBoundary>,
-  doc.getElementById('app')
-);
+const renderApp = () =>
+  render(
+    <ErrorBoundary>
+      <Root />
+    </ErrorBoundary>,
+    doc.getElementById('app')
+  );
+
+renderApp();
+
+if (module.hot) {
+  module.hot.accept('./components/root', () => {
+    renderApp();
+  });
+}
