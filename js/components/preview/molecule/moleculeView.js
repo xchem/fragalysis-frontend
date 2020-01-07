@@ -149,9 +149,10 @@ const MoleculeView = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const isLigandOn = (currentID && fragmentDisplayList.has(currentID)) || false;
-    const isComplexOn = (currentID && complexList.has(currentID)) || false;
-    const isVectorOn = (currentID && vectorOnList.has(currentID)) || false;
+    const isLigandOn = (currentID && fragmentDisplayList.includes(currentID)) || false;
+    const isComplexOn = (currentID && complexList.includes(currentID)) || false;
+    const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
+
     const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
 
     const disableUserInteraction = useDisableUserInteraction();
