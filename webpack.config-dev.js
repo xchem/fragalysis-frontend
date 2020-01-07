@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const BundleTracker = require('webpack-bundle-tracker');
+const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -15,7 +16,7 @@ module.exports = {
     publicPath: 'http://localhost:3030/bundles/' // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
 
   stats: {
     // Configure the console output
@@ -27,8 +28,8 @@ module.exports = {
 
   plugins: [
     new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }),
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin() // don't reload if there is an error
+    new ErrorOverlayPlugin(),
+    new webpack.HotModuleReplacementPlugin()
   ],
 
   module: {
