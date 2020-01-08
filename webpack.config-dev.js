@@ -29,28 +29,22 @@ module.exports = {
   plugins: [
     new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }),
     new ErrorOverlayPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.NamedModulesPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoEmitOnErrorsPlugin() // don't reload if there is an error
   ],
 
   module: {
     rules: [
-      // we pass the output from babel loader to react-hot loader
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'react-hot-loader/webpack'
-          },
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['env', 'react', 'es2015'],
-              plugins: ['transform-class-properties', 'transform-decorators-legacy', 'emotion']
-            }
-          }
-        ]
+        loader: 'babel-loader',
+        options: {
+          presets: ['env', 'react', 'es2015'],
+          plugins: ['transform-class-properties', 'transform-decorators-legacy', 'emotion']
+        }
       },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       {
