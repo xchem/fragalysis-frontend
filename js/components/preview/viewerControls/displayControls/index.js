@@ -2,7 +2,7 @@ import React, { useContext, memo } from 'react';
 import { Drawer } from '../../../common/Navigation/Drawer';
 import { makeStyles, Grid, IconButton, Select } from '@material-ui/core';
 import TreeView from '@material-ui/lab/TreeView';
-import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff } from '@material-ui/icons';
+import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff, Add } from '@material-ui/icons';
 import TreeItem from '@material-ui/lab/TreeItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../../nglView/nglProvider';
@@ -75,6 +75,17 @@ export default memo(({ open, onClose }) => {
 
     // remove previous representation from NGL
     removeRepresentation(representation, parentKey);
+  };
+
+  const addMolecularRepresentation = (parentKey, e) => {
+    e.stopPropagation();
+    const nglView = getNglView(objectsInView[parentKey].display_div);
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+    // add representation to NGL
+    const newRepresentation = assignRepresentationToComp(MOL_REPRESENTATION.axes, undefined, comp);
+    // add new representation to redux
+    dispatch(addComponentRepresentation(parentKey, newRepresentation));
   };
 
   const removeRepresentation = (representation, parentKey) => {
@@ -230,6 +241,9 @@ export default memo(({ open, onClose }) => {
                   <Grid item>
                     <IconButton onClick={e => changeVisibilityMoleculeRepresentations(parentItem, e)}>
                       {hasAllRepresentationVisibled(parentItem) === true ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                    <IconButton onClick={e => addMolecularRepresentation(parentItem, e)}>
+                      <Add />
                     </IconButton>
                     <IconButton
                       disabled={
