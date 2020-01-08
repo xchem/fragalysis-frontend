@@ -249,6 +249,9 @@ export default memo(({ open, onClose }) => {
                     <IconButton onClick={e => changeVisibilityMoleculeRepresentations(parentItem, e)}>
                       {hasAllRepresentationVisibled(parentItem) === true ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
+                    <IconButton onClick={e => addMolecularRepresentation(parentItem, e)}>
+                      <Add />
+                    </IconButton>
                     <IconButton
                       disabled={
                         objectsInView[parentItem].selectionType === SELECTION_TYPE.VECTOR ||
