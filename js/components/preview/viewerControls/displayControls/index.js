@@ -68,7 +68,7 @@ export default memo(({ open, onClose }) => {
       newRepresentationType,
       oldRepresentation.params,
       comp,
-      oldRepresentation.uuid
+      oldRepresentation.lastKnownID
     );
     // add new representation to redux
     dispatch(addComponentRepresentation(parentKey, newRepresentation));
@@ -239,11 +239,11 @@ export default memo(({ open, onClose }) => {
                 <Grid container justify="space-between" direction="row" wrap="nowrap" alignItems="center">
                   <Grid item>{objectsInView[parentItem].name}</Grid>
                   <Grid item>
-                    <IconButton onClick={e => changeVisibilityMoleculeRepresentations(parentItem, e)}>
-                      {hasAllRepresentationVisibled(parentItem) === true ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
                     <IconButton onClick={e => addMolecularRepresentation(parentItem, e)}>
                       <Add />
+                    </IconButton>
+                    <IconButton onClick={e => changeVisibilityMoleculeRepresentations(parentItem, e)}>
+                      {hasAllRepresentationVisibled(parentItem) === true ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                     <IconButton
                       disabled={
