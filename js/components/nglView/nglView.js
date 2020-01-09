@@ -53,101 +53,107 @@ const NglView = memo(
       return { interaction: tot_name, complex_id: mol_int };
     };
 
-    const toggleMolGroup = molGroupId => {
-      // Anti-pattern but connected prop (mol_group_selection) is undefined here
-      const state = store.getState();
-      const molGroupSelection = state.selectionReducers.present.mol_group_selection;
-      const objIdx = molGroupSelection.indexOf(molGroupId);
-      const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${molGroupId}`;
-      const selectionCopy = molGroupSelection.slice();
-      const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === molGroupId);
+    const toggleMolGroup = useCallback(
+      molGroupId => {
+        // Anti-pattern but connected prop (mol_group_selection) is undefined here
+        const state = store.getState();
+        const molGroupSelection = state.selectionReducers.present.mol_group_selection;
+        const objIdx = molGroupSelection.indexOf(molGroupId);
+        const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${molGroupId}`;
+        const selectionCopy = molGroupSelection.slice();
+        const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === molGroupId);
 
-      const currentStage = getNglView(VIEWS.SUMMARY_VIEW).stage;
+        const currentStage = getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-      if (objIdx === -1) {
-        setMolGroupOn(molGroupId);
-        selectionCopy.push(molGroupId);
-        setMolGroupSelection(selectionCopy, stage);
-        deleteObject(
-          {
-            display_div: VIEWS.SUMMARY_VIEW,
-            name: currentMolGroupStringID
-          },
-          currentStage
-        );
-        loadObject(
-          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
-          currentStage
-        );
-      } else {
-        const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
-        selectionCopy.splice(objIdx, 1);
-        setMolGroupSelection(selectionCopy, stage);
-        deleteObject(
-          {
-            display_div: VIEWS.SUMMARY_VIEW,
-            name: currentMolGroupStringID
-          },
-          currentStage
-        );
-        loadObject(
-          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
-          currentStage
-        );
-        clearAfterDeselectingMoleculeGroup({
-          molGroupId,
-          majorViewStage,
-          cached_mol_lists: state.apiReducers.present.cached_mol_lists,
-          mol_group_list: state.apiReducers.present.mol_group_list,
-          vector_list: state.selectionReducers.present.vector_list,
-          deleteObject
-        });
-      }
-    };
+        if (objIdx === -1) {
+          setMolGroupOn(molGroupId);
+          selectionCopy.push(molGroupId);
+          setMolGroupSelection(selectionCopy, stage);
+          deleteObject(
+            {
+              display_div: VIEWS.SUMMARY_VIEW,
+              name: currentMolGroupStringID
+            },
+            currentStage
+          );
+          loadObject(
+            Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
+            currentStage
+          );
+        } else {
+          const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
+          selectionCopy.splice(objIdx, 1);
+          setMolGroupSelection(selectionCopy, stage);
+          deleteObject(
+            {
+              display_div: VIEWS.SUMMARY_VIEW,
+              name: currentMolGroupStringID
+            },
+            currentStage
+          );
+          loadObject(
+            Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
+            currentStage
+          );
+          clearAfterDeselectingMoleculeGroup({
+            molGroupId,
+            majorViewStage,
+            cached_mol_lists: state.apiReducers.present.cached_mol_lists,
+            mol_group_list: state.apiReducers.present.mol_group_list,
+            vector_list: state.selectionReducers.present.vector_list,
+            deleteObject
+          });
+        }
+      },
+      [deleteObject, getNglView, loadObject, setMolGroupOn, setMolGroupSelection, stage, store]
+    );
 
-    const showPick = (stage, pickingProxy) => {
-      if (pickingProxy) {
-        // For assigning the ligand interaction
-        if (pickingProxy.bond) {
-          let input_dict = processInt(pickingProxy);
-          if (duck_yank_data['interaction'] !== undefined) {
-            deleteObject({
+    const showPick = useCallback(
+      (stage, pickingProxy) => {
+        if (pickingProxy) {
+          // For assigning the ligand interaction
+          if (pickingProxy.bond) {
+            let input_dict = processInt(pickingProxy);
+            if (duck_yank_data['interaction'] !== undefined) {
+              deleteObject({
+                display_div: VIEWS.MAJOR_VIEW,
+                name: duck_yank_data['interaction'] + SUFFIX.INTERACTION
+              });
+            }
+            setDuckYankData(input_dict);
+            const objToLoad = {
+              start: pickingProxy.object.center1,
+              end: pickingProxy.object.center2,
+              radius: 0.2,
               display_div: VIEWS.MAJOR_VIEW,
-              name: duck_yank_data['interaction'] + SUFFIX.INTERACTION
-            });
-          }
-          setDuckYankData(input_dict);
-          const objToLoad = {
-            start: pickingProxy.object.center1,
-            end: pickingProxy.object.center2,
-            radius: 0.2,
-            display_div: VIEWS.MAJOR_VIEW,
-            color: [1, 0, 0],
-            name: input_dict['interaction'] + SUFFIX.INTERACTION,
-            OBJECT_TYPE: OBJECT_TYPE.ARROW
-          };
-          loadObject(objToLoad, stage);
-        } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {
-          let name = pickingProxy.component.object.name;
-          // Ok so now perform logic
-          const type = name.split('_')[0];
-          const pk = parseInt(name.split('_')[1], 10);
-          if (type === OBJECT_TYPE.MOLECULE_GROUP) {
-            toggleMolGroup(pk);
-          } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT) {
-            toggleMolGroup(pk);
-          } else if (type === listTypes.PANDDA_SITE) {
-            setPanddaSiteOn(pk);
-          }
-          //else if (type === listTypes.MOLECULE) {
-          //}
-          else if (type === listTypes.VECTOR) {
-            const vectorSmi = name.split('_')[1];
-            selectVector(vectorSmi);
+              color: [1, 0, 0],
+              name: input_dict['interaction'] + SUFFIX.INTERACTION,
+              OBJECT_TYPE: OBJECT_TYPE.ARROW
+            };
+            loadObject(objToLoad, stage);
+          } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {
+            let name = pickingProxy.component.object.name;
+            // Ok so now perform logic
+            const type = name.split('_')[0];
+            const pk = parseInt(name.split('_')[1], 10);
+            if (type === OBJECT_TYPE.MOLECULE_GROUP) {
+              toggleMolGroup(pk);
+            } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT) {
+              toggleMolGroup(pk);
+            } else if (type === listTypes.PANDDA_SITE) {
+              setPanddaSiteOn(pk);
+            }
+            //else if (type === listTypes.MOLECULE) {
+            //}
+            else if (type === listTypes.VECTOR) {
+              const vectorSmi = name.split('_')[1];
+              selectVector(vectorSmi);
+            }
           }
         }
-      }
-    };
+      },
+      [deleteObject, duck_yank_data, loadObject, selectVector, setDuckYankData, setPanddaSiteOn, toggleMolGroup]
+    );
 
     const handleOrientationChanged = useCallback(
       throttle(() => {
@@ -177,11 +183,7 @@ const NglView = memo(
         newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
         newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [
-        handleOrientationChanged,
-        handleResize //, showPick
-      ]
+      [handleOrientationChanged, handleResize, showPick]
     );
 
     const unregisterStageEvents = useCallback(
@@ -194,49 +196,40 @@ const NglView = memo(
         stage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
         stage.mouseObserver.signals.dragged.remove(handleOrientationChanged);
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [
-        handleOrientationChanged,
-        handleResize //, showPick
-      ]
+      [handleOrientationChanged, handleResize, showPick]
     );
 
-    useEffect(
-      () => {
-        console.log('*** Mount ngl view ', stage);
-        if (stage === undefined && !getNglView(div_id)) {
-          const newStage = new Stage(div_id);
-          registerNglView(div_id, newStage);
-          registerStageEvents(newStage);
-          setStage(newStage);
-        } else if (stage === undefined && getNglView(div_id) && getNglView(div_id).stage) {
-          const newStage = getNglView(div_id).stage;
-          registerStageEvents(newStage);
-          setStage(newStage);
-        } else if (stage) {
-          registerStageEvents(stage);
+    useEffect(() => {
+      if (stage === undefined && !getNglView(div_id)) {
+        const newStage = new Stage(div_id);
+        registerNglView(div_id, newStage);
+        registerStageEvents(newStage);
+        setStage(newStage);
+      } else if (stage === undefined && getNglView(div_id) && getNglView(div_id).stage) {
+        const newStage = getNglView(div_id).stage;
+        registerStageEvents(newStage);
+        setStage(newStage);
+      } else if (stage) {
+        registerStageEvents(stage);
+      }
+
+      return () => {
+        if (stage) {
+          unregisterStageEvents(stage);
         }
-
-        return () => {
-          if (stage) {
-            console.log('*** Unmount ngl view ', stage);
-            unregisterStageEvents(stage);
-          }
-        };
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [
-        div_id,
-        handleResize,
-        registerNglView,
-        unregisterNglView,
-        handleOrientationChanged,
-        removeAllNglComponents,
-        registerStageEvents,
-        unregisterStageEvents
-        //stage
-      ]
-    );
+      };
+    }, [
+      div_id,
+      handleResize,
+      registerNglView,
+      unregisterNglView,
+      handleOrientationChanged,
+      removeAllNglComponents,
+      registerStageEvents,
+      unregisterStageEvents,
+      stage,
+      getNglView
+    ]);
     // End of Initialization NGL View component
 
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;
