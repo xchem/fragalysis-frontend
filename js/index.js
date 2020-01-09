@@ -1,4 +1,3 @@
-import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
 import Root from './components/root';
@@ -7,7 +6,7 @@ import { DJANGO_CONTEXT } from './utils/djangoContext';
 import { init } from '@sentry/browser';
 // Setup log rocket logging
 import LogRocket from 'logrocket';
-import { ErrorBoundary } from './components/errorHandling/errorBoundary';
+require('react-hot-loader/patch');
 LogRocket.init('eoalzb/fragalysis');
 // This is the log rocket setup
 
@@ -26,9 +25,19 @@ doc.body.style.margin = '0px';
 
 doc.head.querySelector('link').remove();
 
-  render(
-    <ErrorBoundary>
-      <Root />
-    </ErrorBoundary>,
-    doc.getElementById('app')
-  );
+render(<Root />, doc.getElementById('app'));
+
+/*
+if (module.hot) {
+  module.hot.accept('./components/root', () => {
+    const NextApp = require('./components/root').default;
+
+    render(
+      <AppContainer>
+        <NextApp />
+      </AppContainer>,
+      document.getElementById('app')
+    );
+  });
+}
+*/

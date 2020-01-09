@@ -136,7 +136,6 @@ const PREDEFINED_FILTERS = {
 };
 
 const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
-exports.MOL_ATTRIBUTES = MOL_ATTRIBUTES;
 
 const getFilteredMoleculesCount = (molecules, filterSettings) => {
   let count = 0;
@@ -160,12 +159,11 @@ const getFilteredMoleculesCount = (molecules, filterSettings) => {
   return count;
 };
 
-const getAttrDefinition = attr => {
+export const getAttrDefinition = attr => {
   return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr);
 };
-exports.getAttrDefinition = getAttrDefinition;
 
-const filterMolecules = (molecules, filterSettings) => {
+export const filterMolecules = (molecules, filterSettings) => {
   // 1. Filter
   let filteredMolecules = [];
   for (let molecule of molecules) {
@@ -206,8 +204,6 @@ const filterMolecules = (molecules, filterSettings) => {
     }
   });
 };
-
-exports.filterMolecules = filterMolecules;
 
 export const MoleculeListSortFilterDialog = memo(
   ({ handleClose, molGroupSelection, cachedMolList, filterSettings }) => {
