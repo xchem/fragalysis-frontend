@@ -44,7 +44,7 @@ const ViewerControls = memo(({}) => {
           </Grid>
           <Grid item>
             <Button color="primary" onClick={() => openDrawer(drawers.display)} startIcon={<PersonalVideo />}>
-              Display
+              Displayssssrssstr5ryuds
             </Button>
           </Grid>
           <Grid item>
