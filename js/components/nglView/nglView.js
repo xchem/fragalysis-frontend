@@ -3,7 +3,7 @@
  */
 
 import { Stage } from 'ngl';
-import React, { memo, useEffect, useRef, useCallback, useContext } from 'react';
+import React, { memo, useEffect, useCallback, useContext, useState } from 'react';
 import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglActions from '../../reducers/ngl/nglActions';
@@ -35,8 +35,7 @@ const NglView = memo(
 
     // connect to NGL Stage object
     const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
-    const stageRef = useRef();
-    const stage = stageRef.current;
+    const [stage, setStage] = useState();
 
     const processInt = pickingProxy => {
       let atom_id = '';
@@ -128,7 +127,7 @@ const NglView = memo(
             OBJECT_TYPE: OBJECT_TYPE.ARROW
           };
           loadObject(objToLoad, stage);
-        } else if (pickingProxy.component.object.name) {
+        } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {
           let name = pickingProxy.component.object.name;
           // Ok so now perform logic
           const type = name.split('_')[0];
@@ -169,34 +168,75 @@ const NglView = memo(
       }
     }, [div_id, getNglView]);
 
-    useEffect(() => {
-      if (stageRef.current === undefined) {
-        const newStage = new Stage(div_id);
-        newStage.getComponentsByName();
-        registerNglView(div_id, newStage);
+    const registerStageEvents = useCallback(
+      newStage => {
         window.addEventListener('resize', handleResize);
         newStage.mouseControls.add('clickPick-left', showPick);
 
         newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
         newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
         newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
-        stageRef.current = newStage;
-      }
-      return () => {
-        if (stageRef.current) {
-          window.removeEventListener('resize', handleResize);
-          stageRef.current.mouseControls.remove('clickPick-left', showPick);
-
-          stageRef.current.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
-          stageRef.current.mouseObserver.signals.dropped.remove(handleOrientationChanged);
-          stageRef.current.mouseObserver.signals.dragged.remove(handleOrientationChanged);
-          stageRef.current.dispose();
-          removeAllNglComponents(stageRef.current);
-          unregisterNglView(div_id);
-        }
-      };
+      },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [div_id, handleResize, registerNglView, unregisterNglView, handleOrientationChanged, removeAllNglComponents]);
+      [
+        handleOrientationChanged,
+        handleResize //, showPick
+      ]
+    );
+
+    const unregisterStageEvents = useCallback(
+      stage => {
+        window.addEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
+        stage.mouseControls.remove('clickPick-left', showPick);
+
+        stage.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
+        stage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
+        stage.mouseObserver.signals.dragged.remove(handleOrientationChanged);
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [
+        handleOrientationChanged,
+        handleResize //, showPick
+      ]
+    );
+
+    useEffect(
+      () => {
+        console.log('*** Mount ngl view ', stage);
+        if (stage === undefined && !getNglView(div_id)) {
+          const newStage = new Stage(div_id);
+          registerNglView(div_id, newStage);
+          registerStageEvents(newStage);
+          setStage(newStage);
+        } else if (stage === undefined && getNglView(div_id) && getNglView(div_id).stage) {
+          const newStage = getNglView(div_id).stage;
+          registerStageEvents(newStage);
+          setStage(newStage);
+        } else if (stage) {
+          registerStageEvents(stage);
+        }
+
+        return () => {
+          if (stage) {
+            console.log('*** Unmount ngl view ', stage);
+            unregisterStageEvents(stage);
+          }
+        };
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [
+        div_id,
+        handleResize,
+        registerNglView,
+        unregisterNglView,
+        handleOrientationChanged,
+        removeAllNglComponents,
+        registerStageEvents,
+        unregisterStageEvents
+        //stage
+      ]
+    );
     // End of Initialization NGL View component
 
     return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;

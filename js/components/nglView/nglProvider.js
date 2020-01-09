@@ -8,7 +8,7 @@ export const NglProvider = memo(props => {
 
   const registerNglView = (id, stage) => {
     if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
-      console.log(new Error('Cannot register NGL View with used ID! ', id));
+      console.error('Cannot register NGL View with used ID! ', id);
     } else {
       let extendedList = nglViewList;
       extendedList.push({ id, stage });
@@ -18,7 +18,7 @@ export const NglProvider = memo(props => {
 
   const unregisterNglView = id => {
     if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
-      console.log(new Error('Cannot remove NGL View with given ID! ', id));
+      console.error('Cannot remove NGL View with given ID! ', id);
     } else {
       for (let i = 0; i < nglViewList.length; i++) {
         if (nglViewList[i].id === id) {
@@ -38,13 +38,13 @@ export const NglProvider = memo(props => {
       case 1:
         return filteredList[0];
       default:
-        console.log(new Error('Cannot found NGL View with given ID!'));
+        console.error('Cannot found NGL View with given ID!');
         break;
     }
   };
 
   return (
-    <NglContext.Provider value={{ nglViewList, registerNglView, getNglView, unregisterNglView }}>
+    <NglContext.Provider value={{ nglViewList: nglViewList, registerNglView, getNglView, unregisterNglView }}>
       {props.children}
     </NglContext.Provider>
   );
