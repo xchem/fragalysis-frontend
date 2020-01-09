@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
   addComponentRepresentation,
+  deleteObject,
   removeComponentRepresentation,
   updateComponentRepresentation
-} from '../../../../reducers/ngl/actions';
-import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
+} from '../../../../reducers/ngl/nglActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
 import { assignRepresentationToComp } from '../../../nglView/generatingObjects';
@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
 export default memo(({ open, onClose }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
+  const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
   const { getNglView } = useContext(NglContext);
 
   const [editMenuAnchors, setEditMenuAnchors] = React.useState({});
@@ -230,11 +230,7 @@ export default memo(({ open, onClose }) => {
     <Drawer title="Display controls" open={open} onClose={onClose}>
       <TreeView className={classes.root} defaultCollapseIcon={<ExpandMore />} defaultExpandIcon={<ChevronRight />}>
         {Object.keys(objectsInView)
-          .filter(
-            item =>
-              objectsInView[item].display_div === VIEWS.MAJOR_VIEW &&
-              objectsInView[item].selectionType !== SELECTION_TYPE.VECTOR
-          )
+          .filter(item => objectsInView[item].display_div === VIEWS.MAJOR_VIEW)
           .map(parentItem => (
             <TreeItem
               nodeId={objectsInView[parentItem].name}
@@ -248,9 +244,6 @@ export default memo(({ open, onClose }) => {
                     </IconButton>
                     <IconButton onClick={e => changeVisibilityMoleculeRepresentations(parentItem, e)}>
                       {hasAllRepresentationVisibled(parentItem) === true ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                    <IconButton onClick={e => addMolecularRepresentation(parentItem, e)}>
-                      <Add />
                     </IconButton>
                     <IconButton
                       disabled={
