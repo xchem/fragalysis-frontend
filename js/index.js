@@ -6,6 +6,13 @@ import { DJANGO_CONTEXT } from './utils/djangoContext';
 import { init } from '@sentry/browser';
 // Setup log rocket logging
 import LogRocket from 'logrocket';
+import { Provider } from 'react-redux';
+import { applyMiddleware, createStore } from 'redux';
+import { rootReducer } from './reducers/rootReducer';
+import { saveStore } from './components/helpers/globalStore';
+import { setConfig } from 'react-hot-loader';
+import thunkMiddleware from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension';
 require('react-hot-loader/patch');
 LogRocket.init('eoalzb/fragalysis');
 // This is the log rocket setup
@@ -20,24 +27,26 @@ init({
   dsn: 'https://27fa0675f555431aa02ca552e93d8cfb@sentry.io/1298290'
 });
 
+const middlewareEnhancer = applyMiddleware(
+  //loggerMiddleware,
+  thunkMiddleware
+);
+const enhancers = [middlewareEnhancer];
+const composedEnhancers = composeWithDevTools(...enhancers);
+
+const store = createStore(rootReducer, undefined, composedEnhancers);
+
+saveStore(store);
+setConfig({ logLevel: 'debug' });
+
 const doc = document;
 doc.body.style.margin = '0px';
 
 doc.head.querySelector('link').remove();
 
-render(<Root />, doc.getElementById('app'));
-
-/*
-if (module.hot) {
-  module.hot.accept('./components/root', () => {
-    const NextApp = require('./components/root').default;
-
-    render(
-      <AppContainer>
-        <NextApp />
-      </AppContainer>,
-      document.getElementById('app')
-    );
-  });
-}
-*/
+render(
+  <Provider store={store}>
+    <Root />
+  </Provider>,
+  doc.getElementById('app')
+);

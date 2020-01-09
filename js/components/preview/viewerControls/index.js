@@ -34,7 +34,7 @@ const ViewerControls = memo(({}) => {
   };
 
   return (
-    <Fragment>
+    <>
       <Panel hasHeader title="Viewer controls">
         <Grid container justify="space-between" direction="row">
           <Grid item>
@@ -44,7 +44,7 @@ const ViewerControls = memo(({}) => {
           </Grid>
           <Grid item>
             <Button color="primary" onClick={() => openDrawer(drawers.display)} startIcon={<PersonalVideo />}>
-              Displayssssrssstr5ryuds
+              Display
             </Button>
           </Grid>
           <Grid item>
@@ -57,7 +57,7 @@ const ViewerControls = memo(({}) => {
       <SettingControls open={drawerSettings[drawers.settings]} onClose={closeAllDrawers} />
       <DisplayControls open={drawerSettings[drawers.display]} onClose={closeAllDrawers} />
       <MouseControls open={drawerSettings[drawers.mouse]} onClose={closeAllDrawers} />
-    </Fragment>
+    </>
   );
 });
 
