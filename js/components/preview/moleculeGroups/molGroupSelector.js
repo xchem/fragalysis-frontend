@@ -91,6 +91,7 @@ const molGroupSelector = memo(
             variant="text"
             size="small"
             startIcon={<Delete />}
+            data-testid="clearSelectionButton"
           >
             Clear selection
           </Button>

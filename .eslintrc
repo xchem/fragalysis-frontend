@@ -1,6 +1,6 @@
 {
-  "extends": ["react-app", "prettier", "prettier/react"],
-  "plugins": ["import", "prettier"],
+  "extends": ["react-app", "prettier", "prettier/react", "plugin:jest/all", "plugin:jest-formatting/recommended"],
+  "plugins": ["import", "prettier", "jest", "jest-formatting"],
   "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 8,
