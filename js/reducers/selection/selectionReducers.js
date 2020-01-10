@@ -156,7 +156,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case actions.SET_COMPLEX_LIST:
-      let newComplexList = newSet();
+      let newComplexList = new Set();
       action.complexList.forEach(f => {
         newComplexList.add(f);
       });

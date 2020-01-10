@@ -2,7 +2,7 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React, { memo, Fragment, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { connect } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common';
