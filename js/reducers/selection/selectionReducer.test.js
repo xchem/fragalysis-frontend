@@ -4,6 +4,111 @@ import * as selectionActions from './selectionActions';
 describe("testing selection reducer's actions", () => {
   let initialState = selectionReducer(undefined, {});
 
+  it('should append and remove item in to_buy_list', () => {
+    expect.hasAssertions();
+    const item = 'myItem';
+    let result = selectionReducer(initialState, selectionActions.appendToBuyList(item));
+    expect(result.to_buy_list).toContain(item);
+
+    result = selectionReducer(initialState, selectionActions.removeFromToBuyList(item));
+    expect(result.to_buy_list).not.toContain(item);
+  });
+
+  it('should set to_buy_list', () => {
+    expect.hasAssertions();
+    const to_buy_list = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setToBuyList(to_buy_list));
+    expect(result.to_buy_list).toStrictEqual(to_buy_list);
+  });
+
+  it('should set initial full graph', () => {
+    expect.hasAssertions();
+    const item = {
+      smiles: 'to_query',
+      id: 'to_query_pk',
+      sdf_info: 'to_query_sdf_info',
+      prot_id: 'to_query_prot'
+    };
+    let result = selectionReducer(initialState, selectionActions.setInitialFullGraph(item));
+
+    expect(result.to_query).toStrictEqual(item.smiles);
+    expect(result.to_query_pk).toStrictEqual(item.id);
+    expect(result.to_query_sdf_info).toStrictEqual(item.sdf_info);
+    expect(result.to_query_prot).toStrictEqual(item.prot_id);
+    expect(result.to_select).toStrictEqual({});
+    expect(result.querying).toStrictEqual(true);
+  });
+
+  it('should update full graph', () => {
+    expect.hasAssertions();
+    const initialItem = {
+      to_select: {},
+      to_query_pk: 'to_query_pk',
+      to_query_prot: 'to_query_prot',
+      to_query_sdf_info: 'to_query_sdf_info',
+      querying: true,
+      to_query: 'to_query'
+    };
+
+    const item = {
+      'Cc1cc([Xe])no1_2_REPLACE': {
+        addition: [
+          {
+            end: 'Cc1cc(CN(C)C(C)C(N)=O)no1',
+            change: 'CC(C(N)O)N(C)C[101Xe]'
+          },
+          {
+            end: 'Cc1cc(C(=O)NN=CC(C)(C)C)no1',
+            change: 'CC(C)(C)CNNC(O)[101Xe]'
+          },
+          {
+            end: 'Cc1cc(NCC(C)(C)C)no1',
+            change: 'CC(C)(C)CN[101Xe]'
+          }
+        ],
+        vector: 'CC1CCC([101Xe])C1'
+      }
+    };
+
+    let result = selectionReducer(Object.assign({}, initialState, initialItem), selectionActions.updateFullGraph(item));
+    expect(result.to_select).toStrictEqual(item);
+    expect(result.querying).toStrictEqual(false);
+
+    const item2 = {
+      'C[Xe].NC(=O)NCC[Xe]_2_LINKER': {
+        addition: [
+          {
+            end: 'Cc1csc(CCNC(N)=O)n1',
+            change: '[100Xe]C1CCC([101Xe])C1'
+          }
+        ],
+        vector: 'C[100Xe].NC(O)NCC[101Xe]'
+      }
+    };
+
+    result = selectionReducer(Object.assign({}, result), selectionActions.updateFullGraph(item2));
+
+    expect(result.to_select).not.toStrictEqual(item);
+    expect(result.to_select).toStrictEqual(item2);
+    expect(result.querying).toStrictEqual(false);
+  });
+
+  it('should set bond color map', () => {
+    expect.hasAssertions();
+    const item = { a: 4, b: 'abe' };
+
+    let result = selectionReducer(initialState, selectionActions.setBondColorMap(item));
+    expect(result.bondColorMap).toStrictEqual(item);
+  });
+
+  it('should set to query', () => {
+    expect.hasAssertions();
+    const item = { a: 4, b: 'abe' };
+
+    let result = selectionReducer(initialState, selectionActions.setToQuery(item));
+    expect(result.to_query).toStrictEqual(item);
+  });
+
   it('should append and remove item in complexList', () => {
     expect.hasAssertions();
     const complexItem = { id: 10 };
@@ -12,6 +117,13 @@ describe("testing selection reducer's actions", () => {
 
     result = selectionReducer(initialState, selectionActions.removeFromComplexList(complexItem));
     expect(result.complexList).not.toContain(complexItem.id);
+  });
+
+  it('should set complexList', () => {
+    expect.hasAssertions();
+    const complexList = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setComplexList(complexList));
+    expect(result.complexList).toStrictEqual(complexList);
   });
 
   it('should append and remove item in fragmentDisplayList', () => {
@@ -24,6 +136,13 @@ describe("testing selection reducer's actions", () => {
     expect(result.fragmentDisplayList).not.toContain(newItem.id);
   });
 
+  it('should set fragmentDisplayList', () => {
+    expect.hasAssertions();
+    const fragmentDisplayList = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setFragmentDisplayList(fragmentDisplayList));
+    expect(result.fragmentDisplayList).toStrictEqual(fragmentDisplayList);
+  });
+
   it('should append and remove item in vectorOnList', () => {
     expect.hasAssertions();
     const newItem = { id: 16 };
@@ -32,5 +151,12 @@ describe("testing selection reducer's actions", () => {
 
     result = selectionReducer(initialState, selectionActions.removeFromVectorOnList(newItem));
     expect(result.vectorOnList).not.toContain(newItem.id);
+  });
+
+  it('should set vectorOnList', () => {
+    expect.hasAssertions();
+    const vectorOnList = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setVectorOnList(vectorOnList));
+    expect(result.vectorOnList).toStrictEqual(vectorOnList);
   });
 });

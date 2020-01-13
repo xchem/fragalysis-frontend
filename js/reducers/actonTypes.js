@@ -24,10 +24,10 @@ export const SET_PANNDA_EVENT_ON = 'SET_PANNDA_EVENT_ON';
 export const SET_PANNDA_SITE_LIST = 'SET_PANNDA_SITE_LIST';
 
 // Data related to network
-export const GET_FULL_GRAPH = 'GET_FULL_GRAPH';
-export const GOT_FULL_GRAPH = 'GOT_FULL_GRAPH';
+export const SET_INITIAL_FULL_GRAPH = 'SET_INITIAL_FULL_GRAPH';
+export const UPDATE_FULL_GRAPH = 'UPDATE_FULL_GRAPH';
 export const SELECT_VECTOR = 'SELECT_VECTOR';
-export const SET_MOL = 'SET_MOL';
+export const SET_TO_QUERY = 'SET_TO_QUERY';
 export const SET_VECTOR_LIST = 'SET_VECTOR_LIST';
 // State broadcast
 export const SET_UUID = 'SET_UUID';

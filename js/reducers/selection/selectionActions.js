@@ -6,11 +6,11 @@ import {
   SET_TO_BUY_LIST,
   APPEND_TO_BUY_LIST,
   REMOVE_FROM_TO_BUY_LIST,
-  GET_FULL_GRAPH,
-  GOT_FULL_GRAPH,
+  SET_INITIAL_FULL_GRAPH,
+  UPDATE_FULL_GRAPH,
   SET_VECTOR_LIST,
   SELECT_VECTOR,
-  SET_MOL,
+  SET_TO_QUERY,
   SET_FRAGMENT_DISPLAY_LIST,
   APPEND_FRAGMENT_DISPLAY_LIST,
   REMOVE_FROM_FRAGMENT_DISPLAY_LIST,
@@ -51,16 +51,16 @@ export const removeFromToBuyList = function(item) {
   };
 };
 
-export const getFullGraph = function(item) {
+export const setInitialFullGraph = function(item) {
   return {
-    type: GET_FULL_GRAPH,
+    type: SET_INITIAL_FULL_GRAPH,
     item: item
   };
 };
 
-export const gotFullGraph = function(result) {
+export const updateFullGraph = function(result) {
   return {
-    type: GOT_FULL_GRAPH,
+    type: UPDATE_FULL_GRAPH,
     input_mol_dict: result
   };
 };
@@ -72,10 +72,10 @@ export const setBondColorMap = function(result) {
   };
 };
 
-export const setMol = function(mol) {
+export const setToQuery = function(to_query) {
   return {
-    type: SET_MOL,
-    mol: mol
+    type: SET_TO_QUERY,
+    to_query
   };
 };
 
