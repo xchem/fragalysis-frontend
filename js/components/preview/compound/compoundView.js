@@ -76,28 +76,6 @@ const CompoundView = memo(
       setCompoundClass(compoundClassTemp);
     }, [highlightedCompound.smiles, send_obj.smiles, to_buy_list]);
 
-    const handleClick = e => {
-      setHighlighted({
-        index: send_obj.index,
-        smiles: send_obj.smiles
-      });
-      if (e.shiftKey) {
-        setIsConfOn(!isConfOn);
-        handleConf();
-      } else {
-        if (compoundClass === currentCompoundClass) {
-          setCompoundClass(0);
-          removeFromToBuyList(send_obj);
-        } else {
-          setCompoundClass(currentCompoundClass);
-          Object.assign(send_obj, {
-            class: parseInt(currentCompoundClass)
-          });
-          appendToBuyList(send_obj);
-        }
-      }
-    };
-
     const generateMolObject = (sdf_info, identifier) => ({
       name: 'CONFLOAD_' + identifier,
       OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
@@ -134,6 +112,28 @@ const CompoundView = memo(
           .catch(error => {
             throw error;
           });
+      }
+    };
+
+    const handleClick = e => {
+      setHighlighted({
+        index: send_obj.index,
+        smiles: send_obj.smiles
+      });
+      if (e.shiftKey) {
+        setIsConfOn(!isConfOn);
+        handleConf();
+      } else {
+        if (compoundClass === currentCompoundClass) {
+          setCompoundClass(0);
+          removeFromToBuyList(send_obj);
+        } else {
+          setCompoundClass(currentCompoundClass);
+          Object.assign(send_obj, {
+            class: parseInt(currentCompoundClass)
+          });
+          appendToBuyList(send_obj);
+        }
       }
     };
 
