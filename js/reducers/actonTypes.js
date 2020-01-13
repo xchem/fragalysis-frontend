@@ -2,10 +2,7 @@
  * Created by abradley on 03/03/2018.
  */
 // Define all of the actions in my application
-// Target, Site, Molecule, Protein, Compound
-export const LOAD_TARGETS = 'LOAD_TARGETS';
-export const LOAD_MOL_GROUPS = 'LOAD_MOL_GROUPS';
-export const LOAD_MOLECULES = 'LOAD_MOLECULES';
+
 // Load data from the API
 export const SET_TARGET_ID_LIST = 'SET_TARGET_ID_LIST';
 export const SET_TARGET_ON = 'SET_TARGET_ON';

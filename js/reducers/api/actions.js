@@ -2,15 +2,12 @@
  * Created by abradley on 03/03/2018.
  */
 import {
-  LOAD_TARGETS,
   SET_TARGET_ON,
   SET_TARGET_ID_LIST,
   SET_MOLECULE_LIST,
   SET_CACHED_MOL_LISTS,
   SET_MOL_GROUP_LIST,
   SET_MOL_GROUP_ON,
-  LOAD_MOLECULES,
-  LOAD_MOL_GROUPS,
   SET_PANNDA_EVENT_LIST,
   SET_PANNDA_EVENT_ON,
   SET_PANNDA_SITE_ON,
@@ -29,21 +26,6 @@ import {
   SET_UUID,
   RESET_TARGET_STATE
 } from '../actonTypes';
-
-export const loadTargets = function(project_id = undefined) {
-  return {
-    type: LOAD_TARGETS,
-    project_id: project_id
-  };
-};
-
-export const loadMolGroups = function(target_id, group_type = 'MC') {
-  return {
-    type: LOAD_MOL_GROUPS,
-    target_id: target_id,
-    group_type: group_type
-  };
-};
 
 export const setTargetIdList = function(input_json) {
   return {
@@ -121,14 +103,6 @@ export const setCachedMolLists = function(cached_mol_lists) {
   };
 };
 
-export const loadMolecules = function(target_id = undefined, group_id = undefined) {
-  return {
-    type: LOAD_MOLECULES,
-    target_id: target_id,
-    group_id: group_id
-  };
-};
-
 export const setSavingState = function(savingState) {
   return {
     type: SET_SAVING_STATE,
@@ -139,7 +113,7 @@ export const setSavingState = function(savingState) {
 export const setSeshListSaving = function(seshListSaving) {
   return {
     type: SET_SESH_LIST_SAVING,
-    seshListSaving: seshListSaving
+    seshListSaving
   };
 };
 

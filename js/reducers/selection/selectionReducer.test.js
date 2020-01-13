@@ -2,7 +2,7 @@ import selectionReducer, { INITIAL_STATE } from './selectionReducers';
 import * as selectionActions from './selectionActions';
 
 describe("testing selection reducer's actions", () => {
-  let initialState = selectionReducer(undefined, {});
+  let initialState = selectionReducer(INITIAL_STATE, {});
 
   it('should append and remove item in to_buy_list', () => {
     expect.hasAssertions();
