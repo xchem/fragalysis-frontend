@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
 const molGroupSelector = memo(
   ({
     setObjectOn,
-    setObjectSelection,
+    setMolGroupSelection,
     setFragmentDisplayList,
     setComplexList,
     setVectorOnList,
@@ -61,7 +61,7 @@ const molGroupSelector = memo(
       // Reset selection reducer
       // remove sites selection
       setObjectOn(undefined);
-      setObjectSelection([]);
+      setMolGroupSelection([]);
 
       // reset all selection state
       resetSelectionState();
@@ -120,7 +120,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   setObjectOn: apiActions.setMolGroupOn,
-  setObjectSelection: selectionActions.setMolGroupSelection,
+  setMolGroupSelection: selectionActions.setMolGroupSelection,
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
   setFragmentDisplayList: selectionActions.setFragmentDisplayList,
   setComplexList: selectionActions.setComplexList,

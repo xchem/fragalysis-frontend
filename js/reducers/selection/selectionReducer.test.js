@@ -1,4 +1,4 @@
-import selectionReducer from './selectionReducers';
+import selectionReducer, { INITIAL_STATE } from './selectionReducers';
 import * as selectionActions from './selectionActions';
 
 describe("testing selection reducer's actions", () => {
@@ -109,21 +109,38 @@ describe("testing selection reducer's actions", () => {
     expect(result.to_query).toStrictEqual(item);
   });
 
-  it('should append and remove item in complexList', () => {
+  it('should set vector list', () => {
     expect.hasAssertions();
-    const complexItem = { id: 10 };
-    let result = selectionReducer(initialState, selectionActions.appendComplexList(complexItem));
-    expect(result.complexList).toContain(complexItem.id);
+    const list = ['efg', 'rrgfd', 'ggg'];
 
-    result = selectionReducer(initialState, selectionActions.removeFromComplexList(complexItem));
-    expect(result.complexList).not.toContain(complexItem.id);
+    let result = selectionReducer(initialState, selectionActions.setVectorList(list));
+    expect(result.vector_list).toStrictEqual(list);
   });
 
-  it('should set complexList', () => {
+  it('should select vector', () => {
     expect.hasAssertions();
-    const complexList = [30, 40, 50, 60];
-    let result = selectionReducer(initialState, selectionActions.setComplexList(complexList));
-    expect(result.complexList).toStrictEqual(complexList);
+    const vectorId = 'tempVector123';
+    const vectorKey = `${vectorId}_x34sgk&&40fk`;
+    const vectorValue = 45;
+
+    const initialData = {
+      // symbol '_' is important there
+      to_select: { [vectorKey]: vectorValue }
+    };
+
+    let result = selectionReducer(
+      Object.assign({}, initialState, initialData),
+      selectionActions.selectVector(vectorId)
+    );
+    expect(result.this_vector_list).toStrictEqual({ [vectorKey]: vectorValue });
+    expect(result.currentVector).toStrictEqual(vectorId);
+  });
+
+  it('should set fragmentDisplayList', () => {
+    expect.hasAssertions();
+    const fragmentDisplayList = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setFragmentDisplayList(fragmentDisplayList));
+    expect(result.fragmentDisplayList).toStrictEqual(fragmentDisplayList);
   });
 
   it('should append and remove item in fragmentDisplayList', () => {
@@ -136,11 +153,28 @@ describe("testing selection reducer's actions", () => {
     expect(result.fragmentDisplayList).not.toContain(newItem.id);
   });
 
-  it('should set fragmentDisplayList', () => {
+  it('should set complexList', () => {
     expect.hasAssertions();
-    const fragmentDisplayList = [30, 40, 50, 60];
-    let result = selectionReducer(initialState, selectionActions.setFragmentDisplayList(fragmentDisplayList));
-    expect(result.fragmentDisplayList).toStrictEqual(fragmentDisplayList);
+    const complexList = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setComplexList(complexList));
+    expect(result.complexList).toStrictEqual(complexList);
+  });
+
+  it('should append and remove item in complexList', () => {
+    expect.hasAssertions();
+    const complexItem = { id: 10 };
+    let result = selectionReducer(initialState, selectionActions.appendComplexList(complexItem));
+    expect(result.complexList).toContain(complexItem.id);
+
+    result = selectionReducer(initialState, selectionActions.removeFromComplexList(complexItem));
+    expect(result.complexList).not.toContain(complexItem.id);
+  });
+
+  it('should set vectorOnList', () => {
+    expect.hasAssertions();
+    const vectorOnList = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setVectorOnList(vectorOnList));
+    expect(result.vectorOnList).toStrictEqual(vectorOnList);
   });
 
   it('should append and remove item in vectorOnList', () => {
@@ -153,10 +187,99 @@ describe("testing selection reducer's actions", () => {
     expect(result.vectorOnList).not.toContain(newItem.id);
   });
 
-  it('should set vectorOnList', () => {
+  it('should set compound classes', () => {
     expect.hasAssertions();
-    const vectorOnList = [30, 40, 50, 60];
-    let result = selectionReducer(initialState, selectionActions.setVectorOnList(vectorOnList));
-    expect(result.vectorOnList).toStrictEqual(vectorOnList);
+    const compoundClasses = {
+      1: 'Red',
+      2: 'Green',
+      3: 'Blue'
+    };
+    const currentCompoundClass = 3;
+    let result = selectionReducer(
+      initialState,
+      selectionActions.setCompoundClasses(compoundClasses, currentCompoundClass)
+    );
+    expect(result.compoundClasses).toStrictEqual(compoundClasses);
+    expect(result.currentCompoundClass).toStrictEqual(currentCompoundClass);
+  });
+
+  it('should set highlighted', () => {
+    expect.hasAssertions();
+    const item = {
+      index: 'send_obj.index',
+      smiles: 'send_obj.smiles'
+    };
+
+    let result = selectionReducer(initialState, selectionActions.setHighlighted(item));
+    expect(result.highlightedCompound).toStrictEqual(item);
+  });
+
+  it('should reload selection reducer', () => {
+    expect.hasAssertions();
+    const vectorKey = 'abc';
+    const savedSelectionReducers = {
+      to_select: {
+        1: 'send_obj.index',
+        [vectorKey]: 'send_obj.smiles',
+        3: { a: 'ff', b: 69 }
+      },
+      currentVector: vectorKey,
+      fragmentDisplayList: ['dfsd', 'dsgds', 12, 78],
+      complexList: ['ffd', 556, '234'],
+      vectorOnList: [67, 99]
+    };
+
+    let result = selectionReducer(
+      Object.assign({}, initialState, { vectorOnList: ['aaaaa'], complexList: 'bbbb' }),
+      selectionActions.reloadSelectionReducer(savedSelectionReducers)
+    );
+
+    expect(result.this_vector_list[result.currentVector]).toStrictEqual(
+      savedSelectionReducers.to_select[savedSelectionReducers.currentVector]
+    );
+
+    expect(result.fragmentDisplayList).toStrictEqual(savedSelectionReducers.fragmentDisplayList);
+    expect(result.complexList).toStrictEqual(savedSelectionReducers.complexList);
+    expect(result.vectorOnList).toStrictEqual(savedSelectionReducers.vectorOnList);
+  });
+
+  it('should reset selection state', () => {
+    expect.hasAssertions();
+    const vectorKey = 'abc';
+    const savedSelectionReducers = {
+      to_select: {
+        1: 'send_obj.index',
+        [vectorKey]: 'send_obj.smiles',
+        3: { a: 'ff', b: 69 }
+      },
+      currentVector: vectorKey,
+      fragmentDisplayList: ['dfsd', 'dsgds', 12, 78],
+      complexList: ['ffd', 556, '234'],
+      vectorOnList: [67, 99]
+    };
+
+    let result = selectionReducer(
+      Object.assign({}, initialState, { vectorOnList: ['aaaaa'], complexList: 'bbbb' }),
+      selectionActions.resetSelectionState(savedSelectionReducers)
+    );
+    expect(result).toStrictEqual(INITIAL_STATE);
+  });
+
+  it('should increment and decrement count of pending vector load requests', () => {
+    expect.hasAssertions();
+    let result = selectionReducer(initialState, selectionActions.incrementCountOfPendingVectorLoadRequests());
+    expect(result.countOfPendingVectorLoadRequests).toBe(1);
+    result = selectionReducer(
+      Object.assign({}, initialState, result),
+      selectionActions.decrementCountOfPendingVectorLoadRequests()
+    );
+    expect(result.countOfPendingVectorLoadRequests).toBe(0);
+  });
+
+  it('should set molecule group selection', () => {
+    expect.hasAssertions();
+    const mol_group_selection = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setMolGroupSelection(mol_group_selection));
+    expect(result.mol_group_selection).toStrictEqual(mol_group_selection);
   });
 });

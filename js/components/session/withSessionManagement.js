@@ -32,7 +32,7 @@ export const withSessionManagement = WrappedComponent => {
       targetIdList,
       setSavingState,
       reloadApiState,
-      reloadSelectionState,
+      reloadSelectionReducer,
       setLatestSession,
       setLatestSnapshot,
       setSessionId,
@@ -161,7 +161,7 @@ export const withSessionManagement = WrappedComponent => {
           reloadApiState(jsonOfView.apiReducers.present);
           setSessionId(myJson.id);
           if (nglViewList.length > 0) {
-            reloadSelectionState(jsonOfView.selectionReducers.present);
+            reloadSelectionReducer(jsonOfView.selectionReducers.present);
             nglViewList.forEach(nglView => {
               reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
             });
@@ -180,7 +180,7 @@ export const withSessionManagement = WrappedComponent => {
         },
         [
           reloadApiState,
-          reloadSelectionState,
+          reloadSelectionReducer,
           nglViewList,
           setSessionTitle,
           setSessionId,
@@ -428,7 +428,7 @@ export const withSessionManagement = WrappedComponent => {
   const mapDispatchToProps = {
     setSavingState: apiActions.setSavingState,
     reloadApiState: apiActions.reloadApiState,
-    reloadSelectionState: selectionActions.reloadSelectionState,
+    reloadSelectionReducer: selectionActions.reloadSelectionReducer,
     setLatestSession: apiActions.setLatestSession,
     setLatestSnapshot: apiActions.setLatestSnapshot,
     setSessionId: apiActions.setSessionId,

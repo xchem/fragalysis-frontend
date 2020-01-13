@@ -22,8 +22,7 @@ import {
   REMOVE_FROM_VECTOR_ON_LIST,
   SET_HIGHLIGHTED,
   SET_COMPOUND_CLASSES,
-  SET_CURRENT_COMPOUND_CLASS,
-  RELOAD_SELECTION_STATE,
+  RELOAD_SELECTION_REDUCER,
   SET_BOND_COLOR_MAP,
   RESET_SELECTION_STATE,
   SET_MOL_GROUP_SELECTION
@@ -156,16 +155,10 @@ export const removeFromVectorOnList = function(item) {
   };
 };
 
-export const setCompoundClasses = function(compoundClasses) {
+export const setCompoundClasses = function(compoundClasses, currentCompoundClass) {
   return {
     type: SET_COMPOUND_CLASSES,
-    compoundClasses: compoundClasses
-  };
-};
-
-export const setCurrentCompoundClass = function(currentCompoundClass) {
-  return {
-    type: SET_CURRENT_COMPOUND_CLASS,
+    compoundClasses: compoundClasses,
     currentCompoundClass: currentCompoundClass
   };
 };
@@ -177,10 +170,10 @@ export const setHighlighted = function(item) {
   };
 };
 
-export const reloadSelectionState = function(savedSelectionReducers) {
+export const reloadSelectionReducer = function(savedSelectionReducers) {
   return {
-    type: RELOAD_SELECTION_STATE,
-    savedSelectionReducers: savedSelectionReducers
+    type: RELOAD_SELECTION_REDUCER,
+    savedSelectionReducers
   };
 };
 
