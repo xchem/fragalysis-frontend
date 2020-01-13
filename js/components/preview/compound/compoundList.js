@@ -30,7 +30,6 @@ const CompoundList = memo(
     setToBuyList,
     appendToBuyList,
     setCompoundClasses,
-    setCurrentCompoundClass,
     height
   }) => {
     const classes = useStyles();
@@ -51,8 +50,7 @@ const CompoundList = memo(
       if (e.keyCode === 13) {
         const newClassDescription = { [e.target.id]: e.target.value };
         const descriptionToSet = Object.assign(compoundClasses, newClassDescription);
-        setCompoundClasses(descriptionToSet);
-        setCurrentCompoundClass(e.target.id);
+        setCompoundClasses(descriptionToSet, e.target.id);
       }
     };
 
@@ -192,8 +190,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setToBuyList: selectionActions.setToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
-  setCompoundClasses: selectionActions.setCompoundClasses,
-  setCurrentCompoundClass: selectionActions.setCurrentCompoundClass
+  setCompoundClasses: selectionActions.setCompoundClasses
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CompoundList);

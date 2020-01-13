@@ -4,7 +4,7 @@
 import * as actions from '../actonTypes';
 import { constants } from './selectionConstants';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   to_buy_list: [],
   to_select: {},
   vector_list: [],
@@ -131,7 +131,6 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case actions.SET_FRAGMENT_DISPLAY_LIST:
       console.log('SET_FRAGMENT_DISPLAY_LIST');
-      //  state.fragmentDisplayList.clear();
       let newFragmentSet = new Set();
       action.fragmentDisplayList.forEach(f => {
         newFragmentSet.add(f);
@@ -193,11 +192,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case actions.SET_COMPOUND_CLASSES:
       return Object.assign({}, state, {
-        compoundClasses: action.compoundClasses
-      });
-
-    case actions.SET_CURRENT_COMPOUND_CLASS:
-      return Object.assign({}, state, {
+        compoundClasses: action.compoundClasses,
         currentCompoundClass: action.currentCompoundClass
       });
 
@@ -206,7 +201,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         bondColorMap: action.bondColorMap
       });
 
-    case actions.RELOAD_SELECTION_STATE:
+    case actions.RELOAD_SELECTION_REDUCER:
       var this_vector_list = {};
       for (var to_select_item in action.savedSelectionReducers.to_select) {
         if (to_select_item === action.savedSelectionReducers.currentVector) {
