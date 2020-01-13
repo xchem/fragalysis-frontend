@@ -115,12 +115,12 @@ const MoleculeView = memo(
     complexList,
     fragmentDisplayList,
     vectorOnList,
-    getFullGraph,
+    setInitialFullGraph,
     setVectorList,
     setBondColorMap,
     selectVector,
-    gotFullGraph,
-    setMol,
+    updateFullGraph,
+    setToQuery,
     deleteObject,
     loadObject,
     appendComplexList,
@@ -352,7 +352,7 @@ const MoleculeView = memo(
 
     const removeVector = () => {
       vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
-      setMol('');
+      setToQuery('');
       removeFromVectorOnList(generateMoleculeId(data));
       selectedAll.current = false;
     };
@@ -360,7 +360,7 @@ const MoleculeView = memo(
     const addVector = () => {
       vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
       // Set this
-      getFullGraph(data);
+      setInitialFullGraph(data);
       // Do the query
       incrementCountOfPendingVectorLoadRequests();
       Promise.all([
@@ -372,7 +372,7 @@ const MoleculeView = memo(
             });
           }),
         api({ url: getViewUrl('graph') })
-          .then(response => gotFullGraph(response.data['graph']))
+          .then(response => updateFullGraph(response.data['graph']))
           .catch(error => {
             setState(() => {
               throw error;
@@ -578,12 +578,12 @@ function mapStateToProps(state) {
   };
 }
 const mapDispatchToProps = {
-  getFullGraph: selectionActions.getFullGraph,
+  setInitialFullGraph: selectionActions.setInitialFullGraph,
   setVectorList: selectionActions.setVectorList,
   setBondColorMap: selectionActions.setBondColorMap,
   selectVector: selectionActions.selectVector,
-  gotFullGraph: selectionActions.gotFullGraph,
-  setMol: selectionActions.setMol,
+  updateFullGraph: selectionActions.updateFullGraph,
+  setToQuery: selectionActions.setToQuery,
   deleteObject: nglLoadActions.deleteObject,
   loadObject: nglLoadActions.loadObject,
   appendComplexList: selectionActions.appendComplexList,

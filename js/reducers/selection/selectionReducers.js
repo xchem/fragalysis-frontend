@@ -78,7 +78,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         return Object.assign({}, state);
       }
 
-    case actions.GET_FULL_GRAPH:
+    case actions.SET_INITIAL_FULL_GRAPH:
       var input_mol = action.item;
       return Object.assign({}, state, {
         to_query: input_mol.smiles,
@@ -89,12 +89,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         querying: true
       });
 
-    case actions.SET_MOL:
+    case actions.SET_TO_QUERY:
       return Object.assign({}, state, {
-        to_query: action.mol
+        to_query: action.to_query
       });
 
-    case actions.GOT_FULL_GRAPH:
+    case actions.UPDATE_FULL_GRAPH:
       const input_mol_dict = action.input_mol_dict;
       var new_dict = {};
       // Uniquify
