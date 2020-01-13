@@ -4,7 +4,7 @@
 import * as actions from '../actonTypes';
 import { savingStateConst } from '../../components/session/constants';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   project_id: undefined,
   target_id: undefined,
   target_id_list: [],
@@ -37,7 +37,7 @@ const INITIAL_STATE = {
   user_id: undefined
 };
 
-const RESET_TARGET_STATE = {
+export const RESET_TARGET_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
@@ -69,22 +69,11 @@ const RESET_TARGET_STATE = {
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
-    case actions.LOAD_TARGETS:
-      return Object.assign({}, state, {
-        project_id: action.project_id
-      });
-
     case actions.LOAD_MOL_GROUPS:
       return Object.assign({}, state, {
         group_id: action.group_id,
         // Group type is default
         group_type: (action.group_type = action.group_type === undefined ? 'MC' : action.group_type)
-      });
-
-    case actions.LOAD_MOLECULES:
-      return Object.assign({}, state, {
-        target_id: action.target_id,
-        group_id: action.group_id
       });
 
     case actions.SET_TARGET_ID_LIST:
