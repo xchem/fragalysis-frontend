@@ -5,7 +5,8 @@
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
-import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
+import * as nglDispatchActions from '../../../reducers/ngl/nglDispatchActions';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
@@ -584,8 +585,8 @@ const mapDispatchToProps = {
   selectVector: selectionActions.selectVector,
   updateFullGraph: selectionActions.updateFullGraph,
   setToQuery: selectionActions.setToQuery,
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject,
+  deleteObject,
+  loadObject,
   appendComplexList: selectionActions.appendComplexList,
   removeFromComplexList: selectionActions.removeFromComplexList,
   appendVectorOnList: selectionActions.appendVectorOnList,
@@ -594,7 +595,7 @@ const mapDispatchToProps = {
   removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
   incrementCountOfPendingVectorLoadRequests: selectionActions.incrementCountOfPendingVectorLoadRequests,
   decrementCountOfPendingVectorLoadRequests: selectionActions.decrementCountOfPendingVectorLoadRequests,
-  setOrientation: nglLoadActions.setOrientation
+  setOrientation: nglDispatchActions.setOrientation
 };
 
 MoleculeView.displayName = 'MoleculeView';

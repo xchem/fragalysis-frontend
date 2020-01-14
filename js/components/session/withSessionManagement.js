@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import { reloadNglViewFromScene } from '../../reducers/ngl/nglDispatchActions';
 import * as apiActions from '../../reducers/api/apiActions';
 import { Button } from '@material-ui/core';
 import { Save, SaveOutlined, Share } from '@material-ui/icons';
@@ -438,7 +439,7 @@ export const withSessionManagement = WrappedComponent => {
     setBondColorMap: selectionActions.setBondColorMap,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
     saveCurrentStateAsSessionScene: nglLoadActions.saveCurrentStateAsSessionScene,
-    reloadNglViewFromScene: nglLoadActions.reloadNglViewFromScene
+    reloadNglViewFromScene
   };
   return connect(mapStateToProps, mapDispatchToProps)(SessionManagement);
 };

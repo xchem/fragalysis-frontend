@@ -8,7 +8,7 @@ import NGLView from '../../nglView/nglView';
 import MolGroupChecklist from './molGroupChecklist';
 import * as apiActions from '../../../reducers/api/apiActions';
 import { connect } from 'react-redux';
-import * as nglActions from '../../../reducers/ngl/nglActions';
+import { reloadNglViewFromScene } from '../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../constants/constants';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import { withLoadingMolGroupList } from '../../../hoc/withLoadingMolGroupList';
@@ -127,6 +127,6 @@ const mapDispatchToProps = {
   setVectorOnList: selectionActions.setVectorOnList,
   setVectorList: selectionActions.setVectorList,
   resetSelectionState: selectionActions.resetSelectionState,
-  reloadNglViewFromScene: nglActions.reloadNglViewFromScene
+  reloadNglViewFromScene: reloadNglViewFromScene
 };
 export default withLoadingMolGroupList(connect(mapStateToProps, mapDispatchToProps)(molGroupSelector));
