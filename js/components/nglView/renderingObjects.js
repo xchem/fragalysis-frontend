@@ -1,11 +1,11 @@
 import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE } from './constants';
-import { concatStructures, Selection, Shape } from 'ngl';
 import {
   assignRepresentationArrayToComp,
   createRepresentationsArray,
   createRepresentationStructure,
   defaultFocus
 } from './generatingObjects';
+import { concatStructures, Selection, Shape } from 'ngl';
 
 const showSphere = (stage, input_dict, object_name, representations) => {
   let colour = input_dict.colour;

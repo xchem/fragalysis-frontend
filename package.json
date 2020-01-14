@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "jest",
-    "testwatch": "jest --watch",
+    "testwatch": "jest --watchAll",
     "build": "webpack --config webpack.config.js --progress --mode production",
     "watch": "webpack --config webpack.config.js --watch",
     "dev": "webpack --config webpack.config.js --mode development --watch"

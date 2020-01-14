@@ -1,7 +1,7 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
 import { CONSTANTS, SCENES } from './nglConstants';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   // NGL Scene properties
   objectsInView: {},
   nglOrientations: {},
