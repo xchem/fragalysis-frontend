@@ -69,13 +69,6 @@ export const RESET_TARGET_STATE = {
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
-    case actions.LOAD_MOL_GROUPS:
-      return Object.assign({}, state, {
-        group_id: action.group_id,
-        // Group type is default
-        group_type: (action.group_type = action.group_type === undefined ? 'MC' : action.group_type)
-      });
-
     case actions.SET_TARGET_ID_LIST:
       return Object.assign({}, state, {
         target_id_list: action.target_id_list
