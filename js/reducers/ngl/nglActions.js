@@ -1,35 +1,9 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import { CONSTANTS, SCENES } from './nglConstants';
-import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
-import { SELECTION_TYPE } from '../../components/nglView/constants';
-import {
-  removeFromComplexList,
-  removeFromFragmentDisplayList,
-  removeFromVectorOnList
-} from '../selection/selectionActions';
-import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
-import { isEqual, isEmpty } from 'lodash';
+import { CONSTANTS } from './nglConstants';
 
-export const loadObject = (target, stage, previousRepresentations) => dispatch => {
-  if (stage) {
-    dispatch(incrementCountOfPendingNglObjects());
-    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, previousRepresentations)
-      .then(representations =>
-        dispatch({
-          type: CONSTANTS.LOAD_OBJECT,
-          target,
-          representations
-        })
-      )
-      .catch(error => {
-        console.error(error);
-      })
-      .finally(() => dispatch(decrementCountOfPendingNglObjects()));
-  }
-  return Promise.reject('Instance of NGL View is missing');
-};
+export const loadNglObject = (target, representations) => ({ type: CONSTANTS.LOAD_OBJECT, target, representations });
 
 export const updateComponentRepresentation = (objectInViewID, representationID, newRepresentation) => ({
   type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION,
@@ -50,46 +24,10 @@ export const removeComponentRepresentation = (objectInViewID, representationID) 
   objectInViewID
 });
 
-export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
-  const nglOrientations = getState().nglReducers.present.nglOrientations;
-
-  if (
-    orientation &&
-    ((nglOrientations && nglOrientations[div_id] && !isEqual(orientation.elements, nglOrientations[div_id].elements)) ||
-      isEmpty(nglOrientations) ||
-      (nglOrientations && nglOrientations[div_id] === undefined))
-  ) {
-    dispatch({
-      type: CONSTANTS.SET_ORIENTATION,
-      orientation,
-      div_id
-    });
-  }
-};
-
-export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
-  const comps = stage.getComponentsByName(target.name);
-  comps.list.forEach(component => stage.removeComponent(component));
-  if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
-    const objectId = { id: target.moleculeId };
-    switch (target.selectionType) {
-      case SELECTION_TYPE.LIGAND:
-        dispatch(removeFromFragmentDisplayList(objectId));
-        break;
-      case SELECTION_TYPE.COMPLEX:
-        dispatch(removeFromComplexList(objectId));
-        break;
-      case SELECTION_TYPE.VECTOR:
-        dispatch(removeFromVectorOnList(objectId));
-        break;
-    }
-  }
-
-  dispatch({
-    type: CONSTANTS.DELETE_OBJECT,
-    target
-  });
-};
+export const deleteNglObject = target => ({
+  type: CONSTANTS.DELETE_OBJECT,
+  target
+});
 
 export const setNglViewParams = (key, value, stage) => {
   stage.setParameters({ [key]: value });
@@ -100,77 +38,19 @@ export const setNglViewParams = (key, value, stage) => {
   };
 };
 
-/**
- *
- * @param stage - instance of NGL view
- * @param display_div - id of NGL View div
- * @param scene - type of scene (default or session)
- * @param sessionData - new session data loaded from API
- * @returns {function(...[*]=)}
- */
-export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) => (dispatch, getState) => {
-  const currentScene = (sessionData && sessionData.nglReducers.present[scene]) || getState().nglReducers.present[scene];
-  switch (scene) {
-    case SCENES.defaultScene:
-      dispatch({
-        type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE
-      });
-      break;
-    case SCENES.sessionScene:
-      dispatch({
-        type: CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE,
-        payload: currentScene
-      });
-      break;
-  }
-  // Remove all components in NGL View
-  stage.removeAllComponents();
+export const setProteinLoadingState = hasLoad => ({ type: CONSTANTS.SET_PROTEINS_HAS_LOADED, payload: hasLoad });
 
-  // Reconstruction of state in NGL View from currentScene data
-  // objectsInView
-  Promise.all(
-    Object.keys(currentScene.objectsInView || {}).map(objInView => {
-      if (currentScene.objectsInView[objInView].display_div === display_div) {
-        let representations = currentScene.objectsInView[objInView].representations;
-        return dispatch(
-          loadObject(currentScene.objectsInView[objInView], stage, createRepresentationsArray(representations))
-        );
-      } else {
-        return Promise.resolve();
-      }
-    })
-  ).finally(() => {
-    // loop over nglViewParams
-    Object.keys(currentScene.viewParams).forEach(param => {
-      dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
-    });
-
-    // nglOrientations
-    const newOrientation = currentScene.nglOrientations[display_div];
-    if (newOrientation) {
-      stage.viewerControls.orient(newOrientation.elements);
-    }
-  });
-};
+export const setNglOrientation = (orientation, div_id) => ({ type: CONSTANTS.SET_ORIENTATION, orientation, div_id });
 
 export const saveCurrentStateAsDefaultScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE });
 
 export const saveCurrentStateAsSessionScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE });
 
-export const removeAllNglComponents = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
+export const resetStateToDefaultScene = () => ({ type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE });
 
-// Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = (hasLoad = false, withoutSavingToDefaultState = false) => (dispatch, getState) => {
-  const state = getState();
-  if (
-    state.nglReducers.present.countOfRemainingMoleculeGroups === 0 &&
-    hasLoad === true &&
-    withoutSavingToDefaultState === false
-  ) {
-    dispatch(saveCurrentStateAsDefaultScene());
-  }
-  dispatch({ type: CONSTANTS.SET_PROTEINS_HAS_LOADED, payload: hasLoad });
-};
+export const resetStateToSessionScene = () => ({ type: CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE });
+
+export const removeAllNglComponents = stage => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
 
 export const setCountOfRemainingMoleculeGroups = count => ({
   type: CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS,
@@ -185,14 +65,7 @@ export const decrementCountOfPendingNglObjects = () => ({
   type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS
 });
 
-export const decrementCountOfRemainingMoleculeGroups = () => (dispatch, getState) => {
-  const state = getState();
-  const decrementedCount = state.nglReducers.present.countOfRemainingMoleculeGroups - 1;
-  if (decrementedCount === 0 && state.nglReducers.present.proteinsHasLoad === true) {
-    dispatch(saveCurrentStateAsDefaultScene());
-  }
-  dispatch({
-    type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
-    payload: decrementedCount
-  });
-};
+export const decrementCountOfRemainingMoleculeGroups = decrementedCount => ({
+  type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
+  payload: decrementedCount
+});

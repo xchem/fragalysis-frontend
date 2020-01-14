@@ -3,13 +3,16 @@
  */
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglActions from '../reducers/ngl/nglActions';
 import * as apiActions from '../reducers/api/apiActions';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
 import { NglContext } from '../components/nglView/nglProvider';
-import { setCountOfRemainingMoleculeGroups, decrementCountOfRemainingMoleculeGroups } from '../reducers/ngl/nglActions';
+import {
+  decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
+  loadObject
+} from '../reducers/ngl/nglDispatchActions';
+import { setCountOfRemainingMoleculeGroups } from '../reducers/ngl/nglActions';
 import { generateSphere } from '../components/preview/molecule/molecules_helpers';
 
 // is responsible for loading molecules list
@@ -22,7 +25,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
       setObjectList,
       isStateLoaded,
       setCountOfRemainingMoleculeGroups,
-      decrementCountOfRemainingMoleculeGroups,
+      decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
       ...rest
     }) => {
       const [state, setState] = useState();
@@ -43,11 +46,16 @@ export const withLoadingMolGroupList = WrappedComponent => {
               loadObject(
                 Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(data)),
                 getNglView(VIEWS.SUMMARY_VIEW).stage
-              ).then(() => decrementCountOfRemainingMoleculeGroups())
+              ).then(() => decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState())
             );
           }
         },
-        [decrementCountOfRemainingMoleculeGroups, getNglView, loadObject, setCountOfRemainingMoleculeGroups]
+        [
+          decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
+          getNglView,
+          loadObject,
+          setCountOfRemainingMoleculeGroups
+        ]
       );
 
       useEffect(() => {
@@ -97,10 +105,10 @@ export const withLoadingMolGroupList = WrappedComponent => {
     };
   }
   const mapDispatchToProps = {
-    loadObject: nglActions.loadObject,
+    loadObject,
     setObjectList: apiActions.setMolGroupList,
     setCountOfRemainingMoleculeGroups: setCountOfRemainingMoleculeGroups,
-    decrementCountOfRemainingMoleculeGroups: decrementCountOfRemainingMoleculeGroups
+    decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState: decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState
   };
   return connect(mapStateToProps, mapDispatchToProps)(MolGroupList);
 };

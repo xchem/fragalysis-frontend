@@ -3,12 +3,11 @@
  */
 import React, { memo, useCallback, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
-import * as nglActions from '../../reducers/ngl/nglActions';
 import * as apiActions from '../../reducers/api/apiActions';
 import { VIEWS, SUFFIX } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { generateProteinObject } from '../nglView/generatingObjects';
-import { setProteinsHasLoaded, setOrientation } from '../../reducers/ngl/nglActions';
+import { setProteinsHasLoaded, setOrientation, loadObject } from '../../reducers/ngl/nglDispatchActions';
 
 // is responsible for loading molecules list
 export const withLoadingProtein = WrappedComponent => {
@@ -86,7 +85,7 @@ export const withLoadingProtein = WrappedComponent => {
     };
   }
   const mapDispatchToProps = {
-    loadObject: nglActions.loadObject,
+    loadObject,
     setObjectList: apiActions.setMolGroupList,
     setProteinsHasLoaded,
     setOrientation

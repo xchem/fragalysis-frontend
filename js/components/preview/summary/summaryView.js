@@ -4,7 +4,7 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import { loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import SummaryCmpd from './SummaryCmpd';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../../../utils/script_utils';
@@ -208,7 +208,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadObject: nglLoadActions.loadObject
+  loadObject
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryView);

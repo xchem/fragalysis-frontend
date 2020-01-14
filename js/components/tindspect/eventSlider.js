@@ -4,7 +4,7 @@
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../../reducers/ngl/nglDispatchActions';
 import { PREFIX, VIEWS } from '../../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../../utils/genericSlider';
 import { OBJECT_TYPE } from '../nglView/constants';
@@ -112,7 +112,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   setObjectOn: apiActions.setPanddaEventOn,
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject
+  deleteObject,
+  loadObject
 };
 export default connect(mapStateToProps, mapDispatchToProps)(EventSlider);

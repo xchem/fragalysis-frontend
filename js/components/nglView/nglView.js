@@ -7,6 +7,8 @@ import React, { memo, useEffect, useCallback, useContext, useState } from 'react
 import { connect, useStore } from 'react-redux';
 import * as apiActions from '../../reducers/api/apiActions';
 import * as nglActions from '../../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../../reducers/ngl/nglDispatchActions';
+import * as nglDispatchActions from '../../reducers/ngl/nglDispatchActions';
 import * as listTypes from '../../constants/listTypes';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { SUFFIX, VIEWS, PREFIX } from '../../constants/constants';
@@ -247,9 +249,9 @@ const mapDispatchToProps = {
   selectVector: selectionActions.selectVector,
   setDuckYankData: apiActions.setDuckYankData,
   setPanddaSiteOn: apiActions.setPanddaSiteOn,
-  deleteObject: nglActions.deleteObject,
-  loadObject: nglActions.loadObject,
-  setOrientation: nglActions.setOrientation,
+  deleteObject,
+  loadObject,
+  setOrientation: nglDispatchActions.setOrientation,
   removeAllNglComponents: nglActions.removeAllNglComponents
 };
 

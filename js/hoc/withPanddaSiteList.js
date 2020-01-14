@@ -2,11 +2,11 @@
  * Created by abradley on 17/04/2018.
  */
 
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/apiActions';
 import * as listType from '../constants/listTypes';
-import * as nglLoadActions from '../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
@@ -91,8 +91,8 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
 
   const mapDispatchToProps = {
     setObjectList: apiActions.setPanddaSiteList,
-    deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject
+    deleteObject,
+    loadObject
   };
   return connect(mapStateToProps, mapDispatchToProps)(PanddaSiteList);
 };
