@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
   addComponentRepresentation,
-  deleteObject,
   removeComponentRepresentation,
   updateComponentRepresentation
 } from '../../../../reducers/ngl/nglActions';
+import { deleteObject } from '../../../../reducers/ngl/nglDispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
 import { assignRepresentationToComp } from '../../../nglView/generatingObjects';

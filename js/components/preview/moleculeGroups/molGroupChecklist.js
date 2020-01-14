@@ -5,7 +5,7 @@ import * as apiActions from '../../../reducers/api/apiActions';
 import { heightOfBody } from './molGroupSelector';
 import { generateSphere } from '../molecule/molecules_helpers';
 import { VIEWS } from '../../../constants/constants';
-import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import { NglContext } from '../../nglView/nglProvider';
@@ -160,7 +160,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
   setMolGroupOn: apiActions.setMolGroupOn,
   setMolGroupSelection: selectionActions.setMolGroupSelection,
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject
+  deleteObject,
+  loadObject
 };
 export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);

@@ -5,7 +5,7 @@ import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
-import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { OBJECT_TYPE } from '../../nglView/constants';
@@ -200,8 +200,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadObject: nglLoadActions.loadObject,
-  deleteObject: nglLoadActions.deleteObject,
+  loadObject,
+  deleteObject,
   removeFromToBuyList: selectionActions.removeFromToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
   setHighlighted: selectionActions.setHighlighted

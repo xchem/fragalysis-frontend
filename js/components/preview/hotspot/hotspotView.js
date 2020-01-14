@@ -6,7 +6,7 @@ import { Grid } from '@material-ui/core';
 import { Paper } from '../../common/Surfaces/Paper';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as nglLoadActions from '../../../reducers/ngl/nglActions';
+import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import { Switch } from '@material-ui/core';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { VIEWS } from '../../../constants/constants';
@@ -167,8 +167,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  deleteObject: nglLoadActions.deleteObject,
-  loadObject: nglLoadActions.loadObject
+  deleteObject,
+  loadObject
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HotspotView);
