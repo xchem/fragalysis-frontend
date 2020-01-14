@@ -23,7 +23,7 @@ module.exports = {
 
   context: __dirname,
 
-  entry: './js/index',
+  entry: ['babel-polyfill', './js/index'],
 
   output: {
     path: path.resolve('./bundles'),
