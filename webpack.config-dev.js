@@ -8,6 +8,7 @@ module.exports = {
   context: __dirname,
 
   entry: [
+    'babel-polyfill',
     'react-hot-loader/patch',
     'webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr',
     './js/index'
