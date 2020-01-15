@@ -66,16 +66,19 @@ export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = () 
 };
 
 // Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = (hasLoad = false, withoutSavingToDefaultState = false) => (dispatch, getState) => {
+export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultState = false) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   if (
     state.nglReducers.present.countOfRemainingMoleculeGroups === 0 &&
-    hasLoad === true &&
+    hasLoaded === true &&
     withoutSavingToDefaultState === false
   ) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
-  dispatch(setProteinLoadingState(hasLoad));
+  dispatch(setProteinLoadingState(hasLoaded));
 };
 
 export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
