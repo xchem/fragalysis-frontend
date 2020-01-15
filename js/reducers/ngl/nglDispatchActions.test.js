@@ -1,17 +1,24 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState } from './nglDispatchActions';
+import {
+  decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
+  setProteinsHasLoaded
+} from './nglDispatchActions';
 import { CONSTANTS } from './nglConstants';
-import { getAction } from '../../utils/testUtils';
-import { decrementCountOfRemainingMoleculeGroups, saveCurrentStateAsDefaultScene } from './nglActions';
+import { getAction, getActionType } from '../../utils/testUtils';
+import {
+  decrementCountOfRemainingMoleculeGroups,
+  saveCurrentStateAsDefaultScene,
+  setProteinLoadingState
+} from './nglActions';
 
 describe("testing ngl reducer's async actions", () => {
   const middlewares = [thunk]; // add your middlewares like `redux-thunk`
   const mockStore = configureStore(middlewares);
 
-  it('should decrement count of remaining molecule groups', async () => {
+  it('should decrement count of remaining molecule groups in case with more than one remaining molecule groups', async () => {
     expect.hasAssertions();
-    let store1 = mockStore({
+    let store = mockStore({
       nglReducers: {
         present: {
           countOfRemainingMoleculeGroups: 2,
@@ -20,17 +27,19 @@ describe("testing ngl reducer's async actions", () => {
       }
     });
 
-    const decrementedCount1 = store1.getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
+    const decrementedCount = store.getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
+    store.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
 
-    store1.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
-
-    expect(await getAction(store1, saveCurrentStateAsDefaultScene())).toBeNull();
-    expect(await getAction(store1, decrementCountOfRemainingMoleculeGroups())).toStrictEqual({
+    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
+    expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
       type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
-      payload: decrementedCount1
+      payload: decrementedCount
     });
+  });
 
-    let store2 = mockStore({
+  it('should decrement count of remaining molecule groups in case with last one remaining molecule groups', async () => {
+    expect.hasAssertions();
+    let store = mockStore({
       nglReducers: {
         present: {
           countOfRemainingMoleculeGroups: 1,
@@ -39,12 +48,74 @@ describe("testing ngl reducer's async actions", () => {
       }
     });
 
-    const decrementedCount2 = store2.getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
-    store2.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
-    expect(await getAction(store2, saveCurrentStateAsDefaultScene())).not.toBeNull();
-    expect(await getAction(store2, decrementCountOfRemainingMoleculeGroups())).toStrictEqual({
+    const decrementedCount = store.getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
+    store.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
+    expect(await getAction(store, saveCurrentStateAsDefaultScene)).not.toBeNull();
+    expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
       type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
-      payload: decrementedCount2
+      payload: decrementedCount
+    });
+  });
+
+  it('should set proteins has loaded in case with no remaining molecule groups', async () => {
+    expect.hasAssertions();
+    let store = mockStore({
+      nglReducers: {
+        present: {
+          countOfRemainingMoleculeGroups: 0
+        }
+      }
+    });
+
+    let hasLoaded = true;
+    let withoutSavingToDefaultState = true;
+    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
+
+    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
+    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
+      type: getActionType(setProteinLoadingState),
+      payload: hasLoaded
+    });
+
+    withoutSavingToDefaultState = false;
+    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
+
+    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toStrictEqual({
+      type: getActionType(saveCurrentStateAsDefaultScene)
+    });
+    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
+      type: getActionType(setProteinLoadingState),
+      payload: hasLoaded
+    });
+  });
+
+  it('should set proteins has loaded in case with remaining molecule groups', async () => {
+    expect.hasAssertions();
+    let store = mockStore({
+      nglReducers: {
+        present: {
+          countOfRemainingMoleculeGroups: 1
+        }
+      }
+    });
+
+    let hasLoaded = true;
+    let withoutSavingToDefaultState = true;
+    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
+
+    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
+    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
+      type: getActionType(setProteinLoadingState),
+      payload: hasLoaded
+    });
+
+    withoutSavingToDefaultState = false;
+    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
+
+    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
+    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
+      type: getActionType(setProteinLoadingState),
+      payload: hasLoaded
     });
   });
 });
