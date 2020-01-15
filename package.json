@@ -13,8 +13,9 @@
   },
   "jest": {
     "setupFilesAfterEnv": [
-      "<rootDir>/setupTests.js"
-    ]
+      "<rootDir>/setupTests.js", "jest-canvas-mock"
+    ],
+    "testEnvironment": "jsdom"
   },
   "repository": {
     "type": "git",
@@ -97,6 +98,7 @@
     "eslint-plugin-react-hooks": "^2.3.0",
     "husky": "^4.0.6",
     "jest": "^24.9.0",
+    "jest-canvas-mock": "^2.2.0",
     "lint-staged": "^9.5.0",
     "prettier": "^1.19.1",
     "redux-mock-store": "^1.5.4",

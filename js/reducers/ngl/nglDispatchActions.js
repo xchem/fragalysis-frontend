@@ -106,7 +106,7 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
       dispatch(resetStateToDefaultScene());
       break;
     case SCENES.sessionScene:
-      dispatch(resetStateToSessionScene());
+      dispatch(resetStateToSessionScene(sessionData));
       break;
   }
   // Remove all components in NGL View
