@@ -135,6 +135,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       // load state from default scene and replace current state by these data
       const stateWithoutScene = JSON.parse(JSON.stringify(state));
       delete stateWithoutScene[SCENES.defaultScene];
+      delete stateWithoutScene[SCENES.sessionScene];
       delete stateWithoutScene['countOfRemainingMoleculeGroups'];
       delete stateWithoutScene['proteinsHasLoaded'];
       delete stateWithoutScene['countOfPendingNglObjects'];
@@ -181,7 +182,9 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
       console.log(' REMOVE_ALL_NGL_COMPONENTS');
-      action.stage.removeAllComponents();
+      if (action.stage) {
+        action.stage.removeAllComponents();
+      }
       // clear all arrays of object
       return INITIAL_STATE;
 
