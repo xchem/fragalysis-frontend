@@ -27,7 +27,8 @@ import {
   ReportProblem,
   SupervisorAccount,
   Menu as MenuIcon,
-  Work
+  Work,
+  Description
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -249,6 +250,13 @@ export default memo(
               <Home />
             </ListItemIcon>
             <ListItemText primary="Home" />
+          </ListItem>
+
+          <ListItem button onClick={() => history.push(URLS.projects)}>
+            <ListItemIcon>
+              <Description />
+            </ListItemIcon>
+            <ListItemText primary="Projects" />
           </ListItem>
 
           <ListItem button onClick={() => history.push(URLS.sessions)}>

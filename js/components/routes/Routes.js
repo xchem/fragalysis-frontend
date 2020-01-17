@@ -13,6 +13,8 @@ import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
 import SessionList from '../session/sessionList';
+import { Projects } from '../project';
+import { ProjectDetail } from '../project/projectDetail';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -40,12 +42,14 @@ const Routes = memo(() => {
       <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
+          <Route exact path={URLS.projects} component={Projects} />
+          <Route exact path={`${URLS.projects}:projectId`} component={ProjectDetail} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
           <Route
             exact
-            path="/viewer/react/preview/target/:target"
+            path={`${URLS.target}:target`}
             render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.sessions} component={SessionList} />
