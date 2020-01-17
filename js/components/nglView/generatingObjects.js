@@ -36,6 +36,14 @@ export const generateProteinObject = data => {
   return undefined;
 };
 
+// after Shift + click on compound
+export const generateCompoundMolObject = (sdf_info, identifier) => ({
+  name: 'CONFLOAD_' + identifier,
+  OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
+  colour: 'cyan',
+  sdf_info: sdf_info
+});
+
 // Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
   name: OBJECT_TYPE.MOLECULE + '_' + data.id.toString(),
