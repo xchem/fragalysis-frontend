@@ -183,7 +183,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case actions.REMOVE_FROM_VECTOR_ON_LIST:
       let diminishedVectorOnList = new Set(state.vectorOnList);
       diminishedVectorOnList.delete(action.item.id);
-      return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList] });
+      return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList], currentVector: undefined });
 
     case actions.SET_HIGHLIGHTED:
       return Object.assign({}, state, {
