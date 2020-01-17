@@ -185,6 +185,7 @@ describe("testing selection reducer's actions", () => {
 
     result = selectionReducer(initialState, selectionActions.removeFromVectorOnList(newItem));
     expect(result.vectorOnList).not.toContain(newItem.id);
+    expect(result.currentVector).toBeUndefined();
   });
 
   it('should set compound classes', () => {
