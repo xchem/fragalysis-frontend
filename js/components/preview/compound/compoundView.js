@@ -1,16 +1,17 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
+import React, { memo, useState, useRef, useCallback, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
-import { OBJECT_TYPE } from '../../nglView/constants';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { img_data_init } from '../molecule/moleculeView';
+import { NglContext } from '../../nglView/nglProvider';
+import { generateCompoundMolObject } from '../../nglView/generatingObjects';
 
 const CompoundView = memo(
   ({
@@ -27,6 +28,8 @@ const CompoundView = memo(
     width,
     data
   }) => {
+    const { getNglView } = useContext(NglContext);
+    const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
     const not_selected_style = {
       width: (width + 5).toString() + 'px',
       height: (height + 5).toString() + 'px',
@@ -41,7 +44,7 @@ const CompoundView = memo(
     const [compoundClass, setCompoundClass] = useState();
     const [isConfOn, setIsConfOn] = useState(false);
     const refOnCancel = useRef();
-    const conf = useRef(false);
+    const [conf, setConf] = useState(false);
     const oldUrl = useRef('');
     const setOldUrl = newUrl => {
       oldUrl.current = newUrl;
@@ -76,16 +79,12 @@ const CompoundView = memo(
       setCompoundClass(compoundClassTemp);
     }, [highlightedCompound.smiles, send_obj.smiles, to_buy_list]);
 
-    const generateMolObject = (sdf_info, identifier) => ({
-      name: 'CONFLOAD_' + identifier,
-      OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
-      colour: 'cyan',
-      sdf_info: sdf_info
-    });
-
     const handleConf = () => {
       if (isConfOn) {
-        deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+        deleteObject(
+          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(conf, data.smiles)),
+          majorViewStage
+        );
       } else {
         // This needs currying
         var post_data = {
@@ -106,8 +105,12 @@ const CompoundView = memo(
         })
           .then(response => {
             // Now load this into NGL
-            conf.current = response.data[0];
-            loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolObject(conf.current, data.smiles)));
+            const newConf = response.data[0];
+            loadObject(
+              Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(newConf, data.smiles)),
+              majorViewStage
+            );
+            setConf(newConf);
           })
           .catch(error => {
             throw error;
