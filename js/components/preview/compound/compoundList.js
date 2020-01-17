@@ -30,7 +30,8 @@ const CompoundList = memo(
     setToBuyList,
     appendToBuyList,
     setCompoundClasses,
-    height
+    height,
+    currentVector
   }) => {
     const classes = useStyles();
     const panelRef = useRef(null);
@@ -155,11 +156,12 @@ const CompoundList = memo(
             </Grid>
             <Box overflow="auto">
               <Grid container justify="flex-start">
-                {retArray.map((item, index) => (
-                  <Grid item key={index}>
-                    {item}
-                  </Grid>
-                ))}
+                {currentVector !== undefined &&
+                  retArray.map((item, index) => (
+                    <Grid item key={index}>
+                      {item}
+                    </Grid>
+                  ))}
               </Grid>
             </Box>
           </Box>
@@ -184,7 +186,8 @@ function mapStateToProps(state) {
     compoundClasses: state.selectionReducers.present.compoundClasses,
     currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
     to_select: state.selectionReducers.present.to_select,
-    querying: state.selectionReducers.present.querying
+    querying: state.selectionReducers.present.querying,
+    currentVector: state.selectionReducers.present.currentVector
   };
 }
 const mapDispatchToProps = {
