@@ -9,3 +9,5 @@ export const URLS = {
   management: '/viewer/react/management',
   funders: '/viewer/react/funders'
 };
+
+export const base_url = window.location.protocol + '//' + window.location.host;
