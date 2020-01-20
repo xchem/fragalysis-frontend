@@ -1,6 +1,7 @@
-import { generateComplex, generateMolecule, getJoinedMoleculeList } from '../../molecule/molecules_helpers';
+import { generateComplex, generateMolecule } from '../../molecule/molecules_helpers';
 import { VIEWS } from '../../../../constants/constants';
 import { deleteObject } from '../../../../reducers/ngl/nglDispatchActions';
+import { getJoinedMoleculeList } from '../../molecule/redux/moleculeListActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
   let site;
@@ -10,7 +11,7 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
   const vector_list = state.selectionReducers.present.vector_list;
 
   // loop through all molecules
-  getJoinedMoleculeList({ object_selection: [molGroupId], cached_mol_lists, mol_group_list }).forEach(mol => {
+  dispatch(getJoinedMoleculeList({ object_selection: [molGroupId], cached_mol_lists, mol_group_list })).forEach(mol => {
     site = mol.site;
     // remove Ligand
     dispatch(

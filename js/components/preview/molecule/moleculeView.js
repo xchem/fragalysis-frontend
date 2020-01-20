@@ -20,7 +20,7 @@ import {
   removeComplex,
   addLigand,
   removeLigand
-} from './actions/moleculeViewActions';
+} from './redux/moleculeViewSelectors';
 import { base_url } from '../../routes/constants';
 
 const containerHeight = 76;

@@ -10,7 +10,7 @@ import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { OBJECT_TYPE } from '../../nglView/constants';
-import { clearAfterDeselectingMoleculeGroup } from './actions/molGroupActions';
+import { clearAfterDeselectingMoleculeGroup } from './redux/molGroupActions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {

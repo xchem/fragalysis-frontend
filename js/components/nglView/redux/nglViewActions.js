@@ -1,7 +1,7 @@
 import { OBJECT_TYPE } from '../constants';
 import { PREFIX, VIEWS, SUFFIX } from '../../../constants/constants';
 import { generateSphere } from '../../preview/molecule/molecules_helpers';
-import { clearAfterDeselectingMoleculeGroup } from '../../preview/moleculeGroups/actions/molGroupActions';
+import { clearAfterDeselectingMoleculeGroup } from '../../preview/moleculeGroups/redux/molGroupActions';
 import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActions';
 import { selectVector, setMolGroupSelection } from '../../../reducers/selection/selectionActions';
 import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';

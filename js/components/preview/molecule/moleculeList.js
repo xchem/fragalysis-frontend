@@ -11,7 +11,7 @@ import * as listType from '../../../constants/listTypes';
 import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
-import { getJoinedMoleculeList } from './molecules_helpers';
+import { getJoinedMoleculeList } from './redux/moleculeListActions';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
@@ -80,9 +80,9 @@ const MoleculeList = memo(
     mol_group_on,
     setObjectList,
     setCachedMolLists,
-    mol_group_list,
     setFilterItemsHeight,
-    filterItemsHeight
+    filterItemsHeight,
+    getJoinedMoleculeList
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -102,10 +102,7 @@ const MoleculeList = memo(
     const isActiveFilter = !!(filterSettings || {}).active;
     const filterRef = useRef();
 
-    let joinedMoleculeLists = useMemo(
-      () => getJoinedMoleculeList({ object_selection, cached_mol_lists, mol_group_list }),
-      [object_selection, cached_mol_lists, mol_group_list]
-    );
+    let joinedMoleculeLists = getJoinedMoleculeList();
 
     // Reset Infinity scroll
     useEffect(() => {
@@ -283,15 +280,15 @@ function mapStateToProps(state) {
     mol_group_on: state.apiReducers.present.mol_group_on,
     object_selection: state.selectionReducers.present.mol_group_selection,
     object_list: state.apiReducers.present.molecule_list,
-    cached_mol_lists: state.apiReducers.present.cached_mol_lists,
-    mol_group_list: state.apiReducers.present.mol_group_list
+    cached_mol_lists: state.apiReducers.present.cached_mol_lists
   };
 }
 const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject
+  loadObject,
+  getJoinedMoleculeList
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
