@@ -96,8 +96,11 @@ export const generateMoleculeId = data => ({
 export const getVectorWithColorByCountOfCompounds = (item, to_select) => {
   var thisSmi = item.name.split('VECTOR_')[1];
   var counter = 0;
+  console.log('thisSmi ', thisSmi);
   for (var key in to_select) {
     var smi = key.split('_')[0];
+    console.log('key ', key);
+    console.log('smi ', smi);
     if (smi === thisSmi) {
       counter += to_select[key]['addition'].length;
     }
