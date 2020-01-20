@@ -5,20 +5,23 @@
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
-import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
-import * as nglDispatchActions from '../../../reducers/ngl/nglDispatchActions';
-import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
-import { api } from '../../../utils/api';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
-import { generateMoleculeObject, generateMoleculeId, generateComplexObject } from '../../nglView/generatingObjects';
 import { ComputeSize } from '../../../utils/computeSize';
-import { handleVector } from '../../../reducers/selection/selectionDispatchAction';
+import {
+  addVector,
+  removeVector,
+  addComplex,
+  removeComplex,
+  addLigand,
+  removeLigand
+} from './actions/moleculeViewActions';
+import { base_url } from '../../routes/constants';
 
 const containerHeight = 76;
 
@@ -107,26 +110,15 @@ const MoleculeView = memo(
     width,
     data,
     to_query,
-    vector_list,
     complexList,
     fragmentDisplayList,
     vectorOnList,
-    setInitialFullGraph,
-    selectVector,
-    updateFullGraph,
-    setToQuery,
-    deleteObject,
-    loadObject,
-    appendComplexList,
-    removeFromComplexList,
-    appendVectorOnList,
-    removeFromVectorOnList,
-    appendFragmentDisplayList,
-    removeFromFragmentDisplayList,
-    incrementCountOfPendingVectorLoadRequests,
-    decrementCountOfPendingVectorLoadRequests,
-    setOrientation,
-    handleVector
+    addVector,
+    removeVector,
+    addComplex,
+    removeComplex,
+    addLigand,
+    removeLigand
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -137,7 +129,7 @@ const MoleculeView = memo(
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
-    const base_url = window.location.protocol + '//' + window.location.host;
+
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
 
@@ -159,10 +151,6 @@ const MoleculeView = memo(
     const refOnCancel = useRef();
     const getRandomColor = () => colourList[data.id % colourList.length];
     const colourToggle = getRandomColor();
-
-    const getViewUrl = get_view => {
-      return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
-    };
 
     const getCalculatedProps = () => [
       { name: 'MW', value: data.mw },
@@ -226,118 +214,81 @@ const MoleculeView = memo(
     const not_selected_style = {};
     const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
 
-    const addLigand = () => {
-      loadObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
-        stage
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
-      });
-      appendFragmentDisplayList(generateMoleculeId(data));
+    const addNewLigand = () => {
+      addLigand(stage, data, colourToggle);
     };
 
-    const removeLigand = () => {
-      deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage);
-      removeFromFragmentDisplayList(generateMoleculeId(data));
+    const removeSelectedLigand = () => {
+      removeLigand(stage, data);
       selectedAll.current = false;
     };
 
     const onLigand = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isLigandOn === false) {
-          addLigand();
+          addNewLigand();
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeLigand();
+        removeSelectedLigand();
       } else if (!calledFromSelectAll) {
         if (isLigandOn === false) {
-          addLigand();
+          addNewLigand();
         } else {
-          removeLigand();
+          removeSelectedLigand();
         }
       }
     };
 
-    const removeComplex = () => {
-      deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
-        stage
-      );
-      removeFromComplexList(generateMoleculeId(data));
+    const removeSelectedComplex = () => {
+      removeComplex(stage, data, colourToggle);
       selectedAll.current = false;
     };
 
-    const addComplex = () => {
-      loadObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
-        stage
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
-      });
-      appendComplexList(generateMoleculeId(data));
+    const addNewComplex = () => {
+      addComplex(stage, data, colourToggle);
     };
 
     const onComplex = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isComplexOn === false) {
-          addComplex();
+          addNewComplex();
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeComplex();
+        removeSelectedComplex();
       } else if (!calledFromSelectAll) {
         if (isComplexOn === false) {
-          addComplex();
+          addNewComplex();
         } else {
-          removeComplex();
+          removeSelectedComplex();
         }
       }
     };
 
-    const removeVector = () => {
-      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
-      setToQuery('');
-      removeFromVectorOnList(generateMoleculeId(data));
+    const removeSelectedVector = () => {
+      removeVector(stage, data);
       selectedAll.current = false;
     };
 
-    const addVector = () => {
-      vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
-      // Set this
-      setInitialFullGraph(data);
-      // Do the query
-      incrementCountOfPendingVectorLoadRequests();
-      api({ url: getViewUrl('graph') })
-        .then(response => updateFullGraph(response.data['graph']))
-        .then(() => api({ url: getViewUrl('vector') }))
-        .then(response => handleVector(response.data['vectors'], stage, data))
-        .finally(() => {
-          decrementCountOfPendingVectorLoadRequests();
-          const currentOrientation = stage.viewerControls.getOrientation();
-          setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
-        })
-        .catch(error => {
-          setState(() => {
-            throw error;
-          });
+    const addNewVector = () => {
+      addVector(stage, data).catch(error => {
+        setState(() => {
+          throw error;
         });
-      appendVectorOnList(generateMoleculeId(data));
-      selectVector(undefined);
+      });
     };
 
     const onVector = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isVectorOn === false) {
-          addVector();
+          addNewVector();
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeVector();
+        removeSelectedVector();
       } else if (!calledFromSelectAll) {
         if (isVectorOn === false) {
-          addVector();
+          addNewVector();
         } else {
-          removeVector();
+          removeSelectedVector();
         }
       }
     };
@@ -510,29 +461,18 @@ const MoleculeView = memo(
 function mapStateToProps(state) {
   return {
     to_query: state.selectionReducers.present.to_query,
-    vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
     vectorOnList: state.selectionReducers.present.vectorOnList
   };
 }
 const mapDispatchToProps = {
-  setInitialFullGraph: selectionActions.setInitialFullGraph,
-  selectVector: selectionActions.selectVector,
-  updateFullGraph: selectionActions.updateFullGraph,
-  setToQuery: selectionActions.setToQuery,
-  deleteObject,
-  loadObject,
-  handleVector,
-  appendComplexList: selectionActions.appendComplexList,
-  removeFromComplexList: selectionActions.removeFromComplexList,
-  appendVectorOnList: selectionActions.appendVectorOnList,
-  removeFromVectorOnList: selectionActions.removeFromVectorOnList,
-  appendFragmentDisplayList: selectionActions.appendFragmentDisplayList,
-  removeFromFragmentDisplayList: selectionActions.removeFromFragmentDisplayList,
-  incrementCountOfPendingVectorLoadRequests: selectionActions.incrementCountOfPendingVectorLoadRequests,
-  decrementCountOfPendingVectorLoadRequests: selectionActions.decrementCountOfPendingVectorLoadRequests,
-  setOrientation: nglDispatchActions.setOrientation
+  addVector,
+  removeVector,
+  addComplex,
+  removeComplex,
+  addLigand,
+  removeLigand
 };
 
 MoleculeView.displayName = 'MoleculeView';
