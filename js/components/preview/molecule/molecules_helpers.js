@@ -1,19 +1,4 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
-// concat molecule results for all selected molecule groups into single list
-
-export const getJoinedMoleculeList = ({ object_selection, cached_mol_lists, mol_group_list }) => {
-  let joinedMoleculeLists = [];
-  if (object_selection) {
-    object_selection.forEach(obj => {
-      const cachedData = cached_mol_lists[obj];
-      const site = (mol_group_list || []).findIndex(group => group.id === obj) + 1;
-      if (cachedData && cachedData.results) {
-        cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
-      }
-    });
-  }
-  return joinedMoleculeLists;
-};
 
 export const generateMolecule = (id, sdf_info) => {
   return {
