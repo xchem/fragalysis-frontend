@@ -99,8 +99,6 @@ export const getVectorWithColorByCountOfCompounds = (item, to_select) => {
   console.log('thisSmi ', thisSmi, 'to_select ', to_select);
   Object.keys(to_select).forEach(key => {
     var smi = key.split('_')[0];
-    console.log('key ', key);
-    console.log('smi ', smi);
     if (smi === thisSmi) {
       counter += to_select[key]['addition'].length;
     }
