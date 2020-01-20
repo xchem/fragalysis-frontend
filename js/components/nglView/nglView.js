@@ -9,7 +9,7 @@ import * as nglActions from '../../reducers/ngl/nglActions';
 import * as nglDispatchActions from '../../reducers/ngl/nglDispatchActions';
 import * as selectionActions from '../../reducers/selection/selectionActions';
 import { NglContext } from './nglProvider';
-import { handleNglViewPick } from './actions/nglViewActions';
+import { handleNglViewPick } from './redux/nglViewActions';
 import { throttle } from 'lodash';
 
 const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, handleNglViewPick }) => {
