@@ -16,15 +16,9 @@ import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
-import {
-  generateMoleculeObject,
-  generateArrowObject,
-  generateCylinderObject,
-  generateMoleculeId,
-  generateComplexObject,
-  getVectorWithColorByCountOfCompounds
-} from '../../nglView/generatingObjects';
+import { generateMoleculeObject, generateMoleculeId, generateComplexObject } from '../../nglView/generatingObjects';
 import { ComputeSize } from '../../../utils/computeSize';
+import { handleVector } from '../../../reducers/selection/selectionDispatchAction';
 
 const containerHeight = 76;
 
@@ -118,8 +112,6 @@ const MoleculeView = memo(
     fragmentDisplayList,
     vectorOnList,
     setInitialFullGraph,
-    setVectorList,
-    setBondColorMap,
     selectVector,
     updateFullGraph,
     setToQuery,
@@ -134,7 +126,7 @@ const MoleculeView = memo(
     incrementCountOfPendingVectorLoadRequests,
     decrementCountOfPendingVectorLoadRequests,
     setOrientation,
-    to_select
+    handleVector
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -170,47 +162,6 @@ const MoleculeView = memo(
 
     const getViewUrl = get_view => {
       return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
-    };
-
-    /**
-     * Convert the JSON into a list of arrow objects
-     */
-    const generateObjectList = out_data => {
-      const colour = [1, 0, 0];
-      const deletions = out_data.deletions;
-      const additions = out_data.additions;
-      const linkers = out_data.linkers;
-      const rings = out_data.ring;
-      let outList = [];
-
-      for (let d in deletions) {
-        outList.push(generateArrowObject(data, deletions[d][0], deletions[d][1], d, colour));
-      }
-
-      for (let a in additions) {
-        outList.push(generateArrowObject(data, additions[a][0], additions[a][1], a, colour));
-      }
-
-      for (let l in linkers) {
-        outList.push(generateCylinderObject(data, linkers[l][0], linkers[l][1], l, colour));
-      }
-
-      for (let r in rings) {
-        outList.push(generateCylinderObject(data, rings[r][0], rings[r][2], r, colour));
-      }
-
-      return outList;
-    };
-
-    const generateBondColorMap = inputDict => {
-      var out_d = {};
-      for (let keyItem in inputDict) {
-        for (let vector in inputDict[keyItem]) {
-          const vect = vector.split('_')[0];
-          out_d[vect] = inputDict[keyItem][vector];
-        }
-      }
-      return out_d;
     };
 
     const getCalculatedProps = () => [
@@ -344,20 +295,6 @@ const MoleculeView = memo(
       }
     };
 
-    const handleVector = json => {
-      var objList = generateObjectList(json['3d']);
-      setVectorList(objList);
-      // loading vector objects
-      objList.map(item =>
-        loadObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
-          stage
-        )
-      );
-      var vectorBondColorMap = generateBondColorMap(json['indices']);
-      setBondColorMap(vectorBondColorMap);
-    };
-
     const removeVector = () => {
       vector_list.forEach(item => deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
       setToQuery('');
@@ -374,7 +311,7 @@ const MoleculeView = memo(
       api({ url: getViewUrl('graph') })
         .then(response => updateFullGraph(response.data['graph']))
         .then(() => api({ url: getViewUrl('vector') }))
-        .then(response => handleVector(response.data['vectors']))
+        .then(response => handleVector(response.data['vectors'], stage, data))
         .finally(() => {
           decrementCountOfPendingVectorLoadRequests();
           const currentOrientation = stage.viewerControls.getOrientation();
@@ -576,19 +513,17 @@ function mapStateToProps(state) {
     vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList,
-    to_select: state.selectionReducers.present.to_select
+    vectorOnList: state.selectionReducers.present.vectorOnList
   };
 }
 const mapDispatchToProps = {
   setInitialFullGraph: selectionActions.setInitialFullGraph,
-  setVectorList: selectionActions.setVectorList,
-  setBondColorMap: selectionActions.setBondColorMap,
   selectVector: selectionActions.selectVector,
   updateFullGraph: selectionActions.updateFullGraph,
   setToQuery: selectionActions.setToQuery,
   deleteObject,
   loadObject,
+  handleVector,
   appendComplexList: selectionActions.appendComplexList,
   removeFromComplexList: selectionActions.removeFromComplexList,
   appendVectorOnList: selectionActions.appendVectorOnList,
