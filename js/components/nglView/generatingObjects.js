@@ -93,7 +93,7 @@ export const generateMoleculeId = data => ({
   id: data.id
 });
 
-export const getVectorColor = (item, to_select) => {
+export const getVectorWithColorByCountOfCompounds = (item, to_select) => {
   var thisSmi = item.name.split('VECTOR_')[1];
   var counter = 0;
   for (var key in to_select) {
@@ -106,17 +106,17 @@ export const getVectorColor = (item, to_select) => {
 
   if (counter > 50) {
     colour = [0, 1, 0];
-    return { colour: colour, radius: 0.8 };
+    return { ...item, colour: colour, radius: 0.8 };
   }
 
   if (counter > 10) {
     colour = [0.5, 1, 0];
-    return { colour: colour, radius: 0.6 };
+    return { ...item, colour: colour, radius: 0.6 };
   }
 
   if (counter > 0) {
     colour = [1, 1, 0];
-    return { colour: colour, radius: 0.5 };
+    return { ...item, colour: colour, radius: 0.5 };
   }
-  return { colour: colour, radius: 0.3 };
+  return { ...item, colour: colour, radius: 0.3 };
 };

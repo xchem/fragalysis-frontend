@@ -21,7 +21,8 @@ import {
   generateArrowObject,
   generateCylinderObject,
   generateMoleculeId,
-  generateComplexObject
+  generateComplexObject,
+  getVectorWithColorByCountOfCompounds
 } from '../../nglView/generatingObjects';
 import { ComputeSize } from '../../../utils/computeSize';
 
@@ -132,7 +133,8 @@ const MoleculeView = memo(
     removeFromFragmentDisplayList,
     incrementCountOfPendingVectorLoadRequests,
     decrementCountOfPendingVectorLoadRequests,
-    setOrientation
+    setOrientation,
+    to_select
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -346,7 +348,12 @@ const MoleculeView = memo(
       var objList = generateObjectList(json['3d']);
       setVectorList(objList);
       // loading vector objects
-      objList.map(item => loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage));
+      objList.map(item =>
+        loadObject(
+          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
+          stage
+        )
+      );
       var vectorBondColorMap = generateBondColorMap(json['indices']);
       setBondColorMap(vectorBondColorMap);
     };
@@ -364,26 +371,27 @@ const MoleculeView = memo(
       setInitialFullGraph(data);
       // Do the query
       incrementCountOfPendingVectorLoadRequests();
-      Promise.all([
-        api({ url: getViewUrl('vector') })
-          .then(response => handleVector(response.data['vectors']))
-          .catch(error => {
-            setState(() => {
-              throw error;
+      api({ url: getViewUrl('graph') })
+        .then(response => updateFullGraph(response.data['graph']))
+        .then(() => {
+          api({ url: getViewUrl('vector') })
+            .then(response => handleVector(response.data['vectors']))
+            .catch(error => {
+              setState(() => {
+                throw error;
+              });
             });
-          }),
-        api({ url: getViewUrl('graph') })
-          .then(response => updateFullGraph(response.data['graph']))
-          .catch(error => {
-            setState(() => {
-              throw error;
-            });
-          })
-      ]).finally(() => {
-        decrementCountOfPendingVectorLoadRequests();
-        const currentOrientation = stage.viewerControls.getOrientation();
-        setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
-      });
+        })
+        .finally(() => {
+          decrementCountOfPendingVectorLoadRequests();
+          const currentOrientation = stage.viewerControls.getOrientation();
+          setOrientation(VIEWS.MAJOR_VIEW, currentOrientation);
+        })
+        .catch(error => {
+          setState(() => {
+            throw error;
+          });
+        });
       appendVectorOnList(generateMoleculeId(data));
       selectVector(undefined);
     };
@@ -575,7 +583,8 @@ function mapStateToProps(state) {
     vector_list: state.selectionReducers.present.vector_list,
     complexList: state.selectionReducers.present.complexList,
     fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList
+    vectorOnList: state.selectionReducers.present.vectorOnList,
+    to_select: state.selectionReducers.present.to_select
   };
 }
 const mapDispatchToProps = {

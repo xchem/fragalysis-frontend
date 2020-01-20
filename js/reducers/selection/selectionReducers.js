@@ -111,6 +111,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
           }
         }
       }
+      // console.log('UPDATE_FULL_GRAPH ', new_dict);
       return Object.assign({}, state, {
         to_select: new_dict,
         querying: false
