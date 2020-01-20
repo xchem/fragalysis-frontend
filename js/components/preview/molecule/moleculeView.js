@@ -373,15 +373,7 @@ const MoleculeView = memo(
       incrementCountOfPendingVectorLoadRequests();
       api({ url: getViewUrl('graph') })
         .then(response => updateFullGraph(response.data['graph']))
-        .then(() => {
-          api({ url: getViewUrl('vector') })
-            .then(response => handleVector(response.data['vectors']))
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            });
-        })
+        .then(() => api({ url: getViewUrl('vector') }).then(response => handleVector(response.data['vectors'])))
         .finally(() => {
           decrementCountOfPendingVectorLoadRequests();
           const currentOrientation = stage.viewerControls.getOrientation();
