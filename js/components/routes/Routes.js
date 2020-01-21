@@ -7,7 +7,7 @@ import Tindspect from '../tindspect/Tindspect';
 import Landing from '../landing/Landing';
 import Preview from '../preview/Preview';
 import Funders from '../funders/fundersHolder';
-import { withLoadingTargetList } from './withLoadingTargetIdList';
+import { withLoadingTargetList } from '../target/withLoadingTargetIdList';
 import { BrowserCheck } from '../errorHandling/browserCheck';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';

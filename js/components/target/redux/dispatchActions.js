@@ -2,14 +2,15 @@ import * as listType from '../../../constants/listTypes';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import {
   resetTargetState,
+  setLatestSession,
   setTargetIdList,
   setTargetOn,
   setTargetUnrecognised,
   setUuid
-} from '../../../reducers/api/actions';
+} from '../../../reducers/api/apiActions';
 import { setOldUrl } from './actions';
 import { api } from '../../../utils/api';
-import { resetSelectionState } from '../../../reducers/selection/actions';
+import { resetSelectionState } from '../../../reducers/selection/selectionActions';
 
 export const loadTargetList = onCancel => (dispatch, getState) => {
   const oldUrl = getState().targetReducers.oldUrl;
@@ -24,7 +25,10 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   });
 };
 
-export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList) => dispatch => {
+export const updateTarget = (notCheckTarget, target, setIsLoading) => (dispatch, getState) => {
+  const state = getState();
+  const targetIdList = state.apiReducers.present.target_id_list;
+
   if (!notCheckTarget) {
     // Get from the REST API
     let targetUnrecognisedFlag = true;
@@ -56,6 +60,7 @@ export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList)
 export const setTargetUUIDs = (uuid, snapshotUuid) => dispatch => {
   if (uuid !== undefined) {
     dispatch(setUuid(uuid));
+    dispatch(setLatestSession(uuid));
   } else if (snapshotUuid !== undefined) {
     dispatch(setUuid(snapshotUuid));
   }
