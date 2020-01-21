@@ -857,6 +857,18 @@
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.7.4.tgz#f14932887422c9056b15a8d222a9074a7dfa2831"
   integrity sha512-fxfMSBMX3tlIbKUdtGKxqB1fyrH6gVrX39Gsv3y8lRYKUqlgDt3UMqQyGnR1bQMa2B8aGnhLZokZgg8vT0Le+A==
 
+"@gitgraph/core@1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@gitgraph/core/-/core-1.4.3.tgz#211ae31af24b6baf4119540815119b1fbeb0374c"
+  integrity sha512-/84cYRd0W1hfUOY08UhphDXgs/Cnzapvb7Vb0ZmND+4IAq9V6SpdbQHlwinNucOxTbIku6hrd2tROiYdrmD/kg==
+
+"@gitgraph/react@^1.5.2":
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@gitgraph/react/-/react-1.5.2.tgz#4e3ce638a56cff28972af67c4dafa80d391d5ba8"
+  integrity sha512-INAJGsNqvWtWEdRHNi4SEs3UurFyI6Y9Onlg8l3moOse0JHk8MWuWuwmj2OnOMUdmH6igQ4ra1cwKLf2t9RGjw==
+  dependencies:
+    "@gitgraph/core" "1.4.3"
+
 "@hot-loader/react-dom@^16.11.0":
   version "16.11.0"
   resolved "https://registry.yarnpkg.com/@hot-loader/react-dom/-/react-dom-16.11.0.tgz#c0b483923b289db5431516f56ee2a69448ebf9bd"
@@ -3962,6 +3974,14 @@ file-entry-cache@^5.0.1:
   integrity sha512-bCg29ictuBaKUwwArK4ouCaqDgLZcysCFLmM/Yn/FDoqndh/9vNuQfXRDvTuXKLxfD/JtZQGKFT8MGcJBK644g==
   dependencies:
     flat-cache "^2.0.1"
+
+file-loader@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-5.0.2.tgz#7f3d8b4ac85a5e8df61338cfec95d7405f971caa"
+  integrity sha512-QMiQ+WBkGLejKe81HU8SZ9PovsU/5uaLo0JdTCEXOYv7i7jfAjHZi1tcwp9tSASJPOmmHZtbdCervFmXMH/Dcg==
+  dependencies:
+    loader-utils "^1.2.3"
+    schema-utils "^2.5.0"
 
 file-saver@^2.0.2:
   version "2.0.2"

@@ -11,7 +11,8 @@ export const URLS = {
   target: '/viewer/react/preview/target/',
 
   // Projects feature
-  projects: '/viewer/react/projects/'
+  projects: '/viewer/react/projects/',
+  projectsGit: '/viewer/react/projectsGit/'
 };
 
 export const base_url = window.location.protocol + '//' + window.location.host;

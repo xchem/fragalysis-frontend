@@ -15,6 +15,8 @@ import { Close } from '@material-ui/icons';
 import SessionList from '../session/sessionList';
 import { Projects } from '../project';
 import { ProjectDetail } from '../project/projectDetail';
+import { ProjectsGit } from '../projectGit';
+import { ProjectDetailGit } from '../projectGit/projectDetailGit';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -44,6 +46,8 @@ const Routes = memo(() => {
         <Switch>
           <Route exact path={URLS.projects} component={Projects} />
           <Route exact path={`${URLS.projects}:projectId`} component={ProjectDetail} />
+          <Route exact path={URLS.projectsGit} component={ProjectsGit} />
+          <Route exact path={`${URLS.projectsGit}:projectId`} component={ProjectDetailGit} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
