@@ -198,3 +198,8 @@ export const setMolGroupSelection = mol_group_selection => ({
   type: SET_MOL_GROUP_SELECTION,
   mol_group_selection
 });
+
+export const setObjectSelection = object_selection => ({
+  type: constants.SET_OBJECT_SELECTION,
+  payload: object_selection
+});

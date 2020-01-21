@@ -4,7 +4,7 @@
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useMemo, useState, useEffect, memo, useRef, Fragment } from 'react';
+import React, { useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/apiActions';
 import * as listType from '../../../constants/listTypes';
@@ -102,7 +102,7 @@ const MoleculeList = memo(
     const isActiveFilter = !!(filterSettings || {}).active;
     const filterRef = useRef();
 
-    let joinedMoleculeLists = getJoinedMoleculeList();
+    let joinedMoleculeLists = getJoinedMoleculeList;
 
     // Reset Infinity scroll
     useEffect(() => {
@@ -280,15 +280,15 @@ function mapStateToProps(state) {
     mol_group_on: state.apiReducers.present.mol_group_on,
     object_selection: state.selectionReducers.present.mol_group_selection,
     object_list: state.apiReducers.present.molecule_list,
-    cached_mol_lists: state.apiReducers.present.cached_mol_lists
+    cached_mol_lists: state.apiReducers.present.cached_mol_lists,
+    getJoinedMoleculeList: getJoinedMoleculeList(state)
   };
 }
 const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject,
-  getJoinedMoleculeList
+  loadObject
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
