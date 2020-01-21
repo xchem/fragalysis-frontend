@@ -29,7 +29,8 @@ export const INITIAL_STATE = {
   },
   currentCompoundClass: 1,
   countOfPendingVectorLoadRequests: 0,
-  mol_group_selection: []
+  mol_group_selection: [],
+  object_selection: undefined
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -247,6 +248,10 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case actions.SET_MOL_GROUP_SELECTION:
       return Object.assign({}, state, {
         mol_group_selection: action.mol_group_selection
+      });
+    case constants.SET_OBJECT_SELECTION:
+      return Object.assign({}, state, {
+        object_selection: action.payload
       });
 
     // Cases like: @@redux/INIT

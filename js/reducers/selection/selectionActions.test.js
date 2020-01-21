@@ -283,4 +283,11 @@ describe("testing selection reducer's actions", () => {
     let result = selectionReducer(initialState, selectionActions.setMolGroupSelection(mol_group_selection));
     expect(result.mol_group_selection).toStrictEqual(mol_group_selection);
   });
+
+  it('should set object selection', () => {
+    expect.hasAssertions();
+    const object_selection = [30, 40, 50, 60];
+    let result = selectionReducer(initialState, selectionActions.setObjectSelection(object_selection));
+    expect(result.object_selection).toStrictEqual(object_selection);
+  });
 });

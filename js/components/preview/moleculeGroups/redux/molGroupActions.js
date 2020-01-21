@@ -2,16 +2,17 @@ import { generateComplex, generateMolecule } from '../../molecule/molecules_help
 import { VIEWS } from '../../../../constants/constants';
 import { deleteObject } from '../../../../reducers/ngl/nglDispatchActions';
 import { getJoinedMoleculeList } from '../../molecule/redux/moleculeListActions';
+import { setObjectSelection } from '../../../../reducers/selection/selectionActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
+  dispatch(setObjectSelection([molGroupId]));
+
   let site;
   const state = getState();
-  const cached_mol_lists = state.apiReducers.present.cached_mol_lists;
-  const mol_group_list = state.apiReducers.present.mol_group_list;
   const vector_list = state.selectionReducers.present.vector_list;
 
   // loop through all molecules
-  dispatch(getJoinedMoleculeList({ object_selection: [molGroupId], cached_mol_lists, mol_group_list })).forEach(mol => {
+  getJoinedMoleculeList(state).forEach(mol => {
     site = mol.site;
     // remove Ligand
     dispatch(
@@ -39,4 +40,6 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
     .forEach(item => {
       dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), majorViewStage));
     });
+
+  dispatch(setObjectSelection(undefined));
 };
