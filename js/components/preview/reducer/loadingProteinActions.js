@@ -1,0 +1,54 @@
+import { generateProteinObject } from '../../nglView/generatingObjects';
+import { SUFFIX, VIEWS } from '../../../constants/constants';
+import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/nglDispatchActions';
+
+const loadProtein = nglView => (dispatch, getState) => {
+  const state = getState();
+  const target_on = state.apiReducers.present.target_on;
+  const targetIdList = state.apiReducers.present.target_id_list;
+
+  if (target_on !== undefined && targetIdList && nglView && nglView.id && nglView.stage) {
+    let targetData = null;
+    targetIdList.forEach(thisTarget => {
+      if (thisTarget.id === target_on && targetData === null) {
+        targetData = thisTarget;
+      }
+    });
+    const targObject = generateProteinObject(targetData);
+    if (targObject) {
+      let newParams = { display_div: nglView.id };
+      if (nglView.id === VIEWS.MAJOR_VIEW) {
+        newParams.name = targObject.name + SUFFIX.MAIN;
+      }
+      return dispatch(loadObject(Object.assign({}, targObject, newParams), nglView.stage));
+    }
+  }
+  return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);
+};
+
+export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getState) => {
+  const state = getState();
+  const targetIdList = state.apiReducers.present.target_id_list;
+  const targetOnName = state.apiReducers.present.target_on_name;
+
+  if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
+    //  1. Generate new protein or skip this action and everything will be loaded from session
+    if (!isStateLoaded) {
+      dispatch(setProteinsHasLoaded(false));
+      Promise.all(
+        nglViewList.map(nglView =>
+          dispatch(loadProtein(nglView)).finally(() => {
+            dispatch(setOrientation(nglView.id, nglView.stage.viewerControls.getOrientation()));
+          })
+        )
+      )
+        .then(() => dispatch(setProteinsHasLoaded(true)))
+        .catch(() => dispatch(setProteinsHasLoaded(false)));
+    } else {
+      dispatch(setProteinsHasLoaded(true, true));
+    }
+    if (targetOnName !== undefined) {
+      document.title = targetOnName + ': Fragalysis';
+    }
+  }
+};
