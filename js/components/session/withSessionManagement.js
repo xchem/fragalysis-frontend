@@ -15,8 +15,8 @@ import { api, METHOD, getCsrfToken } from '../../utils/api';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { canCheckTarget } from './helpers';
 import { NglContext } from '../nglView/nglProvider';
-import { SCENES } from '../../reducers/ngl/nglConstants';
 import { HeaderContext } from '../header/headerContext';
+import { reloadSession } from './reducer/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -44,6 +44,7 @@ export const withSessionManagement = WrappedComponent => {
       setTargetUnrecognised,
       saveCurrentStateAsSessionScene,
       reloadNglViewFromScene,
+      reloadSession,
       ...rest
     }) => {
       const [/* state */ setState] = useState();
@@ -59,24 +60,7 @@ export const withSessionManagement = WrappedComponent => {
         (savingState &&
           (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
         false;
-      const generateArrowObject = (start, end, name, colour) => {
-        return {
-          name: listTypes.VECTOR + '_' + name,
-          OBJECT_TYPE: OBJECT_TYPE.ARROW,
-          start: start,
-          end: end,
-          colour: colour
-        };
-      };
-      const generateCylinderObject = (start, end, name, colour) => {
-        return {
-          name: listTypes.VECTOR + '_' + name,
-          OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
-          start: start,
-          end: end,
-          colour: colour
-        };
-      };
+
       const postToServer = useCallback(
         sessionState => {
           saveCurrentStateAsSessionScene();
@@ -100,96 +84,6 @@ export const withSessionManagement = WrappedComponent => {
         setSaveType(savingTypeConst.snapshotNew);
       }, [postToServer]);
 
-      const generateObjectList = useCallback(out_data => {
-        let colour = [1, 0, 0];
-        let deletions = out_data.deletions;
-        let outList = [];
-        for (let key in deletions) {
-          outList.push(generateArrowObject(deletions[key][0], deletions[key][1], key.split('_')[0], colour));
-        }
-        let additions = out_data.additions;
-        for (let key in additions) {
-          outList.push(generateArrowObject(additions[key][0], additions[key][1], key.split('_')[0], colour));
-        }
-        let linker = out_data.linkers;
-        for (let key in linker) {
-          outList.push(generateCylinderObject(linker[key][0], linker[key][1], key.split('_')[0], colour));
-        }
-        let rings = out_data.ring;
-        for (let key in rings) {
-          outList.push(generateCylinderObject(rings[key][0], rings[key][2], key.split('_')[0], colour));
-        }
-        return outList;
-      }, []);
-
-      const generateBondColorMap = inputDict => {
-        let out_d = {};
-        Object.keys(inputDict || {}).forEach(keyItem => {
-          Object.keys(inputDict[keyItem] || {}).forEach(vector => {
-            const v = vector.split('_')[0];
-            out_d[v] = inputDict[keyItem][vector];
-          });
-        });
-        return out_d;
-      };
-
-      const handleVector = useCallback(
-        json => {
-          let objList = generateObjectList(json['3d']);
-          setVectorList(objList);
-          let vectorBondColorMap = generateBondColorMap(json['indices']);
-          setBondColorMap(vectorBondColorMap);
-        },
-        [generateObjectList, setBondColorMap, setVectorList]
-      );
-
-      const redeployVectorsLocal = useCallback(
-        url => {
-          api({ url })
-            .then(response => handleVector(response.data['vectors']))
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            });
-        },
-        [handleVector, setState]
-      );
-
-      const reloadSession = useCallback(
-        myJson => {
-          let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-          reloadApiState(jsonOfView.apiReducers.present);
-          setSessionId(myJson.id);
-          if (nglViewList.length > 0) {
-            reloadSelectionReducer(jsonOfView.selectionReducers.present);
-            nglViewList.forEach(nglView => {
-              reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView);
-            });
-            if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
-              let url =
-                window.location.protocol +
-                '//' +
-                window.location.host +
-                '/api/vector/' +
-                jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
-                '/';
-              redeployVectorsLocal(url);
-            }
-            setSessionTitle(myJson.title);
-          }
-        },
-        [
-          reloadApiState,
-          reloadSelectionReducer,
-          nglViewList,
-          setSessionTitle,
-          setSessionId,
-          reloadNglViewFromScene,
-          redeployVectorsLocal
-        ]
-      );
-
       // After fetching scene from session
       useEffect(() => {
         if (loadedSession) {
@@ -206,10 +100,10 @@ export const withSessionManagement = WrappedComponent => {
             setTargetUnrecognised(targetUnrecognised);
           }
           if (targetUnrecognised === false && targetIdList.length > 0 && canCheckTarget(pathname) === true) {
-            reloadSession(loadedSession);
+            reloadSession(loadedSession, nglViewList);
           }
         }
-      }, [pathname, reloadSession, setTargetUnrecognised, targetIdList, loadedSession]);
+      }, [pathname, setTargetUnrecognised, targetIdList, loadedSession, nglViewList, reloadSession]);
 
       const generateNextUuid = useCallback(() => {
         if (nextUuid === '') {
@@ -439,7 +333,8 @@ export const withSessionManagement = WrappedComponent => {
     setBondColorMap: selectionActions.setBondColorMap,
     setTargetUnrecognised: apiActions.setTargetUnrecognised,
     saveCurrentStateAsSessionScene: nglLoadActions.saveCurrentStateAsSessionScene,
-    reloadNglViewFromScene
+    reloadNglViewFromScene,
+    reloadSession
   };
   return connect(mapStateToProps, mapDispatchToProps)(SessionManagement);
 };
