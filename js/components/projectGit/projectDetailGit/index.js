@@ -4,6 +4,7 @@ import { InputAdornment, makeStyles, TextField } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import moment from 'moment';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
+import Modal from '../../common/Modal';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -14,25 +15,69 @@ const useStyles = makeStyles(theme => ({
   },
   search: {
     margin: theme.spacing(1)
+  },
+  thumbnail: {
+    float: 'left',
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    width: 66
+  },
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3)
   }
 }));
 
 export const ProjectDetailGit = memo(() => {
   const classes = useStyles();
+  const [open, setOpen] = React.useState(false);
 
-  var withoutHash = templateExtend(TemplateName.Metro, {
+  var myTemplate = templateExtend(TemplateName.Metro, {
+    branch: {
+      lineWidth: 3,
+      spacing: 25,
+      label: {
+        font: 'normal 8pt Arial',
+        pointerWidth: 100
+        //  display: false
+      }
+    },
     commit: {
       message: {
-        displayHash: false
+        displayHash: false,
+        font: 'normal 11pt Arial'
+        // displayAuthor: false
+      },
+      spacing: 30,
+      dot: {
+        size: 8
       }
+    },
+    tag: {
+      font: 'normal 8pt Arial'
     }
   });
 
   const options = {
-    template: withoutHash
+    template: myTemplate
   };
 
-  const commitFunction = ({ title, description, author }) => {};
+  const commitFunction = ({ title, description, photo, author, email, onClick, onMouseOver }) => ({
+    author: ` <${email}>`,
+    subject: `${moment().format('LLL')}: ${title}`,
+    body: (
+      <>
+        <img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />
+        {description}
+      </>
+    ),
+    onClick,
+    onMouseOver
+  });
 
   return (
     <Panel
@@ -57,45 +102,80 @@ export const ProjectDetailGit = memo(() => {
     >
       <Gitgraph options={options}>
         {gitgraph => {
-          const master = gitgraph.branch('master');
-          master.commit('Init session of the the project');
-          master
-            .commit('Add README')
-            .commit('Add tests')
-            .commit('Implement feature');
-          master.tag('v1.0');
-          const newFeature = gitgraph.branch('new-feature');
-          newFeature.commit({
-            author: 'Tibor Postek <tibor.postek@m2ms.sk>',
-            subject: `Major session, ${moment().format('LLL')}`,
-            body: (
-              <>
-                <img src={require('../../../img/dlsLogo.png')} height="60px" width="100px" />
-                All major interactions are implemented
-              </>
-            ),
-            // "Your bones don't break, mine do. That's clear. Your cells react to bacteria and viruses differently than mine. You don't get sick, I do. That's also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke. We get some in our lungs, we drown. However unreal it may seem, we are connected, you and I. We're on the same curve, just on opposite ends.",
-            style: {
-              dot: {
-                color: 'yellow',
-                strokeColor: 'green',
-                strokeWidth: 20
-              }
-            },
-            tag: 'v1.0',
-            onClick: e => {
-              console.log('clicked ', e);
-            },
-            onMouseOver: e => {
-              console.log('mouse over, ', e);
-            }
-          });
-          master.commit('Hotfix a bug');
-          newFeature.commit('Fix tests');
-          // Merge `newFeature` into `master`
-          master.merge(newFeature, 'Release new version');
+          const master = gitgraph.branch('Basic molecules');
+          master.commit(
+            commitFunction({
+              title: 'Add basic molecules',
+              description: 'Add all molecules are in base form',
+              author: 'Tibor Postek',
+              email: 'tibor.postek@m2ms.sk'
+            })
+          );
+          const majorSnapshot = gitgraph.branch('Major molecule functionality');
+          majorSnapshot.commit(
+            commitFunction({
+              title: 'Major snapshop',
+              description: 'Create all major interactions are implemented',
+              author: 'Pavol Brunclik',
+              email: 'pavol.brunclik@m2ms.sk'
+            })
+          );
+          const cancerMolecules = gitgraph.branch('Cancer branch molecules');
+          cancerMolecules.commit(
+            commitFunction({
+              title: 'Add cancer molecule models',
+              description: 'Base model and 3 options are available',
+              author: 'Pavol Brunclik',
+              email: 'pavol.brunclik@m2ms.sk'
+            })
+          );
+          cancerMolecules.commit(
+            commitFunction({
+              title: 'Add cancer molecule',
+              description: 'This molecule is rare and expensive',
+              author: 'Tibor Postek',
+              email: 'tibor.postek@m2ms.sk'
+            })
+          );
+          cancerMolecules.commit(
+            commitFunction({
+              title: 'Add medical experiment',
+              description: 'Testing molecules for fighting with cancer',
+              author: 'Tibor Postek',
+              email: 'tibor.postek@m2ms.sk'
+            })
+          );
+          cancerMolecules.commit(
+            commitFunction({
+              title: 'Add biological experiment',
+              description: 'Testing molecules on animals, that are disabled by with cancer',
+              author: 'Tibor Postek',
+              email: 'tibor.postek@m2ms.sk'
+            })
+          );
+
+          majorSnapshot.commit(
+            commitFunction({
+              title: 'Create automatic snapshop',
+              description: 'Automatic generated snapshot',
+              author: 'Pavol Brunclik',
+              email: 'pavol.brunclik@m2ms.sk'
+            })
+          );
+
+          master.commit(
+            commitFunction({
+              title: 'Add methods',
+              description: 'Add method of molecules molecule verification',
+              author: 'Tibor Postek',
+              email: 'tibor.postek@m2ms.sk'
+            })
+          );
         }}
       </Gitgraph>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <img src={require('../../../img/xchemLogo.png')} />
+      </Modal>
     </Panel>
   );
 });
