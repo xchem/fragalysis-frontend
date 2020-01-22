@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
-import { InputAdornment, makeStyles, TextField } from '@material-ui/core';
-import { Search } from '@material-ui/icons';
+import { InputAdornment, makeStyles, TextField, IconButton } from '@material-ui/core';
+import { Delete, Search, Share } from '@material-ui/icons';
 import moment from 'moment';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
 import Modal from '../../common/Modal';
+import { URLS } from '../../routes/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -20,6 +21,8 @@ const useStyles = makeStyles(theme => ({
     float: 'left',
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
     width: 66
   },
   paper: {
@@ -32,7 +35,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ProjectDetailGit = memo(() => {
+export const ProjectDetailGit = memo(({ history }) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -52,7 +55,7 @@ export const ProjectDetailGit = memo(() => {
         font: 'normal 11pt Arial'
         // displayAuthor: false
       },
-      spacing: 30,
+      spacing: 10,
       dot: {
         size: 8
       }
@@ -66,23 +69,34 @@ export const ProjectDetailGit = memo(() => {
     template: myTemplate
   };
 
-  const commitFunction = ({ title, description, photo, author, email, onClick, onMouseOver }) => ({
+  const handleClickOnCommit = commit => {
+    console.log('redirecting to session');
+    history.push(`${URLS.target}NUDT5A`);
+  };
+
+  const commitFunction = ({ title, description, photo, author, email }) => ({
     author: ` <${email}>`,
     subject: `${moment().format('LLL')}: ${title}`,
     body: (
       <>
         <img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />
         {description}
+        <IconButton>
+          <Share />
+        </IconButton>
+        <IconButton>
+          <Delete />
+        </IconButton>
       </>
     ),
-    onClick,
-    onMouseOver
+    onMessageClick: handleClickOnCommit,
+    onClick: handleClickOnCommit
   });
 
   return (
     <Panel
       hasHeader
-      title="Snaphots"
+      title="Project sessions"
       headerActions={[
         <TextField
           className={classes.search}
