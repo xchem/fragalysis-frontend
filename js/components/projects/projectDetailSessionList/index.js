@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ProjectDetailGit = memo(({ history }) => {
+export const ProjectDetailSessionList = memo(({ history }) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 

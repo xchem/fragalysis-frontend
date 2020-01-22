@@ -259,11 +259,11 @@ export default memo(
             <ListItemText primary="Projects" />
           </ListItem>
 
-          <ListItem button onClick={() => history.push(URLS.projectsGit)}>
+          <ListItem button onClick={() => history.push(URLS.projects)}>
             <ListItemIcon>
               <Description />
             </ListItemIcon>
-            <ListItemText primary="Projects Git" />
+            <ListItemText primary="Projects_old" />
           </ListItem>
 
           <ListItem button onClick={() => history.push(URLS.sessions)}>

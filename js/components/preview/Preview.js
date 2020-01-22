@@ -16,6 +16,8 @@ import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
 import { withSessionManagement } from '../session/withSessionManagement';
+import { ProjectHistory } from './projectHistory';
+import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 //import HotspotList from '../hotspot/hotspotList';
 
 const useStyles = makeStyles(theme => ({
@@ -44,10 +46,16 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 113px)`;
+
+  const [projectHistoryHeight, setProjectHistoryHeight] = useState(0);
+
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
+    2
+  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 121px)`;
+  const [showHistory, setShowHistory] = useState(false);
 
   return (
-    <Fragment>
+    <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
           {/* Hit cluster selector */}
@@ -86,13 +94,21 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
           <Grid item>
             <CompoundList height={compoundHeight} />
           </Grid>
+          <Grid item>
+            <ProjectHistory
+              height={projectHistoryHeight}
+              setHeight={setProjectHistoryHeight}
+              showFullHistory={() => setShowHistory(!showHistory)}
+            />
+          </Grid>
         </Grid>
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
       </Grid>
       <ModalStateSave />
-    </Fragment>
+      <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />
+    </>
   );
 });
 

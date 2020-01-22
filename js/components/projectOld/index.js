@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ProjectsGit = memo(() => {
+export const ProjectsOld = memo(() => {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -125,7 +125,7 @@ export const ProjectsGit = memo(() => {
           {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
             <TableRow key={project.id} hover>
               <TableCell component="th" scope="row">
-                <Link to={`${URLS.projectsGit}${project.id}`}>{project.name}</Link>
+                <Link to={`${URLS.projectsOld}${project.id}`}>{project.name}</Link>
               </TableCell>
               <TableCell align="left">
                 <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>

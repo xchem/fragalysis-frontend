@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ProjectDetail = memo(() => {
+export const ProjectDetailOld = memo(() => {
   const classes = useStyles();
 
   return (

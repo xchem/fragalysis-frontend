@@ -13,7 +13,7 @@ import {
   InputAdornment,
   TextField
 } from '@material-ui/core';
-import { Edit, Delete, Add, Search } from '@material-ui/icons';
+import { Edit, Delete, Add, Search, List } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Projects = memo(() => {
+export const Projects = memo(({ history }) => {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -133,6 +133,9 @@ export const Projects = memo(() => {
               <TableCell align="left">{project.author}</TableCell>
               <TableCell align="left">{project.lastModification}</TableCell>
               <TableCell align="right">
+                <IconButton onClick={() => history.push(`${URLS.projects}${project.id}/history`)}>
+                  <List />
+                </IconButton>
                 <IconButton>
                   <Edit />
                 </IconButton>
