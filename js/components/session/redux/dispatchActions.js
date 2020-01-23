@@ -1,24 +1,22 @@
-import { SCENES } from '../../../reducers/ngl/constants';
+import { SCENES } from '../../../reducers/ngl/nglConstants';
 import {
   reloadApiState,
-  setUuid,
   setLatestSession,
   setLatestSnapshot,
   setSavingState,
   setSessionId,
   setSessionTitle,
   setTargetUnrecognised
-} from '../../../reducers/api/actions';
-import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
-import { reloadNglViewFromScene } from '../../../reducers/ngl/dispatchActions';
+} from '../../../reducers/api/apiActions';
+import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/selectionActions';
+import { reloadNglViewFromScene } from '../../../reducers/ngl/nglDispatchActions';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { canCheckTarget, generateBondColorMap, generateObjectList } from '../helpers';
-import { saveCurrentStateAsSessionScene } from '../../../reducers/ngl/actions';
+import { saveCurrentStateAsSessionScene } from '../../../reducers/ngl/nglActions';
 import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 
 export const handleVector = json => dispatch => {
   let objList = generateObjectList(json['3d']);
@@ -33,29 +31,27 @@ export const redeployVectorsLocal = url => dispatch => {
 
 export const reloadSession = (myJson, nglViewList) => dispatch => {
   let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-  dispatch(reloadApiState(jsonOfView.apiReducers));
+  dispatch(reloadApiState(jsonOfView.apiReducers.present));
   dispatch(setSessionId(myJson.id));
   dispatch(setSessionTitle(myJson.title));
 
   if (nglViewList.length > 0) {
-    dispatch(reloadSelectionReducer(jsonOfView.selectionReducers));
+    dispatch(reloadSelectionReducer(jsonOfView.selectionReducers.present));
     nglViewList.forEach(nglView => {
       dispatch(reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView));
     });
 
-    if (jsonOfView.selectionReducers.vectorOnList.length !== 0) {
+    if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
       let url =
         window.location.protocol +
         '//' +
         window.location.host +
         '/api/vector/' +
-        jsonOfView.selectionReducers.vectorOnList[JSON.stringify(0)] +
+        jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
         '/';
       dispatch(redeployVectorsLocal(url)).catch(error => {
         throw new Error(error);
       });
-
-      dispatch(reloadPreviewReducer(jsonOfView.previewReducers));
     }
   }
 };
@@ -63,7 +59,7 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
 export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession, targetIdList }) => dispatch => {
   if (loadedSession) {
     let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
-    let target = jsonOfView.apiReducers.target_on_name;
+    let target = jsonOfView.apiReducers.present.target_on_name;
     let targetUnrecognised = true;
     targetIdList.forEach(item => {
       if (target === item.title) {
@@ -91,18 +87,19 @@ export const newSession = () => dispatch => {
 };
 export const saveSession = () => dispatch => {
   dispatch(postToServer(savingStateConst.overwritingSession));
-  dispatch(setSaveType(savingTypeConst.sessionSave));
+  dispatch(setSaveType(savingTypeConst.sessionNew));
 };
 
 export const newSnapshot = () => dispatch => {
   dispatch(postToServer(savingStateConst.savingSnapshot));
-  dispatch(setSaveType(savingTypeConst.snapshotNew));
+  dispatch(setSaveType(savingTypeConst.sessionNew));
 };
 
 export const getSessionDetails = () => (dispatch, getState) => {
-  const uuid = getState().apiReducers.uuid;
+  const latestSession = getState().apiReducers.present.latestSession;
+  debugger;
 
-  return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid }).then(response =>
+  return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + latestSession }).then(response =>
     response.data && response.data.results.length > 0
       ? setSessionTitle(response.data.results[JSON.stringify(0)].title)
       : setSessionTitle('')
@@ -112,9 +109,10 @@ export const getSessionDetails = () => (dispatch, getState) => {
 export const updateCurrentTarget = myJson => (dispatch, getState) => {
   const state = getState();
   const saveType = state.sessionReducers.saveType;
+  debugger;
 
   if (saveType === savingTypeConst.sessionNew && myJson) {
-    dispatch(setUuid(myJson.uuid));
+    dispatch(setLatestSession(myJson.uuid));
     dispatch(setSessionId(myJson.id));
     dispatch(setSessionTitle(myJson.title));
     dispatch(setSaveType(''));
@@ -142,9 +140,11 @@ export const generateNextUuid = () => (dispatch, getState) => {
 };
 
 export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionId }) => dispatch => {
+  console.log('reloadScene', saveType, ',', newSessionFlag, ',', nextUuid, ';', uuid, sessionId);
+
   dispatch(generateNextUuid());
 
-  if (saveType.length <= 0 && uuid !== 'UNSET') {
+  if (uuid !== 'UNSET') {
     return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid }).then(response =>
       dispatch(setLoadedSession(response.data.results[0]))
     );
@@ -163,16 +163,15 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
   let TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
   let userId = DJANGO_CONTEXT['pk'];
   let stateObject = JSON.parse(store);
-  let newPresentObject = Object.assign(stateObject.apiReducers, {
+  let newPresentObject = Object.assign(stateObject.apiReducers.present, {
     latestSession: nextUuid
   });
 
   const fullState = {
     state: JSON.stringify({
-      apiReducers: newPresentObject,
-      nglReducers: stateObject.nglReducers,
-      selectionReducers: stateObject.selectionReducers,
-      previewReducers: stateObject.previewReducers
+      apiReducers: { present: newPresentObject },
+      nglReducers: { present: stateObject.nglReducers.present },
+      selectionReducers: { present: stateObject.selectionReducers.present }
     })
   };
 
@@ -195,7 +194,6 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
       data: JSON.stringify(formattedState)
     }).then(response => {
       dispatch(updateCurrentTarget(response.data));
-      dispatch(setLatestSession(nextUuid));
     });
   } else if (saveType === savingTypeConst.sessionSave) {
     const formattedState = {
@@ -212,14 +210,12 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
       data: JSON.stringify(formattedState)
     }).then(response => {
       dispatch(updateCurrentTarget(response.data));
-      // latest session should be set also because of proper saving cycle
-      dispatch(setLatestSession(uuid));
     });
   } else if (saveType === savingTypeConst.snapshotNew) {
     const uuidv4 = require('uuid/v4');
     const formattedState = {
       uuid: uuidv4(),
-      title: 'shared snapshot',
+      title: 'undefined',
       user_id: userId,
       scene: JSON.stringify(JSON.stringify(fullState))
     };

@@ -13,19 +13,21 @@ import { saveStore } from './components/helpers/globalStore';
 import thunkMiddleware from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 require('react-hot-loader/patch');
-LogRocket.init('eoalzb/fragalysis');
-// This is the log rocket setup
 
-LogRocket.identify(DJANGO_CONTEXT['username'], {
-  pk: DJANGO_CONTEXT['pk'],
-  name: DJANGO_CONTEXT['name'],
-  email: DJANGO_CONTEXT['email']
-});
+if (process.env.NODE_ENV === 'production') {
+  LogRocket.init('eoalzb/fragalysis');
+  // This is the log rocket setup
 
-init({
-  dsn: 'https://27fa0675f555431aa02ca552e93d8cfb@sentry.io/1298290'
-});
+  LogRocket.identify(DJANGO_CONTEXT['username'], {
+    pk: DJANGO_CONTEXT['pk'],
+    name: DJANGO_CONTEXT['name'],
+    email: DJANGO_CONTEXT['email']
+  });
 
+  init({
+    dsn: 'https://27fa0675f555431aa02ca552e93d8cfb@sentry.io/1298290'
+  });
+}
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
   thunkMiddleware
