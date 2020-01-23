@@ -14,6 +14,7 @@ export const withUpdatingTarget = WrappedContainer => {
       updateTarget,
       setTargetUUIDs,
       resetTargetAndSelection,
+      targetIdList,
       ...rest
     }) => {
       const target = match.params.target;
@@ -32,12 +33,12 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [setTargetUUIDs, snapshotUuid, uuid]);
 
       useEffect(() => {
-        updateTarget(notCheckTarget, target, setIsLoading).catch(error => {
+        updateTarget(notCheckTarget, target, setIsLoading, targetIdList).catch(error => {
           setState(() => {
             throw error;
           });
         });
-      }, [notCheckTarget, setIsLoading, target, updateTarget]);
+      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList]);
 
       if (isLoading === true) {
         return null;
@@ -51,7 +52,8 @@ export const withUpdatingTarget = WrappedContainer => {
 
   function mapStateToProps(state) {
     return {
-      target_on: state.apiReducers.present.target_on
+      target_on: state.apiReducers.present.target_on,
+      targetIdList: state.apiReducers.present.target_id_list
     };
   }
   const mapDispatchToProps = {

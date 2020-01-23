@@ -25,10 +25,7 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   });
 };
 
-export const updateTarget = (notCheckTarget, target, setIsLoading) => (dispatch, getState) => {
-  const state = getState();
-  const targetIdList = state.apiReducers.present.target_id_list;
-
+export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList) => dispatch => {
   if (!notCheckTarget) {
     // Get from the REST API
     let targetUnrecognisedFlag = true;
@@ -58,6 +55,7 @@ export const updateTarget = (notCheckTarget, target, setIsLoading) => (dispatch,
 };
 
 export const setTargetUUIDs = (uuid, snapshotUuid) => dispatch => {
+  console.log('setTargetUUIDs ', uuid, snapshotUuid);
   if (uuid !== undefined) {
     dispatch(setUuid(uuid));
     dispatch(setLatestSession(uuid));

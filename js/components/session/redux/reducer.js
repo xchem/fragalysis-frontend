@@ -7,7 +7,7 @@ export const INITIAL_STATE = {
   loadedSession: undefined
 };
 
-export const targetReducers = (state = INITIAL_STATE, action = {}) => {
+export const sessionReducers = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
     case constants.SET_SAVE_TYPE:
       return Object.assign({}, state, {
@@ -21,12 +21,12 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_NEW_SESSION_FLAG:
       return Object.assign({}, state, {
-        newSessionFlag: action.newSessionFlag
+        newSessionFlag: action.payload
       });
 
     case constants.SET_LOADED_SESSION:
       return Object.assign({}, state, {
-        loadedSession: action.newSessionFlag
+        loadedSession: action.payload
       });
 
     default:
