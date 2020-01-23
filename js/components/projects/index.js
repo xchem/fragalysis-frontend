@@ -13,7 +13,7 @@ import {
   InputAdornment,
   TextField
 } from '@material-ui/core';
-import { Edit, Delete, Add, Search, List } from '@material-ui/icons';
+import { Edit, Delete, Add, Search } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
@@ -125,7 +125,7 @@ export const Projects = memo(({ history }) => {
           {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
             <TableRow key={project.id} hover>
               <TableCell component="th" scope="row">
-                <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
+                <Link to={`${URLS.projects}${project.id}/history`}>{project.name}</Link>
               </TableCell>
               <TableCell align="left">
                 <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
@@ -133,9 +133,6 @@ export const Projects = memo(({ history }) => {
               <TableCell align="left">{project.author}</TableCell>
               <TableCell align="left">{project.lastModification}</TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => history.push(`${URLS.projects}${project.id}/history`)}>
-                  <List />
-                </IconButton>
                 <IconButton>
                   <Edit />
                 </IconButton>

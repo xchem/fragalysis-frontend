@@ -49,11 +49,7 @@ const Routes = memo(() => {
           <Route exact path={`${URLS.projectsOld}:projectId`} component={ProjectDetailOld} />
           {/* Old projects mock-ups */}
           <Route exact path={URLS.projects} component={Projects} />
-          <Route
-            exact
-            path={`${URLS.projects}:projectId`}
-            render={routeProps => <ProjectDetailDrawer headerHeight={headerHeight} resetSelection {...routeProps} />}
-          />
+
           <Route exact path={`${URLS.projects}:projectId/history`} component={ProjectDetailSessionList} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
