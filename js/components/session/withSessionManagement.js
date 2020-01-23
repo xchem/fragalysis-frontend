@@ -1,340 +1,106 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import * as nglLoadActions from '../../reducers/ngl/nglActions';
-import { reloadNglViewFromScene } from '../../reducers/ngl/nglDispatchActions';
-import * as apiActions from '../../reducers/api/apiActions';
+import React, { memo, useContext, useEffect, useState } from 'react';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Save, SaveOutlined, Share } from '@material-ui/icons';
-import { getStore } from '../helpers/globalStore';
-import * as selectionActions from '../../reducers/selection/selectionActions';
-import * as listTypes from '../../constants/listTypes';
 import DownloadPdb from './downloadPdb';
-import { savingStateConst, savingTypeConst } from './constants';
-import { OBJECT_TYPE } from '../nglView/constants';
-import { api, METHOD, getCsrfToken } from '../../utils/api';
-import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { canCheckTarget } from './helpers';
+import { savingStateConst } from './constants';
+
 import { NglContext } from '../nglView/nglProvider';
 import { HeaderContext } from '../header/headerContext';
-import { reloadSession } from './reducer/dispatchActions';
+import { setTargetAndReloadSession, reloadScene, newSession, saveSession, newSnapshot } from './redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
  */
 
 export const withSessionManagement = WrappedComponent => {
-  const SessionManagement = memo(
-    ({
-      savingState,
-      uuid,
-      latestSession,
-      sessionId,
-      sessionTitle,
-      targetIdList,
-      setSavingState,
-      reloadApiState,
-      reloadSelectionReducer,
-      setLatestSession,
-      setLatestSnapshot,
-      setSessionId,
-      setUuid,
-      setSessionTitle,
-      setVectorList,
-      setBondColorMap,
-      setTargetUnrecognised,
-      saveCurrentStateAsSessionScene,
-      reloadNglViewFromScene,
-      reloadSession,
-      ...rest
-    }) => {
-      const [/* state */ setState] = useState();
-      const [saveType, setSaveType] = useState('');
-      const [nextUuid, setNextUuid] = useState('');
-      const [newSessionFlag, setNewSessionFlag] = useState(0);
-      const [loadedSession, setLoadedSession] = useState();
-      const { pathname } = window.location;
-      const { nglViewList } = useContext(NglContext);
-      const { setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
+  return memo(({ ...rest }) => {
+    const [/* state */ setState] = useState();
 
-      const disableButtons =
-        (savingState &&
-          (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
-        false;
+    const { pathname } = window.location;
+    const { nglViewList } = useContext(NglContext);
+    const { setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
+    const dispatch = useDispatch();
+    const savingState = useSelector(state => state.apiReducers.present.savingState);
+    const sessionTitle = useSelector(state => state.apiReducers.present.sessionTitle);
+    const uuid = useSelector(state => state.apiReducers.present.uuid);
+    const sessionId = useSelector(state => state.apiReducers.present.sessionId);
+    const saveType = useSelector(state => state.sessionReducers.saveType);
+    const newSessionFlag = useSelector(state => state.sessionReducers.newSessionFlag);
+    const nextUuid = useSelector(state => state.sessionReducers.nextUuid);
+    const loadedSession = useSelector(state => state.sessionReducers.loadedSession);
+    const targetIdList = useSelector(state => state.apiReducers.present.target_id_list);
 
-      const postToServer = useCallback(
-        sessionState => {
-          saveCurrentStateAsSessionScene();
-          setSavingState(sessionState);
-        },
-        [saveCurrentStateAsSessionScene, setSavingState]
-      );
+    const disableButtons =
+      (savingState &&
+        (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
+      false;
 
-      const newSession = useCallback(() => {
-        postToServer(savingStateConst.savingSession);
-        setSaveType(savingTypeConst.sessionNew);
-      }, [postToServer]);
+    useEffect(() => {
+      dispatch(setTargetAndReloadSession({ pathname, nglViewList, loadedSession, targetIdList }));
+    }, [dispatch, loadedSession, nglViewList, pathname, targetIdList]);
 
-      const saveSession = useCallback(() => {
-        postToServer(savingStateConst.overwritingSession);
-        setSaveType(savingTypeConst.sessionNew);
-      }, [postToServer]);
+    useEffect(() => {
+      dispatch(reloadScene({ saveType, newSessionFlag, nextUuid, uuid, sessionId })).catch(error => {
+        setState(() => {
+          throw error;
+        });
+      });
+    }, [dispatch, newSessionFlag, nextUuid, saveType, sessionId, setState, uuid]);
 
-      const newSnapshot = useCallback(() => {
-        postToServer(savingStateConst.savingSnapshot);
-        setSaveType(savingTypeConst.snapshotNew);
-      }, [postToServer]);
+    // Function for set Header buttons and snackBar information about session
+    useEffect(() => {
+      if (sessionTitle === undefined || sessionTitle === 'undefined') {
+        setHeaderButtons([
+          <Button
+            key="saveAs"
+            color="primary"
+            onClick={() => dispatch(newSession())}
+            startIcon={<Save />}
+            disabled={disableButtons}
+          >
+            Save Session As
+          </Button>,
+          <Button
+            key="share"
+            color="primary"
+            onClick={() => dispatch(newSnapshot())}
+            startIcon={<Share />}
+            disabled={disableButtons}
+          >
+            Share Snapshot
+          </Button>,
+          <DownloadPdb key="download" />
+        ]);
+        setSnackBarTitle('Currently no active session.');
+      } else {
+        setHeaderButtons([
+          <Button
+            key="saveSession"
+            color="primary"
+            onClick={() => dispatch(saveSession())}
+            startIcon={<SaveOutlined />}
+            disabled={disableButtons}
+          >
+            Save Session
+          </Button>,
+          <Button key="saveAs" color="primary" onClick={newSession} startIcon={<Save />} disabled={disableButtons}>
+            Save Session As
+          </Button>,
+          <Button key="share" color="primary" onClick={newSnapshot} startIcon={<Share />} disabled={disableButtons}>
+            Share Snapshot
+          </Button>,
+          <DownloadPdb key="download" />
+        ]);
+        setSnackBarTitle(`Session: ${sessionTitle}`);
+      }
 
-      // After fetching scene from session
-      useEffect(() => {
-        if (loadedSession) {
-          let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
-          let target = jsonOfView.apiReducers.present.target_on_name;
-          let targetUnrecognised = true;
-          targetIdList.forEach(item => {
-            if (target === item.title) {
-              targetUnrecognised = false;
-            }
-          });
+      return () => {
+        setHeaderButtons(null);
+        setSnackBarTitle(null);
+      };
+    }, [disableButtons, dispatch, sessionTitle, setHeaderButtons, setSnackBarTitle]);
 
-          if (canCheckTarget(pathname) === false) {
-            setTargetUnrecognised(targetUnrecognised);
-          }
-          if (targetUnrecognised === false && targetIdList.length > 0 && canCheckTarget(pathname) === true) {
-            reloadSession(loadedSession, nglViewList);
-          }
-        }
-      }, [pathname, setTargetUnrecognised, targetIdList, loadedSession, nglViewList, reloadSession]);
-
-      const generateNextUuid = useCallback(() => {
-        if (nextUuid === '') {
-          const uuidv4 = require('uuid/v4');
-          setNextUuid(uuidv4());
-          setNewSessionFlag(1);
-        }
-      }, [nextUuid]);
-
-      const getSessionDetails = useCallback(() => {
-        api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + latestSession })
-          .then(response =>
-            response.data && response.data.results.length > 0
-              ? setSessionTitle(response.data.results[JSON.stringify(0)].title)
-              : setSessionTitle('')
-          )
-          .catch(error => {
-            setState(() => {
-              throw error;
-            });
-          });
-      }, [latestSession, setSessionTitle, setState]);
-
-      const updateFraggleBox = useCallback(
-        myJson => {
-          if (saveType === savingTypeConst.sessionNew && myJson) {
-            setLatestSession(myJson.uuid);
-            setSessionId(myJson.id);
-            setSessionTitle(myJson.title);
-            setSaveType('');
-            setNextUuid('');
-            getSessionDetails();
-          } else if (saveType === savingTypeConst.sessionSave) {
-            setSaveType('');
-            getSessionDetails();
-          } else if (saveType === savingTypeConst.snapshotNew && myJson) {
-            setLatestSnapshot(myJson.uuid);
-            setSaveType('');
-          }
-        },
-        [getSessionDetails, saveType, setLatestSession, setLatestSnapshot, setSessionId, setSessionTitle]
-      );
-
-      // componentDidUpdate
-      useEffect(() => {
-        generateNextUuid();
-        let hasBeenRefreshed = true;
-        if (uuid !== 'UNSET') {
-          api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid })
-            .then(response => setLoadedSession(response.data.results[0]))
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            });
-        }
-        if (hasBeenRefreshed === true) {
-          let store = JSON.stringify(getStore().getState());
-          const timeOptions = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: false
-          };
-          let TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
-          let userId = DJANGO_CONTEXT['pk'];
-          let stateObject = JSON.parse(store);
-          let newPresentObject = Object.assign(stateObject.apiReducers.present, {
-            latestSession: nextUuid
-          });
-
-          const fullState = {
-            state: JSON.stringify({
-              apiReducers: { present: newPresentObject },
-              nglReducers: { present: stateObject.nglReducers.present },
-              selectionReducers: { present: stateObject.selectionReducers.present }
-            })
-          };
-
-          if (saveType === savingTypeConst.sessionNew && newSessionFlag === 1) {
-            setNewSessionFlag(0);
-            const formattedState = {
-              uuid: nextUuid,
-              title: TITLE,
-              user_id: userId,
-              scene: JSON.stringify(JSON.stringify(fullState))
-            };
-            api({
-              url: '/api/viewscene/',
-              method: METHOD.POST,
-              headers: {
-                'X-CSRFToken': getCsrfToken(),
-                accept: 'application/json',
-                'content-type': 'application/json'
-              },
-              data: JSON.stringify(formattedState)
-            })
-              .then(response => {
-                updateFraggleBox(response.data);
-              })
-              .catch(error => {
-                setState(() => {
-                  throw error;
-                });
-              });
-          } else if (saveType === savingTypeConst.sessionSave) {
-            const formattedState = {
-              scene: JSON.stringify(JSON.stringify(fullState))
-            };
-            api({
-              url: '/api/viewscene/' + JSON.parse(sessionId),
-              method: METHOD.PATCH,
-              headers: {
-                'X-CSRFToken': getCsrfToken(),
-                accept: 'application/json',
-                'content-type': 'application/json'
-              },
-              data: JSON.stringify(formattedState)
-            })
-              .then(response => {
-                updateFraggleBox(response.data);
-              })
-              .catch(error => {
-                setState(() => {
-                  throw error;
-                });
-              });
-          } else if (saveType === savingTypeConst.snapshotNew) {
-            const uuidv4 = require('uuid/v4');
-            const formattedState = {
-              uuid: uuidv4(),
-              title: 'undefined',
-              user_id: userId,
-              scene: JSON.stringify(JSON.stringify(fullState))
-            };
-            api({
-              url: '/api/viewscene/',
-              method: METHOD.POST,
-              headers: {
-                'X-CSRFToken': getCsrfToken(),
-                accept: 'application/json',
-                'content-type': 'application/json'
-              },
-              data: JSON.stringify(formattedState)
-            })
-              .then(response => {
-                updateFraggleBox(response.data);
-              })
-              .catch(error => {
-                setState(() => {
-                  throw error;
-                });
-              });
-          }
-        }
-      }, [generateNextUuid, newSessionFlag, nextUuid, saveType, sessionId, setState, setUuid, updateFraggleBox, uuid]);
-
-      // Function for set Header buttons and snackBar information about session
-      useEffect(() => {
-        if (sessionTitle === undefined || sessionTitle === 'undefined') {
-          setHeaderButtons([
-            <Button key="saveAs" color="primary" onClick={newSession} startIcon={<Save />} disabled={disableButtons}>
-              Save Session As
-            </Button>,
-            <Button key="share" color="primary" onClick={newSnapshot} startIcon={<Share />} disabled={disableButtons}>
-              Share Snapshot
-            </Button>,
-            <DownloadPdb key="download" />
-          ]);
-          setSnackBarTitle('Currently no active session.');
-        } else {
-          setHeaderButtons([
-            <Button
-              key="saveSession"
-              color="primary"
-              onClick={saveSession}
-              startIcon={<SaveOutlined />}
-              disabled={disableButtons}
-            >
-              Save Session
-            </Button>,
-            <Button key="saveAs" color="primary" onClick={newSession} startIcon={<Save />} disabled={disableButtons}>
-              Save Session As
-            </Button>,
-            <Button key="share" color="primary" onClick={newSnapshot} startIcon={<Share />} disabled={disableButtons}>
-              Share Snapshot
-            </Button>,
-            <DownloadPdb key="download" />
-          ]);
-          setSnackBarTitle(`Session: ${sessionTitle}`);
-        }
-
-        return () => {
-          setHeaderButtons(null);
-          setSnackBarTitle(null);
-        };
-      }, [disableButtons, newSession, newSnapshot, saveSession, sessionTitle, setHeaderButtons, setSnackBarTitle]);
-
-      return <WrappedComponent {...rest} />;
-    }
-  );
-
-  function mapStateToProps(state) {
-    return {
-      savingState: state.apiReducers.present.savingState,
-      uuid: state.apiReducers.present.uuid,
-      latestSession: state.apiReducers.present.latestSession,
-      sessionId: state.apiReducers.present.sessionId,
-      sessionTitle: state.apiReducers.present.sessionTitle,
-      targetIdList: state.apiReducers.present.target_id_list
-    };
-  }
-
-  const mapDispatchToProps = {
-    setSavingState: apiActions.setSavingState,
-    reloadApiState: apiActions.reloadApiState,
-    reloadSelectionReducer: selectionActions.reloadSelectionReducer,
-    setLatestSession: apiActions.setLatestSession,
-    setLatestSnapshot: apiActions.setLatestSnapshot,
-    setSessionId: apiActions.setSessionId,
-    setUuid: apiActions.setUuid,
-    setSessionTitle: apiActions.setSessionTitle,
-    setVectorList: selectionActions.setVectorList,
-    setBondColorMap: selectionActions.setBondColorMap,
-    setTargetUnrecognised: apiActions.setTargetUnrecognised,
-    saveCurrentStateAsSessionScene: nglLoadActions.saveCurrentStateAsSessionScene,
-    reloadNglViewFromScene,
-    reloadSession
-  };
-  return connect(mapStateToProps, mapDispatchToProps)(SessionManagement);
+    return <WrappedComponent {...rest} />;
+  });
 };
