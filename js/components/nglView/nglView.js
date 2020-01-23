@@ -66,15 +66,15 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   );
 
   useEffect(() => {
-    if (stage === undefined && !getNglView(div_id)) {
+    const nglViewFromContext = getNglView(div_id);
+    if (stage === undefined && !nglViewFromContext) {
       const newStage = new Stage(div_id);
       registerNglView(div_id, newStage);
       registerStageEvents(newStage, getNglView);
       setStage(newStage);
-    } else if (stage === undefined && getNglView(div_id) && getNglView(div_id).stage) {
-      const newStage = getNglView(div_id).stage;
-      registerStageEvents(newStage, getNglView);
-      setStage(newStage);
+    } else if (stage === undefined && nglViewFromContext && nglViewFromContext.stage) {
+      registerStageEvents(nglViewFromContext.stage, getNglView);
+      setStage(nglViewFromContext.stage);
     } else if (stage) {
       registerStageEvents(stage, getNglView);
     }
@@ -82,6 +82,7 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     return () => {
       if (stage) {
         unregisterStageEvents(stage, getNglView);
+        unregisterNglView(div_id);
       }
     };
   }, [
