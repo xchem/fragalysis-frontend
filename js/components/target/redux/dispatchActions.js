@@ -55,7 +55,6 @@ export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList)
 };
 
 export const setTargetUUIDs = (uuid, snapshotUuid) => dispatch => {
-  console.log('setTargetUUIDs ', uuid, snapshotUuid);
   if (uuid !== undefined) {
     dispatch(setUuid(uuid));
     dispatch(setLatestSession(uuid));
