@@ -140,8 +140,6 @@ export const generateNextUuid = () => (dispatch, getState) => {
 };
 
 export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionId }) => dispatch => {
-  console.log('reloadScene', saveType, ',', newSessionFlag, ',', nextUuid, ';', uuid, sessionId);
-
   dispatch(generateNextUuid());
 
   if (uuid !== 'UNSET') {

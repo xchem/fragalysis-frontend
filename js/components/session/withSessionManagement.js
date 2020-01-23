@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Save, SaveOutlined, Share } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
