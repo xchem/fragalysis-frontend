@@ -7,6 +7,7 @@ import nglRed from './ngl/nglReducers';
 import selectionRed from './selection/selectionReducers';
 import { targetReducers } from '../components/target/redux/reducer';
 import { sessionReducers } from '../components/session/redux/reducer';
+import { previewReducers } from '../components/preview/redux';
 import undoable from 'redux-undo';
 
 const rootReducer = combineReducers({
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
   nglReducers: undoable(nglRed, { limit: 1 }),
   selectionReducers: undoable(selectionRed, { limit: 1 }),
   targetReducers,
-  sessionReducers
+  sessionReducers,
+  previewReducers
 });
 
 export { rootReducer };
