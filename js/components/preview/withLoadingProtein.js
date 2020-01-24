@@ -4,7 +4,7 @@
 import React, { memo, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { NglContext } from '../nglView/nglProvider';
-import { shouldLoadProtein } from './reducer/loadingProteinActions';
+import { shouldLoadProtein } from './redux/dispatchActions';
 
 // is responsible for loading molecules list
 export const withLoadingProtein = WrappedComponent => {

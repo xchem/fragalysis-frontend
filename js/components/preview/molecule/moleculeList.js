@@ -11,7 +11,7 @@ import * as listType from '../../../constants/listTypes';
 import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
-import { getJoinedMoleculeList } from './redux/moleculeListActions';
+import { getJoinedMoleculeList } from './redux/selectors';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
