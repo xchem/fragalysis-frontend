@@ -2,19 +2,18 @@ import { OBJECT_TYPE } from '../constants';
 import { PREFIX, VIEWS, SUFFIX } from '../../../constants/constants';
 import { generateSphere } from '../../preview/molecule/molecules_helpers';
 import { clearAfterDeselectingMoleculeGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
-import { loadObject, deleteObject } from '../../../reducers/ngl/dispatchActions';
-import { setMolGroupSelection } from '../../../reducers/selection/actions';
-import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/actions';
+import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActions';
+import { selectVector, setMolGroupSelection } from '../../../reducers/selection/selectionActions';
+import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';
 import * as listTypes from '../../../constants/listTypes';
-import { selectVectorAndResetCompounds } from '../../../reducers/selection/dispatchActions';
 
 export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
   const state = getState();
-  const molGroupSelection = state.selectionReducers.mol_group_selection;
+  const molGroupSelection = state.selectionReducers.present.mol_group_selection;
   const objIdx = molGroupSelection.indexOf(molGroupId);
   const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${molGroupId}`;
   const selectionCopy = molGroupSelection.slice();
-  const currentMolGroup = state.apiReducers.mol_group_list.find(o => o.id === molGroupId);
+  const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === molGroupId);
 
   if (objIdx === -1) {
     dispatch(setMolGroupOn(molGroupId));
@@ -83,7 +82,7 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
   if (pickingProxy) {
     // For assigning the ligand interaction
     if (pickingProxy.bond) {
-      const duck_yank_data = state.apiReducers.duck_yank_data;
+      const duck_yank_data = state.apiReducers.present.duck_yank_data;
       let input_dict = processInt(pickingProxy);
       if (duck_yank_data['interaction'] !== undefined) {
         dispatch(
@@ -120,7 +119,7 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
       //}
       else if (type === listTypes.VECTOR) {
         const vectorSmi = name.split('_')[1];
-        dispatch(selectVectorAndResetCompounds(vectorSmi));
+        dispatch(selectVector(vectorSmi));
       }
     }
   }
