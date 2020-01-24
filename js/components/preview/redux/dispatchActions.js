@@ -1,14 +1,11 @@
 import { generateProteinObject } from '../../nglView/generatingObjects';
 import { SUFFIX, VIEWS } from '../../../constants/constants';
-import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/dispatchActions';
-import { reloadSummaryReducer } from '../summary/redux/actions';
-import { reloadCompoundsReducer } from '../compounds/redux/actions';
-// import { reloadMoleculeReducer } from '../molecule/redux/actions';
+import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/nglDispatchActions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
-  const target_on = state.apiReducers.target_on;
-  const targetIdList = state.apiReducers.target_id_list;
+  const target_on = state.apiReducers.present.target_on;
+  const targetIdList = state.apiReducers.present.target_id_list;
 
   if (target_on !== undefined && targetIdList && nglView && nglView.id && nglView.stage) {
     let targetData = null;
@@ -31,8 +28,8 @@ const loadProtein = nglView => (dispatch, getState) => {
 
 export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getState) => {
   const state = getState();
-  const targetIdList = state.apiReducers.target_id_list;
-  const targetOnName = state.apiReducers.target_on_name;
+  const targetIdList = state.apiReducers.present.target_id_list;
+  const targetOnName = state.apiReducers.present.target_on_name;
 
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
@@ -54,10 +51,4 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getS
       document.title = targetOnName + ': Fragalysis';
     }
   }
-};
-
-export const reloadPreviewReducer = newState => dispatch => {
-  dispatch(reloadSummaryReducer(newState.summary));
-  dispatch(reloadCompoundsReducer(newState.compounds));
-  // dispatch(reloadMoleculeReducer(newState.molecule));
 };

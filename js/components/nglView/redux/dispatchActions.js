@@ -2,24 +2,23 @@ import { OBJECT_TYPE } from '../constants';
 import { PREFIX, VIEWS, SUFFIX } from '../../../constants/constants';
 import { generateSphere } from '../../preview/molecule/molecules_helpers';
 import { clearAfterDeselectingMoleculeGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
-import { loadObject, deleteObject } from '../../../reducers/ngl/dispatchActions';
-import { setMolGroupSelection } from '../../../reducers/selection/actions';
-import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/actions';
+import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActions';
+import { selectVector, setMolGroupSelection } from '../../../reducers/selection/selectionActions';
+import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';
 import * as listTypes from '../../../constants/listTypes';
-import { selectVectorAndResetCompounds } from '../../../reducers/selection/dispatchActions';
 
 export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
   const state = getState();
-  const molGroupSelection = state.selectionReducers.mol_group_selection;
+  const molGroupSelection = state.selectionReducers.present.mol_group_selection;
   const objIdx = molGroupSelection.indexOf(molGroupId);
   const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${molGroupId}`;
   const selectionCopy = molGroupSelection.slice();
-  const currentMolGroup = state.apiReducers.mol_group_list.find(o => o.id === molGroupId);
+  const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === molGroupId);
 
   if (objIdx === -1) {
     dispatch(setMolGroupOn(molGroupId));
     selectionCopy.push(molGroupId);
-    dispatch(setMolGroupSelection(selectionCopy));
+    dispatch(setMolGroupSelection(selectionCopy, summaryViewStage));
     dispatch(
       deleteObject(
         {
@@ -34,12 +33,10 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
         Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
         summaryViewStage
       )
-    ).catch(error => {
-      throw new Error(error);
-    });
+    );
   } else {
     selectionCopy.splice(objIdx, 1);
-    dispatch(setMolGroupSelection(selectionCopy));
+    dispatch(setMolGroupSelection(selectionCopy, summaryViewStage));
     dispatch(
       deleteObject(
         {
@@ -54,9 +51,7 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
         Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
         summaryViewStage
       )
-    ).catch(error => {
-      throw new Error(error);
-    });
+    );
     dispatch(
       clearAfterDeselectingMoleculeGroup({
         molGroupId,
@@ -84,10 +79,10 @@ const processInt = pickingProxy => {
 
 export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch, getState) => {
   const state = getState();
-  if (pickingProxy && stage) {
+  if (pickingProxy) {
     // For assigning the ligand interaction
     if (pickingProxy.bond) {
-      const duck_yank_data = state.apiReducers.duck_yank_data;
+      const duck_yank_data = state.apiReducers.present.duck_yank_data;
       let input_dict = processInt(pickingProxy);
       if (duck_yank_data['interaction'] !== undefined) {
         dispatch(
@@ -107,17 +102,15 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
         name: input_dict['interaction'] + SUFFIX.INTERACTION,
         OBJECT_TYPE: OBJECT_TYPE.ARROW
       };
-      dispatch(loadObject(objToLoad, stage)).catch(error => {
-        throw new Error(error);
-      });
+      dispatch(loadObject(objToLoad, stage));
     } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {
       let name = pickingProxy.component.object.name;
       // Ok so now perform logic
       const type = name.split('_')[0];
       const pk = parseInt(name.split('_')[1], 10);
-      if (type === OBJECT_TYPE.MOLECULE_GROUP && getNglView(VIEWS.MAJOR_VIEW)) {
+      if (type === OBJECT_TYPE.MOLECULE_GROUP) {
         dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage));
-      } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT && getNglView(VIEWS.MAJOR_VIEW)) {
+      } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT) {
         dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage));
       } else if (type === listTypes.PANDDA_SITE) {
         dispatch(setPanddaSiteOn(pk));
@@ -126,7 +119,7 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
       //}
       else if (type === listTypes.VECTOR) {
         const vectorSmi = name.split('_')[1];
-        dispatch(selectVectorAndResetCompounds(vectorSmi));
+        dispatch(selectVector(vectorSmi));
       }
     }
   }

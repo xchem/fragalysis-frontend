@@ -1,4 +1,4 @@
-import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/dispatchActions';
+import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/nglDispatchActions';
 import {
   appendComplexList,
   appendFragmentDisplayList,
@@ -8,12 +8,13 @@ import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
+  selectVector,
   setBondColorMap,
   setInitialFullGraph,
   setToQuery,
   setVectorList,
   updateFullGraph
-} from '../../../../reducers/selection/actions';
+} from '../../../../reducers/selection/selectionActions';
 import { base_url } from '../../../routes/constants';
 import {
   generateArrowObject,
@@ -25,11 +26,6 @@ import {
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
-import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
-import { colourList } from '../moleculeView';
-import { setMoleculeOrientation } from '../../../../reducers/ngl/actions';
-import { setCompoundImage } from '../../summary/redux/actions';
-import { noCompoundImage } from '../../summary/redux/reducer';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -60,7 +56,6 @@ const generateObjectList = (out_data, data) => {
 
   return outList;
 };
-
 const generateBondColorMap = inputDict => {
   var out_d = {};
   for (let keyItem in inputDict) {
@@ -78,8 +73,7 @@ const getViewUrl = (get_view, data) => {
 
 const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
-  const to_select = state.selectionReducers.to_select;
-  const orientationMatrix = state.nglReducers.moleculeOrientations[data.id];
+  const to_select = state.selectionReducers.present.to_select;
   var objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList(objList));
   // loading vector objects
@@ -87,9 +81,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
     dispatch(
       loadObject(
         Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
-        stage,
-        undefined,
-        orientationMatrix
+        stage
       )
     )
   );
@@ -97,9 +89,9 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(setBondColorMap(vectorBondColorMap));
 };
 
-export const addVector = (stage, data) => async (dispatch, getState) => {
+export const addVector = (stage, data) => (dispatch, getState) => {
   const state = getState();
-  const vector_list = state.selectionReducers.vector_list;
+  const vector_list = state.selectionReducers.present.vector_list;
 
   vector_list.forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
   // Set this
@@ -108,7 +100,7 @@ export const addVector = (stage, data) => async (dispatch, getState) => {
   dispatch(incrementCountOfPendingVectorLoadRequests());
 
   dispatch(appendVectorOnList(generateMoleculeId(data)));
-  dispatch(selectVectorAndResetCompounds(undefined));
+  dispatch(selectVector(undefined));
 
   return api({ url: getViewUrl('graph', data) })
     .then(response => dispatch(updateFullGraph(response.data['graph'])))
@@ -123,7 +115,7 @@ export const addVector = (stage, data) => async (dispatch, getState) => {
 
 export const removeVector = (stage, data) => (dispatch, getState) => {
   const state = getState();
-  const vector_list = state.selectionReducers.vector_list;
+  const vector_list = state.selectionReducers.present.vector_list;
   vector_list.forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
   dispatch(setToQuery(''));
   dispatch(removeFromVectorOnList(generateMoleculeId(data)));
@@ -158,7 +150,6 @@ export const addLigand = (stage, data, colourToggle) => dispatch => {
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-    dispatch(setMoleculeOrientation(data.id, currentOrientation));
   });
   dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
 };
@@ -166,57 +157,4 @@ export const addLigand = (stage, data, colourToggle) => dispatch => {
 export const removeLigand = (stage, data) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
-};
-
-export const selectFirstMolecule = (majorView, moleculeList) => (dispatch, getState) => {
-  if (moleculeList) {
-    const firstMolecule = moleculeList[0];
-    dispatch(addLigand(majorView, firstMolecule, colourList[0]));
-    dispatch(addComplex(majorView, firstMolecule, colourList[0]));
-    dispatch(addVector(majorView, firstMolecule));
-  }
-};
-
-export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, getState) => {
-  const state = getState();
-  const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
-  const complexList = state.selectionReducers.complexList;
-  const vectorOnList = state.selectionReducers.vectorOnList;
-
-  fragmentDisplayList.forEach(moleculeId => {
-    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
-    if (data) {
-      dispatch(removeLigand(stage, data));
-    }
-  });
-  complexList.forEach(moleculeId => {
-    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
-    if (data) {
-      dispatch(removeComplex(stage, data, colourList[0]));
-    }
-  });
-  vectorOnList.forEach(moleculeId => {
-    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
-    if (data) {
-      dispatch(removeVector(stage, data));
-    }
-  });
-
-  // vector_list
-  dispatch(setVectorList([]));
-  // to_query_pk
-  // to_query_prot
-  // to_query_sdf_info
-  dispatch(
-    setInitialFullGraph({
-      to_query: undefined,
-      to_query_pk: undefined,
-      to_query_sdf_info: undefined,
-      to_query_prot: undefined,
-      to_select: undefined,
-      querying: undefined
-    })
-  );
-
-  dispatch(setCompoundImage(noCompoundImage));
 };

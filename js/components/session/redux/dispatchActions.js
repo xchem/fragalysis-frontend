@@ -97,7 +97,6 @@ export const newSnapshot = () => dispatch => {
 
 export const getSessionDetails = () => (dispatch, getState) => {
   const latestSession = getState().apiReducers.present.latestSession;
-  debugger;
 
   return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + latestSession }).then(response =>
     response.data && response.data.results.length > 0
@@ -109,7 +108,6 @@ export const getSessionDetails = () => (dispatch, getState) => {
 export const updateCurrentTarget = myJson => (dispatch, getState) => {
   const state = getState();
   const saveType = state.sessionReducers.saveType;
-  debugger;
 
   if (saveType === savingTypeConst.sessionNew && myJson) {
     dispatch(setLatestSession(myJson.uuid));

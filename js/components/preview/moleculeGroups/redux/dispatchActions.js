@@ -5,32 +5,29 @@ import {
   deleteObject,
   loadObject,
   reloadNglViewFromScene
-} from '../../../../reducers/ngl/dispatchActions';
+} from '../../../../reducers/ngl/nglDispatchActions';
 import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   resetSelectionState,
   setComplexList,
-  setFilterSettings,
   setFragmentDisplayList,
   setMolGroupSelection,
   setObjectSelection,
   setVectorList,
   setVectorOnList
-} from '../../../../reducers/selection/actions';
-import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
-import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
+} from '../../../../reducers/selection/selectionActions';
+import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/nglActions';
+import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/apiActions';
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
-import { SCENES } from '../../../../reducers/ngl/constants';
-import { setSortDialogOpen } from '../../molecule/redux/actions';
-import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { SCENES } from '../../../../reducers/ngl/nglConstants';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
   dispatch(setObjectSelection([molGroupId]));
 
   let site;
   const state = getState();
-  const vector_list = state.selectionReducers.vector_list;
+  const vector_list = state.selectionReducers.present.vector_list;
 
   // loop through all molecules
   getJoinedMoleculeList(state).forEach(mol => {
@@ -76,35 +73,10 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage) => dispatch => 
   }
 };
 
-export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => {
-  const currentMolGroup = getState().apiReducers.mol_group_list[0];
-  if (currentMolGroup) {
-    const currMolGroupID = currentMolGroup.id;
-    dispatch(setMolGroupOn(currMolGroupID));
-    const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${currMolGroupID}`;
-    dispatch(setMolGroupSelection([currMolGroupID]));
-    dispatch(
-      deleteObject(
-        {
-          display_div: VIEWS.SUMMARY_VIEW,
-          name: currentMolGroupStringID
-        },
-        summaryView
-      )
-    );
-    dispatch(
-      loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)), summaryView)
-    );
-  }
-};
-
-export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (
-  dispatch,
-  getState
-) => {
+export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (dispatch, getState) => {
   const state = getState();
-  const group_type = state.apiReducers.group_type;
-  const target_on = state.apiReducers.target_on;
+  const group_type = state.apiReducers.present.group_type;
+  const target_on = state.apiReducers.present.target_on;
   const list_type = OBJECT_TYPE.MOLECULE_GROUP;
 
   if (target_on && !isStateLoaded) {
@@ -112,12 +84,9 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
       url: getUrl({ list_type, target_on, group_type }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl,
-      afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, summaryView)),
+      afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, stage)),
       list_type,
-      setObjectList: async mol_group_list => {
-        await dispatch(setMolGroupList(mol_group_list));
-        //  dispatch(selectFirstMolGroup({ summaryView }));
-      },
+      setObjectList: mol_group_list => dispatch(setMolGroupList(mol_group_list)),
       cancel: onCancel
     });
   } else if (target_on && isStateLoaded) {
@@ -132,12 +101,8 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-  dispatch(reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene)).catch(error => {
-    throw new Error(error);
-  });
-  dispatch(reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene)).catch(error => {
-    throw new Error(error);
-  });
+  dispatch(reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene));
+  dispatch(reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene));
 
   // Reset selection reducer
   // remove sites selection
@@ -155,14 +120,6 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
   // Vectors
   dispatch(setVectorOnList([]));
   dispatch(setVectorList([]));
-
-  // reset filterSettings of molecules
-  dispatch(setFilterSettings(undefined));
-  // close sort dialog
-  dispatch(setSortDialogOpen(false));
-
-  // reset compounds
-  dispatch(resetCurrentCompoundsSettings(true));
 };
 
 export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, event }) => (
@@ -170,8 +127,8 @@ export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorVi
   getState
 ) => {
   const state = getState();
-  const mol_group_list = state.apiReducers.mol_group_list;
-  const mol_group_selection = state.selectionReducers.mol_group_selection;
+  const mol_group_list = state.apiReducers.present.mol_group_list;
+  const mol_group_selection = state.selectionReducers.present.mol_group_selection;
 
   const objIdx = mol_group_selection.indexOf(moleculeGroup.id);
   const selectionCopy = mol_group_selection.slice();

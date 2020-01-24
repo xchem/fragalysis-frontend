@@ -1,9 +1,9 @@
 import { createSelector } from 'reselect';
 
-const getCachedMoleculeLists = state => state.apiReducers.cached_mol_lists;
-const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
-const getMoleculeGroupSelection = state => state.selectionReducers.mol_group_selection;
-const getObjectSelection = state => state.selectionReducers.object_selection;
+const getCachedMoleculeLists = state => state.apiReducers.present.cached_mol_lists;
+const getMoleculeGroupLists = state => state.apiReducers.present.mol_group_list;
+const getMoleculeGroupSelection = state => state.selectionReducers.present.mol_group_selection;
+const getObjectSelection = state => state.selectionReducers.present.object_selection;
 
 export const getJoinedMoleculeList = createSelector(
   getCachedMoleculeLists,
