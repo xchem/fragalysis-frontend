@@ -2,13 +2,13 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useRef, useState } from 'react';
+import React, { Fragment, memo, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import { SummaryView } from './summary/summaryView';
-import { CompoundList } from './compounds/compoundList';
+import CompoundList from './compound/compoundList';
 import NglViewerControls from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
@@ -16,8 +16,6 @@ import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
 import { withSessionManagement } from '../session/withSessionManagement';
-import { ProjectHistory } from './projectHistory';
-import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 //import HotspotList from '../hotspot/hotspotList';
 
 const useStyles = makeStyles(theme => ({
@@ -46,16 +44,10 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-
-  const [projectHistoryHeight, setProjectHistoryHeight] = useState(0);
-
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
-    2
-  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 121px)`;
-  const [showHistory, setShowHistory] = useState(false);
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 113px)`;
 
   return (
-    <>
+    <Fragment>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
           {/* Hit cluster selector */}
@@ -94,21 +86,13 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
           <Grid item>
             <CompoundList height={compoundHeight} />
           </Grid>
-          <Grid item>
-            <ProjectHistory
-              height={projectHistoryHeight}
-              setHeight={setProjectHistoryHeight}
-              showFullHistory={() => setShowHistory(!showHistory)}
-            />
-          </Grid>
         </Grid>
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
       </Grid>
       <ModalStateSave />
-      <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />
-    </>
+    </Fragment>
   );
 });
 
