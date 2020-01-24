@@ -17,20 +17,13 @@ const loadingCompoundImage =
   '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
   '</svg>';
 
-export const noCompoundImage = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="150px" height="150px"/>';
+const noCompoundImage = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="150px" height="150px"/>';
 
 export const INITIAL_STATE = {
   oldUrl: '',
   compoundImage: noCompoundImage,
   width: 150,
-  height: 150,
-
-  // summary view
-  countOfPicked: 0,
-  countOfExploredVectors: 0,
-  countOfExploredSeries: 0,
-  estimatedCost: 0,
-  selectedInteraction: undefined
+  height: 150
 };
 
 export const summary = (state = INITIAL_STATE, action = {}) => {
@@ -44,21 +37,6 @@ export const summary = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { compoundImage: noCompoundImage });
     case constants.SET_IS_LOADING_COMPOUND_IMAGE:
       return Object.assign({}, state, { compoundImage: loadingCompoundImage });
-
-    // summary view
-    case constants.SET_COUNT_OF_PICKED:
-      return Object.assign({}, state, { countOfPicked: action.payload });
-    case constants.SET_COUNT_OF_EXPLORED_VECTORS:
-      return Object.assign({}, state, { countOfExploredVectors: action.payload });
-    case constants.SET_COUNT_OF_EXPLORED_SERIES:
-      return Object.assign({}, state, { countOfExploredSeries: action.payload });
-    case constants.SET_ESTIMATED_COST:
-      return Object.assign({}, state, { estimatedCost: action.payload });
-    case constants.SET_SELECTED_INTERACTION:
-      return Object.assign({}, state, { selectedInteraction: action.payload });
-
-    case constants.RELOAD_REDUCER:
-      return Object.assign({}, state, { ...action.payload });
 
     default:
       return state;

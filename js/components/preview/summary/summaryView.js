@@ -4,7 +4,7 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
-import SummaryCmpd from './SummaryCmpd';
+import { CmpdSummaryImage } from './CmpdSummaryImage';
 import FileSaver from 'file-saver';
 import { DockingScripts } from '../../../utils/script_utils';
 import { api } from '../../../utils/api';
@@ -182,7 +182,7 @@ const SummaryView = memo(
               </Grid>
             </Grid>
             <Grid item>
-              <SummaryCmpd height={150} width={150} key={'QUERY'} />
+              <CmpdSummaryImage />
             </Grid>
           </Grid>
           <Button color="primary" onClick={handleExport} startIcon={<CloudDownload />}>
