@@ -7,7 +7,7 @@ import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
-import SummaryView from './summary/summaryView';
+import { SummaryView } from './summary/summaryView';
 import CompoundList from './compound/compoundList';
 import NglViewerControls from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
