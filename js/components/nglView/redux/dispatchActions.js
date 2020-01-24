@@ -6,6 +6,7 @@ import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActio
 import { selectVector, setMolGroupSelection } from '../../../reducers/selection/selectionActions';
 import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';
 import * as listTypes from '../../../constants/listTypes';
+import { reloadSummaryCompoundImage } from '../../preview/summary/redux/dispatchAction';
 
 export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
   const state = getState();
