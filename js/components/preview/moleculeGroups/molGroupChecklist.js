@@ -1,16 +1,11 @@
-import React, { memo, Fragment, useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import { Grid, makeStyles, Checkbox } from '@material-ui/core';
-import { connect } from 'react-redux';
-import * as apiActions from '../../../reducers/api/apiActions';
+import { useDispatch, useSelector } from 'react-redux';
 import { heightOfBody } from './molGroupSelector';
-import { generateSphere } from '../molecule/molecules_helpers';
 import { VIEWS } from '../../../constants/constants';
-import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
-import * as selectionActions from '../../../reducers/selection/selectionActions';
 import { NglContext } from '../../nglView/nglProvider';
-import { OBJECT_TYPE } from '../../nglView/constants';
-import { clearAfterDeselectingMoleculeGroup } from './redux/molGroupActions';
+import { onSelectMoleculeGroup } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -41,120 +36,55 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const molGroupChecklist = memo(
-  ({
-    mol_group_list,
-    mol_group_selection,
-    setMolGroupOn,
-    setMolGroupSelection,
-    deleteObject,
-    loadObject,
-    clearAfterDeselectingMoleculeGroup
-  }) => {
-    const classes = useStyles();
-    const disableUserInteraction = useDisableUserInteraction();
-    const { getNglView } = useContext(NglContext);
+const molGroupChecklist = memo(({}) => {
+  const classes = useStyles();
+  const disableUserInteraction = useDisableUserInteraction();
+  const { getNglView } = useContext(NglContext);
+  const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const dispatch = useDispatch();
+  const mol_group_list = useSelector(state => state.apiReducers.present.mol_group_list);
+  const mol_group_selection = useSelector(state => state.selectionReducers.present.mol_group_selection);
 
-    const handleOnSelect = selectedObject => e => {
-      const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW).stage;
-      const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
-      const objIdx = mol_group_selection.indexOf(selectedObject.id);
-      const selectionCopy = mol_group_selection.slice();
-      const currentMolGroup = mol_group_list.find(o => o.id === selectedObject.id);
-      const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${selectedObject.id}`;
-      if (e.target.checked && objIdx === -1) {
-        setMolGroupOn(selectedObject.id);
-        selectionCopy.push(selectedObject.id);
-        deleteObject(
-          {
-            display_div: VIEWS.SUMMARY_VIEW,
-            name: currentMolGroupStringID
-          },
-          stageSummaryView
-        );
-        loadObject(
-          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
-          stageSummaryView
-        );
-        setMolGroupSelection(selectionCopy);
-      } else if (!e.target.checked && objIdx > -1) {
-        clearAfterDeselectingMoleculeGroup({
-          molGroupId: selectedObject.id,
-          majorViewStage
-        });
-        selectionCopy.splice(objIdx, 1);
-        deleteObject(
-          {
-            display_div: VIEWS.SUMMARY_VIEW,
-            name: currentMolGroupStringID
-          },
-          stageSummaryView
-        );
-        loadObject(
-          Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
-          stageSummaryView
-        );
-        setMolGroupSelection(selectionCopy);
-        if (selectionCopy.length > 0) {
-          setMolGroupOn(selectionCopy.slice(-1)[0]);
-        } else {
-          setMolGroupOn(undefined);
-        }
-      }
-    };
-
-    return (
-      <Fragment>
-        <div className={classes.divContainer}>
-          <div className={classes.divScrollable}>
-            <Grid container direction="column">
-              {mol_group_list &&
-                mol_group_list.map((o, idx) => {
-                  const checked = mol_group_selection.some(i => i === o.id);
-                  const site = idx + 1;
-                  return (
-                    <Grid
-                      item
-                      container
-                      alignItems="center"
-                      key={`mol-checklist-item-${idx}`}
-                      className={classes.rowItem}
-                    >
-                      <Grid item>
-                        <Checkbox
-                          color="primary"
-                          checked={checked}
-                          onChange={handleOnSelect(o)}
-                          disabled={disableUserInteraction}
-                        />
-                      </Grid>
-                      <Grid item className={checked ? classes.selectedLine : null}>
-                        {`Site ${site} - (${o.id})`}
-                      </Grid>
+  return (
+    <>
+      <div className={classes.divContainer}>
+        <div className={classes.divScrollable}>
+          <Grid container direction="column">
+            {mol_group_list &&
+              mol_group_list.map((moleculeGroup, idx) => {
+                const checked = mol_group_selection.some(i => i === moleculeGroup.id);
+                const site = idx + 1;
+                return (
+                  <Grid
+                    item
+                    container
+                    alignItems="center"
+                    key={`mol-checklist-item-${idx}`}
+                    className={classes.rowItem}
+                  >
+                    <Grid item>
+                      <Checkbox
+                        color="primary"
+                        checked={checked}
+                        onChange={event =>
+                          dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, event }))
+                        }
+                        disabled={disableUserInteraction}
+                      />
                     </Grid>
-                  );
-                })}
-            </Grid>
-          </div>
+                    <Grid item className={checked ? classes.selectedLine : null}>
+                      {`Site ${site} - (${moleculeGroup.id})`}
+                    </Grid>
+                  </Grid>
+                );
+              })}
+          </Grid>
         </div>
-        <div className={classes.title}>Selected sites:</div>
-      </Fragment>
-    );
-  }
-);
+      </div>
+      <div className={classes.title}>Selected sites:</div>
+    </>
+  );
+});
 
-const mapStateToProps = state => {
-  return {
-    mol_group_list: state.apiReducers.present.mol_group_list,
-    mol_group_selection: state.selectionReducers.present.mol_group_selection
-  };
-};
-
-const mapDispatchToProps = {
-  setMolGroupOn: apiActions.setMolGroupOn,
-  setMolGroupSelection: selectionActions.setMolGroupSelection,
-  deleteObject,
-  loadObject,
-  clearAfterDeselectingMoleculeGroup
-};
-export default connect(mapStateToProps, mapDispatchToProps)(molGroupChecklist);
+export default molGroupChecklist;

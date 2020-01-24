@@ -13,14 +13,7 @@ import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import { ComputeSize } from '../../../utils/computeSize';
-import {
-  addVector,
-  removeVector,
-  addComplex,
-  removeComplex,
-  addLigand,
-  removeLigand
-} from './redux/moleculeViewSelectors';
+import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLigand } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 
 const containerHeight = 76;
