@@ -18,6 +18,12 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 50
+  },
+  gridItemList: {
+    overflow: 'auto'
+  },
+  paddingProgress: {
+    padding: theme.spacing(1)
   }
 }));
 
@@ -90,31 +96,27 @@ export const CompoundList = memo(({ height }) => {
           <Box overflow="auto">
             <Grid container justify="flex-start">
               {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
-                <InfiniteScroll
-                  pageStart={0}
-                  loadMore={loadNextCompounds}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
-                      >
-                        <CircularProgress />
+                <div className={classes.gridItemList}>
+                  <InfiniteScroll
+                    pageStart={0}
+                    loadMore={loadNextCompounds}
+                    hasMore={canLoadMore}
+                    loader={
+                      <div className="loader" key={'loader_of_new_compounds'}>
+                        <Grid item className={classes.paddingProgress}>
+                          <CircularProgress />
+                        </Grid>
+                      </div>
+                    }
+                    useWindow={false}
+                  >
+                    {compoundsList.map((data, index) => (
+                      <Grid item key={index}>
+                        <CompoundView height={100} width={100} data={data} />
                       </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  {compoundsList.map((data, index) => (
-                    <Grid item key={index}>
-                      <CompoundView height={100} width={100} data={data} />
-                    </Grid>
-                  ))}
-                </InfiniteScroll>
+                    ))}
+                  </InfiniteScroll>
+                </div>
               )}
             </Grid>
           </Box>
