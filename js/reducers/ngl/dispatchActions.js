@@ -10,12 +10,16 @@ import {
   setNglOrientation,
   setNglViewParams,
   setProteinLoadingState
-} from './actions';
+} from './nglActions';
 import { isEmpty, isEqual } from 'lodash';
-import { SCENES } from './constants';
+import { SCENES } from './nglConstants';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 import { SELECTION_TYPE } from '../../components/nglView/constants';
-import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
+import {
+  removeFromComplexList,
+  removeFromFragmentDisplayList,
+  removeFromVectorOnList
+} from '../selection/selectionActions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
 export const loadObject = (target, stage, previousRepresentations) => dispatch => {
@@ -55,7 +59,7 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = () => (dispatch, getState) => {
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
-  if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
+  if (decrementedCount === 0 && state.nglReducers.proteinsHasLoad === true) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));

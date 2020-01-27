@@ -27,7 +27,7 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
 
   let site;
   const state = getState();
-  const vector_list = state.selectionReducers.present.vector_list;
+  const vector_list = state.selectionReducers.vector_list;
 
   // loop through all molecules
   getJoinedMoleculeList(state).forEach(mol => {
@@ -75,8 +75,8 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage) => dispatch => 
 
 export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (dispatch, getState) => {
   const state = getState();
-  const group_type = state.apiReducers.present.group_type;
-  const target_on = state.apiReducers.present.target_on;
+  const group_type = state.apiReducers.group_type;
+  const target_on = state.apiReducers.target_on;
   const list_type = OBJECT_TYPE.MOLECULE_GROUP;
 
   if (target_on && !isStateLoaded) {
@@ -127,8 +127,8 @@ export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorVi
   getState
 ) => {
   const state = getState();
-  const mol_group_list = state.apiReducers.present.mol_group_list;
-  const mol_group_selection = state.selectionReducers.present.mol_group_selection;
+  const mol_group_list = state.apiReducers.mol_group_list;
+  const mol_group_selection = state.selectionReducers.mol_group_selection;
 
   const objIdx = mol_group_selection.indexOf(moleculeGroup.id);
   const selectionCopy = mol_group_selection.slice();

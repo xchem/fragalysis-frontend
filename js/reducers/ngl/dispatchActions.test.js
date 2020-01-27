@@ -7,8 +7,8 @@ import {
   reloadNglViewFromScene,
   setOrientation,
   setProteinsHasLoaded
-} from './dispatchActions';
-import { CONSTANTS, SCENES } from './constants';
+} from './nglDispatchActions';
+import { CONSTANTS, SCENES } from './nglConstants';
 import { getAction, getActionType } from '../../utils/testUtils';
 import {
   decrementCountOfPendingNglObjects,
@@ -21,9 +21,13 @@ import {
   saveCurrentStateAsDefaultScene,
   setNglOrientation,
   setProteinLoadingState
-} from './actions';
+} from './nglActions';
 import { OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
-import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
+import {
+  removeFromComplexList,
+  removeFromFragmentDisplayList,
+  removeFromVectorOnList
+} from '../selection/selectionActions';
 const { fn } = jest;
 
 describe("testing ngl reducer's async actions", () => {
@@ -120,7 +124,7 @@ describe("testing ngl reducer's async actions", () => {
     let store = mockStore({
       nglReducers: {
         countOfRemainingMoleculeGroups: 2,
-        proteinsHasLoaded: true
+        proteinsHasLoad: true
       }
     });
 
@@ -139,7 +143,7 @@ describe("testing ngl reducer's async actions", () => {
     let store = mockStore({
       nglReducers: {
         countOfRemainingMoleculeGroups: 1,
-        proteinsHasLoaded: true
+        proteinsHasLoad: true
       }
     });
 
@@ -289,7 +293,6 @@ describe("testing ngl reducer's async actions", () => {
         }
       }
     };
-
     store.dispatch(reloadNglViewFromScene(stage, display_div, scene, sessionData));
 
     expect(await getAction(store, resetStateToSessionScene)).toStrictEqual({
