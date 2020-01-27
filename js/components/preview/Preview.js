@@ -8,7 +8,7 @@ import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import { SummaryView } from './summary/summaryView';
-import CompoundList from './compound/compoundList';
+import { CompoundList } from './compounds/compoundList';
 import NglViewerControls from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
