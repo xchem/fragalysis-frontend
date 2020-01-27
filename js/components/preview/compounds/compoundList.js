@@ -89,7 +89,7 @@ export const CompoundList = memo(({ height }) => {
           </Grid>
           <Box overflow="auto">
             <Grid container justify="flex-start">
-              {currentVector !== undefined && currentCompounds.length > 0 && (
+              {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
                 <InfiniteScroll
                   pageStart={0}
                   loadMore={loadNextCompounds}
