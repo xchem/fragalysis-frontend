@@ -221,8 +221,8 @@ const SessionList = memo(
 );
 function mapStateToProps(state) {
   return {
-    sessionIdList: state.apiReducers.present.sessionIdList,
-    seshListSaving: state.apiReducers.present.seshListSaving
+    sessionIdList: state.apiReducers.sessionIdList,
+    seshListSaving: state.apiReducers.seshListSaving
   };
 }
 

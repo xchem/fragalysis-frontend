@@ -170,7 +170,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
           created: action.sessionIdList[key].created,
           modified: action.sessionIdList[key].modified,
           user_id: action.sessionIdList[key].user_id,
-          target_on_name: JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers.present
+          target_on_name: JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers
             .target_on_name
         });
       }

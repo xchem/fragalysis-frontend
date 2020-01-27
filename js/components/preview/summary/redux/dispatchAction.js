@@ -60,7 +60,7 @@ const getAtomIndices = ({ currentVector, bondColorMap }) => {
 
 export const reloadSummaryCompoundImage = ({ currentVector, bondColorMap }) => (dispatch, getState) => {
   const state = getState();
-  const { to_query } = state.selectionReducers.present;
+  const { to_query } = state.selectionReducers;
 
   let atomIndices = getAtomIndices({ currentVector, bondColorMap });
   const url = new URL(base_url + '/viewer/img_from_smiles/');
@@ -82,7 +82,7 @@ export const reloadSummaryCompoundImage = ({ currentVector, bondColorMap }) => (
 
 export const downloadAsYankDuck = () => async (dispatch, getState) => {
   const state = getState();
-  const duck_yank_data = state.apiReducers.present.duck_yank_data;
+  const duck_yank_data = state.apiReducers.duck_yank_data;
   if (!isEmpty(duck_yank_data)) {
     const dockingScripts = new DockingScripts();
     let interaction = duck_yank_data['interaction'];
@@ -144,7 +144,7 @@ export const updateSummaryView = ({ duck_yank_data, to_buy_list }) => dispatch =
 };
 
 const convert_data_to_list = input_list => (dispatch, getState) => {
-  const compoundClasses = getState().selectionReducers.present.compoundClasses;
+  const compoundClasses = getState().selectionReducers.compoundClasses;
   const classColors = {
     1: 'blue',
     2: 'red',
@@ -191,7 +191,7 @@ const generate_smiles = (csvContent, input_list, delimiter) => dispatch => {
 
 export const exportCsv = () => (dispatch, getState) => {
   const state = getState();
-  const to_buy_list = state.selectionReducers.present.to_buy_list;
+  const to_buy_list = state.selectionReducers.to_buy_list;
   const csvContent = dispatch(generate_smiles('data:text/csv;charset=utf-8,', to_buy_list, ','));
   download_file(csvContent, 'follow_ups.csv');
 };

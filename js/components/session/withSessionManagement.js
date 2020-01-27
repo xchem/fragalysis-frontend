@@ -21,15 +21,15 @@ export const withSessionManagement = WrappedComponent => {
     const { nglViewList } = useContext(NglContext);
     const { setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
     const dispatch = useDispatch();
-    const savingState = useSelector(state => state.apiReducers.present.savingState);
-    const sessionTitle = useSelector(state => state.apiReducers.present.sessionTitle);
-    const uuid = useSelector(state => state.apiReducers.present.uuid);
-    const sessionId = useSelector(state => state.apiReducers.present.sessionId);
+    const savingState = useSelector(state => state.apiReducers.savingState);
+    const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
+    const uuid = useSelector(state => state.apiReducers.uuid);
+    const sessionId = useSelector(state => state.apiReducers.sessionId);
     const saveType = useSelector(state => state.sessionReducers.saveType);
     const newSessionFlag = useSelector(state => state.sessionReducers.newSessionFlag);
     const nextUuid = useSelector(state => state.sessionReducers.nextUuid);
     const loadedSession = useSelector(state => state.sessionReducers.loadedSession);
-    const targetIdList = useSelector(state => state.apiReducers.present.target_id_list);
+    const targetIdList = useSelector(state => state.apiReducers.target_id_list);
 
     const disableButtons =
       (savingState &&

@@ -63,7 +63,7 @@ const ViewerControls = memo(({}) => {
 
 function mapStateToProps(state) {
   return {
-    nglProtStyle: state.nglReducers.present.nglProtStyle
+    nglProtStyle: state.nglReducers.nglProtStyle
   };
 }
 

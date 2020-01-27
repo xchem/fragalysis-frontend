@@ -41,8 +41,8 @@ export const withLoadingEventList = WrappedComponent => {
 
   function mapStateToProps(state) {
     return {
-      target_on: state.apiReducers.present.target_on,
-      pandda_site_on: state.apiReducers.present.pandda_site_on
+      target_on: state.apiReducers.target_on,
+      pandda_site_on: state.apiReducers.pandda_site_on
     };
   }
 

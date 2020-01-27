@@ -98,10 +98,10 @@ const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, delet
 
 function mapStateToProps(state) {
   return {
-    event_on: state.apiReducers.present.pandda_event_on,
-    event_list: state.apiReducers.present.pandda_event_list,
-    object_list: state.apiReducers.present.pandda_site_list,
-    object_on: state.apiReducers.present.pandda_site_on
+    event_on: state.apiReducers.pandda_event_on,
+    event_list: state.apiReducers.pandda_event_list,
+    object_list: state.apiReducers.pandda_site_list,
+    object_on: state.apiReducers.pandda_site_on
   };
 }
 const mapDispatchToProps = {

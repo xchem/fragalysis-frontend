@@ -58,8 +58,8 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
 
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = () => (dispatch, getState) => {
   const state = getState();
-  const decrementedCount = state.nglReducers.present.countOfRemainingMoleculeGroups - 1;
-  if (decrementedCount === 0 && state.nglReducers.present.proteinsHasLoad === true) {
+  const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
+  if (decrementedCount === 0 && state.nglReducers.proteinsHasLoad === true) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
@@ -72,7 +72,7 @@ export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultSt
 ) => {
   const state = getState();
   if (
-    state.nglReducers.present.countOfRemainingMoleculeGroups === 0 &&
+    state.nglReducers.countOfRemainingMoleculeGroups === 0 &&
     hasLoaded === true &&
     withoutSavingToDefaultState === false
   ) {
@@ -82,7 +82,7 @@ export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultSt
 };
 
 export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
-  const nglOrientations = getState().nglReducers.present.nglOrientations;
+  const nglOrientations = getState().nglReducers.nglOrientations;
 
   if (
     orientation &&
@@ -103,7 +103,7 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
  * @returns {function(...[*]=)}
  */
 export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) => (dispatch, getState) => {
-  const currentScene = (sessionData && sessionData.nglReducers.present[scene]) || getState().nglReducers.present[scene];
+  const currentScene = (sessionData && sessionData.nglReducers[scene]) || getState().nglReducers[scene];
   switch (scene) {
     case SCENES.defaultScene:
       dispatch(resetStateToDefaultScene());

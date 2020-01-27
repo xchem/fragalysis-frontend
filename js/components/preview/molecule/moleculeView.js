@@ -453,10 +453,10 @@ const MoleculeView = memo(
 );
 function mapStateToProps(state) {
   return {
-    to_query: state.selectionReducers.present.to_query,
-    complexList: state.selectionReducers.present.complexList,
-    fragmentDisplayList: state.selectionReducers.present.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.present.vectorOnList
+    to_query: state.selectionReducers.to_query,
+    complexList: state.selectionReducers.complexList,
+    fragmentDisplayList: state.selectionReducers.fragmentDisplayList,
+    vectorOnList: state.selectionReducers.vectorOnList
   };
 }
 const mapDispatchToProps = {

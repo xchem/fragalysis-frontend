@@ -44,7 +44,7 @@ const TargetList = memo(({ target_id_list }) => {
 
 function mapStateToProps(state) {
   return {
-    target_id_list: state.apiReducers.present.target_id_list
+    target_id_list: state.apiReducers.target_id_list
   };
 }
 export default connect(mapStateToProps, null)(TargetList);

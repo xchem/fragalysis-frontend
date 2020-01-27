@@ -76,8 +76,8 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
 
 function mapStateToProps(state) {
   return {
-    targetOn: state.apiReducers.present.target_on,
-    targetOnName: state.apiReducers.present.target_on_name
+    targetOn: state.apiReducers.target_on,
+    targetOnName: state.apiReducers.target_on_name
   };
 }
 

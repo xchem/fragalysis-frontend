@@ -31,23 +31,23 @@ export const redeployVectorsLocal = url => dispatch => {
 
 export const reloadSession = (myJson, nglViewList) => dispatch => {
   let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-  dispatch(reloadApiState(jsonOfView.apiReducers.present));
+  dispatch(reloadApiState(jsonOfView.apiReducers));
   dispatch(setSessionId(myJson.id));
   dispatch(setSessionTitle(myJson.title));
 
   if (nglViewList.length > 0) {
-    dispatch(reloadSelectionReducer(jsonOfView.selectionReducers.present));
+    dispatch(reloadSelectionReducer(jsonOfView.selectionReducers));
     nglViewList.forEach(nglView => {
       dispatch(reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView));
     });
 
-    if (jsonOfView.selectionReducers.present.vectorOnList.length !== 0) {
+    if (jsonOfView.selectionReducers.vectorOnList.length !== 0) {
       let url =
         window.location.protocol +
         '//' +
         window.location.host +
         '/api/vector/' +
-        jsonOfView.selectionReducers.present.vectorOnList[JSON.stringify(0)] +
+        jsonOfView.selectionReducers.vectorOnList[JSON.stringify(0)] +
         '/';
       dispatch(redeployVectorsLocal(url)).catch(error => {
         throw new Error(error);
@@ -59,7 +59,7 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
 export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession, targetIdList }) => dispatch => {
   if (loadedSession) {
     let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
-    let target = jsonOfView.apiReducers.present.target_on_name;
+    let target = jsonOfView.apiReducers.target_on_name;
     let targetUnrecognised = true;
     targetIdList.forEach(item => {
       if (target === item.title) {
@@ -96,7 +96,7 @@ export const newSnapshot = () => dispatch => {
 };
 
 export const getSessionDetails = () => (dispatch, getState) => {
-  const latestSession = getState().apiReducers.present.latestSession;
+  const latestSession = getState().apiReducers.latestSession;
 
   return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + latestSession }).then(response =>
     response.data && response.data.results.length > 0
@@ -159,15 +159,15 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
   let TITLE = 'Created on ' + new Intl.DateTimeFormat('en-GB', timeOptions).format(Date.now());
   let userId = DJANGO_CONTEXT['pk'];
   let stateObject = JSON.parse(store);
-  let newPresentObject = Object.assign(stateObject.apiReducers.present, {
+  let newPresentObject = Object.assign(stateObject.apiReducers, {
     latestSession: nextUuid
   });
 
   const fullState = {
     state: JSON.stringify({
-      apiReducers: { present: newPresentObject },
-      nglReducers: { present: stateObject.nglReducers.present },
-      selectionReducers: { present: stateObject.selectionReducers.present }
+      apiReducers: newPresentObject,
+      nglReducers: stateObject.nglReducers,
+      selectionReducers: stateObject.selectionReducers
     })
   };
 
