@@ -3,6 +3,7 @@
  */
 import * as actions from '../actonTypes';
 import { constants } from './selectionConstants';
+import { compoundsColors } from '../../components/preview/compounds/redux/constants';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
@@ -21,13 +22,13 @@ export const INITIAL_STATE = {
   currentVector: undefined,
   highlightedCompound: {},
   compoundClasses: {
-    1: 'Blue',
-    2: 'Red',
-    3: 'Green',
-    4: 'Purple',
-    5: 'Apricot'
+    [compoundsColors.blue.key]: undefined,
+    [compoundsColors.red.key]: undefined,
+    [compoundsColors.green.key]: undefined,
+    [compoundsColors.purple.key]: undefined,
+    [compoundsColors.apricot.key]: undefined
   },
-  currentCompoundClass: 1,
+  currentCompoundClass: compoundsColors.blue.key,
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined
