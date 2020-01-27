@@ -43,8 +43,8 @@ const molGroupChecklist = memo(({}) => {
   const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const dispatch = useDispatch();
-  const mol_group_list = useSelector(state => state.apiReducers.present.mol_group_list);
-  const mol_group_selection = useSelector(state => state.selectionReducers.present.mol_group_selection);
+  const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
+  const mol_group_selection = useSelector(state => state.selectionReducers.mol_group_selection);
 
   return (
     <>

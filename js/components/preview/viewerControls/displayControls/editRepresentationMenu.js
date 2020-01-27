@@ -24,7 +24,7 @@ export const EditRepresentationMenu = memo(
   ({ editMenuAnchor, closeRepresentationEditMenu, representation, parentKey }) => {
     const classes = useStyles();
     const { getNglView } = useContext(NglContext);
-    const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
     const [colorMenus, setColorMenus] = React.useState({});
 
     const dispatch = useDispatch();

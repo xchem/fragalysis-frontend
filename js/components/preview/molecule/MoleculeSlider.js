@@ -16,8 +16,8 @@ class MoleculeSlider extends Slider {
 
 function mapStateToProps(state) {
   return {
-    object_list: state.apiReducers.present.molecule_list,
-    object_on: state.apiReducers.present.molecule_on
+    object_list: state.apiReducers.molecule_list,
+    object_on: state.apiReducers.molecule_on
   };
 }
 const mapDispatchToProps = {

@@ -22,8 +22,8 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
   const classes = useStyles();
   const panelRef = useRef(undefined);
   const dispatch = useDispatch();
-  const duck_yank_data = useSelector(state => state.apiReducers.present.duck_yank_data);
-  const to_buy_list = useSelector(state => state.selectionReducers.present.to_buy_list);
+  const duck_yank_data = useSelector(state => state.apiReducers.duck_yank_data);
+  const to_buy_list = useSelector(state => state.selectionReducers.to_buy_list);
 
   const countOfPicked = useSelector(state => state.previewReducers.summary.countOfPicked);
   const countOfExploredVectors = useSelector(state => state.previewReducers.summary.countOfExploredVectors);

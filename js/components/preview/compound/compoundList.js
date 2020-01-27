@@ -181,13 +181,13 @@ const CompoundList = memo(
 
 function mapStateToProps(state) {
   return {
-    thisVectorList: state.selectionReducers.present.this_vector_list,
-    to_query: state.selectionReducers.present.to_query,
-    compoundClasses: state.selectionReducers.present.compoundClasses,
-    currentCompoundClass: state.selectionReducers.present.currentCompoundClass,
-    to_select: state.selectionReducers.present.to_select,
-    querying: state.selectionReducers.present.querying,
-    currentVector: state.selectionReducers.present.currentVector
+    thisVectorList: state.selectionReducers.this_vector_list,
+    to_query: state.selectionReducers.to_query,
+    compoundClasses: state.selectionReducers.compoundClasses,
+    currentCompoundClass: state.selectionReducers.currentCompoundClass,
+    to_select: state.selectionReducers.to_select,
+    querying: state.selectionReducers.querying,
+    currentVector: state.selectionReducers.currentVector
   };
 }
 const mapDispatchToProps = {

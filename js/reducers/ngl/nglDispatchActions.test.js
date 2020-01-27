@@ -123,14 +123,12 @@ describe("testing ngl reducer's async actions", () => {
     expect.hasAssertions();
     let store = mockStore({
       nglReducers: {
-        present: {
-          countOfRemainingMoleculeGroups: 2,
-          proteinsHasLoad: true
-        }
+        countOfRemainingMoleculeGroups: 2,
+        proteinsHasLoad: true
       }
     });
 
-    const decrementedCount = store.getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
+    const decrementedCount = store.getState().nglReducers.countOfRemainingMoleculeGroups - 1;
     store.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
 
     expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
@@ -144,14 +142,12 @@ describe("testing ngl reducer's async actions", () => {
     expect.hasAssertions();
     let store = mockStore({
       nglReducers: {
-        present: {
-          countOfRemainingMoleculeGroups: 1,
-          proteinsHasLoad: true
-        }
+        countOfRemainingMoleculeGroups: 1,
+        proteinsHasLoad: true
       }
     });
 
-    const decrementedCount = store.getState().nglReducers.present.countOfRemainingMoleculeGroups - 1;
+    const decrementedCount = store.getState().nglReducers.countOfRemainingMoleculeGroups - 1;
     store.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
     expect(await getAction(store, saveCurrentStateAsDefaultScene)).not.toBeNull();
     expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
@@ -164,9 +160,7 @@ describe("testing ngl reducer's async actions", () => {
     expect.hasAssertions();
     let store = mockStore({
       nglReducers: {
-        present: {
-          countOfRemainingMoleculeGroups: 0
-        }
+        countOfRemainingMoleculeGroups: 0
       }
     });
 
@@ -197,9 +191,7 @@ describe("testing ngl reducer's async actions", () => {
     expect.hasAssertions();
     let store = mockStore({
       nglReducers: {
-        present: {
-          countOfRemainingMoleculeGroups: 1
-        }
+        countOfRemainingMoleculeGroups: 1
       }
     });
 
@@ -234,12 +226,10 @@ describe("testing ngl reducer's async actions", () => {
 
     let store = mockStore({
       nglReducers: {
-        present: {
-          nglOrientations: {
-            first: { elements: [35, 'g'] },
-            [div_id]: orientation,
-            third: { elements: [235, 'g3'] }
-          }
+        nglOrientations: {
+          first: { elements: [35, 'g'] },
+          [div_id]: orientation,
+          third: { elements: [235, 'g3'] }
         }
       }
     });
@@ -249,12 +239,10 @@ describe("testing ngl reducer's async actions", () => {
 
     let storeWithAnotherOrientationElem = mockStore({
       nglReducers: {
-        present: {
-          nglOrientations: {
-            first: { elements: [35, 'g'] },
-            [div_id]: { elements: [3534, 'wfsweg'] },
-            third: { elements: [235, 'g3'] }
-          }
+        nglOrientations: {
+          first: { elements: [35, 'g'] },
+          [div_id]: { elements: [3534, 'wfsweg'] },
+          third: { elements: [235, 'g3'] }
         }
       }
     });
@@ -264,9 +252,7 @@ describe("testing ngl reducer's async actions", () => {
 
     let storeWithoutOrientations = mockStore({
       nglReducers: {
-        present: {
-          nglOrientations: undefined
-        }
+        nglOrientations: undefined
       }
     });
 
@@ -275,11 +261,9 @@ describe("testing ngl reducer's async actions", () => {
 
     let storeWithNotAllOrientations = mockStore({
       nglReducers: {
-        present: {
-          nglOrientations: {
-            first: { elements: [35, 'g'] },
-            second: { elements: [235, 'g3'] }
-          }
+        nglOrientations: {
+          first: { elements: [35, 'g'] },
+          second: { elements: [235, 'g3'] }
         }
       }
     });
@@ -302,12 +286,10 @@ describe("testing ngl reducer's async actions", () => {
     const scene = SCENES.sessionScene;
     const sessionData = {
       nglReducers: {
-        present: {
-          [scene]: {
-            objectsInView: {},
-            viewParams: { a: 'ssfs', b: 'dfd' },
-            nglOrientations: {}
-          }
+        [scene]: {
+          objectsInView: {},
+          viewParams: { a: 'ssfs', b: 'dfd' },
+          nglOrientations: {}
         }
       }
     };
@@ -324,12 +306,10 @@ describe("testing ngl reducer's async actions", () => {
     const scene = SCENES.defaultScene;
     let store = mockStore({
       nglReducers: {
-        present: {
-          [scene]: {
-            objectsInView: {},
-            viewParams: { a: 'ssfs', b: 'dfd' },
-            nglOrientations: {}
-          }
+        [scene]: {
+          objectsInView: {},
+          viewParams: { a: 'ssfs', b: 'dfd' },
+          nglOrientations: {}
         }
       }
     });

@@ -73,7 +73,7 @@ const getViewUrl = (get_view, data) => {
 
 const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
-  const to_select = state.selectionReducers.present.to_select;
+  const to_select = state.selectionReducers.to_select;
   var objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList(objList));
   // loading vector objects
@@ -91,7 +91,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
 
 export const addVector = (stage, data) => (dispatch, getState) => {
   const state = getState();
-  const vector_list = state.selectionReducers.present.vector_list;
+  const vector_list = state.selectionReducers.vector_list;
 
   vector_list.forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
   // Set this
@@ -115,7 +115,7 @@ export const addVector = (stage, data) => (dispatch, getState) => {
 
 export const removeVector = (stage, data) => (dispatch, getState) => {
   const state = getState();
-  const vector_list = state.selectionReducers.present.vector_list;
+  const vector_list = state.selectionReducers.vector_list;
   vector_list.forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
   dispatch(setToQuery(''));
   dispatch(removeFromVectorOnList(generateMoleculeId(data)));
