@@ -21,6 +21,10 @@ const useStyles = makeStyles(theme => ({
   },
   paddingProgress: {
     padding: theme.spacing(1)
+  },
+  infinityContainer: {
+    width: '100%',
+    overflow: 'auto'
   }
 }));
 
@@ -75,23 +79,23 @@ export const CompoundList = memo(({ height }) => {
   if (to_query !== undefined) {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
-        <Grid container direction="row" justify="space-between" alignItems="center">
-          {Object.keys(compoundsColors).map(item => (
-            <Grid item key={item}>
-              <TextField
-                id={`${item}`}
-                key={`CLASS_${item}`}
-                className={classes.textField}
-                label={compoundsColors[item].text}
-                onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
-                defaultValue={compoundClasses[item]}
-              />
-            </Grid>
-          ))}
-        </Grid>
-        <Grid container justify="flex-start">
-          {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
-            <Box height={height} overflow="auto">
+        <Box height={height} width="100%">
+          <Grid container direction="row" justify="space-between" alignItems="center">
+            {Object.keys(compoundsColors).map(item => (
+              <Grid item key={item}>
+                <TextField
+                  id={`${item}`}
+                  key={`CLASS_${item}`}
+                  className={classes.textField}
+                  label={compoundsColors[item].text}
+                  onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
+                  defaultValue={compoundClasses[item]}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <Grid container justify="flex-start" className={classes.infinityContainer}>
+            {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
               <InfiniteScroll
                 pageStart={0}
                 loadMore={loadNextCompounds}
@@ -111,15 +115,15 @@ export const CompoundList = memo(({ height }) => {
                   </Grid>
                 ))}
               </InfiniteScroll>
-            </Box>
-          )}
-        </Grid>
-        <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
-          Select All
-        </Button>
-        <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
-          Clear Selection
-        </Button>
+            )}
+          </Grid>
+          <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
+            Select All
+          </Button>
+          <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
+            Clear Selection
+          </Button>
+        </Box>
       </Panel>
     );
   } else {
