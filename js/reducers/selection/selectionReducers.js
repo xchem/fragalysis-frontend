@@ -1,7 +1,9 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { constants } from './constants';
+import * as actions from '../actonTypes';
+import { constants } from './selectionConstants';
+import { compoundsColors } from '../../components/preview/compounds/redux/constants';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
@@ -18,6 +20,15 @@ export const INITIAL_STATE = {
   complexList: [],
   vectorOnList: [],
   currentVector: undefined,
+  highlightedCompound: {},
+  compoundClasses: {
+    [compoundsColors.blue.key]: undefined,
+    [compoundsColors.red.key]: undefined,
+    [compoundsColors.green.key]: undefined,
+    [compoundsColors.purple.key]: undefined,
+    [compoundsColors.apricot.key]: undefined
+  },
+  currentCompoundClass: compoundsColors.blue.key,
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined
@@ -25,12 +36,12 @@ export const INITIAL_STATE = {
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
-    case constants.SET_TO_BUY_LIST:
+    case actions.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
         to_buy_list: action.to_buy_list
       });
 
-    case constants.APPEND_TO_BUY_LIST:
+    case actions.APPEND_TO_BUY_LIST:
       const current_to_buy_list = state.to_buy_list.slice();
       let exists = false;
       for (let current_to_buy_item in current_to_buy_list) {
@@ -48,12 +59,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         to_buy_list: current_to_buy_list
       });
 
-    case constants.SET_VECTOR_LIST:
+    case actions.SET_VECTOR_LIST:
       return Object.assign({}, state, {
         vector_list: action.vector_list
       });
 
-    case constants.REMOVE_FROM_TO_BUY_LIST:
+    case actions.REMOVE_FROM_TO_BUY_LIST:
       const to_buy_list = state.to_buy_list.slice();
       let itemIndex = -1;
       for (var item in to_buy_list) {
@@ -69,7 +80,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         return Object.assign({}, state);
       }
 
-    case constants.SET_INITIAL_FULL_GRAPH:
+    case actions.SET_INITIAL_FULL_GRAPH:
       var input_mol = action.item;
       return Object.assign({}, state, {
         to_query: input_mol.smiles,
@@ -80,12 +91,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         querying: true
       });
 
-    case constants.SET_TO_QUERY:
+    case actions.SET_TO_QUERY:
       return Object.assign({}, state, {
         to_query: action.to_query
       });
 
-    case constants.UPDATE_FULL_GRAPH:
+    case actions.UPDATE_FULL_GRAPH:
       const input_mol_dict = action.input_mol_dict;
       var new_dict = {};
       // Uniquify
@@ -102,12 +113,13 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
           }
         }
       }
+      console.log('UPDATE_FULL_GRAPH ', new_dict);
       return Object.assign({}, state, {
         to_select: new_dict,
         querying: false
       });
 
-    case constants.SELECT_VECTOR:
+    case actions.SELECT_VECTOR:
       var input_mol_key = action.vector;
       var new_this_vector_list = {};
       for (var key_to_select in state.to_select) {
@@ -120,7 +132,8 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         currentVector: action.vector
       });
 
-    case constants.SET_FRAGMENT_DISPLAY_LIST:
+    case actions.SET_FRAGMENT_DISPLAY_LIST:
+      console.log('SET_FRAGMENT_DISPLAY_LIST');
       let newFragmentSet = new Set();
       action.fragmentDisplayList.forEach(f => {
         newFragmentSet.add(f);
@@ -130,34 +143,36 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         fragmentDisplayList: [...newFragmentSet]
       });
 
-    case constants.APPEND_FRAGMENT_DISPLAY_LIST:
+    case actions.APPEND_FRAGMENT_DISPLAY_LIST:
+      console.log('APPEND_FRAGMENT_DISPLAY_LIST');
       return Object.assign({}, state, {
         fragmentDisplayList: [...new Set([...state.fragmentDisplayList, action.item.id])]
       });
 
-    case constants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
+    case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
+      console.log('REMOVE_FROM_FRAGMENT_DISPLAY_LIST');
       let diminishedFragmentList = new Set(state.fragmentDisplayList);
       diminishedFragmentList.delete(action.item.id);
       return Object.assign({}, state, {
         fragmentDisplayList: [...diminishedFragmentList]
       });
 
-    case constants.SET_COMPLEX_LIST:
+    case actions.SET_COMPLEX_LIST:
       let newComplexList = new Set();
       action.complexList.forEach(f => {
         newComplexList.add(f);
       });
       return Object.assign({}, state, { complexList: [...newComplexList] });
 
-    case constants.APPEND_COMPLEX_LIST:
+    case actions.APPEND_COMPLEX_LIST:
       return Object.assign({}, state, { complexList: [...new Set([...state.complexList, action.item.id])] });
 
-    case constants.REMOVE_FROM_COMPLEX_LIST:
+    case actions.REMOVE_FROM_COMPLEX_LIST:
       let diminishedComplexList = new Set(state.complexList);
       diminishedComplexList.delete(action.item.id);
       return Object.assign({}, state, { complexList: [...diminishedComplexList] });
 
-    case constants.SET_VECTOR_ON_LIST:
+    case actions.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();
 
       action.vectorOnList.forEach(v => {
@@ -165,20 +180,31 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
       return Object.assign({}, state, { vectorOnList: [...newVectorOnList] });
 
-    case constants.APPEND_VECTOR_ON_LIST:
+    case actions.APPEND_VECTOR_ON_LIST:
       return Object.assign({}, state, { vectorOnList: [action.item.id] });
 
-    case constants.REMOVE_FROM_VECTOR_ON_LIST:
+    case actions.REMOVE_FROM_VECTOR_ON_LIST:
       let diminishedVectorOnList = new Set(state.vectorOnList);
       diminishedVectorOnList.delete(action.item.id);
       return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList], currentVector: undefined });
 
-    case constants.SET_BOND_COLOR_MAP:
+    case actions.SET_HIGHLIGHTED:
+      return Object.assign({}, state, {
+        highlightedCompound: action.highlightedCompound
+      });
+
+    case actions.SET_COMPOUND_CLASSES:
+      return Object.assign({}, state, {
+        compoundClasses: action.compoundClasses,
+        currentCompoundClass: action.currentCompoundClass
+      });
+
+    case actions.SET_BOND_COLOR_MAP:
       return Object.assign({}, state, {
         bondColorMap: action.bondColorMap
       });
 
-    case constants.RELOAD_SELECTION_REDUCER:
+    case actions.RELOAD_SELECTION_REDUCER:
       var this_vector_list = {};
       for (var to_select_item in action.savedSelectionReducers.to_select) {
         if (to_select_item === action.savedSelectionReducers.currentVector) {
@@ -205,7 +231,8 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         vectorOnList: [...newVectors]
       });
 
-    case constants.RESET_SELECTION_STATE:
+    case actions.RESET_SELECTION_STATE:
+      console.log('RESET_SELECTION_STATE');
       return INITIAL_STATE;
 
     case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
@@ -219,7 +246,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
     }
 
-    case constants.SET_MOL_GROUP_SELECTION:
+    case actions.SET_MOL_GROUP_SELECTION:
       return Object.assign({}, state, {
         mol_group_selection: action.mol_group_selection
       });

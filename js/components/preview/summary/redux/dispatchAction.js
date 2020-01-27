@@ -152,19 +152,19 @@ const convert_data_to_list = input_list => (dispatch, getState) => {
     4: 'purple',
     5: 'apricot'
   };
-  const compoundClassesTemp = compoundClasses;
+
   let outArray = [];
   const headerArray = ['smiles', 'mol', 'vector', 'classNumber', 'class', 'classColors'];
   outArray.push(headerArray);
   const reg_ex = new RegExp('Xe', 'g');
 
   input_list.forEach(item => {
-    var newArray = [];
+    let newArray = [];
     newArray.push(item.smiles);
     newArray.push(item.mol);
     newArray.push(item.vector.replace(reg_ex, '*'));
     newArray.push(item.class);
-    newArray.push(compoundClassesTemp[item.class]);
+    newArray.push(compoundClasses[item.class]);
     newArray.push(classColors[item.class]);
     outArray.push(newArray);
   });

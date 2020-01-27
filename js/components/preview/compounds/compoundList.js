@@ -1,39 +1,23 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CompoundView } from './compoundView';
+import CompoundView from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
 import { Grid, Box, makeStyles, TextField, useTheme, CircularProgress } from '@material-ui/core';
 import { SelectAll, Delete } from '@material-ui/icons';
-import {
-  clearAllSelectedCompounds,
-  loadNextPageOfCompounds,
-  onChangeCompoundClassValue,
-  selectAllCompounds
-} from './redux/dispatchActions';
+import { clearAllSelectedCompounds, onChangeCompoundClassValue, selectAllCompounds } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+import { getCompoundsList, getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 50
-  },
-  paddingProgress: {
-    padding: theme.spacing(1),
-    width: 100,
-    height: 100
-  },
-  infinityContainer: {
-    width: '100%',
-    overflow: 'auto',
-    padding: theme.spacing(1)
   }
 }));
 
@@ -41,17 +25,30 @@ export const CompoundList = memo(({ height }) => {
   const classes = useStyles();
   const panelRef = useRef(null);
   const theme = useTheme();
+  const [currentPage, setCurrentPage] = useState(0);
+
   const dispatch = useDispatch();
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
-  const compoundClasses = useSelector(state => state.previewReducers.compounds.compoundClasses);
-  const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
+  const compoundClasses = useSelector(state => state.selectionReducers.compoundClasses);
+  const currentCompoundClass = useSelector(state => state.selectionReducers.currentCompoundClass);
   const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
-  const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
+  const compoundsList = useSelector(state => getCompoundsList(state));
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
-  const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
-  const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
+
+  // Reset Infinity scroll
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [compoundsList]);
+
+  const loadNextCompounds = () => {
+    setCurrentPage(currentPage + 1);
+  };
+  const compoundsPerPage = 12;
+  const listItemOffset = (currentPage + 1) * compoundsPerPage;
+  const currentCompounds = compoundsList.slice(0, listItemOffset);
+  const canLoadMore = listItemOffset < compoundsList.length;
 
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
@@ -66,60 +63,68 @@ export const CompoundList = memo(({ height }) => {
 
   let mol_string = 'No molecules found!';
   if (totalCountOfMolecules) {
-    mol_string = currentCompounds.length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
+    mol_string = 'Compounds to pick. Mol total: ' + totalCountOfMolecules;
   }
   if (to_query === '' || to_query === undefined) {
     mol_string = '';
   }
 
-  if (currentVector !== undefined && to_query !== undefined) {
+  if (to_query !== undefined) {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
-        {currentCompounds && (
-          <Box height={height} width="100%">
-            <Grid container direction="row" justify="space-between" alignItems="center">
-              {Object.keys(compoundsColors).map(item => (
-                <Grid item key={item}>
-                  <TextField
-                    id={`${item}`}
-                    key={`CLASS_${item}`}
-                    className={classes.textField}
-                    label={compoundsColors[item].text}
-                    onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
-                    defaultValue={compoundClasses[item]}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-            <Grid container justify="flex-start" className={classes.infinityContainer}>
-              <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
+        <Box height={height} overflow="auto">
+          <Grid container direction="row" justify="space-between" alignItems="center">
+            {Object.keys(compoundsColors).map(item => (
+              <Grid item key={item}>
+                <TextField
+                  id={`${item}`}
+                  key={`CLASS_${item}`}
+                  className={classes.textField}
+                  label={compoundsColors[item].text}
+                  onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
+                  defaultValue={compoundClasses[item]}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <Box overflow="auto">
+            <Grid container justify="flex-start">
+              {currentVector !== undefined && currentCompounds.length > 0 && (
                 <InfiniteScroll
                   pageStart={0}
-                  loadMore={() => dispatch(loadNextPageOfCompounds())}
-                  hasMore={canLoadMoreCompounds}
+                  loadMore={loadNextCompounds}
+                  hasMore={canLoadMore}
                   loader={
                     <div className="loader" key={0}>
-                      <div className={classes.paddingProgress}>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="center"
+                        className={classes.paddingProgress}
+                      >
                         <CircularProgress />
-                      </div>
+                      </Grid>
                     </div>
                   }
                   useWindow={false}
                 >
-                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
-                    return <CompoundView key={index} height={100} width={100} data={data} />;
-                  })}
+                  {compoundsList.map((data, index) => (
+                    <Grid item key={index}>
+                      <CompoundView height={100} width={100} data={data} />
+                    </Grid>
+                  ))}
                 </InfiniteScroll>
-              </Box>
+              )}
             </Grid>
-            <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
-              Select All
-            </Button>
-            <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
-              Clear Selection
-            </Button>
           </Box>
-        )}
+        </Box>
+        <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
+          Select All
+        </Button>
+        <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
+          Clear Selection
+        </Button>
       </Panel>
     );
   } else {
