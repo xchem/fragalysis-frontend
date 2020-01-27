@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const SettingControls = memo(({ open, onClose }) => {
-  const viewParams = useSelector(state => state.nglReducers.present.viewParams);
+  const viewParams = useSelector(state => state.nglReducers.viewParams);
   const dispatch = useDispatch();
   const classes = useStyles();
 

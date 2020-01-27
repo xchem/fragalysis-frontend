@@ -4,11 +4,11 @@ import { useSelector } from 'react-redux';
 export const useDisableUserInteraction = () => {
   const [disableInteraction, setDisableInteraction] = useState(false);
   const countOfPendingVectorLoadRequests = useSelector(
-    state => state.selectionReducers.present.countOfPendingVectorLoadRequests
+    state => state.selectionReducers.countOfPendingVectorLoadRequests
   );
-  const countOfRemainingMoleculeGroups = useSelector(state => state.nglReducers.present.countOfRemainingMoleculeGroups);
-  const proteinsHasLoaded = useSelector(state => state.nglReducers.present.proteinsHasLoaded);
-  const countOfPendingNglObjects = useSelector(state => state.nglReducers.present.countOfPendingNglObjects);
+  const countOfRemainingMoleculeGroups = useSelector(state => state.nglReducers.countOfRemainingMoleculeGroups);
+  const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
+  const countOfPendingNglObjects = useSelector(state => state.nglReducers.countOfPendingNglObjects);
 
   useEffect(() => {
     if (

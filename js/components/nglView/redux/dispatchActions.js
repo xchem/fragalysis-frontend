@@ -6,15 +6,14 @@ import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActio
 import { selectVector, setMolGroupSelection } from '../../../reducers/selection/selectionActions';
 import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';
 import * as listTypes from '../../../constants/listTypes';
-import { reloadSummaryCompoundImage } from '../../preview/summary/redux/dispatchAction';
 
 export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
   const state = getState();
-  const molGroupSelection = state.selectionReducers.present.mol_group_selection;
+  const molGroupSelection = state.selectionReducers.mol_group_selection;
   const objIdx = molGroupSelection.indexOf(molGroupId);
   const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${molGroupId}`;
   const selectionCopy = molGroupSelection.slice();
-  const currentMolGroup = state.apiReducers.present.mol_group_list.find(o => o.id === molGroupId);
+  const currentMolGroup = state.apiReducers.mol_group_list.find(o => o.id === molGroupId);
 
   if (objIdx === -1) {
     dispatch(setMolGroupOn(molGroupId));
@@ -83,7 +82,7 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
   if (pickingProxy) {
     // For assigning the ligand interaction
     if (pickingProxy.bond) {
-      const duck_yank_data = state.apiReducers.present.duck_yank_data;
+      const duck_yank_data = state.apiReducers.duck_yank_data;
       let input_dict = processInt(pickingProxy);
       if (duck_yank_data['interaction'] !== undefined) {
         dispatch(

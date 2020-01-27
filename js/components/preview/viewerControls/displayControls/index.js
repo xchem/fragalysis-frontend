@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
 export default memo(({ open, onClose }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
+  const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
   const { getNglView } = useContext(NglContext);
 
   const [editMenuAnchors, setEditMenuAnchors] = React.useState({});

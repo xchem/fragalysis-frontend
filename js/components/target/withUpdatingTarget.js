@@ -52,8 +52,8 @@ export const withUpdatingTarget = WrappedContainer => {
 
   function mapStateToProps(state) {
     return {
-      target_on: state.apiReducers.present.target_on,
-      targetIdList: state.apiReducers.present.target_id_list
+      target_on: state.apiReducers.target_on,
+      targetIdList: state.apiReducers.target_id_list
     };
   }
   const mapDispatchToProps = {

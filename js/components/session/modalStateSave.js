@@ -230,10 +230,10 @@ const ModalStateSave = memo(
 
 function mapStateToProps(state) {
   return {
-    savingState: state.apiReducers.present.savingState,
-    latestSession: state.apiReducers.present.latestSession,
-    latestSnapshot: state.apiReducers.present.latestSnapshot,
-    sessionId: state.apiReducers.present.sessionId
+    savingState: state.apiReducers.savingState,
+    latestSession: state.apiReducers.latestSession,
+    latestSnapshot: state.apiReducers.latestSnapshot,
+    sessionId: state.apiReducers.sessionId
   };
 }
 

@@ -66,8 +66,8 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
 
 function mapStateToProps(state) {
   return {
-    targetUnrecognised: state.apiReducers.present.targetUnrecognised,
-    target_id_list: state.apiReducers.present.target_id_list
+    targetUnrecognised: state.apiReducers.targetUnrecognised,
+    target_id_list: state.apiReducers.target_id_list
   };
 }
 

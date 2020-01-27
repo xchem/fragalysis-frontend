@@ -14,8 +14,8 @@ export const CmpdSummaryImage = memo(() => {
   const compoundImage = useSelector(state => state.previewReducers.summary.compoundImage);
   const width = useSelector(state => state.previewReducers.summary.width);
   const height = useSelector(state => state.previewReducers.summary.height);
-  const currentVector = useSelector(state => state.selectionReducers.present.currentVector);
-  const bondColorMap = useSelector(state => state.selectionReducers.present.bondColorMap);
+  const currentVector = useSelector(state => state.selectionReducers.currentVector);
+  const bondColorMap = useSelector(state => state.selectionReducers.bondColorMap);
 
   useEffect(() => {
     dispatch(reloadSummaryCompoundImage({ currentVector, bondColorMap })).catch(error => {

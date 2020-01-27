@@ -195,10 +195,10 @@ const CompoundView = memo(
 
 function mapStateToProps(state) {
   return {
-    to_buy_list: state.selectionReducers.present.to_buy_list,
-    to_query_sdf_info: state.selectionReducers.present.to_query_sdf_info,
-    highlightedCompound: state.selectionReducers.present.highlightedCompound,
-    currentCompoundClass: state.selectionReducers.present.currentCompoundClass
+    to_buy_list: state.selectionReducers.to_buy_list,
+    to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
+    highlightedCompound: state.selectionReducers.highlightedCompound,
+    currentCompoundClass: state.selectionReducers.currentCompoundClass
   };
 }
 

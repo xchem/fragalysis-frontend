@@ -80,9 +80,9 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
 });
 function mapStateToProps(state) {
   return {
-    molecule_list: state.apiReducers.present.molecule_list,
-    target_on: state.apiReducers.present.target_on,
-    mol_group_on: state.apiReducers.present.mol_group_on
+    molecule_list: state.apiReducers.molecule_list,
+    target_on: state.apiReducers.target_on,
+    mol_group_on: state.apiReducers.mol_group_on
   };
 }
 const mapDispatchToProps = {

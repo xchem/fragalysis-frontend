@@ -4,8 +4,8 @@ import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reduc
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
-  const target_on = state.apiReducers.present.target_on;
-  const targetIdList = state.apiReducers.present.target_id_list;
+  const target_on = state.apiReducers.target_on;
+  const targetIdList = state.apiReducers.target_id_list;
 
   if (target_on !== undefined && targetIdList && nglView && nglView.id && nglView.stage) {
     let targetData = null;
@@ -28,8 +28,8 @@ const loadProtein = nglView => (dispatch, getState) => {
 
 export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getState) => {
   const state = getState();
-  const targetIdList = state.apiReducers.present.target_id_list;
-  const targetOnName = state.apiReducers.present.target_on_name;
+  const targetIdList = state.apiReducers.target_id_list;
+  const targetOnName = state.apiReducers.target_on_name;
 
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
