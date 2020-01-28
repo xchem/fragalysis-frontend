@@ -103,9 +103,11 @@ export const CompoundList = memo(({ height }) => {
               loadMore={loadNextCompounds}
               hasMore={canLoadMore}
               loader={
-                <Grid item key={'loader_of_new_compounds'} className={classes.paddingProgress}>
-                  <CircularProgress />
-                </Grid>
+                <div className="loader" key={0}>
+                  <Grid item key={'loader_of_new_compounds'} className={classes.paddingProgress}>
+                    <CircularProgress />
+                  </Grid>
+                </div>
               }
               className={classes.fullWidth}
               useWindow={false}
