@@ -26,8 +26,9 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     overflow: 'auto'
   },
-  fullWidth: {
-    width: 'inherit'
+  infinityScroll: {
+    width: 'inherit',
+    height: 536
   }
 }));
 
@@ -104,16 +105,16 @@ export const CompoundList = memo(({ height }) => {
                 loadMore={loadNextCompounds}
                 hasMore={canLoadMore}
                 loader={
-                  <div className="loader" key={0}>
-                    <Grid item key={'loader_of_new_compounds'} className={classes.paddingProgress}>
+                  <Grid item key={'loader_of_new_compounds'}>
+                    <div className="loader" key={0}>
                       <CircularProgress />
-                    </Grid>
-                  </div>
+                    </div>
+                  </Grid>
                 }
                 className={classes.fullWidth}
                 useWindow={false}
               >
-                <Grid container justify="flex-start" className={classes.infinityContainer}>
+                <Grid container justify="flex-start" className={classes.infinityScroll}>
                   {currentCompounds.map((data, index) => (
                     <Grid item key={index} xs={4}>
                       <CompoundView height={100} width={100} data={data} />
