@@ -25,6 +25,9 @@ const useStyles = makeStyles(theme => ({
   infinityContainer: {
     width: '100%',
     overflow: 'auto'
+  },
+  fullWidth: {
+    width: '100%'
   }
 }));
 
@@ -107,10 +110,11 @@ export const CompoundList = memo(({ height }) => {
                     </Grid>
                   </div>
                 }
+                classNames={classes.fullWidth}
                 useWindow={false}
               >
                 {currentCompounds.map((data, index) => (
-                  <Grid item key={index}>
+                  <Grid item key={index} xs={4}>
                     <CompoundView height={100} width={100} data={data} />
                   </Grid>
                 ))}
