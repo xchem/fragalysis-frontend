@@ -83,50 +83,52 @@ export const CompoundList = memo(({ height }) => {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
         <Box height={height} width="100%">
-          <Grid container direction="row" justify="space-between" alignItems="center">
-            {Object.keys(compoundsColors).map(item => (
-              <Grid item key={item}>
-                <TextField
-                  id={`${item}`}
-                  key={`CLASS_${item}`}
-                  className={classes.textField}
-                  label={compoundsColors[item].text}
-                  onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
-                  defaultValue={compoundClasses[item]}
-                />
-              </Grid>
-            ))}
-          </Grid>
           {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
-            <InfiniteScroll
-              pageStart={0}
-              loadMore={loadNextCompounds}
-              hasMore={canLoadMore}
-              loader={
-                <div className="loader" key={0}>
-                  <Grid item key={'loader_of_new_compounds'} className={classes.paddingProgress}>
-                    <CircularProgress />
-                  </Grid>
-                </div>
-              }
-              className={classes.fullWidth}
-              useWindow={false}
-            >
-              <Grid container justify="flex-start" className={classes.infinityContainer}>
-                {currentCompounds.map((data, index) => (
-                  <Grid item key={index} xs={4}>
-                    <CompoundView height={100} width={100} data={data} />
+            <>
+              <Grid container direction="row" justify="space-between" alignItems="center">
+                {Object.keys(compoundsColors).map(item => (
+                  <Grid item key={item}>
+                    <TextField
+                      id={`${item}`}
+                      key={`CLASS_${item}`}
+                      className={classes.textField}
+                      label={compoundsColors[item].text}
+                      onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
+                      defaultValue={compoundClasses[item]}
+                    />
                   </Grid>
                 ))}
               </Grid>
-            </InfiniteScroll>
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadNextCompounds}
+                hasMore={canLoadMore}
+                loader={
+                  <div className="loader" key={0}>
+                    <Grid item key={'loader_of_new_compounds'} className={classes.paddingProgress}>
+                      <CircularProgress />
+                    </Grid>
+                  </div>
+                }
+                className={classes.fullWidth}
+                useWindow={false}
+              >
+                <Grid container justify="flex-start" className={classes.infinityContainer}>
+                  {currentCompounds.map((data, index) => (
+                    <Grid item key={index} xs={4}>
+                      <CompoundView height={100} width={100} data={data} />
+                    </Grid>
+                  ))}
+                </Grid>
+              </InfiniteScroll>
+              <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
+                Select All
+              </Button>
+              <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
+                Clear Selection
+              </Button>
+            </>
           )}
-          <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
-            Select All
-          </Button>
-          <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
-            Clear Selection
-          </Button>
         </Box>
       </Panel>
     );
