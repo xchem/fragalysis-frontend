@@ -55,7 +55,7 @@ export const CompoundList = memo(({ height }) => {
   const loadNextCompounds = () => {
     setCurrentPage(currentPage + 1);
   };
-  const compoundsPerPage = 5;
+  const compoundsPerPage = 20;
   const listItemOffset = (currentPage + 1) * compoundsPerPage;
   const currentCompounds = compoundsList.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < compoundsList.length;
@@ -107,7 +107,7 @@ export const CompoundList = memo(({ height }) => {
                   <CircularProgress />
                 </Grid>
               }
-              classNames={classes.fullWidth}
+              className={classes.fullWidth}
               useWindow={false}
             >
               <Grid container justify="flex-start" className={classes.infinityContainer}>
