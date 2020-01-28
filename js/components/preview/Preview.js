@@ -51,7 +51,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
 
   const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
     2
-  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 121px)`;
+  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 72px)`;
   const [showHistory, setShowHistory] = useState(false);
 
   return (
