@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
 
 export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) => {
   const classes = useStyles();
-  const panelRef = useRef(undefined);
+  const [panelRef, setPanelRef] = useState();
   const dispatch = useDispatch();
   const duck_yank_data = useSelector(state => state.apiReducers.duck_yank_data);
   const to_buy_list = useSelector(state => state.selectionReducers.to_buy_list);
@@ -39,8 +39,14 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
   }, [dispatch, duck_yank_data, to_buy_list]);
 
   return (
-    <Panel ref={panelRef}>
-      <ComputeSize componentRef={panelRef.current} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
+    <Panel
+      ref={ref => {
+        setPanelRef(ref);
+      }}
+      hasHeader
+      title="Summary Info"
+    >
+      <ComputeSize componentRef={panelRef} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
         <Grid container justify="space-between">
           <Grid
             item
