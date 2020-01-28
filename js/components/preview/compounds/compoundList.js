@@ -28,7 +28,8 @@ const useStyles = makeStyles(theme => ({
   },
   infinityScroll: {
     width: 'inherit',
-    height: 536
+    height: 536,
+    overflow: 'auto'
   }
 }));
 
@@ -105,11 +106,11 @@ export const CompoundList = memo(({ height }) => {
                 loadMore={loadNextCompounds}
                 hasMore={canLoadMore}
                 loader={
-                  <Grid item key={'loader_of_new_compounds'}>
-                    <div className="loader" key={0}>
+                  <div className="loader" key={0}>
+                    <Grid item key={'loader_of_new_compounds'}>
                       <CircularProgress />
-                    </div>
-                  </Grid>
+                    </Grid>
+                  </div>
                 }
                 className={classes.fullWidth}
                 useWindow={false}
