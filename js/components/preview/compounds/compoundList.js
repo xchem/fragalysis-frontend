@@ -101,35 +101,35 @@ export const CompoundList = memo(({ height }) => {
                   </Grid>
                 ))}
               </Grid>
-              <div className={classes.infinityScroll}>
-                <InfiniteScroll
-                  pageStart={0}
-                  loadMore={loadNextCompounds}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
-                      >
-                        <CircularProgress />
-                      </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  <Grid container justify="flex-start" className={classes.infinityContainer}>
+              <Grid container justify="flex-start" className={classes.infinityContainer}>
+                <div className={classes.infinityScroll}>
+                  <InfiniteScroll
+                    pageStart={0}
+                    loadMore={loadNextCompounds}
+                    hasMore={canLoadMore}
+                    loader={
+                      <div className="loader" key={0}>
+                        <Grid
+                          container
+                          direction="row"
+                          justify="center"
+                          alignItems="center"
+                          className={classes.paddingProgress}
+                        >
+                          <CircularProgress />
+                        </Grid>
+                      </div>
+                    }
+                    useWindow={false}
+                  >
                     {currentCompounds.map((data, index) => (
                       <Grid item key={index} xs={4}>
                         <CompoundView height={100} width={100} data={data} />
                       </Grid>
                     ))}
-                  </Grid>
-                </InfiniteScroll>
-              </div>
+                  </InfiniteScroll>
+                </div>
+              </Grid>
               <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
                 Select All
               </Button>
