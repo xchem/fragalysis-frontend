@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     overflow: 'auto'
   },
   fullWidth: {
-    width: '100%'
+    width: 'inherit'
   }
 }));
 
@@ -97,30 +97,28 @@ export const CompoundList = memo(({ height }) => {
               </Grid>
             ))}
           </Grid>
-          <Grid container justify="flex-start" className={classes.infinityContainer}>
-            {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
-              <InfiniteScroll
-                pageStart={0}
-                loadMore={loadNextCompounds}
-                hasMore={canLoadMore}
-                loader={
-                  <div className="loader" key={'loader_of_new_compounds'}>
-                    <Grid item className={classes.paddingProgress}>
-                      <CircularProgress />
-                    </Grid>
-                  </div>
-                }
-                classNames={classes.fullWidth}
-                useWindow={false}
-              >
+          {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
+            <InfiniteScroll
+              pageStart={0}
+              loadMore={loadNextCompounds}
+              hasMore={canLoadMore}
+              loader={
+                <Grid item key={'loader_of_new_compounds'} className={classes.paddingProgress}>
+                  <CircularProgress />
+                </Grid>
+              }
+              classNames={classes.fullWidth}
+              useWindow={false}
+            >
+              <Grid container justify="flex-start" className={classes.infinityContainer}>
                 {currentCompounds.map((data, index) => (
                   <Grid item key={index} xs={4}>
                     <CompoundView height={100} width={100} data={data} />
                   </Grid>
                 ))}
-              </InfiniteScroll>
-            )}
-          </Grid>
+              </Grid>
+            </InfiniteScroll>
+          )}
           <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
             Select All
           </Button>
