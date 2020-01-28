@@ -57,7 +57,7 @@ export const CompoundList = memo(({ height }) => {
   const loadNextCompounds = () => {
     setCurrentPage(currentPage + 1);
   };
-  const compoundsPerPage = 20;
+  const compoundsPerPage = 21;
   const listItemOffset = (currentPage + 1) * compoundsPerPage;
   const currentCompounds = compoundsList.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < compoundsList.length;
@@ -101,28 +101,35 @@ export const CompoundList = memo(({ height }) => {
                   </Grid>
                 ))}
               </Grid>
-              <InfiniteScroll
-                pageStart={0}
-                loadMore={loadNextCompounds}
-                hasMore={canLoadMore}
-                loader={
-                  <div className="loader" key={0}>
-                    <Grid item key={'loader_of_new_compounds'}>
-                      <CircularProgress />
-                    </Grid>
-                  </div>
-                }
-                className={classes.fullWidth}
-                useWindow={false}
-              >
-                <Grid container justify="flex-start" className={classes.infinityScroll}>
-                  {currentCompounds.map((data, index) => (
-                    <Grid item key={index} xs={4}>
-                      <CompoundView height={100} width={100} data={data} />
-                    </Grid>
-                  ))}
-                </Grid>
-              </InfiniteScroll>
+              <div className={classes.infinityScroll}>
+                <InfiniteScroll
+                  pageStart={0}
+                  loadMore={loadNextCompounds}
+                  hasMore={canLoadMore}
+                  loader={
+                    <div className="loader" key={0}>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="center"
+                        className={classes.paddingProgress}
+                      >
+                        <CircularProgress />
+                      </Grid>
+                    </div>
+                  }
+                  useWindow={false}
+                >
+                  <Grid container justify="flex-start" className={classes.infinityContainer}>
+                    {currentCompounds.map((data, index) => (
+                      <Grid item key={index} xs={4}>
+                        <CompoundView height={100} width={100} data={data} />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </InfiniteScroll>
+              </div>
               <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
                 Select All
               </Button>
