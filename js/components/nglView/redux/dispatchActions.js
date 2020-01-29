@@ -6,7 +6,7 @@ import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActio
 import { setMolGroupSelection } from '../../../reducers/selection/selectionActions';
 import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';
 import * as listTypes from '../../../constants/listTypes';
-import { selectVectorAndReset } from '../../../reducers/selection/dispatchActions';
+import { selectVectorAndResetCompounds } from '../../../reducers/selection/dispatchActions';
 
 export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
   const state = getState();
@@ -120,7 +120,7 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
       //}
       else if (type === listTypes.VECTOR) {
         const vectorSmi = name.split('_')[1];
-        dispatch(selectVectorAndReset(vectorSmi));
+        dispatch(selectVectorAndResetCompounds(vectorSmi));
       }
     }
   }
