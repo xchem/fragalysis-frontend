@@ -1,4 +1,7 @@
-export const constants = {};
+export const constants = {
+  SET_CURRENT_COMPOUNDS: 'PREVIEW_COMPOUNDS_SET_CURRENT_COMPOUNDS',
+  SET_CURRENT_PAGE: 'PREVIEW_COMPOUNDS_SET_CURRENT_PAGE'
+};
 
 const colors = {
   blue: 'blue',
