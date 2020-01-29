@@ -47,6 +47,8 @@ export const CompoundList = memo(({ height }) => {
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
 
+  console.log(height);
+
   // Reset Infinity scroll
   useEffect(() => {
     setCurrentPage(0);
@@ -83,7 +85,7 @@ export const CompoundList = memo(({ height }) => {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
         {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
-          <Box height={height - 132} width="100%">
+          <Box height={`calc(${height} - 132px)`} width="100%">
             <Grid container direction="row" justify="space-between" alignItems="center">
               {Object.keys(compoundsColors).map(item => (
                 <Grid item key={item}>
