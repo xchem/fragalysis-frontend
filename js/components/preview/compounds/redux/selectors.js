@@ -9,7 +9,6 @@ export const getCompoundListOffset = createSelector(
   getCompoundsPerPage,
   getCurrentPage,
   (compoundsPerPage, currentPage) => {
-    debugger;
     return (currentPage + 1) * compoundsPerPage;
   }
 );
@@ -18,7 +17,6 @@ export const getCanLoadMoreCompounds = createSelector(
   getCompoundListOffset,
   getCompoundsList,
   (compoundsListOffset, compoundsList) => {
-    debugger;
     return compoundsListOffset < compoundsList.length;
   }
 );
