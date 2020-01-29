@@ -65,7 +65,8 @@ export const CompoundList = memo(({ height }) => {
 
   let mol_string = 'No molecules found!';
   if (totalCountOfMolecules) {
-    mol_string = 'Compounds to pick. Mol total: ' + totalCountOfMolecules;
+    mol_string =
+      Object.keys(currentCompounds).length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
   }
   if (to_query === '' || to_query === undefined) {
     mol_string = '';
