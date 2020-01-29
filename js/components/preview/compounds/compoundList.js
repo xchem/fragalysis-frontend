@@ -55,6 +55,18 @@ export const CompoundList = memo(({ height }) => {
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
 
+  console.log(
+    'CompoundList ',
+    to_query,
+    compoundClasses,
+    currentCompoundClass,
+    totalCountOfMolecules,
+    canLoadMoreCompounds,
+    querying,
+    currentVector,
+    currentCompounds
+  );
+
   // Reset currect page in Infinity scroll
   /* useEffect(() => {
     () => {
@@ -125,7 +137,9 @@ export const CompoundList = memo(({ height }) => {
                     {Object.keys(currentCompounds).map(key => (
                       <>
                         {/*<CompoundView key={key} height={100} width={100} data={currentCompounds[key]} />*/}
-                        <div style={{ height: '100px', width: '100px' }}>{currentCompounds[key].index}</div>
+                        <div key={key} style={{ height: '100px', width: '100px' }}>
+                          {currentCompounds[key].index}
+                        </div>
                       </>
                     ))}
                   </InfiniteScroll>
