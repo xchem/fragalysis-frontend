@@ -6,6 +6,6 @@ export const setCurrentCompounds = loadedCompounds => ({
 });
 
 export const setCurrentPage = page => ({
-  type: constants.SET_CURRENT_COMPOUNDS,
+  type: constants.SET_CURRENT_PAGE,
   payload: page
 });
