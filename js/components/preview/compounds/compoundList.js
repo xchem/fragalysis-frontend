@@ -85,7 +85,7 @@ export const CompoundList = memo(({ height }) => {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
         {currentVector !== undefined && currentCompounds && currentCompounds.length > 0 && (
-          <Box height={`calc(${height} - 132px)`} width="100%">
+          <Box height={height} width="100%">
             <Grid container direction="row" justify="space-between" alignItems="center">
               {Object.keys(compoundsColors).map(item => (
                 <Grid item key={item}>
@@ -101,7 +101,7 @@ export const CompoundList = memo(({ height }) => {
               ))}
             </Grid>
             <Grid container justify="flex-start" className={classes.infinityContainer}>
-              <Box width="inherit" height={height} overflow="auto">
+              <Box width="inherit" style={{ height: `calc(${height} - 132px)` }} overflow="auto">
                 <InfiniteScroll
                   pageStart={0}
                   loadMore={loadNextCompounds}
