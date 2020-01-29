@@ -109,23 +109,15 @@ export const CompoundList = memo(({ height }) => {
                     hasMore={canLoadMore}
                     loader={
                       <div className="loader" key={0}>
-                        <Grid
-                          container
-                          direction="row"
-                          justify="center"
-                          alignItems="center"
-                          className={classes.paddingProgress}
-                        >
+                        <div className={classes.paddingProgress}>
                           <CircularProgress />
-                        </Grid>
+                        </div>
                       </div>
                     }
                     useWindow={false}
                   >
                     {currentCompounds.map((data, index) => (
-                      <Grid item key={index} xs={4}>
-                        <CompoundView height={100} width={100} data={data} />
-                      </Grid>
+                      <CompoundView key={index} height={100} width={100} data={data} />
                     ))}
                   </InfiniteScroll>
                 </div>
