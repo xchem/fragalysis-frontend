@@ -1,9 +1,7 @@
-import { resetCurrentCompoundsSettings, setCurrentCompounds } from '../../components/preview/compounds/redux/actions';
-import { selectVector } from './actions';
-import { getAllCompoundsList } from './selectors';
+import { resetCurrentCompoundsSettings } from '../../components/preview/compounds/redux/actions';
+import { selectVector } from './selectionActions';
 
-export const selectVectorAndResetCompounds = currentVector => async (dispatch, getState) => {
-  await dispatch(resetCurrentCompoundsSettings(false));
+export const selectVectorAndResetCompounds = currentVector => async dispatch => {
+  await dispatch(resetCurrentCompoundsSettings());
   dispatch(selectVector(currentVector));
-  dispatch(setCurrentCompounds(getAllCompoundsList(getState())));
 };
