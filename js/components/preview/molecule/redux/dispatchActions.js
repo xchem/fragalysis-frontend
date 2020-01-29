@@ -8,7 +8,6 @@ import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
-  selectVector,
   setBondColorMap,
   setInitialFullGraph,
   setToQuery,
@@ -26,7 +25,7 @@ import {
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
-import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { selectVectorAndReset } from '../../../../reducers/selection/dispatchActions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -101,8 +100,7 @@ export const addVector = (stage, data) => async (dispatch, getState) => {
   dispatch(incrementCountOfPendingVectorLoadRequests());
 
   dispatch(appendVectorOnList(generateMoleculeId(data)));
-  await dispatch(selectVector(undefined));
-  await dispatch(resetCurrentCompoundsSettings());
+  await dispatch(selectVectorAndReset(undefined));
 
   return api({ url: getViewUrl('graph', data) })
     .then(response => dispatch(updateFullGraph(response.data['graph'])))
