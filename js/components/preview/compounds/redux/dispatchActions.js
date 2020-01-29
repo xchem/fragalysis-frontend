@@ -42,15 +42,18 @@ export const onChangeCompoundClassValue = event => (dispatch, getState) => {
   }
 };
 
-const sliceNextItems = () => (dispatch, getState) => {
-  const compoundsList = getCompoundsList(getState());
-  const compoundsListOffset = getCompoundListOffset(getState());
+const sliceNextItems = nextPage => (dispatch, getState) => {
+  const state = getState();
+  const compoundsList = getCompoundsList(state);
+  const compoundsPerPage = state.previewReducers.compounds.compoundsPerPage;
+
+  const compoundsListOffset = (nextPage + 1) * compoundsPerPage;
   debugger;
   dispatch(setCurrentCompounds(compoundsList.slice(0, compoundsListOffset)));
 };
 
-export const loadNextPageOfCompounds = () => async (dispatch, getState) => {
+export const loadNextPageOfCompounds = () => (dispatch, getState) => {
   const nextPage = getState().previewReducers.compounds.currentPage + 1;
-  await dispatch(setCurrentPage(nextPage));
-  dispatch(sliceNextItems());
+  dispatch(setCurrentPage(nextPage));
+  dispatch(sliceNextItems(nextPage));
 };
