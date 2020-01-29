@@ -47,5 +47,6 @@ export const loadNextPageOfCompounds = () => async (dispatch, getState) => {
 
   const compoundsList = getCompoundsList(getState());
   const compoundsListOffset = getCompoundListOffset(getState());
+  debugger;
   dispatch(setCurrentCompounds(compoundsList.slice(0, compoundsListOffset)));
 };
