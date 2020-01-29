@@ -20,11 +20,14 @@ const useStyles = makeStyles(theme => ({
     width: 50
   },
   paddingProgress: {
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    width: 100,
+    height: 100
   },
   infinityContainer: {
     width: '100%',
-    overflow: 'auto'
+    overflow: 'auto',
+    padding: theme.padding(1)
   },
   infinityScroll: {
     width: 'inherit',
@@ -57,7 +60,7 @@ export const CompoundList = memo(({ height }) => {
   const loadNextCompounds = () => {
     setCurrentPage(currentPage + 1);
   };
-  const compoundsPerPage = 21;
+  const compoundsPerPage = 28;
   const listItemOffset = (currentPage + 1) * compoundsPerPage;
   const currentCompounds = compoundsList.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < compoundsList.length;
