@@ -47,7 +47,7 @@ const sliceNextItems = nextPage => (dispatch, getState) => {
   const compoundsList = getCompoundsList(state);
   const compoundsPerPage = state.previewReducers.compounds.compoundsPerPage;
 
-  const compoundsListOffset = (nextPage + 1) * compoundsPerPage;
+  const compoundsListOffset = nextPage * compoundsPerPage;
   debugger;
   dispatch(setCurrentCompounds(compoundsList.slice(0, compoundsListOffset)));
 };
