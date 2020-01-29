@@ -1,12 +1,9 @@
 import { createSelector } from 'reselect';
-import { setHighlighted } from './selectionActions';
 
 const getToSelect = state => state.selectionReducers.to_select;
 const getToQuery = state => state.selectionReducers.to_query;
 const getThisVectorList = state => state.selectionReducers.this_vector_list;
 const getCurrentCompoundClass = state => state.selectionReducers.currentCompoundClass;
-const getCompoundsPerPage = state => state.previewReducers.compounds.compoundsPerPage;
-const getCurrentPage = state => state.previewReducers.compounds.currentPage;
 
 export const getTotalCountOfMolecules = createSelector(getToSelect, to_select => {
   let tot_num = 0;
@@ -41,47 +38,3 @@ export const getCompoundsList = createSelector(
     return compoundsList;
   }
 );
-
-export const getCompoundListOffset = createSelector(
-  getCompoundsPerPage,
-  getCurrentPage,
-  (compoundsPerPage, currentPage) => {
-    return (currentPage + 1) * compoundsPerPage;
-  }
-);
-
-export const getCanLoadMoreCompounds = createSelector(
-  getCompoundListOffset,
-  getCompoundsList,
-  (compoundsListOffset, compoundsList) => {
-    return compoundsListOffset < compoundsList.length;
-  }
-);
-
-/*
-export const handleClickOnCompound = ({ send_obj, event, setIsConfOn, isConfOn }) => (dispatch, getState) => {
-  dispatch(
-    setHighlighted({
-      index: send_obj.index,
-      smiles: send_obj.smiles
-    })
-  );
-  if (event.shiftKey) {
-    setIsConfOn(!isConfOn);
-    handleConf();
-  } else {
-    if (compoundClass === currentCompoundClass) {
-      setCompoundClass(0);
-      removeFromToBuyList(send_obj);
-    } else {
-      setCompoundClass(currentCompoundClass);
-      Object.assign(send_obj, {
-        class: parseInt(currentCompoundClass)
-      });
-      appendToBuyList(send_obj);
-    }
-  }
-};
-
-export const loadCompoundImageData = () => (dispatch, getState) => {};
-*/
