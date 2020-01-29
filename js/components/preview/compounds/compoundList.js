@@ -15,7 +15,7 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getCompoundsList, getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds } from './redux/selectors';
 
@@ -51,7 +51,6 @@ export const CompoundList = memo(({ height }) => {
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
-  const compoundsList = useSelector(state => getCompoundsList(state));
 
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
@@ -75,7 +74,7 @@ export const CompoundList = memo(({ height }) => {
   if (to_query !== undefined) {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
-        {currentVector !== undefined && compoundsList && compoundsList.length > 0 && currentCompounds && (
+        {currentVector !== undefined && currentCompounds && (
           <Box height={height} width="100%">
             <Grid container direction="row" justify="space-between" alignItems="center">
               {Object.keys(compoundsColors).map(item => (
