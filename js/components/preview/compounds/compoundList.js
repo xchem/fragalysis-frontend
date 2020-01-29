@@ -55,18 +55,6 @@ export const CompoundList = memo(({ height }) => {
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
 
-  console.log(
-    'CompoundList ',
-    to_query,
-    compoundClasses,
-    currentCompoundClass,
-    totalCountOfMolecules,
-    canLoadMoreCompounds,
-    querying,
-    currentVector,
-    currentCompounds
-  );
-
   // Reset currect page in Infinity scroll
   useEffect(() => {
     () => {

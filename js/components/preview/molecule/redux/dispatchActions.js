@@ -1,4 +1,4 @@
-import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/dispatchActions';
+import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/nglDispatchActions';
 import {
   appendComplexList,
   appendFragmentDisplayList,
@@ -8,12 +8,13 @@ import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
+  selectVector,
   setBondColorMap,
   setInitialFullGraph,
   setToQuery,
   setVectorList,
   updateFullGraph
-} from '../../../../reducers/selection/actions';
+} from '../../../../reducers/selection/selectionActions';
 import { base_url } from '../../../routes/constants';
 import {
   generateArrowObject,
@@ -25,7 +26,7 @@ import {
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
-import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
+import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -89,7 +90,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(setBondColorMap(vectorBondColorMap));
 };
 
-export const addVector = (stage, data) => async (dispatch, getState) => {
+export const addVector = (stage, data) => (dispatch, getState) => {
   const state = getState();
   const vector_list = state.selectionReducers.vector_list;
 
@@ -100,7 +101,8 @@ export const addVector = (stage, data) => async (dispatch, getState) => {
   dispatch(incrementCountOfPendingVectorLoadRequests());
 
   dispatch(appendVectorOnList(generateMoleculeId(data)));
-  dispatch(selectVectorAndResetCompounds(undefined));
+  dispatch(selectVector(undefined));
+  dispatch(resetCurrentCompoundsSettings());
 
   return api({ url: getViewUrl('graph', data) })
     .then(response => dispatch(updateFullGraph(response.data['graph'])))
