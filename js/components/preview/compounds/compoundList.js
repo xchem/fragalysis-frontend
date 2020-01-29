@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   infinityContainer: {
     width: '100%',
     overflow: 'auto',
-    padding: theme.padding(1)
+    padding: theme.spacing(1)
   },
   infinityScroll: {
     width: 'inherit',
