@@ -15,13 +15,10 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import {
-  getCanLoadMoreCompounds,
-  getCompoundsList,
-  getTotalCountOfMolecules
-} from '../../../reducers/selection/selectors';
+import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { setCurrentPage } from './redux/actions';
+import { getCanLoadMoreCompounds } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   textField: {
