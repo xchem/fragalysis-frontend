@@ -68,12 +68,11 @@ export const CompoundList = memo(({ height }) => {
   );
 
   // Reset currect page in Infinity scroll
-  /* useEffect(() => {
+  useEffect(() => {
     () => {
       dispatch(setCurrentPage(0));
     };
   }, [dispatch]);
-  */
 
   //  const compoundsPerPage = 28;
   // const listItemOffset = (currentPage + 1) * compoundsPerPage;
