@@ -26,6 +26,7 @@ import {
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
+import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -101,6 +102,7 @@ export const addVector = (stage, data) => (dispatch, getState) => {
 
   dispatch(appendVectorOnList(generateMoleculeId(data)));
   dispatch(selectVector(undefined));
+  dispatch(resetCurrentCompoundsSettings());
 
   return api({ url: getViewUrl('graph', data) })
     .then(response => dispatch(updateFullGraph(response.data['graph'])))

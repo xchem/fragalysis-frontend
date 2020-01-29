@@ -9,3 +9,7 @@ export const setCurrentPage = page => ({
   type: constants.SET_CURRENT_PAGE,
   payload: page
 });
+
+export const resetCurrentCompoundsSettings = () => ({
+  type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
+});
