@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useState, useRef, useCallback, useEffect, useContext } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
 import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
@@ -12,6 +12,7 @@ import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { img_data_init } from '../molecule/moleculeView';
 import { NglContext } from '../../nglView/nglProvider';
 import { generateCompoundMolObject } from '../../nglView/generatingObjects';
+import { handleClickOnCompound } from '../../../reducers/selection/selectors';
 
 const CompoundView = memo(
   ({
@@ -28,6 +29,7 @@ const CompoundView = memo(
     width,
     data
   }) => {
+    const dispatch = useDispatch();
     const { getNglView } = useContext(NglContext);
     const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
     const not_selected_style = {
@@ -118,28 +120,6 @@ const CompoundView = memo(
       }
     };
 
-    const handleClick = e => {
-      setHighlighted({
-        index: send_obj.index,
-        smiles: send_obj.smiles
-      });
-      if (e.shiftKey) {
-        setIsConfOn(!isConfOn);
-        handleConf();
-      } else {
-        if (compoundClass === currentCompoundClass) {
-          setCompoundClass(0);
-          removeFromToBuyList(send_obj);
-        } else {
-          setCompoundClass(currentCompoundClass);
-          Object.assign(send_obj, {
-            class: parseInt(currentCompoundClass)
-          });
-          appendToBuyList(send_obj);
-        }
-      }
-    };
-
     // componentDidMount
     useEffect(() => {
       if (refOnCancel.current === undefined) {
@@ -186,7 +166,10 @@ const CompoundView = memo(
       });
     }
     return (
-      <div onClick={handleClick} style={current_style}>
+      <div
+        // onClick={event => dispatch(handleClickOnCompound({ event, send_obj, setIsConfOn, isConfOn }))}
+        style={current_style}
+      >
         <SVGInline svg={img_data} />
       </div>
     );

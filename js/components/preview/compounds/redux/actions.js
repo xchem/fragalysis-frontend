@@ -1,0 +1,11 @@
+import { constants } from './constants';
+
+export const setCurrentCompounds = loadedCompounds => ({
+  type: constants.SET_CURRENT_COMPOUNDS,
+  payload: loadedCompounds
+});
+
+export const setCurrentPage = page => ({
+  type: constants.SET_CURRENT_COMPOUNDS,
+  payload: page
+});
