@@ -15,7 +15,7 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+import { getCompoundsList, getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds } from './redux/selectors';
 
@@ -51,6 +51,7 @@ export const CompoundList = memo(({ height }) => {
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
+  const compoundsList = useSelector(state => getCompoundsList(state));
 
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
@@ -65,8 +66,7 @@ export const CompoundList = memo(({ height }) => {
 
   let mol_string = 'No molecules found!';
   if (totalCountOfMolecules) {
-    mol_string =
-      Object.keys(currentCompounds).length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
+    mol_string = compoundsList.length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
   }
   if (to_query === '' || to_query === undefined) {
     mol_string = '';
