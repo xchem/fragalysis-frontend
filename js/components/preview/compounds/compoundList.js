@@ -71,10 +71,10 @@ export const CompoundList = memo(({ height }) => {
     mol_string = '';
   }
 
-  if (to_query !== undefined) {
+  if (currentVector !== undefined && to_query !== undefined) {
     return (
       <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
-        {currentVector !== undefined && currentCompounds && (
+        {currentCompounds && (
           <Box height={height} width="100%">
             <Grid container direction="row" justify="space-between" alignItems="center">
               {Object.keys(compoundsColors).map(item => (
