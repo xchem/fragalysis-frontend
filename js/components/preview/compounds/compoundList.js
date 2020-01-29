@@ -47,8 +47,6 @@ export const CompoundList = memo(({ height }) => {
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
 
-  console.log(height);
-
   // Reset Infinity scroll
   useEffect(() => {
     setCurrentPage(0);
@@ -101,7 +99,7 @@ export const CompoundList = memo(({ height }) => {
               ))}
             </Grid>
             <Grid container justify="flex-start" className={classes.infinityContainer}>
-              <Box width="inherit" style={{ height: `calc(${height} - 132px)` }} overflow="auto">
+              <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
                 <InfiniteScroll
                   pageStart={0}
                   loadMore={loadNextCompounds}
