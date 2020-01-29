@@ -1,6 +1,7 @@
 import { appendToBuyList, setCompoundClasses, setToBuyList } from '../../../../reducers/selection/selectionActions';
 import { setCurrentCompounds, setCurrentPage } from './actions';
-import { getCompoundListOffset, getCompoundsList } from '../../../../reducers/selection/selectors';
+import { getCompoundsList } from '../../../../reducers/selection/selectors';
+import { getCompoundListOffset } from './selectors';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
