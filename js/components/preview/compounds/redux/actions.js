@@ -6,31 +6,6 @@ export const setCurrentCompounds = loadedCompounds => ({
 });
 
 export const setCurrentPage = page => ({
-  type: constants.SET_CURRENT_PAGE,
+  type: constants.SET_CURRENT_COMPOUNDS,
   payload: page
 });
-
-export const resetCurrentCompoundsSettings = () => ({
-  type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
-});
-
-export const updateCurrentCompound = ({ id, key, value }) => ({
-  type: constants.UPDATE_COMPOUND,
-  payload: {
-    id,
-    key,
-    value
-  }
-});
-
-export const setCompoundClasses = (compoundClasses, currentCompoundClass) => {
-  return {
-    type: constants.SET_COMPOUND_CLASSES,
-    compoundClasses: compoundClasses,
-    currentCompoundClass: currentCompoundClass
-  };
-};
-
-export const setHighlightedCompoundId = id => ({ type: constants.SET_HIGHLIGHTED_COMPOUND_ID, payload: id });
-
-export const setConfiguration = (id, data) => ({ type: constants.SET_CONFIGURATION, payload: { id, data } });
