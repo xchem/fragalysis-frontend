@@ -7,8 +7,8 @@ const getCurrentCompoundClass = state => state.selectionReducers.currentCompound
 
 export const getTotalCountOfMolecules = createSelector(getToSelect, to_select => {
   let tot_num = 0;
-  Object.keys(to_select).forEach(item => {
-    tot_num += item['addition'] ? item['addition'].length : 0;
+  Object.keys(to_select).forEach(key => {
+    tot_num += to_select[key].addition ? to_select[key].addition.length : 0;
   });
   return tot_num;
 });
