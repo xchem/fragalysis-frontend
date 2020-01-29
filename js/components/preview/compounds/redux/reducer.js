@@ -1,7 +1,7 @@
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
-  currentPage: 0,
+  currentPage: -1,
   compoundsPerPage: 28,
   currentCompounds: {}
 };
