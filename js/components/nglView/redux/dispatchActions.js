@@ -120,8 +120,9 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
       //}
       else if (type === listTypes.VECTOR) {
         const vectorSmi = name.split('_')[1];
-        dispatch(resetCurrentCompoundsSettings());
-        dispatch(selectVector(vectorSmi));
+        dispatch(resetCurrentCompoundsSettings()).then(() => {
+          dispatch(selectVector(vectorSmi));
+        });
       }
     }
   }

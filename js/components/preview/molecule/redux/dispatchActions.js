@@ -90,7 +90,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(setBondColorMap(vectorBondColorMap));
 };
 
-export const addVector = (stage, data) => (dispatch, getState) => {
+export const addVector = (stage, data) => async (dispatch, getState) => {
   const state = getState();
   const vector_list = state.selectionReducers.vector_list;
 
@@ -101,8 +101,8 @@ export const addVector = (stage, data) => (dispatch, getState) => {
   dispatch(incrementCountOfPendingVectorLoadRequests());
 
   dispatch(appendVectorOnList(generateMoleculeId(data)));
-  dispatch(selectVector(undefined));
-  dispatch(resetCurrentCompoundsSettings());
+  await dispatch(selectVector(undefined));
+  await dispatch(resetCurrentCompoundsSettings());
 
   return api({ url: getViewUrl('graph', data) })
     .then(response => dispatch(updateFullGraph(response.data['graph'])))
