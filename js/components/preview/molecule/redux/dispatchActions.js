@@ -25,7 +25,7 @@ import {
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
-import { selectVectorAndReset } from '../../../../reducers/selection/dispatchActions';
+import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -100,7 +100,7 @@ export const addVector = (stage, data) => async (dispatch, getState) => {
   dispatch(incrementCountOfPendingVectorLoadRequests());
 
   dispatch(appendVectorOnList(generateMoleculeId(data)));
-  await dispatch(selectVectorAndReset(undefined));
+  dispatch(selectVectorAndResetCompounds(undefined));
 
   return api({ url: getViewUrl('graph', data) })
     .then(response => dispatch(updateFullGraph(response.data['graph'])))
