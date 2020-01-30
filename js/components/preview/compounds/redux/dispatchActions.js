@@ -1,7 +1,6 @@
 import { appendToBuyList, setCompoundClasses, setToBuyList } from '../../../../reducers/selection/selectionActions';
 import { setCurrentCompounds, setCurrentPage } from './actions';
-import { getCompoundsList } from '../../../../reducers/selection/selectors';
-import { getCompoundListOffset } from './selectors';
+import { getCompoundListOffset, getMergedCompoundList } from './selectors';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
@@ -47,7 +46,7 @@ export const loadNextPageOfCompounds = () => async (dispatch, getState) => {
   await dispatch(setCurrentPage(nextPage));
 
   const state = getState();
-  const compoundsList = getCompoundsList(state);
+  const mergedCompoundsList = getMergedCompoundList(state);
   const compoundsListOffset = getCompoundListOffset(state);
-  dispatch(setCurrentCompounds(compoundsList.slice(0, compoundsListOffset)));
+  dispatch(setCurrentCompounds(mergedCompoundsList.slice(0, compoundsListOffset)));
 };
