@@ -124,7 +124,7 @@ describe("testing ngl reducer's async actions", () => {
     let store = mockStore({
       nglReducers: {
         countOfRemainingMoleculeGroups: 2,
-        proteinsHasLoad: true
+        proteinsHasLoaded: true
       }
     });
 
@@ -143,7 +143,7 @@ describe("testing ngl reducer's async actions", () => {
     let store = mockStore({
       nglReducers: {
         countOfRemainingMoleculeGroups: 1,
-        proteinsHasLoad: true
+        proteinsHasLoaded: true
       }
     });
 
