@@ -15,9 +15,9 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getAllCompoundsList, getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { getCanLoadMoreCompounds } from './redux/selectors';
+import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -51,7 +51,7 @@ export const CompoundList = memo(({ height }) => {
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
-  const compoundsList = useSelector(state => getAllCompoundsList(state));
+  const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
 
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
@@ -66,7 +66,7 @@ export const CompoundList = memo(({ height }) => {
 
   let mol_string = 'No molecules found!';
   if (totalCountOfMolecules) {
-    mol_string = compoundsList.length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
+    mol_string = currentCompounds.length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
   }
   if (to_query === '' || to_query === undefined) {
     mol_string = '';
@@ -93,7 +93,7 @@ export const CompoundList = memo(({ height }) => {
             </Grid>
             <Grid container justify="flex-start" className={classes.infinityContainer}>
               <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
-                {/*<InfiniteScroll
+                <InfiniteScroll
                   pageStart={0}
                   loadMore={() => dispatch(loadNextPageOfCompounds())}
                   hasMore={canLoadMoreCompounds}
@@ -106,10 +106,10 @@ export const CompoundList = memo(({ height }) => {
                   }
                   useWindow={false}
                 >
-                  {currentCompounds.map((data, index) => (
+                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => (
                     <CompoundView key={index} id={index} height={100} width={100} data={data} />
                   ))}
-                </InfiniteScroll>*/}
+                </InfiniteScroll>
               </Box>
             </Grid>
             <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
