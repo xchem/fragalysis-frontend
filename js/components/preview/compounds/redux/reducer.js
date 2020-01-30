@@ -1,7 +1,7 @@
 import { constants } from './constants';
 
 export const loadingCompoundImage =
-  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100px" height="100px"><g>' +
+  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="80px" height="80px"><g>' +
   '<circle cx="50" cy="0" r="5" transform="translate(5 5)"/>' +
   '<circle cx="75" cy="6.6987298" r="5" transform="translate(5 5)"/> ' +
   '<circle cx="93.3012702" cy="25" r="5" transform="translate(5 5)"/> ' +
@@ -42,8 +42,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.UPDATE_COMPOUND:
       const currentCmpds = JSON.parse(JSON.stringify(state.currentCompounds));
-      currentCmpds[action.payload.id][action.payload.key] = action.payload.value;
-
+      if (currentCmpds[action.payload.id] && action.payload.id && action.payload.key) {
+        currentCmpds[action.payload.id][action.payload.key] = action.payload.value;
+      }
       return Object.assign({}, state, { currentCompounds: currentCmpds });
 
     case constants.RESET_CURRENT_COMPOUNDS_SETTINGS:
