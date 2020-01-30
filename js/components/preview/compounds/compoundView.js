@@ -12,6 +12,7 @@ import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { img_data_init } from '../molecule/moleculeView';
 import { NglContext } from '../../nglView/nglProvider';
 import { generateCompoundMolObject } from '../../nglView/generatingObjects';
+import { updateCurrentCompound } from './redux/actions';
 import { handleClickOnCompound } from '../../../reducers/selection/selectors';
 
 const CompoundView = memo(
@@ -27,7 +28,9 @@ const CompoundView = memo(
     setHighlighted,
     height,
     width,
-    data
+    data,
+    id,
+    updateCurrentCompound
   }) => {
     const dispatch = useDispatch();
     const { getNglView } = useContext(NglContext);
@@ -129,7 +132,7 @@ const CompoundView = memo(
           height,
           key,
           old_url: oldUrl.current,
-          setImg_data,
+          setImg_data: image => updateCurrentCompound({ id, key: 'image', value: image }),
           setOld_url: newUrl => setOldUrl(newUrl),
           url,
           cancel: onCancel
@@ -146,7 +149,7 @@ const CompoundView = memo(
           refOnCancel.current();
         }
       };
-    }, [height, key, url, width, checkInList, to_buy_list.length]);
+    }, [height, key, url, width, checkInList, to_buy_list.length, updateCurrentCompound, id]);
 
     useEffect(() => {
       checkInList();
@@ -170,7 +173,7 @@ const CompoundView = memo(
         // onClick={event => dispatch(handleClickOnCompound({ event, send_obj, setIsConfOn, isConfOn }))}
         style={current_style}
       >
-        <SVGInline svg={img_data} />
+        <SVGInline svg={data.image} />
       </div>
     );
   }
@@ -190,7 +193,8 @@ const mapDispatchToProps = {
   deleteObject,
   removeFromToBuyList: selectionActions.removeFromToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
-  setHighlighted: selectionActions.setHighlighted
+  setHighlighted: selectionActions.setHighlighted,
+  updateCurrentCompound
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CompoundView);
