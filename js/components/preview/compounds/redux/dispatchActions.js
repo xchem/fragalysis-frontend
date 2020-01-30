@@ -1,6 +1,5 @@
 import { appendToBuyList, setCompoundClasses, setToBuyList } from '../../../../reducers/selection/selectionActions';
-import { setCurrentCompounds, setCurrentPage } from './actions';
-import { getCompoundListOffset, getMergedCompoundList } from './selectors';
+import { setCurrentPage } from './actions';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
@@ -41,12 +40,7 @@ export const onChangeCompoundClassValue = event => (dispatch, getState) => {
   }
 };
 
-export const loadNextPageOfCompounds = () => async (dispatch, getState) => {
+export const loadNextPageOfCompounds = () => (dispatch, getState) => {
   const nextPage = getState().previewReducers.compounds.currentPage + 1;
-  await dispatch(setCurrentPage(nextPage));
-
-  const state = getState();
-  const mergedCompoundsList = getMergedCompoundList(state);
-  const compoundsListOffset = getCompoundListOffset(state);
-  dispatch(setCurrentCompounds(mergedCompoundsList.slice(0, compoundsListOffset)));
+  dispatch(setCurrentPage(nextPage));
 };
