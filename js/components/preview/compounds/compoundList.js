@@ -18,7 +18,6 @@ import { compoundsColors } from './redux/constants';
 import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
-import SVGInline from 'react-svg-inline';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -111,11 +110,7 @@ export const CompoundList = memo(({ height }) => {
                   useWindow={false}
                 >
                   {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
-                    return (
-                      <div key={index} style={{ width: '100px', height: '100px' }}>
-                        <SVGInline svg={data.image} />
-                      </div>
-                    );
+                    return <CompoundView key={index} id={index} height={100} width={100} data={data} />;
                   })}
                 </InfiniteScroll>
                 {/*<InfiniteScroll
