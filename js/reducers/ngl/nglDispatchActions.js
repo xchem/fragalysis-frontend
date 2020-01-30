@@ -59,7 +59,7 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = () => (dispatch, getState) => {
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
-  if (decrementedCount === 0 && state.nglReducers.proteinsHasLoad === true) {
+  if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
     dispatch(saveCurrentStateAsDefaultScene());
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
