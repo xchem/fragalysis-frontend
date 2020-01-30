@@ -96,11 +96,10 @@ export const CompoundList = memo(({ height }) => {
               <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
                 <InfiniteScroll
                   pageStart={0}
-                  loadMore={
-                    () => {
-                      console.log('Load more');
-                    } //dispatch(loadNextPageOfCompounds())
-                  }
+                  loadMore={() => {
+                    console.log('Load more');
+                    dispatch(loadNextPageOfCompounds());
+                  }}
                   hasMore={canLoadMoreCompounds}
                   loader={
                     <div className="loader" key={0}>

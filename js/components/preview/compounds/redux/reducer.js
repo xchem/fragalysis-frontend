@@ -6,7 +6,7 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
   </circle>  '</svg>`;
 
 export const INITIAL_STATE = {
-  currentPage: 0,
+  currentPage: -1,
   compoundsPerPage: 20,
   /* currentCompounds: [{
       smiles:"Cc1cc(CN(C)C(C)C(N)=O)no1",
