@@ -106,8 +106,8 @@ export const CompoundList = memo(({ height }) => {
                   }
                   useWindow={false}
                 >
-                  {currentCompounds.map(key => (
-                    <CompoundView key={key} id={key} height={100} width={100} data={currentCompounds[key]} />
+                  {currentCompounds.map((data, index) => (
+                    <CompoundView key={index} id={index} height={100} width={100} data={data} />
                   ))}
                 </InfiniteScroll>
               </Box>
