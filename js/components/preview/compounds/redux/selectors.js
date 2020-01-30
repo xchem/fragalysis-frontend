@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect';
-import { getAllCompoundsList } from '../../../../reducers/selection/selectors';
 //import { setHighlighted } from './selectionActions';
 
 const getCompoundsPerPage = state => state.previewReducers.compounds.compoundsPerPage;
