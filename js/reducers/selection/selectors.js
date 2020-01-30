@@ -13,7 +13,7 @@ export const getTotalCountOfMolecules = createSelector(getToSelect, to_select =>
   return tot_num;
 });
 
-export const getCompoundsList = createSelector(
+export const getAllCompoundsList = createSelector(
   getThisVectorList,
   getCurrentCompoundClass,
   getToQuery,

@@ -1,9 +1,10 @@
 import { createSelector } from 'reselect';
-import { getCompoundsList } from '../../../../reducers/selection/selectors';
+import { getAllCompoundsList } from '../../../../reducers/selection/selectors';
 //import { setHighlighted } from './selectionActions';
 
 const getCompoundsPerPage = state => state.previewReducers.compounds.compoundsPerPage;
 const getCurrentPage = state => state.previewReducers.compounds.currentPage;
+const getCurrentCompounds = state => state.previewReducers.compounds.currentCompounds;
 
 export const getCompoundListOffset = createSelector(
   getCompoundsPerPage,
@@ -15,9 +16,17 @@ export const getCompoundListOffset = createSelector(
 
 export const getCanLoadMoreCompounds = createSelector(
   getCompoundListOffset,
-  getCompoundsList,
+  getAllCompoundsList,
   (compoundsListOffset, compoundsList) => {
     return compoundsListOffset < compoundsList.length;
+  }
+);
+
+export const getMergedCompoundList = createSelector(
+  getAllCompoundsList,
+  getCurrentCompounds,
+  (allCompounds, currentCompounds) => {
+    return [...allCompounds, ...currentCompounds];
   }
 );
 
