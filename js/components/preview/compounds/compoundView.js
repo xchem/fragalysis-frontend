@@ -128,7 +128,6 @@ const CompoundView = memo(
     useEffect(() => {
       if (refOnCancel.current === undefined) {
         let onCancel = () => {};
-        updateCurrentCompound({ id, key: 'image', value: loadingCompoundImage });
         loadFromServer({
           width,
           height,
