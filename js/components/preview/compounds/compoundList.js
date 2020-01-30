@@ -94,13 +94,31 @@ export const CompoundList = memo(({ height }) => {
             </Grid>
             <Grid container justify="flex-start" className={classes.infinityContainer}>
               <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
-                {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
-                  return (
-                    <div key={index} style={{ width: '100px', height: '100px' }}>
-                      <SVGInline svg={data.image} />
+                <InfiniteScroll
+                  pageStart={0}
+                  loadMore={
+                    () => {
+                      console.log('Load more');
+                    } //dispatch(loadNextPageOfCompounds())
+                  }
+                  hasMore={canLoadMoreCompounds}
+                  loader={
+                    <div className="loader" key={0}>
+                      <div className={classes.paddingProgress}>
+                        <CircularProgress />
+                      </div>
                     </div>
-                  );
-                })}
+                  }
+                  useWindow={false}
+                >
+                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
+                    return (
+                      <div key={index} style={{ width: '100px', height: '100px' }}>
+                        <SVGInline svg={data.image} />
+                      </div>
+                    );
+                  })}
+                </InfiniteScroll>
                 {/*<InfiniteScroll
                   pageStart={0}
                   loadMore={() => dispatch(loadNextPageOfCompounds())}
