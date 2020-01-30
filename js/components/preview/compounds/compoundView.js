@@ -14,6 +14,7 @@ import { NglContext } from '../../nglView/nglProvider';
 import { generateCompoundMolObject } from '../../nglView/generatingObjects';
 import { updateCurrentCompound } from './redux/actions';
 import { handleClickOnCompound } from '../../../reducers/selection/selectors';
+import { loadingCompoundImage } from './redux/reducer';
 
 const CompoundView = memo(
   ({
@@ -127,6 +128,7 @@ const CompoundView = memo(
     useEffect(() => {
       if (refOnCancel.current === undefined) {
         let onCancel = () => {};
+        updateCurrentCompound({ id, key: 'image', value: loadingCompoundImage });
         loadFromServer({
           width,
           height,
