@@ -15,7 +15,7 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getCompoundsList, getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+import { getAllCompoundsList, getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds } from './redux/selectors';
 
@@ -51,7 +51,7 @@ export const CompoundList = memo(({ height }) => {
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
-  const compoundsList = useSelector(state => getCompoundsList(state));
+  const compoundsList = useSelector(state => getAllCompoundsList(state));
 
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
