@@ -4,6 +4,7 @@ import { getAllCompoundsList } from '../../../../reducers/selection/selectors';
 
 const getCompoundsPerPage = state => state.previewReducers.compounds.compoundsPerPage;
 const getCurrentPage = state => state.previewReducers.compounds.currentPage;
+const getCurrentCompounds = state => state.previewReducers.compounds.currentCompounds;
 
 export const getCompoundListOffset = createSelector(
   getCompoundsPerPage,
@@ -15,7 +16,7 @@ export const getCompoundListOffset = createSelector(
 
 export const getCanLoadMoreCompounds = createSelector(
   getCompoundListOffset,
-  getAllCompoundsList,
+  getCurrentCompounds,
   (compoundsListOffset, compoundsList) => {
     return compoundsListOffset < compoundsList.length;
   }
