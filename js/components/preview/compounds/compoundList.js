@@ -93,7 +93,7 @@ export const CompoundList = memo(({ height }) => {
             </Grid>
             <Grid container justify="flex-start" className={classes.infinityContainer}>
               <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
-                <InfiniteScroll
+                {/*<InfiniteScroll
                   pageStart={0}
                   loadMore={() => dispatch(loadNextPageOfCompounds())}
                   hasMore={canLoadMoreCompounds}
@@ -112,9 +112,9 @@ export const CompoundList = memo(({ height }) => {
                         {index}
                       </div>
                       {/*<CompoundView key={index} id={index} height={100} width={100} data={data} />*/}
-                    </>
+                {/*   </>
                   ))}
-                </InfiniteScroll>
+                </InfiniteScroll>*/}
               </Box>
             </Grid>
             <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
