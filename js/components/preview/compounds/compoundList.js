@@ -95,26 +95,6 @@ export const CompoundList = memo(({ height }) => {
               <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
                 <InfiniteScroll
                   pageStart={0}
-                  loadMore={() => {
-                    console.log('Load more');
-                    dispatch(loadNextPageOfCompounds());
-                  }}
-                  hasMore={canLoadMoreCompounds}
-                  loader={
-                    <div className="loader" key={0}>
-                      <div className={classes.paddingProgress}>
-                        <CircularProgress />
-                      </div>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
-                    return <CompoundView key={index} id={index} height={100} width={100} data={data} />;
-                  })}
-                </InfiniteScroll>
-                {/*<InfiniteScroll
-                  pageStart={0}
                   loadMore={() => dispatch(loadNextPageOfCompounds())}
                   hasMore={canLoadMoreCompounds}
                   loader={
@@ -126,15 +106,10 @@ export const CompoundList = memo(({ height }) => {
                   }
                   useWindow={false}
                 >
-                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => (
-                    <>
-                      <div key={index} style={{ width: '100px', height: '100px' }}>
-                        {index}
-                      </div>
-                      {/*<CompoundView key={index} id={index} height={100} width={100} data={data} />*/}
-                {/*   </>
-                  ))}
-                </InfiniteScroll>*/}
+                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
+                    return <CompoundView key={index} height={100} width={100} data={data} />;
+                  })}
+                </InfiniteScroll>
               </Box>
             </Grid>
             <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>

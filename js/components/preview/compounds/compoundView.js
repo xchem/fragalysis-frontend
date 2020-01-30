@@ -15,6 +15,7 @@ import { generateCompoundMolObject } from '../../nglView/generatingObjects';
 import { updateCurrentCompound } from './redux/actions';
 import { handleClickOnCompound } from '../../../reducers/selection/selectors';
 import { loadingCompoundImage } from './redux/reducer';
+import { compoundsColors } from './redux/constants';
 
 const CompoundView = memo(
   ({
@@ -47,7 +48,7 @@ const CompoundView = memo(
     let url = undefined;
     let key = undefined;
     const [isHighlighted, setIsHighlighted] = useState(false);
-    const [compoundClass, setCompoundClass] = useState();
+    //    const [compoundClass, setCompoundClass] = useState();
     const [isConfOn, setIsConfOn] = useState(false);
     const refOnCancel = useRef();
     const [conf, setConf] = useState(false);
@@ -55,7 +56,6 @@ const CompoundView = memo(
     const setOldUrl = newUrl => {
       oldUrl.current = newUrl;
     };
-    const [img_data, setImg_data] = useState(img_data_init);
 
     // tu je key, nie je tu vlastny loader
     const base_url = window.location.protocol + '//' + window.location.host;
@@ -82,7 +82,7 @@ const CompoundView = memo(
           break;
         }
       }
-      setCompoundClass(compoundClassTemp);
+      //   setCompoundClass(compoundClassTemp);
     }, [highlightedCompound.smiles, send_obj.smiles, to_buy_list]);
 
     const handleConf = () => {
@@ -133,7 +133,7 @@ const CompoundView = memo(
           height,
           key,
           old_url: oldUrl.current,
-          setImg_data: image => updateCurrentCompound({ id, key: 'image', value: image }),
+          setImg_data: image => updateCurrentCompound({ id: data.index, key: 'image', value: image }),
           setOld_url: newUrl => setOldUrl(newUrl),
           url,
           cancel: onCancel
@@ -150,7 +150,7 @@ const CompoundView = memo(
           refOnCancel.current();
         }
       };
-    }, [height, key, url, width, checkInList, to_buy_list.length, updateCurrentCompound, id]);
+    }, [height, key, url, width, checkInList, to_buy_list.length, updateCurrentCompound, id, data.index]);
 
     useEffect(() => {
       checkInList();
@@ -163,10 +163,9 @@ const CompoundView = memo(
     if (isHighlighted === true) {
       current_style = Object.assign(current_style, highlightedCompStyle);
     }
-    if (compoundClass !== 0) {
-      const colourList = ['null', '#b3cde3', '#fbb4ae', '#ccebc5', '#decbe4', '#fed9a6'];
+    if (data.selectedClass) {
       current_style = Object.assign(current_style, {
-        backgroundColor: colourList[compoundClass]
+        backgroundColor: compoundsColors[data.selectedClass].color
       });
     }
     return (
