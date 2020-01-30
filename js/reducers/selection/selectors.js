@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { loadingCompoundImage } from '../../components/preview/compounds/redux/reducer';
 
 const getToSelect = state => state.selectionReducers.to_select;
 const getToQuery = state => state.selectionReducers.to_query;
@@ -23,15 +24,16 @@ export const getCompoundsList = createSelector(
       const vector_smi = thisVectorList[key].vector;
       const change_list = thisVectorList[key].addition;
       change_list.forEach((data_transfer, index) => {
-        const input_data = {};
-        input_data.smiles = data_transfer && data_transfer.end;
+        const inputData = {};
+        inputData.smiles = data_transfer && data_transfer.end;
         // Set this back for now - because it's confusing - alter to change if want later
-        input_data.show_frag = data_transfer && data_transfer.end;
-        input_data.vector = vector_smi;
-        input_data.mol = to_query;
-        input_data.index = index;
-        input_data.class = currentCompoundClass;
-        compoundsList.push(input_data);
+        inputData.show_frag = data_transfer && data_transfer.end;
+        inputData.vector = vector_smi;
+        inputData.mol = to_query;
+        inputData.index = index;
+        inputData.selectedClass = undefined;
+        inputData.image = loadingCompoundImage;
+        compoundsList.push(inputData);
       });
     });
 

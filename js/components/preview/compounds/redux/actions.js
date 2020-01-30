@@ -13,3 +13,12 @@ export const setCurrentPage = page => ({
 export const resetCurrentCompoundsSettings = () => ({
   type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
 });
+
+export const updateCurrentCompound = ({ id, key, value }) => ({
+  type: constants.UPDATE_COMPOUND,
+  payload: {
+    id,
+    key,
+    value
+  }
+});
