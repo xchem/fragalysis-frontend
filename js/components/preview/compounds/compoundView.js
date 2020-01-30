@@ -175,7 +175,7 @@ const CompoundView = memo(
         // onClick={event => dispatch(handleClickOnCompound({ event, send_obj, setIsConfOn, isConfOn }))}
         style={current_style}
       >
-        <SVGInline svg={data.image} />
+        {data.image && <SVGInline svg={data.image} />}
       </div>
     );
   }
