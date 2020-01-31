@@ -155,21 +155,6 @@ export const removeFromVectorOnList = function(item) {
   };
 };
 
-export const setCompoundClasses = function(compoundClasses, currentCompoundClass) {
-  return {
-    type: SET_COMPOUND_CLASSES,
-    compoundClasses: compoundClasses,
-    currentCompoundClass: currentCompoundClass
-  };
-};
-
-export const setHighlighted = function(item) {
-  return {
-    type: SET_HIGHLIGHTED,
-    highlightedCompound: item
-  };
-};
-
 export const reloadSelectionReducer = function(savedSelectionReducers) {
   return {
     type: RELOAD_SELECTION_REDUCER,

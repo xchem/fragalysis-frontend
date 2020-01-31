@@ -22,3 +22,18 @@ export const updateCurrentCompound = ({ id, key, value }) => ({
     value
   }
 });
+
+export const setCompoundClasses = (compoundClasses, currentCompoundClass) => {
+  return {
+    type: constants.SET_COMPOUND_CLASSES,
+    compoundClasses: compoundClasses,
+    currentCompoundClass: currentCompoundClass
+  };
+};
+
+export const setHighlighted = item => {
+  return {
+    type: constants.SET_HIGHLIGHTED,
+    highlightedCompound: item
+  };
+};
