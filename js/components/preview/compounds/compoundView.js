@@ -98,7 +98,7 @@ const CompoundView = memo(
           throw error;
         });
         if (to_buy_list.length !== 0) {
-          checkInList();
+          //  checkInList();
         }
         refOnCancel.current = onCancel;
       }
@@ -107,11 +107,20 @@ const CompoundView = memo(
           refOnCancel.current();
         }
       };
-    }, [height, key, url, width, checkInList, to_buy_list.length, updateCurrentCompound, id, data.index]);
-
+    }, [
+      height,
+      key,
+      url,
+      width, // checkInList,
+      to_buy_list.length,
+      updateCurrentCompound,
+      id,
+      data.index
+    ]);
+    /*
     useEffect(() => {
       checkInList();
-    }, [checkInList]);
+    }, [checkInList]);*/
 
     let current_style = Object.assign({}, not_selected_style);
     if (isCompoundShowed === true) {
