@@ -119,11 +119,16 @@ const CompoundView = memo(
       height: (height + 5).toString() + 'px',
       display: 'inline-block'
     };
-    const conf_on_style = { opacity: '0.3', borderStyle: 'solid' };
+    const showedStyle = { opacity: '0.25' };
+    const conf_on_style = { borderStyle: 'solid' };
 
     let current_style = Object.assign({}, not_selected_style);
     if (data && data.isShowed === true) {
-      current_style = Object.assign(current_style, conf_on_style);
+      current_style = Object.assign(current_style, showedStyle);
+    }
+
+    if (data && data.isShowed === true) {
+      current_style = Object.assign(current_style, showedStyle);
     }
 
     if (data && data.selectedClass) {
