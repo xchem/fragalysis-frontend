@@ -4,7 +4,8 @@ import {
   setCurrentPage,
   addHighlightedCompoundID,
   updateCurrentCompound,
-  removeHighlightedCompoundID
+  removeHighlightedCompoundID,
+  setHighlightedCompoundId
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -104,7 +105,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
 
-  dispatch(updateCurrentCompound({ id: data.index, key: 'isHighlighted', value: !currentCompounds.isHighlighted }));
+  dispatch(setHighlightedCompoundId(data.index));
 
   if (event.shiftKey) {
     dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds.isShowed }));
