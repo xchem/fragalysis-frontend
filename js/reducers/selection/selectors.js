@@ -4,7 +4,7 @@ import { loadingCompoundImage } from '../../components/preview/compounds/redux/r
 const getToSelect = state => state.selectionReducers.to_select;
 const getToQuery = state => state.selectionReducers.to_query;
 const getThisVectorList = state => state.selectionReducers.this_vector_list;
-const getCurrentCompoundClass = state => state.selectionReducers.currentCompoundClass;
+const getCurrentCompoundClass = state => state.previewReducers.compounds.currentCompoundClass;
 
 export const getTotalCountOfMolecules = createSelector(getToSelect, to_select => {
   let tot_num = 0;

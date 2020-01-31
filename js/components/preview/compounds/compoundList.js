@@ -44,8 +44,8 @@ export const CompoundList = memo(({ height }) => {
   const dispatch = useDispatch();
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
-  const compoundClasses = useSelector(state => state.selectionReducers.compoundClasses);
-  const currentCompoundClass = useSelector(state => state.selectionReducers.currentCompoundClass);
+  const compoundClasses = useSelector(state => state.previewReducers.compounds.compoundClasses);
+  const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
   const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
   const querying = useSelector(state => state.selectionReducers.querying);
