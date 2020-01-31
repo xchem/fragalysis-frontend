@@ -127,7 +127,7 @@ const CompoundView = memo(
     if (isCompoundShowed === true) {
       current_style = Object.assign(current_style, conf_on_style);
     }
-    if (isHighlighted === true) {
+    if (highlightedCompound.index === data.index) {
       current_style = Object.assign(current_style, highlightedCompStyle);
     }
     if (data.selectedClass) {
@@ -135,6 +135,7 @@ const CompoundView = memo(
         backgroundColor: compoundsColors[data.selectedClass].color
       });
     }
+    console.log(current_style);
     return (
       <div
         onClick={event =>
