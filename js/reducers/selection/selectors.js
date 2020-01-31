@@ -34,7 +34,6 @@ export const getAllCompoundsList = createSelector(
         inputData.selectedClass = undefined;
         inputData.image = loadingCompoundImage;
         inputData.isShowed = false;
-        inputData.isHighlighted = false;
         compoundsList.push(inputData);
       });
     });
