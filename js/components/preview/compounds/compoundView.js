@@ -64,6 +64,7 @@ const CompoundView = memo(
       Object.keys(get_params).forEach(p => url.searchParams.append(p, get_params[p]));
     }
 
+    /*
     const checkInList = useCallback(() => {
       let isHighlightedTemp = false;
       if (highlightedCompound.smiles === send_obj.smiles) {
@@ -80,7 +81,7 @@ const CompoundView = memo(
       }
       //   setCompoundClass(compoundClassTemp);
     }, [highlightedCompound.smiles, send_obj.smiles, to_buy_list]);
-
+*/
     // componentDidMount
     useEffect(() => {
       if (refOnCancel.current === undefined) {
