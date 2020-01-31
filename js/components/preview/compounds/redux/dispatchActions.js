@@ -101,19 +101,21 @@ export const handleClickOnCompound = ({ data, event, setIsCompoundShowed, isComp
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
 
+  /*
   dispatch(
     setHighlighted({
       index: data.index,
       smiles: data.smiles
     })
   );
-  dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: currentCompoundClass }));
+*/
 
   if (event.shiftKey) {
     setIsCompoundShowed(!isCompoundShowed);
     dispatch(showCompoundNglView({ majorViewStage, data }));
   } else {
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
+      await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: undefined }));
       dispatch(removeFromToBuyList(data));
     } else {
       await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: currentCompoundClass }));

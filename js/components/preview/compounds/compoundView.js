@@ -135,7 +135,7 @@ const CompoundView = memo(
         backgroundColor: compoundsColors[data.selectedClass].color
       });
     }
-    console.log(current_style);
+
     return (
       <div
         onClick={event =>
