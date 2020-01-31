@@ -107,6 +107,8 @@ export const handleClickOnCompound = ({ data, event, setIsCompoundShowed, isComp
       smiles: data.smiles
     })
   );
+  dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: currentCompoundClass }));
+
   if (event.shiftKey) {
     setIsCompoundShowed(!isCompoundShowed);
     dispatch(showCompoundNglView({ majorViewStage, data }));
@@ -114,7 +116,7 @@ export const handleClickOnCompound = ({ data, event, setIsCompoundShowed, isComp
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
       dispatch(removeFromToBuyList(data));
     } else {
-      await updateCurrentCompound({ id: data.index, key: 'selectedClass', value: currentCompoundClass });
+      await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: currentCompoundClass }));
       dispatch(appendToBuyList(data));
     }
   }
