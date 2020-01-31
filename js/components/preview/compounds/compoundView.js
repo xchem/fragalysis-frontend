@@ -127,7 +127,7 @@ const CompoundView = memo(
     if (isCompoundShowed === true) {
       current_style = Object.assign(current_style, conf_on_style);
     }
-    if (highlightedCompound.index === data.index) {
+    if (highlightedCompound && data && highlightedCompound.index === data.index) {
       current_style = Object.assign(current_style, highlightedCompStyle);
     }
     if (data.selectedClass) {
