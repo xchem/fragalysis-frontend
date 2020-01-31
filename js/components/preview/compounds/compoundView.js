@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useRef, useCallback, useEffect, useContext } from 'react';
+import React, { memo, useState, useRef, useEffect, useContext } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import * as selectionActions from '../../../reducers/selection/selectionActions';
 import SVGInline from 'react-svg-inline';
@@ -9,7 +9,7 @@ import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActio
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
-import { updateCurrentCompound, setHighlighted } from './redux/actions';
+import { updateCurrentCompound } from './redux/actions';
 import { compoundsColors } from './redux/constants';
 import { handleClickOnCompound } from './redux/dispatchActions';
 
@@ -17,13 +17,11 @@ const CompoundView = memo(
   ({
     to_buy_list,
     to_query_sdf_info,
-    highlightedCompound,
     currentCompoundClass,
     loadObject,
     deleteObject,
     removeFromToBuyList,
     appendToBuyList,
-    setHighlighted,
     height,
     width,
     data,
@@ -33,19 +31,13 @@ const CompoundView = memo(
     const dispatch = useDispatch();
     const { getNglView } = useContext(NglContext);
     const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
-    const not_selected_style = {
-      width: (width + 5).toString() + 'px',
-      height: (height + 5).toString() + 'px',
-      display: 'inline-block'
-    };
+
     const send_obj = data;
-    const conf_on_style = { opacity: '0.3' };
-    const highlightedCompStyle = { borderStyle: 'solid' };
+
     let url = undefined;
     let key = undefined;
-    const [isHighlighted, setIsHighlighted] = useState(false);
+    // const [isHighlighted, setIsHighlighted] = useState(false);
     //    const [compoundClass, setCompoundClass] = useState();
-    const [isCompoundShowed, setIsCompoundShowed] = useState(false);
     const refOnCancel = useRef();
     const [conf, setConf] = useState(false);
     const oldUrl = useRef('');
@@ -122,27 +114,26 @@ const CompoundView = memo(
     useEffect(() => {
       checkInList();
     }, [checkInList]);*/
+    const not_selected_style = {
+      width: (width + 5).toString() + 'px',
+      height: (height + 5).toString() + 'px',
+      display: 'inline-block'
+    };
+    const conf_on_style = { opacity: '0.3', borderStyle: 'solid' };
 
     let current_style = Object.assign({}, not_selected_style);
-    if (isCompoundShowed === true) {
+    if (data && data.isShowed === true) {
       current_style = Object.assign(current_style, conf_on_style);
     }
-    if (highlightedCompound && data && highlightedCompound.index === data.index) {
-      current_style = Object.assign(current_style, highlightedCompStyle);
-    }
-    if (data.selectedClass) {
+
+    if (data && data.selectedClass) {
       current_style = Object.assign(current_style, {
         backgroundColor: compoundsColors[data.selectedClass].color
       });
     }
 
     return (
-      <div
-        onClick={event =>
-          dispatch(handleClickOnCompound({ event, data, setIsCompoundShowed, isCompoundShowed, majorViewStage }))
-        }
-        style={current_style}
-      >
+      <div onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage }))} style={current_style}>
         {data.image && <SVGInline svg={data.image} />}
       </div>
     );
@@ -153,7 +144,6 @@ function mapStateToProps(state) {
   return {
     to_buy_list: state.selectionReducers.to_buy_list,
     to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
-    highlightedCompound: state.selectionReducers.highlightedCompound,
     currentCompoundClass: state.previewReducers.compounds.currentCompoundClass
   };
 }
@@ -163,7 +153,6 @@ const mapDispatchToProps = {
   deleteObject,
   removeFromToBuyList: selectionActions.removeFromToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
-  setHighlighted,
   updateCurrentCompound
 };
 
