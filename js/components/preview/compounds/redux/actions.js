@@ -30,10 +30,3 @@ export const setCompoundClasses = (compoundClasses, currentCompoundClass) => {
     currentCompoundClass: currentCompoundClass
   };
 };
-
-export const setHighlighted = item => {
-  return {
-    type: constants.SET_HIGHLIGHTED,
-    highlightedCompound: item
-  };
-};
