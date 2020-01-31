@@ -16,7 +16,8 @@ export const INITIAL_STATE = {
       mol:"CCNC(=O)Nc1cc(C)on1",
       index:0,
       selectedClass: undefined,
-      image: loadingCompoundImage
+      image: loadingCompoundImage,
+      isShowed: false
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,
@@ -26,8 +27,7 @@ export const INITIAL_STATE = {
     [compoundsColors.green.key]: undefined,
     [compoundsColors.purple.key]: undefined,
     [compoundsColors.apricot.key]: undefined
-  },
-  highlightedCompound: {}
+  }
 };
 
 export const compounds = (state = INITIAL_STATE, action = {}) => {
@@ -52,11 +52,6 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         compoundClasses: action.compoundClasses,
         currentCompoundClass: action.currentCompoundClass
-      });
-
-    case constants.SET_HIGHLIGHTED:
-      return Object.assign({}, state, {
-        highlightedCompound: action.highlightedCompound
       });
 
     default:
