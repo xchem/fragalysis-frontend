@@ -120,15 +120,15 @@ const CompoundView = memo(
       display: 'inline-block'
     };
     const showedStyle = { opacity: '0.25' };
-    const conf_on_style = { borderStyle: 'solid' };
+    const highlightedStyle = { borderStyle: 'solid' };
 
     let current_style = Object.assign({}, not_selected_style);
     if (data && data.isShowed === true) {
       current_style = Object.assign(current_style, showedStyle);
     }
 
-    if (data && data.isShowed === true) {
-      current_style = Object.assign(current_style, showedStyle);
+    if (data && data.isHighlighted === true) {
+      current_style = Object.assign(current_style, highlightedStyle);
     }
 
     if (data && data.selectedClass) {
