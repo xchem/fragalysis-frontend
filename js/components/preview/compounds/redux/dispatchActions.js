@@ -104,6 +104,8 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
 
+  dispatch(updateCurrentCompound({ id: data.index, key: 'isHighlighted', value: !currentCompounds.isHighlighted }));
+
   if (event.shiftKey) {
     dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds.isShowed }));
     dispatch(showCompoundNglView({ majorViewStage, data }));
