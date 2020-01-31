@@ -144,7 +144,7 @@ export const updateSummaryView = ({ duck_yank_data, to_buy_list }) => dispatch =
 };
 
 const convert_data_to_list = input_list => (dispatch, getState) => {
-  const compoundClasses = getState().selectionReducers.compoundClasses;
+  const compoundClasses = getState().previewReducers.compounds.compoundClasses;
   const classColors = {
     1: 'blue',
     2: 'red',
