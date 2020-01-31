@@ -27,7 +27,8 @@ export const INITIAL_STATE = {
     [compoundsColors.green.key]: undefined,
     [compoundsColors.purple.key]: undefined,
     [compoundsColors.apricot.key]: undefined
-  }
+  },
+  highlightedCompoundId: undefined
 };
 
 export const compounds = (state = INITIAL_STATE, action = {}) => {
@@ -53,6 +54,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
         compoundClasses: action.compoundClasses,
         currentCompoundClass: action.currentCompoundClass
       });
+
+    case constants.SET_HIGHLIGHTED_COMPOUND_ID:
+      return Object.assign({}, state, { highlightedCompoundId: action.payload });
 
     default:
       return state;
