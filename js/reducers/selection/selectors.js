@@ -33,6 +33,7 @@ export const getAllCompoundsList = createSelector(
         inputData.index = index;
         inputData.selectedClass = undefined;
         inputData.image = loadingCompoundImage;
+        inputData.isShowed = false;
         compoundsList.push(inputData);
       });
     });

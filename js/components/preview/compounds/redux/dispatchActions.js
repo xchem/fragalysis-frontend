@@ -1,5 +1,11 @@
 import { appendToBuyList, removeFromToBuyList, setToBuyList } from '../../../../reducers/selection/selectionActions';
-import { setCompoundClasses, setCurrentPage, setHighlighted, updateCurrentCompound } from './actions';
+import {
+  setCompoundClasses,
+  setCurrentPage,
+  addHighlightedCompoundID,
+  updateCurrentCompound,
+  removeHighlightedCompoundID
+} from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../../constants/constants';
 import { generateCompoundMolObject } from '../../../nglView/generatingObjects';
@@ -93,25 +99,13 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
   }
 };
 
-export const handleClickOnCompound = ({ data, event, setIsCompoundShowed, isCompoundShowed, majorViewStage }) => async (
-  dispatch,
-  getState
-) => {
+export const handleClickOnCompound = ({ data, event, majorViewStage }) => async (dispatch, getState) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
 
-  /*
-  dispatch(
-    setHighlighted({
-      index: data.index,
-      smiles: data.smiles
-    })
-  );
-*/
-
   if (event.shiftKey) {
-    setIsCompoundShowed(!isCompoundShowed);
+    dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds.isShowed }));
     dispatch(showCompoundNglView({ majorViewStage, data }));
   } else {
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
