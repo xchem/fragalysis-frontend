@@ -30,3 +30,5 @@ export const setCompoundClasses = (compoundClasses, currentCompoundClass) => {
     currentCompoundClass: currentCompoundClass
   };
 };
+
+export const setHighlightedCompoundId = id => ({ type: constants.SET_HIGHLIGHTED_COMPOUND_ID, payload: id });

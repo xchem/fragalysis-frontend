@@ -26,7 +26,8 @@ const CompoundView = memo(
     width,
     data,
     id,
-    updateCurrentCompound
+    updateCurrentCompound,
+    highlightedCompoundId
   }) => {
     const dispatch = useDispatch();
     const { getNglView } = useContext(NglContext);
@@ -127,7 +128,7 @@ const CompoundView = memo(
       current_style = Object.assign(current_style, showedStyle);
     }
 
-    if (data && data.isHighlighted === true) {
+    if (data && data.index === highlightedCompoundId) {
       current_style = Object.assign(current_style, highlightedStyle);
     }
 
@@ -149,7 +150,8 @@ function mapStateToProps(state) {
   return {
     to_buy_list: state.selectionReducers.to_buy_list,
     to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
-    currentCompoundClass: state.previewReducers.compounds.currentCompoundClass
+    currentCompoundClass: state.previewReducers.compounds.currentCompoundClass,
+    highlightedCompoundId: state.previewReducers.compounds.highlightedCompoundId
   };
 }
 
