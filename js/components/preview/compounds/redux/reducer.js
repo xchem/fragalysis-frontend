@@ -1,4 +1,5 @@
-import { constants } from './constants';
+import { compoundsColors, constants } from './constants';
+import * as actions from '../../../../reducers/actonTypes';
 
 export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100px" height="100px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -17,7 +18,16 @@ export const INITIAL_STATE = {
       selectedClass: undefined,
       image: loadingCompoundImage
    }] */
-  currentCompounds: []
+  currentCompounds: [],
+  currentCompoundClass: compoundsColors.blue.key,
+  compoundClasses: {
+    [compoundsColors.blue.key]: undefined,
+    [compoundsColors.red.key]: undefined,
+    [compoundsColors.green.key]: undefined,
+    [compoundsColors.purple.key]: undefined,
+    [compoundsColors.apricot.key]: undefined
+  },
+  highlightedCompound: {}
 };
 
 export const compounds = (state = INITIAL_STATE, action = {}) => {
@@ -37,6 +47,17 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.RESET_CURRENT_COMPOUNDS_SETTINGS:
       return Object.assign({}, INITIAL_STATE);
+
+    case constants.SET_COMPOUND_CLASSES:
+      return Object.assign({}, state, {
+        compoundClasses: action.compoundClasses,
+        currentCompoundClass: action.currentCompoundClass
+      });
+
+    case constants.SET_HIGHLIGHTED:
+      return Object.assign({}, state, {
+        highlightedCompound: action.highlightedCompound
+      });
 
     default:
       return state;

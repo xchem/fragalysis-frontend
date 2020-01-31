@@ -3,7 +3,6 @@
  */
 import * as actions from '../actonTypes';
 import { constants } from './selectionConstants';
-import { compoundsColors } from '../../components/preview/compounds/redux/constants';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
@@ -20,15 +19,6 @@ export const INITIAL_STATE = {
   complexList: [],
   vectorOnList: [],
   currentVector: undefined,
-  highlightedCompound: {},
-  compoundClasses: {
-    [compoundsColors.blue.key]: undefined,
-    [compoundsColors.red.key]: undefined,
-    [compoundsColors.green.key]: undefined,
-    [compoundsColors.purple.key]: undefined,
-    [compoundsColors.apricot.key]: undefined
-  },
-  currentCompoundClass: compoundsColors.blue.key,
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined
@@ -187,17 +177,6 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedVectorOnList = new Set(state.vectorOnList);
       diminishedVectorOnList.delete(action.item.id);
       return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList], currentVector: undefined });
-
-    case actions.SET_HIGHLIGHTED:
-      return Object.assign({}, state, {
-        highlightedCompound: action.highlightedCompound
-      });
-
-    case actions.SET_COMPOUND_CLASSES:
-      return Object.assign({}, state, {
-        compoundClasses: action.compoundClasses,
-        currentCompoundClass: action.currentCompoundClass
-      });
 
     case actions.SET_BOND_COLOR_MAP:
       return Object.assign({}, state, {

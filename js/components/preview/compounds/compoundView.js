@@ -8,14 +8,10 @@ import SVGInline from 'react-svg-inline';
 import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
-import { api, getCsrfToken, METHOD } from '../../../utils/api';
-import { img_data_init } from '../molecule/moleculeView';
 import { NglContext } from '../../nglView/nglProvider';
-import { generateCompoundMolObject } from '../../nglView/generatingObjects';
-import { updateCurrentCompound } from './redux/actions';
-import { handleClickOnCompound } from '../../../reducers/selection/selectors';
-import { loadingCompoundImage } from './redux/reducer';
+import { updateCurrentCompound, setHighlighted } from './redux/actions';
 import { compoundsColors } from './redux/constants';
+import { handleClickOnCompound } from './redux/dispatchActions';
 
 const CompoundView = memo(
   ({
@@ -49,7 +45,7 @@ const CompoundView = memo(
     let key = undefined;
     const [isHighlighted, setIsHighlighted] = useState(false);
     //    const [compoundClass, setCompoundClass] = useState();
-    const [isConfOn, setIsConfOn] = useState(false);
+    const [isCompoundShowed, setIsCompoundShowed] = useState(false);
     const refOnCancel = useRef();
     const [conf, setConf] = useState(false);
     const oldUrl = useRef('');
@@ -85,45 +81,6 @@ const CompoundView = memo(
       //   setCompoundClass(compoundClassTemp);
     }, [highlightedCompound.smiles, send_obj.smiles, to_buy_list]);
 
-    const handleConf = () => {
-      if (isConfOn) {
-        deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(conf, data.smiles)),
-          majorViewStage
-        );
-      } else {
-        // This needs currying
-        var post_data = {
-          INPUT_VECTOR: send_obj.vector,
-          INPUT_SMILES: [send_obj.smiles],
-          INPUT_MOL_BLOCK: to_query_sdf_info
-        };
-        api({
-          url: base_url + '/scoring/gen_conf_from_vect/',
-          method: METHOD.POST,
-          headers: {
-            accept: 'application/json',
-            'content-type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': getCsrfToken()
-          },
-          data: JSON.stringify(post_data)
-        })
-          .then(response => {
-            // Now load this into NGL
-            const newConf = response.data[0];
-            loadObject(
-              Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(newConf, data.smiles)),
-              majorViewStage
-            );
-            setConf(newConf);
-          })
-          .catch(error => {
-            throw error;
-          });
-      }
-    };
-
     // componentDidMount
     useEffect(() => {
       if (refOnCancel.current === undefined) {
@@ -157,7 +114,7 @@ const CompoundView = memo(
     }, [checkInList]);
 
     let current_style = Object.assign({}, not_selected_style);
-    if (isConfOn === true) {
+    if (isCompoundShowed === true) {
       current_style = Object.assign(current_style, conf_on_style);
     }
     if (isHighlighted === true) {
@@ -170,7 +127,9 @@ const CompoundView = memo(
     }
     return (
       <div
-        // onClick={event => dispatch(handleClickOnCompound({ event, send_obj, setIsConfOn, isConfOn }))}
+        onClick={event =>
+          dispatch(handleClickOnCompound({ event, data, setIsCompoundShowed, isCompoundShowed, majorViewStage }))
+        }
         style={current_style}
       >
         {data.image && <SVGInline svg={data.image} />}
@@ -184,7 +143,7 @@ function mapStateToProps(state) {
     to_buy_list: state.selectionReducers.to_buy_list,
     to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
     highlightedCompound: state.selectionReducers.highlightedCompound,
-    currentCompoundClass: state.selectionReducers.currentCompoundClass
+    currentCompoundClass: state.previewReducers.compounds.currentCompoundClass
   };
 }
 
@@ -193,7 +152,7 @@ const mapDispatchToProps = {
   deleteObject,
   removeFromToBuyList: selectionActions.removeFromToBuyList,
   appendToBuyList: selectionActions.appendToBuyList,
-  setHighlighted: selectionActions.setHighlighted,
+  setHighlighted,
   updateCurrentCompound
 };
 
