@@ -3,7 +3,7 @@
  */
 import React, { memo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import CompoundView from './compoundView';
+import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
 import { Grid, Box, makeStyles, TextField, useTheme, CircularProgress } from '@material-ui/core';
