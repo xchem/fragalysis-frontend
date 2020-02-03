@@ -10,16 +10,12 @@ import {
   setNglOrientation,
   setNglViewParams,
   setProteinLoadingState
-} from './nglActions';
+} from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { SCENES } from './nglConstants';
+import { SCENES } from './constants';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 import { SELECTION_TYPE } from '../../components/nglView/constants';
-import {
-  removeFromComplexList,
-  removeFromFragmentDisplayList,
-  removeFromVectorOnList
-} from '../selection/selectionActions';
+import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
 export const loadObject = (target, stage, previousRepresentations) => dispatch => {

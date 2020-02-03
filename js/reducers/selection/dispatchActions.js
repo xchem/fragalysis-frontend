@@ -1,5 +1,5 @@
 import { resetCurrentCompoundsSettings, setCurrentCompounds } from '../../components/preview/compounds/redux/actions';
-import { selectVector } from './selectionActions';
+import { selectVector } from './actions';
 import { getAllCompoundsList } from './selectors';
 
 export const selectVectorAndResetCompounds = currentVector => async (dispatch, getState) => {

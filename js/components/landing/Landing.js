@@ -6,8 +6,8 @@ import React, { memo, useEffect } from 'react';
 import TargetList from '../target/targetList';
 import SessionList from '../session/sessionList';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/apiActions';
-import * as selectionActions from '../../reducers/selection/selectionActions';
+import * as apiActions from '../../reducers/api/actions';
+import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {

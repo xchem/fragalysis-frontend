@@ -5,9 +5,9 @@
 import { Stage } from 'ngl';
 import React, { memo, useEffect, useCallback, useContext, useState } from 'react';
 import { connect } from 'react-redux';
-import * as nglActions from '../../reducers/ngl/nglActions';
-import * as nglDispatchActions from '../../reducers/ngl/nglDispatchActions';
-import * as selectionActions from '../../reducers/selection/selectionActions';
+import * as nglActions from '../../reducers/ngl/actions';
+import * as nglDispatchActions from '../../reducers/ngl/dispatchActions';
+import * as selectionActions from '../../reducers/selection/actions';
 import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { throttle } from 'lodash';

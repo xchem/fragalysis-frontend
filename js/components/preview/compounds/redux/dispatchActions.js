@@ -1,4 +1,4 @@
-import { appendToBuyList, removeFromToBuyList, setToBuyList } from '../../../../reducers/selection/selectionActions';
+import { appendToBuyList, removeFromToBuyList, setToBuyList } from '../../../../reducers/selection/actions';
 import {
   setCompoundClasses,
   setCurrentPage,
@@ -6,7 +6,7 @@ import {
   setHighlightedCompoundId,
   setConfiguration
 } from './actions';
-import { deleteObject, loadObject } from '../../../../reducers/ngl/nglDispatchActions';
+import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
 import { generateCompoundMolObject } from '../../../nglView/generatingObjects';
 import { api, getCsrfToken, METHOD } from '../../../../utils/api';

@@ -7,8 +7,8 @@ import {
   reloadNglViewFromScene,
   setOrientation,
   setProteinsHasLoaded
-} from './nglDispatchActions';
-import { CONSTANTS, SCENES } from './nglConstants';
+} from './dispatchActions';
+import { CONSTANTS, SCENES } from './constants';
 import { getAction, getActionType } from '../../utils/testUtils';
 import {
   decrementCountOfPendingNglObjects,
@@ -21,13 +21,9 @@ import {
   saveCurrentStateAsDefaultScene,
   setNglOrientation,
   setProteinLoadingState
-} from './nglActions';
+} from './actions';
 import { OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
-import {
-  removeFromComplexList,
-  removeFromFragmentDisplayList,
-  removeFromVectorOnList
-} from '../selection/selectionActions';
+import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 const { fn } = jest;
 
 describe("testing ngl reducer's async actions", () => {
