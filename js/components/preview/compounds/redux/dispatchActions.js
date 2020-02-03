@@ -67,7 +67,7 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
       deleteObject(
         Object.assign(
           { display_div: VIEWS.MAJOR_VIEW },
-          generateCompoundMolObject(configuration[data.index], data.smiles)
+          generateCompoundMolObject(configuration[data.index] || false, data.smiles)
         ),
         majorViewStage
       )
@@ -115,8 +115,8 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   dispatch(setHighlightedCompoundId(data.index));
 
   if (event.shiftKey) {
+    await dispatch(showCompoundNglView({ majorViewStage, data }));
     dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds[data.index].isShowed }));
-    dispatch(showCompoundNglView({ majorViewStage, data }));
   } else {
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
       await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: undefined }));
