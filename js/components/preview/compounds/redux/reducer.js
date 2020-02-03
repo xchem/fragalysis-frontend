@@ -28,7 +28,11 @@ export const INITIAL_STATE = {
     [compoundsColors.purple.key]: undefined,
     [compoundsColors.apricot.key]: undefined
   },
-  highlightedCompoundId: undefined
+  highlightedCompoundId: undefined,
+  // configuration: {
+  //  [id]: undefined
+  // }
+  configuration: {}
 };
 
 export const compounds = (state = INITIAL_STATE, action = {}) => {
@@ -57,6 +61,11 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_HIGHLIGHTED_COMPOUND_ID:
       return Object.assign({}, state, { highlightedCompoundId: action.payload });
+
+    case constants.SET_CONFIGURATION:
+      const currentConfiguration = JSON.parse(JSON.stringify(state.configuration));
+      currentConfiguration[action.payload.id] = action.payload.data;
+      return Object.assign({}, state, { configuration: currentConfiguration });
 
     default:
       return state;
