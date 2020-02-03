@@ -1,5 +1,5 @@
 import selectionReducer, { INITIAL_STATE } from './selectionReducers';
-import * as selectionActions from './selectionActions';
+import * as selectionActions from './actions';
 
 describe("testing selection reducer's actions", () => {
   let initialState = selectionReducer(INITIAL_STATE, {});
@@ -186,33 +186,6 @@ describe("testing selection reducer's actions", () => {
     result = selectionReducer(initialState, selectionActions.removeFromVectorOnList(newItem));
     expect(result.vectorOnList).not.toContain(newItem.id);
     expect(result.currentVector).toBeUndefined();
-  });
-
-  it('should set compound classes', () => {
-    expect.hasAssertions();
-    const compoundClasses = {
-      1: 'Red',
-      2: 'Green',
-      3: 'Blue'
-    };
-    const currentCompoundClass = 3;
-    let result = selectionReducer(
-      initialState,
-      selectionActions.setCompoundClasses(compoundClasses, currentCompoundClass)
-    );
-    expect(result.compoundClasses).toStrictEqual(compoundClasses);
-    expect(result.currentCompoundClass).toStrictEqual(currentCompoundClass);
-  });
-
-  it('should set highlighted', () => {
-    expect.hasAssertions();
-    const item = {
-      index: 'send_obj.index',
-      smiles: 'send_obj.smiles'
-    };
-
-    let result = selectionReducer(initialState, selectionActions.setHighlighted(item));
-    expect(result.highlightedCompound).toStrictEqual(item);
   });
 
   it('should reload selection reducer', () => {

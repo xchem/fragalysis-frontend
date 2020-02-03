@@ -1,6 +1,6 @@
 import { generateProteinObject } from '../../nglView/generatingObjects';
 import { SUFFIX, VIEWS } from '../../../constants/constants';
-import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/nglDispatchActions';
+import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/dispatchActions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();

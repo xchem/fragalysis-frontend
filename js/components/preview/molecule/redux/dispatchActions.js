@@ -1,4 +1,4 @@
-import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/nglDispatchActions';
+import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/dispatchActions';
 import {
   appendComplexList,
   appendFragmentDisplayList,
@@ -13,7 +13,7 @@ import {
   setToQuery,
   setVectorList,
   updateFullGraph
-} from '../../../../reducers/selection/selectionActions';
+} from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
   generateArrowObject,

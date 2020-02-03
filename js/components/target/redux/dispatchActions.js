@@ -7,10 +7,10 @@ import {
   setTargetOn,
   setTargetUnrecognised,
   setUuid
-} from '../../../reducers/api/apiActions';
+} from '../../../reducers/api/actions';
 import { setOldUrl } from './actions';
 import { api } from '../../../utils/api';
-import { resetSelectionState } from '../../../reducers/selection/selectionActions';
+import { resetSelectionState } from '../../../reducers/selection/actions';
 
 export const loadTargetList = onCancel => (dispatch, getState) => {
   const oldUrl = getState().targetReducers.oldUrl;

@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import { CONSTANTS } from './nglConstants';
+import { CONSTANTS } from './constants';
 
 export const loadNglObject = (target, representations) => ({ type: CONSTANTS.LOAD_OBJECT, target, representations });
 

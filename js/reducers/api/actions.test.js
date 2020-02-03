@@ -1,5 +1,5 @@
 import apiReducers, { INITIAL_STATE, RESET_TARGET_STATE } from './apiReducers';
-import * as apiActions from './apiActions';
+import * as apiActions from './actions';
 
 describe("testing selection reducer's actions", () => {
   let initialState = apiReducers(INITIAL_STATE, {});

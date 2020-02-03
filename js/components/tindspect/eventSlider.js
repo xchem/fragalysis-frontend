@@ -3,8 +3,8 @@
  */
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/apiActions';
-import { deleteObject, loadObject } from '../../reducers/ngl/nglDispatchActions';
+import * as apiActions from '../../reducers/api/actions';
+import { deleteObject, loadObject } from '../../reducers/ngl/dispatchActions';
 import { PREFIX, VIEWS } from '../../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../../utils/genericSlider';
 import { OBJECT_TYPE } from '../nglView/constants';

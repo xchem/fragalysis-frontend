@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CmpdSummaryImage } from './CmpdSummaryImage';
 import { Button } from '../../common/Inputs/Button';

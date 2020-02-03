@@ -1,7 +1,7 @@
 import nglReducers, { INITIAL_STATE } from './nglReducers';
-import * as actions from './nglActions';
+import * as actions from './actions';
 import { NGL_PARAMS } from '../../components/nglView/constants';
-import { SCENES } from './nglConstants';
+import { SCENES } from './constants';
 
 describe("testing ngl reducer's actions", () => {
   let initialState = nglReducers(INITIAL_STATE, {});

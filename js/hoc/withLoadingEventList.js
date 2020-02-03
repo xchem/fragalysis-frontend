@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../reducers/api/apiActions';
+import * as apiActions from '../reducers/api/actions';
 import * as listType from '../constants/listTypes';
 import { getUrl, loadFromServer } from '../utils/genericList';
 
