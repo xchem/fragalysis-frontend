@@ -20,7 +20,7 @@ export const CompoundView = memo(({ height, width, data }) => {
 
   useEffect(() => {
     let onCancel = () => {};
-    loadCompoundImageData({ width, height, data, onCancel, oldUrl, setOldUrl }).catch(error => {
+    dispatch(loadCompoundImageData({ width, height, data, onCancel, oldUrl, setOldUrl })).catch(error => {
       setState(() => {
         throw error;
       });
@@ -28,7 +28,7 @@ export const CompoundView = memo(({ height, width, data }) => {
     return () => {
       onCancel();
     };
-  }, [height, width, data, oldUrl]);
+  }, [height, width, data, oldUrl, dispatch]);
 
   const not_selected_style = {
     width: (width + 5).toString() + 'px',
