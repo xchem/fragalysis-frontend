@@ -46,8 +46,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       newObjectsInView[action.target.name] = { ...action.target, representations: action.representations };
 
-      //   console.log(' LOAD_OBJECT ', newObjectsInView);
-
       return Object.assign({}, state, {
         objectsInView: newObjectsInView
       });
@@ -97,7 +95,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
       delete objectsInViewTemp[action.target.name];
 
-      console.log(' DELETE_OBJECT');
       return Object.assign({}, state, {
         objectsInView: objectsInViewTemp
       });
@@ -108,13 +105,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
       toSetDiv[div_id] = orientation;
 
-      console.log(' SET_ORIENTATION');
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
       });
 
     case CONSTANTS.SET_NGL_VIEW_PARAMS:
-      //   console.log(' SET_NGL_VIEW_PARAMS');
       const newViewParams = JSON.parse(JSON.stringify(state.viewParams));
       newViewParams[action.key] = action.value;
 
@@ -123,12 +118,10 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_DEFAULT_SCENE ');
       const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
       return Object.assign({}, state, newStateWithoutScene);
 
     case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_SESSION_SCENE');
       return Object.assign({}, state, action.payload);
 
     case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
@@ -149,8 +142,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
           return item;
         });
       });
-
-      console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
 
       return Object.assign({}, state, {
         [SCENES.defaultScene]: stateWithoutScene
@@ -174,14 +165,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         });
       });
 
-      console.log(' SAVE_NGL_STATE_AS_SESSION_SCENE');
-
       return Object.assign({}, state, {
         [SCENES.sessionScene]: stateWithoutSessionScene
       });
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
-      console.log(' REMOVE_ALL_NGL_COMPONENTS');
       if (action.stage) {
         action.stage.removeAllComponents();
       }
@@ -190,15 +178,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOADED:
-      //   console.log('SET_PROTEIN_HAS_LOAD ', action.payload);
       return Object.assign({}, state, { proteinsHasLoaded: action.payload });
 
     case CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      //    console.log('SET_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      //    console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
