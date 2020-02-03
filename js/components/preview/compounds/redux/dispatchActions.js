@@ -11,6 +11,7 @@ import { VIEWS } from '../../../../constants/constants';
 import { generateCompoundMolObject } from '../../../nglView/generatingObjects';
 import { api, getCsrfToken, METHOD } from '../../../../utils/api';
 import { base_url } from '../../../routes/constants';
+import { loadFromServer } from '../../../../utils/genericView';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
@@ -128,4 +129,28 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   }
 };
 
-export const loadCompoundImageData = () => (dispatch, getState) => {};
+export const loadCompoundImageData = ({ width, height, onCancel, data, oldUrl, setOldUrl }) => {
+  let url = undefined;
+  let key = undefined;
+
+  const base_url = window.location.protocol + '//' + window.location.host;
+  if (data.id !== undefined) {
+    url = new URL(base_url + '/api/cmpdimg/' + data.id + '/');
+    key = 'cmpd_image';
+  } else {
+    url = new URL(base_url + '/viewer/img_from_smiles/');
+    var get_params = { smiles: data.show_frag };
+    Object.keys(get_params).forEach(p => url.searchParams.append(p, get_params[p]));
+  }
+
+  return loadFromServer({
+    width,
+    height,
+    key,
+    old_url: oldUrl,
+    setImg_data: image => updateCurrentCompound({ id: data.index, key: 'image', value: image }),
+    setOld_url: newUrl => setOldUrl(newUrl),
+    url,
+    cancel: onCancel
+  });
+};
