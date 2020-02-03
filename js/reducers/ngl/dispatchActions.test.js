@@ -289,6 +289,7 @@ describe("testing ngl reducer's async actions", () => {
         }
       }
     };
+
     store.dispatch(reloadNglViewFromScene(stage, display_div, scene, sessionData));
 
     expect(await getAction(store, resetStateToSessionScene)).toStrictEqual({
