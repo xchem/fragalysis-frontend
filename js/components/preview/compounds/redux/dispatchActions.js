@@ -2,10 +2,9 @@ import { appendToBuyList, removeFromToBuyList, setToBuyList } from '../../../../
 import {
   setCompoundClasses,
   setCurrentPage,
-  addHighlightedCompoundID,
   updateCurrentCompound,
-  removeHighlightedCompoundID,
-  setHighlightedCompoundId
+  setHighlightedCompoundId,
+  setConfiguration
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/nglDispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -58,10 +57,18 @@ export const loadNextPageOfCompounds = () => (dispatch, getState) => {
 };
 
 const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) => {
-  if (isCompoundShowed) {
+  const state = getState();
+  const to_query_sdf_info = state.selectionReducers.to_query_sdf_info;
+  const configuration = state.previewReducers.compounds.configuration;
+  const currentCompounds = state.previewReducers.compounds.currentCompounds;
+
+  if (currentCompounds[data.index].isShowed) {
     dispatch(
       deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(conf, data.smiles)),
+        Object.assign(
+          { display_div: VIEWS.MAJOR_VIEW },
+          generateCompoundMolObject(configuration[data.index], data.smiles)
+        ),
         majorViewStage
       )
     );
@@ -92,7 +99,7 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
             majorViewStage
           )
         );
-        setConf(newConf);
+        dispatch(setConfiguration(data.index, newConf));
       })
       .catch(error => {
         throw error;
@@ -108,7 +115,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   dispatch(setHighlightedCompoundId(data.index));
 
   if (event.shiftKey) {
-    dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds.isShowed }));
+    dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds[data.index].isShowed }));
     dispatch(showCompoundNglView({ majorViewStage, data }));
   } else {
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {

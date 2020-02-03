@@ -149,7 +149,7 @@ const CompoundView = memo(
 function mapStateToProps(state) {
   return {
     to_buy_list: state.selectionReducers.to_buy_list,
-    to_query_sdf_info: state.selectionReducers.to_query_sdf_info,
+
     currentCompoundClass: state.previewReducers.compounds.currentCompoundClass,
     highlightedCompoundId: state.previewReducers.compounds.highlightedCompoundId
   };
