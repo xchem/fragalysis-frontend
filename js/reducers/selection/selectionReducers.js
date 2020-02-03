@@ -1,8 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import * as actions from '../actonTypes';
-import { constants } from './selectionConstants';
+import { constants } from './constants';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
@@ -26,12 +25,12 @@ export const INITIAL_STATE = {
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
-    case actions.SET_TO_BUY_LIST:
+    case constants.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
         to_buy_list: action.to_buy_list
       });
 
-    case actions.APPEND_TO_BUY_LIST:
+    case constants.APPEND_TO_BUY_LIST:
       const current_to_buy_list = state.to_buy_list.slice();
       let exists = false;
       for (let current_to_buy_item in current_to_buy_list) {
@@ -49,12 +48,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         to_buy_list: current_to_buy_list
       });
 
-    case actions.SET_VECTOR_LIST:
+    case constants.SET_VECTOR_LIST:
       return Object.assign({}, state, {
         vector_list: action.vector_list
       });
 
-    case actions.REMOVE_FROM_TO_BUY_LIST:
+    case constants.REMOVE_FROM_TO_BUY_LIST:
       const to_buy_list = state.to_buy_list.slice();
       let itemIndex = -1;
       for (var item in to_buy_list) {
@@ -70,7 +69,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         return Object.assign({}, state);
       }
 
-    case actions.SET_INITIAL_FULL_GRAPH:
+    case constants.SET_INITIAL_FULL_GRAPH:
       var input_mol = action.item;
       return Object.assign({}, state, {
         to_query: input_mol.smiles,
@@ -81,12 +80,12 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         querying: true
       });
 
-    case actions.SET_TO_QUERY:
+    case constants.SET_TO_QUERY:
       return Object.assign({}, state, {
         to_query: action.to_query
       });
 
-    case actions.UPDATE_FULL_GRAPH:
+    case constants.UPDATE_FULL_GRAPH:
       const input_mol_dict = action.input_mol_dict;
       var new_dict = {};
       // Uniquify
@@ -109,7 +108,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         querying: false
       });
 
-    case actions.SELECT_VECTOR:
+    case constants.SELECT_VECTOR:
       var input_mol_key = action.vector;
       var new_this_vector_list = {};
       for (var key_to_select in state.to_select) {
@@ -122,7 +121,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         currentVector: action.vector
       });
 
-    case actions.SET_FRAGMENT_DISPLAY_LIST:
+    case constants.SET_FRAGMENT_DISPLAY_LIST:
       console.log('SET_FRAGMENT_DISPLAY_LIST');
       let newFragmentSet = new Set();
       action.fragmentDisplayList.forEach(f => {
@@ -133,13 +132,13 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         fragmentDisplayList: [...newFragmentSet]
       });
 
-    case actions.APPEND_FRAGMENT_DISPLAY_LIST:
+    case constants.APPEND_FRAGMENT_DISPLAY_LIST:
       console.log('APPEND_FRAGMENT_DISPLAY_LIST');
       return Object.assign({}, state, {
         fragmentDisplayList: [...new Set([...state.fragmentDisplayList, action.item.id])]
       });
 
-    case actions.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
+    case constants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST:
       console.log('REMOVE_FROM_FRAGMENT_DISPLAY_LIST');
       let diminishedFragmentList = new Set(state.fragmentDisplayList);
       diminishedFragmentList.delete(action.item.id);
@@ -147,22 +146,22 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         fragmentDisplayList: [...diminishedFragmentList]
       });
 
-    case actions.SET_COMPLEX_LIST:
+    case constants.SET_COMPLEX_LIST:
       let newComplexList = new Set();
       action.complexList.forEach(f => {
         newComplexList.add(f);
       });
       return Object.assign({}, state, { complexList: [...newComplexList] });
 
-    case actions.APPEND_COMPLEX_LIST:
+    case constants.APPEND_COMPLEX_LIST:
       return Object.assign({}, state, { complexList: [...new Set([...state.complexList, action.item.id])] });
 
-    case actions.REMOVE_FROM_COMPLEX_LIST:
+    case constants.REMOVE_FROM_COMPLEX_LIST:
       let diminishedComplexList = new Set(state.complexList);
       diminishedComplexList.delete(action.item.id);
       return Object.assign({}, state, { complexList: [...diminishedComplexList] });
 
-    case actions.SET_VECTOR_ON_LIST:
+    case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();
 
       action.vectorOnList.forEach(v => {
@@ -170,20 +169,20 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
       return Object.assign({}, state, { vectorOnList: [...newVectorOnList] });
 
-    case actions.APPEND_VECTOR_ON_LIST:
+    case constants.APPEND_VECTOR_ON_LIST:
       return Object.assign({}, state, { vectorOnList: [action.item.id] });
 
-    case actions.REMOVE_FROM_VECTOR_ON_LIST:
+    case constants.REMOVE_FROM_VECTOR_ON_LIST:
       let diminishedVectorOnList = new Set(state.vectorOnList);
       diminishedVectorOnList.delete(action.item.id);
       return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList], currentVector: undefined });
 
-    case actions.SET_BOND_COLOR_MAP:
+    case constants.SET_BOND_COLOR_MAP:
       return Object.assign({}, state, {
         bondColorMap: action.bondColorMap
       });
 
-    case actions.RELOAD_SELECTION_REDUCER:
+    case constants.RELOAD_SELECTION_REDUCER:
       var this_vector_list = {};
       for (var to_select_item in action.savedSelectionReducers.to_select) {
         if (to_select_item === action.savedSelectionReducers.currentVector) {
@@ -210,7 +209,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         vectorOnList: [...newVectors]
       });
 
-    case actions.RESET_SELECTION_STATE:
+    case constants.RESET_SELECTION_STATE:
       console.log('RESET_SELECTION_STATE');
       return INITIAL_STATE;
 
@@ -225,7 +224,7 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
     }
 
-    case actions.SET_MOL_GROUP_SELECTION:
+    case constants.SET_MOL_GROUP_SELECTION:
       return Object.assign({}, state, {
         mol_group_selection: action.mol_group_selection
       });

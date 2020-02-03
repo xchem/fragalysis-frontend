@@ -10,8 +10,8 @@ import {
   addComponentRepresentation,
   removeComponentRepresentation,
   updateComponentRepresentation
-} from '../../../../reducers/ngl/nglActions';
-import { deleteObject } from '../../../../reducers/ngl/nglDispatchActions';
+} from '../../../../reducers/ngl/actions';
+import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
 import { assignRepresentationToComp } from '../../../nglView/generatingObjects';

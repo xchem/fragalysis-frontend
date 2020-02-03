@@ -297,7 +297,6 @@ describe("testing ngl reducer's actions", () => {
     expect(result.nglOrientations).toStrictEqual(defaultScene[SCENES.defaultScene].nglOrientations);
   });
 
-  /*
   it('should reset current state to session scene', () => {
     expect.hasAssertions();
     const sessionScene = {
@@ -325,7 +324,7 @@ describe("testing ngl reducer's actions", () => {
     expect(result.objectsInView).toStrictEqual(sessionScene.objectsInView);
     expect(result.nglOrientations).toStrictEqual(sessionScene.nglOrientations);
   });
-*/
+
   it('should remove all ngl view components', () => {
     expect.hasAssertions();
     let result = nglReducers(initialState, actions.removeAllNglComponents());

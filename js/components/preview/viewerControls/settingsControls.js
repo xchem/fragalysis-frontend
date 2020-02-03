@@ -3,7 +3,7 @@ import { Grid, makeStyles, Slider, Switch, TextField, Typography } from '@materi
 import { Drawer } from '../../common/Navigation/Drawer';
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { setNglViewParams } from '../../../reducers/ngl/nglActions';
+import { setNglViewParams } from '../../../reducers/ngl/actions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 

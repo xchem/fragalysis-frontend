@@ -6,9 +6,9 @@ import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography 
 import { FilterList } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../../reducers/api/apiActions';
+import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
-import { deleteObject, loadObject } from '../../../reducers/ngl/nglDispatchActions';
+import { deleteObject, loadObject } from '../../../reducers/ngl/dispatchActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './redux/selectors';

@@ -18,16 +18,10 @@ import { SELECTION_TYPE } from '../../components/nglView/constants';
 import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
-export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => dispatch => {
+export const loadObject = (target, stage, previousRepresentations) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects());
-    return nglObjectDictionary[target.OBJECT_TYPE](
-      stage,
-      target,
-      target.name,
-      previousRepresentations,
-      orientationMatrix
-    )
+    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, previousRepresentations)
       .then(representations => dispatch(loadNglObject(target, representations)))
       .catch(error => {
         console.error(error);
@@ -119,7 +113,7 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  return Promise.all(
+  Promise.all(
     Object.keys(currentScene.objectsInView || {}).map(objInView => {
       if (currentScene.objectsInView[objInView].display_div === display_div) {
         let representations = currentScene.objectsInView[objInView].representations;
