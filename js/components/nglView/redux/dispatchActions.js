@@ -2,9 +2,9 @@ import { OBJECT_TYPE } from '../constants';
 import { PREFIX, VIEWS, SUFFIX } from '../../../constants/constants';
 import { generateSphere } from '../../preview/molecule/molecules_helpers';
 import { clearAfterDeselectingMoleculeGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
-import { loadObject, deleteObject } from '../../../reducers/ngl/nglDispatchActions';
-import { setMolGroupSelection } from '../../../reducers/selection/selectionActions';
-import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/apiActions';
+import { loadObject, deleteObject } from '../../../reducers/ngl/dispatchActions';
+import { setMolGroupSelection } from '../../../reducers/selection/actions';
+import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reducers/api/actions';
 import * as listTypes from '../../../constants/listTypes';
 import { selectVectorAndResetCompounds } from '../../../reducers/selection/dispatchActions';
 

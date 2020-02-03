@@ -5,7 +5,7 @@ import {
   deleteObject,
   loadObject,
   reloadNglViewFromScene
-} from '../../../../reducers/ngl/nglDispatchActions';
+} from '../../../../reducers/ngl/dispatchActions';
 import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   resetSelectionState,
@@ -15,12 +15,12 @@ import {
   setObjectSelection,
   setVectorList,
   setVectorOnList
-} from '../../../../reducers/selection/selectionActions';
-import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/nglActions';
-import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/apiActions';
+} from '../../../../reducers/selection/actions';
+import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
+import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
-import { SCENES } from '../../../../reducers/ngl/nglConstants';
+import { SCENES } from '../../../../reducers/ngl/constants';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
   dispatch(setObjectSelection([molGroupId]));

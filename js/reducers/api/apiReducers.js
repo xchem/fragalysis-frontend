@@ -229,6 +229,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case constants.RESET_TARGET_STATE:
+      console.log('RESET_TARGET_STATE');
       return Object.assign({}, state, RESET_TARGET_STATE);
     // Cases like: @@redux/INIT
     default:

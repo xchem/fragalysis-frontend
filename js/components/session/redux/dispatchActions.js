@@ -1,4 +1,4 @@
-import { SCENES } from '../../../reducers/ngl/nglConstants';
+import { SCENES } from '../../../reducers/ngl/constants';
 import {
   reloadApiState,
   setLatestSession,
@@ -7,12 +7,12 @@ import {
   setSessionId,
   setSessionTitle,
   setTargetUnrecognised
-} from '../../../reducers/api/apiActions';
-import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/selectionActions';
-import { reloadNglViewFromScene } from '../../../reducers/ngl/nglDispatchActions';
+} from '../../../reducers/api/actions';
+import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
+import { reloadNglViewFromScene } from '../../../reducers/ngl/dispatchActions';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { canCheckTarget, generateBondColorMap, generateObjectList } from '../helpers';
-import { saveCurrentStateAsSessionScene } from '../../../reducers/ngl/nglActions';
+import { saveCurrentStateAsSessionScene } from '../../../reducers/ngl/actions';
 import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
