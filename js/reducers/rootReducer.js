@@ -8,6 +8,7 @@ import selectionReducers from './selection/selectionReducers';
 import { targetReducers } from '../components/target/redux/reducer';
 import { sessionReducers } from '../components/session/redux/reducer';
 import { previewReducers } from '../components/preview/redux';
+import { projectReducers } from '../components/projects/redux/reducer';
 
 const rootReducer = combineReducers({
   apiReducers,
@@ -15,7 +16,8 @@ const rootReducer = combineReducers({
   selectionReducers,
   targetReducers,
   sessionReducers,
-  previewReducers
+  previewReducers,
+  projectReducers
 });
 
 export { rootReducer };

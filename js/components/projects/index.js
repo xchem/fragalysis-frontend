@@ -17,6 +17,9 @@ import { Edit, Delete, Add, Search } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
+import { setProjectModalOpen } from './redux/actions';
+import { useDispatch } from 'react-redux';
+import { ProjectModal } from './projectModal';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -31,6 +34,7 @@ export const Projects = memo(({ history }) => {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const dispatch = useDispatch();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -88,78 +92,81 @@ export const Projects = memo(({ history }) => {
     createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 39)
   ];
   return (
-    <Panel
-      hasHeader
-      title="Projects"
-      headerActions={[
-        <TextField
-          className={classes.search}
-          id="input-with-icon-textfield"
-          placeholder="Search"
-          size="small"
-          color="primary"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search />
-              </InputAdornment>
-            )
-          }}
-        />,
-        <IconButton color="inherit">
-          <Add />
-        </IconButton>
-      ]}
-    >
-      <Table className={classes.table} size="small" aria-label="a dense table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell align="left">Target</TableCell>
-            <TableCell align="left">Author's email</TableCell>
-            <TableCell align="left">Last modification</TableCell>
-            <TableCell align="right">Action buttons</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
-            <TableRow key={project.id} hover>
-              <TableCell component="th" scope="row">
-                <Link to={`${URLS.projects}${project.id}/history`}>{project.name}</Link>
-              </TableCell>
-              <TableCell align="left">
-                <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
-              </TableCell>
-              <TableCell align="left">{project.author}</TableCell>
-              <TableCell align="left">{project.lastModification}</TableCell>
-              <TableCell align="right">
-                <IconButton>
-                  <Edit />
-                </IconButton>
-                <IconButton>
-                  <Delete />
-                </IconButton>
-              </TableCell>
+    <>
+      <Panel
+        hasHeader
+        title="Project list"
+        headerActions={[
+          <TextField
+            className={classes.search}
+            id="input-with-icon-textfield"
+            placeholder="Search"
+            size="small"
+            color="primary"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              )
+            }}
+          />,
+          <IconButton color="inherit" onClick={() => dispatch(setProjectModalOpen(true))}>
+            <Add />
+          </IconButton>
+        ]}
+      >
+        <Table className={classes.table} size="small" aria-label="a dense table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell align="left">Target</TableCell>
+              <TableCell align="left">Author's email</TableCell>
+              <TableCell align="left">Last modification</TableCell>
+              <TableCell align="right">Action buttons</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              rowsPerPageOptions={[10, 15, 30, 50, 100]}
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              SelectProps={{
-                inputProps: { 'aria-label': 'rows per page' },
-                native: true
-              }}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </Panel>
+          </TableHead>
+          <TableBody>
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
+              <TableRow key={project.id} hover>
+                <TableCell component="th" scope="row">
+                  <Link to={`${URLS.projects}${project.id}/history`}>{project.name}</Link>
+                </TableCell>
+                <TableCell align="left">
+                  <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
+                </TableCell>
+                <TableCell align="left">{project.author}</TableCell>
+                <TableCell align="left">{project.lastModification}</TableCell>
+                <TableCell align="right">
+                  <IconButton>
+                    <Edit />
+                  </IconButton>
+                  <IconButton>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[10, 15, 30, 50, 100]}
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true
+                }}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </Panel>
+      <ProjectModal />
+    </>
   );
 });
