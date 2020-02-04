@@ -18,6 +18,12 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
         currentProject: action.payload
       });
 
+    case constants.SET_CURRENT_PROJECT_PROPERTY:
+      const currProject = JSON.parse(JSON.stringify(state.currentProject));
+      currProject[action.payload.key] = action.payload.value;
+
+      return Object.assign({}, state, { currentProject: currProject });
+
     case constants.RESET_PROJECT_STATE:
       const initState = JSON.parse(JSON.stringify(INITIAL_STATE));
       return Object.assign({}, state, initState);

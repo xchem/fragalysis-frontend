@@ -1,7 +1,5 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles, TextField } from '@material-ui/core';
-import { AccountCircle } from '@material-ui/icons';
-import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { Grid, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   input: {

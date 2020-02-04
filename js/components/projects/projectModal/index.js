@@ -2,11 +2,13 @@ import React, { memo } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProjectModalOpen } from '../redux/actions';
-import { makeStyles, RadioGroup, Radio, Grid, Typography, TextField, Chip, Select, MenuItem } from '@material-ui/core';
-import { AccountCircle, Title, Description, Label, Link } from '@material-ui/icons';
+import { makeStyles, RadioGroup, Radio, Grid, Typography, Chip, MenuItem, Button } from '@material-ui/core';
+import { Title, Description, Label, Link } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { InputFieldAvatar } from './inputFieldAvatar';
 import { ProjectCreationType } from '../redux/constants';
+import { Formik, Form } from 'formik';
+import { TextField, Select } from 'formik-material-ui';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -33,11 +35,6 @@ export const ProjectModal = memo(({}) => {
 
   const [value, setValue] = React.useState(ProjectCreationType.NEW);
 
-  const [age, setAge] = React.useState('');
-  const handleChangeTarget = event => {
-    setAge(event.target.value);
-  };
-
   const handleChange = event => {
     setValue(event.target.value);
   };
@@ -53,97 +50,109 @@ export const ProjectModal = memo(({}) => {
   return (
     <Modal open={isProjectModalOpen} onClose={handleCloseModal}>
       <Typography variant="h3">Create project</Typography>
-      <form noValidate autoComplete="off">
-        <Grid container direction="column" className={classes.body}>
-          <Grid item>
-            <RadioGroup aria-label="gender" name="gender1" value={value} onChange={handleChange}>
-              <Grid container justify="space-between" className={classes.input}>
-                <Grid item>
-                  New Project
-                  <Radio value={ProjectCreationType.NEW} />
-                </Grid>
-                <Grid item>
-                  From Snapshot
-                  <Radio value={ProjectCreationType.FROM_SNAPSHOT} />
-                </Grid>
+      <Formik
+        initialValues={{
+          title: '',
+          description: '',
+          target: undefined,
+          tags: []
+        }}
+        validate={values => {
+          const errors = {};
+          if (!values.title) {
+            errors.title = 'Required';
+          }
+          if (!values.description) {
+            errors.description = 'Required';
+          }
+          if (!values.target) {
+            errors.target = 'Required';
+          }
+          return errors;
+        }}
+        onSubmit={(values, { setSubmitting }) => {
+          const data = {};
+          data.username = DJANGO_CONTEXT['username'];
+          console.log(values);
+          setSubmitting(false);
+        }}
+      >
+        {({ submitForm, isSubmitting }) => (
+          <Form>
+            <Grid container direction="column" className={classes.body}>
+              <Grid item>
+                <RadioGroup aria-label="gender" name="gender1" value={value} onChange={handleChange}>
+                  <Grid container justify="space-between" className={classes.input}>
+                    <Grid item>
+                      New Project
+                      <Radio value={ProjectCreationType.NEW} />
+                    </Grid>
+                    <Grid item>
+                      From Snapshot
+                      <Radio value={ProjectCreationType.FROM_SNAPSHOT} />
+                    </Grid>
+                  </Grid>
+                </RadioGroup>
               </Grid>
-            </RadioGroup>
-          </Grid>
-          <Grid item>
-            <InputFieldAvatar
-              icon={<Title />}
-              field={<TextField className={classes.input} id="title" label="Title" />}
-            />
-          </Grid>
-          <Grid item>
-            <InputFieldAvatar
-              icon={<Description />}
-              field={<TextField className={classes.input} id="description" label="Description" />}
-            />
-          </Grid>
-          <Grid item>
-            <InputFieldAvatar
-              icon={<AccountCircle />}
-              field={
-                <TextField
-                  className={classes.input}
-                  id="author"
-                  label="Author"
-                  value={DJANGO_CONTEXT['username']}
-                  disabled
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<Title />}
+                  field={<TextField className={classes.input} name="title" label="Title" />}
                 />
-              }
-            />
-          </Grid>
-          <Grid item>
-            <InputFieldAvatar
-              icon={<Link />}
-              field={
-                <Select
-                  labelId="demo-simple-select-label"
-                  value={age}
-                  onChange={handleChangeTarget}
-                  className={classes.input}
-                  id="target"
-                  label="Target"
-                >
-                  {targetList.map(target => (
-                    <MenuItem key={target.id} value={target.id}>
-                      {target.title}
-                    </MenuItem>
+              </Grid>
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<Description />}
+                  field={<TextField className={classes.input} name="description" label="Description" />}
+                />
+              </Grid>
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<Link />}
+                  field={
+                    <Select className={classes.input} name="target" label="Target">
+                      {targetList.map(target => (
+                        <MenuItem key={target.id} value={target.id}>
+                          {target.title}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<Label />}
+                  field={
+                    <TextField
+                      className={classes.input}
+                      name="tags"
+                      label="Tags"
+                      onKeyPress={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          setChipData([...chipData, e.target.value]);
+                        }
+                      }}
+                    />
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<Link style={{ opacity: 0 }} />}
+                  field={chipData.map((data, index) => (
+                    <Chip key={index} label={data} onDelete={handleDelete(data)} />
                   ))}
-                </Select>
-              }
-            />
-          </Grid>
-          <Grid item>
-            <InputFieldAvatar
-              icon={<Label />}
-              field={
-                <TextField
-                  className={classes.input}
-                  id="tags"
-                  label="Tags"
-                  onKeyPress={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      setChipData([...chipData, e.target.value]);
-                    }
-                  }}
                 />
-              }
-            />
-          </Grid>
-          <Grid item>
-            <InputFieldAvatar
-              icon={<Link style={{ opacity: 0 }} />}
-              field={chipData.map((data, index) => (
-                <Chip key={index} label={data} onDelete={handleDelete(data)} />
-              ))}
-            />
-          </Grid>
-        </Grid>
-      </form>
+              </Grid>
+            </Grid>
+            <Button variant="contained" color="primary" disabled={isSubmitting} onClick={submitForm}>
+              Submit
+            </Button>
+          </Form>
+        )}
+      </Formik>
     </Modal>
   );
 });
