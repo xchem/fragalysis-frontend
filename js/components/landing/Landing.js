@@ -1,60 +1,48 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import { Grid } from '@material-ui/core';
-import React, { memo, useEffect } from 'react';
+import { Grid, Link } from '@material-ui/core';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import TargetList from '../target/targetList';
-import SessionList from '../session/sessionList';
+//import SessionList from '../session/sessionList';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
 import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
+import { Projects } from '../projects';
+import { HeaderContext } from '../header/headerContext';
 
-const Landing = memo(({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings }) => {
-  let text_div;
+const Landing = memo(({ resetSelectionState, resetTargetState }) => {
+  const { setSnackBarTitle } = useContext(HeaderContext);
+  const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
 
-  if (DJANGO_CONTEXT['authenticated'] === true) {
-    var entry_text = "You're logged in as " + DJANGO_CONTEXT['username'];
-    text_div = <h3>{entry_text}</h3>;
-  } else {
-    text_div = (
-      <h3>
-        To view own targets login here:
-        <a className="inline" href="/accounts/login">
-          FedID Login
-        </a>
-      </h3>
-    );
-  }
+  useEffect(() => {
+    if (DJANGO_CONTEXT['authenticated'] !== true) {
+      setLoginText(
+        <>
+          {'To view own targets login here: '}
+          <Link href="/accounts/login" color="inherit" variant="subtitle2">
+            FedID Login
+          </Link>
+        </>
+      );
+    }
+  }, []);
 
   useEffect(() => {
     resetTargetState();
     resetSelectionState();
-    resetCurrentCompoundsSettings(true);
-  }, [resetTargetState, resetSelectionState, resetCurrentCompoundsSettings]);
+    setSnackBarTitle(loginText);
+  }, [resetTargetState, resetSelectionState, setSnackBarTitle, loginText]);
 
   return (
     <Grid container spacing={2}>
-      <Grid container item xs={12} sm={6} md={4} direction="column" justify="flex-start">
-        <Grid item>
-          <h1>Welcome to Fragalysis</h1>
-          {text_div}
-        </Grid>
-        <Grid item>
-          <p>
-            <a className="inline" href="http://cs04r-sc-vserv-137.diamond.ac.uk:8089/overview/targets/">
-              Target status overview
-            </a>{' '}
-            (only accessible within Diamond)
-          </p>
-        </Grid>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid item xs={4}>
         <TargetList key="TARGLIST" />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
-        <SessionList />
+      <Grid item xs={8}>
+        {/*<SessionList />*/}
+        <Projects />
       </Grid>
     </Grid>
   );
@@ -65,8 +53,7 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   resetSelectionState: selectionActions.resetSelectionState,
-  resetTargetState: apiActions.resetTargetState,
-  resetCurrentCompoundsSettings
+  resetTargetState: apiActions.resetTargetState
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);

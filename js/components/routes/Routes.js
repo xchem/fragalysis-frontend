@@ -13,11 +13,8 @@ import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
 import SessionList from '../session/sessionList';
-import { ProjectsOld } from '../projectOld';
-import { ProjectDetailOld } from '../projectOld/projectDetailOld';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
-import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -45,11 +42,7 @@ const Routes = memo(() => {
       <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
-          <Route exact path={URLS.projectsOld} component={ProjectsOld} />
-          <Route exact path={`${URLS.projectsOld}:projectId`} component={ProjectDetailOld} />
-          {/* Old projects mock-ups */}
           <Route exact path={URLS.projects} component={Projects} />
-
           <Route exact path={`${URLS.projects}:projectId/history`} component={ProjectDetailSessionList} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />

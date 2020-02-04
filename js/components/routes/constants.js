@@ -11,7 +11,6 @@ export const URLS = {
   target: '/viewer/react/preview/target/',
 
   // Projects feature
-  projectsOld: '/viewer/react/projectsOld/',
   projects: '/viewer/react/projects/'
 };
 
