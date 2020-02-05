@@ -37,6 +37,7 @@ import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
+import { IssueReport } from '../userFeedback/issueReport';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -205,6 +206,9 @@ export default memo(
                   >
                     Supported by
                   </Button>
+                </Grid>
+                <Grid item>
+                  <IssueReport />
                 </Grid>
               </Grid>
             </Grid>
