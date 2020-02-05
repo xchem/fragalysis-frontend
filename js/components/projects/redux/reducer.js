@@ -6,9 +6,11 @@ export const INITIAL_STATE = {
     title: null,
     description: null,
     target: null,
-    tags: []
+    tags: [],
+    type: null
   },
-  isProjectModalOpen: false
+  isProjectModalOpen: false,
+  isProjectModalLoading: false
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -26,10 +28,13 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.RESET_CURRENT_PROJECT_STATE:
       const currProj = JSON.parse(JSON.stringify(INITIAL_STATE.currentProject));
-      return Object.assign({}, state, { currProject: currProj });
+      return Object.assign({}, state, { currentProject: currProj });
 
     case constants.SET_PROJECT_MODAL_OPEN:
       return Object.assign({}, state, { isProjectModalOpen: action.payload });
+
+    case constants.SET_PROJECT_MODAL_IS_LOADING:
+      return Object.assign({}, state, { isProjectModalLoading: action.payload });
 
     default:
       return state;

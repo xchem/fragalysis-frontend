@@ -1,17 +1,17 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetProjectState, setProjectModalOpen } from '../redux/actions';
+import { setProjectModalIsLoading, setProjectModalOpen } from '../redux/actions';
 import {
   makeStyles,
-  RadioGroup,
   Radio,
   Grid,
   Typography,
   MenuItem,
   InputLabel,
   FormControl,
-  FormHelperText
+  FormHelperText,
+  FormControlLabel
 } from '@material-ui/core';
 import { Title, Description, Label, Link } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
@@ -19,8 +19,10 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { InputFieldAvatar } from './inputFieldAvatar';
 import { ProjectCreationType } from '../redux/constants';
 import { Formik, Form } from 'formik';
-import { TextField, Select } from 'formik-material-ui';
+import { TextField, Select, RadioGroup } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
+import { api, METHOD } from '../../../utils/api';
+import { base_url, URLS } from '../../routes/constants';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -40,21 +42,19 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ProjectModal = memo(({}) => {
+export const ProjectModal = memo(({ history }) => {
   const classes = useStyles();
+  const [state, setState] = useState();
+
   const dispatch = useDispatch();
   const isProjectModalOpen = useSelector(state => state.projectReducers.isProjectModalOpen);
+  const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
   const targetList = useSelector(state => state.apiReducers.target_id_list);
 
-  const [value, setValue] = React.useState(ProjectCreationType.NEW);
-
-  const handleChange = event => {
-    setValue(event.target.value);
-  };
-
   const handleCloseModal = () => {
-    dispatch(resetProjectState());
-    dispatch(setProjectModalOpen(false));
+    if (isProjectModalLoading === false) {
+      dispatch(setProjectModalOpen(false));
+    }
   };
 
   const [tags, setTags] = React.useState([]);
@@ -64,6 +64,7 @@ export const ProjectModal = memo(({}) => {
       <Typography variant="h3">Create project</Typography>
       <Formik
         initialValues={{
+          type: '',
           title: '',
           description: '',
           target: '',
@@ -72,17 +73,20 @@ export const ProjectModal = memo(({}) => {
         validate={values => {
           const errors = {};
           if (!values.title) {
-            errors.title = 'Required';
+            errors.title = 'Required!';
           }
           if (!values.description) {
-            errors.description = 'Required';
+            errors.description = 'Required!';
           }
           if (values.target === '') {
-            errors.target = 'Required';
+            errors.target = 'Required!';
+          }
+          if (values.type === '') {
+            errors.type = 'Type of Project is required!';
           }
           return errors;
         }}
-        onSubmit={(values, { setSubmitting }) => {
+        onSubmit={values => {
           const data = {
             ...values,
             author: {
@@ -91,48 +95,92 @@ export const ProjectModal = memo(({}) => {
             },
             tags
           };
-          console.log(data);
-          setSubmitting(false);
+          dispatch(setProjectModalIsLoading(true));
+          api({ url: `${base_url}/api/project`, method: METHOD.POST, data })
+            .then(response => {
+              const projectID = response.data.id;
+              history.push(`${URLS.projects}${projectID}`);
+            })
+            .catch(error => {
+              setState(() => {
+                throw error;
+              });
+            })
+            .finally(() => {
+              dispatch(setProjectModalIsLoading(false));
+              handleCloseModal();
+            });
         }}
       >
-        {({ submitForm, isSubmitting, errors }) => (
+        {({ submitForm, errors }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
-                <RadioGroup aria-label="gender" name="gender1" value={value} onChange={handleChange}>
-                  <Grid container justify="space-between" className={classes.input}>
-                    <Grid item>
-                      New Project
-                      <Radio value={ProjectCreationType.NEW} />
-                    </Grid>
-                    <Grid item>
-                      From Snapshot
-                      <Radio value={ProjectCreationType.FROM_SNAPSHOT} />
-                    </Grid>
-                  </Grid>
-                </RadioGroup>
+                <FormControl
+                  className={classes.input}
+                  error={errors.type !== undefined}
+                  required
+                  disabled={isProjectModalLoading}
+                >
+                  <RadioGroup name="type" row>
+                    <FormControlLabel
+                      value={ProjectCreationType.NEW}
+                      control={<Radio disabled={isProjectModalLoading} />}
+                      label="New Project"
+                      disabled={isProjectModalLoading}
+                    />
+                    <FormControlLabel
+                      value={ProjectCreationType.FROM_SNAPSHOT}
+                      control={<Radio disabled={isProjectModalLoading} />}
+                      label="From Snapshot"
+                      disabled={isProjectModalLoading}
+                    />
+                  </RadioGroup>
+                  {errors.type && <FormHelperText disabled={isProjectModalLoading}>{errors.type}</FormHelperText>}
+                </FormControl>
               </Grid>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Title />}
-                  field={<TextField className={classes.input} name="title" label="Title" required />}
+                  field={
+                    <TextField
+                      className={classes.input}
+                      name="title"
+                      label="Title"
+                      required
+                      disabled={isProjectModalLoading}
+                    />
+                  }
                 />
               </Grid>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Description />}
-                  field={<TextField className={classes.input} name="description" label="Description" required />}
+                  field={
+                    <TextField
+                      className={classes.input}
+                      name="description"
+                      label="Description"
+                      required
+                      disabled={isProjectModalLoading}
+                    />
+                  }
                 />
               </Grid>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Link />}
                   field={
-                    <FormControl className={classes.input} error={errors.target !== undefined}>
-                      <InputLabel htmlFor="selected-target" required>
+                    <FormControl
+                      className={classes.input}
+                      error={errors.target !== undefined}
+                      disabled={isProjectModalLoading}
+                    >
+                      <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
                         Target
                       </InputLabel>
                       <Select
+                        disabled={isProjectModalLoading}
                         name="target"
                         inputProps={{
                           id: 'selected-target'
@@ -144,7 +192,7 @@ export const ProjectModal = memo(({}) => {
                           </MenuItem>
                         ))}
                       </Select>
-                      <FormHelperText>{errors.target}</FormHelperText>
+                      <FormHelperText disabled={isProjectModalLoading}>{errors.target}</FormHelperText>
                     </FormControl>
                   }
                 />
@@ -162,6 +210,7 @@ export const ProjectModal = memo(({}) => {
                       onChange={(e, data) => {
                         setTags(data);
                       }}
+                      disabled={isProjectModalLoading}
                       renderInput={params => (
                         <TextField
                           {...params}
@@ -183,12 +232,12 @@ export const ProjectModal = memo(({}) => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isSubmitting} onClick={handleCloseModal}>
+                <Button color="secondary" disabled={isProjectModalLoading} onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
+                <Button color="primary" onClick={submitForm} loading={isProjectModalLoading}>
                   Create
                 </Button>
               </Grid>

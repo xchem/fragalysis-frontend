@@ -1,8 +1,8 @@
 import { constants } from './constants';
 
-export const setCurrentProject = ({ author, title, description, target, tags }) => ({
+export const setCurrentProject = ({ author, title, description, target, tags, type }) => ({
   type: constants.SET_CURRENT_PROJECT,
-  payload: { author, title, description, target, tags }
+  payload: { author, title, description, target, tags, type }
 });
 export const setCurrentProjectProperty = (key, value) => ({
   type: constants.SET_CURRENT_PROJECT_PROPERTY,
@@ -16,4 +16,9 @@ export const resetProjectState = () => ({
 export const setProjectModalOpen = isOpen => ({
   type: constants.SET_PROJECT_MODAL_OPEN,
   payload: isOpen
+});
+
+export const setProjectModalIsLoading = isLoading => ({
+  type: constants.SET_PROJECT_MODAL_IS_LOADING,
+  payload: isLoading
 });
