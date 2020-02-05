@@ -2,7 +2,17 @@ import React, { memo } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetProjectState, setProjectModalOpen } from '../redux/actions';
-import { makeStyles, RadioGroup, Radio, Grid, Typography, MenuItem } from '@material-ui/core';
+import {
+  makeStyles,
+  RadioGroup,
+  Radio,
+  Grid,
+  Typography,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  FormHelperText
+} from '@material-ui/core';
 import { Title, Description, Label, Link } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
@@ -25,7 +35,8 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1)
   },
   formControl: {
-    margin: theme.spacing(3)
+    margin: theme.spacing(1),
+    width: 400
   }
 }));
 
@@ -55,7 +66,7 @@ export const ProjectModal = memo(({}) => {
         initialValues={{
           title: '',
           description: '',
-          target: '',
+          selectedTarget: '',
           tags: []
         }}
         validate={values => {
@@ -66,19 +77,19 @@ export const ProjectModal = memo(({}) => {
           if (!values.description) {
             errors.description = 'Required';
           }
-          if (!values.target) {
-            errors.target = 'Required';
+          if (values.selectedTarget === '') {
+            errors.selectedTarget = 'Required';
           }
+          console.log(errors);
           return errors;
         }}
         onSubmit={(values, { setSubmitting }) => {
           const data = {};
           data.username = DJANGO_CONTEXT['username'];
-          console.log(values);
           setSubmitting(false);
         }}
       >
-        {({ submitForm, isSubmitting }) => (
+        {({ submitForm, isSubmitting, errors }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
@@ -98,26 +109,37 @@ export const ProjectModal = memo(({}) => {
               <Grid item>
                 <InputFieldAvatar
                   icon={<Title />}
-                  field={<TextField className={classes.input} name="title" label="Title" />}
+                  field={<TextField className={classes.input} name="title" label="Title" required />}
                 />
               </Grid>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Description />}
-                  field={<TextField className={classes.input} name="description" label="Description" />}
+                  field={<TextField className={classes.input} name="description" label="Description" required />}
                 />
               </Grid>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Link />}
                   field={
-                    <Select className={classes.input} name="target" label="Target">
-                      {targetList.map(target => (
-                        <MenuItem key={target.id} value={target.id}>
-                          {target.title}
-                        </MenuItem>
-                      ))}
-                    </Select>
+                    <FormControl className={classes.input} error={errors.selectedTarget !== undefined}>
+                      <InputLabel htmlFor="selected-target" required>
+                        Target
+                      </InputLabel>
+                      <Select
+                        name="selectedTarget"
+                        inputProps={{
+                          id: 'selected-target'
+                        }}
+                      >
+                        {targetList.map(data => (
+                          <MenuItem key={data.id} value={data.id}>
+                            {data.title}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>{errors.selectedTarget}</FormHelperText>
+                    </FormControl>
                   }
                 />
               </Grid>
