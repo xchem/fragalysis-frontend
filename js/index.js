@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import Root from './components/root';
 import { DJANGO_CONTEXT } from './utils/djangoContext';
 // Sentry logging
-import { init } from '@sentry/browser';
+import { init, configureScope } from '@sentry/browser';
 // Setup log rocket logging
 import LogRocket from 'logrocket';
 import { Provider } from 'react-redux';
@@ -27,7 +27,14 @@ if (process.env.NODE_ENV === 'production') {
   init({
     dsn: 'https://27fa0675f555431aa02ca552e93d8cfb@sentry.io/1298290'
   });
+
+  LogRocket.getSessionURL(sessionURL => {
+  	configureScope(scope => {
+  		scope.setExtra("logRocketURL", sessionURL);
+  	});
+  });
 }
+
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
   thunkMiddleware
