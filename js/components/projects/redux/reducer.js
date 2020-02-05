@@ -5,7 +5,7 @@ export const INITIAL_STATE = {
     author: null,
     title: null,
     description: null,
-    target: null,
+    targetId: null,
     tags: [],
     type: null
   },

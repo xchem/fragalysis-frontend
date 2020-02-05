@@ -67,7 +67,7 @@ export const ProjectModal = memo(({ history }) => {
           type: '',
           title: '',
           description: '',
-          target: '',
+          targetId: '',
           tags: ''
         }}
         validate={values => {
@@ -78,8 +78,8 @@ export const ProjectModal = memo(({ history }) => {
           if (!values.description) {
             errors.description = 'Required!';
           }
-          if (values.target === '') {
-            errors.target = 'Required!';
+          if (values.targetId === '') {
+            errors.targetId = 'Required!';
           }
           if (values.type === '') {
             errors.type = 'Type of Project is required!';
@@ -181,7 +181,7 @@ export const ProjectModal = memo(({ history }) => {
                       </InputLabel>
                       <Select
                         disabled={isProjectModalLoading}
-                        name="target"
+                        name="targetId"
                         inputProps={{
                           id: 'selected-target'
                         }}
