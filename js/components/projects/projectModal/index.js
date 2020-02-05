@@ -57,7 +57,7 @@ export const ProjectModal = memo(({}) => {
     dispatch(setProjectModalOpen(false));
   };
 
-  const [selectedTags, setSelectedTags] = React.useState([]);
+  const [tags, setTags] = React.useState([]);
 
   return (
     <Modal open={isProjectModalOpen} onClose={handleCloseModal}>
@@ -66,8 +66,8 @@ export const ProjectModal = memo(({}) => {
         initialValues={{
           title: '',
           description: '',
-          selectedTarget: '',
-          tags: []
+          target: '',
+          tags: ''
         }}
         validate={values => {
           const errors = {};
@@ -77,15 +77,21 @@ export const ProjectModal = memo(({}) => {
           if (!values.description) {
             errors.description = 'Required';
           }
-          if (values.selectedTarget === '') {
-            errors.selectedTarget = 'Required';
+          if (values.target === '') {
+            errors.target = 'Required';
           }
-          console.log(errors);
           return errors;
         }}
         onSubmit={(values, { setSubmitting }) => {
-          const data = {};
-          data.username = DJANGO_CONTEXT['username'];
+          const data = {
+            ...values,
+            author: {
+              username: DJANGO_CONTEXT['username'],
+              email: DJANGO_CONTEXT['email']
+            },
+            tags
+          };
+          console.log(data);
           setSubmitting(false);
         }}
       >
@@ -122,12 +128,12 @@ export const ProjectModal = memo(({}) => {
                 <InputFieldAvatar
                   icon={<Link />}
                   field={
-                    <FormControl className={classes.input} error={errors.selectedTarget !== undefined}>
+                    <FormControl className={classes.input} error={errors.target !== undefined}>
                       <InputLabel htmlFor="selected-target" required>
                         Target
                       </InputLabel>
                       <Select
-                        name="selectedTarget"
+                        name="target"
                         inputProps={{
                           id: 'selected-target'
                         }}
@@ -138,7 +144,7 @@ export const ProjectModal = memo(({}) => {
                           </MenuItem>
                         ))}
                       </Select>
-                      <FormHelperText>{errors.selectedTarget}</FormHelperText>
+                      <FormHelperText>{errors.target}</FormHelperText>
                     </FormControl>
                   }
                 />
@@ -151,21 +157,21 @@ export const ProjectModal = memo(({}) => {
                       multiple
                       freeSolo
                       id="tags-standard"
-                      options={selectedTags}
+                      options={tags}
                       getOptionLabel={option => option}
                       onChange={(e, data) => {
-                        setSelectedTags(data);
+                        setTags(data);
                       }}
                       renderInput={params => (
                         <TextField
                           {...params}
                           className={classes.input}
-                          name="tags"
                           label="Tags"
+                          name="tags"
                           fullWidth
                           onKeyPress={e => {
                             if (e.key === 'Enter') {
-                              setSelectedTags([...selectedTags, e.target.value]);
+                              setTags([...tags, e.target.value]);
                             }
                           }}
                         />
