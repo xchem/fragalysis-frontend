@@ -24,9 +24,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
       return Object.assign({}, state, { currentProject: currProject });
 
-    case constants.RESET_PROJECT_STATE:
-      const initState = JSON.parse(JSON.stringify(INITIAL_STATE));
-      return Object.assign({}, state, initState);
+    case constants.RESET_CURRENT_PROJECT_STATE:
+      const currProj = JSON.parse(JSON.stringify(INITIAL_STATE.currentProject));
+      return Object.assign({}, state, { currProject: currProj });
 
     case constants.SET_PROJECT_MODAL_OPEN:
       return Object.assign({}, state, { isProjectModalOpen: action.payload });

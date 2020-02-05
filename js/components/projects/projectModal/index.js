@@ -1,14 +1,16 @@
 import React, { memo } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { setProjectModalOpen } from '../redux/actions';
-import { makeStyles, RadioGroup, Radio, Grid, Typography, Chip, MenuItem, Button } from '@material-ui/core';
+import { resetProjectState, setProjectModalOpen } from '../redux/actions';
+import { makeStyles, RadioGroup, Radio, Grid, Typography, MenuItem } from '@material-ui/core';
 import { Title, Description, Label, Link } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { InputFieldAvatar } from './inputFieldAvatar';
 import { ProjectCreationType } from '../redux/constants';
 import { Formik, Form } from 'formik';
 import { TextField, Select } from 'formik-material-ui';
+import { Button } from '../../common/Inputs/Button';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -39,13 +41,12 @@ export const ProjectModal = memo(({}) => {
     setValue(event.target.value);
   };
 
-  const handleCloseModal = () => dispatch(setProjectModalOpen(false));
-
-  const [chipData, setChipData] = React.useState(['Custom tag']);
-
-  const handleDelete = chipToDelete => () => {
-    setChipData(chips => chips.filter(chip => chip.key !== chipToDelete.key));
+  const handleCloseModal = () => {
+    dispatch(resetProjectState());
+    dispatch(setProjectModalOpen(false));
   };
+
+  const [selectedTags, setSelectedTags] = React.useState([]);
 
   return (
     <Modal open={isProjectModalOpen} onClose={handleCloseModal}>
@@ -54,7 +55,7 @@ export const ProjectModal = memo(({}) => {
         initialValues={{
           title: '',
           description: '',
-          target: undefined,
+          target: '',
           tags: []
         }}
         validate={values => {
@@ -124,32 +125,46 @@ export const ProjectModal = memo(({}) => {
                 <InputFieldAvatar
                   icon={<Label />}
                   field={
-                    <TextField
-                      className={classes.input}
-                      name="tags"
-                      label="Tags"
-                      onKeyPress={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          setChipData([...chipData, e.target.value]);
-                        }
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      id="tags-standard"
+                      options={selectedTags}
+                      getOptionLabel={option => option}
+                      onChange={(e, data) => {
+                        setSelectedTags(data);
                       }}
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          className={classes.input}
+                          name="tags"
+                          label="Tags"
+                          fullWidth
+                          onKeyPress={e => {
+                            if (e.key === 'Enter') {
+                              setSelectedTags([...selectedTags, e.target.value]);
+                            }
+                          }}
+                        />
+                      )}
                     />
                   }
                 />
               </Grid>
+            </Grid>
+            <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <InputFieldAvatar
-                  icon={<Link style={{ opacity: 0 }} />}
-                  field={chipData.map((data, index) => (
-                    <Chip key={index} label={data} onDelete={handleDelete(data)} />
-                  ))}
-                />
+                <Button color="secondary" disabled={isSubmitting} onClick={handleCloseModal}>
+                  Cancel
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
+                  Create
+                </Button>
               </Grid>
             </Grid>
-            <Button variant="contained" color="primary" disabled={isSubmitting} onClick={submitForm}>
-              Submit
-            </Button>
           </Form>
         )}
       </Formik>

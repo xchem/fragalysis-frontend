@@ -10,7 +10,7 @@ export const setCurrentProjectProperty = (key, value) => ({
 });
 
 export const resetProjectState = () => ({
-  type: constants.RESET_PROJECT_STATE
+  type: constants.RESET_CURRENT_PROJECT_STATE
 });
 
 export const setProjectModalOpen = isOpen => ({
