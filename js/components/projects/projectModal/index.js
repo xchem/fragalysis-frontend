@@ -173,7 +173,7 @@ export const ProjectModal = memo(({ history }) => {
                   field={
                     <FormControl
                       className={classes.input}
-                      error={errors.target !== undefined}
+                      error={errors.targetId !== undefined}
                       disabled={isProjectModalLoading}
                     >
                       <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
@@ -192,7 +192,7 @@ export const ProjectModal = memo(({ history }) => {
                           </MenuItem>
                         ))}
                       </Select>
-                      <FormHelperText disabled={isProjectModalLoading}>{errors.target}</FormHelperText>
+                      <FormHelperText disabled={isProjectModalLoading}>{errors.targetId}</FormHelperText>
                     </FormControl>
                   }
                 />
