@@ -15,6 +15,7 @@ import { Close } from '@material-ui/icons';
 import SessionList from '../session/sessionList';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -29,6 +30,7 @@ const Routes = memo(() => {
   const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
+  const snapshot = useSelector(state => state.projectReducers.currentProject.snapshot);
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -47,7 +49,9 @@ const Routes = memo(() => {
           <Route
             exact
             path={`${URLS.projects}:projectId`}
-            render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
+            render={routeProps => (
+              <Preview headerHeight={headerHeight} isStateLoaded={snapshot !== null} {...routeProps} />
+            )}
           />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />

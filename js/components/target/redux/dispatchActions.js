@@ -25,7 +25,7 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   });
 };
 
-export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList) => dispatch => {
+export const updateTarget = ({ notCheckTarget, target, setIsLoading, targetIdList, targetId }) => dispatch => {
   if (!notCheckTarget) {
     // Get from the REST API
     let targetUnrecognisedFlag = true;
@@ -38,13 +38,25 @@ export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList)
         });
       }
       dispatch(setTargetUnrecognised(targetUnrecognisedFlag));
+    } else if (targetId !== undefined) {
+      if (targetIdList && targetIdList.length > 0) {
+        targetIdList.forEach(item => {
+          if (targetId === item.id) {
+            targetUnrecognisedFlag = false;
+          }
+        });
+      }
+      dispatch(setTargetUnrecognised(targetUnrecognisedFlag));
     }
-
     if (targetUnrecognisedFlag === false) {
       setIsLoading(true);
-      return api({
-        url: `${window.location.protocol}//${window.location.host}/api/targets/?title=${target}`
-      })
+      let url = '';
+      if (target) {
+        url = `${window.location.protocol}//${window.location.host}/api/targets/?title=${target}`;
+      } else if (targetId) {
+        url = `${window.location.protocol}//${window.location.host}/api/targets/?id=${targetId}`;
+      }
+      return api({ url })
         .then(response => {
           return dispatch(setTargetOn(response.data['results'][0].id));
         })

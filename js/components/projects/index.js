@@ -130,7 +130,7 @@ export const Projects = memo(({ history }) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
               <TableRow key={project.id} hover>
                 <TableCell component="th" scope="row">
-                  <Link to={`${URLS.projects}${project.id}/history`}>{project.name}</Link>
+                  <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
                 </TableCell>
                 <TableCell align="left">
                   <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>

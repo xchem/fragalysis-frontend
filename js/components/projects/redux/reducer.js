@@ -5,9 +5,10 @@ export const INITIAL_STATE = {
     author: null,
     title: null,
     description: null,
-    targetId: null,
+    targetId: 1, //change to null,
     tags: [],
-    type: null
+    type: null,
+    snapshot: null
   },
   isProjectModalOpen: false,
   isProjectModalLoading: false
