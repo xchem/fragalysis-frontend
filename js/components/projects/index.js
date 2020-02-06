@@ -11,9 +11,10 @@ import {
   TableFooter,
   IconButton,
   InputAdornment,
-  TextField
+  TextField,
+  Chip
 } from '@material-ui/core';
-import { Edit, Delete, Add, Search } from '@material-ui/icons';
+import { Delete, Add, Search } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
@@ -27,6 +28,9 @@ const useStyles = makeStyles(theme => ({
   },
   search: {
     margin: theme.spacing(1)
+  },
+  chip: {
+    margin: theme.spacing(1) / 2
   }
 }));
 
@@ -45,51 +49,63 @@ export const Projects = memo(({ history }) => {
     setPage(0);
   };
 
-  function createData(name, target, lastModification, author, id) {
-    return { name, target, lastModification, author, id };
+  function createData(name, target, lastModification, author, id, tags) {
+    return { name, target, lastModification, author, id, tags };
   }
 
   const rows = [
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 1),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 2),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 3),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 4),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 5),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 7),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 8),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 6),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 10),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 9),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 11),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 18),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 12),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 14),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 15),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 13),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 17),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 16),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 20),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 19),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 21),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 23),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 22),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 25),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 24),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 27),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 26),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 28),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 30),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 29),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 36),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 32),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 33),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 34),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 35),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 37),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 31),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 38),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 40),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 39)
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 1, [
+      'red',
+      'green',
+      'blue'
+    ]),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 2, [
+      'red',
+      'green',
+      'blue'
+    ]),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 3, [
+      'red',
+      'green',
+      'blue'
+    ]),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 4, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 5, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 7, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 8, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 6, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 10, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 9, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 11, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 18, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 12, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 14, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 15, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 13, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 17, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 16, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 20, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 19, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 21, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 23, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 22, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 25, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 24, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 27, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 26, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 28, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 30, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 29, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 36, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 32, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 33, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 34, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 35, []),
+    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 37, []),
+    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 31, []),
+    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 38, []),
+    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 40, []),
+    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 39, [])
   ];
   return (
     <>
@@ -121,9 +137,10 @@ export const Projects = memo(({ history }) => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell align="left">Target</TableCell>
-              <TableCell align="left">Author's email</TableCell>
+              <TableCell align="left">Tags</TableCell>
+              <TableCell align="left">Author</TableCell>
               <TableCell align="left">Last modification</TableCell>
-              <TableCell align="right">Action buttons</TableCell>
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -135,12 +152,14 @@ export const Projects = memo(({ history }) => {
                 <TableCell align="left">
                   <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
                 </TableCell>
+                <TableCell align="left">
+                  {project.tags.map((tag, index) => (
+                    <Chip key={index} label={tag} size="small" className={classes.chip} />
+                  ))}
+                </TableCell>
                 <TableCell align="left">{project.author}</TableCell>
                 <TableCell align="left">{project.lastModification}</TableCell>
                 <TableCell align="right">
-                  <IconButton>
-                    <Edit />
-                  </IconButton>
                   <IconButton>
                     <Delete />
                   </IconButton>

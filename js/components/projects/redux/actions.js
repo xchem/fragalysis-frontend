@@ -22,3 +22,8 @@ export const setProjectModalIsLoading = isLoading => ({
   type: constants.SET_PROJECT_MODAL_IS_LOADING,
   payload: isLoading
 });
+
+export const setProjectSnapshot = (snapshot, snapshotDetail) => ({
+  type: constants.SET_SNAPSHOT,
+  payload: { snapshot, snapshotDetail }
+});

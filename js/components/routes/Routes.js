@@ -30,7 +30,7 @@ const Routes = memo(() => {
   const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
-  const snapshot = useSelector(state => state.projectReducers.currentProject.snapshot);
+  const snapshot = useSelector(state => state.projectReducers.snapshot);
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {

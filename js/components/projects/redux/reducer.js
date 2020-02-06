@@ -7,8 +7,16 @@ export const INITIAL_STATE = {
     description: null,
     targetId: 1, //change to null,
     tags: [],
+    type: null
+  },
+  snapshot: null,
+  snapshotDetail: {
     type: null,
-    snapshot: null
+    name: null,
+    author: null,
+    message: null,
+    children: null, // if it has got children, it is created branch,
+    created: null
   },
   isProjectModalOpen: false,
   isProjectModalLoading: false
@@ -36,6 +44,12 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_PROJECT_MODAL_IS_LOADING:
       return Object.assign({}, state, { isProjectModalLoading: action.payload });
+
+    case constants.SET_SNAPSHOT:
+      return Object.assign({}, state, {
+        snapshot: action.payload.snapshot,
+        snapshotDetail: action.payload.snapshotDetail
+      });
 
     default:
       return state;
