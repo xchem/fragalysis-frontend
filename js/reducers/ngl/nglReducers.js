@@ -1,5 +1,5 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
-import { CONSTANTS, SCENES } from './constants';
+import { CONSTANTS } from './constants';
 
 export const INITIAL_STATE = {
   // NGL Scene properties
@@ -29,8 +29,7 @@ export const INITIAL_STATE = {
     [NGL_PARAMS.fogNear]: 50,
     [NGL_PARAMS.fogFar]: 100
   },
-  [SCENES.defaultScene]: {},
-  [SCENES.sessionScene]: {},
+
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
   proteinsHasLoaded: null,
@@ -117,57 +116,8 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         viewParams: newViewParams
       });
 
-    case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
-      const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
-      return Object.assign({}, state, newStateWithoutScene);
-
-    case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
+    case CONSTANTS.SET_NGL_STATE_FROM_CURRENT_SNAPSHOT:
       return Object.assign({}, state, action.payload);
-
-    case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
-      // load state from default scene and replace current state by these data
-      const stateWithoutScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutScene[SCENES.defaultScene];
-      delete stateWithoutScene[SCENES.sessionScene];
-      delete stateWithoutScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutScene['proteinsHasLoaded'];
-      delete stateWithoutScene['countOfPendingNglObjects'];
-
-      Object.keys(stateWithoutScene.objectsInView).forEach(objInView => {
-        stateWithoutScene.objectsInView[objInView].representations = stateWithoutScene.objectsInView[
-          objInView
-        ].representations.map(item => {
-          delete item['lastKnownID'];
-          delete item['uuid'];
-          return item;
-        });
-      });
-
-      return Object.assign({}, state, {
-        [SCENES.defaultScene]: stateWithoutScene
-      });
-
-    case CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE:
-      // load state from default scene and replace current state by these data
-      const stateWithoutSessionScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutSessionScene[SCENES.sessionScene];
-      delete stateWithoutSessionScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutSessionScene['proteinsHasLoaded'];
-      delete stateWithoutSessionScene['countOfPendingNglObjects'];
-
-      Object.keys(stateWithoutSessionScene.objectsInView).forEach(objInView => {
-        stateWithoutSessionScene.objectsInView[objInView].representations = stateWithoutSessionScene.objectsInView[
-          objInView
-        ].representations.map(item => {
-          delete item['lastKnownID'];
-          delete item['uuid'];
-          return item;
-        });
-      });
-
-      return Object.assign({}, state, {
-        [SCENES.sessionScene]: stateWithoutSessionScene
-      });
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
       if (action.stage) {

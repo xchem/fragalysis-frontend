@@ -5,8 +5,7 @@ import {
   incrementCountOfPendingNglObjects,
   loadNglObject,
   resetStateToDefaultScene,
-  resetStateToSessionScene,
-  saveCurrentStateAsDefaultScene,
+  setNglStateFromCurrentSnapshot,
   setNglOrientation,
   setNglViewParams,
   setProteinLoadingState
@@ -57,10 +56,11 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
 };
 
 const createInitialSnapshot = () => async (dispatch, getState) => {
-  await dispatch(saveCurrentStateAsDefaultScene());
+  const { objectsInView, nglOrientations, viewParams } = getState().nglReducers;
+  const snapshot = { objectsInView, nglOrientations, viewParams };
   // TODO condition to check if project exists
   dispatch(
-    saveCurrentSnapshot(getState().nglReducers[SCENES.defaultScene], {
+    saveCurrentSnapshot(snapshot, {
       type: SnapshotType.INIT,
       name: 'Initial Snapshot',
       author: {
@@ -117,31 +117,23 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
  *
  * @param stage - instance of NGL view
  * @param display_div - id of NGL View div
- * @param scene - type of scene (default or session)
- * @param sessionData - new session data loaded from API
- * @returns {function(...[*]=)}
  */
-export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) => (dispatch, getState) => {
-  const currentScene = (sessionData && sessionData.nglReducers[scene]) || getState().nglReducers[scene];
-  switch (scene) {
-    case SCENES.defaultScene:
-      dispatch(resetStateToDefaultScene());
-      break;
-    case SCENES.sessionScene:
-      dispatch(resetStateToSessionScene(sessionData));
-      break;
-  }
+export const reloadNglViewFromSnapshot = (stage, display_div) => (dispatch, getState) => {
+  const snapshot = getState().projectReducers.snapshot;
+
+  dispatch(setNglStateFromCurrentSnapshot(snapshot));
+
   // Remove all components in NGL View
   stage.removeAllComponents();
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
   Promise.all(
-    Object.keys(currentScene.objectsInView || {}).map(objInView => {
-      if (currentScene.objectsInView[objInView].display_div === display_div) {
-        let representations = currentScene.objectsInView[objInView].representations;
+    Object.keys(snapshot.objectsInView || {}).map(objInView => {
+      if (snapshot.objectsInView[objInView].display_div === display_div) {
+        let representations = snapshot.objectsInView[objInView].representations;
         return dispatch(
-          loadObject(currentScene.objectsInView[objInView], stage, createRepresentationsArray(representations))
+          loadObject(snapshot.objectsInView[objInView], stage, createRepresentationsArray(representations))
         );
       } else {
         return Promise.resolve();
@@ -149,12 +141,12 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
     })
   ).finally(() => {
     // loop over nglViewParams
-    Object.keys(currentScene.viewParams).forEach(param => {
-      dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
+    Object.keys(snapshot.viewParams).forEach(param => {
+      dispatch(setNglViewParams(param, snapshot.viewParams[param], stage));
     });
 
     // nglOrientations
-    const newOrientation = currentScene.nglOrientations[display_div];
+    const newOrientation = snapshot.nglOrientations[display_div];
     if (newOrientation) {
       stage.viewerControls.orient(newOrientation.elements);
     }

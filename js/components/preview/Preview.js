@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
@@ -15,9 +15,9 @@ import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
-import { withSessionManagement } from '../session/withSessionManagement';
-import { useDispatch } from 'react-redux';
-import { removeAllNglComponents } from '../../reducers/ngl/actions';
+import { withSnapshotManagement } from '../session/withSnapshotManagement';
+import { ProjectHistory } from './projectHistory';
+import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 //import HotspotList from '../hotspot/hotspotList';
 
 const useStyles = makeStyles(theme => ({
@@ -33,7 +33,6 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
   const theme = useTheme();
   const nglViewerControlsRef = useRef(null);
-  const dispatch = useDispatch();
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
@@ -48,17 +47,15 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
 
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 64px)`;
+  const [projectHistoryHeight, setProjectHistoryHeight] = useState(0);
 
-  useEffect(() => {
-    // Unmount Preview - reset NGL state
-    return () => {
-      dispatch(removeAllNglComponents());
-    };
-  }, [dispatch]);
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
+    2
+  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 121px)`;
+  const [showHistory, setShowHistory] = useState(false);
 
   return (
-    <Fragment>
+    <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
           {/* Hit cluster selector */}
@@ -97,14 +94,22 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
           <Grid item>
             <CompoundList height={compoundHeight} />
           </Grid>
+          <Grid item>
+            <ProjectHistory
+              height={projectHistoryHeight}
+              setHeight={setProjectHistoryHeight}
+              showFullHistory={() => setShowHistory(!showHistory)}
+            />
+          </Grid>
         </Grid>
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
       </Grid>
       <ModalStateSave />
-    </Fragment>
+      <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />
+    </>
   );
 });
 
-export default withSessionManagement(withUpdatingTarget(withLoadingProtein(Preview)));
+export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview)));

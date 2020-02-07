@@ -7,7 +7,7 @@ export const INITIAL_STATE = {
   loadedSession: undefined
 };
 
-export const sessionReducers = (state = INITIAL_STATE, action = {}) => {
+export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
     case constants.SET_SAVE_TYPE:
       return Object.assign({}, state, {

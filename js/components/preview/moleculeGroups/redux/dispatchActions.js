@@ -4,7 +4,7 @@ import {
   decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
   deleteObject,
   loadObject,
-  reloadNglViewFromScene
+  reloadNglViewFromSnapshot
 } from '../../../../reducers/ngl/dispatchActions';
 import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
@@ -101,8 +101,8 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-  dispatch(reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene));
-  dispatch(reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene));
+  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW));
+  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW));
 
   // Reset selection reducer
   // remove sites selection

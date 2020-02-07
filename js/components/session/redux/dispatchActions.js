@@ -1,4 +1,3 @@
-import { SCENES } from '../../../reducers/ngl/constants';
 import {
   reloadApiState,
   setLatestSession,
@@ -9,10 +8,9 @@ import {
   setTargetUnrecognised
 } from '../../../reducers/api/actions';
 import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
-import { reloadNglViewFromScene } from '../../../reducers/ngl/dispatchActions';
+import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { canCheckTarget, generateBondColorMap, generateObjectList } from '../helpers';
-import { saveCurrentStateAsSessionScene } from '../../../reducers/ngl/actions';
 import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
@@ -38,7 +36,13 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
   if (nglViewList.length > 0) {
     dispatch(reloadSelectionReducer(jsonOfView.selectionReducers));
     nglViewList.forEach(nglView => {
-      dispatch(reloadNglViewFromScene(nglView.stage, nglView.id, SCENES.sessionScene, jsonOfView));
+      // TODO change this loading
+      dispatch(
+        reloadNglViewFromSnapshot(
+          nglView.stage,
+          nglView.id //, jsonOfView
+        )
+      );
     });
 
     if (jsonOfView.selectionReducers.vectorOnList.length !== 0) {
@@ -77,7 +81,7 @@ export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession
 };
 
 export const postToServer = sessionState => dispatch => {
-  dispatch(saveCurrentStateAsSessionScene());
+  // TODO save current state as snapshot
   dispatch(setSavingState(sessionState));
 };
 
@@ -107,7 +111,7 @@ export const getSessionDetails = () => (dispatch, getState) => {
 
 export const updateCurrentTarget = myJson => (dispatch, getState) => {
   const state = getState();
-  const saveType = state.sessionReducers.saveType;
+  const saveType = state.snapshotReducers.saveType;
 
   if (saveType === savingTypeConst.sessionNew && myJson) {
     dispatch(setLatestSession(myJson.uuid));
@@ -128,7 +132,7 @@ export const updateCurrentTarget = myJson => (dispatch, getState) => {
 };
 
 export const generateNextUuid = () => (dispatch, getState) => {
-  const { nextUuid } = getState().sessionReducers;
+  const { nextUuid } = getState().snapshotReducers;
 
   if (nextUuid === '') {
     const uuidv4 = require('uuid/v4');

@@ -5,9 +5,11 @@ import { Grid, IconButton, Typography, Table, TableBody, TableRow, TableCell, Ta
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
 import { Delete, Share, MoreVert } from '@material-ui/icons';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
 
 export const ProjectHistory = memo(({ height, setHeight, showFullHistory }) => {
   const panelRef = useRef(undefined);
+  const snapshotDetail = useSelector(state => state.projectReducers.snapshotDetail);
 
   const template = templateExtend(TemplateName.Metro, {
     branch: {
@@ -69,8 +71,6 @@ export const ProjectHistory = memo(({ height, setHeight, showFullHistory }) => {
   function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };
   }
-
-  const rows = [createData('mols', 'parent mols', '15.01.2019')];
 
   return (
     <Panel
@@ -164,22 +164,24 @@ export const ProjectHistory = memo(({ height, setHeight, showFullHistory }) => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Current</TableCell>
-                  <TableCell align="right">Parent</TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell align="right">Author</TableCell>
                   <TableCell align="right">Created</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map(row => (
-                  <TableRow key={row.name}>
-                    <TableCell component="th" scope="row">
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                  </TableRow>
-                ))}
+                <TableRow>
+                  <TableCell component="th" scope="row">
+                    {snapshotDetail.name}
+                  </TableCell>
+                  <TableCell align="right">
+                    {snapshotDetail.author && snapshotDetail.author.username},
+                    {snapshotDetail.author && snapshotDetail.author.email}
+                  </TableCell>
+                  <TableCell align="right">
+                    {snapshotDetail.created && moment(snapshotDetail.created).format('LLL')}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </Grid>

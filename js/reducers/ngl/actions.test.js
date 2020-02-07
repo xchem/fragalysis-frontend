@@ -320,7 +320,7 @@ describe("testing ngl reducer's actions", () => {
       nglOrientations: { a: [24, 566] }
     };
 
-    let result = nglReducers(initialState, actions.resetStateToSessionScene(sessionScene));
+    let result = nglReducers(initialState, actions.setNglStateFromCurrentSnapshot(sessionScene));
     expect(result.objectsInView).toStrictEqual(sessionScene.objectsInView);
     expect(result.nglOrientations).toStrictEqual(sessionScene.nglOrientations);
   });
