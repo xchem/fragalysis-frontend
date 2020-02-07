@@ -244,8 +244,8 @@ export const IssueReport = memo(() => {
     return open && response.length > 0;
   };
 
-  const handleOpen = () => {
-    captureScreen();
+  const handleOpen = async () => {
+    await captureScreen();
     setOpen(true);
   };
 
