@@ -1,6 +1,7 @@
 const path = require('path');
 const BundleTracker = require('webpack-bundle-tracker');
 const TerserPlugin = require('terser-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   optimization: {
@@ -38,7 +39,7 @@ module.exports = {
     reasons: true
   },
 
-  plugins: [new BundleTracker({ filename: './webpack-stats.json', trackAssets: true })],
+  plugins: [new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }), new Dotenv()],
 
   module: {
     rules: [

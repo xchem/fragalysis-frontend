@@ -2,14 +2,15 @@
  * This component creates a button for reporting new issues and handling them.
  */
 
-import React, { memo, useContext, useState } from 'react';
-import { ButtonBase, Collapse, Grid, Link, makeStyles, TextField, Typography } from '@material-ui/core';
+import React, { memo, useContext } from 'react';
+import { ButtonBase, Grid, makeStyles, TextField, Typography } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { ReportProblem } from '@material-ui/icons'; // EmojiObjects for new idea
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
 import axios from 'axios';
 import { HeaderContext } from '../header/headerContext';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -53,27 +54,27 @@ export const IssueReport = memo(() => {
     setTitle('');
     setDescrition('');
     setResponse('');
-  }
+  };
 
   /* Getting image from screen capture */
   const [imageSource, setImageSource] = React.useState('');
 
   const takeScreenshot = async () => {
     // https://jsfiddle.net/8dz98u4r/
-  	const stream = await navigator.mediaDevices.getDisplayMedia({video: {mediaSource: 'window'}});
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: { mediaSource: 'window' } });
     const vid = document.createElement('video');
     vid.srcObject = stream;
     await vid.play();
     const canvas = document.createElement('canvas');
     canvas.width = vid.videoWidth;
     canvas.height = vid.videoHeight;
-    canvas.getContext('2d').drawImage(vid, 0,0);
-    stream.getTracks().forEach(t=>t.stop());
+    canvas.getContext('2d').drawImage(vid, 0, 0);
+    stream.getTracks().forEach(t => t.stop());
     return canvas;
-  	/*return new Promise((res, rej) => {
+    /*return new Promise((res, rej) => {
     	canvas.toBlob(res);
     });*/
-  }
+  };
 
   const captureScreen = async () => {
     let image = '';
@@ -92,7 +93,7 @@ export const IssueReport = memo(() => {
     } else {
       console.log('capturing canvas');
       image = document.getElementById('major_view');
-      if (image != null ) {
+      if (image != null) {
         image = image.getElementsByTagName('canvas')[0];
         image = image.toDataURL();
       } else {
@@ -103,7 +104,7 @@ export const IssueReport = memo(() => {
     setImageSource(image);
 
     return image;
-  }
+  };
 
   /* API handlers */
   const apiLink = 'https://api.github.com';
@@ -116,15 +117,13 @@ export const IssueReport = memo(() => {
   const getContentLink = () => {
     return apiLink + '/repos/' + repositoryContent + '/contents';
   };
-  const getAssetLink = (assetName) => {
+  const getAssetLink = assetName => {
     return getContentLink() + '/' + assetName;
   };
 
   const getHeaders = () => {
-    // const token = '3e593b72c9202fe394d8025dfa19fc5e2eb08f1b'; // m-v
-    const token = '8145d752610740acf4657d42721f364dd1129cc2'; // frag-rep
     return {
-      'Authorization': 'token ' + token
+      Authorization: 'token ' + process.env.GITHUB_API_TOKEN
     };
   };
 
@@ -136,31 +135,32 @@ export const IssueReport = memo(() => {
     const image = imageSource; // await captureScreen();
     if (image.length > 0) {
       // https://gist.github.com/maxisam/5c6ec10cc4146adce05d62f553c5062f
-      const imgBase64 = image.split(",")[1];
+      const imgBase64 = image.split(',')[1];
       const uid = new Date().getTime() + parseInt(Math.random() * 1e6).toString();
-      const fileName = "screenshot-" + uid + ".png";
+      const fileName = 'screenshot-' + uid + '.png';
 
       const payload = {
-        "message": "auto upload from issue form",
-        "branch": "master",
-        "content": imgBase64
+        message: 'auto upload from issue form',
+        branch: 'master',
+        content: imgBase64
       };
 
-      const result = await axios.put(getAssetLink(fileName), JSON.stringify(payload), { 'headers': getHeaders() }).catch((error) => {
-        console.log(error);
-        // setResponse('Error occured: ' + error.message);
-        // TODO sentry?
-      });
+      const result = await axios
+        .put(getAssetLink(fileName), JSON.stringify(payload), { headers: getHeaders() })
+        .catch(error => {
+          console.log(error);
+          // setResponse('Error occured: ' + error.message);
+          // TODO sentry?
+        });
       console.log(result);
       screenshotUrl = result.data.content.html_url + '?raw=true';
     }
 
     return screenshotUrl;
-  }
+  };
 
   const createIssue = async () => {
-
-    const screenshotUrl =  await uploadFile();
+    const screenshotUrl = await uploadFile();
     console.log('url', screenshotUrl);
 
     console.log('creating new issue');
@@ -216,29 +216,32 @@ export const IssueReport = memo(() => {
     });*/
 
     var issue = {
-      "title": title,
-      "body": body,
-      "labels": ["issue"]
+      title: title,
+      body: body,
+      labels: ['issue']
     };
 
-    axios.post(getIssuesLink(), issue, { 'headers': getHeaders() }).then(result => {
-      console.log(result);
-      // setResponse('Issue created: ' + result.data.html_url);
-      // setSnackBarTitle('<a href="' + result.data.html_url + '">Issue created: ' + result.data.html_url + '</a>');
-      setSnackBarTitle('Issue created: ' + result.data.html_url);
-      handleClose();
-    }).catch((error) => {
-      console.log(error);
-      setResponse('Error occured: ' + error.message);
-      // TODO sentry?
-    });
+    axios
+      .post(getIssuesLink(), issue, { headers: getHeaders() })
+      .then(result => {
+        console.log(result);
+        // setResponse('Issue created: ' + result.data.html_url);
+        // setSnackBarTitle('<a href="' + result.data.html_url + '">Issue created: ' + result.data.html_url + '</a>');
+        setSnackBarTitle('Issue created: ' + result.data.html_url);
+        handleClose();
+      })
+      .catch(error => {
+        console.log(error);
+        setResponse('Error occured: ' + error.message);
+        // TODO sentry?
+      });
   };
 
-   /* Modal handlers */
+  /* Modal handlers */
   const [open, setOpen] = React.useState(false);
 
   const isResponse = () => {
-    return open && (response.length > 0);
+    return open && response.length > 0;
   };
 
   const handleOpen = () => {
@@ -253,23 +256,15 @@ export const IssueReport = memo(() => {
 
   return (
     <div>
-      <Button
-        startIcon={<ReportProblem />}
-        variant="text"
-        size="small"
-        className={classes.button}
-        onClick={handleOpen}
-        >
+      <Button startIcon={<ReportProblem />} variant="text" size="small" className={classes.button} onClick={handleOpen}>
         Report issue
       </Button>
-      <Modal open={open} onClose={handleClose} >
+      <Modal open={open} onClose={handleClose}>
         <Grid container direction="column" className={classes.body}>
-
           <Typography variant="h3">Report issue</Typography>
-          { isResponse() && <Alert severity="info">{response}</Alert> }
+          {isResponse() && <Alert severity="info">{response}</Alert>}
 
           <Grid container direction="row" spacing={2} className={classes.input}>
-
             <Grid item xs={12} sm container>
               <Grid item xs container direction="column" className={classes.input}>
                 <Grid item xs>
@@ -288,7 +283,8 @@ export const IssueReport = memo(() => {
                     placeholder="Describe your problem in a detail."
                     multiline
                     rows="4"
-                    value={description} onInput={e => setDescrition(e.target.value)}
+                    value={description}
+                    onInput={e => setDescrition(e.target.value)}
                   />
                 </Grid>
               </Grid>
@@ -299,25 +295,18 @@ export const IssueReport = memo(() => {
                 <img className={classes.img} alt="complex" src={imageSource} />
               </ButtonBase>
             </Grid>
-
           </Grid>
 
           <Grid container justify="flex-end" direction="row">
             <Grid item>
-              <Button onClick={handleClose}>
-                Close
-              </Button>
+              <Button onClick={handleClose}>Close</Button>
             </Grid>
             <Grid item>
-              <Button
-                color="primary"
-                onClick={createIssue}
-              >
+              <Button color="primary" onClick={createIssue}>
                 Report issue
               </Button>
             </Grid>
           </Grid>
-
         </Grid>
       </Modal>
     </div>

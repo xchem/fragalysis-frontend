@@ -181,3 +181,10 @@ Please install following extensions
 Prettier - Code formatter https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
 
 ES-lint https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+
+
+#Environments
+to activate GitHub api create `.env` file and following environment variable
+```
+WEB_GITHUB_API_TOKEN=myGitHubToken
+```
