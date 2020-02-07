@@ -29,9 +29,9 @@ if (process.env.NODE_ENV === 'production') {
   });
 
   LogRocket.getSessionURL(sessionURL => {
-  	configureScope(scope => {
-  		scope.setExtra("logRocketURL", sessionURL);
-  	});
+    configureScope(scope => {
+      scope.setExtra('logRocketURL', sessionURL);
+    });
   });
 }
 

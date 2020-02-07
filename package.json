@@ -45,6 +45,7 @@
     "cross-fetch": "^3.0.4",
     "css-loader": "^3.2.0",
     "date-fns": "^2.9.0",
+    "dotenv-webpack": "^1.7.0",
     "express": "^4.17.1",
     "file-saver": "^2.0.2",
     "formik": "^2.1.3",

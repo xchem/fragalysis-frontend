@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const BundleTracker = require('webpack-bundle-tracker');
 const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: 'development',
@@ -36,7 +37,8 @@ module.exports = {
     new ErrorOverlayPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin() // don't reload if there is an error
+    new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
+    new Dotenv()
   ],
 
   module: {

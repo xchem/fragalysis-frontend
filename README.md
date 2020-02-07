@@ -168,13 +168,11 @@ docker exec -it web_dock /bin/bash
 #IDEs
 ###WebStorm, PhpStorm
 Please install following extension Prettier
-
 ```
 Go to: Preferences, Tools, File watchers
 Add Prettier
 Prettier reccomended settings: Files to watch - Scope - All changed files
 ```
-
 During the commit in this IDE, check `Run Git hooks`
 
 ###Visual Studio Code
@@ -184,15 +182,9 @@ Prettier - Code formatter https://marketplace.visualstudio.com/items?itemName=es
 
 ES-lint https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 
+
 #Environments
 to activate GitHub api create `.env` file and following environment variable
-
 ```
-GITHUB_API_TOKEN=myGitHubToken
-```
-
-To create .env with token right away:
-
-```
-echo "GITHUB_API_TOKEN=myGitHubToken" > .env
+WEB_GITHUB_API_TOKEN=myGitHubToken
 ```
