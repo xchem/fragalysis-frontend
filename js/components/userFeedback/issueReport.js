@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
 
 export const IssueReport = memo(() => {
   const classes = useStyles();
-  const { setIsLoading, setSnackBarTitle } = useContext(HeaderContext);
+  const { setSnackBarTitle } = useContext(HeaderContext);
 
   /* Form handlers */
   const [name, setName] = React.useState(DJANGO_CONTEXT['name'] || '');
@@ -68,10 +68,8 @@ export const IssueReport = memo(() => {
   }
 
   const takeScreenshot = async () => {
-    setIsLoading(true);
     // https://jsfiddle.net/8dz98u4r/
     const stream = await navigator.mediaDevices.getDisplayMedia({ video: { mediaSource: 'window' } });
-    setIsLoading(false);
     const vid = document.createElement('video');
     vid.srcObject = stream;
     await vid.play();
@@ -173,7 +171,6 @@ export const IssueReport = memo(() => {
 
   const createIssue = async () => {
     setResponse('');
-    setIsLoading(true);
 
     const screenshotUrl = await uploadFile();
     console.log('url', screenshotUrl);
@@ -250,8 +247,6 @@ export const IssueReport = memo(() => {
         setResponse('Error occured: ' + error.message);
         // TODO sentry?
       });
-
-    setIsLoading(false);
   };
 
   /* Modal handlers */
