@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useContext } from 'react';
-import { ButtonBase, Grid, makeStyles, TextField, Typography } from '@material-ui/core';
+import { ButtonBase, Grid, makeStyles, Typography } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { ReportProblem } from '@material-ui/icons'; // EmojiObjects for new idea
 import { Button } from '../common/Inputs/Button';
@@ -11,6 +11,10 @@ import Modal from '../common/Modal';
 import axios from 'axios';
 import { HeaderContext } from '../header/headerContext';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { Formik, Form } from 'formik';
+import { TextField } from 'formik-material-ui';
+
+import './css/styles.css';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -82,7 +86,9 @@ export const IssueReport = memo(() => {
     if (window.isSecureContext) {
       console.log('capturing screen');
       image = await takeScreenshot();
-      image = image.toDataURL();
+      if (image != null) {
+        image = image.toDataURL();
+      }
       /*navigator.mediaDevices.getDisplayMedia()
       .then(mediaStream => {
         // https://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript
@@ -92,10 +98,10 @@ export const IssueReport = memo(() => {
       .catch( err => console.log(`${err.name}: ${err.message}`));*/
     } else {
       console.log('capturing canvas');
-      image = document.getElementById('major_view');
-      if (image != null) {
-        image = image.getElementsByTagName('canvas')[0];
-        image = image.toDataURL();
+      const canvas = document.getElementById('major_view');
+      if (canvas != null) {
+        canvas = canvas.getElementsByTagName('canvas')[0];
+        image = canvas.toDataURL();
       } else {
         console.log('canvas not found');
       }
@@ -149,7 +155,7 @@ export const IssueReport = memo(() => {
         .put(getAssetLink(fileName), JSON.stringify(payload), { headers: getHeaders() })
         .catch(error => {
           console.log(error);
-          // setResponse('Error occured: ' + error.message);
+          setResponse('Error occured: ' + error.message);
           // TODO sentry?
         });
       console.log(result);
@@ -160,6 +166,8 @@ export const IssueReport = memo(() => {
   };
 
   const createIssue = async () => {
+    setResponse('');
+
     const screenshotUrl = await uploadFile();
     console.log('url', screenshotUrl);
 
@@ -225,9 +233,9 @@ export const IssueReport = memo(() => {
       .post(getIssuesLink(), issue, { headers: getHeaders() })
       .then(result => {
         console.log(result);
-        // setResponse('Issue created: ' + result.data.html_url);
-        // setSnackBarTitle('<a href="' + result.data.html_url + '">Issue created: ' + result.data.html_url + '</a>');
-        setSnackBarTitle('Issue created: ' + result.data.html_url);
+        setSnackBarTitle(<>
+          {'Issue was created: '}<a href={result.data.html_url} target='_blank'>{result.data.html_url}</a>
+        </>);
         handleClose();
       })
       .catch(error => {
@@ -260,54 +268,84 @@ export const IssueReport = memo(() => {
         Report issue
       </Button>
       <Modal open={open} onClose={handleClose}>
-        <Grid container direction="column" className={classes.body}>
-          <Typography variant="h3">Report issue</Typography>
-          {isResponse() && <Alert severity="info">{response}</Alert>}
+        <Formik
+          initialValues={{
+            name: name,
+            email: email,
+            title: title,
+            description: description
+          }}
+          validate={values => {
+            const errors = {};
+            if (!values.title) {
+              errors.title = 'Required field.';
+            }
+            if (!values.description) {
+              errors.description = 'Required field.';
+            }
+            return errors;
+          }}
+          onSubmit={async (values, { setSubmitting }) => {
+            await createIssue();
+            setSubmitting(false);
+          }}
+        >
 
-          <Grid container direction="row" spacing={2} className={classes.input}>
-            <Grid item xs={12} sm container>
-              <Grid item xs container direction="column" className={classes.input}>
-                <Grid item xs>
-                  <TextField id="issue-name" label="Name" value={name} onInput={e => setName(e.target.value)} />
+          {({ submitForm, isSubmitting }) => (
+            <Form>
+              <Grid container direction="column" className={classes.body}>
+                <Typography variant="h3">Report issue</Typography>
+                {isResponse() && <Alert severity="error">{response}</Alert>}
+
+                <Grid container direction="row" spacing={2} className={classes.input}>
+                  <Grid item xs={12} sm container>
+                    <Grid item xs container direction="column" className={classes.input}>
+                      <Grid item xs>
+                        <TextField name="name" label="Name" value={name} onInput={e => setName(e.target.value)} />
+                      </Grid>
+                      <Grid item xs>
+                        <TextField name="email" label="Email" value={email} onInput={e => setEmail(e.target.value)} />
+                      </Grid>
+                      <Grid item xs>
+                        <TextField required name="title" label="Title" value={title} onInput={e => setTitle(e.target.value)} />
+                      </Grid>
+                      <Grid item xs>
+                        <TextField
+                          required
+                          name="description"
+                          label="Description"
+                          placeholder="Describe your problem in a detail."
+                          multiline
+                          rows="4"
+                          value={description}
+                          onInput={e => setDescrition(e.target.value)}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <Grid item>
+                    <ButtonBase className={classes.image}>
+                      <img className={classes.img} alt="complex" src={imageSource} />
+                    </ButtonBase>
+                  </Grid>
                 </Grid>
-                <Grid item xs>
-                  <TextField id="issue-email" label="Email" value={email} onInput={e => setEmail(e.target.value)} />
+
+                <Grid container justify="flex-end" direction="row">
+                  <Grid item>
+                    <Button disabled={isSubmitting} onClick={handleClose}>Close</Button>
+                  </Grid>
+                  <Grid item>
+                    <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
+                      Report issue
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs>
-                  <TextField id="issue-title" label="Title" value={title} onInput={e => setTitle(e.target.value)} />
-                </Grid>
-                <Grid item xs>
-                  <TextField
-                    id="issue-description"
-                    label="Description"
-                    placeholder="Describe your problem in a detail."
-                    multiline
-                    rows="4"
-                    value={description}
-                    onInput={e => setDescrition(e.target.value)}
-                  />
-                </Grid>
+
               </Grid>
-            </Grid>
-
-            <Grid item>
-              <ButtonBase className={classes.image}>
-                <img className={classes.img} alt="complex" src={imageSource} />
-              </ButtonBase>
-            </Grid>
-          </Grid>
-
-          <Grid container justify="flex-end" direction="row">
-            <Grid item>
-              <Button onClick={handleClose}>Close</Button>
-            </Grid>
-            <Grid item>
-              <Button color="primary" onClick={createIssue}>
-                Report issue
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
+            </Form>
+          )}
+        </Formik>
       </Modal>
     </div>
   );
