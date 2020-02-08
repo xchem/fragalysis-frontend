@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
 
 export const IssueReport = memo(() => {
   const classes = useStyles();
-  const { setSnackBarTitle } = useContext(HeaderContext);
+  const { setIsLoading, setSnackBarTitle } = useContext(HeaderContext);
 
   /* Form handlers */
   const [name, setName] = React.useState(DJANGO_CONTEXT['name'] || '');
@@ -63,9 +63,15 @@ export const IssueReport = memo(() => {
   /* Getting image from screen capture */
   const [imageSource, setImageSource] = React.useState('');
 
+  const canCaptureScreen = () => {
+    return window.isSecureContext && typeof navigator.mediaDevices !== 'undefined' && typeof navigator.mediaDevices.getDisplayMedia !== 'undefined';
+  }
+
   const takeScreenshot = async () => {
+    setIsLoading(true);
     // https://jsfiddle.net/8dz98u4r/
     const stream = await navigator.mediaDevices.getDisplayMedia({ video: { mediaSource: 'window' } });
+    setIsLoading(false);
     const vid = document.createElement('video');
     vid.srcObject = stream;
     await vid.play();
@@ -83,7 +89,7 @@ export const IssueReport = memo(() => {
   const captureScreen = async () => {
     let image = '';
 
-    if (window.isSecureContext) {
+    if (canCaptureScreen()) {
       console.log('capturing screen');
       image = await takeScreenshot();
       if (image != null) {
@@ -106,7 +112,7 @@ export const IssueReport = memo(() => {
         console.log('canvas not found');
       }
     }
-    console.log('setting image source', image);
+
     setImageSource(image);
 
     return image;
@@ -167,6 +173,7 @@ export const IssueReport = memo(() => {
 
   const createIssue = async () => {
     setResponse('');
+    setIsLoading(true);
 
     const screenshotUrl = await uploadFile();
     console.log('url', screenshotUrl);
@@ -243,6 +250,8 @@ export const IssueReport = memo(() => {
         setResponse('Error occured: ' + error.message);
         // TODO sentry?
       });
+
+    setIsLoading(false);
   };
 
   /* Modal handlers */
