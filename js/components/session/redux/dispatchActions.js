@@ -15,6 +15,7 @@ import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { loadProjectFromSnapshot } from '../../projects/redux/dispatchActions';
 
 export const handleVector = json => dispatch => {
   let objList = generateObjectList(json['3d']);
@@ -27,31 +28,26 @@ export const redeployVectorsLocal = url => dispatch => {
   return api({ url }).then(response => dispatch(handleVector(response.data['vectors'])));
 };
 
+// TODO: fix reload session method
 export const reloadSession = (myJson, nglViewList) => dispatch => {
-  let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
-  dispatch(reloadApiState(jsonOfView.apiReducers));
+  let snapshotData = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+  dispatch(reloadApiState(snapshotData.apiReducers));
   dispatch(setSessionId(myJson.id));
   dispatch(setSessionTitle(myJson.title));
 
   if (nglViewList.length > 0) {
-    dispatch(reloadSelectionReducer(jsonOfView.selectionReducers));
+    dispatch(reloadSelectionReducer(snapshotData.selectionReducers));
     nglViewList.forEach(nglView => {
-      // TODO change this loading
-      dispatch(
-        reloadNglViewFromSnapshot(
-          nglView.stage,
-          nglView.id //, jsonOfView
-        )
-      );
+      dispatch(loadProjectFromSnapshot(nglView.stage, nglView.id, snapshotData));
     });
 
-    if (jsonOfView.selectionReducers.vectorOnList.length !== 0) {
+    if (snapshotData.selectionReducers.vectorOnList.length !== 0) {
       let url =
         window.location.protocol +
         '//' +
         window.location.host +
         '/api/vector/' +
-        jsonOfView.selectionReducers.vectorOnList[JSON.stringify(0)] +
+        snapshotData.selectionReducers.vectorOnList[JSON.stringify(0)] +
         '/';
       dispatch(redeployVectorsLocal(url)).catch(error => {
         throw new Error(error);

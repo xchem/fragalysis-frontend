@@ -16,7 +16,7 @@ import { createRepresentationsArray } from '../../components/nglView/generatingO
 import { SELECTION_TYPE } from '../../components/nglView/constants';
 import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
-import { addSnapshotToProject, saveCurrentSnapshot } from '../../components/projects/redux/dispatchActions';
+import { storeSnapshotToProject, saveCurrentSnapshot } from '../../components/projects/redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { SnapshotType } from '../../components/projects/redux/constants';
 import moment from 'moment';
@@ -73,7 +73,7 @@ const createInitialSnapshot = projectId => async (dispatch, getState) => {
   // TODO condition to check if project exists and if is open target or project
   dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
   if (projectId) {
-    dispatch(addSnapshotToProject(snapshot, snapshotDetail, projectId));
+    dispatch(storeSnapshotToProject(snapshot, snapshotDetail, projectId));
   }
 };
 
