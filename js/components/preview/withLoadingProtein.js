@@ -8,12 +8,13 @@ import { shouldLoadProtein } from './redux/dispatchActions';
 
 // is responsible for loading molecules list
 export const withLoadingProtein = WrappedComponent => {
-  const ProteinLoader = memo(({ isStateLoaded, shouldLoadProtein, ...rest }) => {
+  const ProteinLoader = memo(({ isStateLoaded, shouldLoadProtein, match, ...rest }) => {
     const { nglViewList } = useContext(NglContext);
+    const projectId = match && match.params && match.params.projectId;
 
     useEffect(() => {
-      shouldLoadProtein(nglViewList, isStateLoaded);
-    }, [isStateLoaded, nglViewList, shouldLoadProtein]);
+      shouldLoadProtein(nglViewList, isStateLoaded, projectId);
+    }, [isStateLoaded, nglViewList, projectId, shouldLoadProtein]);
 
     return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
   });

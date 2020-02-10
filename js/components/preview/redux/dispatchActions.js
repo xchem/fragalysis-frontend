@@ -26,7 +26,7 @@ const loadProtein = nglView => (dispatch, getState) => {
   return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);
 };
 
-export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getState) => {
+export const shouldLoadProtein = (nglViewList, isStateLoaded, projectId) => (dispatch, getState) => {
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
@@ -34,7 +34,7 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getS
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
     if (!isStateLoaded) {
-      dispatch(setProteinsHasLoaded(false));
+      dispatch(setProteinsHasLoaded(false, undefined, projectId));
       Promise.all(
         nglViewList.map(nglView =>
           dispatch(loadProtein(nglView)).finally(() => {
@@ -42,10 +42,10 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getS
           })
         )
       )
-        .then(() => dispatch(setProteinsHasLoaded(true)))
-        .catch(() => dispatch(setProteinsHasLoaded(false)));
+        .then(() => dispatch(setProteinsHasLoaded(true, undefined, projectId)))
+        .catch(() => dispatch(setProteinsHasLoaded(false, undefined, projectId)));
     } else {
-      dispatch(setProteinsHasLoaded(true, true));
+      dispatch(setProteinsHasLoaded(true, true, projectId));
     }
     if (targetOnName !== undefined) {
       document.title = targetOnName + ': Fragalysis';

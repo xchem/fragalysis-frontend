@@ -62,18 +62,21 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
   dispatch(setObjectSelection(undefined));
 };
 
-export const saveMoleculeGroupsToNglView = (molGroupList, stage) => dispatch => {
+export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => dispatch => {
   if (molGroupList) {
     dispatch(setCountOfRemainingMoleculeGroups(molGroupList.length));
     molGroupList.map(data =>
       dispatch(loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(data)), stage)).then(() =>
-        dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState())
+        dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState(projectId))
       )
     );
   }
 };
 
-export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (dispatch, getState) => {
+export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isStateLoaded, projectId }) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const group_type = state.apiReducers.group_type;
   const target_on = state.apiReducers.target_on;
@@ -84,7 +87,7 @@ export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isState
       url: getUrl({ list_type, target_on, group_type }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl,
-      afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, stage)),
+      afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, stage, projectId)),
       list_type,
       setObjectList: mol_group_list => dispatch(setMolGroupList(mol_group_list)),
       cancel: onCancel

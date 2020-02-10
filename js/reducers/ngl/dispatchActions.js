@@ -16,7 +16,7 @@ import { createRepresentationsArray } from '../../components/nglView/generatingO
 import { SELECTION_TYPE } from '../../components/nglView/constants';
 import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
-import { saveCurrentSnapshot } from '../../components/projects/redux/dispatchActions';
+import { addSnapshotToProject, saveCurrentSnapshot } from '../../components/projects/redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { SnapshotType } from '../../components/projects/redux/constants';
 import moment from 'moment';
@@ -55,37 +55,39 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
   dispatch(deleteNglObject(target));
 };
 
-const createInitialSnapshot = () => async (dispatch, getState) => {
+const createInitialSnapshot = projectId => async (dispatch, getState) => {
   const { objectsInView, nglOrientations, viewParams } = getState().nglReducers;
   const snapshot = { objectsInView, nglOrientations, viewParams };
-  // TODO condition to check if project exists
-  dispatch(
-    saveCurrentSnapshot(snapshot, {
-      type: SnapshotType.INIT,
-      name: 'Initial Snapshot',
-      author: {
-        username: DJANGO_CONTEXT.username,
-        email: DJANGO_CONTEXT.email
-      },
-      message: 'Auto generated initial snapshot',
-      children: null,
-      parent: null,
-      created: moment()
-    })
-  );
+  const snapshotDetail = {
+    type: SnapshotType.INIT,
+    name: 'Initial Snapshot',
+    author: {
+      username: DJANGO_CONTEXT.username,
+      email: DJANGO_CONTEXT.email
+    },
+    message: 'Auto generated initial snapshot',
+    children: null,
+    parent: null,
+    created: moment()
+  };
+  // TODO condition to check if project exists and if is open target or project
+  dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
+  if (projectId) {
+    dispatch(addSnapshotToProject(snapshot, snapshotDetail, projectId));
+  }
 };
 
-export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = () => (dispatch, getState) => {
+export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = projectId => (dispatch, getState) => {
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
   if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
-    dispatch(createInitialSnapshot());
+    dispatch(createInitialSnapshot(projectId));
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
 };
 
 // Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultState = false) => async (
+export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultState = false, projectId) => async (
   dispatch,
   getState
 ) => {
@@ -95,7 +97,7 @@ export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultSt
     hasLoaded === true &&
     withoutSavingToDefaultState === false
   ) {
-    dispatch(createInitialSnapshot());
+    dispatch(createInitialSnapshot(projectId));
   }
   dispatch(setProteinLoadingState(hasLoaded));
 };
