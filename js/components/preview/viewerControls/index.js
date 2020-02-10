@@ -3,11 +3,9 @@
  */
 
 import React, { memo, useState } from 'react';
-import { connect } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
-import { Panel } from '../../common';
 import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
-import { Grid } from '@material-ui/core';
+import { ButtonGroup, makeStyles, Grid } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
@@ -20,7 +18,10 @@ const drawers = {
 
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
-const ViewerControls = memo(({}) => {
+const useStyles = makeStyles(theme => ({}));
+
+export const ViewerControls = memo(({}) => {
+  const classes = useStyles();
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
 
   const openDrawer = key => {
@@ -35,38 +36,24 @@ const ViewerControls = memo(({}) => {
 
   return (
     <>
-      <Panel hasHeader title="Viewer controls">
-        <Grid container justify="space-between" direction="row">
-          <Grid item>
+      <Grid container justify="center">
+        <Grid item>
+          <ButtonGroup variant="contained" color="primary">
             <Button color="primary" onClick={() => openDrawer(drawers.settings)} startIcon={<Settings />}>
               Settings
             </Button>
-          </Grid>
-          <Grid item>
             <Button color="primary" onClick={() => openDrawer(drawers.display)} startIcon={<PersonalVideo />}>
               Display
             </Button>
-          </Grid>
-          <Grid item>
             <Button color="primary" onClick={() => openDrawer(drawers.mouse)} startIcon={<Mouse />}>
               Mouse
             </Button>
-          </Grid>
+          </ButtonGroup>
         </Grid>
-      </Panel>
+      </Grid>
       <SettingControls open={drawerSettings[drawers.settings]} onClose={closeAllDrawers} />
       <DisplayControls open={drawerSettings[drawers.display]} onClose={closeAllDrawers} />
       <MouseControls open={drawerSettings[drawers.mouse]} onClose={closeAllDrawers} />
     </>
   );
 });
-
-function mapStateToProps(state) {
-  return {
-    nglProtStyle: state.nglReducers.nglProtStyle
-  };
-}
-
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ViewerControls);

@@ -9,7 +9,7 @@ import MoleculeList from './molecule/moleculeList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import { SummaryView } from './summary/summaryView';
 import { CompoundList } from './compounds/compoundList';
-import NglViewerControls from './viewerControls';
+import { ViewerControls } from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
@@ -85,7 +85,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
                 height={viewControlsHeight}
                 setHeight={setViewControlsHeight}
               >
-                <NglViewerControls />
+                <ViewerControls />
               </ComputeSize>
             </Grid>
           </Grid>
