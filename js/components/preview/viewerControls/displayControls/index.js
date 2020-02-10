@@ -230,7 +230,11 @@ export default memo(({ open, onClose }) => {
     <Drawer title="Display controls" open={open} onClose={onClose}>
       <TreeView className={classes.root} defaultCollapseIcon={<ExpandMore />} defaultExpandIcon={<ChevronRight />}>
         {Object.keys(objectsInView)
-          .filter(item => objectsInView[item].display_div === VIEWS.MAJOR_VIEW)
+          .filter(
+            item =>
+              objectsInView[item].display_div === VIEWS.MAJOR_VIEW &&
+              objectsInView[item].selectionType !== SELECTION_TYPE.VECTOR
+          )
           .map(parentItem => (
             <TreeItem
               nodeId={objectsInView[parentItem].name}
