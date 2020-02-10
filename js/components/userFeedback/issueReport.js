@@ -18,7 +18,8 @@ import './css/styles.css';
 
 const useStyles = makeStyles(theme => ({
   button: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
+    color: 'red'
   },
   input: {
     width: '100%'
@@ -27,6 +28,9 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1)
+  },
+  pt: {
+    paddingTop: theme.spacing(2)
   },
   // https://material-ui.com/components/grid/
   image: {
@@ -57,6 +61,7 @@ export const IssueReport = memo(() => {
   const resetForm = () => {
     setTitle('');
     setDescrition('');
+    setImageSource('');
     setResponse('');
   };
 
@@ -64,20 +69,24 @@ export const IssueReport = memo(() => {
   const [imageSource, setImageSource] = React.useState('');
 
   const canCaptureScreen = () => {
+    // TODO edge  Available as a member of Navigator instead of MediaDevices.
     return window.isSecureContext && typeof navigator.mediaDevices !== 'undefined' && typeof navigator.mediaDevices.getDisplayMedia !== 'undefined';
   }
 
   const takeScreenshot = async () => {
+    let canvas = null;
     // https://jsfiddle.net/8dz98u4r/
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video: { mediaSource: 'window' } });
-    const vid = document.createElement('video');
-    vid.srcObject = stream;
-    await vid.play();
-    const canvas = document.createElement('canvas');
-    canvas.width = vid.videoWidth;
-    canvas.height = vid.videoHeight;
-    canvas.getContext('2d').drawImage(vid, 0, 0);
-    stream.getTracks().forEach(t => t.stop());
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'never', displaySurface: 'browser' } });
+    if (stream != null) {
+      const vid = document.createElement('video');
+      vid.srcObject = stream;
+      await vid.play();
+      canvas = document.createElement('canvas');
+      canvas.width = vid.videoWidth;
+      canvas.height = vid.videoHeight;
+      canvas.getContext('2d').drawImage(vid, 0, 0);
+      stream.getTracks().forEach(t => t.stop());
+    }
     return canvas;
     /*return new Promise((res, rej) => {
     	canvas.toBlob(res);
@@ -89,9 +98,9 @@ export const IssueReport = memo(() => {
 
     if (canCaptureScreen()) {
       console.log('capturing screen');
-      image = await takeScreenshot();
-      if (image != null) {
-        image = image.toDataURL();
+      const canvas = await takeScreenshot();
+      if (canvas != null) {
+        image = canvas.toDataURL();
       }
       /*navigator.mediaDevices.getDisplayMedia()
       .then(mediaStream => {
@@ -219,7 +228,7 @@ export const IssueReport = memo(() => {
         axios.post(getIssuesLink(), issue, { 'headers': getHeaders() }).then(result => {
           console.log(result);
           setResponse('Issue created: ' + result.data.html_url);
-          handleClose();
+          handleCloseForm();
         }).catch((error, result) => {
           console.log(error);
           setResponse('Error occured: ' + error.message);
@@ -240,7 +249,7 @@ export const IssueReport = memo(() => {
         setSnackBarTitle(<>
           {'Issue was created: '}<a href={result.data.html_url} target='_blank'>{result.data.html_url}</a>
         </>);
-        handleClose();
+        handleCloseForm();
       })
       .catch(error => {
         console.log(error);
@@ -250,28 +259,72 @@ export const IssueReport = memo(() => {
   };
 
   /* Modal handlers */
-  const [open, setOpen] = React.useState(false);
+  const [openForm, setOpenForm] = React.useState(false);
+  const [openDialog, setOpenDialog] = React.useState(false);
 
   const isResponse = () => {
-    return open && response.length > 0;
+    return openForm && response.length > 0;
   };
 
-  const handleOpen = async () => {
+  const handleOpenForm = async () => {
     await captureScreen();
-    setOpen(true);
+    setOpenForm(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseForm = () => {
+    setOpenForm(false);
     resetForm();
+  };
+
+  const handleOpenDialog = () => {
+    if (canCaptureScreen()) {
+      setOpenDialog(true);
+    } else {
+      handleOpenForm(true);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    handleOpenForm();
+  };
+
+  const getHintText = () => {
+    // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+    let text = 'please choose your window or screen to share';
+    if (typeof InstallTrigger !== 'undefined') {
+      console.log('firefox');
+      // firefox
+      text += ' and "Allow" it';
+    } else if (!!window.chrome) {
+      console.log('chrome');
+      // chrome
+      text += ', ideally "Chrome tab" and your current tab';
+    }
+    return text;
   };
 
   return (
     <div>
-      <Button startIcon={<ReportProblem />} variant="text" size="small" className={classes.button} onClick={handleOpen}>
+      <Button startIcon={<ReportProblem />} variant="text" size="small" className={classes.button} onClick={handleOpenDialog}>
         Report issue
       </Button>
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={openDialog} onClose={handleCloseDialog}>
+        <Grid container direction="column" className={classes.pt}>
+          <Grid item>
+            <Typography variant="body1">It is helpful to provide a screenshot of your current state, therefore you are going to be prompted by browser to do so.</Typography>
+            <Typography variant="body1">After you proceed, {getHintText()}.</Typography>
+          </Grid>
+          <Grid container justify="flex-end" direction="row">
+            <Grid item>
+              <Button color="primary" onClick={handleCloseDialog}>
+                Proceed
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Modal>
+      <Modal open={openForm} onClose={handleCloseForm}>
         <Formik
           initialValues={{
             name: name,
@@ -286,6 +339,11 @@ export const IssueReport = memo(() => {
             }
             if (!values.description) {
               errors.description = 'Required field.';
+            }
+            if (values.email &&
+              !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
+            ) {
+              errors.email = 'Invalid email address.';
             }
             return errors;
           }}
@@ -305,13 +363,32 @@ export const IssueReport = memo(() => {
                   <Grid item xs={12} sm container>
                     <Grid item xs container direction="column" className={classes.input}>
                       <Grid item xs>
-                        <TextField name="name" label="Name" value={name} onInput={e => setName(e.target.value)} />
+                        <TextField
+                          name="name"
+                          label="Name"
+                          value={name}
+                          onInput={e => setName(e.target.value)}
+                          disabled={isSubmitting}
+                        />
                       </Grid>
                       <Grid item xs>
-                        <TextField name="email" label="Email" value={email} onInput={e => setEmail(e.target.value)} />
+                        <TextField
+                          name="email"
+                          label="Email"
+                          value={email}
+                          onInput={e => setEmail(e.target.value)}
+                          disabled={isSubmitting}
+                        />
                       </Grid>
                       <Grid item xs>
-                        <TextField required name="title" label="Title" value={title} onInput={e => setTitle(e.target.value)} />
+                        <TextField
+                          required
+                          name="title"
+                          label="Title"
+                          value={title}
+                          onInput={e => setTitle(e.target.value)}
+                          disabled={isSubmitting}
+                        />
                       </Grid>
                       <Grid item xs>
                         <TextField
@@ -323,6 +400,7 @@ export const IssueReport = memo(() => {
                           rows="4"
                           value={description}
                           onInput={e => setDescrition(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </Grid>
                     </Grid>
@@ -337,7 +415,7 @@ export const IssueReport = memo(() => {
 
                 <Grid container justify="flex-end" direction="row">
                   <Grid item>
-                    <Button disabled={isSubmitting} onClick={handleClose}>Close</Button>
+                    <Button disabled={isSubmitting} onClick={handleCloseForm}>Close</Button>
                   </Grid>
                   <Grid item>
                     <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
