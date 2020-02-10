@@ -7,6 +7,7 @@ import { FilterList } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
+import { setFilterSettings } from '../../../reducers/selection/actions';
 import * as listType from '../../../constants/listTypes';
 import { deleteObject, loadObject } from '../../../reducers/ngl/dispatchActions';
 import MoleculeView from './moleculeView';
@@ -82,7 +83,9 @@ const MoleculeList = memo(
     setCachedMolLists,
     setFilterItemsHeight,
     filterItemsHeight,
-    getJoinedMoleculeList
+    getJoinedMoleculeList,
+    setFilterSettings,
+    filterSettings
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -91,7 +94,6 @@ const MoleculeList = memo(
       oldUrl.current = url;
     };
     const [sortDialogOpen, setSortDialogOpen] = useState(false);
-    const [filterSettings, setFilterSettings] = useState();
     const moleculesPerPage = 5;
     // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
     // stav sa tym padom strati
@@ -281,14 +283,16 @@ function mapStateToProps(state) {
     object_selection: state.selectionReducers.mol_group_selection,
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
-    getJoinedMoleculeList: getJoinedMoleculeList(state)
+    getJoinedMoleculeList: getJoinedMoleculeList(state),
+    filterSettings: state.selectionReducers.filterSettings
   };
 }
 const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject
+  loadObject,
+  setFilterSettings
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);

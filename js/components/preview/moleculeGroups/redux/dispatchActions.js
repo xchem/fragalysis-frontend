@@ -10,6 +10,7 @@ import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   resetSelectionState,
   setComplexList,
+  setFilterSettings,
   setFragmentDisplayList,
   setMolGroupSelection,
   setObjectSelection,
@@ -120,6 +121,9 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
   // Vectors
   dispatch(setVectorOnList([]));
   dispatch(setVectorList([]));
+
+  // reset filterSettings of molecules
+  dispatch(setFilterSettings(undefined));
 };
 
 export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, event }) => (
