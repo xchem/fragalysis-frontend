@@ -163,3 +163,8 @@ export const setObjectSelection = object_selection => ({
   type: constants.SET_OBJECT_SELECTION,
   payload: object_selection
 });
+
+export const setFilterSettings = filterSettings => ({
+  type: constants.SET_FILTER_SETTINGS,
+  payload: filterSettings
+});
