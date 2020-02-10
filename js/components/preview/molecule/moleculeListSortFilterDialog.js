@@ -226,26 +226,6 @@ export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMol
   let classes = useStyles();
   const dispatch = useDispatch();
 
-  const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
-  const [initState] = useState(initialize());
-  const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
-  const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
-
-  const getListedMolecules = () => {
-    let molecules = [];
-    for (let molgroupId of molGroupSelection) {
-      // Selected molecule groups
-      const molGroup = cachedMolList[molgroupId];
-      if (molGroup) {
-        molecules = molecules.concat(molGroup.results);
-      } else {
-        console.log(`Molecule group ${molgroupId} not found in cached list`);
-      }
-    }
-
-    return molecules;
-  };
-
   const initialize = () => {
     let initObject = {
       active: false,
@@ -275,6 +255,26 @@ export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMol
     }
     return initObject;
   };
+
+  const getListedMolecules = () => {
+    let molecules = [];
+    for (let molgroupId of molGroupSelection) {
+      // Selected molecule groups
+      const molGroup = cachedMolList[molgroupId];
+      if (molGroup) {
+        molecules = molecules.concat(molGroup.results);
+      } else {
+        console.log(`Molecule group ${molgroupId} not found in cached list`);
+      }
+    }
+
+    return molecules;
+  };
+
+  const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
+  const [initState] = useState(initialize());
+  const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
+  const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
