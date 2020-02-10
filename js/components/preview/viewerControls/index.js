@@ -5,7 +5,7 @@
 import React, { memo, useState } from 'react';
 import { Button } from '../../common/Inputs/Button';
 import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
-import { ButtonGroup, makeStyles, Grid } from '@material-ui/core';
+import { ButtonGroup, Grid } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
@@ -18,10 +18,7 @@ const drawers = {
 
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
-const useStyles = makeStyles(theme => ({}));
-
 export const ViewerControls = memo(({}) => {
-  const classes = useStyles();
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
 
   const openDrawer = key => {
