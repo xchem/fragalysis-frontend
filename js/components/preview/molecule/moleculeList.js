@@ -7,7 +7,6 @@ import { FilterList } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
-import { setFilterSettings } from '../../../reducers/selection/actions';
 import * as listType from '../../../constants/listTypes';
 import { deleteObject, loadObject } from '../../../reducers/ngl/dispatchActions';
 import MoleculeView from './moleculeView';
@@ -84,7 +83,6 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
-    setFilterSettings,
     filterSettings
   }) => {
     const classes = useStyles();
@@ -110,13 +108,6 @@ const MoleculeList = memo(
     useEffect(() => {
       setCurrentPage(0);
     }, [object_selection]);
-
-    const handleDialog = () => open => setSortDialogOpen(open);
-
-    const handleDialogClose = filter => {
-      setFilterSettings(filter);
-      handleDialog(false)();
-    };
 
     if (isActiveFilter) {
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
@@ -159,7 +150,7 @@ const MoleculeList = memo(
           title="Hit navigator"
           headerActions={[
             <Button
-              onClick={handleDialog(!sortDialogOpen)}
+              onClick={() => setSortDialogOpen(!sortDialogOpen)}
               color={'inherit'}
               disabled={!(object_selection || []).length}
               variant="text"
@@ -172,7 +163,7 @@ const MoleculeList = memo(
         >
           {sortDialogOpen && (
             <MoleculeListSortFilterDialog
-              handleClose={handleDialogClose}
+              open={sortDialogOpen}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
               filterSettings={filterSettings}
@@ -291,8 +282,7 @@ const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject,
-  setFilterSettings
+  loadObject
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
