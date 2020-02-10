@@ -9,8 +9,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import { ComputeSize } from '../../../utils/computeSize';
-import { downloadAsYankDuck, exportCsv, updateSummaryView } from './redux/dispatchAction';
-import { isEmpty } from 'lodash';
+import { exportCsv, updateSummaryView } from './redux/dispatchAction';
 
 const useStyles = makeStyles(theme => ({
   widthFitContent: {
@@ -31,8 +30,6 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
   const estimatedCost = useSelector(state => state.previewReducers.summary.estimatedCost);
   const selectedInteraction = useSelector(state => state.previewReducers.summary.selectedInteraction);
   const interaction_selectComponent = selectedInteraction === undefined ? 'Not selected' : selectedInteraction;
-
-  const [state, setState] = useState();
 
   useEffect(() => {
     dispatch(updateSummaryView({ duck_yank_data, to_buy_list }));
@@ -78,20 +75,6 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
         </Grid>
         <Button color="primary" onClick={() => dispatch(exportCsv())} startIcon={<CloudDownload />}>
           Download CSV (Chrome)
-        </Button>
-        <Button
-          color="primary"
-          onClick={() =>
-            dispatch(downloadAsYankDuck()).catch(error => {
-              setState(() => {
-                throw error;
-              });
-            })
-          }
-          startIcon={<CloudDownload />}
-          disabled={isEmpty(duck_yank_data)}
-        >
-          Download Yank/Duck
         </Button>
       </ComputeSize>
     </Panel>
