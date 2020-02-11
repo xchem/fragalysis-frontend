@@ -4,7 +4,7 @@
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useState, useEffect, memo, useRef, Fragment } from 'react';
+import React, { useState, useEffect, memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
@@ -17,7 +17,6 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
-import { isEmpty } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
