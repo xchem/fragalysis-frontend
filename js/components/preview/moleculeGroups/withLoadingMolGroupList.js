@@ -21,20 +21,22 @@ export const withLoadingMolGroupList = WrappedComponent => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-      dispatch(
-        loadMoleculeGroups({
-          stage: getNglView(VIEWS.SUMMARY_VIEW).stage,
-          setOldUrl,
-          oldUrl: oldUrl.current,
-          onCancel,
-          isStateLoaded,
-          projectId
-        })
-      ).catch(error => {
-        setState(() => {
-          throw error;
+      const nglView = getNglView(VIEWS.SUMMARY_VIEW);
+      if (nglView) {
+        dispatch(
+          loadMoleculeGroups({
+            stage: nglView.stage,
+            setOldUrl,
+            oldUrl: oldUrl.current,
+            onCancel,
+            isStateLoaded
+          })
+        ).catch(error => {
+          setState(() => {
+            throw error;
+          });
         });
-      });
+      }
 
       return () => {
         onCancel();

@@ -91,7 +91,7 @@ const MoleculeList = memo(
     const setOldUrl = url => {
       oldUrl.current = url;
     };
-    const [sortDialogOpen, setSortDialogOpen] = useState(false);
+    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const moleculesPerPage = 5;
     // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
     // stav sa tym padom strati
@@ -150,7 +150,14 @@ const MoleculeList = memo(
           title="Hit navigator"
           headerActions={[
             <Button
-              onClick={() => setSortDialogOpen(!sortDialogOpen)}
+              onClick={event => {
+                debugger;
+                if (sortDialogAnchorEl === null) {
+                  setSortDialogAnchorEl(event.currentTarget);
+                } else {
+                  setSortDialogAnchorEl(null);
+                }
+              }}
               color={'inherit'}
               disabled={!(object_selection || []).length}
               variant="text"
@@ -161,9 +168,9 @@ const MoleculeList = memo(
             </Button>
           ]}
         >
-          {sortDialogOpen && (
+          {sortDialogAnchorEl && (
             <MoleculeListSortFilterDialog
-              open={sortDialogOpen}
+              anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
               filterSettings={filterSettings}
