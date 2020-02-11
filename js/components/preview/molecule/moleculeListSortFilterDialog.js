@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { Select, InputLabel, MenuItem, FormControl } from '@material-ui/core';
+import { Select, InputLabel, MenuItem, FormControl, Popover } from '@material-ui/core';
 import { Delete, Done } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
@@ -51,20 +51,9 @@ const useStyles = makeStyles(theme => ({
     fontSize: '1.2rem'
   },
   paper: {
-    backgroundColor: theme.palette.background.paper,
-    right: theme.spacing(1),
-    bottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-    zIndex: 1,
-    position: 'absolute',
-    left: '50%',
-    transform: 'translate(-26%, -50%)',
-    boxShadow: [
-      '0px 61px 65px -57px rgba(0,0,0,0.4)',
-      '0px 74px 88px 53px rgba(0,0,0,0.34)',
-      '0px 59px 96px 58px rgba(0,0,0,0.32)'
-    ],
-    borderRadius: theme.spacing(1) / 2
+    width: 570,
+    overflow: 'none',
+    padding: theme.spacing(1)
   }
 }));
 
@@ -222,7 +211,7 @@ export const filterMolecules = (molecules, filterSettings) => {
   });
 };
 
-export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMolList, filterSettings, open }) => {
+export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMolList, filterSettings, anchorEl }) => {
   let classes = useStyles();
   const dispatch = useDispatch();
 
@@ -348,100 +337,111 @@ export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMol
     }
   }
 
-  return (
-    open === true && (
-      <div className={classes.paper}>
-        <DialogTitle classes={{ root: classes.title }} disableTypography id="form-dialog-title">
-          <Grid container justify="space-between">
-            <Grid item>
-              <h4>Sort and filter</h4>
-            </Grid>
-            <Grid item>
-              <FormControl className={classes.formControl}>
-                <InputLabel shrink htmlFor="predefined-label-placeholder">
-                  Predefined filter
-                </InputLabel>
-                <Select
-                  value={predefinedFilter}
-                  onChange={changePredefinedFilter}
-                  inputProps={{
-                    name: 'predefined',
-                    id: 'predefined-label-placeholder'
-                  }}
-                  displayEmpty
-                  name="predefined"
-                >
-                  {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
-                    <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
-                      {PREDEFINED_FILTERS[preFilterKey].name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-        </DialogTitle>
-        <DialogContent>
-          <Grid container>
-            <Grid container item className={classes.gridItemHeader}>
-              <Grid item className={classes.centered} style={{ width: widthPrio }}>
-                priority
-              </Grid>
-              <Grid item className={classes.centered} style={{ width: widthOrder }}>
-                <div style={{ textAlign: 'center' }}>
-                  order
-                  <br />
-                  <span style={{ fontSize: 'smaller' }}>(up/down)</span>
-                </div>
-              </Grid>
-              <Grid item className={classes.centered} style={{ width: widthProperty }}>
-                property
-              </Grid>
-              <Grid item className={classes.centered} style={{ width: widthMin }}>
-                min
-              </Grid>
-              <Grid item className={classes.centered} style={{ width: widthSlider }} />
-              <Grid item className={classes.centered} style={{ width: widthMin }}>
-                max
-              </Grid>
-            </Grid>
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
 
-            {filter.priorityOrder.map(attr => {
-              let attrDef = getAttrDefinition(attr);
-              return (
-                <MoleculeListSortFilterItem
-                  key={attr}
-                  property={attrDef.name}
-                  order={filter.filter[attr].order}
-                  minValue={filter.filter[attr].minValue}
-                  maxValue={filter.filter[attr].maxValue}
-                  min={initState.filter[attr].minValue}
-                  max={initState.filter[attr].maxValue}
-                  isFloat={initState.filter[attr].isFloat}
-                  color={attrDef.color}
-                  disabled={predefinedFilter !== 'none'}
-                  onChange={handleItemChange(attr)}
-                  onChangePrio={handlePrioChange(attr)}
-                />
-              );
-            })}
+  return (
+    <Popover
+      id={id}
+      open={open}
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right'
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'left'
+      }}
+      elevation={24}
+    >
+      <div className={classes.paper}>
+        <Grid container justify="space-between" direction="row" alignItems="center">
+          <Grid item>
+            <FormControl className={classes.formControl}>
+              <InputLabel shrink htmlFor="predefined-label-placeholder">
+                Predefined filter
+              </InputLabel>
+              <Select
+                value={predefinedFilter}
+                onChange={changePredefinedFilter}
+                inputProps={{
+                  name: 'predefined',
+                  id: 'predefined-label-placeholder'
+                }}
+                displayEmpty
+                name="predefined"
+              >
+                {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
+                  <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
+                    {PREDEFINED_FILTERS[preFilterKey].name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
-        </DialogContent>
-        <DialogActions>
-          <div className={classes.numberOfHits}>
-            # of hits matching selection: <b>{filteredCount}</b>
-            {prioWarning && (
-              <div>
-                <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
+          <Grid item>
+            <div className={classes.numberOfHits}>
+              # of hits matching selection: <b>{filteredCount}</b>
+              {prioWarning && (
+                <div>
+                  <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
+                </div>
+              )}
+            </div>
+          </Grid>
+          <Grid item>
+            <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
+              Clear
+            </Button>
+          </Grid>
+        </Grid>
+        <Grid container>
+          <Grid container item className={classes.gridItemHeader}>
+            <Grid item className={classes.centered} style={{ width: widthPrio }}>
+              priority
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthOrder }}>
+              <div style={{ textAlign: 'center' }}>
+                order
+                <br />
+                <span style={{ fontSize: 'smaller' }}>(up/down)</span>
               </div>
-            )}
-          </div>
-          <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
-            Clear
-          </Button>
-        </DialogActions>
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthProperty }}>
+              property
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthMin }}>
+              min
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthSlider }} />
+            <Grid item className={classes.centered} style={{ width: widthMin }}>
+              max
+            </Grid>
+          </Grid>
+
+          {filter.priorityOrder.map(attr => {
+            let attrDef = getAttrDefinition(attr);
+            return (
+              <MoleculeListSortFilterItem
+                key={attr}
+                property={attrDef.name}
+                order={filter.filter[attr].order}
+                minValue={filter.filter[attr].minValue}
+                maxValue={filter.filter[attr].maxValue}
+                min={initState.filter[attr].minValue}
+                max={initState.filter[attr].maxValue}
+                isFloat={initState.filter[attr].isFloat}
+                color={attrDef.color}
+                disabled={predefinedFilter !== 'none'}
+                onChange={handleItemChange(attr)}
+                onChangePrio={handlePrioChange(attr)}
+              />
+            );
+          })}
+        </Grid>
       </div>
-    )
+    </Popover>
   );
 });
 
@@ -449,5 +449,5 @@ MoleculeListSortFilterDialog.propTypes = {
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
   filterSettings: PropTypes.object,
-  open: PropTypes.bool.isRequired
+  anchorEl: PropTypes.object
 };
