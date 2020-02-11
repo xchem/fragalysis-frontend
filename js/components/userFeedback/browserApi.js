@@ -12,22 +12,13 @@ export const isChrome = () => {
 
 export const canCaptureScreen = () => {
   // TODO edge  Available as a member of Navigator instead of MediaDevices.
-  return (
-    window.isSecureContext &&
-    typeof navigator.mediaDevices !== 'undefined' &&
-    typeof navigator.mediaDevices.getDisplayMedia !== 'undefined'
-  );
+  return window.isSecureContext && typeof navigator.mediaDevices !== 'undefined' && typeof navigator.mediaDevices.getDisplayMedia !== 'undefined';
 };
 
-/**
- * Take a screenshot vis browser API.
- */
 const takeScreenshot = async () => {
   let canvas = null;
   // https://jsfiddle.net/8dz98u4r/
-  const stream = await navigator.mediaDevices.getDisplayMedia({
-    video: { cursor: 'never', displaySurface: 'browser' }
-  });
+  const stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'never', displaySurface: 'browser' } });
   if (stream != null) {
     const vid = document.createElement('video');
     vid.srcObject = stream;
@@ -44,10 +35,7 @@ const takeScreenshot = async () => {
   });*/
 };
 
-/**
- * Capture screen or ngl canvas and assign it to form. (thunk actions are used to stored in dispatchActions.js)
- */
-export const captureScreen = () => async dispatch => {
+export const captureScreen = async (dispatch) => {
   let image = '';
 
   if (canCaptureScreen()) {
@@ -69,12 +57,12 @@ export const captureScreen = () => async dispatch => {
     .catch( err => console.log(`${err.name}: ${err.message}`));*/
   } else {
     console.log('capturing canvas');
-    const view = document.getElementById('major_view');
-    if (view !== null) {
-      const canvas = view.getElementsByTagName('canvas')[0];
-      if (canvas !== null) {
-        image = canvas.toDataURL();
-      }
+    let canvas = document.getElementById('major_view');
+    if (canvas != null) {
+      canvas = canvas.getElementsByTagName('canvas')[0];
+      image = canvas.toDataURL();
+    } else {
+      console.log('canvas not found');
     }
   }
 

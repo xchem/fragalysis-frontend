@@ -1,4 +1,4 @@
-import { constants } from './constants';
+import { constants } from './constatnts';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 export const INITIAL_STATE = {
