@@ -9,7 +9,8 @@ import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%'
+    width: '100%',
+    paddingTop: theme.spacing(1)
   },
   value: {
     width: 224,
@@ -43,6 +44,19 @@ export const SettingControls = memo(({ open, onClose }) => {
   return (
     <Drawer title="Settings" open={open} onClose={onClose}>
       <Grid container justify="flex-start" direction="column" className={classes.root} spacing={1}>
+        <Grid item container direction="row" justify="space-between">
+          <Grid item>
+            <Typography variant="body1">Background colour</Typography>
+          </Grid>
+          <Grid item>
+            <Switch
+              size="small"
+              color="primary"
+              checked={viewParams[NGL_PARAMS.backgroundColor] === BACKGROUND_COLOR.white}
+              onChange={handleStageColor}
+            />
+          </Grid>
+        </Grid>
         <Grid item container direction="row" justify="space-between">
           <Grid item>
             <Typography variant="body1">Clip near</Typography>
@@ -113,19 +127,6 @@ export const SettingControls = memo(({ open, onClose }) => {
               min={0}
               max={100}
               onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.fogFar, value, majorView))}
-            />
-          </Grid>
-        </Grid>
-        <Grid item container direction="row" justify="space-between">
-          <Grid item>
-            <Typography variant="body1">Background colour</Typography>
-          </Grid>
-          <Grid item>
-            <Switch
-              size="small"
-              color="primary"
-              checked={viewParams[NGL_PARAMS.backgroundColor] === BACKGROUND_COLOR.white}
-              onChange={handleStageColor}
             />
           </Grid>
         </Grid>
