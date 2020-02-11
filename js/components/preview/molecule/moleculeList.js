@@ -151,7 +151,6 @@ const MoleculeList = memo(
           headerActions={[
             <Button
               onClick={event => {
-                debugger;
                 if (sortDialogAnchorEl === null) {
                   setSortDialogAnchorEl(event.currentTarget);
                 } else {
