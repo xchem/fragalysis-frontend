@@ -17,6 +17,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
+import { isEmpty } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -88,6 +89,7 @@ const MoleculeList = memo(
     const classes = useStyles();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
+    const [state, setState] = useState();
     const setOldUrl = url => {
       oldUrl.current = url;
     };
@@ -100,6 +102,7 @@ const MoleculeList = memo(
     const imgWidth = 100;
 
     const isActiveFilter = !!(filterSettings || {}).active;
+
     const filterRef = useRef();
 
     let joinedMoleculeLists = getJoinedMoleculeList;
@@ -130,13 +133,21 @@ const MoleculeList = memo(
         mol_group_on,
         cached_mol_lists
       }).catch(error => {
-        throw error;
+        setState(() => {
+          throw error;
+        });
       });
     }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
+
+    useEffect(() => {
+      if (isActiveFilter === false) {
+        setFilterItemsHeight(0);
+      }
+    }, [isActiveFilter, setFilterItemsHeight]);
 
     return (
       <ComputeSize
@@ -177,7 +188,7 @@ const MoleculeList = memo(
           )}
           <div ref={filterRef}>
             {isActiveFilter && (
-              <Fragment>
+              <>
                 <div className={classes.filterSection}>
                   <Grid container spacing={1}>
                     <Grid item xs={1} container alignItems="center">
@@ -208,7 +219,7 @@ const MoleculeList = memo(
                   </Grid>
                 </div>
                 <Divider />
-              </Fragment>
+              </>
             )}
           </div>
           <Grid container direction="column" className={classes.container} style={{ height: height }}>
