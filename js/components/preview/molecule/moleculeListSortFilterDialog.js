@@ -1,11 +1,8 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { Select, InputLabel, MenuItem, FormControl, Popover } from '@material-ui/core';
-import { Delete, Done } from '@material-ui/icons';
+import { Select, InputLabel, MenuItem, FormControl, Popper, Paper } from '@material-ui/core';
+import { Delete } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
@@ -341,21 +338,8 @@ export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMol
   const id = open ? 'simple-popover' : undefined;
 
   return (
-    <Popover
-      id={id}
-      open={open}
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right'
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'left'
-      }}
-      elevation={24}
-    >
-      <div className={classes.paper}>
+    <Popper id={id} open={open} anchorEl={anchorEl} placement="right-start">
+      <Paper className={classes.paper} elevation={21}>
         <Grid container justify="space-between" direction="row" alignItems="center">
           <Grid item>
             <FormControl className={classes.formControl}>
@@ -440,8 +424,8 @@ export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMol
             );
           })}
         </Grid>
-      </div>
-    </Popover>
+      </Paper>
+    </Popper>
   );
 });
 
