@@ -4,9 +4,8 @@
 import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CmpdSummaryImage } from './CmpdSummaryImage';
-import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography, Button } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import { ComputeSize } from '../../../utils/computeSize';
 import { exportCsv, updateSummaryView } from './redux/dispatchAction';
@@ -14,6 +13,9 @@ import { exportCsv, updateSummaryView } from './redux/dispatchAction';
 const useStyles = makeStyles(theme => ({
   widthFitContent: {
     width: 'fit-content'
+  },
+  downloadButton: {
+    marginRight: theme.spacing(1)
   }
 }));
 
@@ -41,6 +43,17 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
         setPanelRef(ref);
       }}
       hasHeader
+      headerActions={[
+        <Button
+          color="inherit"
+          variant="text"
+          className={classes.downloadButton}
+          onClick={() => dispatch(exportCsv())}
+          startIcon={<CloudDownload />}
+        >
+          Download CSV (Chrome)
+        </Button>
+      ]}
       title="Summary Info"
     >
       <ComputeSize componentRef={panelRef} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
@@ -73,9 +86,6 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
             <CmpdSummaryImage />
           </Grid>
         </Grid>
-        <Button color="primary" onClick={() => dispatch(exportCsv())} startIcon={<CloudDownload />}>
-          Download CSV (Chrome)
-        </Button>
       </ComputeSize>
     </Panel>
   );
