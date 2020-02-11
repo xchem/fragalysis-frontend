@@ -186,5 +186,5 @@ ES-lint https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-esli
 #Environments
 to activate GitHub api create `.env` file and following environment variable
 ```
-WEB_GITHUB_API_TOKEN=myGitHubToken
+GITHUB_API_TOKEN=myGitHubToken
 ```

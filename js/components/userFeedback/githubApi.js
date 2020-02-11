@@ -27,7 +27,6 @@ const uploadFile = async (formState, dispatch) => {
   console.log('uploading new file');
 
   let screenshotUrl = '';
-  console.log('image source', formState.imageSource);
   const image = formState.imageSource; // await captureScreen();
   if (image.length > 0) {
     // https://gist.github.com/maxisam/5c6ec10cc4146adce05d62f553c5062f
