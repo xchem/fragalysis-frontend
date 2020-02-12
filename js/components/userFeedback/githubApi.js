@@ -25,7 +25,7 @@ const getHeaders = () => {
 /**
  * Upload an image from form state
  */
-const uploadFile = formState => async dispatch => {
+const uploadFile = (formState, formType) => async dispatch => {
   console.log('uploading new file');
 
   let screenshotUrl = '';
@@ -36,7 +36,7 @@ const uploadFile = formState => async dispatch => {
     const fileName = 'screenshot-' + uid + '.png';
 
     const payload = {
-      message: 'auto upload from issue form',
+      message: 'auto upload from ' + formType + ' form',
       branch: 'master',
       content: imgBase64
     };
@@ -61,11 +61,11 @@ const uploadFile = formState => async dispatch => {
 /**
  * Create issue in GitHub (thunk actions are used to stored in dispatchActions.js)
  */
-export const createIssue = (formState, afterCreateIssueCallback) => async dispatch => {
+export const createIssue = (formState, formType, labels, afterCreateIssueCallback) => async dispatch => {
   dispatch(setResponse(''));
 
-  const screenshotUrl = await dispatch(uploadFile(formState));
-  console.log('url', screenshotUrl);
+  const screenshotUrl = await dispatch(uploadFile(formState, formType));
+  console.log('screenshot url', screenshotUrl);
 
   console.log('creating new issue');
   console.log(formState.name, formState.email, formState.title, formState.description);
@@ -79,50 +79,13 @@ export const createIssue = (formState, afterCreateIssueCallback) => async dispat
   if (screenshotUrl.length > 0) {
     body.push('', '![screenshot](' + screenshotUrl + ')');
   }
-
   body = body.join('\n');
 
-  // check if same title exists
-  /*var createIssue = true;
-  var issues = null;
-  axios.get(getIssuesLink(), { 'headers': getHeaders() }).then(result => {
-    console.log(result);
-    var create = true;
-    if (result.data.length > 0) {
-      result.data.some(item => {
-        console.log(item.title);
-        if (item.title == title) {
-          create = false;
-          console.log('found!');
-          dispatch(setResponse(title + ' already exists!'));
-          return true;
-        }
-      });
-    }
-
-    if (create) {
-      // https://developer.github.com/v3/issues/#create-an-issue
-      var issue = {
-        "title": title,
-        "body": body,
-        "labels": ["issue"]
-      };
-      // headers['Content-Type'] = 'application/json';
-      axios.post(getIssuesLink(), issue, { 'headers': getHeaders() }).then(result => {
-        console.log(result);
-        dispatch(setResponse('Issue created: ' + result.data.html_url));
-        handleCloseForm();
-      }).catch((error, result) => {
-        console.log(error);
-        dispatch(setResponse('Error occured: ' + error.message));
-      });
-    }
-  });*/
-
+  // https://developer.github.com/v3/issues/#create-an-issue
   var issue = {
     title: formState.title,
     body: body,
-    labels: ['issue']
+    labels: labels
   };
 
   api({
