@@ -13,16 +13,8 @@ import { Formik, Form } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
-import {
-  resetForm,
-  setName,
-  setEmail,
-  setTitle,
-  setDescription
-} from './redux/actions';
+import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-
-import './css/styles.css';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -39,6 +31,19 @@ const useStyles = makeStyles(theme => ({
   },
   pt: {
     paddingTop: theme.spacing(2)
+  },
+  link: {
+    color: theme.palette.primary.contrastText,
+    '&:visited': {
+      color: theme.palette.primary.contrastText
+    },
+    '&:active': {
+      color: theme.palette.primary.contrastText
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText
+    }
   },
   // https://material-ui.com/components/grid/
   image: {
@@ -61,10 +66,15 @@ export const IssueReport = memo(() => {
   const formState = useSelector(state => state.issueReducers);
   const { setSnackBarTitle } = useContext(HeaderContext);
 
-  const afterCreateIssueCallback = (url) => {
-    setSnackBarTitle(<>
-      {'Issue was created: '}<a href={url} target='_blank'>{url}</a>
-    </>);
+  const afterCreateIssueCallback = url => {
+    setSnackBarTitle(
+      <>
+        {'Issue was created: '}
+        <a href={url} target="_blank" className={classes.link}>
+          {url}
+        </a>
+      </>
+    );
     handleCloseForm();
   };
 
@@ -77,7 +87,7 @@ export const IssueReport = memo(() => {
   };
 
   const handleOpenForm = async () => {
-    await captureScreen(dispatch);
+    await dispatch(captureScreen());
     setOpenForm(true);
   };
 
@@ -113,13 +123,22 @@ export const IssueReport = memo(() => {
 
   return (
     <div>
-      <Button startIcon={<ReportProblem />} variant="text" size="small" className={classes.button} onClick={handleOpenDialog}>
+      <Button
+        startIcon={<ReportProblem />}
+        variant="text"
+        size="small"
+        className={classes.button}
+        onClick={handleOpenDialog}
+      >
         Report issue
       </Button>
       <Modal open={openDialog} onClose={handleCloseDialog}>
         <Grid container direction="column" className={classes.pt}>
           <Grid item>
-            <Typography variant="body1">It is helpful to provide a screenshot of your current state, therefore you are going to be prompted by browser to do so.</Typography>
+            <Typography variant="body1">
+              It is helpful to provide a screenshot of your current state, therefore you are going to be prompted by
+              browser to do so.
+            </Typography>
             <Typography variant="body1">After you proceed, {getHintText()}.</Typography>
           </Grid>
           <Grid container justify="flex-end" direction="row">
@@ -147,19 +166,16 @@ export const IssueReport = memo(() => {
             if (!values.description) {
               errors.description = 'Required field.';
             }
-            if (values.email &&
-              !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
-            ) {
+            if (values.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
               errors.email = 'Invalid email address.';
             }
             return errors;
           }}
           onSubmit={async (values, { setSubmitting }) => {
-            await createIssue(formState, dispatch, afterCreateIssueCallback);
+            await dispatch(createIssue(formState, afterCreateIssueCallback));
             setSubmitting(false);
           }}
         >
-
           {({ submitForm, isSubmitting }) => (
             <Form>
               <Grid container direction="column" className={classes.body}>
@@ -222,7 +238,9 @@ export const IssueReport = memo(() => {
 
                 <Grid container justify="flex-end" direction="row">
                   <Grid item>
-                    <Button disabled={isSubmitting} onClick={handleCloseForm}>Close</Button>
+                    <Button disabled={isSubmitting} onClick={handleCloseForm}>
+                      Close
+                    </Button>
                   </Grid>
                   <Grid item>
                     <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
@@ -230,7 +248,6 @@ export const IssueReport = memo(() => {
                     </Button>
                   </Grid>
                 </Grid>
-
               </Grid>
             </Form>
           )}
