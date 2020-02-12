@@ -112,10 +112,8 @@ export const IssueReport = memo(() => {
   const getHintText = () => {
     let text = 'please choose your window or screen to share';
     if (isFirefox()) {
-      console.log('firefox');
       text += ' and "Allow" it';
     } else if (isChrome()) {
-      console.log('chrome');
       text += ', ideally "Chrome tab" and your current tab';
     }
     return text;

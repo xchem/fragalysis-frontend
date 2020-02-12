@@ -1,4 +1,4 @@
-import { constants } from './constatnts';
+import { constants } from './constants';
 
 export const resetForm = () => ({ type: constants.RESET_FORM, payload: {} });
 
