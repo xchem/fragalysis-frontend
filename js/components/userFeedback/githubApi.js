@@ -1,5 +1,4 @@
-import api from '../../utils/api';
-import axios from 'axios';
+import { api } from '../../utils/api';
 import { setResponse } from './redux/actions';
 
 /* API handlers */
@@ -23,14 +22,16 @@ const getHeaders = () => {
   };
 };
 
-const uploadFile = async (formState, dispatch) => {
+/**
+ * Upload an image from form state
+ */
+const uploadFile = formState => async dispatch => {
   console.log('uploading new file');
 
   let screenshotUrl = '';
-  const image = formState.imageSource; // await captureScreen();
-  if (image.length > 0) {
+  if (formState.imageSource.length > 0) {
     // https://gist.github.com/maxisam/5c6ec10cc4146adce05d62f553c5062f
-    const imgBase64 = image.split(',')[1];
+    const imgBase64 = formState.imageSource.split(',')[1];
     const uid = new Date().getTime() + parseInt(Math.random() * 1e6).toString();
     const fileName = 'screenshot-' + uid + '.png';
 
@@ -40,13 +41,16 @@ const uploadFile = async (formState, dispatch) => {
       content: imgBase64
     };
 
-    const result = await axios
-      .put(getAssetLink(fileName), JSON.stringify(payload), { headers: getHeaders() })
-      .catch(error => {
-        console.log(error);
-        dispatch(setResponse('Error occured: ' + error.message));
-        // TODO sentry?
-      });
+    const result = await api({
+      method: api.METHOD.PUT,
+      url: getAssetLink(fileName),
+      headers: getHeaders(),
+      data: JSON.stringify(payload)
+    }).catch(error => {
+      console.log(error);
+      dispatch(setResponse('Error occured: ' + error.message));
+      // TODO sentry?
+    });
     console.log(result);
     screenshotUrl = result.data.content.html_url + '?raw=true';
   }
@@ -54,10 +58,13 @@ const uploadFile = async (formState, dispatch) => {
   return screenshotUrl;
 };
 
-export const createIssue = async (formState, dispatch, afterCreateIssueCallback) => {
+/**
+ * Create issue in GitHub (thunk actions are used to stored in dispatchActions.js)
+ */
+export const createIssue = (formState, afterCreateIssueCallback) => async dispatch => {
   dispatch(setResponse(''));
 
-  const screenshotUrl = await uploadFile(formState, dispatch);
+  const screenshotUrl = await dispatch(uploadFile(formState));
   console.log('url', screenshotUrl);
 
   console.log('creating new issue');
@@ -118,8 +125,12 @@ export const createIssue = async (formState, dispatch, afterCreateIssueCallback)
     labels: ['issue']
   };
 
-  axios
-    .post(getIssuesLink(), issue, { headers: getHeaders() })
+  api({
+    method: api.METHOD.POST,
+    url: getIssuesLink(),
+    headers: getHeaders(),
+    data: JSON.stringify(issue)
+  })
     .then(result => {
       console.log(result);
       afterCreateIssueCallback(result.data.html_url);
