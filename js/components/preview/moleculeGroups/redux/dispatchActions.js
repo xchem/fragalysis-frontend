@@ -22,6 +22,7 @@ import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { SCENES } from '../../../../reducers/ngl/constants';
+import { setSortDialogOpen } from '../../molecule/redux/actions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
   dispatch(setObjectSelection([molGroupId]));
@@ -124,6 +125,8 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
 
   // reset filterSettings of molecules
   dispatch(setFilterSettings(undefined));
+  // close sort dialog
+  dispatch(setSortDialogOpen(false));
 };
 
 export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, event }) => (

@@ -17,6 +17,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
+import { setSortDialogOpen } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -83,16 +84,18 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
-    filterSettings
+    filterSettings,
+    sortDialogOpen,
+    setSortDialogOpen
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const [state, setState] = useState();
+    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
-    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const moleculesPerPage = 5;
     // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
     // stav sa tym padom strati
@@ -161,10 +164,12 @@ const MoleculeList = memo(
           headerActions={[
             <Button
               onClick={event => {
-                if (sortDialogAnchorEl === null) {
+                if (sortDialogOpen === false) {
                   setSortDialogAnchorEl(event.currentTarget);
+                  setSortDialogOpen(true);
                 } else {
                   setSortDialogAnchorEl(null);
+                  setSortDialogOpen(false);
                 }
               }}
               color={'inherit'}
@@ -177,8 +182,9 @@ const MoleculeList = memo(
             </Button>
           ]}
         >
-          {sortDialogAnchorEl && (
+          {sortDialogOpen && (
             <MoleculeListSortFilterDialog
+              open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
@@ -291,14 +297,16 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
-    filterSettings: state.selectionReducers.filterSettings
+    filterSettings: state.selectionReducers.filterSettings,
+    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
   };
 }
 const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject
+  loadObject,
+  setSortDialogOpen
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);

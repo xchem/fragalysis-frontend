@@ -208,230 +208,232 @@ export const filterMolecules = (molecules, filterSettings) => {
   });
 };
 
-export const MoleculeListSortFilterDialog = memo(({ molGroupSelection, cachedMolList, filterSettings, anchorEl }) => {
-  let classes = useStyles();
-  const dispatch = useDispatch();
+export const MoleculeListSortFilterDialog = memo(
+  ({ molGroupSelection, cachedMolList, filterSettings, anchorEl, open }) => {
+    let classes = useStyles();
+    const dispatch = useDispatch();
 
-  const initialize = () => {
-    let initObject = {
-      active: false,
-      predefined: 'none',
-      filter: {},
-      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
+    const initialize = () => {
+      let initObject = {
+        active: false,
+        predefined: 'none',
+        filter: {},
+        priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
+      };
+
+      for (let attr of MOL_ATTRIBUTES) {
+        const lowAttr = attr.key.toLowerCase();
+        let minValue = -999999;
+        let maxValue = 0;
+        for (let molecule of getListedMolecules()) {
+          const attrValue = molecule[lowAttr];
+          if (attrValue > maxValue) maxValue = attrValue;
+          if (minValue === -999999) minValue = maxValue;
+          if (attrValue < minValue) minValue = attrValue;
+        }
+
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: 1,
+          minValue: minValue,
+          maxValue: maxValue,
+          isFloat: attr.isFloat
+        };
+      }
+      return initObject;
     };
 
-    for (let attr of MOL_ATTRIBUTES) {
-      const lowAttr = attr.key.toLowerCase();
-      let minValue = -999999;
-      let maxValue = 0;
-      for (let molecule of getListedMolecules()) {
-        const attrValue = molecule[lowAttr];
-        if (attrValue > maxValue) maxValue = attrValue;
-        if (minValue === -999999) minValue = maxValue;
-        if (attrValue < minValue) minValue = attrValue;
+    const getListedMolecules = () => {
+      let molecules = [];
+      for (let molgroupId of molGroupSelection) {
+        // Selected molecule groups
+        const molGroup = cachedMolList[molgroupId];
+        if (molGroup) {
+          molecules = molecules.concat(molGroup.results);
+        } else {
+          console.log(`Molecule group ${molgroupId} not found in cached list`);
+        }
       }
 
-      initObject.filter[attr.key] = {
-        priority: 0,
-        order: 1,
-        minValue: minValue,
-        maxValue: maxValue,
-        isFloat: attr.isFloat
-      };
-    }
-    return initObject;
-  };
+      return molecules;
+    };
 
-  const getListedMolecules = () => {
-    let molecules = [];
-    for (let molgroupId of molGroupSelection) {
-      // Selected molecule groups
-      const molGroup = cachedMolList[molgroupId];
-      if (molGroup) {
-        molecules = molecules.concat(molGroup.results);
-      } else {
-        console.log(`Molecule group ${molgroupId} not found in cached list`);
+    const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
+    const [initState] = useState(initialize());
+    const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
+    const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
+
+    const handleFilterChange = filter => {
+      const filterSet = Object.assign({}, filter);
+      for (let attr of MOL_ATTRIBUTES) {
+        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+          filterSet.filter[attr.key].priority = 0;
+        }
       }
-    }
+      dispatch(setFilterSettings(filterSet));
+    };
 
-    return molecules;
-  };
-
-  const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
-  const [initState] = useState(initialize());
-  const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
-  const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
-
-  const handleFilterChange = filter => {
-    const filterSet = Object.assign({}, filter);
-    for (let attr of MOL_ATTRIBUTES) {
-      if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
-        filterSet.filter[attr.key].priority = 0;
-      }
-    }
-    dispatch(setFilterSettings(filterSet));
-  };
-
-  const handleItemChange = key => setting => {
-    let newFilter = Object.assign({}, filter);
-    newFilter.filter[key] = setting;
-    newFilter.active = true;
-    setFilter(newFilter);
-    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
-    handleFilterChange(newFilter);
-  };
-
-  const handlePrioChange = key => inc => () => {
-    const maxPrio = MOL_ATTRIBUTES.length - 1;
-    const minPrio = 0;
-    let priorityOrder = filter.priorityOrder;
-    const index = filter.priorityOrder.indexOf(key);
-    if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
-      priorityOrder.splice(index, 1);
-      priorityOrder.splice(index + inc, 0, key);
+    const handleItemChange = key => setting => {
       let newFilter = Object.assign({}, filter);
-      newFilter.priorityOrder = priorityOrder;
+      newFilter.filter[key] = setting;
       newFilter.active = true;
       setFilter(newFilter);
+      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
       handleFilterChange(newFilter);
+    };
+
+    const handlePrioChange = key => inc => () => {
+      const maxPrio = MOL_ATTRIBUTES.length - 1;
+      const minPrio = 0;
+      let priorityOrder = filter.priorityOrder;
+      const index = filter.priorityOrder.indexOf(key);
+      if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
+        priorityOrder.splice(index, 1);
+        priorityOrder.splice(index + inc, 0, key);
+        let newFilter = Object.assign({}, filter);
+        newFilter.priorityOrder = priorityOrder;
+        newFilter.active = true;
+        setFilter(newFilter);
+        handleFilterChange(newFilter);
+      }
+    };
+
+    const handleClear = () => {
+      const resetFilter = initialize();
+      setPredefinedFilter('none');
+      setFilter(resetFilter);
+      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
+      handleFilterChange(resetFilter);
+    };
+
+    const changePredefinedFilter = event => {
+      const preFilterKey = event.target.value;
+      setPredefinedFilter(preFilterKey);
+      let newFilter = Object.assign({}, filter);
+      newFilter.active = true;
+      newFilter.predefined = preFilterKey;
+      if (preFilterKey !== 'none') {
+        Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
+          const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
+          newFilter.filter[attr].maxValue = maxValue;
+          newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
+        });
+      }
+      setFilter(newFilter);
+      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
+      handleFilterChange(newFilter);
+    };
+
+    // Check for multiple attributes with same sorting priority
+    let prioWarning = false;
+    let prioWarningTest = {};
+    for (const attr of MOL_ATTRIBUTES) {
+      const prioKey = filter.filter[attr.key].priority;
+      if (prioKey > 0) {
+        prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
+        if (prioWarningTest[prioKey] > 1) prioWarning = true;
+      }
     }
-  };
 
-  const handleClear = () => {
-    const resetFilter = initialize();
-    setPredefinedFilter('none');
-    setFilter(resetFilter);
-    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
-    handleFilterChange(resetFilter);
-  };
+    const id = open ? 'simple-popover' : undefined;
 
-  const changePredefinedFilter = event => {
-    const preFilterKey = event.target.value;
-    setPredefinedFilter(preFilterKey);
-    let newFilter = Object.assign({}, filter);
-    newFilter.active = true;
-    newFilter.predefined = preFilterKey;
-    if (preFilterKey !== 'none') {
-      Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
-        const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
-        newFilter.filter[attr].maxValue = maxValue;
-        newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
-      });
-    }
-    setFilter(newFilter);
-    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
-    handleFilterChange(newFilter);
-  };
-
-  // Check for multiple attributes with same sorting priority
-  let prioWarning = false;
-  let prioWarningTest = {};
-  for (const attr of MOL_ATTRIBUTES) {
-    const prioKey = filter.filter[attr.key].priority;
-    if (prioKey > 0) {
-      prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
-      if (prioWarningTest[prioKey] > 1) prioWarning = true;
-    }
-  }
-
-  const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
-
-  return (
-    <Popper id={id} open={open} anchorEl={anchorEl} placement="right-start">
-      <Paper className={classes.paper} elevation={21}>
-        <Grid container justify="space-between" direction="row" alignItems="center">
-          <Grid item>
-            <FormControl className={classes.formControl}>
-              <InputLabel shrink htmlFor="predefined-label-placeholder">
-                Predefined filter
-              </InputLabel>
-              <Select
-                value={predefinedFilter}
-                onChange={changePredefinedFilter}
-                inputProps={{
-                  name: 'predefined',
-                  id: 'predefined-label-placeholder'
-                }}
-                displayEmpty
-                name="predefined"
-              >
-                {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
-                  <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
-                    {PREDEFINED_FILTERS[preFilterKey].name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item>
-            <div className={classes.numberOfHits}>
-              # of hits matching selection: <b>{filteredCount}</b>
-              {prioWarning && (
-                <div>
-                  <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
-                </div>
-              )}
-            </div>
-          </Grid>
-          <Grid item>
-            <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
-              Clear
-            </Button>
-          </Grid>
-        </Grid>
-        <Grid container>
-          <Grid container item className={classes.gridItemHeader}>
-            <Grid item className={classes.centered} style={{ width: widthPrio }}>
-              priority
+    return (
+      <Popper id={id} open={open} anchorEl={anchorEl} placement="right-start">
+        <Paper className={classes.paper} elevation={21}>
+          <Grid container justify="space-between" direction="row" alignItems="center">
+            <Grid item>
+              <FormControl className={classes.formControl}>
+                <InputLabel shrink htmlFor="predefined-label-placeholder">
+                  Predefined filter
+                </InputLabel>
+                <Select
+                  value={predefinedFilter}
+                  onChange={changePredefinedFilter}
+                  inputProps={{
+                    name: 'predefined',
+                    id: 'predefined-label-placeholder'
+                  }}
+                  displayEmpty
+                  name="predefined"
+                >
+                  {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
+                    <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
+                      {PREDEFINED_FILTERS[preFilterKey].name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
-            <Grid item className={classes.centered} style={{ width: widthOrder }}>
-              <div style={{ textAlign: 'center' }}>
-                order
-                <br />
-                <span style={{ fontSize: 'smaller' }}>(up/down)</span>
+            <Grid item>
+              <div className={classes.numberOfHits}>
+                # of hits matching selection: <b>{filteredCount}</b>
+                {prioWarning && (
+                  <div>
+                    <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
+                  </div>
+                )}
               </div>
             </Grid>
-            <Grid item className={classes.centered} style={{ width: widthProperty }}>
-              property
-            </Grid>
-            <Grid item className={classes.centered} style={{ width: widthMin }}>
-              min
-            </Grid>
-            <Grid item className={classes.centered} style={{ width: widthSlider }} />
-            <Grid item className={classes.centered} style={{ width: widthMin }}>
-              max
+            <Grid item>
+              <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
+                Clear
+              </Button>
             </Grid>
           </Grid>
+          <Grid container>
+            <Grid container item className={classes.gridItemHeader}>
+              <Grid item className={classes.centered} style={{ width: widthPrio }}>
+                priority
+              </Grid>
+              <Grid item className={classes.centered} style={{ width: widthOrder }}>
+                <div style={{ textAlign: 'center' }}>
+                  order
+                  <br />
+                  <span style={{ fontSize: 'smaller' }}>(up/down)</span>
+                </div>
+              </Grid>
+              <Grid item className={classes.centered} style={{ width: widthProperty }}>
+                property
+              </Grid>
+              <Grid item className={classes.centered} style={{ width: widthMin }}>
+                min
+              </Grid>
+              <Grid item className={classes.centered} style={{ width: widthSlider }} />
+              <Grid item className={classes.centered} style={{ width: widthMin }}>
+                max
+              </Grid>
+            </Grid>
 
-          {filter.priorityOrder.map(attr => {
-            let attrDef = getAttrDefinition(attr);
-            return (
-              <MoleculeListSortFilterItem
-                key={attr}
-                property={attrDef.name}
-                order={filter.filter[attr].order}
-                minValue={filter.filter[attr].minValue}
-                maxValue={filter.filter[attr].maxValue}
-                min={initState.filter[attr].minValue}
-                max={initState.filter[attr].maxValue}
-                isFloat={initState.filter[attr].isFloat}
-                color={attrDef.color}
-                disabled={predefinedFilter !== 'none'}
-                onChange={handleItemChange(attr)}
-                onChangePrio={handlePrioChange(attr)}
-              />
-            );
-          })}
-        </Grid>
-      </Paper>
-    </Popper>
-  );
-});
+            {filter.priorityOrder.map(attr => {
+              let attrDef = getAttrDefinition(attr);
+              return (
+                <MoleculeListSortFilterItem
+                  key={attr}
+                  property={attrDef.name}
+                  order={filter.filter[attr].order}
+                  minValue={filter.filter[attr].minValue}
+                  maxValue={filter.filter[attr].maxValue}
+                  min={initState.filter[attr].minValue}
+                  max={initState.filter[attr].maxValue}
+                  isFloat={initState.filter[attr].isFloat}
+                  color={attrDef.color}
+                  disabled={predefinedFilter !== 'none'}
+                  onChange={handleItemChange(attr)}
+                  onChangePrio={handlePrioChange(attr)}
+                />
+              );
+            })}
+          </Grid>
+        </Paper>
+      </Popper>
+    );
+  }
+);
 
 MoleculeListSortFilterDialog.propTypes = {
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
   filterSettings: PropTypes.object,
-  anchorEl: PropTypes.object
+  anchorEl: PropTypes.object,
+  open: PropTypes.bool.isRequired
 };
