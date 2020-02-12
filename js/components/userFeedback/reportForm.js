@@ -15,7 +15,6 @@ import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
 import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-import { snackbarColors } from '../header/constants';
 
 const useStyles = makeStyles(theme => ({
   buttonGreen: {
@@ -68,10 +67,11 @@ export const FORM_TYPE = { ISSUE: 'ISSUE', IDEA: 'IDEA' };
 
 export const ReportForm = memo(({ formType }) => {
   const classes = useStyles();
+  const [state, setState] = useState();
 
   const dispatch = useDispatch();
   const formState = useSelector(state => state.issueReducers);
-  const { setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
+  const { setSnackBarTitle } = useContext(HeaderContext);
 
   /* Specific form type functions */
   const isValidType = () => {
@@ -147,7 +147,6 @@ export const ReportForm = memo(({ formType }) => {
         </a>
       </>
     );
-    setSnackBarColor(snackbarColors.default);
     handleCloseForm();
   };
 
@@ -179,9 +178,6 @@ export const ReportForm = memo(({ formType }) => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-  };
-  const handleSubmitDialog = () => {
-    handleCloseDialog();
     handleOpenForm();
   };
 
@@ -206,7 +202,7 @@ export const ReportForm = memo(({ formType }) => {
       >
         {getTitle()}
       </Button>
-      <Modal open={openDialog}>
+      <Modal open={openDialog} onClose={handleCloseDialog}>
         <Grid container direction="column" className={classes.pt}>
           <Grid item>
             <Typography variant="body1">
@@ -217,17 +213,14 @@ export const ReportForm = memo(({ formType }) => {
           </Grid>
           <Grid container justify="flex-end" direction="row">
             <Grid item>
-              <Button onClick={handleCloseDialog}>Cancel</Button>
-            </Grid>
-            <Grid item>
-              <Button color="primary" onClick={handleSubmitDialog}>
+              <Button color="primary" onClick={handleCloseDialog}>
                 Proceed
               </Button>
             </Grid>
           </Grid>
         </Grid>
       </Modal>
-      <Modal open={openForm}>
+      <Modal open={openForm} onClose={handleCloseForm}>
         <Formik
           initialValues={{
             name: formState.name,
@@ -322,7 +315,7 @@ export const ReportForm = memo(({ formType }) => {
                     </Button>
                   </Grid>
                   <Grid item>
-                    <Button color="primary" loading={isSubmitting} onClick={submitForm}>
+                    <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
                       {getTitle()}
                     </Button>
                   </Grid>

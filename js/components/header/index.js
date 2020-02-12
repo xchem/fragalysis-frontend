@@ -39,6 +39,7 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
+import { IdeaReport } from '../userFeedback/ideaReport';
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -210,6 +211,9 @@ export default memo(
                 </Grid>
                 <Grid item>
                   <IssueReport />
+                </Grid>
+                <Grid item>
+                  <IdeaReport />
                 </Grid>
               </Grid>
             </Grid>
