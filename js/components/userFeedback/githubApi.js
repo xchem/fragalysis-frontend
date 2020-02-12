@@ -1,4 +1,4 @@
-import { api } from '../../utils/api';
+import { api, METHOD } from '../../utils/api';
 import { setResponse } from './redux/actions';
 
 /* API handlers */
@@ -42,7 +42,7 @@ const uploadFile = formState => async dispatch => {
     };
 
     const result = await api({
-      method: api.METHOD.PUT,
+      method: METHOD.PUT,
       url: getAssetLink(fileName),
       headers: getHeaders(),
       data: JSON.stringify(payload)
@@ -126,7 +126,7 @@ export const createIssue = (formState, afterCreateIssueCallback) => async dispat
   };
 
   api({
-    method: api.METHOD.POST,
+    method: METHOD.POST,
     url: getIssuesLink(),
     headers: getHeaders(),
     data: JSON.stringify(issue)
