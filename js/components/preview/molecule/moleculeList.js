@@ -97,11 +97,9 @@ const MoleculeList = memo(
       oldUrl.current = url;
     };
     const moleculesPerPage = 5;
-    // toto nemozem riesit cez current ale klasicky cez state. Je tu ale zadrhel, ze sa to velakrat prerenderuje a ten
-    // stav sa tym padom strati
     const [currentPage, setCurrentPage] = useState(0);
-    const imgHeight = 80;
-    const imgWidth = 100;
+    const imgHeight = 130;
+    const imgWidth = 150;
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
@@ -228,7 +226,7 @@ const MoleculeList = memo(
             )}
           </div>
           <Grid container direction="column" className={classes.container} style={{ height: height }}>
-            <Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
+            {/*<Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
               <Grid item className={classes.gridItemHeaderVert}>
                 site
               </Grid>
@@ -253,7 +251,7 @@ const MoleculeList = memo(
               <Grid item xs={2}>
                 properties
               </Grid>
-            </Grid>
+            </Grid>*/}
             {currentMolecules.length > 0 && (
               <div className={classes.gridItemList}>
                 <InfiniteScroll
