@@ -74,6 +74,9 @@ const useStyles = makeStyles(theme => ({
     top: '50%',
     left: '50%',
     position: 'fixed'
+  },
+  clickableImage: {
+    cursor: 'pointer'
   }
 }));
 
@@ -81,7 +84,7 @@ export default memo(
   forwardRef(({ headerHeight = 0, setHeaderHeight }, ref) => {
     let history = useHistory();
     const classes = useStyles();
-    const { isLoading, headerButtons } = useContext(HeaderContext);
+    const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
     const disableUserInteraction = useDisableUserInteraction();
 
     const [error, setError] = useState();
@@ -105,7 +108,6 @@ export default memo(
 
     const funders = '/viewer/react/funders';
     let authListItem;
-    let envNavbar = '';
 
     let username = null;
 
@@ -159,10 +161,12 @@ export default memo(
       </Typography>
     );
 
-    if (document.location.host.startsWith('fragalysis.diamond') !== true) {
-      envNavbar = 'DEVELOPMENT';
-    } else {
-      envNavbar = 'Home';
+    if (headerNavbarTitle === '') {
+      if (document.location.host.startsWith('fragalysis.diamond') !== true) {
+        setHeaderNavbarTitle('DEVELOPMENT');
+      } else {
+        setHeaderNavbarTitle('Home');
+      }
     }
     const [forceCompute, setForceCompute] = useState();
     const innerRef = React.useRef();
@@ -183,20 +187,55 @@ export default memo(
         <AppBar position="absolute" ref={combinedRef} className={classes.appBar}>
           <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerPadding}>
             <Grid item>
+              <ButtonGroup variant="text" size="small">
+                <Button
+                  key="menu"
+                  onClick={() => {
+                    setOpenMenu(true);
+                  }}
+                  startIcon={<MenuIcon />}
+                >
+                  Menu
+                </Button>
+                <Button>
+                  <Typography variant="h5" color="textPrimary" onClick={() => history.push(URLS.landing)}>
+                    Fragalysis: <b>{headerNavbarTitle}</b>
+                  </Typography>
+                </Button>
+                {headerButtons && headerButtons.map(item => item)}
+              </ButtonGroup>
+            </Grid>
+            <Grid item>
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
                 <Grid item>
-                  <Typography variant="h5" color="textPrimary" onClick={() => history.push(URLS.landing)}>
-                    Fragalysis <b>{envNavbar}</b>
-                  </Typography>
+                  <IssueReport />
                 </Grid>
                 <Grid item>
-                  <img src={require('../../img/xchemLogo.png')} height="20" onClick={openXchem} />
+                  <IdeaReport />
                 </Grid>
                 <Grid item>
-                  <img src={require('../../img/dlsLogo.png')} height="20" onClick={openDiamond} />
+                  <img
+                    src={require('../../img/xchemLogo.png')}
+                    height="20"
+                    className={classes.clickableImage}
+                    onClick={openXchem}
+                  />
                 </Grid>
                 <Grid item>
-                  <img src={require('../../img/sgcLogo.png')} height="20" onClick={openSgc} />
+                  <img
+                    src={require('../../img/dlsLogo.png')}
+                    height="20"
+                    className={classes.clickableImage}
+                    onClick={openDiamond}
+                  />
+                </Grid>
+                <Grid item>
+                  <img
+                    src={require('../../img/sgcLogo.png')}
+                    height="20"
+                    className={classes.clickableImage}
+                    onClick={openSgc}
+                  />
                 </Grid>
                 <Grid item>
                   <Button
@@ -208,32 +247,12 @@ export default memo(
                     Supported by
                   </Button>
                 </Grid>
-                <Grid item>
-                  <IssueReport />
-                </Grid>
-                <Grid item>
-                  <IdeaReport />
-                </Grid>
               </Grid>
-            </Grid>
-            <Grid item>
-              <ButtonGroup variant="text" size="small">
-                {headerButtons && headerButtons.map(item => item)}
-                <Button
-                  key="menu"
-                  onClick={() => {
-                    setOpenMenu(true);
-                  }}
-                  startIcon={<MenuIcon />}
-                >
-                  Menu
-                </Button>
-              </ButtonGroup>
             </Grid>
           </Grid>
         </AppBar>
         <Drawer
-          anchor="right"
+          anchor="left"
           open={openMenu}
           onClose={() => {
             setOpenMenu(false);
