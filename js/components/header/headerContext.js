@@ -5,6 +5,7 @@ export const HeaderContext = createContext();
 export const HeaderProvider = memo(props => {
   const [isLoading, setIsLoading] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerNavbarTitle, setHeaderNavbarTitle] = useState('');
   const [headerButtons, setHeaderButtons] = useState(null);
   const [snackBarTitle, setSnackBarTitle] = useState(null);
 
@@ -15,6 +16,8 @@ export const HeaderProvider = memo(props => {
         setIsLoading,
         headerHeight,
         setHeaderHeight,
+        headerNavbarTitle,
+        setHeaderNavbarTitle,
         headerButtons,
         setHeaderButtons,
         snackBarTitle,

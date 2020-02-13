@@ -19,7 +19,7 @@ export const withSnapshotManagement = WrappedComponent => {
 
     const { pathname } = window.location;
     const { nglViewList } = useContext(NglContext);
-    const { setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
+    const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
     const dispatch = useDispatch();
     const savingState = useSelector(state => state.apiReducers.savingState);
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
@@ -48,8 +48,11 @@ export const withSnapshotManagement = WrappedComponent => {
       });
     }, [dispatch, newSessionFlag, nextUuid, saveType, sessionId, setState, uuid]);
 
-    // Function for set Header buttons and snackBar information about session
+    // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
+      if (targetIdList[0] !== undefined) {
+        setHeaderNavbarTitle(targetIdList[0].title);
+      }
       setHeaderButtons([
         <Button
           key="saveAs"
@@ -68,8 +71,17 @@ export const withSnapshotManagement = WrappedComponent => {
       return () => {
         setHeaderButtons(null);
         setSnackBarTitle(null);
+        setHeaderNavbarTitle('');
       };
-    }, [disableButtons, dispatch, sessionTitle, setHeaderButtons, setSnackBarTitle]);
+    }, [
+      disableButtons,
+      dispatch,
+      sessionTitle,
+      setHeaderNavbarTitle,
+      setHeaderButtons,
+      setSnackBarTitle,
+      targetIdList
+    ]);
 
     return <WrappedComponent {...rest} />;
   });
