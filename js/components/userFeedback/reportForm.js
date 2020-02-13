@@ -178,6 +178,9 @@ export const ReportForm = memo(({ formType }) => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+  };
+  const handleSubmitDialog = () => {
+    handleCloseDialog();
     handleOpenForm();
   };
 
@@ -213,7 +216,10 @@ export const ReportForm = memo(({ formType }) => {
           </Grid>
           <Grid container justify="flex-end" direction="row">
             <Grid item>
-              <Button color="primary" onClick={handleCloseDialog}>
+              <Button onClick={handleCloseDialog}>Cancel</Button>
+            </Grid>
+            <Grid item>
+              <Button color="primary" onClick={handleSubmitDialog}>
                 Proceed
               </Button>
             </Grid>
