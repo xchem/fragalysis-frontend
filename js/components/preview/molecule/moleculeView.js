@@ -129,7 +129,8 @@ const MoleculeView = memo(
     addComplex,
     removeComplex,
     addLigand,
-    removeLigand
+    removeLigand,
+    target_on_name
   }) => {
     const theme = useTheme();
     const statusCodeRef = useRef(null);
@@ -324,8 +325,8 @@ const MoleculeView = memo(
           >
             <ComputeSize componentRef={statusCodeRef.current} width={statusCodeWidth} setWidth={setStatusCodeWidth}>
               <Grid item>
-                <Typography variant="subtitle2" noWrap>
-                  {data.protein_code}
+                <Typography variant="h6" noWrap>
+                  {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
                 </Typography>
               </Grid>
               <Grid item container justify="space-around" direction="row">
@@ -496,7 +497,8 @@ function mapStateToProps(state) {
     to_query: state.selectionReducers.to_query,
     complexList: state.selectionReducers.complexList,
     fragmentDisplayList: state.selectionReducers.fragmentDisplayList,
-    vectorOnList: state.selectionReducers.vectorOnList
+    vectorOnList: state.selectionReducers.vectorOnList,
+    target_on_name: state.apiReducers.target_on_name
   };
 }
 const mapDispatchToProps = {

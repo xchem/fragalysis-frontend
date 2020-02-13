@@ -39,9 +39,7 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    // - 48px for title and header items
-    height: `calc(100% - ${theme.spacing(6)}px)`,
-    width: `calc(100% - ${theme.spacing(1) / 2}px)`
+    height: `calc(100% - ${theme.spacing(6)}px)`
   },
   centered: {
     display: 'flex',
@@ -69,6 +67,10 @@ const useStyles = makeStyles(theme => ({
   },
   filterTitle: {
     transform: 'rotate(-90deg)'
+  },
+  molHeader: {
+    padding: theme.spacing(1) / 4,
+    backgroundColor: 'red'
   }
 }));
 
@@ -225,7 +227,13 @@ const MoleculeList = memo(
               </>
             )}
           </div>
-          <Grid container direction="column" className={classes.container} style={{ height: height }}>
+          <Grid
+            container
+            direction="column"
+            justify="flex-start"
+            className={classes.container}
+            style={{ height: height }}
+          >
             {/*<Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
               <Grid item className={classes.gridItemHeaderVert}>
                 site
@@ -252,8 +260,13 @@ const MoleculeList = memo(
                 properties
               </Grid>
             </Grid>*/}
+            <Grid item>
+              <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                Header of molecules
+              </Grid>
+            </Grid>
             {currentMolecules.length > 0 && (
-              <div className={classes.gridItemList}>
+              <Grid item className={classes.gridItemList}>
                 <InfiniteScroll
                   pageStart={0}
                   loadMore={loadNextMolecules}
@@ -277,7 +290,7 @@ const MoleculeList = memo(
                     <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
                   ))}
                 </InfiniteScroll>
-              </div>
+              </Grid>
             )}
           </Grid>
         </Panel>
