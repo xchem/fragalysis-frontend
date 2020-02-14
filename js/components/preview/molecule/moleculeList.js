@@ -19,6 +19,8 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { setSortDialogOpen } from './redux/actions';
 
+const moleculeViewWidth = 480;
+
 const useStyles = makeStyles(theme => ({
   container: {
     height: '100%',
@@ -70,7 +72,8 @@ const useStyles = makeStyles(theme => ({
   },
   molHeader: {
     padding: theme.spacing(1) / 4,
-    backgroundColor: 'red'
+    backgroundColor: 'red',
+    width: moleculeViewWidth
   }
 }));
 
@@ -100,7 +103,7 @@ const MoleculeList = memo(
     };
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
-    const imgHeight = 130;
+    const imgHeight = 88;
     const imgWidth = 150;
 
     const isActiveFilter = !!(filterSettings || {}).active;
@@ -287,7 +290,13 @@ const MoleculeList = memo(
                   useWindow={false}
                 >
                   {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} height={imgHeight} width={imgWidth} data={data} />
+                    <MoleculeView
+                      key={data.id}
+                      width={moleculeViewWidth}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data}
+                    />
                   ))}
                 </InfiniteScroll>
               </Grid>

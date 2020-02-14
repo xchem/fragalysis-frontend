@@ -12,12 +12,11 @@ import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
-import { ComputeSize } from '../../../utils/computeSize';
 import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLigand } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 
-const containerHeight = 136;
+const containerHeight = 130;
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -76,7 +75,8 @@ const useStyles = makeStyles(theme => ({
     height: 'fit-content'
   },
   imageMargin: {
-    marginTop: -theme.spacing(2)
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
   },
   rightBorder: {
     borderRight: '1px solid',
@@ -117,8 +117,8 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
 
 const MoleculeView = memo(
   ({
-    height,
-    width,
+    imageHeight,
+    imageWidth,
     data,
     to_query,
     complexList,
@@ -130,11 +130,10 @@ const MoleculeView = memo(
     removeComplex,
     addLigand,
     removeLigand,
-    target_on_name
+    target_on_name,
+    width
   }) => {
     const theme = useTheme();
-    const statusCodeRef = useRef(null);
-    const [statusCodeWidth, setStatusCodeWidth] = useState(0);
 
     const [state, setState] = useState();
     const selectedAll = useRef(false);
@@ -182,8 +181,8 @@ const MoleculeView = memo(
       if (refOnCancel.current === undefined) {
         let onCancel = () => {};
         loadFromServer({
-          width,
-          height,
+          width: imageHeight,
+          height: imageWidth,
           key,
           old_url: oldUrl.current,
           setImg_data,
@@ -202,7 +201,7 @@ const MoleculeView = memo(
           refOnCancel.current();
         }
       };
-    }, [complexList, data.id, data.smiles, fragmentDisplayList, height, to_query, url, vectorOnList, width]);
+    }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, to_query, url, vectorOnList, imageWidth]);
 
     const svg_image = (
       <SVGInline
@@ -212,9 +211,8 @@ const MoleculeView = memo(
         width="inherit"
         className={classes.imageMargin}
         style={{
-          height: `${height}px`,
-          width: `${width}px`,
-          marginTop: `-10px`
+          height: `${imageHeight}px`,
+          width: `${imageWidth}px`
         }}
       />
     );
@@ -306,7 +304,14 @@ const MoleculeView = memo(
     };
 
     return (
-      <Grid container justify="flex-start" direction="row" className={classes.container} wrap="nowrap">
+      <Grid
+        container
+        justify="flex-start"
+        direction="row"
+        className={classes.container}
+        wrap="nowrap"
+        style={{ width }}
+      >
         {/* Site number */}
         <Grid item container justify="center" direction="column" className={classes.fitContentWidth}>
           <Grid item>
@@ -314,39 +319,13 @@ const MoleculeView = memo(
           </Grid>
         </Grid>
         <Grid item container className={classes.detailsCol} wrap="nowrap" justify="space-between">
-          {/* Status code */}
-          <Grid
-            item
-            container
-            direction="column"
-            justify="space-between"
-            className={classes.statusCol}
-            ref={statusCodeRef}
-          >
-            <ComputeSize componentRef={statusCodeRef.current} width={statusCodeWidth} setWidth={setStatusCodeWidth}>
-              <Grid item>
-                <Typography variant="h6" noWrap>
-                  {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
-                </Typography>
-              </Grid>
-              <Grid item container justify="space-around" direction="row">
-                {Object.values(molStatusTypes).map(type => (
-                  <Grid item key={`molecule-status-${type}`} className={classes.fitContentHeight}>
-                    <MoleculeStatusView type={type} data={data} />
-                  </Grid>
-                ))}
-              </Grid>
-            </ComputeSize>
-          </Grid>
-
           {/* Image */}
           <Grid
             item
             style={{
               ...current_style,
-              //   width: `calc(100% - 183px - ${statusCodeWidth}px - ${theme.spacing(1) / 2}px)`,
-              width,
-              marginLeft: theme.spacing(1) / 2
+              width: imageWidth
+              //   marginLeft: theme.spacing(1) / 2
             }}
             container
             justify="center"
@@ -354,7 +333,7 @@ const MoleculeView = memo(
             <Grid item>{svg_image}</Grid>
           </Grid>
 
-          {/* Molecule preperties */}
+          {/* Molecule properties */}
           <Grid
             item
             container
@@ -378,112 +357,96 @@ const MoleculeView = memo(
                 </Grid>
               ))}
             </Grid>
-            {/*  <Grid item xs={12} container direction="row" justify="flex-end">
-              {getCalculatedProps()
-                .slice(0, 5)
-                .map(p => (
-                  <Grid
-                    item
-                    container
-                    justify="space-around"
-                    alignItems="center"
-                    direction="column"
-                    key={`calc-prop-${p.name}`}
-                    className={classes.fitContentWidthAndPadding}
-                  >
-                    <Grid item>
-                      <Typography variant="subtitle2">{p.name}</Typography>
-                    </Grid>
-                    <Grid item>{p.value}</Grid>
-                  </Grid>
-                ))}
-            </Grid>
-           <Grid item xs={12} container direction="row" justify="flex-end">
-              {getCalculatedProps()
-                .slice(5)
-                .map(p => (
-                  <Grid
-                    item
-                    container
-                    justify="space-around"
-                    alignItems="center"
-                    direction="column"
-                    key={`calc-prop-${p.name}`}
-                    className={classes.fitContentWidthAndPadding}
-                  >
-                    <Grid item>
-                      <Typography variant="subtitle2">{p.name}</Typography>
-                    </Grid>
-                    <Grid item>{p.value}</Grid>
-                  </Grid>
-                ))}
-            </Grid>*/}
-            {/* Control Buttons A, L, C, V */}
-            <Grid
-              item
-              container
-              direction="row"
-              justify="flex-start"
-              alignItems="center"
-              className={classes.fitContentWidth}
-            >
-              <Grid item className={classes.contButtonsDimensions}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: hasAllValuesOn
-                  })}
-                  onClick={() => {
-                    selectedAll.current = !selectedAll.current;
 
-                    onLigand(true);
-                    onComplex(true);
-                    onVector(true);
-                  }}
-                  disabled={disableUserInteraction}
-                >
-                  <Typography variant="button">A</Typography>
-                </Button>
+            <Grid item container justify="space-between" direction="row" alignItems="flex-end">
+              {/* Title label */}
+              <Grid item>
+                <Typography variant="h6" noWrap>
+                  {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
+                </Typography>
               </Grid>
-              <Grid item className={classes.contButtonsDimensions}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: isLigandOn
-                  })}
-                  onClick={() => onLigand()}
-                  disabled={disableUserInteraction}
-                >
-                  <Typography variant="button">L</Typography>
-                </Button>
+
+              {/* Status code */}
+              <Grid item>
+                <Grid container direction="column" justify="flex-start" alignItems="flex-end">
+                  {Object.values(molStatusTypes).map(type => (
+                    <Grid
+                      item
+                      key={`molecule-status-${type}`} //className={classes.fitContentHeight}
+                    >
+                      <MoleculeStatusView type={type} data={data} />
+                    </Grid>
+                  ))}
+                </Grid>
               </Grid>
-              <Grid item className={classes.contButtonsDimensions}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: isComplexOn
-                  })}
-                  onClick={() => onComplex()}
-                  disabled={disableUserInteraction}
-                >
-                  <Typography variant="button">C</Typography>
-                </Button>
-              </Grid>
-              <Grid item className={classes.contButtonsDimensions}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: isVectorOn
-                  })}
-                  onClick={() => onVector()}
-                  disabled={disableUserInteraction}
-                >
-                  <Typography variant="button">V</Typography>
-                </Button>
+
+              {/* Control Buttons A, L, C, V */}
+              <Grid
+                item
+                container
+                direction="row"
+                justify="flex-start"
+                alignItems="center"
+                className={classes.fitContentWidth}
+              >
+                <Grid item className={classes.contButtonsDimensions}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: hasAllValuesOn
+                    })}
+                    onClick={() => {
+                      selectedAll.current = !selectedAll.current;
+
+                      onLigand(true);
+                      onComplex(true);
+                      onVector(true);
+                    }}
+                    disabled={disableUserInteraction}
+                  >
+                    <Typography variant="button">A</Typography>
+                  </Button>
+                </Grid>
+                <Grid item className={classes.contButtonsDimensions}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: isLigandOn
+                    })}
+                    onClick={() => onLigand()}
+                    disabled={disableUserInteraction}
+                  >
+                    <Typography variant="button">L</Typography>
+                  </Button>
+                </Grid>
+                <Grid item className={classes.contButtonsDimensions}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: isComplexOn
+                    })}
+                    onClick={() => onComplex()}
+                    disabled={disableUserInteraction}
+                  >
+                    <Typography variant="button">C</Typography>
+                  </Button>
+                </Grid>
+                <Grid item className={classes.contButtonsDimensions}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: isVectorOn
+                    })}
+                    onClick={() => onVector()}
+                    disabled={disableUserInteraction}
+                  >
+                    <Typography variant="button">V</Typography>
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>

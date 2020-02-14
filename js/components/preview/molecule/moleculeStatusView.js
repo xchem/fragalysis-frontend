@@ -2,14 +2,15 @@ import React, { memo } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import RefinementOutcome from './refinementOutcome';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   container: {
-    height: '100%'
+    width: '100%'
   },
   labelItem: {
     color: '#7B7B7B',
     fontSize: '10px',
-    transform: 'rotate(-90deg)'
+    margin: theme.spacing(1) / 2
+    //  transform: 'rotate(-90deg)'
   },
   valueItem: {
     display: 'flex',
@@ -35,9 +36,8 @@ export const molStatusTypes = {
   STATUS: 'stat'
 };
 
-export default memo(props => {
+export default memo(({ type, data }) => {
   const classes = useStyles();
-  const { type, data } = props;
 
   let valueElement = <div />;
   let label = '';
@@ -70,11 +70,11 @@ export default memo(props => {
   return (
     <Grid
       container
-      direction="column"
+      direction="row"
       alignItems="center"
       justify="space-between"
       className={classes.container}
-      spacing={1}
+      //spacing={1}
     >
       <Grid item className={classes.labelItem}>
         {label}
