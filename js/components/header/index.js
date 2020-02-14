@@ -39,6 +39,8 @@ import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { IdeaReport } from '../userFeedback/ideaReport';
+import { FundersModal } from '../funders/fundersModal';
+
 const uuidv4 = require('uuid/v4');
 
 const useStyles = makeStyles(theme => ({
@@ -89,24 +91,32 @@ export default memo(
 
     const [error, setError] = useState();
     const [openMenu, setOpenMenu] = React.useState(false);
+    const [openFunders, setOpenFunders] = React.useState(false);
 
     if (error) {
       throw new Error('Custom user error.' + uuidv4());
     }
 
     const openXchem = () => {
-      window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
+      // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
+      window.open('https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html', '_blank');
     };
 
     const openDiamond = () => {
-      window.location.href = 'https://www.diamond.ac.uk/Home.html';
+      // window.location.href = 'https://www.diamond.ac.uk/Home.html';
+      window.open('https://www.diamond.ac.uk/Home.html', '_blank');
     };
 
     const openSgc = () => {
-      window.location.href = 'https://www.sgc.ox.ac.uk/';
+      // window.location.href = 'https://www.sgc.ox.ac.uk/';
+      window.open('https://www.sgc.ox.ac.uk/', '_blank');
     };
 
-    const funders = '/viewer/react/funders';
+    const openJanssen = () => {
+      // window.location.href = 'https://www.janssen.com/';
+      window.open('https://www.janssen.com/', '_blank');
+    };
+
     let authListItem;
 
     let username = null;
@@ -238,11 +248,19 @@ export default memo(
                   />
                 </Grid>
                 <Grid item>
+                  <img
+                    src={require('../../img/janssenLogo.png')}
+                    height="20"
+                    className={classes.clickableImage}
+                    onClick={openJanssen}
+                  />
+                </Grid>
+                <Grid item>
                   <Button
                     startIcon={<SupervisorAccount />}
                     variant="text"
                     size="small"
-                    onClick={() => history.push(funders)}
+                    onClick={() => setOpenFunders(true)}
                   >
                     Supported by
                   </Button>
@@ -251,6 +269,7 @@ export default memo(
             </Grid>
           </Grid>
         </AppBar>
+        <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         <Drawer
           anchor="left"
           open={openMenu}
@@ -290,7 +309,7 @@ export default memo(
             </ListItemIcon>
             <ListItemText primary="Management" />
           </ListItem>
-          <ListItem button onClick={() => history.push(funders)}>
+          <ListItem button onClick={() => setOpenFunders(true)}>
             <ListItemIcon>
               <SupervisorAccount />
             </ListItemIcon>
