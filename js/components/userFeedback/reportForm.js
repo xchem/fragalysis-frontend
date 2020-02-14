@@ -205,7 +205,7 @@ export const ReportForm = memo(({ formType }) => {
       >
         {getTitle()}
       </Button>
-      <Modal open={openDialog} onClose={handleCloseDialog}>
+      <Modal open={openDialog}>
         <Grid container direction="column" className={classes.pt}>
           <Grid item>
             <Typography variant="body1">
@@ -226,7 +226,7 @@ export const ReportForm = memo(({ formType }) => {
           </Grid>
         </Grid>
       </Modal>
-      <Modal open={openForm} onClose={handleCloseForm}>
+      <Modal open={openForm}>
         <Formik
           initialValues={{
             name: formState.name,
@@ -321,7 +321,7 @@ export const ReportForm = memo(({ formType }) => {
                     </Button>
                   </Grid>
                   <Grid item>
-                    <Button color="primary" disabled={isSubmitting} onClick={submitForm}>
+                    <Button color="primary" loading={isSubmitting} onClick={submitForm}>
                       {getTitle()}
                     </Button>
                   </Grid>
