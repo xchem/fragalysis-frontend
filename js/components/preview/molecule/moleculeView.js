@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, useTheme } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
@@ -16,13 +16,11 @@ import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLi
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 
-const containerHeight = 130;
-
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: containerHeight
+    height: 130
   },
   contButtonsDimensions: {
     width: theme.spacing(4),
@@ -50,11 +48,6 @@ const useStyles = makeStyles(theme => ({
   detailsCol: {
     border: 'solid 1px #DEDEDE'
   },
-  statusCol: {
-    width: 'fit-content',
-    height: '100%',
-    paddingLeft: 2
-  },
   propsCol: {
     fontSize: '10px',
     width: 320,
@@ -63,13 +56,6 @@ const useStyles = makeStyles(theme => ({
   },
   fitContentWidth: {
     width: 'fit-content'
-  },
-  fitContentWidthAndPadding: {
-    width: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingTop: theme.spacing(1) / 4,
-    paddingBottom: theme.spacing(1) / 4
   },
   fitContentHeight: {
     height: 'fit-content'
@@ -90,8 +76,13 @@ const useStyles = makeStyles(theme => ({
       borderRight: 'none'
     }
   },
-  propTable: {
-    width: 300
+  fullHeight: {
+    height: '100%'
+  },
+  site: {
+    width: 'fit-content',
+    backgroundColor: theme.palette.background.default,
+    border: 'solid 1px #DEDEDE'
   }
 }));
 
@@ -130,11 +121,8 @@ const MoleculeView = memo(
     removeComplex,
     addLigand,
     removeLigand,
-    target_on_name,
-    width
+    target_on_name
   }) => {
-    const theme = useTheme();
-
     const [state, setState] = useState();
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
@@ -207,8 +195,6 @@ const MoleculeView = memo(
       <SVGInline
         component="div"
         svg={img_data}
-        height="inherit"
-        width="inherit"
         className={classes.imageMargin}
         style={{
           height: `${imageHeight}px`,
@@ -304,16 +290,9 @@ const MoleculeView = memo(
     };
 
     return (
-      <Grid
-        container
-        justify="flex-start"
-        direction="row"
-        className={classes.container}
-        wrap="nowrap"
-        style={{ width }}
-      >
+      <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
         {/* Site number */}
-        <Grid item container justify="center" direction="column" className={classes.fitContentWidth}>
+        <Grid item container justify="center" direction="column" className={classes.site}>
           <Grid item>
             <Typography variant="h4">{data.site}</Typography>
           </Grid>
@@ -359,13 +338,6 @@ const MoleculeView = memo(
             </Grid>
 
             <Grid item container justify="space-between" direction="row" alignItems="flex-end">
-              {/* Title label */}
-              <Grid item>
-                <Typography variant="h6" noWrap>
-                  {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
-                </Typography>
-              </Grid>
-
               {/* Status code */}
               <Grid item>
                 <Grid container direction="column" justify="flex-start" alignItems="flex-end">
@@ -377,6 +349,17 @@ const MoleculeView = memo(
                       <MoleculeStatusView type={type} data={data} />
                     </Grid>
                   ))}
+                </Grid>
+              </Grid>
+
+              {/* Title label */}
+              <Grid item className={classes.fullHeight}>
+                <Grid container direction="column" justify="flex-start" alignItems="center">
+                  <Grid item>
+                    <Typography variant="h4" noWrap>
+                      {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
+                    </Typography>
+                  </Grid>
                 </Grid>
               </Grid>
 
