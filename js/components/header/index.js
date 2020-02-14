@@ -90,8 +90,8 @@ export default memo(
     const disableUserInteraction = useDisableUserInteraction();
 
     const [error, setError] = useState();
-    const [openMenu, setOpenMenu] = React.useState(false);
-    const [openFunders, setOpenFunders] = React.useState(false);
+    const [openMenu, setOpenMenu] = useState(false);
+    const [openFunders, setOpenFunders] = useState(false);
 
     if (error) {
       throw new Error('Custom user error.' + uuidv4());

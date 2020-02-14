@@ -69,12 +69,12 @@ export const captureScreen = () => async dispatch => {
     .catch( err => console.log(`${err.name}: ${err.message}`));*/
   } else {
     console.log('capturing canvas');
-    let canvas = document.getElementById('major_view');
-    if (canvas != null) {
-      canvas = canvas.getElementsByTagName('canvas')[0];
-      image = canvas.toDataURL();
-    } else {
-      console.log('canvas not found');
+    const view = document.getElementById('major_view');
+    if (view !== null) {
+      const canvas = view.getElementsByTagName('canvas')[0];
+      if (canvas !== null) {
+        image = canvas.toDataURL();
+      }
     }
   }
 
