@@ -10,10 +10,11 @@ const useStyles = makeStyles(theme => ({
     color: '#7B7B7B',
     fontSize: '10px',
     margin: theme.spacing(1) / 2
+    //  transform: 'rotate(-90deg)'
   },
   valueItem: {
-    marginLeft: theme.spacing(1) / 4,
-    marginRight: theme.spacing(1) / 4
+    display: 'flex',
+    alignItems: 'center'
   },
   valueElement: {
     width: '16px',
@@ -26,11 +27,6 @@ const useStyles = makeStyles(theme => ({
   },
   qualValue: {
     fontSize: '9px'
-  },
-  refinementOutcome: {
-    paddingTop: theme.spacing(1) / 2,
-    width: 16,
-    height: 24
   }
 }));
 
@@ -44,15 +40,18 @@ export default memo(({ type, data }) => {
   const classes = useStyles();
 
   let valueElement = <div />;
+  let label = '';
   switch (type) {
     case molStatusTypes.CONFIDENCE:
+      label = 'conf.';
       // TODO: decide color based on provided data
       valueElement = <div className={classes.valueElement} style={{ backgroundColor: 'green' }} />;
       break;
     case molStatusTypes.QUALITY:
+      label = 'qual.';
       // TODO: decide color based on provided data
       valueElement = (
-        <Grid container alignItems="center" direction="column" justify="center" style={{ color: 'orange' }}>
+        <Grid container alignItems="center" direction="column" justify="flex-start" style={{ color: 'orange' }}>
           <Grid item className={classes.qualCircle} style={{ backgroundColor: 'orange' }} />
           <Grid item className={classes.qualValue}>
             {3.6}
@@ -61,11 +60,28 @@ export default memo(({ type, data }) => {
       );
       break;
     case molStatusTypes.STATUS:
-      valueElement = <RefinementOutcome data={data} className={classes.refinementOutcome} />;
+      label = 'stat.';
+      valueElement = <RefinementOutcome data={data} className={classes.valueElement} />;
       break;
     default:
       break;
   }
 
-  return valueElement;
+  return (
+    <Grid
+      container
+      direction="row"
+      alignItems="center"
+      justify="space-between"
+      className={classes.container}
+      //spacing={1}
+    >
+      <Grid item className={classes.labelItem}>
+        {label}
+      </Grid>
+      <Grid item className={classes.valueItem}>
+        {valueElement}
+      </Grid>
+    </Grid>
+  );
 });
