@@ -66,7 +66,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   return (
     <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
+        <Grid item sm={12} md={6} lg={true} xl={4} container direction="column" spacing={1}>
           {/* Hit cluster selector */}
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
@@ -80,7 +80,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             />
           </Grid>
         </Grid>
-        <Grid item sm={12} md={6} lg={4} xl={6}>
+        <Grid item sm={12} md={6} lg={4} xl={5}>
           <Grid container direction="column" spacing={1}>
             <Grid item className={classes.inheritWidth}>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
