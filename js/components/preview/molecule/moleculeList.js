@@ -17,9 +17,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
-import { setSortDialogOpen } from './redux/actions';
-
-const moleculeViewWidth = 480;
+import { moleculeProperty } from './helperConstants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -71,9 +69,22 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
+    marginLeft: 1,
+    marginRight: 1,
     padding: theme.spacing(1) / 4,
-    backgroundColor: 'red',
-    width: moleculeViewWidth
+    width: 'inherit'
+  },
+  rightBorder: {
+    borderRight: '1px solid',
+    fontWeight: 'bold',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    width: 32,
+    '&:last-child': {
+      borderRight: 'none'
+    }
   }
 }));
 
@@ -89,18 +100,17 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
-    filterSettings,
-    sortDialogOpen,
-    setSortDialogOpen
+    filterSettings
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const [state, setState] = useState();
-    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
+    const [moleculeViewWidth, setMoleculeViewWidth] = useState(0);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
+    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 88;
@@ -167,12 +177,10 @@ const MoleculeList = memo(
           headerActions={[
             <Button
               onClick={event => {
-                if (sortDialogOpen === false) {
+                if (sortDialogAnchorEl === null) {
                   setSortDialogAnchorEl(event.currentTarget);
-                  setSortDialogOpen(true);
                 } else {
                   setSortDialogAnchorEl(null);
-                  setSortDialogOpen(false);
                 }
               }}
               color={'inherit'}
@@ -185,9 +193,8 @@ const MoleculeList = memo(
             </Button>
           ]}
         >
-          {sortDialogOpen && (
+          {sortDialogAnchorEl && (
             <MoleculeListSortFilterDialog
-              open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
@@ -237,35 +244,15 @@ const MoleculeList = memo(
             className={classes.container}
             style={{ height: height }}
           >
-            {/*<Grid item container direction="row" alignItems="center" className={classes.gridItemHeader}>
-              <Grid item className={classes.gridItemHeaderVert}>
-                site
-              </Grid>
-              <Grid item className={classes.gridItemHeaderVert}>
-                cont.
-              </Grid>
-              <Grid
-                item
-                xs={3}
-                container
-                direction="column"
-                justify="center"
-                alignItems="center"
-                className={classes.gridItemHeaderHoriz}
-              >
-                <Grid item>code</Grid>
-                <Grid item>status</Grid>
-              </Grid>
-              <Grid item xs={5}>
-                image
-              </Grid>
-              <Grid item xs={2}>
-                properties
-              </Grid>
-            </Grid>*/}
-            <Grid item>
+            <Grid item style={(moleculeViewWidth !== 0 && { width: moleculeViewWidth }) || {}}>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                Header of molecules
+                <Grid item container justify="flex-end" direction="row">
+                  {Object.keys(moleculeProperty).map(key => (
+                    <Grid item key={key} className={classes.rightBorder}>
+                      <Typography variant="caption">{moleculeProperty[key]}</Typography>
+                    </Grid>
+                  ))}
+                </Grid>
               </Grid>
             </Grid>
             {currentMolecules.length > 0 && (
@@ -292,10 +279,11 @@ const MoleculeList = memo(
                   {currentMolecules.map(data => (
                     <MoleculeView
                       key={data.id}
-                      width={moleculeViewWidth}
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
                       data={data}
+                      moleculeViewWidth={moleculeViewWidth}
+                      setMoleculeViewWidth={setMoleculeViewWidth}
                     />
                   ))}
                 </InfiniteScroll>
@@ -317,16 +305,14 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
-    filterSettings: state.selectionReducers.filterSettings,
-    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
+    filterSettings: state.selectionReducers.filterSettings
   };
 }
 const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject,
-  setSortDialogOpen
+  loadObject
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
