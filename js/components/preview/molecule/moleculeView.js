@@ -316,7 +316,6 @@ const MoleculeView = memo(
               style={{
                 ...current_style,
                 width: imageWidth
-                //   marginLeft: theme.spacing(1) / 2
               }}
               container
               justify="center"
@@ -354,10 +353,7 @@ const MoleculeView = memo(
                 <Grid item>
                   <Grid container direction="column" justify="flex-start" alignItems="flex-end">
                     {Object.values(molStatusTypes).map(type => (
-                      <Grid
-                        item
-                        key={`molecule-status-${type}`} //className={classes.fitContentHeight}
-                      >
+                      <Grid item key={`molecule-status-${type}`}>
                         <MoleculeStatusView type={type} data={data} />
                       </Grid>
                     ))}

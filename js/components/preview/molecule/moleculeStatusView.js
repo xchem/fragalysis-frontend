@@ -10,7 +10,6 @@ const useStyles = makeStyles(theme => ({
     color: '#7B7B7B',
     fontSize: '10px',
     margin: theme.spacing(1) / 2
-    //  transform: 'rotate(-90deg)'
   },
   valueItem: {
     display: 'flex',
@@ -68,14 +67,7 @@ export default memo(({ type, data }) => {
   }
 
   return (
-    <Grid
-      container
-      direction="row"
-      alignItems="center"
-      justify="space-between"
-      className={classes.container}
-      //spacing={1}
-    >
+    <Grid container direction="row" alignItems="center" justify="space-between" className={classes.container}>
       <Grid item className={classes.labelItem}>
         {label}
       </Grid>
