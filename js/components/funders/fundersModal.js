@@ -4,7 +4,7 @@
 
 import React, { memo } from 'react';
 import Modal from '../common/Modal';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   image: {
@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
     margin: 'auto',
     display: 'block',
-    maxWidth: '72%',
+    maxWidth: '95%',
     maxHeight: '100%'
   }
 }));
@@ -29,68 +29,53 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
     onModalClose();
   }
 
-  const openLink = link => {
-    // window.location.href = link;
-    window.open(link, 'blank');
-  };
-
-  // funded by
   const openXchem = () => {
-    openLink('https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html');
+    // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
+    window.open('https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html', 'blank');
   };
   const openDls = () => {
-    openLink('https://www.diamond.ac.uk/Home.html');
+    // window.location.href = 'https://www.diamond.ac.uk/Home.html';
+    window.open('https://www.diamond.ac.uk/Home.html', 'blank');
   };
   const openSgc = () => {
-    openLink('https://www.sgc.ox.ac.uk/');
+    // window.location.href = 'https://www.sgc.ox.ac.uk/';
+    window.open('https://www.sgc.ox.ac.uk/', 'blank');
   };
   const openInext = () => {
-    openLink('http://www.inext-eu.org/');
+    // window.location.href = 'http://www.inext-eu.org/';
+    window.open('http://www.inext-eu.org/', 'blank');
   };
   const openJff = () => {
-    openLink('https://researchsupport.admin.ox.ac.uk/funding/internal/jff');
+    // window.location.href = 'https://researchsupport.admin.ox.ac.uk/funding/internal/jff';
+    window.open('https://researchsupport.admin.ox.ac.uk/funding/internal/jff', 'blank');
   };
   const openNf = () => {
-    openLink('https://www.newtonfund.ac.uk/');
+    // window.location.href = 'https://www.newtonfund.ac.uk/';
+    window.open('https://www.newtonfund.ac.uk/', 'blank');
   };
   const openMrc = () => {
-    openLink('https://mrc.ukri.org/');
+    // window.location.href = 'https://mrc.ukri.org/';
+    window.open('https://mrc.ukri.org/', 'blank');
   };
   const openWt = () => {
-    openLink('https://wellcome.ac.uk/');
+    // window.location.href = 'https://wellcome.ac.uk/';
+    window.open('https://wellcome.ac.uk/', 'blank');
   };
   const openUltradd = () => {
-    openLink('https://ultra-dd.org/');
+    // window.location.href = 'https://ultra-dd.org/';
+    window.open('https://ultra-dd.org/', 'blank');
   };
   const openImi = () => {
-    openLink('https://www.imi.europa.eu/');
+    // window.location.href = 'https://www.imi.europa.eu/';
+    window.open('https://www.imi.europa.eu/', 'blank');
   };
   const openHorizon = () => {
-    openLink('https://ec.europa.eu/programmes/horizon2020/');
-  };
-  const openJanssen = () => {
-    openLink('https://www.janssen.com/');
-  };
-  // contributors and collaborators
-  const openM2ms = () => {
-    openLink('https://www.en.m2ms.sk/');
-  };
-  const openInformatics = () => {
-    openLink('https://www.informaticsmatters.com/');
-  };
-  const openAcellera = () => {
-    openLink('https://www.acellera.com/');
-  };
-  const openOxrse = () => {
-    openLink('https://www.rse.ox.ac.uk/');
-  };
-  const openMolsoft = () => {
-    openLink('https://www.molsoft.com/');
+    // window.location.href = 'https://ec.europa.eu/programmes/horizon2020/';
+    window.open('https://ec.europa.eu/programmes/horizon2020/', 'blank');
   };
 
   return (
     <Modal open={openModal} onClose={() => onModalClose()}>
-      <Typography variant="h5">Funded by:</Typography>
       <Grid container justify="center" alignItems="center">
         <Grid item xs={4} md={4} className={classes.image}>
           <img src={require('../../img/xchemLogo.png')} className={classes.img} onClick={() => openXchem()} />
@@ -114,44 +99,16 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
           <img src={require('../../img/jffLogo.jpg')} className={classes.img} onClick={() => openJff()} />
         </Grid>
         <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/ultraddLogo.png')} className={classes.img} onClick={() => openUltradd()} />
+          <img src={require('../../img/nfLogo.png')} className={classes.img} onClick={() => openNf()} />
         </Grid>
         <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/nfLogo.png')} className={classes.img} onClick={() => openNf()} />
+          <img src={require('../../img/ultraddLogo.png')} className={classes.img} onClick={() => openUltradd()} />
         </Grid>
         <Grid item xs={4} md={4} className={classes.image}>
           <img src={require('../../img/imiLogo.png')} className={classes.img} onClick={() => openImi()} />
         </Grid>
         <Grid item xs={4} md={4} className={classes.image}>
           <img src={require('../../img/horizon2020Logo.jpg')} className={classes.img} onClick={() => openHorizon()} />
-        </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/janssenLogo.png')} className={classes.img} onClick={() => openJanssen()} />
-        </Grid>
-      </Grid>
-      <Typography variant="h5">Contributors and collaborators:</Typography>
-      <Grid container justify="center" alignItems="center">
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/m2msLogo.png')} className={classes.img} onClick={() => openM2ms()} />
-        </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img
-            src={require('../../img/informaticsLogo.png')}
-            className={classes.img}
-            onClick={() => openInformatics()}
-          />
-        </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/acelleraLogo.png')} className={classes.img} onClick={() => openAcellera()} />
-        </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/oxrseLogo.png')} className={classes.img} onClick={() => openOxrse()} />
-        </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/molsoftLogo.png')} className={classes.img} onClick={() => openMolsoft()} />
-        </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
-          <img src={require('../../img/janssenLogo.png')} className={classes.img} onClick={() => openJanssen()} />
         </Grid>
       </Grid>
     </Modal>
