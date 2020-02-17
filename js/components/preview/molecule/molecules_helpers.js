@@ -43,3 +43,11 @@ export const generateSphere = (data, selected = false) => {
     coords: [data.x_com, data.y_com, data.z_com]
   };
 };
+
+export const getTotalCountOfCompounds = vectors => {
+  let tot_num = 0;
+  Object.keys(vectors).forEach(key => {
+    tot_num += vectors[key].addition ? vectors[key].addition.length : 0;
+  });
+  return tot_num;
+};
