@@ -18,6 +18,7 @@ import { moleculeProperty } from './helperConstants';
 import { ComputeSize } from '../../../utils/computeSize';
 import { api } from '../../../utils/api';
 import { generateObjectList } from '../../session/helpers';
+import { getTotalCountOfCompounds } from './molecules_helpers';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -130,6 +131,7 @@ const MoleculeView = memo(
   }) => {
     const [state, setState] = useState();
     const [countOfVectors, setCountOfVectors] = useState('-');
+    const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
     const viewRef = useRef();
     const currentID = (data && data.id) || undefined;
@@ -168,7 +170,7 @@ const MoleculeView = memo(
       { name: moleculeProperty.rots, value: data.rots },
       { name: moleculeProperty.rings, value: data.rings },
       { name: moleculeProperty.velec, value: data.velec },
-      { name: moleculeProperty.cpd, value: '???' }
+      { name: moleculeProperty.cpd, value: cmpds }
     ];
 
     // componentDidMount
@@ -188,8 +190,8 @@ const MoleculeView = memo(
           }),
           api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
             const vectors = response.data.vectors['3d'];
-            const cmpds = generateObjectList(vectors, {});
-            setCountOfVectors(cmpds.length);
+            setCmpds(getTotalCountOfCompounds(vectors));
+            setCountOfVectors(generateObjectList(vectors).length);
           })
         ]).catch(error => {
           setState(() => {

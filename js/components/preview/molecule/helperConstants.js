@@ -9,5 +9,5 @@ export const moleculeProperty = {
   rings: 'Rings',
   velec: 'Velec',
   cpd: '#cpd',
-  vectors: '#vctrs'
+  vectors: '#vctr'
 };
