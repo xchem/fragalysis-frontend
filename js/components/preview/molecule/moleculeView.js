@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef, useContext } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
@@ -160,18 +160,21 @@ const MoleculeView = memo(
     const getRandomColor = () => colourList[data.id % colourList.length];
     const colourToggle = getRandomColor();
 
-    const getCalculatedProps = () => [
-      { name: moleculeProperty.mw, value: data.mw },
-      { name: moleculeProperty.logP, value: data.logp },
-      { name: moleculeProperty.tpsa, value: data.tpsa },
-      { name: moleculeProperty.ha, value: data.ha },
-      { name: moleculeProperty.hacc, value: data.hacc },
-      { name: moleculeProperty.hdon, value: data.hdon },
-      { name: moleculeProperty.rots, value: data.rots },
-      { name: moleculeProperty.rings, value: data.rings },
-      { name: moleculeProperty.velec, value: data.velec },
-      { name: moleculeProperty.cpd, value: cmpds }
-    ];
+    const getCalculatedProps = useCallback(
+      () => [
+        { name: moleculeProperty.mw, value: data.mw },
+        { name: moleculeProperty.logP, value: data.logp },
+        { name: moleculeProperty.tpsa, value: data.tpsa },
+        { name: moleculeProperty.ha, value: data.ha },
+        { name: moleculeProperty.hacc, value: data.hacc },
+        { name: moleculeProperty.hdon, value: data.hdon },
+        { name: moleculeProperty.rots, value: data.rots },
+        { name: moleculeProperty.rings, value: data.rings },
+        { name: moleculeProperty.velec, value: data.velec },
+        { name: moleculeProperty.cpd, value: cmpds }
+      ],
+      [cmpds, data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
+    );
 
     // componentDidMount
     useEffect(() => {
@@ -190,7 +193,7 @@ const MoleculeView = memo(
           }),
           api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
             const vectors = response.data.vectors['3d'];
-            setCmpds(getTotalCountOfCompounds(vectors));
+            setCmpds(getTotalCountOfCompounds(response.data.vectors));
             setCountOfVectors(generateObjectList(vectors).length);
           })
         ]).catch(error => {
