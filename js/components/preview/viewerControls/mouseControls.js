@@ -22,7 +22,7 @@ export const MouseControls = memo(({ open, onClose }) => {
     { key: 'drag-shift-right', effect: 'zoom scene' },
     { key: 'drag-left+right', effect: 'zoom scene' },
     { key: 'drag-ctrl-right', effect: 'pan/translate hovered component' },
-    { key: 'drag-ctrl-left', effect: 'rotate hovored component' },
+    { key: 'drag-ctrl-left', effect: 'rotate hovered component' },
     { key: 'clickPick-middle', effect: 'auto view picked component element' },
     { key: 'hoverPick', effect: 'show tooltip for hovered component element' },
     { key: 'i', effect: 'toggle stage spinning' },
