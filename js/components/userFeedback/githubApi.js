@@ -1,5 +1,6 @@
 import { api, METHOD } from '../../utils/api';
 import { setResponse } from './redux/actions';
+import { version } from '../../../package.json';
 
 /* API handlers */
 const apiLink = 'https://api.github.com';
@@ -70,11 +71,7 @@ export const createIssue = (formState, formType, labels, afterCreateIssueCallbac
   console.log('creating new issue');
   console.log(formState.name, formState.email, formState.title, formState.description);
 
-  let body = [
-    // "- Version: " + browser.appVersion,
-    '- Name: ' + formState.name,
-    '- Description: ' + formState.description
-  ];
+  let body = ['- Version: ' + version, '- Name: ' + formState.name, '- Description: ' + formState.description];
 
   if (screenshotUrl.length > 0) {
     body.push('', '![screenshot](' + screenshotUrl + ')');

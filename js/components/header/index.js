@@ -89,13 +89,8 @@ export default memo(
     const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
     const disableUserInteraction = useDisableUserInteraction();
 
-    const [error, setError] = useState();
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
-
-    if (error) {
-      throw new Error('Custom user error.' + uuidv4());
-    }
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -120,15 +115,6 @@ export default memo(
     let authListItem;
 
     let username = null;
-
-    const reportErrorMenuItem = (
-      <ListItem button onClick={() => setError(true)}>
-        <ListItemIcon>
-          <ReportProblem />
-        </ListItemIcon>
-        <ListItemText primary="Report Error" />
-      </ListItem>
-    );
 
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
       authListItem = (
@@ -317,7 +303,6 @@ export default memo(
           </ListItem>
           <Divider />
           {authListItem}
-          {reportErrorMenuItem}
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%">
           {(isLoading === true || disableUserInteraction === true) && (
