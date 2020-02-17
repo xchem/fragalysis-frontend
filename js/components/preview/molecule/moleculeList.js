@@ -18,6 +18,7 @@ import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
+import { setSortDialogOpen } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -100,7 +101,9 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
-    filterSettings
+    filterSettings,
+    sortDialogOpen,
+    setSortDialogOpen
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -177,10 +180,12 @@ const MoleculeList = memo(
           headerActions={[
             <Button
               onClick={event => {
-                if (sortDialogAnchorEl === null) {
+                if (sortDialogOpen === false) {
                   setSortDialogAnchorEl(event.currentTarget);
+                  setSortDialogOpen(true);
                 } else {
                   setSortDialogAnchorEl(null);
+                  setSortDialogOpen(false);
                 }
               }}
               color={'inherit'}
@@ -193,8 +198,9 @@ const MoleculeList = memo(
             </Button>
           ]}
         >
-          {sortDialogAnchorEl && (
+          {sortDialogOpen && (
             <MoleculeListSortFilterDialog
+              open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
@@ -305,14 +311,16 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
-    filterSettings: state.selectionReducers.filterSettings
+    filterSettings: state.selectionReducers.filterSettings,
+    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
   };
 }
 const mapDispatchToProps = {
   setObjectList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
-  loadObject
+  loadObject,
+  setSortDialogOpen
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
