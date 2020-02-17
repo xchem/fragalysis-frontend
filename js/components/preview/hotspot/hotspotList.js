@@ -12,6 +12,7 @@ import { Paper } from '../../common/Surfaces/Paper';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {
+  const [state, setState] = useState();
   const list_type = listType.MOLECULE;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -35,7 +36,9 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
           setHsCount(response.data);
         })
         .catch(error => {
-          throw error;
+          setState(() => {
+            throw error;
+          });
         });
       return () => {
         onCancel();
@@ -57,7 +60,9 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
       setObjectList,
       cancel: onCancel
     }).catch(error => {
-      throw error;
+      setState(() => {
+        throw error;
+      });
     });
     return () => {
       onCancel();

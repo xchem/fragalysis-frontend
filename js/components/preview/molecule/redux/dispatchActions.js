@@ -56,6 +56,7 @@ const generateObjectList = (out_data, data) => {
 
   return outList;
 };
+
 const generateBondColorMap = inputDict => {
   var out_d = {};
   for (let keyItem in inputDict) {
