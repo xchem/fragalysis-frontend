@@ -106,7 +106,7 @@ const MoleculeList = memo(
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const [state, setState] = useState();
-    const [moleculeViewWidth, setMoleculeViewWidth] = useState(0);
+    const [moleculeViewWidth, setMoleculeViewWidth] = useState(null);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
@@ -244,7 +244,7 @@ const MoleculeList = memo(
             className={classes.container}
             style={{ height: height }}
           >
-            <Grid item style={(moleculeViewWidth !== 0 && { width: moleculeViewWidth }) || {}}>
+            <Grid item style={(moleculeViewWidth !== null && { width: moleculeViewWidth }) || {}}>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justify="flex-end" direction="row">
                   {Object.keys(moleculeProperty).map(key => (

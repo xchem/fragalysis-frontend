@@ -8,5 +8,6 @@ export const moleculeProperty = {
   rots: 'Rots',
   rings: 'Rings',
   velec: 'Velec',
-  cpd: '#cpd'
+  cpd: '#cpd',
+  vectors: '#vctrs'
 };

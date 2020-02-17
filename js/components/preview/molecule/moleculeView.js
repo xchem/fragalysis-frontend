@@ -16,6 +16,8 @@ import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLi
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { ComputeSize } from '../../../utils/computeSize';
+import { api } from '../../../utils/api';
+import { generateObjectList } from '../../session/helpers';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -51,7 +53,7 @@ const useStyles = makeStyles(theme => ({
   },
   propsCol: {
     fontSize: '10px',
-    width: 320,
+    width: 352,
     marginBottom: theme.spacing(1),
     marginTop: theme.spacing(1)
   },
@@ -127,6 +129,7 @@ const MoleculeView = memo(
     moleculeViewWidth
   }) => {
     const [state, setState] = useState();
+    const [countOfVectors, setCountOfVectors] = useState('-');
     const selectedAll = useRef(false);
     const viewRef = useRef();
     const currentID = (data && data.id) || undefined;
@@ -172,16 +175,23 @@ const MoleculeView = memo(
     useEffect(() => {
       if (refOnCancel.current === undefined) {
         let onCancel = () => {};
-        loadFromServer({
-          width: imageHeight,
-          height: imageWidth,
-          key,
-          old_url: oldUrl.current,
-          setImg_data,
-          setOld_url: newUrl => setOldUrl(newUrl),
-          url,
-          cancel: onCancel
-        }).catch(error => {
+        Promise.all([
+          loadFromServer({
+            width: imageHeight,
+            height: imageWidth,
+            key,
+            old_url: oldUrl.current,
+            setImg_data,
+            setOld_url: newUrl => setOldUrl(newUrl),
+            url,
+            cancel: onCancel
+          }),
+          api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
+            const vectors = response.data.vectors['3d'];
+            const cmpds = generateObjectList(vectors, {});
+            setCountOfVectors(cmpds.length);
+          })
+        ]).catch(error => {
           setState(() => {
             throw error;
           });
@@ -346,6 +356,9 @@ const MoleculeView = memo(
                     </Typography>
                   </Grid>
                 ))}
+                <Grid item className={classes.rightBorder}>
+                  <Typography variant="button">{countOfVectors}</Typography>
+                </Grid>
               </Grid>
 
               <Grid item container justify="space-between" direction="row" alignItems="flex-end">
