@@ -42,8 +42,8 @@ export const MouseControls = memo(({ open, onClose }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(row => (
-              <TableRow>
+            {rows.map((row, index) => (
+              <TableRow key={index}>
                 <TableCell component="th" scope="row" className={classes.td}>
                   {row.key}
                 </TableCell>
