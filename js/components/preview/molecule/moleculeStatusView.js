@@ -12,7 +12,8 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1) / 2
   },
   valueItem: {
-    margin: theme.spacing(1) / 2
+    marginLeft: theme.spacing(1) / 4,
+    marginRight: theme.spacing(1) / 4
   },
   valueElement: {
     width: '16px',
@@ -25,6 +26,9 @@ const useStyles = makeStyles(theme => ({
   },
   qualValue: {
     fontSize: '9px'
+  },
+  refinementOutcome: {
+    paddingTop: theme.spacing(1) / 2
   }
 }));
 
@@ -46,7 +50,7 @@ export default memo(({ type, data }) => {
     case molStatusTypes.QUALITY:
       // TODO: decide color based on provided data
       valueElement = (
-        <Grid container alignItems="center" direction="column" justify="flex-start" style={{ color: 'orange' }}>
+        <Grid container alignItems="center" direction="column" justify="center" style={{ color: 'orange' }}>
           <Grid item className={classes.qualCircle} style={{ backgroundColor: 'orange' }} />
           <Grid item className={classes.qualValue}>
             {3.6}
@@ -55,11 +59,11 @@ export default memo(({ type, data }) => {
       );
       break;
     case molStatusTypes.STATUS:
-      valueElement = <RefinementOutcome data={data} className={classes.valueElement} />;
+      valueElement = <RefinementOutcome data={data} className={classes.refinementOutcome} />;
       break;
     default:
       break;
   }
 
-  return <div className={classes.valueItem}>{valueElement}</div>;
+  return valueElement;
 });

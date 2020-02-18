@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Button, makeStyles, Typography } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
@@ -15,7 +15,6 @@ import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion
 import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLigand } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
-import { ComputeSize } from '../../../utils/computeSize';
 import { api } from '../../../utils/api';
 import { generateObjectList } from '../../session/helpers';
 import { getTotalCountOfCompounds } from './molecules_helpers';
@@ -24,17 +23,17 @@ const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: 84
+    height: 54
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 4
+    margin: theme.spacing(1) / 2
   },
   contColButton: {
     minWidth: 'fit-content',
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
-    paddingTop: theme.spacing(1) / 4,
+    paddingBottom: theme.spacing(1) / 8,
+    paddingTop: theme.spacing(1) / 8,
     borderRadius: 0,
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
@@ -52,11 +51,13 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.contrastText
   },
   detailsCol: {
-    border: 'solid 1px #DEDEDE',
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
     borderStyle: 'solid none solid solid'
   },
   image: {
-    border: 'solid 1px #DEDEDE',
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid none'
   },
   imageMargin: {
@@ -65,12 +66,12 @@ const useStyles = makeStyles(theme => ({
   },
   rightBorder: {
     borderRight: '1px solid',
+    borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
     fontSize: 11,
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+    paddingBottom: theme.spacing(1) / 4,
     width: 25,
     textAlign: 'center',
     '&:last-child': {
@@ -81,9 +82,15 @@ const useStyles = makeStyles(theme => ({
     height: '100%'
   },
   site: {
-    width: 'fit-content',
+    width: theme.spacing(3),
+    textAlign: 'center',
     backgroundColor: theme.palette.background.default,
-    border: 'solid 1px #DEDEDE'
+    border: `solid 1px`,
+    borderColor: theme.palette.background.divider
+  },
+  qualityLabel: {
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4
   }
 }));
 
@@ -122,9 +129,7 @@ const MoleculeView = memo(
     removeComplex,
     addLigand,
     removeLigand,
-    target_on_name,
-    setSiteViewWidth,
-    siteViewWidth
+    target_on_name
   }) => {
     const [state, setState] = useState();
     const [countOfVectors, setCountOfVectors] = useState('-');
@@ -306,113 +311,113 @@ const MoleculeView = memo(
     };
 
     return (
-      <ComputeSize clientWidth={siteViewWidth} setClientWidth={setSiteViewWidth} componentRef={siteRef.current}>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
-          {/* Site number */}
-          <Grid item container justify="center" direction="column" className={classes.site} ref={siteRef}>
-            <Grid item>
-              <Typography variant="h4">{data.site}</Typography>
+      <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
+        {/* Site number */}
+        <Grid item container justify="center" direction="column" className={classes.site}>
+          <Grid item>
+            <Typography variant="subtitle2">{data.site}</Typography>
+          </Grid>
+        </Grid>
+
+        <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+          {/* Title label */}
+          <Grid item>
+            <Typography variant="button" noWrap>
+              {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
+            </Typography>
+          </Grid>
+          {/* Status code */}
+          <Grid item>
+            <Grid container direction="row" justify="space-between" alignItems="center">
+              {Object.values(molStatusTypes).map(type => (
+                <Grid item key={`molecule-status-${type}`} className={classes.qualityLabel}>
+                  <MoleculeStatusView type={type} data={data} />
+                </Grid>
+              ))}
             </Grid>
           </Grid>
 
-          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
-            {/* Title label */}
-            <Grid item>
-              <Typography variant="h6" noWrap>
-                {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
-              </Typography>
-            </Grid>
-            {/* Status code */}
-            <Grid item>
-              <Grid container direction="row" justify="flex-start" alignItems="center">
-                {Object.values(molStatusTypes).map(type => (
-                  <Grid item key={`molecule-status-${type}`}>
-                    <MoleculeStatusView type={type} data={data} />
-                  </Grid>
-                ))}
+          {/* Control Buttons A, L, C, V */}
+          <Grid item>
+            <Grid
+              container
+              direction="row"
+              justify="flex-start"
+              alignItems="center"
+              wrap="nowrap"
+              className={classes.contButtonsMargin}
+            >
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: hasAllValuesOn
+                  })}
+                  onClick={() => {
+                    selectedAll.current = !selectedAll.current;
+
+                    onLigand(true);
+                    onComplex(true);
+                    onVector(true);
+                  }}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">A</Typography>
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isLigandOn
+                  })}
+                  onClick={() => onLigand()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">L</Typography>
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isComplexOn
+                  })}
+                  onClick={() => onComplex()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">C</Typography>
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isVectorOn
+                  })}
+                  onClick={() => onVector()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">V</Typography>
+                </Button>
               </Grid>
             </Grid>
-
-            {/* Control Buttons A, L, C, V */}
-            <Grid item>
-              <Grid
-                container
-                direction="row"
-                justify="flex-start"
-                alignItems="center"
-                wrap="nowrap"
-                className={classes.contButtonsMargin}
-              >
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: hasAllValuesOn
-                    })}
-                    onClick={() => {
-                      selectedAll.current = !selectedAll.current;
-
-                      onLigand(true);
-                      onComplex(true);
-                      onVector(true);
-                    }}
-                    disabled={disableUserInteraction}
-                  >
-                    <Typography variant="button">A</Typography>
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isLigandOn
-                    })}
-                    onClick={() => onLigand()}
-                    disabled={disableUserInteraction}
-                  >
-                    <Typography variant="button">L</Typography>
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isComplexOn
-                    })}
-                    onClick={() => onComplex()}
-                    disabled={disableUserInteraction}
-                  >
-                    <Typography variant="button">C</Typography>
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isVectorOn
-                    })}
-                    onClick={() => onVector()}
-                    disabled={disableUserInteraction}
-                  >
-                    <Typography variant="button">V</Typography>
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12}>
-              {/* Molecule properties */}
-              <Grid
-                item
-                container
-                justify="flex-start"
-                alignItems="flex-end"
-                a
-                direction="row"
-                wrap="nowrap"
-                className={classes.fullHeight}
-              >
-                {getCalculatedProps().map(item => (
-                  <Grid item key={item.name} className={classes.rightBorder}>
+          </Grid>
+          <Grid item xs={12}>
+            {/* Molecule properties */}
+            <Grid
+              item
+              container
+              justify="flex-start"
+              alignItems="flex-end"
+              a
+              direction="row"
+              wrap="nowrap"
+              className={classes.fullHeight}
+            >
+              {getCalculatedProps().map(item => (
+                <Tooltip title={item.name} key={item.name}>
+                  <Grid item className={classes.rightBorder}>
                     {item.name === moleculeProperty.mw && Math.round(item.value)}
                     {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
                     {item.name === moleculeProperty.tpsa && Math.round(item.value)}
@@ -421,28 +426,30 @@ const MoleculeView = memo(
                       item.name !== moleculeProperty.tpsa &&
                       item.value}
                   </Grid>
-                ))}
+                </Tooltip>
+              ))}
+              <Tooltip title="#Vectors">
                 <Grid item className={classes.rightBorder}>
                   {countOfVectors}
                 </Grid>
-              </Grid>
+              </Tooltip>
             </Grid>
           </Grid>
-          {/* Image */}
-          <Grid
-            item
-            style={{
-              ...current_style,
-              width: imageWidth
-            }}
-            container
-            justify="center"
-            className={classes.image}
-          >
-            <Grid item>{svg_image}</Grid>
-          </Grid>
         </Grid>
-      </ComputeSize>
+        {/* Image */}
+        <Grid
+          item
+          style={{
+            ...current_style,
+            width: imageWidth
+          }}
+          container
+          justify="center"
+          className={classes.image}
+        >
+          <Grid item>{svg_image}</Grid>
+        </Grid>
+      </Grid>
     );
   }
 );

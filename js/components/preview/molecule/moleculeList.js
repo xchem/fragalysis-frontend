@@ -70,13 +70,12 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
-    marginLeft: 1,
-    marginRight: 1,
-    padding: theme.spacing(1) / 4,
+    marginLeft: 19,
     width: 'inherit'
   },
   rightBorder: {
     borderRight: '1px solid',
+    borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
@@ -111,14 +110,13 @@ const MoleculeList = memo(
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const [state, setState] = useState();
-    const [siteViewWidth, setSiteViewWidth] = useState(null);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
-    const imgHeight = 64;
+    const imgHeight = 34;
     const imgWidth = 150;
 
     const isActiveFilter = !!(filterSettings || {}).active;
@@ -252,7 +250,7 @@ const MoleculeList = memo(
             className={classes.container}
             style={{ height: height }}
           >
-            <Grid item style={(siteViewWidth !== null && { marginLeft: siteViewWidth }) || {}}>
+            <Grid item>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justify="flex-start" direction="row">
                   {Object.keys(moleculeProperty).map(key => (
@@ -285,14 +283,7 @@ const MoleculeList = memo(
                   useWindow={false}
                 >
                   {currentMolecules.map(data => (
-                    <MoleculeView
-                      key={data.id}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data}
-                      siteViewWidth={siteViewWidth}
-                      setSiteViewWidth={setSiteViewWidth}
-                    />
+                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
                   ))}
                 </InfiniteScroll>
               </Grid>
