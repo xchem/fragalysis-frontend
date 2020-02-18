@@ -84,6 +84,7 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(1),
     fontSize: 8,
     width: 25,
+    textAlign: 'center',
     '&:last-child': {
       borderRight: 'none'
     }
