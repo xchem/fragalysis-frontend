@@ -116,7 +116,7 @@ const MoleculeList = memo(
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
-    const imgHeight = 88;
+    const imgHeight = 64;
     const imgWidth = 150;
 
     const isActiveFilter = !!(filterSettings || {}).active;

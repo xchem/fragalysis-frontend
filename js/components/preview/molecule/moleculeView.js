@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: 108
+    height: 84
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 4
@@ -59,18 +59,6 @@ const useStyles = makeStyles(theme => ({
     border: 'solid 1px #DEDEDE',
     borderStyle: 'solid solid solid none'
   },
-  propsCol: {
-    fontSize: '10px',
-    width: 352,
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1)
-  },
-  fitContentWidth: {
-    width: 'fit-content'
-  },
-  fitContentHeight: {
-    height: 'fit-content'
-  },
   imageMargin: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1)
@@ -78,11 +66,12 @@ const useStyles = makeStyles(theme => ({
   rightBorder: {
     borderRight: '1px solid',
     fontWeight: 'bold',
+    fontSize: 11,
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
-    width: 32,
+    width: 25,
     '&:last-child': {
       borderRight: 'none'
     }
@@ -332,10 +321,10 @@ const MoleculeView = memo(
             </Grid>
           </Grid>
 
-          <Grid item container className={classes.detailsCol} wrap="nowrap" justify="space-between" direction="row">
+          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
             {/* Title label */}
-            <Grid item className={classes.fullHeight}>
-              <Typography variant="button" noWrap>
+            <Grid item>
+              <Typography variant="h6" noWrap>
                 {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
               </Typography>
             </Grid>
@@ -416,27 +405,34 @@ const MoleculeView = memo(
                 </Grid>
               </Grid>
             </Grid>
-            {/*<Grid item xs={12}>*/}
-            {/* Molecule properties */}
-            {/*} <Grid item container justify="flex-start" direction="row">
+            <Grid item xs={12}>
+              {/* Molecule properties */}
+              <Grid
+                item
+                container
+                justify="flex-start"
+                alignItems="flex-end"
+                a
+                direction="row"
+                wrap="nowrap"
+                className={classes.fullHeight}
+              >
                 {getCalculatedProps().map(item => (
                   <Grid item key={item.name} className={classes.rightBorder}>
-                    <Typography variant="button">
-                      {item.name === moleculeProperty.mw && Math.round(item.value)}
-                      {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
-                      {item.name === moleculeProperty.tpsa && Math.round(item.value)}
-                      {item.name !== moleculeProperty.mw &&
-                        item.name !== moleculeProperty.logP &&
-                        item.name !== moleculeProperty.tpsa &&
-                        item.value}
-                    </Typography>
+                    {item.name === moleculeProperty.mw && Math.round(item.value)}
+                    {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
+                    {item.name === moleculeProperty.tpsa && Math.round(item.value)}
+                    {item.name !== moleculeProperty.mw &&
+                      item.name !== moleculeProperty.logP &&
+                      item.name !== moleculeProperty.tpsa &&
+                      item.value}
                   </Grid>
                 ))}
                 <Grid item className={classes.rightBorder}>
-                  <Typography variant="button">{countOfVectors}</Typography>
+                  {countOfVectors}
                 </Grid>
-              </Grid>*/}
-            {/*}</Grid>*/}
+              </Grid>
+            </Grid>
           </Grid>
           {/* Image */}
           <Grid
