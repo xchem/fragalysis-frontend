@@ -122,14 +122,14 @@ const MoleculeView = memo(
     addLigand,
     removeLigand,
     target_on_name,
-    setMoleculeViewWidth,
-    moleculeViewWidth
+    setSiteViewWidth,
+    siteViewWidth
   }) => {
     const [state, setState] = useState();
     const [countOfVectors, setCountOfVectors] = useState('-');
     const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
-    const viewRef = useRef();
+    const siteRef = useRef();
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
@@ -305,17 +305,10 @@ const MoleculeView = memo(
     };
 
     return (
-      <ComputeSize clientWidth={moleculeViewWidth} setClientWidth={setMoleculeViewWidth} componentRef={viewRef.current}>
-        <Grid
-          container
-          justify="space-between"
-          direction="row"
-          className={classes.container}
-          wrap="nowrap"
-          ref={viewRef}
-        >
+      <ComputeSize clientWidth={siteViewWidth} setClientWidth={setSiteViewWidth} componentRef={siteRef.current}>
+        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
           {/* Site number */}
-          <Grid item container justify="center" direction="column" className={classes.site}>
+          <Grid item container justify="center" direction="column" className={classes.site} ref={siteRef}>
             <Grid item>
               <Typography variant="h4">{data.site}</Typography>
             </Grid>
