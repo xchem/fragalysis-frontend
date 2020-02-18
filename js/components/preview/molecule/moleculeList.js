@@ -250,7 +250,7 @@ const MoleculeList = memo(
             className={classes.container}
             style={{ height: height }}
           >
-            <Grid item style={(moleculeViewWidth !== null && { width: moleculeViewWidth }) || {}}>
+            {/*<Grid item style={(moleculeViewWidth !== null && { width: moleculeViewWidth }) || {}}>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justify="flex-end" direction="row">
                   {Object.keys(moleculeProperty).map(key => (
@@ -260,7 +260,7 @@ const MoleculeList = memo(
                   ))}
                 </Grid>
               </Grid>
-            </Grid>
+            </Grid>*/}
             {currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList}>
                 <InfiniteScroll

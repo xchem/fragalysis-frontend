@@ -12,8 +12,7 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1) / 2
   },
   valueItem: {
-    display: 'flex',
-    alignItems: 'center'
+    margin: theme.spacing(1) / 2
   },
   valueElement: {
     width: '16px',
@@ -39,15 +38,12 @@ export default memo(({ type, data }) => {
   const classes = useStyles();
 
   let valueElement = <div />;
-  let label = '';
   switch (type) {
     case molStatusTypes.CONFIDENCE:
-      label = 'conf.';
       // TODO: decide color based on provided data
       valueElement = <div className={classes.valueElement} style={{ backgroundColor: 'green' }} />;
       break;
     case molStatusTypes.QUALITY:
-      label = 'qual.';
       // TODO: decide color based on provided data
       valueElement = (
         <Grid container alignItems="center" direction="column" justify="flex-start" style={{ color: 'orange' }}>
@@ -59,21 +55,11 @@ export default memo(({ type, data }) => {
       );
       break;
     case molStatusTypes.STATUS:
-      label = 'stat.';
       valueElement = <RefinementOutcome data={data} className={classes.valueElement} />;
       break;
     default:
       break;
   }
 
-  return (
-    <Grid container direction="row" alignItems="center" justify="space-between" className={classes.container}>
-      <Grid item className={classes.labelItem}>
-        {label}
-      </Grid>
-      <Grid item className={classes.valueItem}>
-        {valueElement}
-      </Grid>
-    </Grid>
-  );
+  return <div className={classes.valueItem}>{valueElement}</div>;
 });

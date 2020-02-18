@@ -51,7 +51,7 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
           onClick={() => dispatch(exportCsv())}
           startIcon={<CloudDownload />}
         >
-          Download CSV (Chrome)
+          Download CSV
         </Button>
       ]}
       title="Summary Info"

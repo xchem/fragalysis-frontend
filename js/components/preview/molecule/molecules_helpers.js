@@ -47,9 +47,16 @@ export const generateSphere = (data, selected = false) => {
 
 export const getTotalCountOfCompounds = vectors => {
   let tot_num = 0;
+  /* TODO Add algorithm for computing count of toto count of compounds
+  for (var key_to_select in state.to_select) {
+    if (key_to_select.split('_')[0] === input_mol_key) {
+      new_this_vector_list[key_to_select] = state.to_select[key_to_select];
+    }
+  }
+
+
   Object.keys(vectors).forEach(key => {
-    tot_num +=
-      !isEmpty(vectors[key].additions) || vectors[key].additions ? Object.keys(vectors[key].additions).length : 0;
-  });
+    tot_num += !isEmpty(vectors[key].addition) || vectors[key].addition ? Object.keys(vectors[key].addition).length : 0;
+  }); */
   return tot_num;
 };
