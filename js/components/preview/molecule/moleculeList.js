@@ -82,7 +82,8 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(1) / 2,
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
-    width: 32,
+    fontSize: 8,
+    width: 25,
     '&:last-child': {
       borderRight: 'none'
     }
@@ -109,7 +110,7 @@ const MoleculeList = memo(
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const [state, setState] = useState();
-    const [moleculeViewWidth, setMoleculeViewWidth] = useState(null);
+    const [siteViewWidth, setSiteViewWidth] = useState(null);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
@@ -250,17 +251,17 @@ const MoleculeList = memo(
             className={classes.container}
             style={{ height: height }}
           >
-            {/*<Grid item style={(moleculeViewWidth !== null && { width: moleculeViewWidth }) || {}}>
+            <Grid item style={(siteViewWidth !== null && { marginLeft: siteViewWidth }) || {}}>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                <Grid item container justify="flex-end" direction="row">
+                <Grid item container justify="flex-start" direction="row">
                   {Object.keys(moleculeProperty).map(key => (
                     <Grid item key={key} className={classes.rightBorder}>
-                      <Typography variant="caption">{moleculeProperty[key]}</Typography>
+                      {moleculeProperty[key]}
                     </Grid>
                   ))}
                 </Grid>
               </Grid>
-            </Grid>*/}
+            </Grid>
             {currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList}>
                 <InfiniteScroll
@@ -288,8 +289,8 @@ const MoleculeList = memo(
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
                       data={data}
-                      moleculeViewWidth={moleculeViewWidth}
-                      setMoleculeViewWidth={setMoleculeViewWidth}
+                      siteViewWidth={siteViewWidth}
+                      setSiteViewWidth={setSiteViewWidth}
                     />
                   ))}
                 </InfiniteScroll>
