@@ -19,7 +19,7 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
   if (objIdx === -1) {
     dispatch(setMolGroupOn(molGroupId));
     selectionCopy.push(molGroupId);
-    dispatch(setMolGroupSelection(selectionCopy, summaryViewStage));
+    dispatch(setMolGroupSelection(selectionCopy));
     dispatch(
       deleteObject(
         {
@@ -37,7 +37,7 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
     );
   } else {
     selectionCopy.splice(objIdx, 1);
-    dispatch(setMolGroupSelection(selectionCopy, summaryViewStage));
+    dispatch(setMolGroupSelection(selectionCopy));
     dispatch(
       deleteObject(
         {
