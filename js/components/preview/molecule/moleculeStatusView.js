@@ -28,7 +28,9 @@ const useStyles = makeStyles(theme => ({
     fontSize: '9px'
   },
   refinementOutcome: {
-    paddingTop: theme.spacing(1) / 2
+    paddingTop: theme.spacing(1) / 2,
+    width: 16,
+    height: 24
   }
 }));
 
