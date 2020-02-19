@@ -69,11 +69,7 @@ class RefinementOutcome extends React.PureComponent {
         break;
     }
 
-    return imgSource ? (
-      <div className={className}>
-        <img src={imgSource} style={{ width: 16, height: 16 }} />
-      </div>
-    ) : null;
+    return <div className={className}>{imgSource && <img src={imgSource} style={{ width: 16, height: 16 }} />}</div>;
   }
 }
 
