@@ -85,7 +85,8 @@ const useStyles = makeStyles(theme => ({
     width: 25,
     textAlign: 'center',
     '&:last-child': {
-      borderRight: 'none'
+      borderRight: 'none',
+      width: 32
     }
   }
 }));
