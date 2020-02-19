@@ -195,8 +195,10 @@ const MoleculeView = memo(
           }),
           api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
             const vectors = response.data.vectors['3d'];
-            setCmpds(getTotalCountOfCompounds(response.data.vectors));
             setCountOfVectors(generateObjectList(vectors).length);
+          }),
+          api({ url: `${base_url}/api/graph/${data.id}` }).then(response => {
+            setCmpds(getTotalCountOfCompounds(response.data.graph));
           })
         ]).catch(error => {
           setState(() => {
