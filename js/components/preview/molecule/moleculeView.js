@@ -75,7 +75,8 @@ const useStyles = makeStyles(theme => ({
     width: 25,
     textAlign: 'center',
     '&:last-child': {
-      borderRight: 'none'
+      borderRight: 'none',
+      width: 32
     }
   },
   fullHeight: {
@@ -173,9 +174,22 @@ const MoleculeView = memo(
         { name: moleculeProperty.rots, value: data.rots },
         { name: moleculeProperty.rings, value: data.rings },
         { name: moleculeProperty.velec, value: data.velec },
+        { name: moleculeProperty.vectors, value: countOfVectors },
         { name: moleculeProperty.cpd, value: cmpds }
       ],
-      [cmpds, data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
+      [
+        cmpds,
+        countOfVectors,
+        data.ha,
+        data.hacc,
+        data.hdon,
+        data.logp,
+        data.mw,
+        data.rings,
+        data.rots,
+        data.tpsa,
+        data.velec
+      ]
     );
 
     // componentDidMount
@@ -430,11 +444,6 @@ const MoleculeView = memo(
                   </Grid>
                 </Tooltip>
               ))}
-              <Tooltip title="#Vectors">
-                <Grid item className={classes.rightBorder}>
-                  {countOfVectors}
-                </Grid>
-              </Tooltip>
             </Grid>
           </Grid>
         </Grid>
