@@ -1,5 +1,4 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
-import { isEmpty } from 'lodash';
 
 export const generateMolecule = (id, sdf_info) => {
   return {
@@ -45,18 +44,13 @@ export const generateSphere = (data, selected = false) => {
   };
 };
 
-export const getTotalCountOfCompounds = vectors => {
+export const getTotalCountOfCompounds = graph => {
   let tot_num = 0;
-  /* TODO Add algorithm for computing count of toto count of compounds
-  for (var key_to_select in state.to_select) {
-    if (key_to_select.split('_')[0] === input_mol_key) {
-      new_this_vector_list[key_to_select] = state.to_select[key_to_select];
-    }
+
+  if (graph) {
+    Object.keys(graph).forEach(key => {
+      tot_num += graph[key].addition ? Object.keys(graph[key].addition).length : 0;
+    });
   }
-
-
-  Object.keys(vectors).forEach(key => {
-    tot_num += !isEmpty(vectors[key].addition) || vectors[key].addition ? Object.keys(vectors[key].addition).length : 0;
-  }); */
   return tot_num;
 };
