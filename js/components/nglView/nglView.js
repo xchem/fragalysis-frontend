@@ -11,6 +11,8 @@ import * as selectionActions from '../../reducers/selection/actions';
 import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { throttle } from 'lodash';
+import { BACKGROUND_COLOR, NGL_PARAMS } from './constants';
+import nglReducers from '../../reducers/ngl/nglReducers';
 
 const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, handleNglViewPick }) => {
   // connect to NGL Stage object
@@ -69,6 +71,7 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     const nglViewFromContext = getNglView(div_id);
     if (stage === undefined && !nglViewFromContext) {
       const newStage = new Stage(div_id);
+      newStage.setParameters({ [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.white });
       registerNglView(div_id, newStage);
       registerStageEvents(newStage, getNglView);
       setStage(newStage);

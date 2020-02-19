@@ -22,7 +22,7 @@ export const INITIAL_STATE = {
     [NGL_PARAMS.ambientColor]: 0xdddddd,
     [NGL_PARAMS.ambientIntensity]: 0.2,
     [NGL_PARAMS.hoverTimeout]: 0, */
-    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.white,
     [NGL_PARAMS.clipNear]: 0,
     [NGL_PARAMS.clipFar]: 100,
     [NGL_PARAMS.clipDist]: 10,
