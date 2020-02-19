@@ -88,7 +88,28 @@ export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isState
       old_url: oldUrl,
       afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, stage)),
       list_type,
-      setObjectList: mol_group_list => dispatch(setMolGroupList(mol_group_list)),
+      setObjectList: async mol_group_list => {
+        await dispatch(setMolGroupList(mol_group_list));
+        const currentMolGroup = state.apiReducers.mol_group_list[0];
+        if (currentMolGroup) {
+          const currMolGroupID = currentMolGroup.id;
+          dispatch(setMolGroupOn(currMolGroupID));
+          const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${currMolGroupID}`;
+          dispatch(setMolGroupSelection([currMolGroupID]));
+          dispatch(
+            deleteObject(
+              {
+                display_div: VIEWS.SUMMARY_VIEW,
+                name: currentMolGroupStringID
+              },
+              stage
+            )
+          );
+          dispatch(
+            loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)), stage)
+          );
+        }
+      },
       cancel: onCancel
     });
   } else if (target_on && isStateLoaded) {
