@@ -24,7 +24,6 @@ import {
   Person,
   Home,
   Storage,
-  ReportProblem,
   SupervisorAccount,
   Menu as MenuIcon,
   Work,
@@ -41,8 +40,8 @@ import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { IdeaReport } from '../userFeedback/ideaReport';
 import { FundersModal } from '../funders/fundersModal';
-
-const uuidv4 = require('uuid/v4');
+// eslint-disable-next-line import/extensions
+import { version } from '../../../package.json';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -80,6 +79,10 @@ const useStyles = makeStyles(theme => ({
   },
   clickableImage: {
     cursor: 'pointer'
+  },
+  inheritHeight: {
+    height: 'inherit',
+    paddingBottom: theme.spacing(1)
   }
 }));
 
@@ -264,18 +267,33 @@ export default memo(
             setOpenMenu(false);
           }}
         >
-          <Grid container direction="column" justify="center" alignItems="center" className={classes.drawerHeader}>
+          <Grid
+            container
+            direction="column"
+            justify="space-between"
+            alignItems="center"
+            className={classes.inheritHeight}
+          >
             <Grid item>
-              <Avatar className={classes.padding}>
-                <Person />
-              </Avatar>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle2">{username}</Typography>
-            </Grid>
-            <Grid item>{prodSite}</Grid>
-          </Grid>
+              <Grid container direction="column" justify="center" alignItems="center" className={classes.drawerHeader}>
+                <Grid item>
+                  <Avatar className={classes.padding}>
+                    <Person />
+                  </Avatar>
+                </Grid>
+                <Grid item>
+                  <Typography variant="subtitle2">{username}</Typography>
+                </Grid>
+                <Grid item>{prodSite}</Grid>
+              </Grid>
 
+              <Divider />
+              <ListItem button onClick={() => history.push(URLS.landing)}>
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary="Home" />
+              </ListItem>
           <Divider />
           <ListItem button onClick={() => history.push(URLS.landing)}>
             <ListItemIcon>
@@ -291,26 +309,38 @@ export default memo(
             <ListItemText primary="Projects" />
           </ListItem>
 
-          <ListItem button onClick={() => history.push(URLS.sessions)}>
+          <ListItem button onClick={() => history.push(URLS.projects)}>
             <ListItemIcon>
-              <Storage />
+              <Description />
             </ListItemIcon>
-            <ListItemText primary="Sessions" />
+            <ListItemText primary="Projects_old" />
           </ListItem>
-          <ListItem button onClick={() => history.push(URLS.management)}>
-            <ListItemIcon>
-              <Work />
-            </ListItemIcon>
-            <ListItemText primary="Management" />
-          </ListItem>
-          <ListItem button onClick={() => setOpenFunders(true)}>
-            <ListItemIcon>
-              <SupervisorAccount />
-            </ListItemIcon>
-            <ListItemText primary="Supported by" />
-          </ListItem>
-          <Divider />
-          {authListItem}
+
+              <ListItem button onClick={() => history.push(URLS.sessions)}>
+                <ListItemIcon>
+                  <Storage />
+                </ListItemIcon>
+                <ListItemText primary="Sessions" />
+              </ListItem>
+              <ListItem button onClick={() => history.push(URLS.management)}>
+                <ListItemIcon>
+                  <Work />
+                </ListItemIcon>
+                <ListItemText primary="Management" />
+              </ListItem>
+              <ListItem button onClick={() => setOpenFunders(true)}>
+                <ListItemIcon>
+                  <SupervisorAccount />
+                </ListItemIcon>
+                <ListItemText primary="Supported by" />
+              </ListItem>
+              <Divider />
+              {authListItem}
+            </Grid>
+            <Grid item>
+              <Typography variant="body2">Fragalysis version {version}</Typography>
+            </Grid>
+          </Grid>
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%">
           {(isLoading === true || disableUserInteraction === true) && (
