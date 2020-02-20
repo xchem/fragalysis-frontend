@@ -44,7 +44,7 @@ export const NglProvider = memo(props => {
   };
 
   return (
-    <NglContext.Provider value={{ nglViewList: nglViewList, registerNglView, getNglView, unregisterNglView }}>
+    <NglContext.Provider value={{ nglViewList, registerNglView, getNglView, unregisterNglView }}>
       {props.children}
     </NglContext.Provider>
   );

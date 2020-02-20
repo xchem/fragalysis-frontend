@@ -26,6 +26,7 @@ import {
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
+import { colourList } from '../moleculeView';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -158,4 +159,13 @@ export const addLigand = (stage, data, colourToggle) => dispatch => {
 export const removeLigand = (stage, data) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
+};
+
+export const selectFirstMolecule = (majorView, moleculeList) => (dispatch, getState) => {
+  if (moleculeList) {
+    const firstMolecule = moleculeList[0];
+    dispatch(addLigand(majorView, firstMolecule, colourList[0]));
+    dispatch(addComplex(majorView, firstMolecule, colourList[0]));
+    dispatch(addVector(majorView, firstMolecule));
+  }
 };
