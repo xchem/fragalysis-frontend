@@ -11,6 +11,7 @@ import { loadMoleculeGroups } from './redux/dispatchActions';
 export const withLoadingMolGroupList = WrappedComponent => {
   return memo(({ isStateLoaded, ...rest }) => {
     const [state, setState] = useState();
+    const [wasLoaded, setWasLoaded] = useState(false);
     const { getNglView } = useContext(NglContext);
 
     const [oldUrl, setOldUrl] = useState('');
@@ -19,11 +20,12 @@ export const withLoadingMolGroupList = WrappedComponent => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-      const nglView = getNglView(VIEWS.SUMMARY_VIEW);
-      if (nglView) {
+      const summaryView = getNglView(VIEWS.SUMMARY_VIEW);
+
+      if (summaryView && wasLoaded === false) {
         dispatch(
           loadMoleculeGroups({
-            stage: nglView.stage,
+            summaryView: summaryView.stage,
             setOldUrl,
             oldUrl: oldUrl.current,
             onCancel,
@@ -34,12 +36,13 @@ export const withLoadingMolGroupList = WrappedComponent => {
             throw error;
           });
         });
+        setWasLoaded(true);
       }
 
       return () => {
         onCancel();
       };
-    }, [isStateLoaded, getNglView, onCancel, dispatch, oldUrl]);
+    }, [isStateLoaded, onCancel, dispatch, oldUrl, getNglView, wasLoaded]);
 
     return <WrappedComponent {...rest} />;
   });

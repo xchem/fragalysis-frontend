@@ -23,6 +23,7 @@ import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { SCENES } from '../../../../reducers/ngl/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
+import { selectFirstMolecule } from '../../molecule/redux/dispatchActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
   dispatch(setObjectSelection([molGroupId]));
@@ -75,7 +76,32 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage) => dispatch => 
   }
 };
 
-export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (dispatch, getState) => {
+export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => {
+  const currentMolGroup = getState().apiReducers.mol_group_list[0];
+  if (currentMolGroup) {
+    const currMolGroupID = currentMolGroup.id;
+    dispatch(setMolGroupOn(currMolGroupID));
+    const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${currMolGroupID}`;
+    dispatch(setMolGroupSelection([currMolGroupID]));
+    dispatch(
+      deleteObject(
+        {
+          display_div: VIEWS.SUMMARY_VIEW,
+          name: currentMolGroupStringID
+        },
+        summaryView
+      )
+    );
+    dispatch(
+      loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)), summaryView)
+    );
+  }
+};
+
+export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const group_type = state.apiReducers.group_type;
   const target_on = state.apiReducers.target_on;
@@ -86,29 +112,11 @@ export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isState
       url: getUrl({ list_type, target_on, group_type }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl,
-      afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, stage)),
+      afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, summaryView)),
       list_type,
       setObjectList: async mol_group_list => {
         await dispatch(setMolGroupList(mol_group_list));
-        const currentMolGroup = state.apiReducers.mol_group_list[0];
-        if (currentMolGroup) {
-          const currMolGroupID = currentMolGroup.id;
-          dispatch(setMolGroupOn(currMolGroupID));
-          const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${currMolGroupID}`;
-          dispatch(setMolGroupSelection([currMolGroupID]));
-          dispatch(
-            deleteObject(
-              {
-                display_div: VIEWS.SUMMARY_VIEW,
-                name: currentMolGroupStringID
-              },
-              stage
-            )
-          );
-          dispatch(
-            loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)), stage)
-          );
-        }
+        dispatch(selectFirstMolGroup({ summaryView }));
       },
       cancel: onCancel
     });

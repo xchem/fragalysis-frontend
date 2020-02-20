@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const molGroupSelector = memo(({ handleHeightChange }) => {
+const MolGroupSelector = memo(({ handleHeightChange }) => {
   const classes = useStyles();
   const ref = useRef(null);
 
@@ -75,4 +75,4 @@ const molGroupSelector = memo(({ handleHeightChange }) => {
   );
 });
 
-export default withLoadingMolGroupList(molGroupSelector);
+export default withLoadingMolGroupList(MolGroupSelector);

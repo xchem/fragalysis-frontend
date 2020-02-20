@@ -4,7 +4,7 @@
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useState, useEffect, memo, useRef } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
@@ -19,6 +19,9 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
+import { selectFirstMolecule } from './redux/dispatchActions';
+import { VIEWS } from '../../../constants/constants';
+import { NglContext } from '../../nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -98,14 +101,15 @@ const MoleculeList = memo(
     cached_mol_lists,
     target_on,
     mol_group_on,
-    setObjectList,
+    setMoleculeList,
     setCachedMolLists,
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
     filterSettings,
     sortDialogOpen,
-    setSortDialogOpen
+    setSortDialogOpen,
+    selectFirstMolecule
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -119,6 +123,9 @@ const MoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 34;
     const imgWidth = 150;
+
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
@@ -142,21 +149,35 @@ const MoleculeList = memo(
     };
 
     useEffect(() => {
-      loadFromServer({
-        url: getUrl({ list_type, target_on, mol_group_on }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl.current,
-        list_type,
-        setObjectList,
-        setCachedMolLists,
-        mol_group_on,
-        cached_mol_lists
-      }).catch(error => {
-        setState(() => {
-          throw error;
+      if (stage) {
+        loadFromServer({
+          url: getUrl({ list_type, target_on, mol_group_on }),
+          setOldUrl: url => setOldUrl(url),
+          old_url: oldUrl.current,
+          list_type,
+          setObjectList: moleculeList => {
+            setMoleculeList(moleculeList);
+            selectFirstMolecule(stage, moleculeList);
+          },
+          setCachedMolLists,
+          mol_group_on,
+          cached_mol_lists
+        }).catch(error => {
+          setState(() => {
+            throw error;
+          });
         });
-      });
-    }, [list_type, mol_group_on, setObjectList, target_on, setCachedMolLists, cached_mol_lists]);
+      }
+    }, [
+      list_type,
+      mol_group_on,
+      setMoleculeList,
+      target_on,
+      setCachedMolLists,
+      cached_mol_lists,
+      stage,
+      selectFirstMolecule
+    ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -310,11 +331,12 @@ function mapStateToProps(state) {
   };
 }
 const mapDispatchToProps = {
-  setObjectList: apiActions.setMoleculeList,
+  setMoleculeList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
   loadObject,
-  setSortDialogOpen
+  setSortDialogOpen,
+  selectFirstMolecule
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);
