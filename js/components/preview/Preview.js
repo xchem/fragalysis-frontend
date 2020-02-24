@@ -32,8 +32,8 @@ const useStyles = makeStyles(theme => ({
     width: 'inherit'
   },
   nglViewWidth: {
-    padding: 0,
-    width: 'inherit' //`calc(inherit - ${theme.spacing(1)}px`
+    // padding: 0,
+    width: 'inherit'
   },
   hitColumn: {
     minWidth: hitNavigatorWidth,
@@ -97,13 +97,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   return (
     <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid
-          item // sm={12} md={5} lg xl
-          container
-          direction="column"
-          spacing={1}
-          className={classes.hitColumn}
-        >
+        <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
@@ -117,11 +111,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             />
           </Grid>
         </Grid>
-        <Grid
-          item //sm={12} md={5} lg xl
-          className={classes.nglColumn}
-          // style={nglColumnClass}
-        >
+        <Grid item className={classes.nglColumn}>
           <Grid container direction="column">
             <Grid item className={classes.nglViewWidth}>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
@@ -137,13 +127,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid
-          item // sm={12} md={6} lg xl
-          container
-          direction="column"
-          spacing={1}
-          className={classes.summaryColumn}
-        >
+        <Grid item container direction="column" spacing={1} className={classes.summaryColumn}>
           <Grid item>
             <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
           </Grid>
