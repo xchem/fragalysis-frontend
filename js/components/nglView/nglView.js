@@ -12,7 +12,6 @@ import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { throttle } from 'lodash';
 import { BACKGROUND_COLOR, NGL_PARAMS } from './constants';
-import nglReducers from '../../reducers/ngl/nglReducers';
 
 const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, handleNglViewPick }) => {
   // connect to NGL Stage object
@@ -102,7 +101,15 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   ]);
   // End of Initialization NGL View component
 
-  return <div id={div_id} style={{ height: height || '600px', width: '100%' }} />;
+  return (
+    <div
+      id={div_id}
+      style={{
+        height: height || '600px',
+        width: 'inherit'
+      }}
+    />
+  );
 });
 
 function mapStateToProps(state) {

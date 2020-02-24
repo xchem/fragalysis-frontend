@@ -27,6 +27,21 @@ const useStyles = makeStyles(theme => ({
   },
   inheritWidth: {
     width: 'inherit'
+  },
+  nglViewWidth: {
+    width: 'inherit'
+  },
+  hitColumn: {
+    [theme.breakpoints.between('lg', 'xl')]: {
+      maxWidth: 504,
+      marginRight: theme.spacing(1) / 4
+    }
+  },
+  summaryColumn: {
+    [theme.breakpoints.between('lg', 'xl')]: {
+      maxWidth: 504,
+      minWidth: 400
+    }
   }
 }));
 
@@ -45,7 +60,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
 
-  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px )`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
 
@@ -66,7 +81,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   return (
     <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid item sm={12} md={5} lg={4} xl={3} container direction="column" spacing={1}>
+        <Grid item sm={12} md={5} lg xl container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
@@ -80,9 +95,9 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             />
           </Grid>
         </Grid>
-        <Grid item sm={12} md={7} lg={5} xl={6}>
-          <Grid container direction="column" spacing={1}>
-            <Grid item className={classes.inheritWidth}>
+        <Grid item sm={12} md={5} lg xl>
+          <Grid container direction="column" spacing={1} className={classes.nglViewWidth}>
+            <Grid item>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
             <Grid item ref={nglViewerControlsRef}>
@@ -96,7 +111,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item sm={12} md={6} lg={3} xl={3} container direction="column" spacing={1}>
+        <Grid item sm={12} md={6} lg xl container direction="column" spacing={1} className={classes.summaryColumn}>
           <Grid item>
             <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
           </Grid>
