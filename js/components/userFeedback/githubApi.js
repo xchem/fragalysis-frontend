@@ -1,6 +1,7 @@
 import { api, METHOD } from '../../utils/api';
 import { setResponse } from './redux/actions';
 import { version } from '../../../package.json';
+import { Base64 } from 'js-base64';
 
 /* API handlers */
 const apiLink = 'https://api.github.com';
@@ -19,7 +20,7 @@ const getAssetLink = assetName => {
 
 const getHeaders = () => {
   return {
-    Authorization: 'token ' + process.env.GITHUB_API_TOKEN
+    Authorization: 'token ' + Base64.decode(process.env.GITHUB_API_TOKEN)
   };
 };
 
@@ -66,11 +67,6 @@ export const createIssue = (formState, formType, labels, afterCreateIssueCallbac
   dispatch(setResponse(''));
 
   const screenshotUrl = await dispatch(uploadFile(formState, formType));
-  console.log('screenshot url', screenshotUrl);
-
-  console.log('creating new issue');
-  console.log(formState.name, formState.email, formState.title, formState.description);
-
   let body = ['- Version: ' + version, '- Name: ' + formState.name, '- Description: ' + formState.description];
 
   if (screenshotUrl.length > 0) {
