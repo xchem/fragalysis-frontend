@@ -68,7 +68,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   } else {
     return (
       <Button key={key} color="primary" onClick={handlePdbDownload} startIcon={<CloudDownload />}>
-        Download {targetOnName.toString()} structures
+        Download structures
       </Button>
     );
   }

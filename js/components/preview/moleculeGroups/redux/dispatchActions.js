@@ -23,7 +23,6 @@ import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { SCENES } from '../../../../reducers/ngl/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
-import { selectFirstMolecule } from '../../molecule/redux/dispatchActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
   dispatch(setObjectSelection([molGroupId]));
