@@ -12,11 +12,28 @@ import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { throttle } from 'lodash';
 import { BACKGROUND_COLOR, NGL_PARAMS } from './constants';
+import { makeStyles, useTheme } from '@material-ui/core';
+import { VIEWS } from '../../constants/constants';
+
+const useStyles = makeStyles(theme => ({
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.spacing(1) / 2,
+    boxShadow: [
+      '0px 2px 1px -1px rgba(0,0,0,0.2)',
+      '0px 1px 1px 0px rgba(0,0,0,0.14)',
+      '0px 1px 3px 0px rgba(0,0,0,0.12)'
+    ],
+    marginBottom: theme.spacing(1)
+  }
+}));
 
 const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, handleNglViewPick }) => {
   // connect to NGL Stage object
   const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
   const [stage, setStage] = useState();
+  const classes = useStyles();
+  const theme = useTheme();
 
   const handleOrientationChanged = useCallback(
     throttle(() => {
@@ -104,9 +121,9 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   return (
     <div
       id={div_id}
+      className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : {}}
       style={{
-        height: height || '600px',
-        width: 'inherit'
+        height: `calc(${height || '600px'} - ${theme.spacing(1)}px)`
       }}
     />
   );

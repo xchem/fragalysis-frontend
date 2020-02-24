@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
@@ -20,6 +20,8 @@ import { useDispatch } from 'react-redux';
 import { removeAllNglComponents } from '../../reducers/ngl/actions';
 //import HotspotList from '../hotspot/hotspotList';
 
+const hitNavigatorWidth = 504;
+
 const useStyles = makeStyles(theme => ({
   root: {
     minHeight: 'inherit'
@@ -28,18 +30,30 @@ const useStyles = makeStyles(theme => ({
     width: 'inherit'
   },
   nglViewWidth: {
-    width: 'inherit'
+    padding: 0,
+    width: 'inherit' //`calc(inherit - ${theme.spacing(1)}px`
   },
   hitColumn: {
-    [theme.breakpoints.between('lg', 'xl')]: {
-      maxWidth: 504,
-      marginRight: theme.spacing(1) / 4
+    minWidth: hitNavigatorWidth,
+    [theme.breakpoints.up('md')]: {
+      width: hitNavigatorWidth
+    },
+    [theme.breakpoints.only('sm')]: {
+      width: '100%'
+    }
+  },
+  nglColumn: {
+    [theme.breakpoints.up('lg')]: {
+      width: `calc(100vw - ${2 * hitNavigatorWidth}px - ${theme.spacing(2)}px)`
+    },
+    [theme.breakpoints.only('md')]: {
+      width: `calc(100vw - ${hitNavigatorWidth}px - ${theme.spacing(4)}px)`
     }
   },
   summaryColumn: {
-    [theme.breakpoints.between('lg', 'xl')]: {
-      maxWidth: 504,
-      minWidth: 400
+    minWidth: hitNavigatorWidth,
+    [theme.breakpoints.up('lg')]: {
+      width: hitNavigatorWidth
     }
   }
 }));
@@ -47,6 +61,7 @@ const useStyles = makeStyles(theme => ({
 const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
   const theme = useTheme();
+
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -73,9 +88,15 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
   }, [dispatch]);
 
   return (
-    <Fragment>
+    <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid item sm={12} md={5} lg xl container direction="column" spacing={1} className={classes.hitColumn}>
+        <Grid
+          item // sm={12} md={5} lg xl
+          container
+          direction="column"
+          spacing={1}
+          className={classes.hitColumn}
+        >
           {/* Hit cluster selector */}
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
@@ -89,12 +110,16 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             />
           </Grid>
         </Grid>
-        <Grid item sm={12} md={5} lg xl>
-          <Grid container direction="column" spacing={1} className={classes.nglViewWidth}>
-            <Grid item>
+        <Grid
+          item //sm={12} md={5} lg xl
+          className={classes.nglColumn}
+          // style={nglColumnClass}
+        >
+          <Grid container direction="column">
+            <Grid item className={classes.nglViewWidth}>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
-            <Grid item ref={nglViewerControlsRef}>
+            <Grid item ref={nglViewerControlsRef} className={classes.inheritWidth}>
               <ComputeSize
                 componentRef={nglViewerControlsRef.current}
                 height={viewControlsHeight}
@@ -105,7 +130,13 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item sm={12} md={6} lg xl container direction="column" spacing={1} className={classes.summaryColumn}>
+        <Grid
+          item // sm={12} md={6} lg xl
+          container
+          direction="column"
+          spacing={1}
+          className={classes.summaryColumn}
+        >
           <Grid item>
             <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
           </Grid>
@@ -118,7 +149,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
         </Grid>*/}
       </Grid>
       <ModalStateSave />
-    </Fragment>
+    </>
   );
 });
 
