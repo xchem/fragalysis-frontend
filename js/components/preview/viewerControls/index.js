@@ -5,7 +5,7 @@
 import React, { memo, useState } from 'react';
 import { Button } from '../../common/Inputs/Button';
 import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
-import { ButtonGroup, Grid } from '@material-ui/core';
+import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
@@ -18,8 +18,15 @@ const drawers = {
 
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
+const useStyles = makeStyles(theme => ({
+  button: {
+    padding: theme.spacing(1)
+  }
+}));
+
 export const ViewerControls = memo(({}) => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
+  const classes = useStyles();
 
   const openDrawer = key => {
     //close all and open selected by key
@@ -36,15 +43,31 @@ export const ViewerControls = memo(({}) => {
       <Grid container justify="center">
         <Grid item>
           <ButtonGroup variant="contained" color="primary">
-            <Button color="primary" onClick={() => openDrawer(drawers.settings)} startIcon={<Settings />}>
-              Settings
-            </Button>
-            <Button color="primary" onClick={() => openDrawer(drawers.display)} startIcon={<PersonalVideo />}>
-              Display
-            </Button>
-            <Button color="primary" onClick={() => openDrawer(drawers.mouse)} startIcon={<Mouse />}>
-              Mouse
-            </Button>
+            <Tooltip title="Settings controls">
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => openDrawer(drawers.settings)}
+                className={classes.button}
+              >
+                <Settings />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Display controls">
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => openDrawer(drawers.display)}
+                className={classes.button}
+              >
+                <PersonalVideo />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Mouse controls">
+              <Button size="small" color="primary" onClick={() => openDrawer(drawers.mouse)} className={classes.button}>
+                <Mouse />
+              </Button>
+            </Tooltip>
           </ButtonGroup>
         </Grid>
       </Grid>
