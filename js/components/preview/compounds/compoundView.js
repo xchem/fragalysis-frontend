@@ -25,7 +25,7 @@ export const CompoundView = memo(({ height, width, data }) => {
 
   useEffect(() => {
     let onCancel = () => {};
-    dispatch(loadCompoundImageData({ width, height, data, onCancel })).catch(error => {
+    dispatch(loadCompoundImageData({ width, height, data, onCancel, setImage })).catch(error => {
       setState(() => {
         throw error;
       });
@@ -59,10 +59,7 @@ export const CompoundView = memo(({ height, width, data }) => {
   }
 
   return (
-    <div
-      onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage, setImage }))}
-      style={current_style}
-    >
+    <div onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage }))} style={current_style}>
       <SVGInline svg={image} />
     </div>
   );
