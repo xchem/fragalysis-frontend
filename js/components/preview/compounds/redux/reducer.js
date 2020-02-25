@@ -9,8 +9,6 @@ export const INITIAL_STATE = {
       vector:"CC1CCC([101Xe])C1",
       mol:"CCNC(=O)Nc1cc(C)on1",
       index:0,
-      selectedClass: undefined,
-      isShowed: false
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,
@@ -21,7 +19,16 @@ export const INITIAL_STATE = {
     [compoundsColors.purple.key]: undefined,
     [compoundsColors.apricot.key]: undefined
   },
+  selectedCompoundsClass: {
+    [compoundsColors.blue.key]: [],
+    [compoundsColors.red.key]: [],
+    [compoundsColors.green.key]: [],
+    [compoundsColors.purple.key]: [],
+    [compoundsColors.apricot.key]: []
+  },
   highlightedCompoundId: undefined,
+  showedCompoundList: [],
+
   // configuration: {
   //  [id]: undefined
   // }
@@ -59,6 +66,22 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       const currentConfiguration = JSON.parse(JSON.stringify(state.configuration));
       currentConfiguration[action.payload.id] = action.payload.data;
       return Object.assign({}, state, { configuration: currentConfiguration });
+
+    case constants.SET_SHOWED_COMPOUND_LIST:
+      return Object.assign({}, state, { showedCompoundList: action.payload });
+
+    case constants.APPEND_SHOWED_COMPOUND_LIST:
+      const cmpdsList = new Set(state.showedCompoundList);
+      cmpdsList.add(action.payload);
+
+      return Object.assign({}, state, {
+        showedCompoundList: [...cmpdsList]
+      });
+
+    case constants.REMOVE_SHOWED_COMPOUND_LIST:
+      const diminishedCmpdsList = new Set(state.showedCompoundList);
+      diminishedCmpdsList.delete(action.payload);
+      return Object.assign({}, state, { showedCompoundList: [...diminishedCmpdsList] });
 
     default:
       return state;

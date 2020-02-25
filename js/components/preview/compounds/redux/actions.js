@@ -34,3 +34,18 @@ export const setCompoundClasses = (compoundClasses, currentCompoundClass) => {
 export const setHighlightedCompoundId = id => ({ type: constants.SET_HIGHLIGHTED_COMPOUND_ID, payload: id });
 
 export const setConfiguration = (id, data) => ({ type: constants.SET_CONFIGURATION, payload: { id, data } });
+
+export const setShowedCompoundList = compounds => ({
+  type: constants.SET_SHOWED_COMPOUND_LIST,
+  payload: compounds
+});
+
+export const addShowedCompoundToList = compoundId => ({
+  type: constants.APPEND_SHOWED_COMPOUND_LIST,
+  payload: compoundId
+});
+
+export const removeShowedCompoundFromList = compoundId => ({
+  type: constants.REMOVE_SHOWED_COMPOUND_LIST,
+  payload: compoundId
+});

@@ -17,6 +17,7 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
 export const CompoundView = memo(({ height, width, data }) => {
   const dispatch = useDispatch();
   const highlightedCompoundId = useSelector(state => state.previewReducers.compounds.highlightedCompoundId);
+  const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
   const [image, setImage] = useState(loadingCompoundImage);
@@ -25,7 +26,7 @@ export const CompoundView = memo(({ height, width, data }) => {
 
   useEffect(() => {
     let onCancel = () => {};
-    dispatch(loadCompoundImageData({ width, height, data, onCancel, setImage })).catch(error => {
+    loadCompoundImageData({ width, height, data, onCancel, setImage }).catch(error => {
       setState(() => {
         throw error;
       });
@@ -33,7 +34,7 @@ export const CompoundView = memo(({ height, width, data }) => {
     return () => {
       onCancel();
     };
-  }, [height, width, data, dispatch]);
+  }, [height, width, data]);
 
   const not_selected_style = {
     width: (width + 5).toString() + 'px',
@@ -44,7 +45,7 @@ export const CompoundView = memo(({ height, width, data }) => {
   const highlightedStyle = { borderStyle: 'solid' };
 
   let current_style = Object.assign({}, not_selected_style);
-  if (data && data.isShowed === true) {
+  if (data && data.index && !!showedCompoundList.find(item => item === data.index)) {
     current_style = Object.assign(current_style, showedStyle);
   }
 

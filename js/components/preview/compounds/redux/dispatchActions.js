@@ -4,7 +4,9 @@ import {
   setCurrentPage,
   updateCurrentCompound,
   setHighlightedCompoundId,
-  setConfiguration
+  setConfiguration,
+  addShowedCompoundToList,
+  removeShowedCompoundFromList
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -108,16 +110,21 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
   }
 };
 
-export const handleClickOnCompound = ({ data, event, majorViewStage, setImage }) => async (dispatch, getState) => {
+export const handleClickOnCompound = ({ data, event, majorViewStage }) => async (dispatch, getState) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
+  const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
 
   dispatch(setHighlightedCompoundId(data.index));
 
   if (event.shiftKey) {
     await dispatch(showCompoundNglView({ majorViewStage, data }));
-    dispatch(updateCurrentCompound({ id: data.index, key: 'isShowed', value: !currentCompounds[data.index].isShowed }));
+    if (!!showedCompoundList.find(item => item === data.index)) {
+      dispatch(removeShowedCompoundFromList(data.index));
+    } else {
+      dispatch(addShowedCompoundToList(data.index));
+    }
   } else {
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
       await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: undefined }));
@@ -129,7 +136,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage, setImage })
   }
 };
 
-export const loadCompoundImageData = ({ width, height, onCancel, data, setImage }) => dispatch => {
+export const loadCompoundImageData = ({ width, height, onCancel, data, setImage }) => {
   let url = undefined;
   let key = undefined;
 
