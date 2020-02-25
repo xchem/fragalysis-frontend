@@ -85,6 +85,11 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.APPEND_SELECTED_COMPOUND_CLASS:
       const selectedCmpdClass = JSON.parse(JSON.stringify(state.selectedCompoundsClass));
+      Object.keys(selectedCmpdClass).forEach(classKey => {
+        const diminishedCmpdsList = new Set(selectedCmpdClass[classKey]);
+        diminishedCmpdsList.delete(action.payload.compoundID);
+        selectedCmpdClass[classKey] = [...diminishedCmpdsList];
+      });
 
       const currentClassList = new Set(selectedCmpdClass[action.payload.classID]);
       currentClassList.add(action.payload.compoundID);
