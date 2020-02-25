@@ -55,7 +55,7 @@ export const CompoundView = memo(({ height, width, data }) => {
   }
 
   Object.keys(selectedCompoundsClass).forEach(classKey => {
-    if (!!selectedCompoundsClass[classKey].find(data.index)) {
+    if (!!selectedCompoundsClass[classKey].find(item => item === data.index)) {
       current_style = Object.assign(current_style, {
         backgroundColor: compoundsColors[classKey].color
       });
