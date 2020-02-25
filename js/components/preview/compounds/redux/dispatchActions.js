@@ -6,7 +6,9 @@ import {
   setHighlightedCompoundId,
   setConfiguration,
   addShowedCompoundToList,
-  removeShowedCompoundFromList
+  removeShowedCompoundFromList,
+  removeSelectedCompoundClass,
+  addSelectedCompoundClass
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -83,7 +85,6 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
       INPUT_MOL_BLOCK: to_query_sdf_info
     };
 
-    console.log(post_data);
     api({
       url: base_url + '/scoring/gen_conf_from_vect/',
       method: METHOD.POST,
@@ -129,10 +130,10 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
     }
   } else {
     if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
-      await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: undefined }));
+      await dispatch(removeSelectedCompoundClass(data.index));
       dispatch(removeFromToBuyList(data));
     } else {
-      await dispatch(updateCurrentCompound({ id: data.index, key: 'selectedClass', value: currentCompoundClass }));
+      await dispatch(addSelectedCompoundClass(currentCompoundClass, data.index));
       dispatch(appendToBuyList(data));
     }
   }
