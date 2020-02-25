@@ -67,7 +67,7 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
   const configuration = state.previewReducers.compounds.configuration;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
 
-  if (!!showedCompoundList.find(item => item === data.index)) {
+  if (showedCompoundList.find(item => item === data.index) !== undefined) {
     dispatch(
       deleteObject(
         Object.assign(
@@ -123,7 +123,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
 
   if (event.shiftKey) {
     await dispatch(showCompoundNglView({ majorViewStage, data }));
-    if (!!showedCompoundList.find(item => item === data.index)) {
+    if (showedCompoundList.find(item => item === data.index) !== undefined) {
       dispatch(removeShowedCompoundFromList(data.index));
     } else {
       dispatch(addShowedCompoundToList(data.index));

@@ -46,7 +46,7 @@ export const CompoundView = memo(({ height, width, data }) => {
   const highlightedStyle = { borderStyle: 'solid' };
 
   let current_style = Object.assign({}, not_selected_style);
-  if (data && data.index && !!showedCompoundList.find(item => item === data.index)) {
+  if (data && data.index && showedCompoundList.find(item => item === data.index) !== undefined) {
     current_style = Object.assign(current_style, showedStyle);
   }
 
@@ -55,7 +55,7 @@ export const CompoundView = memo(({ height, width, data }) => {
   }
 
   Object.keys(selectedCompoundsClass).forEach(classKey => {
-    if (!!selectedCompoundsClass[classKey].find(item => item === data.index)) {
+    if (selectedCompoundsClass[classKey].find(item => item === data.index) !== undefined) {
       current_style = Object.assign(current_style, {
         backgroundColor: compoundsColors[classKey].color
       });
