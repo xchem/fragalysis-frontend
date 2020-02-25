@@ -147,7 +147,7 @@ export const loadCompoundImageData = ({ width, height, onCancel, data }) => disp
     width,
     height,
     key,
-    setImg_data: image => {}, //dispatch(updateCurrentCompound({ id: data.index, key: 'image', value: image })),
+    setImg_data: image => dispatch(updateCurrentCompound({ id: data.index, key: 'image', value: image })),
     url,
     cancel: onCancel
   });
