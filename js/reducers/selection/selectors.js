@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect';
-import { loadingCompoundImage } from '../../components/preview/compounds/redux/reducer';
 
 const getToSelect = state => state.selectionReducers.to_select;
 const getToQuery = state => state.selectionReducers.to_query;
@@ -32,7 +31,6 @@ export const getAllCompoundsList = createSelector(
         inputData.mol = to_query;
         inputData.index = index;
         inputData.selectedClass = undefined;
-        inputData.image = loadingCompoundImage;
         inputData.isShowed = false;
         compoundsList.push(inputData);
       });
