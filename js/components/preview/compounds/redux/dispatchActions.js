@@ -129,7 +129,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   }
 };
 
-export const loadCompoundImageData = ({ width, height, onCancel, data, oldUrl, setOldUrl }) => dispatch => {
+export const loadCompoundImageData = ({ width, height, onCancel, data }) => dispatch => {
   let url = undefined;
   let key = undefined;
 
@@ -147,9 +147,7 @@ export const loadCompoundImageData = ({ width, height, onCancel, data, oldUrl, s
     width,
     height,
     key,
-    old_url: oldUrl,
     setImg_data: image => dispatch(updateCurrentCompound({ id: data.index, key: 'image', value: image })),
-    setOld_url: newUrl => setOldUrl(newUrl),
     url,
     cancel: onCancel
   });

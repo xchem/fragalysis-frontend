@@ -19,7 +19,6 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
-import { selectFirstMolecule } from './redux/dispatchActions';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 
@@ -108,8 +107,7 @@ const MoleculeList = memo(
     getJoinedMoleculeList,
     filterSettings,
     sortDialogOpen,
-    setSortDialogOpen,
-    selectFirstMolecule
+    setSortDialogOpen
   }) => {
     const classes = useStyles();
     const list_type = listType.MOLECULE;
@@ -149,35 +147,23 @@ const MoleculeList = memo(
     };
 
     useEffect(() => {
-      if (stage) {
-        loadFromServer({
-          url: getUrl({ list_type, target_on, mol_group_on }),
-          setOldUrl: url => setOldUrl(url),
-          old_url: oldUrl.current,
-          list_type,
-          setObjectList: moleculeList => {
-            setMoleculeList(moleculeList);
-            selectFirstMolecule(stage, moleculeList);
-          },
-          setCachedMolLists,
-          mol_group_on,
-          cached_mol_lists
-        }).catch(error => {
-          setState(() => {
-            throw error;
-          });
+      loadFromServer({
+        url: getUrl({ list_type, target_on, mol_group_on }),
+        setOldUrl: url => setOldUrl(url),
+        old_url: oldUrl.current,
+        list_type,
+        setObjectList: moleculeList => {
+          setMoleculeList(moleculeList);
+        },
+        setCachedMolLists,
+        mol_group_on,
+        cached_mol_lists
+      }).catch(error => {
+        setState(() => {
+          throw error;
         });
-      }
-    }, [
-      list_type,
-      mol_group_on,
-      setMoleculeList,
-      target_on,
-      setCachedMolLists,
-      cached_mol_lists,
-      stage,
-      selectFirstMolecule
-    ]);
+      });
+    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -335,8 +321,7 @@ const mapDispatchToProps = {
   setCachedMolLists: apiActions.setCachedMolLists,
   deleteObject,
   loadObject,
-  setSortDialogOpen,
-  selectFirstMolecule
+  setSortDialogOpen
 };
 MoleculeList.displayName = 'MoleculeList';
 export default connect(mapStateToProps, mapDispatchToProps)(MoleculeList);

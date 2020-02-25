@@ -15,12 +15,11 @@ export const CompoundView = memo(({ height, width, data }) => {
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
 
-  const [oldUrl, setOldUrl] = useState('');
   const [state, setState] = useState();
 
   useEffect(() => {
     let onCancel = () => {};
-    dispatch(loadCompoundImageData({ width, height, data, onCancel, oldUrl, setOldUrl })).catch(error => {
+    dispatch(loadCompoundImageData({ width, height, data, onCancel })).catch(error => {
       setState(() => {
         throw error;
       });
@@ -28,7 +27,7 @@ export const CompoundView = memo(({ height, width, data }) => {
     return () => {
       onCancel();
     };
-  }, [height, width, data, oldUrl, dispatch]);
+  }, [height, width, data, dispatch]);
 
   const not_selected_style = {
     width: (width + 5).toString() + 'px',

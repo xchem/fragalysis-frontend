@@ -115,7 +115,7 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
       list_type,
       setObjectList: async mol_group_list => {
         await dispatch(setMolGroupList(mol_group_list));
-        dispatch(selectFirstMolGroup({ summaryView }));
+        //  dispatch(selectFirstMolGroup({ summaryView }));
       },
       cancel: onCancel
     });
