@@ -82,6 +82,8 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
       INPUT_SMILES: [data.smiles],
       INPUT_MOL_BLOCK: to_query_sdf_info
     };
+
+    console.log(post_data);
     api({
       url: base_url + '/scoring/gen_conf_from_vect/',
       method: METHOD.POST,
@@ -140,7 +142,6 @@ export const loadCompoundImageData = ({ width, height, onCancel, data, setImage 
   let url = undefined;
   let key = undefined;
 
-  const base_url = window.location.protocol + '//' + window.location.host;
   if (data.id !== undefined) {
     url = new URL(base_url + '/api/cmpdimg/' + data.id + '/');
     key = 'cmpd_image';
