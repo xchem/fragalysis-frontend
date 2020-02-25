@@ -53,18 +53,6 @@ export const CompoundList = memo(({ height }) => {
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
   const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
 
-  console.log(
-    to_query,
-    compoundClasses,
-    currentCompoundClass,
-    totalCountOfMolecules,
-    compoundsListOffset,
-    canLoadMoreCompounds,
-    querying,
-    currentVector,
-    currentCompounds
-  );
-
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
       let inputId = document.getElementById(item);
