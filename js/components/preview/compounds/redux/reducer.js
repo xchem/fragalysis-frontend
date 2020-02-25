@@ -84,11 +84,15 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { showedCompoundList: [...diminishedCmpdsList] });
 
     case constants.APPEND_SELECTED_COMPOUND_CLASS:
-      const selectedCmpdClass = new Set(state.selectedCompoundsClass[action.payload.classID]);
-      selectedCmpdClass[action.payload.classID].add(action.payload.compoundID);
+      const selectedCmpdClass = JSON.parse(JSON.stringify(state.selectedCompoundsClass));
+
+      const currentClassList = new Set(selectedCmpdClass[action.payload.classID]);
+      currentClassList.add(action.payload.compoundID);
+
+      selectedCmpdClass[action.payload.classID] = [...currentClassList];
 
       return Object.assign({}, state, {
-        selectedCompoundsClass: { ...state.selectedCompoundsClass, [action.payload.classID]: [...selectedCmpdClass] }
+        selectedCompoundsClass: selectedCmpdClass
       });
 
     case constants.REMOVE_SELECTED_COMPOUND_CLASS:
