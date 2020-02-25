@@ -18,6 +18,7 @@ export const CompoundView = memo(({ height, width, data }) => {
   const dispatch = useDispatch();
   const highlightedCompoundId = useSelector(state => state.previewReducers.compounds.highlightedCompoundId);
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
+  const selectedCompoundsClass = useSelector(state => state.previewReducers.compounds.selectedCompoundsClass);
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
   const [image, setImage] = useState(loadingCompoundImage);
@@ -53,11 +54,13 @@ export const CompoundView = memo(({ height, width, data }) => {
     current_style = Object.assign(current_style, highlightedStyle);
   }
 
-  if (data && data.selectedClass) {
-    current_style = Object.assign(current_style, {
-      backgroundColor: compoundsColors[data.selectedClass].color
-    });
-  }
+  Object.keys(selectedCompoundsClass).forEach(classKey => {
+    if (!!selectedCompoundsClass[classKey].find(data.index)) {
+      current_style = Object.assign(current_style, {
+        backgroundColor: compoundsColors[classKey].color
+      });
+    }
+  });
 
   return (
     <div onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage }))} style={current_style}>

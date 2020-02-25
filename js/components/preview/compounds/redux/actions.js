@@ -49,3 +49,13 @@ export const removeShowedCompoundFromList = compoundId => ({
   type: constants.REMOVE_SHOWED_COMPOUND_LIST,
   payload: compoundId
 });
+
+export const addSelectedCompoundClass = (classID, compoundID) => ({
+  type: constants.APPEND_SELECTED_COMPOUND_CLASS,
+  payload: { classID, compoundID }
+});
+
+export const removeSelectedCompoundClass = compoundID => ({
+  type: constants.REMOVE_SELECTED_COMPOUND_CLASS,
+  payload: compoundID
+});

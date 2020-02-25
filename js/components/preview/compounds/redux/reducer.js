@@ -83,6 +83,27 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       diminishedCmpdsList.delete(action.payload);
       return Object.assign({}, state, { showedCompoundList: [...diminishedCmpdsList] });
 
+    case constants.APPEND_SELECTED_COMPOUND_CLASS:
+      const selectedCmpdClass = new Set(state.selectedCompoundsClass[action.payload.classID]);
+      selectedCmpdClass[action.payload.classID].add(action.payload.compoundID);
+
+      return Object.assign({}, state, {
+        selectedCompoundsClass: { ...state.selectedCompoundsClass, [action.payload.classID]: [...selectedCmpdClass] }
+      });
+
+    case constants.REMOVE_SELECTED_COMPOUND_CLASS:
+      const diminishedSelectedCmpdClass = JSON.parse(JSON.stringify(state.selectedCompoundsClass));
+
+      Object.keys(diminishedSelectedCmpdClass).forEach(classKey => {
+        const currentClassList = new Set(diminishedSelectedCmpdClass[classKey]);
+        currentClassList.delete(action.payload);
+        diminishedSelectedCmpdClass[classKey] = [...currentClassList];
+      });
+
+      return Object.assign({}, state, {
+        selectedCompoundsClass: diminishedSelectedCmpdClass
+      });
+
     default:
       return state;
   }
