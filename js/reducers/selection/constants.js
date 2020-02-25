@@ -26,5 +26,31 @@ export const constants = {
   RELOAD_SELECTION_REDUCER: prefix + 'RELOAD_SELECTION_REDUCER',
   RESET_SELECTION_STATE: prefix + 'RESET_SELECTION_STATE',
   SET_MOL_GROUP_SELECTION: prefix + 'SET_MOL_GROUP_SELECTION',
+  SET_FILTER: prefix + 'SET_FILTER',
   SET_FILTER_SETTINGS: prefix + 'SET_FILTER_SETTINGS'
+};
+
+export const PREDEFINED_FILTERS = {
+  none: {
+    name: 'None',
+    filter: undefined
+  },
+  rule_of_5: {
+    name: 'Rule of 5',
+    filter: {
+      Hdon: 5,
+      Hacc: 10,
+      MW: 500,
+      logP: 5
+    }
+  },
+  rule_of_3: {
+    name: 'Rule of 3',
+    filter: {
+      Hdon: 3,
+      Hacc: 3,
+      MW: 300,
+      logP: 3
+    }
+  }
 };

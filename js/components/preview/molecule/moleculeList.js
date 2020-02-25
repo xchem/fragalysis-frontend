@@ -1,8 +1,18 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
+import {
+  Grid,
+  Chip,
+  Tooltip,
+  makeStyles,
+  CircularProgress,
+  Divider,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl
+} from '@material-ui/core';
 import { FilterList, ClearAll } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { connect, useDispatch } from 'react-redux';
@@ -21,6 +31,11 @@ import { setSortDialogOpen } from './redux/actions';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import { hideAllSelectedMolecules } from './redux/dispatchActions';
+import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { initializeFilter, getListedMolecules } from '../../../reducers/selection/dispatchActions';
+import { PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
+import { MOL_ATTRIBUTES } from './redux/constants';
+import { getFilteredMoleculesCount } from './moleculeListSortFilterDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -71,6 +86,15 @@ const useStyles = makeStyles(theme => ({
   filterTitle: {
     transform: 'rotate(-90deg)'
   },
+  formControl: {
+    color: 'inherit',
+    margin: theme.spacing(1),
+    minWidth: 87,
+    fontSize: '1.2rem'
+  },
+  colorInherit: {
+    color: 'inherit'
+  },
   molHeader: {
     marginLeft: 19,
     width: 'inherit'
@@ -105,11 +129,13 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
+    filter,
     filterSettings,
     sortDialogOpen,
     setSortDialogOpen
   }) => {
     const classes = useStyles();
+    const dispatch = useDispatch();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -120,6 +146,9 @@ const MoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 34;
     const imgWidth = 150;
+
+    const [filteredCount, setFilteredCount] = useState(0);
+    const [predefinedFilter, setPredefinedFilter] = useState('none'); // TODO first key
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
@@ -158,10 +187,15 @@ const MoleculeList = memo(
         setCachedMolLists,
         mol_group_on,
         cached_mol_lists
-      }).catch(error => {
-        throw new Error(error);
-      });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
+      })
+        .then(() => {
+          console.log('initializing filter');
+          dispatch(initializeFilter());
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
+    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists, dispatch]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -172,6 +206,43 @@ const MoleculeList = memo(
         setFilterItemsHeight(0);
       }
     }, [isActiveFilter, setFilterItemsHeight]);
+
+    const handleFilterChange = filter => {
+      const filterSet = Object.assign({}, filter);
+      for (let attr of MOL_ATTRIBUTES) {
+        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+          filterSet.filter[attr.key].priority = 0;
+        }
+      }
+      dispatch(setFilterSettings(filterSet));
+    };
+
+    const changePredefinedFilter = event => {
+      let newFilter = filter;
+      /*if (!!filter) {
+        console.log('existing', filter);
+        newFilter = Object.assign({}, filter);
+      } else {
+        console.log('creating', filterSettings);
+        newFilter = !!filterSettings ? filterSettings : dispatch(initializeFilter());
+        dispatch(setFilter(newFilter));
+      }*/
+      const preFilterKey = event.target.value;
+      setPredefinedFilter(preFilterKey);
+      console.log('new', newFilter);
+      newFilter.active = true;
+      newFilter.predefined = preFilterKey;
+      if (preFilterKey !== 'none') {
+        Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
+          const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
+          newFilter.filter[attr].maxValue = maxValue;
+          newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
+        });
+      }
+      dispatch(setFilter(newFilter));
+      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
+      handleFilterChange(newFilter);
+    };
 
     return (
       <ComputeSize
@@ -184,6 +255,25 @@ const MoleculeList = memo(
           hasHeader
           title="Hit navigator"
           headerActions={[
+            <FormControl className={classes.formControl} disabled={!(object_selection || []).length}>
+              <Select
+                className={classes.colorInherit}
+                value={predefinedFilter}
+                onChange={changePredefinedFilter}
+                inputProps={{
+                  name: 'predefined',
+                  id: 'predefined-label-placeholder'
+                }}
+                displayEmpty
+                name="predefined"
+              >
+                {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
+                  <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
+                    {PREDEFINED_FILTERS[preFilterKey].name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>,
             <Button
               color={'inherit'}
               size="small"
@@ -220,6 +310,7 @@ const MoleculeList = memo(
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
+              filter={filter}
               filterSettings={filterSettings}
             />
           )}
@@ -230,7 +321,7 @@ const MoleculeList = memo(
                   <Grid container spacing={1}>
                     <Grid item xs={1} container alignItems="center">
                       <Typography variant="subtitle2" className={classes.filterTitle}>
-                        Filters
+                        Filters #{filteredCount}
                       </Typography>
                     </Grid>
                     <Grid item xs={11}>
@@ -320,6 +411,7 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
+    filter: state.selectionReducers.filter,
     filterSettings: state.selectionReducers.filterSettings,
     sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
   };

@@ -1,14 +1,15 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
-import { Select, InputLabel, MenuItem, FormControl, Popper, Paper } from '@material-ui/core';
+import { Popper, Paper } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch } from 'react-redux';
-import { setFilterSettings } from '../../../reducers/selection/actions';
+import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { MOL_ATTRIBUTES } from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -42,11 +43,6 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     top: 2
   },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-    fontSize: '1.2rem'
-  },
   paper: {
     width: 570,
     overflow: 'none',
@@ -60,87 +56,7 @@ const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
-const MOL_ATTR = {
-  MW: {
-    key: 'MW',
-    name: 'Molecular weight (MW)',
-    isFloat: true,
-    color: '#f96587'
-  },
-  LOGP: { key: 'logP', name: 'logP', isFloat: true, color: '#3cb44b' },
-  TPSA: {
-    key: 'TPSA',
-    name: 'Topological polar surface area (TPSA)',
-    isFloat: true,
-    color: '#ffe119'
-  },
-  HA: { key: 'HA', name: 'Heavy atom count', isFloat: false, color: '#079ddf' },
-  HACC: {
-    key: 'Hacc',
-    name: '# H-bond acceptors (Hacc)',
-    isFloat: false,
-    color: '#f58231'
-  },
-  HDON: {
-    key: 'Hdon',
-    name: '# H-bond donors (Hdon)',
-    isFloat: false,
-    color: '#86844a'
-  },
-  ROTS: {
-    key: 'Rots',
-    name: '# Rotatable bonds (Rots)',
-    isFloat: false,
-    color: '#42d4f4'
-  },
-  RINGS: {
-    key: 'Rings',
-    name: '# rings (rings)',
-    isFloat: false,
-    color: '#f032e6'
-  },
-  VELEC: {
-    key: 'Velec',
-    name: '# valence electrons (velec)',
-    isFloat: false,
-    color: '#bfef45'
-  },
-  NCPD: {
-    key: '#cpd',
-    name: '# available follow-up cmpds. (#cpd)',
-    isFloat: false,
-    color: '#fabebe'
-  }
-};
-
-const PREDEFINED_FILTERS = {
-  none: {
-    name: 'None',
-    filter: undefined
-  },
-  rule_of_5: {
-    name: 'Rule of 5',
-    filter: {
-      Hdon: 5,
-      Hacc: 10,
-      MW: 500,
-      logP: 5
-    }
-  },
-  rule_of_3: {
-    name: 'Rule of 3',
-    filter: {
-      Hdon: 3,
-      Hacc: 3,
-      MW: 300,
-      logP: 3
-    }
-  }
-};
-
-const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
-
-const getFilteredMoleculesCount = (molecules, filterSettings) => {
+export const getFilteredMoleculesCount = (molecules, filterSettings) => {
   let count = 0;
   for (let molecule of molecules) {
     let add = true; // By default molecule passes filter
@@ -209,7 +125,7 @@ export const filterMolecules = (molecules, filterSettings) => {
 };
 
 export const MoleculeListSortFilterDialog = memo(
-  ({ molGroupSelection, cachedMolList, filterSettings, anchorEl, open }) => {
+  ({ molGroupSelection, cachedMolList, filter, filterSettings, anchorEl, open }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
 
@@ -258,7 +174,6 @@ export const MoleculeListSortFilterDialog = memo(
       return molecules;
     };
 
-    const [filter, setFilter] = useState(!!filterSettings ? filterSettings : initialize());
     const [initState] = useState(initialize());
     const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
     const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
@@ -277,7 +192,7 @@ export const MoleculeListSortFilterDialog = memo(
       let newFilter = Object.assign({}, filter);
       newFilter.filter[key] = setting;
       newFilter.active = true;
-      setFilter(newFilter);
+      dispatch(setFilter(newFilter));
       setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
       handleFilterChange(newFilter);
     };
@@ -293,7 +208,7 @@ export const MoleculeListSortFilterDialog = memo(
         let newFilter = Object.assign({}, filter);
         newFilter.priorityOrder = priorityOrder;
         newFilter.active = true;
-        setFilter(newFilter);
+        dispatch(setFilter(newFilter));
         handleFilterChange(newFilter);
       }
     };
@@ -301,27 +216,9 @@ export const MoleculeListSortFilterDialog = memo(
     const handleClear = () => {
       const resetFilter = initialize();
       setPredefinedFilter('none');
-      setFilter(resetFilter);
+      dispatch(setFilter(resetFilter));
       setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
       handleFilterChange(resetFilter);
-    };
-
-    const changePredefinedFilter = event => {
-      const preFilterKey = event.target.value;
-      setPredefinedFilter(preFilterKey);
-      let newFilter = Object.assign({}, filter);
-      newFilter.active = true;
-      newFilter.predefined = preFilterKey;
-      if (preFilterKey !== 'none') {
-        Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
-          const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
-          newFilter.filter[attr].maxValue = maxValue;
-          newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
-        });
-      }
-      setFilter(newFilter);
-      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
-      handleFilterChange(newFilter);
     };
 
     // Check for multiple attributes with same sorting priority
@@ -341,29 +238,6 @@ export const MoleculeListSortFilterDialog = memo(
       <Popper id={id} open={open} anchorEl={anchorEl} placement="right-start">
         <Paper className={classes.paper} elevation={21}>
           <Grid container justify="space-between" direction="row" alignItems="center">
-            <Grid item>
-              <FormControl className={classes.formControl}>
-                <InputLabel shrink htmlFor="predefined-label-placeholder">
-                  Predefined filter
-                </InputLabel>
-                <Select
-                  value={predefinedFilter}
-                  onChange={changePredefinedFilter}
-                  inputProps={{
-                    name: 'predefined',
-                    id: 'predefined-label-placeholder'
-                  }}
-                  displayEmpty
-                  name="predefined"
-                >
-                  {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
-                    <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
-                      {PREDEFINED_FILTERS[preFilterKey].name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
             <Grid item>
               <div className={classes.numberOfHits}>
                 # of hits matching selection: <b>{filteredCount}</b>
@@ -433,6 +307,7 @@ export const MoleculeListSortFilterDialog = memo(
 MoleculeListSortFilterDialog.propTypes = {
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
+  filter: PropTypes.object,
   filterSettings: PropTypes.object,
   anchorEl: PropTypes.object,
   open: PropTypes.bool.isRequired
