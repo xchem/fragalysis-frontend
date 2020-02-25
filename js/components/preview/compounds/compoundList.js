@@ -106,9 +106,12 @@ export const CompoundList = memo(({ height }) => {
                   }
                   useWindow={false}
                 >
-                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
-                    return <CompoundView key={index} height={100} width={100} data={data} />;
-                  })}
+                  {currentCompounds
+                    .slice(0, compoundsListOffset)
+                    .slice(0, 2)
+                    .map((data, index) => {
+                      return <CompoundView key={index} height={100} width={100} data={data} />;
+                    })}
                 </InfiniteScroll>
               </Box>
             </Grid>
