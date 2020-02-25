@@ -97,6 +97,7 @@ export const CompoundList = memo(({ height }) => {
                   pageStart={0}
                   loadMore={() => dispatch(loadNextPageOfCompounds())}
                   hasMore={canLoadMoreCompounds}
+                  initialLoad={false}
                   loader={
                     <div className="loader" key={0}>
                       <div className={classes.paddingProgress}>
