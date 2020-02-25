@@ -9,11 +9,17 @@ import { NglContext } from '../../nglView/nglProvider';
 import { compoundsColors } from './redux/constants';
 import { handleClickOnCompound, loadCompoundImageData } from './redux/dispatchActions';
 
+export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100px" height="100px"><g>
+  <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
+    <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+  </circle>  '</svg>`;
+
 export const CompoundView = memo(({ height, width, data }) => {
   const dispatch = useDispatch();
   const highlightedCompoundId = useSelector(state => state.previewReducers.compounds.highlightedCompoundId);
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
+  const [image, setImage] = useState(loadingCompoundImage);
 
   const [state, setState] = useState();
 
@@ -53,8 +59,11 @@ export const CompoundView = memo(({ height, width, data }) => {
   }
 
   return (
-    <div onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage }))} style={current_style}>
-      {data.image && <SVGInline svg={data.image} />}
+    <div
+      onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage, setImage }))}
+      style={current_style}
+    >
+      <SVGInline svg={image} />
     </div>
   );
 });

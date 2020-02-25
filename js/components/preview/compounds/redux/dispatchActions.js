@@ -108,7 +108,7 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
   }
 };
 
-export const handleClickOnCompound = ({ data, event, majorViewStage }) => async (dispatch, getState) => {
+export const handleClickOnCompound = ({ data, event, majorViewStage, setImage }) => async (dispatch, getState) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
@@ -129,7 +129,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
   }
 };
 
-export const loadCompoundImageData = ({ width, height, onCancel, data }) => dispatch => {
+export const loadCompoundImageData = ({ width, height, onCancel, data, setImage }) => dispatch => {
   let url = undefined;
   let key = undefined;
 
@@ -147,7 +147,7 @@ export const loadCompoundImageData = ({ width, height, onCancel, data }) => disp
     width,
     height,
     key,
-    setImg_data: image => {}, //dispatch(updateCurrentCompound({ id: data.index, key: 'image', value: image })),
+    setImg_data: image => setImage(image),
     url,
     cancel: onCancel
   });
