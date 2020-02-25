@@ -53,7 +53,17 @@ export const CompoundList = memo(({ height }) => {
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
   const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
 
-  console.log(compoundsListOffset);
+  console.log(
+    to_query,
+    compoundClasses,
+    currentCompoundClass,
+    totalCountOfMolecules,
+    compoundsListOffset,
+    canLoadMoreCompounds,
+    querying,
+    currentVector,
+    currentCompounds
+  );
 
   Object.keys(compoundsColors).forEach(item => {
     if (!!document.getElementById(item)) {
@@ -99,7 +109,13 @@ export const CompoundList = memo(({ height }) => {
                   pageStart={0}
                   loadMore={() => dispatch(loadNextPageOfCompounds())}
                   hasMore={canLoadMoreCompounds}
-                  loader={<div className="loader" key={`loader_${0}`} />}
+                  loader={
+                    <div className="loader" key={`loader_${0}`}>
+                      <div className={classes.paddingProgress}>
+                        <CircularProgress />
+                      </div>
+                    </div>
+                  }
                   useWindow={false}
                 >
                   {currentCompounds
