@@ -99,7 +99,7 @@ export const CompoundList = memo(({ height }) => {
                   hasMore={canLoadMoreCompounds}
                   initialLoad={false}
                   loader={
-                    <div className="loader" key={0}>
+                    <div className="loader" key={`loader_${0}`}>
                       <div className={classes.paddingProgress}>
                         <CircularProgress />
                       </div>
