@@ -63,9 +63,9 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
   const state = getState();
   const to_query_sdf_info = state.selectionReducers.to_query_sdf_info;
   const configuration = state.previewReducers.compounds.configuration;
-  const currentCompounds = state.previewReducers.compounds.currentCompounds;
+  const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
 
-  if (currentCompounds[data.index].isShowed) {
+  if (!!showedCompoundList.find(item => item === data.index)) {
     dispatch(
       deleteObject(
         Object.assign(
