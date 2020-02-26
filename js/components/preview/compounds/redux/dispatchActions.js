@@ -2,7 +2,6 @@ import { appendToBuyList, removeFromToBuyList, setToBuyList } from '../../../../
 import {
   setCompoundClasses,
   setCurrentPage,
-  updateCurrentCompound,
   setHighlightedCompoundId,
   setConfiguration,
   addShowedCompoundToList,
@@ -116,8 +115,8 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
 export const handleClickOnCompound = ({ data, event, majorViewStage }) => async (dispatch, getState) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
-  const currentCompounds = state.previewReducers.compounds.currentCompounds;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
+  const selectedCompoundsClass = state.previewReducers.compounds.selectedCompoundsClass;
 
   dispatch(setHighlightedCompoundId(data.index));
 
@@ -129,13 +128,16 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
       dispatch(addShowedCompoundToList(data.index));
     }
   } else {
-    if (currentCompounds[data.index].selectedClass === currentCompoundClass) {
-      await dispatch(removeSelectedCompoundClass(data.index));
-      dispatch(removeFromToBuyList(data));
-    } else {
-      await dispatch(addSelectedCompoundClass(currentCompoundClass, data.index));
-      dispatch(appendToBuyList(data));
-    }
+    Object.keys(selectedCompoundsClass).forEach(async classKey => {
+      let isNotSelected = selectedCompoundsClass[classKey].find(item => item === data.index).length === 0;
+      if (isNotSelected === false) {
+        await dispatch(removeSelectedCompoundClass(data.index));
+        dispatch(removeFromToBuyList(data));
+      } else {
+        await dispatch(addSelectedCompoundClass(currentCompoundClass, data.index));
+        dispatch(appendToBuyList(data));
+      }
+    });
   }
 };
 
