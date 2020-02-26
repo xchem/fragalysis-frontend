@@ -133,7 +133,7 @@ const MoleculeList = memo(
 
     // Reset Infinity scroll
     useEffect(() => {
-      setCurrentPage(0);
+      // setCurrentPage(0);
     }, [object_selection]);
 
     if (isActiveFilter) {

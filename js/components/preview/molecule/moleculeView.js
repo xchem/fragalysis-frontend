@@ -416,7 +416,6 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
             container
             justify="flex-start"
             alignItems="flex-end"
-            a
             direction="row"
             wrap="nowrap"
             className={classes.fullHeight}
