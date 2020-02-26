@@ -138,10 +138,16 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
         break;
       }
     }
+    console.log(isSelectedID, ' current ID');
+    console.err(isSelectedID, ' current ID');
     if (isSelectedID !== undefined) {
+      console.log(isSelectedID, 'removing compound class');
+      console.err(isSelectedID, 'removing compound class');
       await dispatch(removeSelectedCompoundClass(data.index));
       dispatch(removeFromToBuyList(data));
     } else {
+      console.log(isSelectedID, 'add compound class');
+      console.err(isSelectedID, 'add compound class');
       await dispatch(addSelectedCompoundClass(currentCompoundClass, data.index));
       dispatch(appendToBuyList(data));
     }
