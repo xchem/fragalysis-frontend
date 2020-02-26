@@ -73,6 +73,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       currentConfiguration[action.payload.id] = action.payload.data;
       return Object.assign({}, state, { configuration: currentConfiguration });
 
+    case constants.RESET_CONFIGURATION:
+      return Object.assign({}, state, { configuration: {} });
+
     case constants.SET_SHOWED_COMPOUND_LIST:
       return Object.assign({}, state, { showedCompoundList: action.payload });
 
