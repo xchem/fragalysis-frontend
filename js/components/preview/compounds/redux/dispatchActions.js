@@ -7,7 +7,8 @@ import {
   addShowedCompoundToList,
   removeShowedCompoundFromList,
   removeSelectedCompoundClass,
-  addSelectedCompoundClass
+  addSelectedCompoundClass,
+  resetSelectedCompoundClass
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -41,6 +42,7 @@ export const selectAllCompounds = () => (dispatch, getState) => {
 
 export const clearAllSelectedCompounds = () => dispatch => {
   dispatch(setToBuyList([]));
+  dispatch(resetSelectedCompoundClass());
 };
 
 export const onChangeCompoundClassValue = event => (dispatch, getState) => {

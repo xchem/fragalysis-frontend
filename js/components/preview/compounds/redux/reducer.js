@@ -1,5 +1,13 @@
 import { compoundsColors, constants } from './constants';
 
+const defaultSelectedCmpdsClass = {
+  [compoundsColors.blue.key]: [],
+  [compoundsColors.red.key]: [],
+  [compoundsColors.green.key]: [],
+  [compoundsColors.purple.key]: [],
+  [compoundsColors.apricot.key]: []
+};
+
 export const INITIAL_STATE = {
   currentPage: -1,
   compoundsPerPage: 20,
@@ -19,13 +27,7 @@ export const INITIAL_STATE = {
     [compoundsColors.purple.key]: undefined,
     [compoundsColors.apricot.key]: undefined
   },
-  selectedCompoundsClass: {
-    [compoundsColors.blue.key]: [],
-    [compoundsColors.red.key]: [],
-    [compoundsColors.green.key]: [],
-    [compoundsColors.purple.key]: [],
-    [compoundsColors.apricot.key]: []
-  },
+  selectedCompoundsClass: defaultSelectedCmpdsClass,
   highlightedCompoundId: undefined,
   showedCompoundList: [],
 
@@ -112,6 +114,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         selectedCompoundsClass: diminishedSelectedCmpdClass
       });
+
+    case constants.RESET_SELECTED_COMPOUND_CLASS:
+      return Object.assign({}, state, { selectedCompoundsClass: defaultSelectedCmpdsClass });
 
     default:
       return state;
