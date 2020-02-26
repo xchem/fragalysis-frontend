@@ -31,6 +31,12 @@ export const setCompoundClasses = (compoundClasses, currentCompoundClass) => {
   };
 };
 
+export const resetCompoundClasses = () => {
+  return {
+    type: constants.RESET_COMPOUND_CLASSES
+  };
+};
+
 export const setHighlightedCompoundId = id => ({ type: constants.SET_HIGHLIGHTED_COMPOUND_ID, payload: id });
 
 export const setConfiguration = (id, data) => ({ type: constants.SET_CONFIGURATION, payload: { id, data } });

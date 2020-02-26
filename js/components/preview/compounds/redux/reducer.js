@@ -8,6 +8,14 @@ const defaultSelectedCmpdsClass = {
   [compoundsColors.apricot.key]: []
 };
 
+const defaultCompoundsClasses = {
+  [compoundsColors.blue.key]: undefined,
+  [compoundsColors.red.key]: undefined,
+  [compoundsColors.green.key]: undefined,
+  [compoundsColors.purple.key]: undefined,
+  [compoundsColors.apricot.key]: undefined
+};
+
 export const INITIAL_STATE = {
   currentPage: -1,
   compoundsPerPage: 20,
@@ -19,13 +27,7 @@ export const INITIAL_STATE = {
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,
-  compoundClasses: {
-    [compoundsColors.blue.key]: undefined,
-    [compoundsColors.red.key]: undefined,
-    [compoundsColors.green.key]: undefined,
-    [compoundsColors.purple.key]: undefined,
-    [compoundsColors.apricot.key]: undefined
-  },
+  compoundClasses: defaultCompoundsClasses,
   selectedCompoundsClass: defaultSelectedCmpdsClass,
   highlightedCompoundId: undefined,
   showedCompoundList: [],
@@ -59,6 +61,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
         compoundClasses: action.compoundClasses,
         currentCompoundClass: action.currentCompoundClass
       });
+
+    case constants.RESET_COMPOUND_CLASSES:
+      return Object.assign({}, state, defaultCompoundsClasses);
 
     case constants.SET_HIGHLIGHTED_COMPOUND_ID:
       return Object.assign({}, state, { highlightedCompoundId: action.payload });

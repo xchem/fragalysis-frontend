@@ -7,7 +7,8 @@ import {
   addShowedCompoundToList,
   removeShowedCompoundFromList,
   removeSelectedCompoundClass,
-  addSelectedCompoundClass
+  addSelectedCompoundClass,
+  resetCompoundClasses
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -118,8 +119,10 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   showedCompoundList.forEach(index => {
     const data = currentCompounds[index];
     dispatch(showCompoundNglView({ majorViewStage, data, index }));
+    dispatch(removeShowedCompoundFromList(index));
   });
-  //  TODO reset compoundsClasses
+  //  reset compoundsClasses
+  dispatch(resetCompoundClasses());
   //  TODO reset selectedCompoundsClass
   //  TODO reset highlightedCompoundId
   //  TODO reset compoundClasses
