@@ -41,6 +41,8 @@ export const setHighlightedCompoundId = id => ({ type: constants.SET_HIGHLIGHTED
 
 export const setConfiguration = (id, data) => ({ type: constants.SET_CONFIGURATION, payload: { id, data } });
 
+export const resetConfiguration = () => ({ type: constants.RESET_CONFIGURATION });
+
 export const setShowedCompoundList = compounds => ({
   type: constants.SET_SHOWED_COMPOUND_LIST,
   payload: compounds

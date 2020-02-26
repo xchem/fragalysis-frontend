@@ -9,7 +9,8 @@ import {
   removeSelectedCompoundClass,
   addSelectedCompoundClass,
   resetCompoundClasses,
-  resetSelectedCompoundClass
+  resetSelectedCompoundClass,
+  resetConfiguration
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -126,9 +127,10 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   dispatch(resetCompoundClasses());
   // reset selectedCompoundsClass
   dispatch(resetSelectedCompoundClass());
-  //  TODO reset highlightedCompoundId
-  //  TODO reset compoundClasses
-  //  TODO reset configuration
+  // reset highlightedCompoundId
+  dispatch(setHighlightedCompoundId(undefined));
+  // reset configuration
+  dispatch(resetConfiguration());
 };
 
 export const handleClickOnCompound = ({ data, event, majorViewStage, index }) => async (dispatch, getState) => {
