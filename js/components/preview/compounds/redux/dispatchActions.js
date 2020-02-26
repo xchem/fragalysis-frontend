@@ -131,23 +131,16 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
     let isSelectedID;
     for (const classKey of Object.keys(selectedCompoundsClass)) {
       const currentCmpdClassId = selectedCompoundsClass[classKey].find(item => item === data.index);
-      console.log(selectedCompoundsClass[classKey], currentCmpdClassId);
-      //console.err(selectedCompoundsClass[classKey], currentCmpdClassId);
       if (currentCmpdClassId !== undefined) {
         isSelectedID = currentCmpdClassId;
         break;
       }
     }
-    console.log(isSelectedID, ' current ID');
-    //  console.err(isSelectedID, ' current ID');
+
     if (isSelectedID !== undefined) {
-      console.log(isSelectedID, 'removing compound class');
-      //    console.err(isSelectedID, 'removing compound class');
       await dispatch(removeSelectedCompoundClass(data.index));
       dispatch(removeFromToBuyList(data));
     } else {
-      console.log(isSelectedID, 'add compound class');
-      //      console.err(isSelectedID, 'add compound class');
       await dispatch(addSelectedCompoundClass(currentCompoundClass, data.index));
       dispatch(appendToBuyList(data));
     }
