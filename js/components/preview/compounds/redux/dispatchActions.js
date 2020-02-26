@@ -131,6 +131,8 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
     let isSelectedID;
     for (const classKey of Object.keys(selectedCompoundsClass)) {
       const currentCmpdClassId = selectedCompoundsClass[classKey].find(item => item === data.index);
+      console.log(selectedCompoundsClass[classKey], currentCmpdClassId);
+      console.err(selectedCompoundsClass[classKey], currentCmpdClassId);
       if (currentCmpdClassId !== undefined) {
         isSelectedID = currentCmpdClassId;
         break;
