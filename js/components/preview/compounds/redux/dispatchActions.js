@@ -34,7 +34,7 @@ export const selectAllCompounds = () => (dispatch, getState) => {
             class: parseInt(currentCompoundClass)
           };
           dispatch(appendToBuyList(thisObj));
-          dispatch(addSelectedCompoundClass(currentCompoundClass, indexOfCompound));
+          dispatch(addSelectedCompoundClass(currentCompoundClass, parseInt(indexOfCompound)));
         }
       }
     }
