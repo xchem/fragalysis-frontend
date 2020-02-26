@@ -26,14 +26,15 @@ export const selectAllCompounds = () => (dispatch, getState) => {
   for (let key in thisVectorList) {
     for (let index in thisVectorList[key]) {
       if (index !== 'vector') {
-        for (let fUCompound in thisVectorList[key][index]) {
+        for (let indexOfCompound in thisVectorList[key][index]) {
           var thisObj = {
-            smiles: thisVectorList[key][index][fUCompound].end,
+            smiles: thisVectorList[key][index][indexOfCompound].end,
             vector: thisVectorList[key].vector.split('_')[0],
             mol: to_query,
             class: parseInt(currentCompoundClass)
           };
           dispatch(appendToBuyList(thisObj));
+          dispatch(addSelectedCompoundClass(currentCompoundClass, indexOfCompound));
         }
       }
     }
