@@ -16,7 +16,6 @@ export const INITIAL_STATE = {
       show_frag:"Cc1cc(CN(C)C(C)C(N)=O)no1",
       vector:"CC1CCC([101Xe])C1",
       mol:"CCNC(=O)Nc1cc(C)on1",
-      index:0,
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,

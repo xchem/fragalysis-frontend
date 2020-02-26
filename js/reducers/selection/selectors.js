@@ -22,14 +22,13 @@ export const getAllCompoundsList = createSelector(
     Object.keys(thisVectorList).forEach(key => {
       const vector_smi = thisVectorList[key].vector;
       const change_list = thisVectorList[key].addition;
-      change_list.forEach((data_transfer, index) => {
+      change_list.forEach(data_transfer => {
         const inputData = {};
         inputData.smiles = data_transfer && data_transfer.end;
         // Set this back for now - because it's confusing - alter to change if want later
         inputData.show_frag = data_transfer && data_transfer.end;
         inputData.vector = vector_smi;
         inputData.mol = to_query;
-        inputData.index = index;
         inputData.selectedClass = undefined;
         inputData.isShowed = false;
         compoundsList.push(inputData);
