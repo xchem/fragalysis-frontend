@@ -45,7 +45,7 @@ export const CompoundList = memo(({ height }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const { getNglView } = useContext(NglContext);
-  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
   const compoundClasses = useSelector(state => state.previewReducers.compounds.compoundClasses);
