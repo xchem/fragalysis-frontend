@@ -129,10 +129,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
     }
   } else {
     Object.keys(selectedCompoundsClass).forEach(async classKey => {
-      let isNotSelected = selectedCompoundsClass[classKey].find(item => item === data.index);
-      console.log(isNotSelected, selectedCompoundsClass[classKey]);
-      console.err(isNotSelected, selectedCompoundsClass[classKey]);
-      if (isNotSelected.length > 0) {
+      if (selectedCompoundsClass[classKey].find(item => item === data.index) !== undefined) {
         await dispatch(removeSelectedCompoundClass(data.index));
         dispatch(removeFromToBuyList(data));
       } else {
