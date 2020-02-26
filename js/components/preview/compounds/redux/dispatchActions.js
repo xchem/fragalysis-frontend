@@ -7,8 +7,7 @@ import {
   addShowedCompoundToList,
   removeShowedCompoundFromList,
   removeSelectedCompoundClass,
-  addSelectedCompoundClass,
-  resetCompoundsToPick
+  addSelectedCompoundClass
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -39,11 +38,6 @@ export const selectAllCompounds = () => (dispatch, getState) => {
       }
     }
   }
-};
-
-export const clearAllSelectedCompounds = () => dispatch => {
-  dispatch(setToBuyList([]));
-  dispatch(resetCompoundsToPick());
 };
 
 export const onChangeCompoundClassValue = event => (dispatch, getState) => {
@@ -113,6 +107,23 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
         throw error;
       });
   }
+};
+
+export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) => {
+  dispatch(setToBuyList([]));
+  const state = getState();
+  // reset objects from nglView and showedCompoundList
+  const currentCompounds = state.previewReducers.compounds.currentCompounds;
+  const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
+  showedCompoundList.forEach(index => {
+    const data = currentCompounds[index];
+    dispatch(showCompoundNglView({ majorViewStage, data, index }));
+  });
+  //  TODO reset compoundsClasses
+  //  TODO reset selectedCompoundsClass
+  //  TODO reset highlightedCompoundId
+  //  TODO reset compoundClasses
+  //  TODO reset configuration
 };
 
 export const handleClickOnCompound = ({ data, event, majorViewStage, index }) => async (dispatch, getState) => {
