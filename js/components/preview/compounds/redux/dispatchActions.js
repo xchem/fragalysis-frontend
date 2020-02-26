@@ -63,18 +63,18 @@ export const loadNextPageOfCompounds = () => (dispatch, getState) => {
   dispatch(setCurrentPage(nextPage));
 };
 
-const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) => {
+const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getState) => {
   const state = getState();
   const to_query_sdf_info = state.selectionReducers.to_query_sdf_info;
   const configuration = state.previewReducers.compounds.configuration;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
 
-  if (showedCompoundList.find(item => item === data.index) !== undefined) {
+  if (showedCompoundList.find(item => item === index) !== undefined) {
     dispatch(
       deleteObject(
         Object.assign(
           { display_div: VIEWS.MAJOR_VIEW },
-          generateCompoundMolObject(configuration[data.index] || false, data.smiles)
+          generateCompoundMolObject(configuration[index] || false, data.smiles)
         ),
         majorViewStage
       )
@@ -107,7 +107,7 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
             majorViewStage
           )
         );
-        dispatch(setConfiguration(data.index, newConf));
+        dispatch(setConfiguration(index, newConf));
       })
       .catch(error => {
         throw error;
@@ -115,25 +115,25 @@ const showCompoundNglView = ({ majorViewStage, data }) => (dispatch, getState) =
   }
 };
 
-export const handleClickOnCompound = ({ data, event, majorViewStage }) => async (dispatch, getState) => {
+export const handleClickOnCompound = ({ data, event, majorViewStage, index }) => async (dispatch, getState) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
   const selectedCompoundsClass = state.previewReducers.compounds.selectedCompoundsClass;
 
-  dispatch(setHighlightedCompoundId(data.index));
+  dispatch(setHighlightedCompoundId(index));
 
   if (event.shiftKey) {
-    await dispatch(showCompoundNglView({ majorViewStage, data }));
-    if (showedCompoundList.find(item => item === data.index) !== undefined) {
-      dispatch(removeShowedCompoundFromList(data.index));
+    await dispatch(showCompoundNglView({ majorViewStage, data, index }));
+    if (showedCompoundList.find(item => item === index) !== undefined) {
+      dispatch(removeShowedCompoundFromList(index));
     } else {
-      dispatch(addShowedCompoundToList(data.index));
+      dispatch(addShowedCompoundToList(index));
     }
   } else {
     let isSelectedID;
     for (const classKey of Object.keys(selectedCompoundsClass)) {
-      const currentCmpdClassId = selectedCompoundsClass[classKey].find(item => item === data.index);
+      const currentCmpdClassId = selectedCompoundsClass[classKey].find(item => item === index);
       if (currentCmpdClassId !== undefined) {
         isSelectedID = currentCmpdClassId;
         break;
@@ -141,10 +141,10 @@ export const handleClickOnCompound = ({ data, event, majorViewStage }) => async 
     }
 
     if (isSelectedID !== undefined) {
-      await dispatch(removeSelectedCompoundClass(data.index));
+      await dispatch(removeSelectedCompoundClass(index));
       dispatch(removeFromToBuyList(data));
     } else {
-      await dispatch(addSelectedCompoundClass(currentCompoundClass, data.index));
+      await dispatch(addSelectedCompoundClass(currentCompoundClass, index));
       dispatch(appendToBuyList(data));
     }
   }

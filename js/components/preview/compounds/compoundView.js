@@ -14,7 +14,7 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-export const CompoundView = memo(({ height, width, data }) => {
+export const CompoundView = memo(({ height, width, data, index }) => {
   const dispatch = useDispatch();
   const highlightedCompoundId = useSelector(state => state.previewReducers.compounds.highlightedCompoundId);
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
@@ -46,16 +46,16 @@ export const CompoundView = memo(({ height, width, data }) => {
   const highlightedStyle = { borderStyle: 'solid' };
 
   let current_style = Object.assign({}, not_selected_style);
-  if (data && data.index && showedCompoundList.find(item => item === data.index) !== undefined) {
+  if (showedCompoundList.find(item => item === index) !== undefined) {
     current_style = Object.assign(current_style, showedStyle);
   }
 
-  if (data && data.index === highlightedCompoundId) {
+  if (index === highlightedCompoundId) {
     current_style = Object.assign(current_style, highlightedStyle);
   }
 
   Object.keys(selectedCompoundsClass).forEach(classKey => {
-    if (selectedCompoundsClass[classKey].find(item => item === data.index) !== undefined) {
+    if (selectedCompoundsClass[classKey].find(item => item === index) !== undefined) {
       current_style = Object.assign(current_style, {
         backgroundColor: compoundsColors[classKey].color
       });
@@ -63,7 +63,10 @@ export const CompoundView = memo(({ height, width, data }) => {
   });
 
   return (
-    <div onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage }))} style={current_style}>
+    <div
+      onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage, index }))}
+      style={current_style}
+    >
       <SVGInline svg={image} />
     </div>
   );
