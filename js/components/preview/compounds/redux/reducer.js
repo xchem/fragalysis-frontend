@@ -119,6 +119,11 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
         selectedCompoundsClass: diminishedSelectedCmpdClass
       });
 
+    case constants.RESET_SELECTED_COMPOUND_CLASS:
+      return Object.assign({}, state, {
+        selectedCompoundsClass: defaultSelectedCmpdsClass
+      });
+
     default:
       return state;
   }
