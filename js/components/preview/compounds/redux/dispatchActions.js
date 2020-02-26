@@ -8,7 +8,8 @@ import {
   removeShowedCompoundFromList,
   removeSelectedCompoundClass,
   addSelectedCompoundClass,
-  resetCompoundClasses
+  resetCompoundClasses,
+  resetSelectedCompoundClass
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -123,7 +124,8 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   });
   //  reset compoundsClasses
   dispatch(resetCompoundClasses());
-  //  TODO reset selectedCompoundsClass
+  // reset selectedCompoundsClass
+  dispatch(resetSelectedCompoundClass());
   //  TODO reset highlightedCompoundId
   //  TODO reset compoundClasses
   //  TODO reset configuration
