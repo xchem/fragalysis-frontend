@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useRef } from 'react';
+import React, { memo, useContext, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
@@ -18,6 +18,8 @@ import { compoundsColors } from './redux/constants';
 import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -42,6 +44,8 @@ export const CompoundList = memo(({ height }) => {
   const panelRef = useRef(null);
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { getNglView } = useContext(NglContext);
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
   const compoundClasses = useSelector(state => state.previewReducers.compounds.compoundClasses);
@@ -115,7 +119,11 @@ export const CompoundList = memo(({ height }) => {
             <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
               Select All
             </Button>
-            <Button color="primary" onClick={() => dispatch(clearAllSelectedCompounds())} startIcon={<Delete />}>
+            <Button
+              color="primary"
+              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage))}
+              startIcon={<Delete />}
+            >
               Clear Selection
             </Button>
           </Box>

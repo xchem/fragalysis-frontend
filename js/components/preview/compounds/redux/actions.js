@@ -59,7 +59,3 @@ export const removeSelectedCompoundClass = compoundID => ({
   type: constants.REMOVE_SELECTED_COMPOUND_CLASS,
   payload: compoundID
 });
-
-export const resetCompoundsToPick = () => ({
-  type: constants.RESET_COMPOUNDS_TO_PICK
-});
