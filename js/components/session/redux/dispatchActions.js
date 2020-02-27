@@ -211,7 +211,7 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
     const uuidv4 = require('uuid/v4');
     const formattedState = {
       uuid: uuidv4(),
-      title: 'undefined',
+      title: 'shared snapshot',
       user_id: userId,
       scene: JSON.stringify(JSON.stringify(fullState))
     };
