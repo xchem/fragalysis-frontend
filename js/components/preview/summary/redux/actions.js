@@ -14,3 +14,5 @@ export const setCountOfExploredVectors = count => ({ type: constants.SET_COUNT_O
 export const setCountOfExploredSeries = count => ({ type: constants.SET_COUNT_OF_EXPLORED_SERIES, payload: count });
 export const setEstimatedCost = count => ({ type: constants.SET_ESTIMATED_COST, payload: count });
 export const setSelectedInteraction = count => ({ type: constants.SET_SELECTED_INTERACTION, payload: count });
+
+export const reloadSummaryReducer = newState => ({ type: constants.RELOAD_REDUCER, payload: newState });

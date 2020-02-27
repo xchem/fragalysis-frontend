@@ -1,6 +1,9 @@
 import { generateProteinObject } from '../../nglView/generatingObjects';
 import { SUFFIX, VIEWS } from '../../../constants/constants';
 import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/dispatchActions';
+import { reloadSummaryReducer } from '../summary/redux/actions';
+import { reloadCompoundsReducer } from '../compounds/redux/actions';
+import { reloadMoleculeReducer } from '../molecule/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -51,4 +54,10 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded) => (dispatch, getS
       document.title = targetOnName + ': Fragalysis';
     }
   }
+};
+
+export const reloadPreviewReducer = newState => dispatch => {
+  dispatch(reloadSummaryReducer(newState.summary));
+  dispatch(reloadCompoundsReducer(newState.compounds));
+  // dispatch(reloadMoleculeReducer(newState.molecule));
 };

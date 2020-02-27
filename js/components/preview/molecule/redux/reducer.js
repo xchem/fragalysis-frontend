@@ -11,6 +11,9 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
         sortDialogOpen: action.payload
       });
 
+    case constants.RELOAD_REDUCER:
+      return Object.assign({}, state, { ...action.payload });
+
     default:
       return state;
   }
