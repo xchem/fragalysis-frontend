@@ -63,7 +63,7 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       });
 
     case constants.RESET_COMPOUND_CLASSES:
-      return Object.assign({}, state, { compoundClasses: JSON.parse(JSON.stringify(defaultCompoundsClasses)) });
+      return Object.assign({}, state, { compoundClasses: {} });
 
     case constants.SET_HIGHLIGHTED_COMPOUND_ID:
       return Object.assign({}, state, { highlightedCompoundId: action.payload });
