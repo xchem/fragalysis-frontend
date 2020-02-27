@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useContext, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
@@ -12,12 +12,13 @@ import {
   clearAllSelectedCompounds,
   loadNextPageOfCompounds,
   onChangeCompoundClassValue,
+  onKeyDownCompoundClass,
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
 import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
+import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 
@@ -48,7 +49,7 @@ export const CompoundList = memo(({ height }) => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
-  const compoundClasses = useSelector(state => state.previewReducers.compounds.compoundClasses);
+  const compoundClasses = useSelector(state => getCompoundClasses(state));
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
   const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
@@ -89,7 +90,8 @@ export const CompoundList = memo(({ height }) => {
                     key={`CLASS_${item}`}
                     className={classes.textField}
                     label={compoundsColors[item].text}
-                    onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
+                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
                     value={compoundClasses[item] || ''}
                   />
                 </Grid>
