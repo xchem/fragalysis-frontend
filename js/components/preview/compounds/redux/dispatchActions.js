@@ -10,7 +10,8 @@ import {
   addSelectedCompoundClass,
   resetCompoundClasses,
   resetSelectedCompoundClass,
-  resetConfiguration
+  resetConfiguration,
+  setCurrentCompoundClass
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -18,6 +19,7 @@ import { generateCompoundMolObject } from '../../../nglView/generatingObjects';
 import { api, getCsrfToken, METHOD } from '../../../../utils/api';
 import { base_url } from '../../../routes/constants';
 import { loadFromServer } from '../../../../utils/genericView';
+import { compoundsColors } from './constants';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
@@ -46,12 +48,17 @@ export const selectAllCompounds = () => (dispatch, getState) => {
 export const onChangeCompoundClassValue = event => (dispatch, getState) => {
   const state = getState();
   const compoundClasses = state.previewReducers.compounds.compoundClasses;
+
+  const newClassDescription = { [event.target.id]: event.target.value };
+  const descriptionToSet = Object.assign(compoundClasses, newClassDescription);
+
+  dispatch(setCompoundClasses(descriptionToSet));
+};
+
+export const onKeyDownCompoundClass = event => dispatch => {
   // on Enter
   if (event.keyCode === 13) {
-    const newClassDescription = { [event.target.id]: event.target.value };
-    const descriptionToSet = Object.assign(compoundClasses, newClassDescription);
-
-    dispatch(setCompoundClasses(descriptionToSet, event.target.id));
+    dispatch(setCurrentCompoundClass(event.target.id));
   }
 };
 
@@ -131,6 +138,8 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   dispatch(setHighlightedCompoundId(undefined));
   // reset configuration
   dispatch(resetConfiguration());
+  // reset current compound class
+  dispatch(dispatch(setCurrentCompoundClass(compoundsColors.blue.key)));
 };
 
 export const handleClickOnCompound = ({ data, event, majorViewStage, index }) => async (dispatch, getState) => {

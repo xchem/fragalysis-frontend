@@ -56,10 +56,13 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
     case constants.RESET_CURRENT_COMPOUNDS_SETTINGS:
       return Object.assign({}, INITIAL_STATE);
 
+    case constants.SET_CURRENT_COMPOUND_CLASS:
+      return Object.assign({}, state, {
+        currentCompoundClass: action.payload
+      });
     case constants.SET_COMPOUND_CLASSES:
       return Object.assign({}, state, {
-        compoundClasses: action.compoundClasses,
-        currentCompoundClass: action.currentCompoundClass
+        compoundClasses: action.payload
       });
 
     case constants.RESET_COMPOUND_CLASSES:
