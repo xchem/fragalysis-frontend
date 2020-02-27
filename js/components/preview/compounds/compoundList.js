@@ -90,7 +90,7 @@ export const CompoundList = memo(({ height }) => {
                     className={classes.textField}
                     label={compoundsColors[item].text}
                     onKeyDown={e => dispatch(onChangeCompoundClassValue(e))}
-                    defaultValue={compoundClasses[item]}
+                    value={compoundClasses[item] || ''}
                   />
                 </Grid>
               ))}
