@@ -57,6 +57,9 @@ export const summary = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_SELECTED_INTERACTION:
       return Object.assign({}, state, { selectedInteraction: action.payload });
 
+    case constants.RELOAD_REDUCER:
+      return Object.assign({}, state, { ...action.payload });
+
     default:
       return state;
   }

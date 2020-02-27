@@ -4,7 +4,7 @@
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
@@ -19,8 +19,6 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
-import { VIEWS } from '../../../constants/constants';
-import { NglContext } from '../../nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -121,9 +119,6 @@ const MoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 34;
     const imgWidth = 150;
-
-    const { getNglView } = useContext(NglContext);
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const isActiveFilter = !!(filterSettings || {}).active;
 

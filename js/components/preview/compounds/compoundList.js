@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useContext, useRef } from 'react';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';

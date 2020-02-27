@@ -130,6 +130,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
         selectedCompoundsClass: defaultSelectedCmpdsClass
       });
 
+    case constants.RELOAD_REDUCER:
+      return Object.assign({}, state, { ...action.payload });
+
     default:
       return state;
   }

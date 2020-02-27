@@ -17,6 +17,14 @@ import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from '.
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { loadProjectFromSnapshot } from '../../projects/redux/dispatchActions';
+import apiReducers from '../../../reducers/api/apiReducers';
+import nglReducers from '../../../reducers/ngl/nglReducers';
+import selectionReducers from '../../../reducers/selection/selectionReducers';
+import { targetReducers } from '../../target/redux/reducer';
+import { sessionReducers } from './reducer';
+import { previewReducers } from '../../preview/redux';
+import { issueReducers } from '../../userFeedback/redux/reducer';
+import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 
 export const handleVector = json => dispatch => {
   let objList = generateObjectList(json['3d']);
@@ -53,6 +61,8 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
       dispatch(redeployVectorsLocal(url)).catch(error => {
         throw new Error(error);
       });
+
+      dispatch(reloadPreviewReducer(jsonOfView.previewReducers));
     }
   }
 };
@@ -168,7 +178,8 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
     state: JSON.stringify({
       apiReducers: newPresentObject,
       nglReducers: stateObject.nglReducers,
-      selectionReducers: stateObject.selectionReducers
+      selectionReducers: stateObject.selectionReducers,
+      previewReducers: stateObject.previewReducers
     })
   };
 
