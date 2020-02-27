@@ -132,9 +132,9 @@ const MoleculeList = memo(
     let joinedMoleculeLists = getJoinedMoleculeList;
 
     // Reset Infinity scroll
-    useEffect(() => {
+    /*useEffect(() => {
       // setCurrentPage(0);
-    }, [object_selection]);
+    }, [object_selection]);*/
 
     if (isActiveFilter) {
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
