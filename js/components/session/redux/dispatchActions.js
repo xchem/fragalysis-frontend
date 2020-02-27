@@ -92,7 +92,7 @@ export const saveSession = () => dispatch => {
 
 export const newSnapshot = () => dispatch => {
   dispatch(postToServer(savingStateConst.savingSnapshot));
-  dispatch(setSaveType(savingTypeConst.sessionNew));
+  dispatch(setSaveType(savingTypeConst.snapshotNew));
 };
 
 export const getSessionDetails = () => (dispatch, getState) => {
