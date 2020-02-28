@@ -7,7 +7,7 @@ export const moleculeProperty = {
   hdon: 'Hdon',
   rots: 'Rots',
   rings: 'Rings',
-  velec: 'Velec',
-  vectors: '#vctr',
-  cpd: '#cpd'
+  velec: 'Velec'
+  // vectors: '#vctr',
+  //  cpd: '#cpd'
 };

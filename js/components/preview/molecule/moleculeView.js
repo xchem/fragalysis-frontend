@@ -164,23 +164,11 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
       { name: moleculeProperty.hdon, value: data.hdon },
       { name: moleculeProperty.rots, value: data.rots },
       { name: moleculeProperty.rings, value: data.rings },
-      { name: moleculeProperty.velec, value: data.velec },
-      { name: moleculeProperty.vectors, value: countOfVectors },
-      { name: moleculeProperty.cpd, value: cmpds }
+      { name: moleculeProperty.velec, value: data.velec }
+      //   { name: moleculeProperty.vectors, value: countOfVectors },
+      //   { name: moleculeProperty.cpd, value: cmpds }
     ],
-    [
-      cmpds,
-      countOfVectors,
-      data.ha,
-      data.hacc,
-      data.hdon,
-      data.logp,
-      data.mw,
-      data.rings,
-      data.rots,
-      data.tpsa,
-      data.velec
-    ]
+    [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
   );
 
   // componentDidMount
@@ -197,14 +185,14 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
           setOld_url: newUrl => setOldUrl(newUrl),
           url,
           cancel: onCancel
-        }),
-        api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
+        })
+        /*  api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
           const vectors = response.data.vectors['3d'];
           setCountOfVectors(generateObjectList(vectors).length);
         }),
         api({ url: `${base_url}/api/graph/${data.id}` }).then(response => {
           setCmpds(getTotalCountOfCompounds(response.data.graph));
-        })
+        })*/
       ]).catch(error => {
         setError(error);
       });
