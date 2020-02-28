@@ -122,7 +122,10 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, newStateWithoutScene);
 
     case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
-      return Object.assign({}, state, action.payload);
+      // return Object.assign({}, state, action.payload);
+      // in payload are apiReducers, nglReducers and selectionsReducers
+      // they are probabably not needed for ngl and they flood nglReducers recursively in time
+      return Object.assign({}, state);
 
     case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
       // load state from default scene and replace current state by these data
