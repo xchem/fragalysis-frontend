@@ -33,10 +33,10 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       loadObject(
         Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
         summaryViewStage
-      ).catch(error => {
-        setError(error);
-      })
-    );
+      )
+    ).catch(error => {
+      setError(error);
+    });
   } else {
     selectionCopy.splice(objIdx, 1);
     dispatch(setMolGroupSelection(selectionCopy));
@@ -53,10 +53,10 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       loadObject(
         Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
         summaryViewStage
-      ).catch(error => {
-        setError(error);
-      })
-    );
+      )
+    ).catch(error => {
+      setError(error);
+    });
     dispatch(
       clearAfterDeselectingMoleculeGroup({
         molGroupId,
@@ -107,11 +107,9 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView, setError) => 
         name: input_dict['interaction'] + SUFFIX.INTERACTION,
         OBJECT_TYPE: OBJECT_TYPE.ARROW
       };
-      dispatch(
-        loadObject(objToLoad, stage).catch(error => {
-          setError(error);
-        })
-      );
+      dispatch(loadObject(objToLoad, stage)).catch(error => {
+        setError(error);
+      });
     } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {
       let name = pickingProxy.component.object.name;
       // Ok so now perform logic
