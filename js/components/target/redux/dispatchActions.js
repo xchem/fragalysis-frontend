@@ -2,7 +2,6 @@ import * as listType from '../../../constants/listTypes';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import {
   resetTargetState,
-  setLatestSession,
   setTargetIdList,
   setTargetOn,
   setTargetUnrecognised,
@@ -57,7 +56,6 @@ export const updateTarget = (notCheckTarget, target, setIsLoading, targetIdList)
 export const setTargetUUIDs = (uuid, snapshotUuid) => dispatch => {
   if (uuid !== undefined) {
     dispatch(setUuid(uuid));
-    dispatch(setLatestSession(uuid));
   } else if (snapshotUuid !== undefined) {
     dispatch(setUuid(snapshotUuid));
   }

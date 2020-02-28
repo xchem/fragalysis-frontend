@@ -15,7 +15,7 @@ import { setTargetAndReloadSession, reloadScene, newSession, saveSession, newSna
 
 export const withSessionManagement = WrappedComponent => {
   return memo(({ ...rest }) => {
-    const [/* state */ setState] = useState();
+    const [state, setState] = useState();
 
     const { pathname } = window.location;
     const { nglViewList } = useContext(NglContext);
