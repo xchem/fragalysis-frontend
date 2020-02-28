@@ -2,15 +2,16 @@
  * Created by abradley on 19/04/2018.
  */
 
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../reducers/api/actions';
 import * as listType from '../constants/listTypes';
 import { getUrl, loadFromServer } from '../utils/genericList';
+import { HeaderContext } from '../components/header/headerContext';
 
 export const withLoadingEventList = WrappedComponent => {
   const EventList = memo(({ target_on, pandda_site_on, setObjectList }) => {
-    const [state, setState] = useState();
+    const { setError } = useContext(HeaderContext);
     const list_type = listType.PANDDA_EVENT;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -27,14 +28,12 @@ export const withLoadingEventList = WrappedComponent => {
         setObjectList,
         cancel: onCancel
       }).catch(error => {
-        setState(() => {
-          throw error;
-        });
+        setError(error);
       });
       return () => {
         onCancel();
       };
-    }, [list_type, setObjectList, target_on, pandda_site_on]);
+    }, [list_type, setObjectList, target_on, pandda_site_on, setError]);
 
     return <WrappedComponent />;
   });

@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 04/07/2018.
  */
-import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
+import React, { memo, useState, useEffect, useCallback, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
@@ -9,10 +9,11 @@ import HotspotView from './hotspotView';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import { api, METHOD } from '../../../utils/api';
 import { Paper } from '../../common/Surfaces/Paper';
+import { HeaderContext } from '../../header/headerContext';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {
-  const [state, setState] = useState();
+  const { setError } = useContext(HeaderContext);
   const list_type = listType.MOLECULE;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -36,15 +37,13 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
           setHsCount(response.data);
         })
         .catch(error => {
-          setState(() => {
-            throw error;
-          });
+          setError(error);
         });
       return () => {
         onCancel();
       };
     }
-  }, [molecule_list]);
+  }, [molecule_list, setError]);
 
   useEffect(() => {
     updateCount();
@@ -60,14 +59,12 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
       setObjectList,
       cancel: onCancel
     }).catch(error => {
-      setState(() => {
-        throw error;
-      });
+      setError(error);
     });
     return () => {
       onCancel();
     };
-  }, [list_type, setObjectList, mol_group_on, target_on]);
+  }, [list_type, setObjectList, mol_group_on, target_on, setError]);
 
   if (hsCount > 0) {
     return (

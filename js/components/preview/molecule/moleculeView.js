@@ -18,6 +18,7 @@ import { moleculeProperty } from './helperConstants';
 import { api } from '../../../utils/api';
 import { generateObjectList } from '../../session/helpers';
 import { getTotalCountOfCompounds } from './molecules_helpers';
+import { HeaderContext } from '../../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -116,7 +117,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
   </circle>  '</svg>`;
 
 const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
-  const [state, setState] = useState();
+  const { setError } = useContext(HeaderContext);
   const [countOfVectors, setCountOfVectors] = useState('-');
   const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
@@ -205,9 +206,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
           setCmpds(getTotalCountOfCompounds(response.data.graph));
         })
       ]).catch(error => {
-        setState(() => {
-          throw error;
-        });
+        setError(error);
       });
       refOnCancel.current = onCancel;
     }
@@ -216,7 +215,18 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
         refOnCancel.current();
       }
     };
-  }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, to_query, url, vectorOnList, imageWidth]);
+  }, [
+    complexList,
+    data.id,
+    data.smiles,
+    fragmentDisplayList,
+    imageHeight,
+    to_query,
+    url,
+    vectorOnList,
+    imageWidth,
+    setError
+  ]);
 
   const svg_image = (
     <SVGInline
@@ -294,9 +304,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
 
   const addNewVector = () => {
     dispatch(addVector(stage, data)).catch(error => {
-      setState(() => {
-        throw error;
-      });
+      setError(error);
     });
   };
 
