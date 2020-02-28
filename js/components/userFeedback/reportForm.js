@@ -15,6 +15,7 @@ import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
 import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
+import { snackbarColors } from '../header/constants';
 
 const useStyles = makeStyles(theme => ({
   buttonGreen: {
@@ -71,7 +72,7 @@ export const ReportForm = memo(({ formType }) => {
 
   const dispatch = useDispatch();
   const formState = useSelector(state => state.issueReducers);
-  const { setSnackBarTitle } = useContext(HeaderContext);
+  const { setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
 
   /* Specific form type functions */
   const isValidType = () => {
@@ -147,6 +148,7 @@ export const ReportForm = memo(({ formType }) => {
         </a>
       </>
     );
+    setSnackBarColor(snackbarColors.default);
     handleCloseForm();
   };
 

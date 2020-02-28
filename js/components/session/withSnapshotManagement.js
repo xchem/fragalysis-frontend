@@ -8,6 +8,7 @@ import { savingStateConst } from './constants';
 import { NglContext } from '../nglView/nglProvider';
 import { HeaderContext } from '../header/headerContext';
 import { setTargetAndReloadSession, reloadScene, newSession } from './redux/dispatchActions';
+import { snackbarColors } from '../header/constants';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -19,7 +20,7 @@ export const withSnapshotManagement = WrappedComponent => {
 
     const { pathname } = window.location;
     const { nglViewList } = useContext(NglContext);
-    const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
+    const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
     const dispatch = useDispatch();
     const savingState = useSelector(state => state.apiReducers.savingState);
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
@@ -73,15 +74,7 @@ export const withSnapshotManagement = WrappedComponent => {
         setSnackBarTitle(null);
         setHeaderNavbarTitle('');
       };
-    }, [
-      disableButtons,
-      dispatch,
-      sessionTitle,
-      setHeaderNavbarTitle,
-      setHeaderButtons,
-      setSnackBarTitle,
-      targetIdList
-    ]);
+    }, [disableButtons, dispatch, sessionTitle, setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, targetIdList, setSnackBarColor]);
 
     return <WrappedComponent {...rest} />;
   });

@@ -1,5 +1,6 @@
 import React, { memo, useContext } from 'react';
 import { Box, IconButton, makeStyles, Snackbar, useTheme } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import Header from '../header';
 import { Route, Switch } from 'react-router-dom';
 import { Management } from '../management/management';
@@ -13,6 +14,7 @@ import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
 import SessionList from '../session/sessionList';
+import { snackbarColors } from '../header/constants';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 import { useSelector } from 'react-redux';
@@ -27,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 const Routes = memo(() => {
   const classes = useStyles();
   const theme = useTheme();
-  const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
+  const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle, snackBarColor } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
   const snapshot = useSelector(state => state.projectReducers.snapshot);
@@ -86,12 +88,18 @@ const Routes = memo(() => {
           'aria-describedby': 'message-id'
         }}
         message={<span id="message-id">{snackBarTitle}</span>}
-        action={[
+        action={
           <IconButton key="close" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
             <Close />
           </IconButton>
-        ]}
-      />
+        }
+      >
+        {snackBarColor !== snackbarColors.default && (
+          <Alert severity={snackBarColor} onClose={handleCloseSnackbar}>
+            {snackBarTitle}
+          </Alert>
+        )}
+      </Snackbar>
     </Box>
   );
 });
