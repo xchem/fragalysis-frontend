@@ -59,9 +59,11 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   const registerStageEvents = useCallback(
     (newStage, getNglView) => {
       window.addEventListener('resize', handleResize);
-      newStage.mouseControls.add('clickPick-left', (stage, pickingProxy) =>
-        handleNglViewPick(stage, pickingProxy, getNglView, setError)
-      );
+      newStage.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
+        if (stage) {
+          return handleNglViewPick(stage, pickingProxy, getNglView, setError);
+        }
+      });
 
       newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
       newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
@@ -74,9 +76,11 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     (stage, getNglView) => {
       window.addEventListener('resize', handleResize);
       window.removeEventListener('resize', handleResize);
-      stage.mouseControls.remove('clickPick-left', (stage, pickingProxy) =>
-        handleNglViewPick(stage, pickingProxy, getNglView, setError)
-      );
+      stage.mouseControls.remove('clickPick-left', (stage, pickingProxy) => {
+        if (stage) {
+          return handleNglViewPick(stage, pickingProxy, getNglView, setError);
+        }
+      });
 
       stage.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
       stage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
