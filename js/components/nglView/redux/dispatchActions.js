@@ -84,7 +84,7 @@ const processInt = pickingProxy => {
 
 export const handleNglViewPick = (stage, pickingProxy, getNglView, setError) => (dispatch, getState) => {
   const state = getState();
-  if (pickingProxy) {
+  if (pickingProxy && stage) {
     // For assigning the ligand interaction
     if (pickingProxy.bond) {
       const duck_yank_data = state.apiReducers.duck_yank_data;
@@ -115,9 +115,9 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView, setError) => 
       // Ok so now perform logic
       const type = name.split('_')[0];
       const pk = parseInt(name.split('_')[1], 10);
-      if (type === OBJECT_TYPE.MOLECULE_GROUP) {
+      if (type === OBJECT_TYPE.MOLECULE_GROUP && getNglView(VIEWS.MAJOR_VIEW)) {
         dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage), setError);
-      } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT) {
+      } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT && getNglView(VIEWS.MAJOR_VIEW)) {
         dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage), setError);
       } else if (type === listTypes.PANDDA_SITE) {
         dispatch(setPanddaSiteOn(pk));

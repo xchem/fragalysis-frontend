@@ -16,7 +16,7 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+// import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';

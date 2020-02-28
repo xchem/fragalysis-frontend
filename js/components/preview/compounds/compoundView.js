@@ -21,7 +21,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const selectedCompoundsClass = useSelector(state => state.previewReducers.compounds.selectedCompoundsClass);
   const { getNglView } = useContext(NglContext);
-  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW).stage;
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const [image, setImage] = useState(loadingCompoundImage);
 
   const { setError } = useContext(HeaderContext);
@@ -63,7 +63,11 @@ export const CompoundView = memo(({ height, width, data, index }) => {
 
   return (
     <div
-      onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage, index, setError }))}
+      onClick={event => {
+        if (majorViewStage) {
+          dispatch(handleClickOnCompound({ event, data, majorViewStage, index, setError }));
+        }
+      }}
       style={current_style}
     >
       <SVGInline svg={image} />

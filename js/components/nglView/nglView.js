@@ -58,33 +58,32 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
 
   const registerStageEvents = useCallback(
     (newStage, getNglView) => {
-      window.addEventListener('resize', handleResize);
-      newStage.mouseControls.add('clickPick-left', (stage, pickingProxy) => {
-        if (stage) {
-          return handleNglViewPick(stage, pickingProxy, getNglView, setError);
-        }
-      });
+      if (newStage) {
+        window.addEventListener('resize', handleResize);
+        newStage.mouseControls.add('clickPick-left', (st, pickingProxy) =>
+          handleNglViewPick(st, pickingProxy, getNglView, setError)
+        );
 
-      newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
-      newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
-      newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
+        newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
+        newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
+        newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
+      }
     },
     [handleResize, handleOrientationChanged, handleNglViewPick, setError]
   );
 
   const unregisterStageEvents = useCallback(
-    (stage, getNglView) => {
-      window.addEventListener('resize', handleResize);
-      window.removeEventListener('resize', handleResize);
-      stage.mouseControls.remove('clickPick-left', (stage, pickingProxy) => {
-        if (stage) {
-          return handleNglViewPick(stage, pickingProxy, getNglView, setError);
-        }
-      });
-
-      stage.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
-      stage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
-      stage.mouseObserver.signals.dragged.remove(handleOrientationChanged);
+    (newStage, getNglView) => {
+      if (newStage) {
+        window.addEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
+        newStage.mouseControls.remove('clickPick-left', (st, pickingProxy) =>
+          handleNglViewPick(st, pickingProxy, getNglView, setError)
+        );
+        newStage.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
+        newStage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
+        newStage.mouseObserver.signals.dragged.remove(handleOrientationChanged);
+      }
     },
     [handleResize, handleOrientationChanged, handleNglViewPick, setError]
   );
