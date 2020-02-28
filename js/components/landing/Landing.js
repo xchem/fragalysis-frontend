@@ -2,7 +2,7 @@
  * Created by ricgillams on 21/06/2018.
  */
 import { Grid } from '@material-ui/core';
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import TargetList from '../target/targetList';
 import SessionList from '../session/sessionList';
 import { connect } from 'react-redux';
@@ -11,6 +11,7 @@ import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {
+  const [state, setState] = useState();
   let text_div;
 
   if (DJANGO_CONTEXT['authenticated'] === true) {
@@ -38,7 +39,9 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
         <Grid item>
           <h1
             onClick={() => {
-              throw new Error('my custom error');
+              setState(() => {
+                throw Error('my custom error');
+              });
             }}
           >
             Welcome to Fragalysis
