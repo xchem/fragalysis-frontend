@@ -97,13 +97,15 @@ export const Panel = memo(
                 alignItems="center"
                 className={classes.headerGrid}
               >
-                <Grid item xs={hasExpansion || headerActions ? 6 : 12} className={classes.headerTitle}>
-                  <Typography variant="h6" color="inherit" noWrap>
-                    {title}
-                  </Typography>
-                </Grid>
+                {title && (
+                  <Grid item xs={hasExpansion || headerActions ? 6 : 12} className={classes.headerTitle}>
+                    <Typography variant="h6" color="inherit" noWrap>
+                      {title}
+                    </Typography>
+                  </Grid>
+                )}
                 {(headerActions || hasExpansion) && (
-                  <Grid item container justify="flex-end" xs={6}>
+                  <Grid item container direction="row" justify="flex-end" xs={title ? 6 : 12}>
                     {headerActions &&
                       headerActions.map((action, index) => (
                         <Grid item key={index}>

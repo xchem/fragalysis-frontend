@@ -53,7 +53,7 @@ export const CompoundList = memo(({ height }) => {
   const to_query = useSelector(state => state.selectionReducers.to_query);
   const compoundClasses = useSelector(state => getCompoundClasses(state));
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
-  const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
+  //const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
   const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
@@ -71,17 +71,30 @@ export const CompoundList = memo(({ height }) => {
     }
   });
 
-  let mol_string = 'No molecules found!';
-  if (totalCountOfMolecules) {
-    mol_string = currentCompounds.length + ' Compounds on vector to pick. Mol total: ' + totalCountOfMolecules;
-  }
-  if (to_query === '' || to_query === undefined) {
-    mol_string = '';
-  }
-
   if (currentVector !== undefined && to_query !== undefined) {
     return (
-      <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
+      <Panel
+        hasHeader
+        ref={panelRef}
+        headerActions={[
+          <Button
+            color="inherit"
+            variant="text"
+            onClick={() => dispatch(selectAllCompounds())}
+            startIcon={<SelectAll />}
+          >
+            Select All
+          </Button>,
+          <Button
+            color="inherit"
+            variant="text"
+            onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage, setError))}
+            startIcon={<Delete />}
+          >
+            Clear All
+          </Button>
+        ]}
+      >
         {currentCompounds && (
           <Box height={height} width="100%">
             <Grid container direction="row" justify="space-between" alignItems="center">
@@ -120,16 +133,6 @@ export const CompoundList = memo(({ height }) => {
                 </InfiniteScroll>
               </Box>
             </Grid>
-            <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
-              Select All
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage, setError))}
-              startIcon={<Delete />}
-            >
-              Clear Selection
-            </Button>
           </Box>
         )}
       </Panel>
