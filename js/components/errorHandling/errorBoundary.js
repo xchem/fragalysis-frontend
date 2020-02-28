@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component {
           {({ error, setSnackBarTitle, setSnackBarColor }) => {
             if (error || caughtError !== null) {
               if (error) {
-                this.handleErrorData(error);
+                //    this.handleErrorData(error);
               }
               setSnackBarTitle('Something went wrong!');
               setSnackBarColor(snackbarColors.error);
