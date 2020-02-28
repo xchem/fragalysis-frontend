@@ -16,7 +16,7 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+// import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
@@ -38,6 +38,9 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     overflow: 'auto',
     padding: theme.spacing(1)
+  },
+  actionButton: {
+    marginRight: theme.spacing(1)
   }
 }));
 
@@ -55,7 +58,7 @@ export const CompoundList = memo(({ height }) => {
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
   //const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
-  const querying = useSelector(state => state.selectionReducers.querying);
+  // const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
   const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
@@ -80,6 +83,7 @@ export const CompoundList = memo(({ height }) => {
           <Button
             color="inherit"
             variant="text"
+            className={classes.actionButton}
             onClick={() => dispatch(selectAllCompounds())}
             startIcon={<SelectAll />}
           >
@@ -88,6 +92,7 @@ export const CompoundList = memo(({ height }) => {
           <Button
             color="inherit"
             variant="text"
+            className={classes.actionButton}
             onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage, setError))}
             startIcon={<Delete />}
           >
