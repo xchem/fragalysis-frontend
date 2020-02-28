@@ -1,5 +1,6 @@
 import {
   reloadApiState,
+  setUuid,
   setLatestSession,
   setLatestSnapshot,
   setSavingState,
@@ -87,7 +88,7 @@ export const newSession = () => dispatch => {
 };
 export const saveSession = () => dispatch => {
   dispatch(postToServer(savingStateConst.overwritingSession));
-  dispatch(setSaveType(savingTypeConst.sessionNew));
+  dispatch(setSaveType(savingTypeConst.sessionSave));
 };
 
 export const newSnapshot = () => dispatch => {
@@ -96,9 +97,9 @@ export const newSnapshot = () => dispatch => {
 };
 
 export const getSessionDetails = () => (dispatch, getState) => {
-  const latestSession = getState().apiReducers.latestSession;
+  const uuid = getState().apiReducers.uuid;
 
-  return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + latestSession }).then(response =>
+  return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid }).then(response =>
     response.data && response.data.results.length > 0
       ? setSessionTitle(response.data.results[JSON.stringify(0)].title)
       : setSessionTitle('')
@@ -110,7 +111,7 @@ export const updateCurrentTarget = myJson => (dispatch, getState) => {
   const saveType = state.snapshotReducers.saveType;
 
   if (saveType === savingTypeConst.sessionNew && myJson) {
-    dispatch(setLatestSession(myJson.uuid));
+    dispatch(setUuid(myJson.uuid));
     dispatch(setSessionId(myJson.id));
     dispatch(setSessionTitle(myJson.title));
     dispatch(setSaveType(''));
@@ -140,7 +141,7 @@ export const generateNextUuid = () => (dispatch, getState) => {
 export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionId }) => dispatch => {
   dispatch(generateNextUuid());
 
-  if (uuid !== 'UNSET') {
+  if (saveType.length <= 0 && uuid !== 'UNSET') {
     return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid }).then(response =>
       dispatch(setLoadedSession(response.data.results[0]))
     );
@@ -190,6 +191,7 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
       data: JSON.stringify(formattedState)
     }).then(response => {
       dispatch(updateCurrentTarget(response.data));
+      dispatch(setLatestSession(nextUuid));
     });
   } else if (saveType === savingTypeConst.sessionSave) {
     const formattedState = {
