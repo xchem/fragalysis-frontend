@@ -126,13 +126,17 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
   return Promise.resolve();
 };
 
-export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
+export const clearMoleculeGroupSelection = ({ getNglView, setError }) => dispatch => {
   // Reset NGL VIEWS to default state
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-  dispatch(reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene));
-  dispatch(reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene));
+  dispatch(reloadNglViewFromScene(majorViewStage, VIEWS.MAJOR_VIEW, SCENES.defaultScene)).catch(error => {
+    setError(error);
+  });
+  dispatch(reloadNglViewFromScene(summaryViewStage, VIEWS.SUMMARY_VIEW, SCENES.defaultScene)).catch(error => {
+    setError(error);
+  });
 
   // Reset selection reducer
   // remove sites selection

@@ -63,7 +63,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
 
   return (
     <div
-      onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage, index }))}
+      onClick={event => dispatch(handleClickOnCompound({ event, data, majorViewStage, index, setError }))}
       style={current_style}
     >
       <SVGInline svg={image} />

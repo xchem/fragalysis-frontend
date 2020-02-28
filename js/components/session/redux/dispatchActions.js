@@ -18,13 +18,6 @@ import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import apiReducers from '../../../reducers/api/apiReducers';
-import nglReducers from '../../../reducers/ngl/nglReducers';
-import selectionReducers from '../../../reducers/selection/selectionReducers';
-import { targetReducers } from '../../target/redux/reducer';
-import { sessionReducers } from './reducer';
-import { previewReducers } from '../../preview/redux';
-import { issueReducers } from '../../userFeedback/redux/reducer';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 
 export const handleVector = json => dispatch => {
@@ -38,7 +31,7 @@ export const redeployVectorsLocal = url => dispatch => {
   return api({ url }).then(response => dispatch(handleVector(response.data['vectors'])));
 };
 
-export const reloadSession = (myJson, nglViewList) => dispatch => {
+export const reloadSession = (myJson, nglViewList, setError) => dispatch => {
   let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
   dispatch(reloadApiState(jsonOfView.apiReducers));
   dispatch(setSessionId(myJson.id));
@@ -59,7 +52,7 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
         jsonOfView.selectionReducers.vectorOnList[JSON.stringify(0)] +
         '/';
       dispatch(redeployVectorsLocal(url)).catch(error => {
-        throw new Error(error);
+        setError(error);
       });
 
       dispatch(reloadPreviewReducer(jsonOfView.previewReducers));
@@ -67,7 +60,13 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
   }
 };
 
-export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession, targetIdList }) => dispatch => {
+export const setTargetAndReloadSession = ({
+  pathname,
+  nglViewList,
+  loadedSession,
+  targetIdList,
+  setError
+}) => dispatch => {
   if (loadedSession) {
     let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
     let target = jsonOfView.apiReducers.target_on_name;
@@ -82,7 +81,7 @@ export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession
       dispatch(setTargetUnrecognised(targetUnrecognised));
     }
     if (targetUnrecognised === false && targetIdList.length > 0 && canCheckTarget(pathname) === true) {
-      dispatch(reloadSession(loadedSession, nglViewList));
+      dispatch(reloadSession(loadedSession, nglViewList, setError));
     }
   }
 };

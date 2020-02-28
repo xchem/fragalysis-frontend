@@ -18,14 +18,19 @@ import { SELECTION_TYPE } from '../../components/nglView/constants';
 import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
-export const loadObject = (target, stage, previousRepresentations) => dispatch => {
+/* TODO handle add calls of loadObject by error handling
+  const { setError } = useContext(HeaderContext);
+
+
+.catch(error => {
+        setError(error);
+      })
+ */
+export const loadObject = (target, stage, previousRepresentations, setError) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects());
     return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, previousRepresentations)
       .then(representations => dispatch(loadNglObject(target, representations)))
-      .catch(error => {
-        console.error(error);
-      })
       .finally(() => dispatch(decrementCountOfPendingNglObjects()));
   }
   return Promise.reject('Instance of NGL View is missing');
@@ -113,7 +118,7 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  Promise.all(
+  return Promise.all(
     Object.keys(currentScene.objectsInView || {}).map(objInView => {
       if (currentScene.objectsInView[objInView].display_div === display_div) {
         let representations = currentScene.objectsInView[objInView].representations;

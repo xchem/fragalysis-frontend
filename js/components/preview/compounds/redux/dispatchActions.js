@@ -67,7 +67,7 @@ export const loadNextPageOfCompounds = () => (dispatch, getState) => {
   dispatch(setCurrentPage(nextPage));
 };
 
-const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getState) => {
+const showCompoundNglView = ({ majorViewStage, data, index, setError }) => (dispatch, getState) => {
   const state = getState();
   const to_query_sdf_info = state.selectionReducers.to_query_sdf_info;
   const configuration = state.previewReducers.compounds.configuration;
@@ -105,21 +105,21 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
       .then(response => {
         // Now load this into NGL
         const newConf = response.data[0];
-        dispatch(
+        dispatch(setConfiguration(index, newConf));
+        return dispatch(
           loadObject(
             Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(newConf, data.smiles)),
             majorViewStage
           )
         );
-        dispatch(setConfiguration(index, newConf));
       })
       .catch(error => {
-        throw error;
+        setError(error);
       });
   }
 };
 
-export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) => {
+export const clearAllSelectedCompounds = (majorViewStage, setError) => (dispatch, getState) => {
   dispatch(setToBuyList([]));
   const state = getState();
   // reset objects from nglView and showedCompoundList
@@ -127,7 +127,7 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
   showedCompoundList.forEach(index => {
     const data = currentCompounds[index];
-    dispatch(showCompoundNglView({ majorViewStage, data, index }));
+    dispatch(showCompoundNglView({ majorViewStage, data, index, setError }));
     dispatch(removeShowedCompoundFromList(index));
   });
   //  reset compoundsClasses
@@ -142,7 +142,10 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   dispatch(dispatch(setCurrentCompoundClass(compoundsColors.blue.key)));
 };
 
-export const handleClickOnCompound = ({ data, event, majorViewStage, index }) => async (dispatch, getState) => {
+export const handleClickOnCompound = ({ data, event, majorViewStage, index, setError }) => async (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
@@ -151,7 +154,7 @@ export const handleClickOnCompound = ({ data, event, majorViewStage, index }) =>
   dispatch(setHighlightedCompoundId(index));
 
   if (event.shiftKey) {
-    await dispatch(showCompoundNglView({ majorViewStage, data, index }));
+    await dispatch(showCompoundNglView({ majorViewStage, data, index, setError }));
     if (showedCompoundList.find(item => item === index) !== undefined) {
       dispatch(removeShowedCompoundFromList(index));
     } else {
