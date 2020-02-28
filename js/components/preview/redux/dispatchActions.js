@@ -3,7 +3,7 @@ import { SUFFIX, VIEWS } from '../../../constants/constants';
 import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import { reloadSummaryReducer } from '../summary/redux/actions';
 import { reloadCompoundsReducer } from '../compounds/redux/actions';
-import { reloadMoleculeReducer } from '../molecule/redux/actions';
+// import { reloadMoleculeReducer } from '../molecule/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();

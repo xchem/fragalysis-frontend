@@ -1,4 +1,5 @@
 import React, { createContext, useState, memo } from 'react';
+import { snackbarColors } from './constants';
 
 export const HeaderContext = createContext();
 
@@ -8,6 +9,7 @@ export const HeaderProvider = memo(props => {
   const [headerNavbarTitle, setHeaderNavbarTitle] = useState('');
   const [headerButtons, setHeaderButtons] = useState(null);
   const [snackBarTitle, setSnackBarTitle] = useState(null);
+  const [snackBarColor, setSnackBarColor] = useState(snackbarColors.default);
 
   return (
     <HeaderContext.Provider
@@ -21,7 +23,9 @@ export const HeaderProvider = memo(props => {
         headerButtons,
         setHeaderButtons,
         snackBarTitle,
-        setSnackBarTitle
+        setSnackBarTitle,
+        snackBarColor,
+        setSnackBarColor
       }}
     >
       {props.children}

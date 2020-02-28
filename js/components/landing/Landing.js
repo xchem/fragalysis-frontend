@@ -36,7 +36,13 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
     <Grid container spacing={2}>
       <Grid container item xs={12} sm={6} md={4} direction="column" justify="flex-start">
         <Grid item>
-          <h1>Welcome to Fragalysis</h1>
+          <h1
+            onClick={() => {
+              throw new Error('my custom error');
+            }}
+          >
+            Welcome to Fragalysis
+          </h1>
           {text_div}
         </Grid>
         <Grid item>

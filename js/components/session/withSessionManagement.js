@@ -8,6 +8,7 @@ import { savingStateConst } from './constants';
 import { NglContext } from '../nglView/nglProvider';
 import { HeaderContext } from '../header/headerContext';
 import { setTargetAndReloadSession, reloadScene, newSession, saveSession, newSnapshot } from './redux/dispatchActions';
+import { snackbarColors } from '../header/constants';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -19,7 +20,7 @@ export const withSessionManagement = WrappedComponent => {
 
     const { pathname } = window.location;
     const { nglViewList } = useContext(NglContext);
-    const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle } = useContext(HeaderContext);
+    const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
     const dispatch = useDispatch();
     const savingState = useSelector(state => state.apiReducers.savingState);
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
@@ -76,6 +77,7 @@ export const withSessionManagement = WrappedComponent => {
           <DownloadPdb key="download" />
         ]);
         setSnackBarTitle('Currently no active session.');
+        setSnackBarColor(snackbarColors.default);
       } else {
         setHeaderButtons([
           <Button
@@ -108,6 +110,7 @@ export const withSessionManagement = WrappedComponent => {
           <DownloadPdb key="download" />
         ]);
         setSnackBarTitle(`Session: ${sessionTitle}`);
+        setSnackBarColor(snackbarColors.default);
       }
 
       return () => {
@@ -115,15 +118,7 @@ export const withSessionManagement = WrappedComponent => {
         setSnackBarTitle(null);
         setHeaderNavbarTitle('');
       };
-    }, [
-      disableButtons,
-      dispatch,
-      sessionTitle,
-      setHeaderNavbarTitle,
-      setHeaderButtons,
-      setSnackBarTitle,
-      targetIdList
-    ]);
+    }, [disableButtons, dispatch, sessionTitle, setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, targetIdList, setSnackBarColor]);
 
     return <WrappedComponent {...rest} />;
   });
