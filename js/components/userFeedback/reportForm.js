@@ -68,7 +68,6 @@ export const FORM_TYPE = { ISSUE: 'ISSUE', IDEA: 'IDEA' };
 
 export const ReportForm = memo(({ formType }) => {
   const classes = useStyles();
-  const [state, setState] = useState();
 
   const dispatch = useDispatch();
   const formState = useSelector(state => state.issueReducers);

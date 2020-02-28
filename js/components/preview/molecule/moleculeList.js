@@ -4,7 +4,7 @@
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
-import React, { useState, useEffect, memo, useRef } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
@@ -19,6 +19,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
+import { HeaderContext } from '../../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -110,7 +111,7 @@ const MoleculeList = memo(
     const classes = useStyles();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
-    const [state, setState] = useState();
+    const { setError } = useContext(HeaderContext);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
@@ -154,11 +155,9 @@ const MoleculeList = memo(
         mol_group_on,
         cached_mol_lists
       }).catch(error => {
-        setState(() => {
-          throw error;
-        });
+        setError(error);
       });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
+    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists, setError]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);

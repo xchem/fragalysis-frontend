@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { HeaderContext } from '../header/headerContext';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
@@ -22,7 +22,7 @@ export const withUpdatingTarget = WrappedContainer => {
       const snapshotUuid = match.params.snapshotUuid;
 
       const { isLoading, setIsLoading } = useContext(HeaderContext);
-      const [state, setState] = useState();
+      const { setError } = useContext(HeaderContext);
 
       useEffect(() => {
         resetTargetAndSelection(resetSelection);
@@ -34,11 +34,9 @@ export const withUpdatingTarget = WrappedContainer => {
 
       useEffect(() => {
         updateTarget(notCheckTarget, target, setIsLoading, targetIdList).catch(error => {
-          setState(() => {
-            throw error;
-          });
+          setError(error);
         });
-      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList]);
+      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList, setError]);
 
       if (isLoading === true) {
         return null;

@@ -26,7 +26,9 @@ const useStyles = makeStyles(theme => ({
 const Routes = memo(() => {
   const classes = useStyles();
   const theme = useTheme();
-  const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle, snackBarColor } = useContext(HeaderContext);
+  const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle, snackBarColor, setError } = useContext(
+    HeaderContext
+  );
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
 
@@ -35,6 +37,7 @@ const Routes = memo(() => {
       return;
     }
     setSnackBarTitle(null);
+    setError(null);
   };
 
   return (
@@ -70,6 +73,7 @@ const Routes = memo(() => {
           horizontal: 'right'
         }}
         open={snackBarTitle !== null}
+        autoHideDuration={60000}
         onClose={handleCloseSnackbar}
         ContentProps={{
           'aria-describedby': 'message-id'
@@ -82,7 +86,7 @@ const Routes = memo(() => {
         }
       >
         {snackBarColor !== snackbarColors.default && (
-          <Alert severity={snackBarColor} onClose={handleCloseSnackbar}>
+          <Alert severity={snackBarColor} onClose={handleCloseSnackbar} elevation={6} variant={'filled'}>
             {snackBarTitle}
           </Alert>
         )}

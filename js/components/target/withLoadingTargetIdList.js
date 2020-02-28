@@ -1,23 +1,22 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { loadTargetList } from './redux/dispatchActions';
+import { HeaderContext } from '../header/headerContext';
 
 export const withLoadingTargetList = WrappedComponent => {
   return memo(() => {
-    const [state, setState] = useState();
+    const { setError } = useContext(HeaderContext);
     const dispatch = useDispatch();
 
     useEffect(() => {
       let onCancel = () => {};
       dispatch(loadTargetList(onCancel)).catch(error => {
-        setState(() => {
-          throw error;
-        });
+        setError(error);
       });
       return () => {
         onCancel();
       };
-    }, [dispatch]);
+    }, [dispatch, setError]);
 
     return <WrappedComponent />;
   });
