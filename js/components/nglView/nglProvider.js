@@ -1,14 +1,16 @@
-import React, { createContext, memo, useState } from 'react';
+import React, { createContext, memo, useContext, useState } from 'react';
+import { HeaderContext } from '../header/headerContext';
 
 export const NglContext = createContext();
 
 export const NglProvider = memo(props => {
   //const nglViewList = useRef([]);
   const [nglViewList, setNglViewList] = useState([]);
+  const { setError } = useContext(HeaderContext);
 
   const registerNglView = (id, stage) => {
     if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
-      console.error('Cannot register NGL View with used ID! ', id);
+      setError(new Error('Cannot register NGL View with used ID! ', id));
     } else {
       let extendedList = nglViewList;
       extendedList.push({ id, stage });
@@ -18,7 +20,7 @@ export const NglProvider = memo(props => {
 
   const unregisterNglView = id => {
     if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
-      console.error('Cannot remove NGL View with given ID! ', id);
+      setError(new Error('Cannot remove NGL View with given ID! ', id));
     } else {
       for (let i = 0; i < nglViewList.length; i++) {
         if (nglViewList[i].id === id) {
@@ -38,7 +40,7 @@ export const NglProvider = memo(props => {
       case 1:
         return filteredList[0];
       default:
-        console.error('Cannot found NGL View with given ID!');
+        setError(new Error('Cannot found NGL View with given ID!'));
         break;
     }
   };

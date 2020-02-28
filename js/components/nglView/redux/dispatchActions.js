@@ -8,7 +8,7 @@ import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reduce
 import * as listTypes from '../../../constants/listTypes';
 import { selectVectorAndResetCompounds } from '../../../reducers/selection/dispatchActions';
 
-export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
+export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage, setError) => (dispatch, getState) => {
   const state = getState();
   const molGroupSelection = state.selectionReducers.mol_group_selection;
   const objIdx = molGroupSelection.indexOf(molGroupId);
@@ -33,7 +33,9 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       loadObject(
         Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
         summaryViewStage
-      )
+      ).catch(error => {
+        setError(error);
+      })
     );
   } else {
     selectionCopy.splice(objIdx, 1);
@@ -51,7 +53,9 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       loadObject(
         Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
         summaryViewStage
-      )
+      ).catch(error => {
+        setError(error);
+      })
     );
     dispatch(
       clearAfterDeselectingMoleculeGroup({
@@ -78,7 +82,7 @@ const processInt = pickingProxy => {
   return { interaction: tot_name, complex_id: mol_int };
 };
 
-export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch, getState) => {
+export const handleNglViewPick = (stage, pickingProxy, getNglView, setError) => (dispatch, getState) => {
   const state = getState();
   if (pickingProxy) {
     // For assigning the ligand interaction
@@ -103,16 +107,20 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
         name: input_dict['interaction'] + SUFFIX.INTERACTION,
         OBJECT_TYPE: OBJECT_TYPE.ARROW
       };
-      dispatch(loadObject(objToLoad, stage));
+      dispatch(
+        loadObject(objToLoad, stage).catch(error => {
+          setError(error);
+        })
+      );
     } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {
       let name = pickingProxy.component.object.name;
       // Ok so now perform logic
       const type = name.split('_')[0];
       const pk = parseInt(name.split('_')[1], 10);
       if (type === OBJECT_TYPE.MOLECULE_GROUP) {
-        dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage));
+        dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage), setError);
       } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT) {
-        dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage));
+        dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage), setError);
       } else if (type === listTypes.PANDDA_SITE) {
         dispatch(setPanddaSiteOn(pk));
       }

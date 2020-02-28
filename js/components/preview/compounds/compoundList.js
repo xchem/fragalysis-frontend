@@ -21,6 +21,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
+import { HeaderContext } from '../../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -47,6 +48,7 @@ export const CompoundList = memo(({ height }) => {
   const dispatch = useDispatch();
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const { setError } = useContext(HeaderContext);
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
   const compoundClasses = useSelector(state => getCompoundClasses(state));
@@ -123,7 +125,7 @@ export const CompoundList = memo(({ height }) => {
             </Button>
             <Button
               color="primary"
-              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage))}
+              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage, setError))}
               startIcon={<Delete />}
             >
               Clear Selection

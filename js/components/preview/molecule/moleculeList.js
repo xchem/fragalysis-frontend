@@ -8,7 +8,6 @@ import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
-import { deleteObject, loadObject } from '../../../reducers/ngl/dispatchActions';
 import MoleculeView from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './redux/selectors';
@@ -313,8 +312,6 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setMoleculeList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
-  deleteObject,
-  loadObject,
   setSortDialogOpen
 };
 MoleculeList.displayName = 'MoleculeList';
