@@ -16,7 +16,7 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-// import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
+import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
@@ -38,9 +38,6 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     overflow: 'auto',
     padding: theme.spacing(1)
-  },
-  actionButton: {
-    marginRight: theme.spacing(1)
   }
 }));
 
@@ -56,9 +53,9 @@ export const CompoundList = memo(({ height }) => {
   const to_query = useSelector(state => state.selectionReducers.to_query);
   const compoundClasses = useSelector(state => getCompoundClasses(state));
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
-  //const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
+  // const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
-  // const querying = useSelector(state => state.selectionReducers.querying);
+  const querying = useSelector(state => state.selectionReducers.querying);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
   const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
@@ -74,32 +71,15 @@ export const CompoundList = memo(({ height }) => {
     }
   });
 
+  let mol_string = currentCompounds.length + ' Compounds on vector to pick';
+
+  if (to_query === '' || to_query === undefined) {
+    mol_string = '';
+  }
+
   if (currentVector !== undefined && to_query !== undefined) {
     return (
-      <Panel
-        hasHeader
-        ref={panelRef}
-        headerActions={[
-          <Button
-            color="inherit"
-            variant="text"
-            className={classes.actionButton}
-            onClick={() => dispatch(selectAllCompounds())}
-            startIcon={<SelectAll />}
-          >
-            Select All
-          </Button>,
-          <Button
-            color="inherit"
-            variant="text"
-            className={classes.actionButton}
-            onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage, setError))}
-            startIcon={<Delete />}
-          >
-            Clear All
-          </Button>
-        ]}
-      >
+      <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
         {currentCompounds && (
           <Box height={height} width="100%">
             <Grid container direction="row" justify="space-between" alignItems="center">
@@ -138,6 +118,16 @@ export const CompoundList = memo(({ height }) => {
                 </InfiniteScroll>
               </Box>
             </Grid>
+            <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
+              Select All
+            </Button>
+            <Button
+              color="primary"
+              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage, setError))}
+              startIcon={<Delete />}
+            >
+              Clear Selection
+            </Button>
           </Box>
         )}
       </Panel>
