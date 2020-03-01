@@ -135,8 +135,14 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW));
-  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW));
+  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW))
+    .catch(error => {
+      throw new Error(error);
+    });
+  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW))
+    .catch(error => {
+      throw new Error(error);
+    });
 
   // Reset selection reducer
   // remove sites selection

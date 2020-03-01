@@ -14,7 +14,6 @@ import { throttle } from 'lodash';
 import { BACKGROUND_COLOR, NGL_PARAMS } from './constants';
 import { makeStyles, useTheme } from '@material-ui/core';
 import { VIEWS } from '../../constants/constants';
-import { HeaderContext } from '../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -32,7 +31,6 @@ const useStyles = makeStyles(theme => ({
 const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, handleNglViewPick }) => {
   // connect to NGL Stage object
   const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
-  const { setError } = useContext(HeaderContext);
   const [stage, setStage] = useState();
   const classes = useStyles();
   const theme = useTheme();
@@ -61,7 +59,7 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
       if (newStage) {
         window.addEventListener('resize', handleResize);
         newStage.mouseControls.add('clickPick-left', (st, pickingProxy) =>
-          handleNglViewPick(st, pickingProxy, getNglView, setError)
+          handleNglViewPick(st, pickingProxy, getNglView)
         );
 
         newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
@@ -69,7 +67,7 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
         newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
       }
     },
-    [handleResize, handleOrientationChanged, handleNglViewPick, setError]
+    [handleResize, handleOrientationChanged, handleNglViewPick]
   );
 
   const unregisterStageEvents = useCallback(
@@ -78,14 +76,14 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
         window.addEventListener('resize', handleResize);
         window.removeEventListener('resize', handleResize);
         newStage.mouseControls.remove('clickPick-left', (st, pickingProxy) =>
-          handleNglViewPick(st, pickingProxy, getNglView, setError)
+          handleNglViewPick(st, pickingProxy, getNglView)
         );
         newStage.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
         newStage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
         newStage.mouseObserver.signals.dragged.remove(handleOrientationChanged);
       }
     },
-    [handleResize, handleOrientationChanged, handleNglViewPick, setError]
+    [handleResize, handleOrientationChanged, handleNglViewPick]
   );
 
   useEffect(() => {

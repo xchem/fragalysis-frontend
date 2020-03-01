@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 04/07/2018.
  */
-import React, { memo, useState, useEffect, useCallback, useRef, useContext } from 'react';
+import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
@@ -9,11 +9,9 @@ import HotspotView from './hotspotView';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import { api, METHOD } from '../../../utils/api';
 import { Paper } from '../../common/Surfaces/Paper';
-import { HeaderContext } from '../../header/headerContext';
 
 const molStyle = { height: '250px', overflow: 'scroll' };
 const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_on }) => {
-  const { setError } = useContext(HeaderContext);
   const list_type = listType.MOLECULE;
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -37,13 +35,13 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
           setHsCount(response.data);
         })
         .catch(error => {
-          setError(error);
+          throw new Error(error);
         });
       return () => {
         onCancel();
       };
     }
-  }, [molecule_list, setError]);
+  }, [molecule_list]);
 
   useEffect(() => {
     updateCount();
@@ -59,12 +57,12 @@ const HotspotList = memo(({ molecule_list, setObjectList, target_on, mol_group_o
       setObjectList,
       cancel: onCancel
     }).catch(error => {
-      setError(error);
+      throw new Error(error);
     });
     return () => {
       onCancel();
     };
-  }, [list_type, setObjectList, mol_group_on, target_on, setError]);
+  }, [list_type, setObjectList, mol_group_on, target_on]);
 
   if (hsCount > 0) {
     return (
