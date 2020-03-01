@@ -18,19 +18,19 @@ setConfig({
 });
 
 const Root = memo(() => (
-  <CssBaseline>
-    <ThemeProvider theme={getTheme()}>
-      <HeaderProvider>
-        <ErrorBoundary>
+  <ErrorBoundary>
+    <CssBaseline>
+      <ThemeProvider theme={getTheme()}>
+        <HeaderProvider>
           <NglProvider>
             <BrowserRouter>
               <Routes />
             </BrowserRouter>
           </NglProvider>
-        </ErrorBoundary>
-      </HeaderProvider>
-    </ThemeProvider>
-  </CssBaseline>
+        </HeaderProvider>
+      </ThemeProvider>
+    </CssBaseline>
+  </ErrorBoundary>
 ));
 
 export default hot(module)(Root);
