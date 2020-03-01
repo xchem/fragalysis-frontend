@@ -10,7 +10,6 @@ export const HeaderProvider = memo(props => {
   const [headerButtons, setHeaderButtons] = useState(null);
   const [snackBarTitle, setSnackBarTitle] = useState(null);
   const [snackBarColor, setSnackBarColor] = useState(snackbarColors.default);
-  const [error, setError] = useState();
 
   return (
     <HeaderContext.Provider
@@ -26,9 +25,7 @@ export const HeaderProvider = memo(props => {
         snackBarTitle,
         setSnackBarTitle,
         snackBarColor,
-        setSnackBarColor,
-        error,
-        setError
+        setSnackBarColor
       }}
     >
       {props.children}

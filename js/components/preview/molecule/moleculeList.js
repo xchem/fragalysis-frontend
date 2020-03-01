@@ -18,7 +18,6 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
-import { HeaderContext } from '../../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -110,7 +109,6 @@ const MoleculeList = memo(
     const classes = useStyles();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
-    const { setError } = useContext(HeaderContext);
     const setOldUrl = url => {
       oldUrl.current = url;
     };
@@ -154,9 +152,9 @@ const MoleculeList = memo(
         mol_group_on,
         cached_mol_lists
       }).catch(error => {
-        setError(error);
+        throw new Error(error);
       });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists, setError]);
+    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);

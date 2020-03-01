@@ -8,7 +8,6 @@ import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import { compoundsColors } from './redux/constants';
 import { handleClickOnCompound, loadCompoundImageData } from './redux/dispatchActions';
-import { HeaderContext } from '../../header/headerContext';
 
 export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100px" height="100px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -24,17 +23,15 @@ export const CompoundView = memo(({ height, width, data, index }) => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const [image, setImage] = useState(loadingCompoundImage);
 
-  const { setError } = useContext(HeaderContext);
-
   useEffect(() => {
     let onCancel = () => {};
     loadCompoundImageData({ width, height, data, onCancel, setImage }).catch(error => {
-      setError(error);
+      throw new Error(error);
     });
     return () => {
       onCancel();
     };
-  }, [height, width, data, setError]);
+  }, [height, width, data]);
 
   const not_selected_style = {
     width: (width + 5).toString() + 'px',
@@ -65,7 +62,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
     <div
       onClick={event => {
         if (majorViewStage) {
-          dispatch(handleClickOnCompound({ event, data, majorViewStage, index, setError }));
+          dispatch(handleClickOnCompound({ event, data, majorViewStage, index }));
         }
       }}
       style={current_style}

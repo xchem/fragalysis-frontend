@@ -22,7 +22,6 @@ export const withUpdatingTarget = WrappedContainer => {
       const snapshotUuid = match.params.snapshotUuid;
 
       const { isLoading, setIsLoading } = useContext(HeaderContext);
-      const { setError } = useContext(HeaderContext);
 
       useEffect(() => {
         resetTargetAndSelection(resetSelection);
@@ -34,9 +33,9 @@ export const withUpdatingTarget = WrappedContainer => {
 
       useEffect(() => {
         updateTarget(notCheckTarget, target, setIsLoading, targetIdList).catch(error => {
-          setError(error);
+          throw new Error(error);
         });
-      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList, setError]);
+      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList]);
 
       if (isLoading === true) {
         return null;

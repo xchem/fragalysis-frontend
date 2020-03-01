@@ -11,7 +11,6 @@ import { withLoadingMolGroupList } from './withLoadingMolGroupList';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import { clearMoleculeGroupSelection } from './redux/dispatchActions';
-import { HeaderContext } from '../../header/headerContext';
 
 export const heightOfBody = '164px';
 
@@ -37,7 +36,6 @@ const MolGroupSelector = memo(({ handleHeightChange }) => {
   const { getNglView } = useContext(NglContext);
   const disableUserInteraction = useDisableUserInteraction();
   const dispatch = useDispatch();
-  const { setError } = useContext(HeaderContext);
 
   return (
     <Panel
@@ -48,7 +46,7 @@ const MolGroupSelector = memo(({ handleHeightChange }) => {
       title="Hit cluster selector"
       headerActions={[
         <Button
-          onClick={() => dispatch(clearMoleculeGroupSelection({ getNglView, setError }))}
+          onClick={() => dispatch(clearMoleculeGroupSelection({ getNglView }))}
           disabled={disableUserInteraction}
           color="inherit"
           variant="text"
