@@ -100,7 +100,7 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRFToken': getCsrfToken()
       },
-      data: JSON.stringify(post_data)
+      body: JSON.stringify(post_data)
     })
       .then(response => {
         // Now load this into NGL
