@@ -108,7 +108,6 @@
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-react-hooks": "^2.3.0",
     "file-loader": "^5.0.2",
-    "husky": "^4.0.6",
     "jest": "^24.9.0",
     "jest-canvas-mock": "^2.2.0",
     "lint-staged": "^9.5.0",
@@ -130,11 +129,6 @@
     "endOfLine": "lf",
     "bracketSpacing": true,
     "jsxBracketSameLine": false
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "js/**/*.{js,jsx}": [
