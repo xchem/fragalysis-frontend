@@ -54,7 +54,7 @@ const SessionList = memo(
             'content-type': 'application/json',
             'X-CSRFToken': getCsrfToken()
           },
-          body: JSON.stringify(formattedState)
+          data: JSON.stringify(formattedState)
         }).catch(error => {
           setState(() => {
             throw error;
