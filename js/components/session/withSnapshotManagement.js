@@ -31,6 +31,7 @@ export const withSnapshotManagement = WrappedComponent => {
     const nextUuid = useSelector(state => state.snapshotReducers.nextUuid);
     const loadedSession = useSelector(state => state.snapshotReducers.loadedSession);
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
+    const targetName = useSelector(state => state.apiReducers.target_on_name);
 
     const disableButtons =
       (savingState &&
@@ -51,8 +52,8 @@ export const withSnapshotManagement = WrappedComponent => {
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
-      if (targetIdList[0] !== undefined) {
-        setHeaderNavbarTitle(targetIdList[0].title);
+      if (targetName !== undefined) {
+        setHeaderNavbarTitle(targetName);
       }
       setHeaderButtons([
         <Button
@@ -82,6 +83,7 @@ export const withSnapshotManagement = WrappedComponent => {
       setHeaderButtons,
       setSnackBarTitle,
       targetIdList,
+      targetName,
       setSnackBarColor
     ]);
 
