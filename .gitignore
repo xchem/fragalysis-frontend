@@ -6,3 +6,5 @@ build/
 node_modules/
 npm-debug.log
 *.offsets
+yarn-error.log
+/yarn.lock

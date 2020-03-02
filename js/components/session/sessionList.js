@@ -4,9 +4,9 @@
 
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/apiActions';
-import * as listType from '../listTypes';
-import { withRouter, Link } from 'react-router-dom';
+import * as apiActions from '../../reducers/api/actions';
+import * as listType from '../../constants/listTypes';
+import { Link } from 'react-router-dom';
 import { getUrl, loadFromServer } from '../../utils/genericList';
 import { List, ListItem, Button, TextField, Panel } from '../common';
 import { updateClipboard } from './helpers';
@@ -14,15 +14,17 @@ import { api, METHOD, getCsrfToken } from '../../utils/api';
 import { ListItemText, CircularProgress, ListItemSecondaryAction } from '@material-ui/core';
 import { URLS } from '../routes/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { useLocation } from 'react-router-dom';
 
 const SessionList = memo(
-  ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving, location }) => {
+  ({ sessionIdList, seshListSaving, setSessionIdList, updateSessionIdList, setSeshListSaving }) => {
     const [/* state */ setState] = useState();
     const list_type = listType.SESSIONS;
     const oldUrl = useRef('');
     const setOldUrl = url => {
       oldUrl.current = url;
     };
+    const location = useLocation();
     const { pathname } = location;
 
     const renameStateSession = (id, title) => {
@@ -52,7 +54,7 @@ const SessionList = memo(
             'content-type': 'application/json',
             'X-CSRFToken': getCsrfToken()
           },
-          body: JSON.stringify(formattedState)
+          data: JSON.stringify(formattedState)
         }).catch(error => {
           setState(() => {
             throw error;
@@ -219,8 +221,8 @@ const SessionList = memo(
 );
 function mapStateToProps(state) {
   return {
-    sessionIdList: state.apiReducers.present.sessionIdList,
-    seshListSaving: state.apiReducers.present.seshListSaving
+    sessionIdList: state.apiReducers.sessionIdList,
+    seshListSaving: state.apiReducers.seshListSaving
   };
 }
 
@@ -230,4 +232,4 @@ const mapDispatchToProps = {
   setSeshListSaving: apiActions.setSeshListSaving
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SessionList));
+export default connect(mapStateToProps, mapDispatchToProps)(SessionList);

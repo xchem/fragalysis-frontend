@@ -1,10 +1,10 @@
 /**
  * Created by abradley on 06/03/2018.
  */
-import * as actions from '../actonTypes';
+import { constants } from './constants';
 import { savingStateConst } from '../../components/session/constants';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   project_id: undefined,
   target_id: undefined,
   target_id_list: [],
@@ -37,7 +37,7 @@ const INITIAL_STATE = {
   user_id: undefined
 };
 
-const RESET_TARGET_STATE = {
+export const RESET_TARGET_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
@@ -69,30 +69,12 @@ const RESET_TARGET_STATE = {
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
-    case actions.LOAD_TARGETS:
-      return Object.assign({}, state, {
-        project_id: action.project_id
-      });
-
-    case actions.LOAD_MOL_GROUPS:
-      return Object.assign({}, state, {
-        group_id: action.group_id,
-        // Group type is default
-        group_type: (action.group_type = action.group_type === undefined ? 'MC' : action.group_type)
-      });
-
-    case actions.LOAD_MOLECULES:
-      return Object.assign({}, state, {
-        target_id: action.target_id,
-        group_id: action.group_id
-      });
-
-    case actions.SET_TARGET_ID_LIST:
+    case constants.SET_TARGET_ID_LIST:
       return Object.assign({}, state, {
         target_id_list: action.target_id_list
       });
 
-    case actions.SET_TARGET_ON:
+    case constants.SET_TARGET_ON:
       var target_on_name = undefined;
       for (var ind in state.target_id_list) {
         if (state.target_id_list[ind].id === action.target_on) {
@@ -104,81 +86,81 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         target_on: action.target_on
       });
 
-    case actions.SET_MOL_GROUP_LIST:
+    case constants.SET_MOL_GROUP_LIST:
       return Object.assign({}, state, {
         mol_group_list: action.mol_group_list
       });
 
-    case actions.SET_MOL_GROUP_ON:
+    case constants.SET_MOL_GROUP_ON:
       return Object.assign({}, state, {
         mol_group_on: action.mol_group_on
       });
 
-    case actions.SET_MOLECULE_LIST:
+    case constants.SET_MOLECULE_LIST:
       return Object.assign({}, state, {
         molecule_list: action.molecule_list
       });
 
-    case actions.SET_CACHED_MOL_LISTS:
+    case constants.SET_CACHED_MOL_LISTS:
       return Object.assign({}, state, {
         cached_mol_lists: action.cached_mol_lists
       });
 
-    case actions.SET_PANNDA_EVENT_LIST:
+    case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {
         pandda_event_list: action.pandda_event_list
       });
-    case actions.SET_PANNDA_SITE_LIST:
+    case constants.SET_PANNDA_SITE_LIST:
       return Object.assign({}, state, {
         pandda_site_list: action.pandda_site_list
       });
 
-    case actions.SET_PANNDA_EVENT_ON:
+    case constants.SET_PANNDA_EVENT_ON:
       return Object.assign({}, state, {
         pandda_event_on: action.pandda_event_id
       });
 
-    case actions.SET_PANNDA_SITE_ON:
+    case constants.SET_PANNDA_SITE_ON:
       return Object.assign({}, state, {
         pandda_site_on: action.pandda_site_id
       });
 
-    case actions.SET_DUCK_YANK_DATA:
+    case constants.SET_DUCK_YANK_DATA:
       return Object.assign({}, state, {
         duck_yank_data: action.duck_yank_data
       });
 
-    case actions.SET_SAVING_STATE:
+    case constants.SET_SAVING_STATE:
       return Object.assign({}, state, {
         savingState: action.savingState
       });
 
-    case actions.SET_SESH_LIST_SAVING:
+    case constants.SET_SESH_LIST_SAVING:
       return Object.assign({}, state, {
         seshListSaving: action.seshListSaving
       });
 
-    case actions.SET_LATEST_SNAPSHOT:
+    case constants.SET_LATEST_SNAPSHOT:
       return Object.assign({}, state, {
         latestSnapshot: action.latestSnapshot
       });
 
-    case actions.SET_LATEST_SESSION:
+    case constants.SET_LATEST_SESSION:
       return Object.assign({}, state, {
         latestSession: action.latestSession
       });
 
-    case actions.SET_SESSION_TITLE:
+    case constants.SET_SESSION_TITLE:
       return Object.assign({}, state, {
         sessionTitle: action.sessionTitle
       });
 
-    case actions.SET_SESSION_ID:
+    case constants.SET_SESSION_ID:
       return Object.assign({}, state, {
         sessionId: action.sessionId
       });
 
-    case actions.SET_SESSION_ID_LIST:
+    case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];
       for (var key in action.sessionIdList) {
         sessionSummaryNew.push({
@@ -188,7 +170,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
           created: action.sessionIdList[key].created,
           modified: action.sessionIdList[key].modified,
           user_id: action.sessionIdList[key].user_id,
-          target_on_name: JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers.present
+          target_on_name: JSON.parse(JSON.parse(JSON.parse(action.sessionIdList[key].scene)).state).apiReducers
             .target_on_name
         });
       }
@@ -196,7 +178,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         sessionIdList: sessionSummaryNew
       });
 
-    case actions.UPDATE_SESSION_ID_LIST:
+    case constants.UPDATE_SESSION_ID_LIST:
       let sessionSummary = [];
       for (var key in action.sessionIdList) {
         sessionSummary.push({
@@ -213,17 +195,17 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         sessionIdList: sessionSummary
       });
 
-    case actions.SET_TARGET_UNRECOGNISED:
+    case constants.SET_TARGET_UNRECOGNISED:
       return Object.assign({}, state, {
         targetUnrecognised: action.targetUnrecognised
       });
 
-    case actions.SET_UUID:
+    case constants.SET_UUID:
       return Object.assign({}, state, {
         uuid: action.uuid
       });
 
-    case actions.RELOAD_API_STATE:
+    case constants.RELOAD_API_STATE:
       return Object.assign({}, state, {
         project_id: action.project_id,
         target_on_name: action.target_on_name,
@@ -246,7 +228,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         latestSession: action.latestSession
       });
 
-    case actions.RESET_TARGET_STATE:
+    case constants.RESET_TARGET_STATE:
       return Object.assign({}, state, RESET_TARGET_STATE);
     // Cases like: @@redux/INIT
     default:

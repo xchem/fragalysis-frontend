@@ -17,14 +17,14 @@ const useStyles = makeStyles(theme => ({
 
 export const ErrorReport = memo(() => {
   const classes = useStyles();
-  const [error, setError] = useState();
+  const [throwError, setThrowError] = useState();
 
-  if (error) {
+  if (throwError) {
     throw new Error('Custom user error.' + uuidv4());
   }
 
   return (
-    <Button variant="contained" color="primary" className={classes.button} onClick={() => setError(true)}>
+    <Button variant="contained" color="primary" className={classes.button} onClick={() => setThrowError(true)}>
       Report Error
     </Button>
   );

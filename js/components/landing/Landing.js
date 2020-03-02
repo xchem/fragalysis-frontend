@@ -3,11 +3,11 @@
  */
 import { Grid } from '@material-ui/core';
 import React, { memo, useEffect } from 'react';
-import TargetList from '../targetList';
+import TargetList from '../target/targetList';
 import SessionList from '../session/sessionList';
 import { connect } from 'react-redux';
-import * as apiActions from '../../reducers/api/apiActions';
-import * as selectionActions from '../../reducers/selection/selectionActions';
+import * as apiActions from '../../reducers/api/actions';
+import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {
@@ -52,7 +52,7 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
         <TargetList key="TARGLIST" />
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <SessionList key="SESSIONLIST" />
+        <SessionList />
       </Grid>
     </Grid>
   );

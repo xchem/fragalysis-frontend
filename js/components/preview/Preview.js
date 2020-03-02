@@ -2,21 +2,25 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { Fragment, memo, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
-import MoleculeList from '../molecule/moleculeList';
-import MolGroupSelector from '../moleculeGroups/molGroupSelector';
-import SummaryView from '../summaryView';
-import CompoundList from '../compoundList';
-import NglViewerControls from './viewerControls';
+import MoleculeList from './molecule/moleculeList';
+import MolGroupSelector from './moleculeGroups/molGroupSelector';
+import { SummaryView } from './summary/summaryView';
+import { CompoundList } from './compounds/compoundList';
+import { ViewerControls } from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
-//import HotspotList from '../hotspot/hotspotList';
-
-import { withUpdatingTarget } from './withUpdatingTarget';
+import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
+import { withSessionManagement } from '../session/withSessionManagement';
+import { useDispatch } from 'react-redux';
+import { removeAllNglComponents } from '../../reducers/ngl/actions';
+//import HotspotList from '../hotspot/hotspotList';
+
+const hitNavigatorWidth = 504;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,13 +28,42 @@ const useStyles = makeStyles(theme => ({
   },
   inheritWidth: {
     width: 'inherit'
+  },
+  nglViewWidth: {
+    // padding: 0,
+    width: 'inherit'
+  },
+  hitColumn: {
+    minWidth: hitNavigatorWidth,
+    [theme.breakpoints.up('md')]: {
+      width: hitNavigatorWidth
+    },
+    [theme.breakpoints.only('sm')]: {
+      width: '100%'
+    }
+  },
+  nglColumn: {
+    [theme.breakpoints.up('lg')]: {
+      width: `calc(100vw - ${2 * hitNavigatorWidth}px - ${theme.spacing(2)}px)`
+    },
+    [theme.breakpoints.only('md')]: {
+      width: `calc(100vw - ${hitNavigatorWidth}px - ${theme.spacing(4)}px)`
+    }
+  },
+  summaryColumn: {
+    minWidth: hitNavigatorWidth,
+    [theme.breakpoints.up('lg')]: {
+      width: hitNavigatorWidth
+    }
   }
 }));
 
 const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
   const theme = useTheme();
+
   const nglViewerControlsRef = useRef(null);
+  const dispatch = useDispatch();
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
@@ -41,18 +74,28 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
 
-  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px)`;
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px )`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 113px)`;
+
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 64px)`;
+
+  useEffect(() => {
+    // Unmount Preview - reset NGL state
+    return () => {
+      dispatch(removeAllNglComponents());
+    };
+  }, [dispatch]);
 
   return (
-    <Fragment>
+    <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
+        <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
+          {/* Hit cluster selector */}
           <Grid item>
             <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
           </Grid>
+          {/* Hit navigator */}
           <Grid item>
             <MoleculeList
               height={moleculeListHeight}
@@ -61,23 +104,23 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
             />
           </Grid>
         </Grid>
-        <Grid item sm={12} md={6} lg={4} xl={6}>
-          <Grid container direction="column" spacing={1}>
-            <Grid item className={classes.inheritWidth}>
+        <Grid item className={classes.nglColumn}>
+          <Grid container direction="column">
+            <Grid item className={classes.nglViewWidth}>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
-            <Grid item ref={nglViewerControlsRef}>
+            <Grid item ref={nglViewerControlsRef} className={classes.inheritWidth}>
               <ComputeSize
                 componentRef={nglViewerControlsRef.current}
                 height={viewControlsHeight}
                 setHeight={setViewControlsHeight}
               >
-                <NglViewerControls />
+                <ViewerControls />
               </ComputeSize>
             </Grid>
           </Grid>
         </Grid>
-        <Grid item sm={12} md={6} lg={4} xl={3} container direction="column" spacing={1}>
+        <Grid item container direction="column" spacing={1} className={classes.summaryColumn}>
           <Grid item>
             <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
           </Grid>
@@ -90,8 +133,8 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
         </Grid>*/}
       </Grid>
       <ModalStateSave />
-    </Fragment>
+    </>
   );
 });
 
-export default withUpdatingTarget(withLoadingProtein(Preview));
+export default withSessionManagement(withUpdatingTarget(withLoadingProtein(Preview)));

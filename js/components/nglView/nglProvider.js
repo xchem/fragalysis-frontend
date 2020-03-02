@@ -1,27 +1,29 @@
-import React, { createContext, memo, useRef } from 'react';
+import React, { createContext, memo, useState } from 'react';
 
 export const NglContext = createContext();
 
 export const NglProvider = memo(props => {
-  const nglViewList = useRef([]);
+  //const nglViewList = useRef([]);
+  const [nglViewList, setNglViewList] = useState([]);
 
   const registerNglView = (id, stage) => {
-    if (nglViewList.current.filter(ngl => ngl.id === id).length > 0) {
-      console.error('Cannot register NGL View with used ID! ', id);
+    if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
+      console.log(new Error('Cannot register NGL View with used ID! ', id));
     } else {
-      let extendedList = nglViewList.current;
+      let extendedList = nglViewList;
       extendedList.push({ id, stage });
-      nglViewList.current = extendedList;
+      setNglViewList(extendedList);
     }
   };
 
   const unregisterNglView = id => {
-    if (nglViewList.current.filter(ngl => ngl.id === id).length === 0) {
-      console.error('Cannot remove NGL View with given ID! ', id);
+    if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
+      console(new Error('Cannot remove NGL View with given ID! ', id));
     } else {
-      for (let i = 0; i < nglViewList.current.length; i++) {
-        if (nglViewList.current[i].id === id) {
-          nglViewList.current.splice(i, 1);
+      for (let i = 0; i < nglViewList.length; i++) {
+        if (nglViewList[i].id === id) {
+          nglViewList.splice(i, 1);
+          setNglViewList(nglViewList);
           break;
         }
       }
@@ -29,21 +31,20 @@ export const NglProvider = memo(props => {
   };
 
   const getNglView = id => {
-    const filteredList =
-      nglViewList.current && nglViewList.current.length > 0 ? nglViewList.current.filter(ngl => ngl.id === id) : [];
+    const filteredList = nglViewList && nglViewList.length > 0 ? nglViewList.filter(ngl => ngl.id === id) : [];
     switch (filteredList.length) {
       case 0:
         return undefined;
       case 1:
         return filteredList[0];
       default:
-        console.error('Cannot found NGL View with given ID!');
+        console(new Error('Cannot found NGL View with given ID!'));
         break;
     }
   };
 
   return (
-    <NglContext.Provider value={{ nglViewList: nglViewList.current, registerNglView, getNglView, unregisterNglView }}>
+    <NglContext.Provider value={{ nglViewList, registerNglView, getNglView, unregisterNglView }}>
       {props.children}
     </NglContext.Provider>
   );

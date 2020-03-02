@@ -1,16 +1,30 @@
 import { useCallback, useEffect } from 'react';
 import { throttle } from 'lodash';
 
-export const ComputeSize = ({ componentRef, setHeight, height, setWidth, width, children, forceCompute }) => {
+export const ComputeSize = ({
+  componentRef,
+  setHeight,
+  height,
+  setWidth,
+  width,
+  children,
+  forceCompute,
+  clientWidth,
+  setClientWidth
+}) => {
   const resize = useCallback(
     throttle(e => {
       const newHeight = componentRef && componentRef.offsetHeight ? componentRef.offsetHeight : null;
       const newWidth = componentRef && componentRef.offsetWidth ? componentRef.offsetWidth : null;
+      const newClientWidth = componentRef && componentRef.clientWidth ? componentRef.clientWidth : null;
       if (newHeight !== null && newHeight !== height && setHeight) {
         setHeight(newHeight);
       }
       if (newWidth !== null && newWidth !== width && setWidth) {
         setWidth(newWidth);
+      }
+      if (newClientWidth !== null && newClientWidth !== clientWidth && setClientWidth) {
+        setClientWidth(newClientWidth);
       }
     }, 250),
     [componentRef, height, setHeight, setWidth, width]

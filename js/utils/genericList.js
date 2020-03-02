@@ -1,4 +1,4 @@
-import * as listTypes from '../components/listTypes';
+import * as listTypes from '../constants/listTypes';
 import { api } from './api';
 import { DJANGO_CONTEXT } from './djangoContext';
 import { OBJECT_TYPE } from '../components/nglView/constants';

@@ -2,7 +2,7 @@ import React, { memo, useContext, Fragment } from 'react';
 import { Menu, Popover, Slider, Grid, makeStyles, Checkbox, TextField, Select, Box } from '@material-ui/core';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateComponentRepresentation } from '../../../../reducers/ngl/nglActions';
+import { updateComponentRepresentation } from '../../../../reducers/ngl/actions';
 import { throttle } from 'lodash';
 import { PhotoshopPicker } from 'react-color';
 
@@ -24,7 +24,7 @@ export const EditRepresentationMenu = memo(
   ({ editMenuAnchor, closeRepresentationEditMenu, representation, parentKey }) => {
     const classes = useStyles();
     const { getNglView } = useContext(NglContext);
-    const objectsInView = useSelector(state => state.nglReducers.present.objectsInView) || {};
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
     const [colorMenus, setColorMenus] = React.useState({});
 
     const dispatch = useDispatch();

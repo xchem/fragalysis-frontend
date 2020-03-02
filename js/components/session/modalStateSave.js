@@ -2,16 +2,17 @@
  * Created by ricgillams on 14/06/2018.
  */
 
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import Modal from '../common/Modal';
 import { Grid, makeStyles } from '@material-ui/core';
-import * as apiActions from '../../reducers/api/apiActions';
+import * as apiActions from '../../reducers/api/actions';
 import { TextField } from '../common/Inputs/TextField';
 import { Button } from '../common/Inputs/Button';
 import { savingStateConst } from './constants';
 import { updateClipboard } from './helpers';
 import { api } from '../../utils/api';
+import { HeaderContext } from '../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   row: {
@@ -24,12 +25,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ModalStateSave = memo(
-  ({ savingState, latestSession, latestSnapshot, sessionId, setSavingState, setSessionTitle }) => {
+  ({ saveType, savingState, latestSession, latestSnapshot, sessionId, setSavingState, setSessionTitle }) => {
     const [fraggleBoxLoc, setFraggleBoxLoc] = useState();
     const [snapshotLoc, setSnapshotLoc] = useState();
     const [title, setTitle] = useState('');
     const classes = useStyles();
-    const [state, setState] = useState();
+    const { setSnackBarTitle } = useContext(HeaderContext);
 
     let urlToCopy = '';
     const port = window.location.port ? `:${window.location.port}` : '';
@@ -86,15 +87,14 @@ const ModalStateSave = memo(
         }
       })
         .then(response => {
-          var downloadedTitle = response.data.results[JSON.stringify(0)].title;
+          var downloadedTitle =
+            response.data && response.data.results.length > 0 ? response.data.results[JSON.stringify(0)].title : '';
           setSessionTitle(downloadedTitle);
           return downloadedTitle;
         })
         .then(t => setTitle(t))
         .catch(error => {
-          setState(() => {
-            throw error;
-          });
+          throw new Error(error);
         });
     };
 
@@ -115,11 +115,9 @@ const ModalStateSave = memo(
             accept: 'application/json',
             'content-type': 'application/json'
           },
-          body: JSON.stringify(formattedState)
+          data: JSON.stringify(formattedState)
         }).catch(error => {
-          setState(() => {
-            throw error;
-          });
+          throw new Error(error);
         });
       }
     };
@@ -150,7 +148,9 @@ const ModalStateSave = memo(
           '/viewer/react/snapshot/' +
           latestSnapshot;
         linkTitle = 'A permanent, fixed snapshot of the current state has been saved: ';
-        isLoading = false;
+        if (latestSnapshot !== undefined) {
+          isLoading = false;
+        }
       } else if (savingState === savingStateConst.savingSession) {
         if (title === '') {
           getTitle();
@@ -167,31 +167,17 @@ const ModalStateSave = memo(
           latestSession;
         linkTitle = 'A new session has been generated: ';
       } else if (savingState === savingStateConst.overwritingSession) {
-        if (title === '') {
-          getTitle();
-        } else {
+        if (saveType === '') {
           isLoading = false;
+          // snackbar title is overwritten tho by withSessionManagement update
+          setSnackBarTitle('Your session was successfully saved.');
+          closeModal();
         }
-        sessionRename = true;
-        urlToCopy =
-          window.location.protocol +
-          '//' +
-          window.location.hostname +
-          port +
-          '/viewer/react/fragglebox/' +
-          latestSession;
-        linkTitle = 'Your session has been overwritten and remains available at: ';
       }
     }
 
     return (
-      <Modal
-        open={
-          savingState &&
-          (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))
-        }
-        loading={isLoading}
-      >
+      <Modal open={savingState && savingState.startsWith(savingStateConst.saving)} loading={isLoading}>
         <Grid container direction="column" justify="space-between" alignItems="stretch">
           {sessionRename === true && (
             <Grid item className={classes.row}>
@@ -230,10 +216,11 @@ const ModalStateSave = memo(
 
 function mapStateToProps(state) {
   return {
-    savingState: state.apiReducers.present.savingState,
-    latestSession: state.apiReducers.present.latestSession,
-    latestSnapshot: state.apiReducers.present.latestSnapshot,
-    sessionId: state.apiReducers.present.sessionId
+    saveType: state.sessionReducers.saveType,
+    savingState: state.apiReducers.savingState,
+    latestSession: state.apiReducers.latestSession,
+    latestSnapshot: state.apiReducers.latestSnapshot,
+    sessionId: state.apiReducers.sessionId
   };
 }
 

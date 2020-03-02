@@ -1,12 +1,19 @@
 const path = require('path');
 const webpack = require('webpack');
 const BundleTracker = require('webpack-bundle-tracker');
+const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: 'development',
   context: __dirname,
 
-  entry: ['webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr', './js/index'],
+  entry: [
+    'babel-polyfill',
+    'react-hot-loader/patch',
+    'webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr',
+    './js/index'
+  ],
 
   output: {
     crossOriginLoading: 'anonymous',
@@ -15,7 +22,7 @@ module.exports = {
     publicPath: 'http://localhost:3030/bundles/' // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
 
   stats: {
     // Configure the console output
@@ -27,29 +34,20 @@ module.exports = {
 
   plugins: [
     new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }),
+    new ErrorOverlayPlugin(),
+    new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin() // don't reload if there is an error
+    new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
+    new Dotenv()
   ],
 
   module: {
     rules: [
-      // we pass the output from babel loader to react-hot loader
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'react-hot-loader/webpack'
-          },
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['env', 'react', 'es2015'],
-              plugins: ['transform-class-properties', 'transform-decorators-legacy', 'emotion']
-            }
-          }
-        ]
+        loader: 'babel-loader'
       },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       {

@@ -1,12 +1,10 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
-import { CONSTANTS, SCENES } from './nglConstants';
+import { CONSTANTS, SCENES } from './constants';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   // NGL Scene properties
   objectsInView: {},
   nglOrientations: {},
-  orientationToSet: {},
-  loadingState: true,
   viewParams: {
     /*
     [NGL_PARAMS.impostor]: true,
@@ -24,7 +22,7 @@ const INITIAL_STATE = {
     [NGL_PARAMS.ambientColor]: 0xdddddd,
     [NGL_PARAMS.ambientIntensity]: 0.2,
     [NGL_PARAMS.hoverTimeout]: 0, */
-    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.white,
     [NGL_PARAMS.clipNear]: 0,
     [NGL_PARAMS.clipFar]: 100,
     [NGL_PARAMS.clipDist]: 10,
@@ -47,8 +45,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       // Append the input to objectsToLoad list
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       newObjectsInView[action.target.name] = { ...action.target, representations: action.representations };
-
-      //   console.log(' LOAD_OBJECT ', newObjectsInView);
 
       return Object.assign({}, state, {
         objectsInView: newObjectsInView
@@ -99,7 +95,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
       delete objectsInViewTemp[action.target.name];
 
-      console.log(' DELETE_OBJECT');
       return Object.assign({}, state, {
         objectsInView: objectsInViewTemp
       });
@@ -110,29 +105,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
       toSetDiv[div_id] = orientation;
 
-      console.log(' SET_ORIENTATION');
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
       });
 
-    case CONSTANTS.SET_NGL_ORIENTATION:
-      const set_div_id = action.div_id;
-      const set_orientation = action.orientation;
-      const toSetDivTemp = JSON.parse(JSON.stringify(state.orientationToSet));
-      toSetDivTemp[set_div_id] = set_orientation;
-      console.log(' SET_NGL_ORIENTATION');
-      return Object.assign({}, state, {
-        orientationToSet: toSetDivTemp
-      });
-
-    case CONSTANTS.SET_LOADING_STATE:
-      console.log(' SET_LOADING_STATE');
-      return Object.assign({}, state, {
-        loadingState: action.loadingState
-      });
-
     case CONSTANTS.SET_NGL_VIEW_PARAMS:
-      //   console.log(' SET_NGL_VIEW_PARAMS');
       const newViewParams = JSON.parse(JSON.stringify(state.viewParams));
       newViewParams[action.key] = action.value;
 
@@ -141,24 +118,33 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_DEFAULT_SCENE ');
       const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
       return Object.assign({}, state, newStateWithoutScene);
 
     case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_SESSION_SCENE');
-      // load state from default scene and replace current state by these data
-      return Object.assign({}, state, action.payload);
+      // return Object.assign({}, state, action.payload);
+      // in payload are apiReducers, nglReducers and selectionsReducers
+      // they are probabably not needed for ngl and they flood nglReducers recursively in time
+      return Object.assign({}, state);
 
     case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
       // load state from default scene and replace current state by these data
       const stateWithoutScene = JSON.parse(JSON.stringify(state));
       delete stateWithoutScene[SCENES.defaultScene];
+      delete stateWithoutScene[SCENES.sessionScene];
       delete stateWithoutScene['countOfRemainingMoleculeGroups'];
       delete stateWithoutScene['proteinsHasLoaded'];
       delete stateWithoutScene['countOfPendingNglObjects'];
 
-      console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
+      Object.keys(stateWithoutScene.objectsInView).forEach(objInView => {
+        stateWithoutScene.objectsInView[objInView].representations = stateWithoutScene.objectsInView[
+          objInView
+        ].representations.map(item => {
+          delete item['lastKnownID'];
+          delete item['uuid'];
+          return item;
+        });
+      });
 
       return Object.assign({}, state, {
         [SCENES.defaultScene]: stateWithoutScene
@@ -172,29 +158,35 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       delete stateWithoutSessionScene['proteinsHasLoaded'];
       delete stateWithoutSessionScene['countOfPendingNglObjects'];
 
-      console.log(' SAVE_NGL_STATE_AS_SESSION_SCENE');
+      Object.keys(stateWithoutSessionScene.objectsInView).forEach(objInView => {
+        stateWithoutSessionScene.objectsInView[objInView].representations = stateWithoutSessionScene.objectsInView[
+          objInView
+        ].representations.map(item => {
+          delete item['lastKnownID'];
+          delete item['uuid'];
+          return item;
+        });
+      });
 
       return Object.assign({}, state, {
         [SCENES.sessionScene]: stateWithoutSessionScene
       });
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
-      console.log(' REMOVE_ALL_NGL_COMPONENTS');
-      action.stage.removeAllComponents();
+      if (action.stage) {
+        action.stage.removeAllComponents();
+      }
       // clear all arrays of object
-      return Object.assign({}, state, INITIAL_STATE);
+      return INITIAL_STATE;
 
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOADED:
-      //   console.log('SET_PROTEIN_HAS_LOAD ', action.payload);
       return Object.assign({}, state, { proteinsHasLoaded: action.payload });
 
     case CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      //    console.log('SET_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      //    console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS:

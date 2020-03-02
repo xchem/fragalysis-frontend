@@ -1,6 +1,7 @@
 const path = require('path');
 const BundleTracker = require('webpack-bundle-tracker');
 const TerserPlugin = require('terser-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   optimization: {
@@ -23,7 +24,7 @@ module.exports = {
 
   context: __dirname,
 
-  entry: './js/index',
+  entry: ['babel-polyfill', './js/index'],
 
   output: {
     path: path.resolve('./bundles'),
@@ -38,7 +39,7 @@ module.exports = {
     reasons: true
   },
 
-  plugins: [new BundleTracker({ filename: './webpack-stats.json', trackAssets: true })],
+  plugins: [new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }), new Dotenv()],
 
   module: {
     rules: [
@@ -46,11 +47,7 @@ module.exports = {
         test: /\.(js|jsx)$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['env', 'react', 'es2015'],
-          plugins: ['transform-class-properties', 'transform-decorators-legacy', 'emotion']
-        }
+        loader: 'babel-loader'
       },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       {
