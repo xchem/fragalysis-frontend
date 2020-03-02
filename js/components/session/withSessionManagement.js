@@ -31,6 +31,7 @@ export const withSessionManagement = WrappedComponent => {
     const nextUuid = useSelector(state => state.sessionReducers.nextUuid);
     const loadedSession = useSelector(state => state.sessionReducers.loadedSession);
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
+    const targetName = useSelector(state => state.apiReducers.target_on_name);
 
     const disableButtons =
       (savingState &&
@@ -51,8 +52,8 @@ export const withSessionManagement = WrappedComponent => {
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
-      if (targetIdList[0] !== undefined) {
-        setHeaderNavbarTitle(targetIdList[0].title);
+      if (targetName !== undefined) {
+        setHeaderNavbarTitle(targetName);
       }
       if (sessionTitle === undefined || sessionTitle === 'undefined') {
         setHeaderButtons([
@@ -126,6 +127,7 @@ export const withSessionManagement = WrappedComponent => {
       setHeaderButtons,
       setSnackBarTitle,
       targetIdList,
+      targetName,
       setSnackBarColor
     ]);
 
