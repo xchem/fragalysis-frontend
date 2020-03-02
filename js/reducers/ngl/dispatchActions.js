@@ -113,7 +113,7 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  Promise.all(
+  return Promise.all(
     Object.keys(currentScene.objectsInView || {}).map(objInView => {
       if (currentScene.objectsInView[objInView].display_div === display_div) {
         let representations = currentScene.objectsInView[objInView].representations;

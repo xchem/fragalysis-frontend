@@ -89,10 +89,22 @@ export const withSessionManagement = WrappedComponent => {
           >
             Save Session
           </Button>,
-          <Button key="saveAs" color="primary" onClick={newSession} startIcon={<Save />} disabled={disableButtons}>
+          <Button
+            key="saveAs"
+            color="primary"
+            onClick={() => dispatch(newSession())}
+            startIcon={<Save />}
+            disabled={disableButtons}
+          >
             Save Session As
           </Button>,
-          <Button key="share" color="primary" onClick={newSnapshot} startIcon={<Share />} disabled={disableButtons}>
+          <Button
+            key="share"
+            color="primary"
+            onClick={() => dispatch(newSnapshot())}
+            startIcon={<Share />}
+            disabled={disableButtons}
+          >
             Share Snapshot
           </Button>,
           <DownloadPdb key="download" />
