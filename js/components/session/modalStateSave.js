@@ -115,7 +115,7 @@ const ModalStateSave = memo(
             accept: 'application/json',
             'content-type': 'application/json'
           },
-          body: JSON.stringify(formattedState)
+          data: JSON.stringify(formattedState)
         }).catch(error => {
           throw new Error(error);
         });
