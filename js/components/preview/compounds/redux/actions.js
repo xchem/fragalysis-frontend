@@ -10,13 +10,14 @@ export const setCurrentPage = page => ({
   payload: page
 });
 
-export const resetCurrentCompoundsSettings = (withCompoundClasses = false) => dispatch => {
+export const resetCurrentCompoundsSettings = (withCompoundClasses = false) => async dispatch => {
+  await dispatch({
+    type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
+  });
+
   if (withCompoundClasses === true) {
     dispatch(resetCompoundClasses());
   }
-  dispatch({
-    type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
-  });
 };
 
 export const updateCurrentCompound = ({ id, key, value }) => ({
