@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
-import { Grid, Box, makeStyles, TextField, useTheme, CircularProgress } from '@material-ui/core';
+import { Grid, Box, makeStyles, TextField, CircularProgress } from '@material-ui/core';
 import { SelectAll, Delete } from '@material-ui/icons';
 import {
   clearAllSelectedCompounds,
@@ -21,13 +21,37 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
+import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: 50
+    width: 76,
+    '& .MuiFormLabel-root': {
+      paddingLeft: theme.spacing(1)
+    }
   },
+  selectedInput: {
+    border: `2px groove ${theme.palette.primary.main}`
+  },
+
+  [compoundsColors.blue.key]: {
+    backgroundColor: compoundsColors.blue.color
+  },
+  [compoundsColors.red.key]: {
+    backgroundColor: compoundsColors.red.color
+  },
+  [compoundsColors.green.key]: {
+    backgroundColor: compoundsColors.green.color
+  },
+  [compoundsColors.purple.key]: {
+    backgroundColor: compoundsColors.purple.color
+  },
+  [compoundsColors.apricot.key]: {
+    backgroundColor: compoundsColors.apricot.color
+  },
+
   paddingProgress: {
     padding: theme.spacing(1),
     width: 100,
@@ -43,7 +67,6 @@ const useStyles = makeStyles(theme => ({
 export const CompoundList = memo(({ height }) => {
   const classes = useStyles();
   const panelRef = useRef(null);
-  const theme = useTheme();
   const dispatch = useDispatch();
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -57,17 +80,6 @@ export const CompoundList = memo(({ height }) => {
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
   const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
-
-  Object.keys(compoundsColors).forEach(item => {
-    if (!!document.getElementById(item)) {
-      let inputId = document.getElementById(item);
-      inputId.style.backgroundColor = compoundsColors[item].color;
-      inputId.style.border = `1px solid ${theme.palette.primary.contrastText}`;
-      if (currentCompoundClass === item) {
-        inputId.style.border = `2px solid ${theme.palette.primary.main}`;
-      }
-    }
-  });
 
   let mol_string = currentCompounds.length + ' Compounds on vector to pick';
 
@@ -86,7 +98,12 @@ export const CompoundList = memo(({ height }) => {
                   <TextField
                     id={`${item}`}
                     key={`CLASS_${item}`}
-                    className={classes.textField}
+                    variant="standard"
+                    className={classNames(
+                      classes.textField,
+                      classes[item],
+                      currentCompoundClass === item && classes.selectedInput
+                    )}
                     label={compoundsColors[item].text}
                     onChange={e => dispatch(onChangeCompoundClassValue(e))}
                     onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
