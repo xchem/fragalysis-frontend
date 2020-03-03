@@ -29,7 +29,7 @@ export const INITIAL_STATE = {
   currentCompoundClass: compoundsColors.blue.key,
   compoundClasses: defaultCompoundsClasses,
   selectedCompoundsClass: defaultSelectedCmpdsClass,
-  highlightedCompoundId: undefined,
+  highlightedCompoundId: null,
   showedCompoundList: [],
 
   // configuration: {

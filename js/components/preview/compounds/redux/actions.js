@@ -1,5 +1,4 @@
 import { constants } from './constants';
-import { compounds } from './reducer';
 
 export const setCurrentCompounds = loadedCompounds => ({
   type: constants.SET_CURRENT_COMPOUNDS,
@@ -11,9 +10,14 @@ export const setCurrentPage = page => ({
   payload: page
 });
 
-export const resetCurrentCompoundsSettings = () => ({
-  type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
-});
+export const resetCurrentCompoundsSettings = (withCompoundClasses = false) => dispatch => {
+  if (withCompoundClasses === true) {
+    dispatch(resetCompoundClasses());
+  }
+  dispatch({
+    type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS
+  });
+};
 
 export const updateCurrentCompound = ({ id, key, value }) => ({
   type: constants.UPDATE_COMPOUND,

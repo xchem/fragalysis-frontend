@@ -18,7 +18,7 @@ export const NglProvider = memo(props => {
 
   const unregisterNglView = id => {
     if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
-      console(new Error('Cannot remove NGL View with given ID! ', id));
+      console.log(new Error('Cannot remove NGL View with given ID! ', id));
     } else {
       for (let i = 0; i < nglViewList.length; i++) {
         if (nglViewList[i].id === id) {
