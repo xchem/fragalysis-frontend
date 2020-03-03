@@ -18,7 +18,7 @@ import {
 import { compoundsColors } from './redux/constants';
 // import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { getCanLoadMoreCompounds, getCompoundClasses, getCompoundListOffset } from './redux/selectors';
+import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import classNames from 'classnames';
@@ -72,7 +72,21 @@ export const CompoundList = memo(({ height }) => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const to_query = useSelector(state => state.selectionReducers.to_query);
-  const compoundClasses = useSelector(state => getCompoundClasses(state));
+  // const compoundClasses = useSelector(state => getCompoundClasses(state));
+  const blueInput = useSelector(state => state.previewReducers.compounds[compoundsColors.blue.key]);
+  const redInput = useSelector(state => state.previewReducers.compounds[compoundsColors.red.key]);
+  const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
+  const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
+  const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
+
+  const inputs = {
+    [compoundsColors.blue.key]: blueInput,
+    [compoundsColors.red.key]: redInput,
+    [compoundsColors.green.key]: greenInput,
+    [compoundsColors.purple.key]: purpleInput,
+    [compoundsColors.apricot.key]: apricotInput
+  };
+
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
   // const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
@@ -107,7 +121,7 @@ export const CompoundList = memo(({ height }) => {
                     label={compoundsColors[item].text}
                     onChange={e => dispatch(onChangeCompoundClassValue(e))}
                     onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                    value={compoundClasses[item] || ''}
+                    value={inputs[item] || ''}
                   />
                 </Grid>
               ))}
