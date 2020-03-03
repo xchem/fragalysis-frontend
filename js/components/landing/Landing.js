@@ -11,6 +11,7 @@ import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { Projects } from '../projects';
 import { HeaderContext } from '../header/headerContext';
+import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
 
 const Landing = memo(({ resetSelectionState, resetTargetState }) => {
   const { setSnackBarTitle } = useContext(HeaderContext);
@@ -33,6 +34,7 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
     resetTargetState();
     resetSelectionState();
     setSnackBarTitle(loginText);
+    resetCurrentCompoundsSettings(true);
   }, [resetTargetState, resetSelectionState, setSnackBarTitle, loginText]);
 
   return (
@@ -53,7 +55,8 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   resetSelectionState: selectionActions.resetSelectionState,
-  resetTargetState: apiActions.resetTargetState
+  resetTargetState: apiActions.resetTargetState,
+  resetCurrentCompoundsSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);
