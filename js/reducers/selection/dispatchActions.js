@@ -3,7 +3,7 @@ import { selectVector } from './actions';
 import { getAllCompoundsList } from './selectors';
 
 export const selectVectorAndResetCompounds = currentVector => async (dispatch, getState) => {
-  await dispatch(resetCurrentCompoundsSettings());
+  await dispatch(resetCurrentCompoundsSettings(false));
   dispatch(selectVector(currentVector));
   dispatch(setCurrentCompounds(getAllCompoundsList(getState())));
 };

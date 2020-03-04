@@ -9,8 +9,9 @@ import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
 import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
 
-const Landing = memo(({ resetSelectionState, resetTargetState }) => {
+const Landing = memo(({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings }) => {
   let text_div;
 
   if (DJANGO_CONTEXT['authenticated'] === true) {
@@ -30,7 +31,8 @@ const Landing = memo(({ resetSelectionState, resetTargetState }) => {
   useEffect(() => {
     resetTargetState();
     resetSelectionState();
-  }, [resetTargetState, resetSelectionState]);
+    resetCurrentCompoundsSettings(true);
+  }, [resetTargetState, resetSelectionState, resetCurrentCompoundsSettings]);
 
   return (
     <Grid container spacing={2}>
@@ -63,7 +65,8 @@ function mapStateToProps(state) {
 }
 const mapDispatchToProps = {
   resetSelectionState: selectionActions.resetSelectionState,
-  resetTargetState: apiActions.resetTargetState
+  resetTargetState: apiActions.resetTargetState,
+  resetCurrentCompoundsSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);
