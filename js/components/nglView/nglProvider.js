@@ -38,7 +38,7 @@ export const NglProvider = memo(props => {
       case 1:
         return filteredList[0];
       default:
-        console(new Error('Cannot found NGL View with given ID!'));
+        console.log(new Error('Cannot found NGL View with given ID!'));
         break;
     }
   };
