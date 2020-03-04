@@ -219,6 +219,8 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
       data: JSON.stringify(formattedState)
     }).then(response => {
       dispatch(updateCurrentTarget(response.data));
+      // latest session should be set also because of proper saving cycle
+      dispatch(setLatestSession(uuid));
     });
   } else if (saveType === savingTypeConst.snapshotNew) {
     const uuidv4 = require('uuid/v4');
