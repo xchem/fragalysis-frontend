@@ -27,6 +27,7 @@ import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../moleculeView';
+import { setMoleculeOrientation } from '../../../../reducers/ngl/actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -76,6 +77,7 @@ const getViewUrl = (get_view, data) => {
 const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
   const to_select = state.selectionReducers.to_select;
+  const orientationMatrix = state.nglReducers.moleculeOrientations[data.id];
   var objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList(objList));
   // loading vector objects
@@ -83,7 +85,9 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
     dispatch(
       loadObject(
         Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
-        stage
+        stage,
+        undefined,
+        orientationMatrix
       )
     )
   );
@@ -152,6 +156,7 @@ export const addLigand = (stage, data, colourToggle) => dispatch => {
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+    dispatch(setMoleculeOrientation(data.id, currentOrientation));
   });
   dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
 };

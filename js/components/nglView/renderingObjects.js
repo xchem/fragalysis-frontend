@@ -86,6 +86,7 @@ const showComplex = (stage, input_dict, object_name, representations) => {
   ]).then(ol => renderComplex(ol, representations));
 };
 
+// ligand
 const showEvent = (stage, input_dict, object_name, representations) =>
   Promise.all(
     [
@@ -146,7 +147,8 @@ const showEvent = (stage, input_dict, object_name, representations) =>
     ].then(values => [...values])
   );
 
-const showCylinder = (stage, input_dict, object_name, representations) => {
+// vector
+const showCylinder = (stage, input_dict, object_name, representations, orientationMatrix) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.4 : input_dict.radius;
   // Handle undefined start and finish
@@ -157,14 +159,19 @@ const showCylinder = (stage, input_dict, object_name, representations) => {
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-  comp.autoView();
+  if (orientationMatrix) {
+    stage.viewerControls.orient(orientationMatrix);
+  } else {
+    comp.autoView();
+  }
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showArrow = (stage, input_dict, object_name, representations) => {
+// vector
+const showArrow = (stage, input_dict, object_name, representations, orientationMatrix) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
   // Handle undefined start and finish
@@ -175,7 +182,12 @@ const showArrow = (stage, input_dict, object_name, representations) => {
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-  comp.autoView();
+  if (orientationMatrix) {
+    stage.viewerControls.orient(orientationMatrix);
+  } else {
+    comp.autoView();
+  }
+
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
