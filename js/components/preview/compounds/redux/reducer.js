@@ -27,9 +27,9 @@ export const INITIAL_STATE = {
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,
-  compoundClasses: defaultCompoundsClasses,
+  ...defaultCompoundsClasses,
   selectedCompoundsClass: defaultSelectedCmpdsClass,
-  highlightedCompoundId: undefined,
+  highlightedCompoundId: null,
   showedCompoundList: [],
 
   // configuration: {
@@ -62,11 +62,11 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       });
     case constants.SET_COMPOUND_CLASSES:
       return Object.assign({}, state, {
-        compoundClasses: action.payload
+        ...action.payload
       });
 
     case constants.RESET_COMPOUND_CLASSES:
-      return Object.assign({}, state, { compoundClasses: {} });
+      return Object.assign({}, state, { ...defaultCompoundsClasses });
 
     case constants.SET_HIGHLIGHTED_COMPOUND_ID:
       return Object.assign({}, state, { highlightedCompoundId: action.payload });

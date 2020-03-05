@@ -47,7 +47,11 @@ export const selectAllCompounds = () => (dispatch, getState) => {
 
 export const onChangeCompoundClassValue = event => (dispatch, getState) => {
   const state = getState();
-  const compoundClasses = state.previewReducers.compounds.compoundClasses;
+  const compoundClasses = {};
+  Object.keys(compoundsColors).forEach(color => {
+    compoundClasses[color] = state.previewReducers.compounds[color];
+  });
+  // const compoundClasses = state.previewReducers.compounds.compoundClasses;
 
   const newClassDescription = { [event.target.id]: event.target.value };
   const descriptionToSet = Object.assign(compoundClasses, newClassDescription);

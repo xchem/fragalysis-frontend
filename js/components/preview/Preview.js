@@ -18,6 +18,7 @@ import { withLoadingProtein } from './withLoadingProtein';
 import { withSessionManagement } from '../session/withSessionManagement';
 import { useDispatch } from 'react-redux';
 import { removeAllNglComponents } from '../../reducers/ngl/actions';
+import { resetCurrentCompoundsSettings } from './compounds/redux/actions';
 //import HotspotList from '../hotspot/hotspotList';
 
 const hitNavigatorWidth = 504;
@@ -84,6 +85,8 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
     // Unmount Preview - reset NGL state
     return () => {
       dispatch(removeAllNglComponents());
+      dispatch(resetCurrentCompoundsSettings(true));
+      console.log(' Unmount Preview ');
     };
   }, [dispatch]);
 

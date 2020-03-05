@@ -251,7 +251,7 @@ export default memo(
                     size="small"
                     onClick={() => setOpenFunders(true)}
                   >
-                    Supported by
+                    Contributors
                   </Button>
                 </Grid>
               </Grid>
@@ -310,7 +310,7 @@ export default memo(
                 <ListItemIcon>
                   <SupervisorAccount />
                 </ListItemIcon>
-                <ListItemText primary="Supported by" />
+                <ListItemText primary="Contributors" />
               </ListItem>
               <Divider />
               {authListItem}
