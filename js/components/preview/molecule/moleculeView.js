@@ -50,6 +50,9 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText
   },
+  contColButtonHalfSelected: {
+    backgroundColor: theme.palette.primary.semidark
+  },
   detailsCol: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
@@ -141,6 +144,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
 
   const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
+  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isComplexOn || isVectorOn);
 
   const disableUserInteraction = useDisableUserInteraction();
 
@@ -339,9 +343,15 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
             <Grid item>
               <Button
                 variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: hasAllValuesOn
-                })}
+                className={classNames(
+                  classes.contColButton,
+                  {
+                    [classes.contColButtonSelected]: hasAllValuesOn
+                  },
+                  {
+                    [classes.contColButtonHalfSelected]: hasSomeValuesOn
+                  }
+                )}
                 onClick={() => {
                   selectedAll.current = !selectedAll.current;
 
