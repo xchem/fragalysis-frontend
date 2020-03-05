@@ -33,7 +33,8 @@ export const INITIAL_STATE = {
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
   proteinsHasLoaded: null,
-  countOfPendingNglObjects: 0
+  countOfPendingNglObjects: 0,
+  moleculeOrientations: {}
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -141,6 +142,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
       return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
+
+    case CONSTANTS.SET_MOLECULE_ORIENTATION:
+      const newMoleculeOrientations = state.moleculeOrientations;
+      newMoleculeOrientations[action.payload.moleculeId] = action.payload.orientation;
+
+      return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
 
     default:
       return state;

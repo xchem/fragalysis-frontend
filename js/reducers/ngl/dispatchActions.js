@@ -21,10 +21,16 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { SnapshotType } from '../../components/projects/redux/constants';
 import moment from 'moment';
 
-export const loadObject = (target, stage, previousRepresentations) => dispatch => {
+export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects());
-    return nglObjectDictionary[target.OBJECT_TYPE](stage, target, target.name, previousRepresentations)
+    return nglObjectDictionary[target.OBJECT_TYPE](
+      stage,
+      target,
+      target.name,
+      previousRepresentations,
+      orientationMatrix
+    )
       .then(representations => dispatch(loadNglObject(target, representations)))
       .catch(error => {
         console.error(error);
