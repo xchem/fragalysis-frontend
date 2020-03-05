@@ -128,8 +128,8 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
   </circle>  '</svg>`;
 
 const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
-  const [countOfVectors, setCountOfVectors] = useState('-');
-  const [cmpds, setCmpds] = useState('-');
+  // const [countOfVectors, setCountOfVectors] = useState('-');
+  // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
   const currentID = (data && data.id) || undefined;
   const classes = useStyles();
