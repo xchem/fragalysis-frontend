@@ -107,17 +107,17 @@ export const getVectorWithColorByCountOfCompounds = (item, to_select) => {
 
   if (counter > 50) {
     colour = [0, 1, 0];
-    return { ...item, colour: colour, radius: 0.8 };
+    return { ...item, colour: colour, radius: 0.5 };
   }
 
   if (counter > 10) {
     colour = [0.5, 1, 0];
-    return { ...item, colour: colour, radius: 0.6 };
+    return { ...item, colour: colour, radius: 0.4 };
   }
 
   if (counter > 0) {
     colour = [1, 1, 0];
-    return { ...item, colour: colour, radius: 0.5 };
+    return { ...item, colour: colour, radius: 0.35 };
   }
   return { ...item, colour: colour, radius: 0.3 };
 };
