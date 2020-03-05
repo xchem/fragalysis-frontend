@@ -62,6 +62,9 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.black
     }
   },
+  contColButtonHalfSelected: {
+    backgroundColor: theme.palette.primary.semidark
+  },
   detailsCol: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
