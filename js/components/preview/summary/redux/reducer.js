@@ -17,7 +17,7 @@ const loadingCompoundImage =
   '<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="3s" repeatCount="indefinite" /> </g> ' +
   '</svg>';
 
-const noCompoundImage = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="150px" height="150px"/>';
+export const noCompoundImage = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="150px" height="150px"/>';
 
 export const INITIAL_STATE = {
   oldUrl: '',
