@@ -28,6 +28,8 @@ import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../moleculeView';
 import { setMoleculeOrientation } from '../../../../reducers/ngl/actions';
+import { setCompoundImage } from '../../summary/redux/actions';
+import { noCompoundImage } from '../../summary/redux/reducer';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -215,4 +217,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
       querying: undefined
     })
   );
+
+  dispatch(setCompoundImage(noCompoundImage));
 };
