@@ -3,9 +3,9 @@
  */
 
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
-import { FilterList } from '@material-ui/icons';
+import { FilterList, ClearAll } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
 import MoleculeView from './moleculeView';
@@ -18,6 +18,9 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
+import { VIEWS } from '../../../constants/constants';
+import { NglContext } from '../../nglView/nglProvider';
+import { hideAllSelectedMolecules } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -120,11 +123,15 @@ const MoleculeList = memo(
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
+    const dispatch = useDispatch();
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+
     const filterRef = useRef();
 
     let joinedMoleculeLists = getJoinedMoleculeList;
 
-    // Reset Infinity scroll
+    // TODO Reset Infinity scroll
     /*useEffect(() => {
       // setCurrentPage(0);
     }, [object_selection]);*/
@@ -177,6 +184,16 @@ const MoleculeList = memo(
           hasHeader
           title="Hit navigator"
           headerActions={[
+            <Button
+              color={'inherit'}
+              size="small"
+              variant="text"
+              startIcon={<ClearAll />}
+              disabled={!(object_selection || []).length}
+              onClick={() => dispatch(hideAllSelectedMolecules(stage, currentMolecules))}
+            >
+              Hide all
+            </Button>,
             <Button
               onClick={event => {
                 if (sortDialogOpen === false) {
