@@ -362,7 +362,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   }
                 )}
                 onClick={() => {
-                  selectedAll.current = !selectedAll.current;
+                  // always deselect all if are selected only some of options
+                  selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
 
                   onLigand(true);
                   onComplex(true);
