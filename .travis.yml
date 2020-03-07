@@ -20,10 +20,6 @@
 # STACK_NAMESPACE       To define the namespace of the Stack repository (default is 'xchem')
 # STACK_BRANCH          The branch to trigger (default is 'master')
 
-language: node_js
-node_js:
-  - "8"
-
 stages:
 - name: test
   if: branch = im-travis
@@ -39,14 +35,7 @@ env:
   # The origin of the trigger code
   - TRIGGER_ORIGIN=https://raw.githubusercontent.com/informaticsmatters/trigger-travis/master
 
-install:
-# Download trigger code
-- curl --location --retry 3 ${TRIGGER_ORIGIN}/requirements.txt --output trigger-travis-requirements.txt
-- curl --location --retry 3 ${TRIGGER_ORIGIN}/trigger-travis.py --output trigger-travis.py
-- pip install -r trigger-travis-requirements.txt
-- chmod +x trigger-travis.py
-
-before_script:
+before_install:
 # Downstream project triggers.
 # The downstream projects are the Fragalysis Stack.
 # The user can define the following variables in their Travis Settings.
@@ -65,6 +54,8 @@ jobs:
 
   - stage: test
     name: Test and Build
+    language: node_js
+    node_js: 8
     script:
     - yarn install && yarn test --passWithNoTests
     - if [ "$TRAVIS_BRANCH" == "master" ]; then
@@ -75,6 +66,14 @@ jobs:
 
   - stage: trigger downstream
     name: Trigger Downstream
+    language: python
+    python: 3.8
+    before_script:
+    # Download trigger code
+    - curl --location --retry 3 ${TRIGGER_ORIGIN}/requirements.txt --output trigger-travis-requirements.txt
+    - curl --location --retry 3 ${TRIGGER_ORIGIN}/trigger-travis.py --output trigger-travis.py
+    - pip install -r trigger-travis-requirements.txt
+    - chmod +x trigger-travis.py
     script:
     - echo "STACK_NAMESPACE=${STACK_NAMESPACE}"
     - echo "STACK_BRANCH=${STACK_BRANCH}"
