@@ -58,7 +58,7 @@ jobs:
     node_js: 8
     script:
     - yarn install && yarn test --passWithNoTests
-    - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    - if [ "$TRAVIS_BRANCH" == "im-travis" ]; then
       yarn run build;
       fi
 
