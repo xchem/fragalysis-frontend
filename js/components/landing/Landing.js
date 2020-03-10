@@ -12,43 +12,54 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { Projects } from '../projects';
 import { HeaderContext } from '../header/headerContext';
 import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
+import { resetProjectsReducer } from '../projects/redux/actions';
 
-const Landing = memo(({ resetSelectionState, resetTargetState }) => {
-  const { setSnackBarTitle } = useContext(HeaderContext);
-  const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
+const Landing = memo(
+  ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
+    const { setSnackBarTitle } = useContext(HeaderContext);
+    const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
 
-  useEffect(() => {
-    if (DJANGO_CONTEXT['authenticated'] !== true) {
-      setLoginText(
-        <>
-          {'To view own targets login here: '}
-          <Link href="/accounts/login" color="inherit" variant="subtitle2">
-            FedID Login
-          </Link>
-        </>
-      );
-    }
-  }, []);
+    useEffect(() => {
+      if (DJANGO_CONTEXT['authenticated'] !== true) {
+        setLoginText(
+          <>
+            {'To view own targets login here: '}
+            <Link href="/accounts/login" color="inherit" variant="subtitle2">
+              FedID Login
+            </Link>
+          </>
+        );
+      }
+    }, []);
 
-  useEffect(() => {
-    resetTargetState();
-    resetSelectionState();
-    setSnackBarTitle(loginText);
-    resetCurrentCompoundsSettings(true);
-  }, [resetTargetState, resetSelectionState, setSnackBarTitle, loginText]);
+    useEffect(() => {
+      resetTargetState();
+      resetSelectionState();
+      setSnackBarTitle(loginText);
+      resetCurrentCompoundsSettings(true);
+      resetProjectsReducer();
+    }, [
+      resetTargetState,
+      resetSelectionState,
+      setSnackBarTitle,
+      loginText,
+      resetCurrentCompoundsSettings,
+      resetProjectsReducer
+    ]);
 
-  return (
-    <Grid container spacing={2}>
-      <Grid item xs={4}>
-        <TargetList key="TARGLIST" />
+    return (
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <TargetList key="TARGLIST" />
+        </Grid>
+        <Grid item xs={8}>
+          {/*<SessionList />*/}
+          <Projects />
+        </Grid>
       </Grid>
-      <Grid item xs={8}>
-        {/*<SessionList />*/}
-        <Projects />
-      </Grid>
-    </Grid>
-  );
-});
+    );
+  }
+);
 
 function mapStateToProps(state) {
   return {};
@@ -56,7 +67,8 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   resetSelectionState: selectionActions.resetSelectionState,
   resetTargetState: apiActions.resetTargetState,
-  resetCurrentCompoundsSettings
+  resetCurrentCompoundsSettings,
+  resetProjectsReducer
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);

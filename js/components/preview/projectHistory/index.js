@@ -3,7 +3,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { Grid, IconButton, Typography, Table, TableBody, TableRow, TableCell, TableHead } from '@material-ui/core';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
-import { Delete, Share, MoreVert } from '@material-ui/icons';
+import { Delete, Share, MergeType } from '@material-ui/icons';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 
@@ -79,7 +79,7 @@ export const ProjectHistory = memo(({ height, setHeight, showFullHistory }) => {
       ref={panelRef}
       headerActions={[
         <IconButton color="inherit" onClick={showFullHistory}>
-          <MoreVert />
+          <MergeType />
         </IconButton>
       ]}
     >

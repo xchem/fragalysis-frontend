@@ -51,6 +51,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
         snapshotDetail: action.payload.snapshotDetail
       });
 
+    case constants.RESET_PROJECTS_REDUCER:
+      return Object.assign({}, INITIAL_STATE);
+
     default:
       return state;
   }
