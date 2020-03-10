@@ -9,7 +9,6 @@ import {
   setTargetUnrecognised
 } from '../../../reducers/api/actions';
 import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
-import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { canCheckTarget, generateBondColorMap, generateObjectList } from '../helpers';
 import { savingStateConst, savingTypeConst } from '../constants';
@@ -17,13 +16,6 @@ import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from '.
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { loadProjectFromSnapshot } from '../../projects/redux/dispatchActions';
-import apiReducers from '../../../reducers/api/apiReducers';
-import nglReducers from '../../../reducers/ngl/nglReducers';
-import selectionReducers from '../../../reducers/selection/selectionReducers';
-import { targetReducers } from '../../target/redux/reducer';
-import { sessionReducers } from './reducer';
-import { previewReducers } from '../../preview/redux';
-import { issueReducers } from '../../userFeedback/redux/reducer';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 
 export const handleVector = json => dispatch => {
@@ -62,7 +54,7 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
         throw new Error(error);
       });
 
-      dispatch(reloadPreviewReducer(jsonOfView.previewReducers));
+      dispatch(reloadPreviewReducer(snapshotData.previewReducers));
     }
   }
 };
