@@ -76,10 +76,6 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => d
   }
 };
 
-export const loadMoleculeGroups = ({ stage, setOldUrl, oldUrl, onCancel, isStateLoaded, projectId }) => (
-  dispatch,
-  getState
-) => {
 export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => {
   const currentMolGroup = getState().apiReducers.mol_group_list[0];
   if (currentMolGroup) {
@@ -102,7 +98,7 @@ export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => 
   }
 };
 
-export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, isStateLoaded }) => (
+export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, isStateLoaded, projectId }) => (
   dispatch,
   getState
 ) => {
@@ -136,14 +132,12 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW))
-    .catch(error => {
-      throw new Error(error);
-    });
-  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW))
-    .catch(error => {
-      throw new Error(error);
-    });
+  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW)).catch(error => {
+    throw new Error(error);
+  });
+  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW)).catch(error => {
+    throw new Error(error);
+  });
 
   // Reset selection reducer
   // remove sites selection

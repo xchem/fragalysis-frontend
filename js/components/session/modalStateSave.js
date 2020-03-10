@@ -216,7 +216,7 @@ const ModalStateSave = memo(
 
 function mapStateToProps(state) {
   return {
-    saveType: state.sessionReducers.saveType,
+    saveType: state.snapshotReducers.saveType,
     savingState: state.apiReducers.savingState,
     latestSession: state.apiReducers.latestSession,
     latestSnapshot: state.apiReducers.latestSnapshot,
