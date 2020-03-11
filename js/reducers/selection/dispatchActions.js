@@ -47,7 +47,6 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
   }
 
   for (let attr of MOL_ATTRIBUTES) {
-    console.log(lowAttr);
     const lowAttr = attr.key.toLowerCase();
     let minValue = -999999;
     let maxValue = 0;
@@ -56,7 +55,6 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
       if (attrValue > maxValue) maxValue = attrValue;
       if (minValue === -999999) minValue = maxValue;
       if (attrValue < minValue) minValue = attrValue;
-      console.log(minValue, maxValue);
     }
 
     initObject.filter[attr.key] = {

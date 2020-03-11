@@ -229,27 +229,27 @@ const MoleculeList = memo(
 
     const changePredefinedFilter = event => {
       let newFilter = filter;
-      /*if (!!filter) {
-        console.log('existing', filter);
-        newFilter = Object.assign({}, filter);
-      } else {
-        console.log('creating', filterSettings);
-        newFilter = !!filterSettings ? filterSettings : dispatch(initializeFilter());
-        dispatch(setFilter(newFilter));
-      }*/
+
       const preFilterKey = event.target.value;
       setPredefinedFilter(preFilterKey);
-      console.log('new', newFilter);
-      newFilter.active = true;
-      newFilter.predefined = preFilterKey;
+
       if (preFilterKey !== 'none') {
+        newFilter.active = true;
+        newFilter.predefined = preFilterKey;
         Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
           const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
           newFilter.filter[attr].maxValue = maxValue;
           newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
         });
+        dispatch(setFilter(newFilter));
+      } else {
+        // close filter dialog options
+        setSortDialogAnchorEl(null);
+        setSortDialogOpen(false);
+        // reset filter
+        dispatch(setFilter(undefined));
+        newFilter = dispatch(initializeFilter());
       }
-      dispatch(setFilter(newFilter));
       setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
       handleFilterChange(newFilter);
     };
@@ -306,7 +306,7 @@ const MoleculeList = memo(
                 }
               }}
               color={'inherit'}
-              disabled={!(object_selection || []).length}
+              disabled={!(object_selection || []).length || filter.predefined !== 'none'}
               variant="text"
               startIcon={<FilterList />}
               size="small"
