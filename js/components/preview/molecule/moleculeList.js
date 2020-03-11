@@ -92,8 +92,21 @@ const useStyles = makeStyles(theme => ({
     minWidth: 87,
     fontSize: '1.2rem'
   },
-  colorInherit: {
-    color: 'inherit'
+  select: {
+    color: 'inherit',
+    fill: 'inherit',
+    '&:hover:not(.Mui-disabled):before': {
+      borderColor: 'inherit'
+    },
+    '&:before': {
+      borderColor: 'inherit'
+    },
+    '&:not(.Mui-disabled)': {
+      fill: theme.palette.white
+    }
+  },
+  selectIcon: {
+    fill: 'inherit'
   },
   molHeader: {
     marginLeft: 19,
@@ -152,7 +165,6 @@ const MoleculeList = memo(
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
-    const dispatch = useDispatch();
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
@@ -181,9 +193,7 @@ const MoleculeList = memo(
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
-        setObjectList: moleculeList => {
-          setMoleculeList(moleculeList);
-        },
+        setObjectList: setMoleculeList,
         setCachedMolLists,
         mol_group_on,
         cached_mol_lists
@@ -257,12 +267,13 @@ const MoleculeList = memo(
           headerActions={[
             <FormControl className={classes.formControl} disabled={!(object_selection || []).length}>
               <Select
-                className={classes.colorInherit}
+                className={classes.select}
                 value={predefinedFilter}
                 onChange={changePredefinedFilter}
                 inputProps={{
                   name: 'predefined',
-                  id: 'predefined-label-placeholder'
+                  id: 'predefined-label-placeholder',
+                  classes: { icon: classes.selectIcon }
                 }}
                 displayEmpty
                 name="predefined"
