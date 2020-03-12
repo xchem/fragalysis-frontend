@@ -16,7 +16,7 @@ export const withLoadingProtein = WrappedComponent => {
       shouldLoadProtein(nglViewList, isStateLoaded, projectId);
     }, [isStateLoaded, nglViewList, projectId, shouldLoadProtein]);
 
-    return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
+    return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} match={match} />;
   });
 
   function mapStateToProps(state) {

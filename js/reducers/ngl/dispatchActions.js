@@ -4,22 +4,17 @@ import {
   deleteNglObject,
   incrementCountOfPendingNglObjects,
   loadNglObject,
-  resetStateToDefaultScene,
   setNglStateFromCurrentSnapshot,
   setNglOrientation,
   setNglViewParams,
   setProteinLoadingState
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { SCENES } from './constants';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 import { SELECTION_TYPE } from '../../components/nglView/constants';
 import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
-import { storeSnapshotToProject, saveCurrentSnapshot } from '../../components/projects/redux/dispatchActions';
-import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { SnapshotType } from '../../components/projects/redux/constants';
-import moment from 'moment';
+import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 
 export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => dispatch => {
   if (stage) {
@@ -59,28 +54,6 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
   }
 
   dispatch(deleteNglObject(target));
-};
-
-const createInitialSnapshot = projectId => async (dispatch, getState) => {
-  const { objectsInView, nglOrientations, viewParams } = getState().nglReducers;
-  const snapshot = { objectsInView, nglOrientations, viewParams };
-  const snapshotDetail = {
-    type: SnapshotType.INIT,
-    name: 'Initial Snapshot',
-    author: {
-      username: DJANGO_CONTEXT.username,
-      email: DJANGO_CONTEXT.email
-    },
-    message: 'Auto generated initial snapshot',
-    children: null,
-    parent: null,
-    created: moment()
-  };
-  // TODO condition to check if project exists and if is open target or project
-  dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
-  if (projectId) {
-    dispatch(storeSnapshotToProject(snapshot, snapshotDetail, projectId));
-  }
 };
 
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = projectId => (dispatch, getState) => {

@@ -15,9 +15,6 @@ import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion
 import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLigand } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
-import { api } from '../../../utils/api';
-import { generateObjectList } from '../../session/helpers';
-import { getTotalCountOfCompounds } from './molecules_helpers';
 
 const useStyles = makeStyles(theme => ({
   container: {

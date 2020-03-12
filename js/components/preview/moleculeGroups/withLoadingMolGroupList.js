@@ -31,7 +31,8 @@ export const withLoadingMolGroupList = WrappedComponent => {
             setOldUrl,
             oldUrl: oldUrl.current,
             onCancel,
-            isStateLoaded
+            isStateLoaded,
+            projectId
           })
         ).catch(error => {
           setState(() => {
@@ -46,6 +47,6 @@ export const withLoadingMolGroupList = WrappedComponent => {
       };
     }, [isStateLoaded, onCancel, dispatch, oldUrl, getNglView, projectId, wasLoaded]);
 
-    return <WrappedComponent {...rest} />;
+    return <WrappedComponent {...rest} match={match} />;
   });
 };

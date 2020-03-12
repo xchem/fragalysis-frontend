@@ -4,7 +4,9 @@ export const INITIAL_STATE = {
   saveType: '',
   nextUuid: '',
   newSessionFlag: 0,
-  loadedSession: undefined
+  loadedSession: undefined,
+  openSavingDialog: false,
+  dialogCurrentStep: 0
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -27,6 +29,15 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_LOADED_SESSION:
       return Object.assign({}, state, {
         loadedSession: action.payload
+      });
+    case constants.SET_OPEN_SAVING_DIALOG:
+      return Object.assign({}, state, {
+        openSavingDialog: action.payload
+      });
+
+    case constants.SET_DIALOG_CURRENT_STEP:
+      return Object.assign({}, state, {
+        dialogCurrentStep: action.payload
       });
 
     default:

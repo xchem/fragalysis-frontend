@@ -18,9 +18,9 @@ export const withUpdatingTarget = WrappedContainer => {
       targetId,
       ...rest
     }) => {
-      const target = match.params.target;
-      const uuid = targetId !== null ? targetId : match.params.uuid;
-      const snapshotUuid = match.params.snapshotUuid;
+      const target = match && match.params && match.params.target;
+      const uuid = targetId !== null ? targetId : match && match.params && match.params.uuid;
+      const snapshotUuid = match && match.params && match.params.snapshotUuid;
 
       const { isLoading, setIsLoading } = useContext(HeaderContext);
       const [state, setState] = useState();
@@ -46,7 +46,7 @@ export const withUpdatingTarget = WrappedContainer => {
       } else if (target_on === undefined) {
         return <HandleUnrecognisedTarget />;
       } else {
-        return <WrappedContainer {...rest} />;
+        return <WrappedContainer {...rest} match={match} />;
       }
     }
   );

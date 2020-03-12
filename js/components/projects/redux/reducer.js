@@ -2,10 +2,11 @@ import { constants } from './constants';
 
 export const INITIAL_STATE = {
   currentProject: {
+    projectID: null, // TODO change to null
     author: null,
     title: null,
     description: null,
-    targetId: 1, //change to null,
+    targetId: 1, //TODO change to null,
     tags: [],
     type: null
   },

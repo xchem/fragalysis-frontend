@@ -15,8 +15,14 @@ import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { loadProjectFromSnapshot } from '../../projects/redux/dispatchActions';
+import {
+  loadProjectFromSnapshot,
+  saveCurrentSnapshot,
+  storeSnapshotToProject
+} from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
+import { SnapshotType } from '../../projects/redux/constants';
+import moment from 'moment';
 
 export const handleVector = json => dispatch => {
   let objList = generateObjectList(json['3d']);
@@ -84,18 +90,48 @@ export const postToServer = sessionState => dispatch => {
   dispatch(setSavingState(sessionState));
 };
 
-export const newSession = () => dispatch => {
-  dispatch(postToServer(savingStateConst.savingSession));
-  dispatch(setSaveType(savingTypeConst.sessionNew));
-};
-export const saveSession = () => dispatch => {
-  dispatch(postToServer(savingStateConst.overwritingSession));
-  dispatch(setSaveType(savingTypeConst.sessionSave));
+export const saveSnapshotToProject = ({ snapshot, snapshotDetail, projectId }) => async (dispatch, getState) => {
+  // TODO condition to check if project exists and if is open target or project
+  dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
+  if (projectId) {
+    dispatch(storeSnapshotToProject(snapshot, snapshotDetail, projectId));
+  } else {
+    throw new Error('Project ID is missing!');
+  }
 };
 
-export const newSnapshot = () => dispatch => {
-  dispatch(postToServer(savingStateConst.savingSnapshot));
-  dispatch(setSaveType(savingTypeConst.snapshotNew));
+export const createInitialSnapshot = projectId => async (dispatch, getState) => {
+  const { objectsInView, nglOrientations, viewParams } = getState().nglReducers;
+  const snapshot = { objectsInView, nglOrientations, viewParams };
+  const snapshotDetail = {
+    type: SnapshotType.INIT,
+    name: 'Initial Snapshot',
+    author: {
+      username: DJANGO_CONTEXT.username,
+      email: DJANGO_CONTEXT.email
+    },
+    message: 'Auto generated initial snapshot',
+    children: null,
+    parent: null,
+    created: moment()
+  };
+  dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
+
+  if (projectId) {
+    dispatch(saveSnapshotToProject({ snapshot, snapshotDetail, projectId }));
+  }
+};
+
+export const createNewSnapshot = projectId => (dispatch, getState) => {
+  const state = getState();
+  const { currectProject } = state.projectReducers;
+  // dispatch(postToServer(savingStateConst.savingSnapshot));
+  // dispatch(setSaveType(savingTypeConst.snapshotNew));
+  if (projectId) {
+    //   dispatch(storeSnapshotToProject(snapshot, snapshotDetail, projectId));
+  } else {
+    throw new Error('Project ID is missing!');
+  }
 };
 
 export const getSessionDetails = () => (dispatch, getState) => {

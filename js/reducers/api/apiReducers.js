@@ -2,7 +2,7 @@
  * Created by abradley on 06/03/2018.
  */
 import { constants } from './constants';
-import { savingStateConst } from '../../components/session/constants';
+import { savingStateConst } from '../../components/snapshot/constants';
 
 export const INITIAL_STATE = {
   project_id: undefined,

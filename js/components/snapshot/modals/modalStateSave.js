@@ -4,15 +4,15 @@
 
 import React, { memo, useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
-import Modal from '../common/Modal';
+import Modal from '../../common/Modal';
 import { Grid, makeStyles } from '@material-ui/core';
-import * as apiActions from '../../reducers/api/actions';
-import { TextField } from '../common/Inputs/TextField';
-import { Button } from '../common/Inputs/Button';
-import { savingStateConst } from './constants';
-import { updateClipboard } from './helpers';
-import { api } from '../../utils/api';
-import { HeaderContext } from '../header/headerContext';
+import * as apiActions from '../../../reducers/api/actions';
+import { TextField } from '../../common/Inputs/TextField';
+import { Button } from '../../common/Inputs/Button';
+import { savingStateConst } from '../constants';
+import { updateClipboard } from '../helpers';
+import { api } from '../../../utils/api';
+import { HeaderContext } from '../../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   row: {

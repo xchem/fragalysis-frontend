@@ -4,18 +4,17 @@ import { Button } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
 import { savingStateConst } from './constants';
-
 import { NglContext } from '../nglView/nglProvider';
 import { HeaderContext } from '../header/headerContext';
-import { setTargetAndReloadSession, reloadScene, newSession } from './redux/dispatchActions';
-import { snackbarColors } from '../header/constants';
+import { setTargetAndReloadSession, reloadScene } from './redux/dispatchActions';
+import { setOpenSnapshotSavingDialog } from './redux/actions';
 
 /**
  * Created by ricgillams on 13/06/2018.
  */
 
 export const withSnapshotManagement = WrappedComponent => {
-  return memo(({ ...rest }) => {
+  return memo(({ match, ...rest }) => {
     const [state, setState] = useState();
 
     const { pathname } = window.location;
@@ -32,10 +31,13 @@ export const withSnapshotManagement = WrappedComponent => {
     const loadedSession = useSelector(state => state.snapshotReducers.loadedSession);
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
+    const projectId = match && match.params && match.params.projectId;
 
     const disableButtons =
       (savingState &&
         (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
+      !projectId ||
+      !targetName ||
       false;
 
     useEffect(() => {
@@ -57,11 +59,11 @@ export const withSnapshotManagement = WrappedComponent => {
       }
       setHeaderButtons([
         <Button
-          key="saveAs"
+          key="saveSnapshot"
           color="primary"
-          onClick={() => dispatch(newSession())}
+          onClick={() => dispatch(setOpenSnapshotSavingDialog(true))}
           startIcon={<Save />}
-          disabled={disableButtons}
+          // disabled={disableButtons}
         >
           Save Snapshot
         </Button>,
@@ -84,9 +86,10 @@ export const withSnapshotManagement = WrappedComponent => {
       setSnackBarTitle,
       targetIdList,
       targetName,
-      setSnackBarColor
+      setSnackBarColor,
+      projectId
     ]);
 
-    return <WrappedComponent {...rest} />;
+    return <WrappedComponent {...rest} match={match} />;
   });
 };

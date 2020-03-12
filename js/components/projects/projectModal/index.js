@@ -89,10 +89,7 @@ export const ProjectModal = memo(({ history }) => {
         onSubmit={values => {
           const data = {
             ...values,
-            author: {
-              username: DJANGO_CONTEXT['username'],
-              email: DJANGO_CONTEXT['email']
-            },
+            authorID: DJANGO_CONTEXT['pt'],
             tags
           };
           dispatch(setProjectModalIsLoading(true));

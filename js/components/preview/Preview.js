@@ -12,16 +12,17 @@ import { CompoundList } from './compounds/compoundList';
 import { ViewerControls } from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
-import ModalStateSave from '../session/modalStateSave';
+import ModalStateSave from '../snapshot/modals/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
-import { withSnapshotManagement } from '../session/withSnapshotManagement';
+import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
 import { useDispatch } from 'react-redux';
 import { ProjectHistory } from './projectHistory';
 import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 import { removeAllNglComponents } from '../../reducers/ngl/actions';
 import { resetCurrentCompoundsSettings } from './compounds/redux/actions';
 import { resetProjectsReducer } from '../projects/redux/actions';
+import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
 //import HotspotList from '../hotspot/hotspotList';
 
 const hitNavigatorWidth = 504;
@@ -62,7 +63,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded, headerHeight }) => {
+const Preview = memo(({ isStateLoaded, headerHeight, match }) => {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -152,6 +153,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
       </Grid>
       <ModalStateSave />
       <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />
+      <NewSnapshotModal match={match} />
     </>
   );
 });
