@@ -4,7 +4,7 @@ services:
   mysql:
     image: mysql:5.7.23
     volumes:
-      - ../data/mysql_data:/var/lib/mysql
+       - ../data/mysql_data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: django_db
@@ -16,7 +16,7 @@ services:
     container_name: neo4j
     image: neo4j
     ports:
-      # Comment these two out in produciton
+# Comment these two out in produciton
       - "7474:7474"
       - "7687:7687"
     ulimits:
