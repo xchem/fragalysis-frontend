@@ -54,3 +54,8 @@ export const PREDEFINED_FILTERS = {
     }
   }
 };
+
+/**
+ * Get key of default filter
+ */
+export const DEFAULT_FILTER = 'none';

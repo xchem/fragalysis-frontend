@@ -130,7 +130,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
+const MoleculeView = memo(({ imageHeight, imageWidth, data, inheritedClass }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
@@ -324,7 +324,13 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
         </Grid>
       </Grid>
 
-      <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+      <Grid
+        item
+        container
+        className={classes.detailsCol + ' ' + inheritedClass}
+        justify="space-between"
+        direction="row"
+      >
         {/* Title label */}
         <Grid item>
           <Typography variant="button" noWrap>
