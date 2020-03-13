@@ -62,9 +62,6 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.black
     }
   },
-  contColButtonHalfSelected: {
-    backgroundColor: theme.palette.primary.semidark
-  },
   detailsCol: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
@@ -107,6 +104,9 @@ const useStyles = makeStyles(theme => ({
   qualityLabel: {
     paddingLeft: theme.spacing(1) / 4,
     paddingRight: theme.spacing(1) / 4
+  },
+  matchingValue: {
+    backgroundColor: theme.palette.success.lighter
   }
 }));
 
@@ -130,7 +130,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const MoleculeView = memo(({ imageHeight, imageWidth, data, inheritedClass }) => {
+const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
@@ -144,6 +144,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, inheritedClass }) =>
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
+  const filter = useSelector(state => state.selectionReducers.filter);
 
   const url = new URL(base_url + '/api/molimg/' + data.id + '/');
   const [img_data, setImg_data] = useState(img_data_init);
@@ -315,6 +316,30 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, inheritedClass }) =>
     }
   };
 
+  /**
+   * Check if given molecule is matching current filter
+   * @param Object item - item.name is attribute name, item.value is its value
+   * @return boolean
+   */
+  const isMatchingValue = item => {
+    let match = false;
+    if (filter.predefined !== 'none') {
+      if (!(item.value < filter.filter[item.name].minValue || item.value > filter.filter[item.name].maxValue)) {
+        match = true;
+      }
+    }
+    return match;
+  };
+
+  /**
+   * Get css class for value regarding to its filter match
+   * @param Object item - item.name is attribute name, item.value is its value
+   * @return string - css class
+   */
+  const getValueMatchingClass = item => {
+    return isMatchingValue(item) ? classes.matchingValue : '';
+  };
+
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
       {/* Site number */}
@@ -324,13 +349,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, inheritedClass }) =>
         </Grid>
       </Grid>
 
-      <Grid
-        item
-        container
-        className={classes.detailsCol + ' ' + inheritedClass}
-        justify="space-between"
-        direction="row"
-      >
+      <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
         <Grid item>
           <Typography variant="button" noWrap>
@@ -434,7 +453,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, inheritedClass }) =>
           >
             {getCalculatedProps().map(item => (
               <Tooltip title={item.name} key={item.name}>
-                <Grid item className={classes.rightBorder}>
+                <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                   {item.name === moleculeProperty.mw && Math.round(item.value)}
                   {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
                   {item.name === moleculeProperty.tpsa && Math.round(item.value)}

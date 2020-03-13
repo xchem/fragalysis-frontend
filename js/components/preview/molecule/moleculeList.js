@@ -127,9 +127,6 @@ const useStyles = makeStyles(theme => ({
       borderRight: 'none',
       width: 32
     }
-  },
-  unmatchedMolecule: {
-    backgroundColor: theme.palette.error.light
   }
 }));
 
@@ -231,7 +228,7 @@ const MoleculeList = memo(
     };
 
     const changePredefinedFilter = event => {
-      let newFilter = filter;
+      let newFilter = Object.assign({}, filter);
 
       const preFilterKey = event.target.value;
       setPredefinedFilter(preFilterKey);
@@ -256,26 +253,6 @@ const MoleculeList = memo(
       // currently do not filter molecules by excluding them
       /*setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
       handleFilterChange(newFilter);*/
-    };
-
-    /**
-     * Check if given molecule is matching current filter
-     * @param {Object} molecule
-     * @return {boolean}
-     */
-    const isMatchingMolecule = molecule => {
-      let match = true; // By default molecule passes filter
-      if (filter.predefined !== 'none') {
-        for (let attr of MOL_ATTRIBUTES) {
-          const lowAttr = attr.key.toLowerCase();
-          const attrValue = molecule[lowAttr];
-          if (attrValue < filter.filter[attr.key].minValue || attrValue > filter.filter[attr.key].maxValue) {
-            match = false;
-            break; // Do not loop over other attributes
-          }
-        }
-      }
-      return match;
     };
 
     return (
@@ -425,13 +402,7 @@ const MoleculeList = memo(
                   useWindow={false}
                 >
                   {currentMolecules.map(data => (
-                    <MoleculeView
-                      key={data.id}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data}
-                      inheritedClass={isMatchingMolecule(data) ? '' : classes.unmatchedMolecule}
-                    />
+                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
                   ))}
                 </InfiniteScroll>
               </Grid>
