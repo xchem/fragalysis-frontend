@@ -43,6 +43,7 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
       priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
     };
   } else {
+    initObject = Object.assign({}, initObject);
     console.log('using saved filter');
   }
 
