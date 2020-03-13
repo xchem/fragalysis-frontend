@@ -146,7 +146,9 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   dispatch(dispatch(setCurrentCompoundClass(compoundsColors.blue.key)));
 };
 
-export const handleClickOnCompound = ({ data, event, majorViewStage, index }) => async (dispatch, getState) => {
+export const handleClickOnCompound = ({ event, data, majorViewStage, index }) => async (dispatch, getState) => {
+  console.log('event', event);
+  console.log('data', data);
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
