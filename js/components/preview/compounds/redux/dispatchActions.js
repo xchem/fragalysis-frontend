@@ -147,8 +147,6 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
 };
 
 export const handleClickOnCompound = ({ event, data, majorViewStage, index }) => async (dispatch, getState) => {
-  console.log('event', event);
-  console.log('data', data);
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
@@ -178,7 +176,7 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
       dispatch(removeFromToBuyList(data));
     } else {
       await dispatch(addSelectedCompoundClass(currentCompoundClass, index));
-      dispatch(appendToBuyList(data));
+      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass })));
     }
   }
 };
