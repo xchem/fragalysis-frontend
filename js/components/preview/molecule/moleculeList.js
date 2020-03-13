@@ -200,7 +200,7 @@ const MoleculeList = memo(
       })
         .then(() => {
           console.log('initializing filter');
-          dispatch(initializeFilter());
+          setPredefinedFilter(dispatch(initializeFilter()).predefined);
         })
         .catch(error => {
           throw new Error(error);
