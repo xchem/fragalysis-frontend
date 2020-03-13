@@ -161,7 +161,7 @@ const MoleculeList = memo(
     const imgWidth = 150;
 
     const [filteredCount, setFilteredCount] = useState(0);
-    const [predefinedFilter, setPredefinedFilter] = useState(DEFAULT_FILTER);
+    const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
@@ -266,7 +266,7 @@ const MoleculeList = memo(
           hasHeader
           title="Hit navigator"
           headerActions={[
-            <FormControl className={classes.formControl} disabled={!(object_selection || []).length}>
+            <FormControl className={classes.formControl} disabled={!(object_selection || []).length || sortDialogOpen}>
               <Select
                 className={classes.select}
                 value={predefinedFilter}
