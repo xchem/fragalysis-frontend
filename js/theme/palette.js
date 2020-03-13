@@ -52,7 +52,7 @@ export default {
   background: {
     default: '#F4F6F8',
     paper: white,
-    divider: '#FEFEFE'
+    divider: '#CECECE'
   },
   icon: colors.blueGrey[600],
   divider: colors.grey[200]
