@@ -105,12 +105,9 @@ export const createInitialSnapshot = projectId => async (dispatch, getState) => 
   const snapshot = { objectsInView, nglOrientations, viewParams };
   const snapshotDetail = {
     type: SnapshotType.INIT,
-    name: 'Initial Snapshot',
-    author: {
-      username: DJANGO_CONTEXT.username,
-      email: DJANGO_CONTEXT.email
-    },
-    message: 'Auto generated initial snapshot',
+    title: 'Initial Snapshot',
+    authorID: DJANGO_CONTEXT.pk,
+    description: 'Auto generated initial snapshot',
     children: null,
     parent: null,
     created: moment()

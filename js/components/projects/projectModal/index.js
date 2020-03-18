@@ -88,14 +88,17 @@ export const ProjectModal = memo(({ history }) => {
         }}
         onSubmit={values => {
           const data = {
-            ...values,
-            authorID: DJANGO_CONTEXT['pt'],
+            title: values.title,
+            description: values.description,
+            targetID: values.targetId,
+            author: DJANGO_CONTEXT['pk'],
             tags
           };
           dispatch(setProjectModalIsLoading(true));
-          api({ url: `${base_url}/api/project`, method: METHOD.POST, data })
+          api({ url: `${base_url}/api/projects`, method: METHOD.POST, data })
             .then(response => {
               const projectID = response.data.id;
+              // create project_target relationShip on BE
               history.push(`${URLS.projects}${projectID}`);
             })
             .catch(error => {
