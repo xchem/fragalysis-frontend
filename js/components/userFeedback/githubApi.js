@@ -27,13 +27,13 @@ const getHeaders = () => {
 /**
  * Upload an image from form state
  */
-const uploadFile = (formState, formType) => async dispatch => {
+const uploadFile = (imageSource, formType) => async dispatch => {
   console.log('uploading new file');
 
   let screenshotUrl = '';
-  if (formState.imageSource.length > 0) {
+  if (imageSource.length > 0) {
     // https://gist.github.com/maxisam/5c6ec10cc4146adce05d62f553c5062f
-    const imgBase64 = formState.imageSource.split(',')[1];
+    const imgBase64 = imageSource.split(',')[1];
     const uid = new Date().getTime() + parseInt(Math.random() * 1e6).toString();
     const fileName = 'screenshot-' + uid + '.png';
 
@@ -63,10 +63,10 @@ const uploadFile = (formState, formType) => async dispatch => {
 /**
  * Create issue in GitHub (thunk actions are used to stored in dispatchActions.js)
  */
-export const createIssue = (formState, formType, labels, afterCreateIssueCallback) => async dispatch => {
+export const createIssue = (formState, imageSource, formType, labels, afterCreateIssueCallback) => async dispatch => {
   dispatch(setResponse(''));
 
-  const screenshotUrl = await dispatch(uploadFile(formState, formType));
+  const screenshotUrl = await dispatch(uploadFile(imageSource, formType));
   let body = ['- Version: ' + version, '- Name: ' + formState.name, '- Description: ' + formState.description];
 
   if (screenshotUrl.length > 0) {

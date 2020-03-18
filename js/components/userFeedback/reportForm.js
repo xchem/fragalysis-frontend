@@ -229,7 +229,7 @@ export const ReportForm = memo(({ formType }) => {
   const getHintText = () => {
     let text = 'please choose your window or screen to share';
     if (isFirefox()) {
-      text += ' and "Allow" it';
+      text += ' (ideally enter fullscreen - F11) and "Allow" it';
     } else if (isChrome()) {
       text += ', ideally "Chrome tab" and your current tab';
     }
@@ -292,9 +292,12 @@ export const ReportForm = memo(({ formType }) => {
             return errors;
           }}
           onSubmit={async (values, { setSubmitting }) => {
+            // dispatch(setImageSource(getCanvasDrawDataUrl(canvasDraw))); // does not update in time
             // set new image from drawing before creating issue
-            dispatch(setImageSource(getCanvasDrawDataUrl(canvasDraw)));
-            await dispatch(createIssue(formState, formType.toLowerCase(), getLabels(), afterCreateIssueCallback));
+            const imageSource = getCanvasDrawDataUrl(canvasDraw);
+            await dispatch(
+              createIssue(formState, imageSource, formType.toLowerCase(), getLabels(), afterCreateIssueCallback)
+            );
             setSubmitting(false);
           }}
         >
