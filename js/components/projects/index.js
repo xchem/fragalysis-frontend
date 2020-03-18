@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
 import {
   Table,
@@ -19,8 +19,10 @@ import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
 import { setProjectModalOpen } from './redux/actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
+import { loadListOfProjects } from './redux/dispatchActions';
+import { projectReducers } from './redux/reducer';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -40,6 +42,23 @@ export const Projects = memo(({ history }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const dispatch = useDispatch();
 
+  const listOfProjects = useSelector(state => state.projectReducers.listOfProjects).map(project => {
+    return {
+      id: project.id,
+      name: project.title,
+      tags: JSON.parse(project.tags),
+      target: project.target.title,
+      createdAt: project.init_date,
+      author: project.author.email
+    };
+  });
+
+  useEffect(() => {
+    dispatch(loadListOfProjects()).catch(error => {
+      throw new Error(error);
+    });
+  }, [dispatch]);
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -49,64 +68,6 @@ export const Projects = memo(({ history }) => {
     setPage(0);
   };
 
-  function createData(name, target, lastModification, author, id, tags) {
-    return { name, target, lastModification, author, id, tags };
-  }
-
-  const rows = [
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 1, [
-      'red',
-      'green',
-      'blue'
-    ]),
-    createData('Cheapest molecules', 'EPB41L3A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 2, [
-      'red',
-      'green',
-      'blue'
-    ]),
-    createData('Apoximation of electon', 'EPB41L3A', moment().format('LLL'), 'james.smith@diamond.co.uk', 3, [
-      'red',
-      'green',
-      'blue'
-    ]),
-    createData('My fake project', 'EPB41L3A', moment().format('LLL'), 'jane.jackson@gmail.com', 4, []),
-    createData('Unique science', 'EPB41L3A', moment().format('LLL'), 'jane.jackson@gmail.com', 5, []),
-    createData('Cheapest molecules', 'EPB41L3A', moment().format('LLL'), 'jane.jackson@gmail.com', 7, []),
-    createData('Apoximation of electon', 'EPB41L3A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 8, []),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 6, []),
-    createData('Unique science', 'EPB41L3A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 10, []),
-    createData('My fake project', 'EPB41L3A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 9, []),
-    createData('Best coumpounds ever', 'EPB41L3A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 11, []),
-    createData('Apoximation of electon', 'EPB41L3A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 18, []),
-    createData('Cheapest molecules', 'EPB41L3A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 12, []),
-    createData('My fake project', 'EPB41L3A', moment().format('LLL'), 'jane.jackson@gmail.com', 14, []),
-    createData('Unique science', 'EPB41L3A', moment().format('LLL'), 'jane.jackson@gmail.com', 15, []),
-    createData('Apoximation of electon', 'EPB41L3A', moment().format('LLL'), 'james.smith@diamond.co.uk', 13, []),
-    createData('Cheapest molecules', 'EPB41L3A', moment().format('LLL'), 'jane.jackson@gmail.com', 17, []),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 16, []),
-    createData('Unique science', 'EPB41L3A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 20, []),
-    createData('My fake project', 'EPB41L3A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 19, []),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 21, []),
-    createData('Apoximation of electon', 'EPB41L3A', moment().format('LLL'), 'james.smith@diamond.co.uk', 23, []),
-    createData('Cheapest molecules', 'EPB41L3A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 22, []),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 25, []),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 24, []),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 27, []),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 26, []),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 28, []),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 30, []),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 29, []),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 36, []),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 32, []),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'james.smith@diamond.co.uk', 33, []),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'jane.jackson@gmail.com', 34, []),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'jane.jackson@gmail.com', 35, []),
-    createData('Cheapest molecules', 'ATAD', moment().format('LLL'), 'jane.jackson@gmail.com', 37, []),
-    createData('Best coumpounds ever', 'NUDT5A', moment().format('LLL'), 'tibor.postek@m2ms.sk', 31, []),
-    createData('Apoximation of electon', 'NUDT4A', moment().format('LLL'), 'pavol.brunclik@m2ms.sk', 38, []),
-    createData('Unique science', 'CAMK1DA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 40, []),
-    createData('My fake project', 'XX02KALRNA', moment().format('LLL'), 'tibor.postek@m2ms.sk', 39, [])
-  ];
   return (
     <>
       <Panel
@@ -139,12 +100,12 @@ export const Projects = memo(({ history }) => {
               <TableCell align="left">Target</TableCell>
               <TableCell align="left">Tags</TableCell>
               <TableCell align="left">Author</TableCell>
-              <TableCell align="left">Last modification</TableCell>
+              <TableCell align="left">Created at</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
+            {listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
               <TableRow key={project.id} hover>
                 <TableCell component="th" scope="row">
                   <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
@@ -153,12 +114,13 @@ export const Projects = memo(({ history }) => {
                   <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
                 </TableCell>
                 <TableCell align="left">
-                  {project.tags.map((tag, index) => (
-                    <Chip key={index} label={tag} size="small" className={classes.chip} />
-                  ))}
+                  {project.tags &&
+                    project.tags.map((tag, index) => (
+                      <Chip key={index} label={tag} size="small" className={classes.chip} />
+                    ))}
                 </TableCell>
                 <TableCell align="left">{project.author}</TableCell>
-                <TableCell align="left">{project.lastModification}</TableCell>
+                <TableCell align="left">{project.createdAt}</TableCell>
                 <TableCell align="right">
                   <IconButton>
                     <Delete />
@@ -171,7 +133,7 @@ export const Projects = memo(({ history }) => {
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[10, 15, 30, 50, 100]}
-                count={rows.length}
+                count={listOfProjects.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 SelectProps={{

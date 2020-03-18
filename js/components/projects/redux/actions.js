@@ -29,3 +29,8 @@ export const setProjectSnapshot = (snapshot, snapshotDetail) => ({
 });
 
 export const resetProjectsReducer = () => ({ type: constants.RESET_PROJECTS_REDUCER });
+
+export const setListOfProjects = projects => ({
+  type: constants.SET_LIST_OF_PROJECTS,
+  payload: projects
+});

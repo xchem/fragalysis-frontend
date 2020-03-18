@@ -20,7 +20,8 @@ export const INITIAL_STATE = {
     created: null
   },
   isProjectModalOpen: false,
-  isProjectModalLoading: false
+  isProjectModalLoading: false,
+  listOfProjects: []
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -51,6 +52,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
         snapshot: action.payload.snapshot,
         snapshotDetail: action.payload.snapshotDetail
       });
+
+    case constants.SET_LIST_OF_PROJECTS:
+      return Object.assign({}, state, { listOfProjects: action.payload });
 
     case constants.RESET_PROJECTS_REDUCER:
       return Object.assign({}, INITIAL_STATE);

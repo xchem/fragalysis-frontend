@@ -8,7 +8,8 @@ export const constants = {
   SET_PROJECT_MODAL_IS_LOADING: prefix + 'SET_PROJECT_MODAL_IS_LOADING',
   SET_SNAPSHOT: prefix + 'SET_SNAPSHOT',
 
-  RESET_PROJECTS_REDUCER: prefix + 'RESET_PROJECTS_REDUCER'
+  RESET_PROJECTS_REDUCER: prefix + 'RESET_PROJECTS_REDUCER',
+  SET_LIST_OF_PROJECTS: prefix + 'SET_LIST_OF_PROJECTS'
 };
 
 export const ProjectCreationType = {
