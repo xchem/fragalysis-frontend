@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { setProjectModalIsLoading, setProjectModalOpen } from '../redux/actions';
+import { setCurrentProject, setProjectModalIsLoading, setProjectModalOpen } from '../redux/actions';
 import {
   makeStyles,
   Radio,
@@ -90,14 +90,21 @@ export const ProjectModal = memo(({ history }) => {
           const data = {
             title: values.title,
             description: values.description,
-            targetID: values.targetId,
+            target: values.targetId,
             author: DJANGO_CONTEXT['pk'],
-            tags
+            tags: JSON.stringify(tags)
           };
           dispatch(setProjectModalIsLoading(true));
-          api({ url: `${base_url}/api/projects`, method: METHOD.POST, data })
+          api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
             .then(response => {
               const projectID = response.data.id;
+              const title = response.data.title;
+              const author = response.data.author;
+              const description = response.data.description;
+              const targetId = response.data.target;
+              const tags = response.data.tags;
+
+              dispatch(setCurrentProject({ projectID, author, title, description, targetId, tags }));
               // create project_target relationShip on BE
               history.push(`${URLS.projects}${projectID}`);
             })

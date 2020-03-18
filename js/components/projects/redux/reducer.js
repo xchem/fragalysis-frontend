@@ -6,7 +6,7 @@ export const INITIAL_STATE = {
     author: null,
     title: null,
     description: null,
-    targetId: 1, //TODO change to null,
+    targetId: null, //TODO change to null,
     tags: [],
     type: null
   },

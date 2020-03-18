@@ -15,7 +15,7 @@ import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/action
 import { resetProjectsReducer } from '../projects/redux/actions';
 
 const Landing = memo(
-  ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
+  ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer, history }) => {
     const { setSnackBarTitle } = useContext(HeaderContext);
     const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
 
@@ -54,7 +54,7 @@ const Landing = memo(
         </Grid>
         <Grid item xs={8}>
           {/*<SessionList />*/}
-          <Projects />
+          <Projects history={history} />
         </Grid>
       </Grid>
     );

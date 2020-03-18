@@ -22,7 +22,6 @@ import { setProjectModalOpen } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfProjects } from './redux/dispatchActions';
-import { projectReducers } from './redux/reducer';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -120,7 +119,7 @@ export const Projects = memo(({ history }) => {
                     ))}
                 </TableCell>
                 <TableCell align="left">{project.author}</TableCell>
-                <TableCell align="left">{project.createdAt}</TableCell>
+                <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
                 <TableCell align="right">
                   <IconButton>
                     <Delete />
@@ -147,7 +146,7 @@ export const Projects = memo(({ history }) => {
           </TableFooter>
         </Table>
       </Panel>
-      <ProjectModal />
+      <ProjectModal history={history} />
     </>
   );
 });
