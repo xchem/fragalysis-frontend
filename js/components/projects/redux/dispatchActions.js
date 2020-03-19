@@ -22,3 +22,9 @@ export const loadListOfProjects = () => (dispatch, getState) => {
     dispatch(setListOfProjects((response && response.data && response.data.results) || []))
   );
 };
+
+export const searchInProjects = title => (dispatch, getState) => {
+  return api({ url: `${base_url}/api/session-projects/?title=${title}` }).then(response =>
+    dispatch(setListOfProjects((response && response.data && response.data.results) || []))
+  );
+};

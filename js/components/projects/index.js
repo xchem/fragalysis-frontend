@@ -16,12 +16,13 @@ import {
 } from '@material-ui/core';
 import { Delete, Add, Search } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
+import { debounce } from 'lodash';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
 import { setProjectModalOpen } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
-import { loadListOfProjects } from './redux/dispatchActions';
+import { loadListOfProjects, searchInProjects } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -67,6 +68,21 @@ export const Projects = memo(({}) => {
     setPage(0);
   };
 
+  let debouncedFn;
+
+  const handleSearch = event => {
+    /* signal to React not to nullify the event object */
+    event.persist();
+    if (!debouncedFn) {
+      debouncedFn = debounce(() => {
+        dispatch(searchInProjects(event.target.value)).catch(error => {
+          throw new Error(error);
+        });
+      }, 500);
+    }
+    debouncedFn();
+  };
+
   return (
     <>
       <Panel
@@ -86,6 +102,7 @@ export const Projects = memo(({}) => {
                 </InputAdornment>
               )
             }}
+            onChange={handleSearch}
           />,
           <IconButton color="inherit" onClick={() => dispatch(setProjectModalOpen(true))}>
             <Add />
