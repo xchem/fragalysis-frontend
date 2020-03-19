@@ -20,7 +20,7 @@ import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
 
 const CANVAS_MAX_WIDTH = 605;
-const CANVAS_MAX_HEIGHT = 305;
+const CANVAS_MAX_HEIGHT = 270;
 
 const useStyles = makeStyles(theme => ({
   buttonGreen: {
