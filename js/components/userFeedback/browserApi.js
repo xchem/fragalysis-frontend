@@ -45,7 +45,7 @@ const takeScreenshot = async () => {
 };
 
 /**
- * Capture screen or ngl canvas and assign it to form. (thunk actions are used to stored in dispatchActions.js)
+ * Capture screen or ngl as canvas and assign it to form. (thunk actions are used to stored in dispatchActions.js)
  */
 export const captureScreen = () => async dispatch => {
   let image = '';
@@ -55,7 +55,7 @@ export const captureScreen = () => async dispatch => {
     try {
       const canvas = await takeScreenshot();
       if (canvas != null) {
-        image = canvas.toDataURL();
+        image = canvas;
       }
     } catch (e) {
       console.log(e.message);
@@ -73,7 +73,7 @@ export const captureScreen = () => async dispatch => {
     if (view !== null) {
       const canvas = view.getElementsByTagName('canvas')[0];
       if (canvas !== null) {
-        image = canvas.toDataURL();
+        image = canvas;
       }
     }
   }

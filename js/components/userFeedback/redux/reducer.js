@@ -7,7 +7,7 @@ export const INITIAL_STATE = {
   title: '',
   description: '',
   response: '',
-  imageSource: ''
+  imageSource: undefined // <canvas>
 };
 
 export const issueReducers = (state = INITIAL_STATE, action = {}) => {

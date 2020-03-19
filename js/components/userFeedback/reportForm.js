@@ -5,7 +5,7 @@
 import React, { memo, useState, useContext, useRef } from 'react';
 import { Grid, makeStyles, Typography, Popover, Box, Slider, Tooltip } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
-import { ReportProblem, EmojiObjects, ClearAll } from '@material-ui/icons';
+import { ReportProblem, EmojiObjects, Delete } from '@material-ui/icons';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
 import { HeaderContext } from '../header/headerContext';
@@ -19,8 +19,8 @@ import { snackbarColors } from '../header/constants';
 import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
 
-const IMAGE_WIDTH = 620;
-const IMAGE_HEIGHT = 350;
+const CANVAS_MAX_WIDTH = 605;
+const CANVAS_MAX_HEIGHT = 305;
 
 const useStyles = makeStyles(theme => ({
   buttonGreen: {
@@ -57,13 +57,17 @@ const useStyles = makeStyles(theme => ({
     }
   },
   canvasDrawOptions: {
-    marginTop: '6px'
-  },
-  clearAllButton: {
-    minWidth: '44px'
+    marginTop: '6px',
+    marginBottom: '2px'
   },
   formMinWidth: {
     minWidth: '900px'
+  },
+  canvasDrawWrapper: {
+    overflow: 'auto',
+    maxWidth: CANVAS_MAX_WIDTH + 'px',
+    maxHeight: CANVAS_MAX_HEIGHT + 'px',
+    position: 'absolute'
   }
 }));
 
@@ -372,74 +376,120 @@ export const ReportForm = memo(({ formType }) => {
                         spacing={2}
                         className={classes.canvasDrawOptions}
                       >
-                        <Grid item xs={2} align="center">
-                          <Tooltip title="Select colour">
-                            <Box
-                              ref={colorPicker}
-                              border="1px solid black"
-                              bgcolor={brushColor}
-                              width={24}
-                              height={24}
-                              spacing={1}
-                              onClick={() => setOpenBrushColor(true)}
-                            />
-                          </Tooltip>
-                          <Popover
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'left'
-                            }}
-                            transformOrigin={{
-                              vertical: 'top',
-                              horizontal: 'right'
-                            }}
-                            anchorEl={colorPicker.current}
-                            open={openBrushColor}
-                            onClose={() => setOpenBrushColor(false)}
-                          >
-                            <SketchPicker color={brushColor} disableAlpha={true} onChangeComplete={handleColorChange} />
-                          </Popover>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Tooltip title="Select brush radius">
-                            <Slider
-                              value={brushRadius}
-                              step={1}
-                              marks
-                              min={1}
-                              max={6}
-                              valueLabelDisplay="auto"
-                              onChange={(event, newValue) => setBrushRadius(newValue)}
-                              disabled={isSubmitting}
-                            />
-                          </Tooltip>
-                        </Grid>
-                        <Grid item item xs={2} align="center">
-                          <Tooltip title="Clear drawing">
-                            <Button
-                              size="small"
-                              onClick={handleClearDrawing}
-                              className={classes.clearAllButton}
-                              disabled={isSubmitting}
+                        <Grid
+                          item
+                          xs={2}
+                          align="center"
+                          container
+                          direction="row"
+                          justify="space-between"
+                          alignItems="center"
+                          spacing={1}
+                        >
+                          <Grid item xs={5}>
+                            <Typography>Color</Typography>
+                          </Grid>
+                          <Grid item xs={5}>
+                            <Tooltip title="Select color">
+                              <Box
+                                ref={colorPicker}
+                                border="1px solid black"
+                                bgcolor={brushColor}
+                                width={24}
+                                height={24}
+                                spacing={1}
+                                onClick={() => setOpenBrushColor(true)}
+                              />
+                            </Tooltip>
+                            <Popover
+                              anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left'
+                              }}
+                              transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right'
+                              }}
+                              anchorEl={colorPicker.current}
+                              open={openBrushColor}
+                              onClose={() => setOpenBrushColor(false)}
                             >
-                              <ClearAll />
-                            </Button>
-                          </Tooltip>
+                              <SketchPicker
+                                color={brushColor}
+                                disableAlpha={true}
+                                onChangeComplete={handleColorChange}
+                              />
+                            </Popover>
+                          </Grid>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={7}
+                          align="center"
+                          container
+                          direction="row"
+                          justify="space-between"
+                          alignItems="center"
+                          spacing={1}
+                        >
+                          <Grid item xs={2}>
+                            <Typography>Radius</Typography>
+                          </Grid>
+                          <Grid item xs={10}>
+                            <Tooltip title="Select brush radius">
+                              <Slider
+                                value={brushRadius}
+                                step={1}
+                                marks
+                                min={1}
+                                max={6}
+                                valueLabelDisplay="auto"
+                                onChange={(event, newValue) => setBrushRadius(newValue)}
+                                disabled={isSubmitting}
+                              />
+                            </Tooltip>
+                          </Grid>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={3}
+                          align="center"
+                          container
+                          direction="row"
+                          justify="flex-end"
+                          alignItems="center"
+                          spacing={1}
+                        >
+                          <Grid item xs>
+                            <Tooltip title="Clear drawing">
+                              <Button
+                                startIcon={<Delete />}
+                                variant="text"
+                                size="small"
+                                onClick={handleClearDrawing}
+                                disabled={isSubmitting}
+                              >
+                                Clear
+                              </Button>
+                            </Tooltip>
+                          </Grid>
                         </Grid>
                       </Grid>
                       <Grid item xs>
-                        {/* lazyRadius - how far is cursor from drawing point */}
-                        <CanvasDraw
-                          ref={canvasDraw}
-                          imgSrc={formState.imageSource}
-                          canvasWidth={IMAGE_WIDTH}
-                          canvasHeight={IMAGE_HEIGHT}
-                          hideGrid={true}
-                          lazyRadius={0}
-                          brushRadius={brushRadius}
-                          brushColor={brushColor}
-                          disabled={isSubmitting}
-                        />
+                        <div className={classes.canvasDrawWrapper}>
+                          {/* lazyRadius - how far is cursor from drawing point */}
+                          <CanvasDraw
+                            ref={canvasDraw}
+                            imgSrc={formState.imageSource ? formState.imageSource.toDataURL() : ''}
+                            canvasWidth={formState.imageSource ? formState.imageSource.width : CANVAS_MAX_WIDTH}
+                            canvasHeight={formState.imageSource ? formState.imageSource.height : CANVAS_MAX_HEIGHT}
+                            hideGrid={true}
+                            lazyRadius={0}
+                            brushRadius={brushRadius}
+                            brushColor={brushColor}
+                            disabled={isSubmitting}
+                          />
+                        </div>
                       </Grid>
                     </Grid>
                   </Grid>
