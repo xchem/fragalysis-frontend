@@ -8,15 +8,16 @@ import { NglContext } from '../nglView/nglProvider';
 import { HeaderContext } from '../header/headerContext';
 import { setTargetAndReloadSession, reloadScene } from './redux/dispatchActions';
 import { setOpenSnapshotSavingDialog } from './redux/actions';
+import { useRouteMatch } from 'react-router-dom';
 
 /**
  * Created by ricgillams on 13/06/2018.
  */
 
 export const withSnapshotManagement = WrappedComponent => {
-  return memo(({ match, ...rest }) => {
+  return memo(({ ...rest }) => {
     const [state, setState] = useState();
-
+    let match = useRouteMatch();
     const { pathname } = window.location;
     const { nglViewList } = useContext(NglContext);
     const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
@@ -90,6 +91,6 @@ export const withSnapshotManagement = WrappedComponent => {
       projectId
     ]);
 
-    return <WrappedComponent {...rest} match={match} />;
+    return <WrappedComponent {...rest} />;
   });
 };

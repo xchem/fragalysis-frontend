@@ -50,7 +50,7 @@ const Routes = memo(() => {
             exact
             path={`${URLS.projects}:projectId`}
             render={routeProps => (
-              <Preview headerHeight={headerHeight} isStateLoaded={snapshot !== null} {...routeProps} />
+              <Preview isStateLoaded={snapshot !== null} headerHeight={headerHeight} {...routeProps} />
             )}
           />
           <Route exact path={URLS.management} component={Management} />

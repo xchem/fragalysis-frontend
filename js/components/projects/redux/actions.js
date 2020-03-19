@@ -1,8 +1,8 @@
 import { constants } from './constants';
 
-export const setCurrentProject = ({ projectID, author, title, description, targetId, tags, type }) => ({
+export const setCurrentProject = ({ projectID, authorID, title, description, targetID, tags, type }) => ({
   type: constants.SET_CURRENT_PROJECT,
-  payload: { projectID, author, title, description, targetId, tags, type }
+  payload: { projectID, authorID, title, description, targetID, tags, type }
 });
 export const setCurrentProjectProperty = (key, value) => ({
   type: constants.SET_CURRENT_PROJECT_PROPERTY,

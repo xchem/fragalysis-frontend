@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { HeaderContext } from '../header/headerContext';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import { updateTarget, setTargetUUIDs, resetTargetAndSelection } from './redux/dispatchActions';
+import { useRouteMatch } from 'react-router-dom';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
     ({
-      match,
       target_on,
       resetSelection,
       notCheckTarget,
@@ -15,12 +15,14 @@ export const withUpdatingTarget = WrappedContainer => {
       setTargetUUIDs,
       resetTargetAndSelection,
       targetIdList,
-      targetId,
       ...rest
     }) => {
+      let match = useRouteMatch();
+
       const target = match && match.params && match.params.target;
-      const uuid = targetId !== null ? targetId : match && match.params && match.params.uuid;
+      const uuid = match && match.params && match.params.uuid;
       const snapshotUuid = match && match.params && match.params.snapshotUuid;
+      const projectId = match && match.params && match.params.projectId;
 
       const { isLoading, setIsLoading } = useContext(HeaderContext);
       const [state, setState] = useState();
@@ -34,19 +36,19 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [setTargetUUIDs, snapshotUuid, uuid]);
 
       useEffect(() => {
-        updateTarget({ notCheckTarget, target, targetId, setIsLoading, targetIdList }).catch(error => {
+        updateTarget({ notCheckTarget, target, setIsLoading, targetIdList, projectId }).catch(error => {
           setState(() => {
             throw error;
           });
         });
-      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList, targetId]);
+      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList, projectId]);
 
       if (isLoading === true) {
         return null;
       } else if (target_on === undefined) {
         return <HandleUnrecognisedTarget />;
       } else {
-        return <WrappedContainer {...rest} match={match} />;
+        return <WrappedContainer {...rest} />;
       }
     }
   );
@@ -54,8 +56,7 @@ export const withUpdatingTarget = WrappedContainer => {
   function mapStateToProps(state) {
     return {
       target_on: state.apiReducers.target_on,
-      targetIdList: state.apiReducers.target_id_list,
-      targetId: state.projectReducers.currentProject.targetId
+      targetIdList: state.apiReducers.target_id_list
     };
   }
   const mapDispatchToProps = {

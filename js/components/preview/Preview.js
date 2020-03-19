@@ -63,7 +63,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded, headerHeight, match }) => {
+const Preview = memo(({ isStateLoaded, headerHeight }) => {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -153,7 +153,7 @@ const Preview = memo(({ isStateLoaded, headerHeight, match }) => {
       </Grid>
       <ModalStateSave />
       <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />
-      <NewSnapshotModal match={match} />
+      <NewSnapshotModal />
     </>
   );
 });

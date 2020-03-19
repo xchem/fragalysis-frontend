@@ -15,6 +15,7 @@ import {
 } from '@material-ui/core';
 import { Title, Description, Label, Link } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
+import { useHistory } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { InputFieldAvatar } from './inputFieldAvatar';
 import { ProjectCreationType } from '../redux/constants';
@@ -42,9 +43,10 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ProjectModal = memo(({ history }) => {
+export const ProjectModal = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
+  let history = useHistory();
 
   const dispatch = useDispatch();
   const isProjectModalOpen = useSelector(state => state.projectReducers.isProjectModalOpen);
@@ -99,12 +101,12 @@ export const ProjectModal = memo(({ history }) => {
             .then(response => {
               const projectID = response.data.id;
               const title = response.data.title;
-              const author = response.data.author;
+              const authorID = response.data.author;
               const description = response.data.description;
-              const targetId = response.data.target;
+              const targetID = response.data.target;
               const tags = response.data.tags;
 
-              dispatch(setCurrentProject({ projectID, author, title, description, targetId, tags }));
+              dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
               // create project_target relationShip on BE
               history.push(`${URLS.projects}${projectID}`);
             })

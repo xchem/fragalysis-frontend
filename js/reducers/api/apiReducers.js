@@ -30,7 +30,7 @@ export const INITIAL_STATE = {
   latestSession: undefined,
   latestSnapshot: undefined,
   targetUnrecognised: undefined,
-  uuid: savingStateConst.UNSET,
+  uuid: savingStateConst.UNSET, // used only for reloading from scene
   sessionId: undefined,
   sessionIdList: [],
   sessionTitle: undefined,

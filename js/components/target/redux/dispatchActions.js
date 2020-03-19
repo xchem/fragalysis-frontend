@@ -10,6 +10,8 @@ import {
 import { setOldUrl } from './actions';
 import { api } from '../../../utils/api';
 import { resetSelectionState } from '../../../reducers/selection/actions';
+import { base_url } from '../../routes/constants';
+import { setCurrentProject } from '../../projects/redux/actions';
 
 export const loadTargetList = onCancel => (dispatch, getState) => {
   const oldUrl = getState().targetReducers.oldUrl;
@@ -24,7 +26,7 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   });
 };
 
-export const updateTarget = ({ notCheckTarget, target, setIsLoading, targetIdList, targetId }) => dispatch => {
+export const updateTarget = ({ notCheckTarget, target, setIsLoading, targetIdList, projectId }) => dispatch => {
   if (!notCheckTarget) {
     // Get from the REST API
     let targetUnrecognisedFlag = true;
@@ -37,29 +39,43 @@ export const updateTarget = ({ notCheckTarget, target, setIsLoading, targetIdLis
         });
       }
       dispatch(setTargetUnrecognised(targetUnrecognisedFlag));
-    } else if (targetId !== undefined) {
-      if (targetIdList && targetIdList.length > 0) {
-        targetIdList.forEach(item => {
-          if (targetId === item.id) {
-            targetUnrecognisedFlag = false;
-          }
-        });
-      }
+    } else if (projectId !== undefined) {
+      targetUnrecognisedFlag = false;
       dispatch(setTargetUnrecognised(targetUnrecognisedFlag));
     }
+    // for Targets
     if (targetUnrecognisedFlag === false) {
       setIsLoading(true);
-      let url = '';
+      let url = undefined;
       if (target) {
-        url = `${window.location.protocol}//${window.location.host}/api/targets/?title=${target}`;
-      } else if (targetId) {
-        url = `${window.location.protocol}//${window.location.host}/api/targets/?id=${targetId}`;
+        url = `${base_url}/api/targets/?title=${target}`;
+        return api({ url })
+          .then(response => {
+            return dispatch(setTargetOn(response.data['results'][0].id));
+          })
+          .finally(() => setIsLoading(false));
       }
-      return api({ url })
-        .then(response => {
-          return dispatch(setTargetOn(response.data['results'][0].id));
-        })
-        .finally(() => setIsLoading(false));
+      // for Projects
+      else if (projectId !== undefined) {
+        setIsLoading(true);
+        return api({ url: `${base_url}/api/session-projects/${projectId}/` })
+          .then(response => {
+            return Promise.all([
+              dispatch(setTargetOn(response.data.target.id)),
+              dispatch(
+                setCurrentProject({
+                  projectID: response.data.id,
+                  authorID: response.data.author.id,
+                  title: response.data.title,
+                  description: response.data.description,
+                  targetID: response.data.target.id,
+                  tags: JSON.parse(response.data.tags)
+                })
+              )
+            ]);
+          })
+          .finally(() => setIsLoading(false));
+      }
     }
   }
   return Promise.resolve();

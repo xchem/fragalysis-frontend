@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Projects = memo(({ history }) => {
+export const Projects = memo(({}) => {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -146,7 +146,7 @@ export const Projects = memo(({ history }) => {
           </TableFooter>
         </Table>
       </Panel>
-      <ProjectModal history={history} />
+      <ProjectModal />
     </>
   );
 });
