@@ -23,6 +23,7 @@ import { setProjectModalOpen } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfProjects, searchInProjects } from './redux/dispatchActions';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -104,7 +105,11 @@ export const Projects = memo(({}) => {
             }}
             onChange={handleSearch}
           />,
-          <IconButton color="inherit" onClick={() => dispatch(setProjectModalOpen(true))}>
+          <IconButton
+            color="inherit"
+            onClick={() => dispatch(setProjectModalOpen(true))}
+            disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
+          >
             <Add />
           </IconButton>
         ]}

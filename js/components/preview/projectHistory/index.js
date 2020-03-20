@@ -82,6 +82,8 @@ export const ProjectHistory = memo(({ height, setHeight, showFullHistory }) => {
           <MergeType />
         </IconButton>
       ]}
+      hasExpansion
+      defaultExpanded
     >
       <ComputeSize componentRef={panelRef.current} setHeight={setHeight} height={height} forceCompute>
         <Grid container direction="column" alignItems="center">
