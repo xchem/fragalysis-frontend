@@ -29,7 +29,7 @@ export const getAllCompoundsList = createSelector(
         inputData.show_frag = data_transfer && data_transfer.end;
         inputData.vector = vector_smi;
         inputData.mol = to_query;
-        inputData.selectedClass = undefined;
+        inputData.class = currentCompoundClass;
         inputData.isShowed = false;
         compoundsList.push(inputData);
       });

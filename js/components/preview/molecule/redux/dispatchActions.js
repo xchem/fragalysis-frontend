@@ -28,6 +28,8 @@ import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../moleculeView';
 import { setMoleculeOrientation } from '../../../../reducers/ngl/actions';
+import { setCompoundImage } from '../../summary/redux/actions';
+import { noCompoundImage } from '../../summary/redux/reducer';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -173,4 +175,48 @@ export const selectFirstMolecule = (majorView, moleculeList) => (dispatch, getSt
     dispatch(addComplex(majorView, firstMolecule, colourList[0]));
     dispatch(addVector(majorView, firstMolecule));
   }
+};
+
+export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, getState) => {
+  const state = getState();
+  const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
+  const complexList = state.selectionReducers.complexList;
+  const vectorOnList = state.selectionReducers.vectorOnList;
+
+  fragmentDisplayList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      dispatch(removeLigand(stage, data));
+    }
+  });
+  complexList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      dispatch(removeComplex(stage, data, colourList[0]));
+    }
+  });
+  vectorOnList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      dispatch(removeVector(stage, data));
+    }
+  });
+
+  // vector_list
+  dispatch(setVectorList([]));
+  // to_query_pk
+  // to_query_prot
+  // to_query_sdf_info
+  dispatch(
+    setInitialFullGraph({
+      to_query: undefined,
+      to_query_pk: undefined,
+      to_query_sdf_info: undefined,
+      to_query_prot: undefined,
+      to_select: undefined,
+      querying: undefined
+    })
+  );
+
+  dispatch(setCompoundImage(noCompoundImage));
 };

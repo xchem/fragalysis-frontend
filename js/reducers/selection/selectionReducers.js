@@ -21,6 +21,7 @@ export const INITIAL_STATE = {
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined,
+  filter: undefined,
   filterSettings: undefined
 };
 
@@ -227,6 +228,11 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_OBJECT_SELECTION:
       return Object.assign({}, state, {
         object_selection: action.payload
+      });
+
+    case constants.SET_FILTER:
+      return Object.assign({}, state, {
+        filter: action.payload
       });
 
     case constants.SET_FILTER_SETTINGS:

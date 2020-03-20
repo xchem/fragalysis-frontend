@@ -3,11 +3,11 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 export const INITIAL_STATE = {
   name: DJANGO_CONTEXT['name'] || '',
-  email: DJANGO_CONTEXT['email'] || '',
+  email: DJANGO_CONTEXT['username'] && DJANGO_CONTEXT['username'].includes('@') ? DJANGO_CONTEXT['username'] : '',
   title: '',
   description: '',
   response: '',
-  imageSource: ''
+  imageSource: undefined // <canvas>
 };
 
 export const issueReducers = (state = INITIAL_STATE, action = {}) => {

@@ -107,18 +107,20 @@ const convert_data_to_list = input_list => (dispatch, getState) => {
   };
 
   let outArray = [];
-  const headerArray = ['smiles', 'mol', 'vector', 'classNumber', 'class', 'classColors'];
+  const headerArray = ['smiles', 'mol', 'vector', /*'classNumber',*/ 'class', 'classColor'];
   outArray.push(headerArray);
   const reg_ex = new RegExp('Xe', 'g');
 
+  // TODO compound classes need REDO?
   input_list.forEach(item => {
     let newArray = [];
     newArray.push(item.smiles);
     newArray.push(item.mol);
     newArray.push(item.vector.replace(reg_ex, '*'));
+    newArray.push(getState().previewReducers.compounds[item.class]);
     newArray.push(item.class);
-    newArray.push(compoundClasses[item.class]);
-    newArray.push(classColors[item.class]);
+    // newArray.push(compoundClasses[item.class]);
+    // newArray.push(classColors[item.class]);
     outArray.push(newArray);
   });
   return outArray;

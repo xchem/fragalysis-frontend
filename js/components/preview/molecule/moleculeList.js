@@ -1,11 +1,21 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
-import { FilterList } from '@material-ui/icons';
+import {
+  Grid,
+  Chip,
+  Tooltip,
+  makeStyles,
+  CircularProgress,
+  Divider,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl
+} from '@material-ui/core';
+import { FilterList, ClearAll } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
 import MoleculeView from './moleculeView';
@@ -18,6 +28,14 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
+import { VIEWS } from '../../../constants/constants';
+import { NglContext } from '../../nglView/nglProvider';
+import { hideAllSelectedMolecules } from './redux/dispatchActions';
+import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { initializeFilter, getListedMolecules } from '../../../reducers/selection/dispatchActions';
+import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
+import { MOL_ATTRIBUTES } from './redux/constants';
+import { getFilteredMoleculesCount } from './moleculeListSortFilterDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -68,6 +86,28 @@ const useStyles = makeStyles(theme => ({
   filterTitle: {
     transform: 'rotate(-90deg)'
   },
+  formControl: {
+    color: 'inherit',
+    margin: theme.spacing(1),
+    minWidth: 87,
+    fontSize: '1.2rem'
+  },
+  select: {
+    color: 'inherit',
+    fill: 'inherit',
+    '&:hover:not(.Mui-disabled):before': {
+      borderColor: 'inherit'
+    },
+    '&:before': {
+      borderColor: 'inherit'
+    },
+    '&:not(.Mui-disabled)': {
+      fill: theme.palette.white
+    }
+  },
+  selectIcon: {
+    fill: 'inherit'
+  },
   molHeader: {
     marginLeft: 19,
     width: 'inherit'
@@ -102,11 +142,13 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
+    filter,
     filterSettings,
     sortDialogOpen,
     setSortDialogOpen
   }) => {
     const classes = useStyles();
+    const dispatch = useDispatch();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -118,13 +160,19 @@ const MoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
 
+    const [filteredCount, setFilteredCount] = useState(0);
+    const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
+
     const isActiveFilter = !!(filterSettings || {}).active;
+
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const filterRef = useRef();
 
     let joinedMoleculeLists = getJoinedMoleculeList;
 
-    // Reset Infinity scroll
+    // TODO Reset Infinity scroll
     /*useEffect(() => {
       // setCurrentPage(0);
     }, [object_selection]);*/
@@ -145,16 +193,19 @@ const MoleculeList = memo(
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
-        setObjectList: moleculeList => {
-          setMoleculeList(moleculeList);
-        },
+        setObjectList: setMoleculeList,
         setCachedMolLists,
         mol_group_on,
         cached_mol_lists
-      }).catch(error => {
-        throw new Error(error);
-      });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
+      })
+        .then(() => {
+          console.log('initializing filter');
+          setPredefinedFilter(dispatch(initializeFilter()).predefined);
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
+    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists, dispatch]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -165,6 +216,44 @@ const MoleculeList = memo(
         setFilterItemsHeight(0);
       }
     }, [isActiveFilter, setFilterItemsHeight]);
+
+    const handleFilterChange = filter => {
+      const filterSet = Object.assign({}, filter);
+      for (let attr of MOL_ATTRIBUTES) {
+        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+          filterSet.filter[attr.key].priority = 0;
+        }
+      }
+      dispatch(setFilterSettings(filterSet));
+    };
+
+    const changePredefinedFilter = event => {
+      let newFilter = Object.assign({}, filter);
+
+      const preFilterKey = event.target.value;
+      setPredefinedFilter(preFilterKey);
+
+      if (preFilterKey !== 'none') {
+        newFilter.active = true;
+        newFilter.predefined = preFilterKey;
+        Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
+          const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
+          newFilter.filter[attr].maxValue = maxValue;
+          newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
+        });
+        dispatch(setFilter(newFilter));
+      } else {
+        // close filter dialog options
+        setSortDialogAnchorEl(null);
+        setSortDialogOpen(false);
+        // reset filter
+        dispatch(setFilter(undefined));
+        newFilter = dispatch(initializeFilter());
+      }
+      // currently do not filter molecules by excluding them
+      /*setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
+      handleFilterChange(newFilter);*/
+    };
 
     return (
       <ComputeSize
@@ -177,6 +266,36 @@ const MoleculeList = memo(
           hasHeader
           title="Hit navigator"
           headerActions={[
+            <FormControl className={classes.formControl} disabled={!(object_selection || []).length || sortDialogOpen}>
+              <Select
+                className={classes.select}
+                value={predefinedFilter}
+                onChange={changePredefinedFilter}
+                inputProps={{
+                  name: 'predefined',
+                  id: 'predefined-label-placeholder',
+                  classes: { icon: classes.selectIcon }
+                }}
+                displayEmpty
+                name="predefined"
+              >
+                {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
+                  <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
+                    {PREDEFINED_FILTERS[preFilterKey].name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>,
+            <Button
+              color={'inherit'}
+              size="small"
+              variant="text"
+              startIcon={<ClearAll />}
+              disabled={!(object_selection || []).length}
+              onClick={() => dispatch(hideAllSelectedMolecules(stage, currentMolecules))}
+            >
+              Hide all
+            </Button>,
             <Button
               onClick={event => {
                 if (sortDialogOpen === false) {
@@ -188,7 +307,7 @@ const MoleculeList = memo(
                 }
               }}
               color={'inherit'}
-              disabled={!(object_selection || []).length}
+              disabled={!(object_selection || []).length || filter.predefined !== 'none'}
               variant="text"
               startIcon={<FilterList />}
               size="small"
@@ -203,6 +322,7 @@ const MoleculeList = memo(
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
+              filter={filter}
               filterSettings={filterSettings}
             />
           )}
@@ -213,7 +333,7 @@ const MoleculeList = memo(
                   <Grid container spacing={1}>
                     <Grid item xs={1} container alignItems="center">
                       <Typography variant="subtitle2" className={classes.filterTitle}>
-                        Filters
+                        Filters #{filteredCount}
                       </Typography>
                     </Grid>
                     <Grid item xs={11}>
@@ -303,6 +423,7 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
+    filter: state.selectionReducers.filter,
     filterSettings: state.selectionReducers.filterSettings,
     sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
   };
