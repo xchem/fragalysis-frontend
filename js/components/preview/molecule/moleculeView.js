@@ -107,6 +107,9 @@ const useStyles = makeStyles(theme => ({
   },
   matchingValue: {
     backgroundColor: theme.palette.success.lighter
+  },
+  unmatchingValue: {
+    backgroundColor: theme.palette.error.lighter
   }
 }));
 
@@ -323,10 +326,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
    */
   const isMatchingValue = item => {
     let match = false;
-    if (filter.predefined !== 'none') {
-      if (!(item.value < filter.filter[item.name].minValue || item.value > filter.filter[item.name].maxValue)) {
-        match = true;
-      }
+    if (!(item.value < filter.filter[item.name].minValue || item.value > filter.filter[item.name].maxValue)) {
+      match = true;
     }
     return match;
   };
@@ -337,7 +338,11 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
    * @return string - css class
    */
   const getValueMatchingClass = item => {
-    return isMatchingValue(item) ? classes.matchingValue : '';
+    let cssClass = '';
+    if (filter.predefined !== 'none') {
+      cssClass = isMatchingValue(item) ? classes.matchingValue : classes.unmatchingValue;
+    }
+    return cssClass;
   };
 
   return (
