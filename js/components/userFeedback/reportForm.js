@@ -20,7 +20,7 @@ import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
 
 const CANVAS_MAX_WIDTH = 605;
-const CANVAS_MAX_HEIGHT = 270;
+const CANVAS_MAX_HEIGHT = 400;
 
 const useStyles = makeStyles(theme => ({
   buttonGreen: {
@@ -34,6 +34,9 @@ const useStyles = makeStyles(theme => ({
   input: {
     width: '100%',
     minWidth: '256px'
+  },
+  description: {
+    minHeight: '270px'
   },
   body: {
     width: '100%',
@@ -358,7 +361,7 @@ export const ReportForm = memo(({ formType }) => {
                           value={formState.description}
                           onInput={e => dispatch(setDescription(e.target.value))}
                           disabled={isSubmitting}
-                          className={classes.input}
+                          className={classes.input + ' ' + classes.description}
                         />
                       </Grid>
                     </Grid>
