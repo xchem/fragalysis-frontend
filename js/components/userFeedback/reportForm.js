@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     minWidth: '256px'
   },
   description: {
-    minHeight: '270px'
+    minHeight: '245px'
   },
   body: {
     width: '100%',
@@ -243,6 +243,10 @@ export const ReportForm = memo(({ formType }) => {
     return text;
   };
 
+  const getTextAreaRows = rows => {
+    return isFirefox() ? rows - 1 : rows;
+  };
+
   return (
     <div>
       <Button
@@ -343,7 +347,7 @@ export const ReportForm = memo(({ formType }) => {
                           name="title"
                           label="Subject"
                           multiline
-                          rows="2"
+                          rows={getTextAreaRows(3)}
                           value={formState.title}
                           onInput={e => dispatch(setTitle(e.target.value))}
                           disabled={isSubmitting}
@@ -357,7 +361,7 @@ export const ReportForm = memo(({ formType }) => {
                           label="Description"
                           placeholder="Describe your problem in a detail."
                           multiline
-                          rows="6"
+                          rows={getTextAreaRows(12)}
                           value={formState.description}
                           onInput={e => dispatch(setDescription(e.target.value))}
                           disabled={isSubmitting}
