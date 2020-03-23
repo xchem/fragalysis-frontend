@@ -79,7 +79,7 @@ const getViewUrl = (get_view, data) => {
 const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
   const to_select = state.selectionReducers.to_select;
-  const orientationMatrix = state.nglReducers.moleculeOrientations[data.id];
+  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
   var objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList(objList));
   // loading vector objects
@@ -129,11 +129,15 @@ export const removeVector = (stage, data) => (dispatch, getState) => {
   dispatch(removeFromVectorOnList(generateMoleculeId(data)));
 };
 
-export const addComplex = (stage, data, colourToggle) => dispatch => {
+export const addComplex = (stage, data, colourToggle) => (dispatch, getState) => {
+  const state = getState();
+  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
-      stage
+      stage,
+      undefined,
+      orientationMatrix
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -152,13 +156,21 @@ export const removeComplex = (stage, data, colourToggle) => dispatch => {
   dispatch(removeFromComplexList(generateMoleculeId(data)));
 };
 
-export const addLigand = (stage, data, colourToggle) => dispatch => {
+export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
+  const state = getState();
+  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
   dispatch(
-    loadObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)), stage)
+    loadObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+      stage,
+      undefined,
+      orientationMatrix
+    )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-    dispatch(setMoleculeOrientation(data.id, currentOrientation));
+
+    dispatch(setMoleculeOrientation(data.site, currentOrientation));
   });
   dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
 };
