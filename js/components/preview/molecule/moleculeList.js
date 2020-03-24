@@ -160,7 +160,6 @@ const MoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
 
-    const [filteredCount, setFilteredCount] = useState(0);
     const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
     const isActiveFilter = !!(filterSettings || {}).active;
@@ -180,6 +179,7 @@ const MoleculeList = memo(
     if (isActiveFilter) {
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
     } else {
+      // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }
 
@@ -333,7 +333,7 @@ const MoleculeList = memo(
                   <Grid container spacing={1}>
                     <Grid item xs={1} container alignItems="center">
                       <Typography variant="subtitle2" className={classes.filterTitle}>
-                        Filters #{filteredCount}
+                        Filters
                       </Typography>
                     </Grid>
                     <Grid item xs={11}>

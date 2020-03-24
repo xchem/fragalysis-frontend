@@ -88,6 +88,7 @@ export const filterMolecules = (molecules, filterSettings) => {
   for (let molecule of molecules) {
     let add = true; // By default molecule passes filter
     for (let attr of MOL_ATTRIBUTES) {
+      if (!attr.filter) continue;
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
       if (
@@ -105,15 +106,10 @@ export const filterMolecules = (molecules, filterSettings) => {
 
   // 2. Sort
   let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
-  sortedAttributes.push('site'); // Finally sort by site;
 
   return filteredMolecules.sort((a, b) => {
     for (let prioAttr of sortedAttributes) {
-      let order = 1;
-      if (prioAttr !== 'site') {
-        // Site is always arbitrary
-        order = filterSettings.filter[prioAttr].order;
-      }
+      const order = filterSettings.filter[prioAttr].order;
 
       const attrLo = prioAttr.toLowerCase();
       let diff = order * (a[attrLo] - b[attrLo]);
@@ -294,6 +290,7 @@ export const MoleculeListSortFilterDialog = memo(
                   disabled={predefinedFilter !== 'none'}
                   onChange={handleItemChange(attr)}
                   onChangePrio={handlePrioChange(attr)}
+                  filter={attrDef.filter}
                 />
               );
             })}
