@@ -75,7 +75,7 @@ export const decrementCountOfPendingNglObjects = () => ({
   type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS
 });
 
-export const setMoleculeOrientation = (moleculeId, orientation) => ({
+export const setMoleculeOrientation = (moleculeGroupID, orientation) => ({
   type: CONSTANTS.SET_MOLECULE_ORIENTATION,
-  payload: { moleculeId, orientation }
+  payload: { moleculeGroupID, orientation }
 });

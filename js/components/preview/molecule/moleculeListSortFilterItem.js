@@ -73,7 +73,7 @@ const widthMin = 30;
 const widthSlider = 170;
 
 const moleculeListSortFilterItem = memo(props => {
-  const { property, min, max, onChange, isFloat, color, disabled, onChangePrio } = props;
+  const { property, min, max, onChange, isFloat, color, disabled, onChangePrio, filter } = props;
   const { order, minValue, maxValue } = props;
   // Because Slider works only with Integers we convert Float to Int by multiplying with 100
   const MULT = 100;
@@ -165,28 +165,32 @@ const moleculeListSortFilterItem = memo(props => {
       <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
         <Chip size="small" className={classes.propertyChip} label={property} style={{ backgroundColor: color }} />
       </Grid>
-      <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-        {min}
-      </Grid>
-      <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
-        <Slider
-          value={sliderValue}
-          onChange={handleChangeSlider}
-          onChangeCommitted={handleCommitChangeSlider}
-          valueLabelDisplay="auto"
-          aria-labelledby="range-slider"
-          max={normMax}
-          min={normMin}
-          marks={isFloat !== true ? true : undefined}
-          valueLabelFormat={value => {
-            return isFloat ? value / MULT : value;
-          }}
-          disabled={disabled}
-        />
-      </Grid>
-      <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-        {max}
-      </Grid>
+      {filter && (
+        <>
+          <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+            {min}
+          </Grid>
+          <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+            <Slider
+              value={sliderValue}
+              onChange={handleChangeSlider}
+              onChangeCommitted={handleCommitChangeSlider}
+              valueLabelDisplay="auto"
+              aria-labelledby="range-slider"
+              max={normMax}
+              min={normMin}
+              marks={isFloat !== true ? true : undefined}
+              valueLabelFormat={value => {
+                return isFloat ? value / MULT : value;
+              }}
+              disabled={disabled}
+            />
+          </Grid>
+          <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+            {max}
+          </Grid>
+        </>
+      )}
     </Grid>
   );
 });
@@ -198,7 +202,8 @@ moleculeListSortFilterItem.propTypes = {
   max: PropTypes.number.isRequired,
   color: PropTypes.string.isRequired,
   isFloat: PropTypes.bool,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  filter: PropTypes.bool
 };
 
 export default moleculeListSortFilterItem;

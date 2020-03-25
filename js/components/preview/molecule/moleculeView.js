@@ -361,7 +361,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
             {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
           </Typography>
         </Grid>
-        {/* Status code */}
+        {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
         <Grid item>
           <Grid container direction="row" justify="space-between" alignItems="center">
             {Object.values(molStatusTypes).map(type => (
@@ -370,7 +370,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
               </Grid>
             ))}
           </Grid>
-        </Grid>
+        </Grid>*/}
 
         {/* Control Buttons A, L, C, V */}
         <Grid item>
