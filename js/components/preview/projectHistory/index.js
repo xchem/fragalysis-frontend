@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 
 export const ProjectHistory = memo(({ height, setHeight, showFullHistory }) => {
   const panelRef = useRef(undefined);
-  const snapshotDetail = useSelector(state => state.projectReducers.snapshotDetail);
+  const snapshotDetail = useSelector(state => state.projectReducers.currentSnapshot);
 
   const template = templateExtend(TemplateName.Metro, {
     branch: {

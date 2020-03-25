@@ -1,4 +1,15 @@
 import { constants } from './constants';
+const initCurrentSnapshot = {
+  id: null,
+  type: null,
+  name: null,
+  author: null,
+  message: null,
+  children: [], // if it has got children, it is created branch,
+  parent: null,
+  created: null,
+  data: null
+};
 
 export const INITIAL_STATE = {
   currentProject: {
@@ -10,15 +21,7 @@ export const INITIAL_STATE = {
     tags: [],
     type: null
   },
-  snapshot: null,
-  snapshotDetail: {
-    type: null,
-    name: null,
-    author: null,
-    message: null,
-    children: null, // if it has got children, it is created branch,
-    created: null
-  },
+  currentSnapshot: initCurrentSnapshot,
   isProjectModalOpen: false,
   isProjectModalLoading: false,
   listOfProjects: []
@@ -48,10 +51,10 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { isProjectModalLoading: action.payload });
 
     case constants.SET_SNAPSHOT:
-      return Object.assign({}, state, {
-        snapshot: action.payload.snapshot,
-        snapshotDetail: action.payload.snapshotDetail
-      });
+      return Object.assign({}, state, { currentSnapshot: action.payload.currentSnapshot });
+
+    case constants.RESET_SNAPSHOT:
+      return Object.assign({}, state, { currentSnapshot: initCurrentSnapshot });
 
     case constants.SET_LIST_OF_PROJECTS:
       return Object.assign({}, state, { listOfProjects: action.payload });

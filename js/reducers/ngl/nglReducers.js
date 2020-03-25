@@ -1,5 +1,7 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
 import { CONSTANTS } from './constants';
+import NglView from '../../components/nglView/nglView';
+import { VIEWS } from '../../constants/constants';
 
 export const INITIAL_STATE = {
   // NGL Scene properties
@@ -33,7 +35,10 @@ export const INITIAL_STATE = {
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
   proteinsHasLoaded: null,
-  countOfPendingNglObjects: 0,
+  countOfPendingNglObjects: {
+    [VIEWS.MAJOR_VIEW]: 0,
+    [VIEWS.SUMMARY_VIEW]: 0
+  },
   moleculeOrientations: {}
 };
 
@@ -118,7 +123,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.SET_NGL_STATE_FROM_CURRENT_SNAPSHOT:
-      return Object.assign({}, state, action.payload);
+      const snapshot = action.payload;
+      delete snapshot.countOfPendingNglObjects;
+      delete snapshot.countOfRemainingMoleculeGroups;
+      delete snapshot.proteinsHasLoaded;
+      return Object.assign({}, state, snapshot);
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
       if (action.stage) {
@@ -138,10 +147,14 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
-      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects - 1 });
+      const newCounts = JSON.parse(JSON.stringify(state.countOfPendingNglObjects));
+      newCounts[action.payload] = state.countOfPendingNglObjects[action.payload] - 1;
+      return Object.assign({}, state, { countOfPendingNglObjects: newCounts });
 
     case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
-      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
+      const newPendingCounts = JSON.parse(JSON.stringify(state.countOfPendingNglObjects));
+      newPendingCounts[action.payload] = state.countOfPendingNglObjects[action.payload] + 1;
+      return Object.assign({}, state, { countOfPendingNglObjects: newPendingCounts });
 
     case CONSTANTS.SET_MOLECULE_ORIENTATION:
       const newMoleculeOrientations = state.moleculeOrientations;

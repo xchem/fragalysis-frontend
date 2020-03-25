@@ -21,7 +21,6 @@ import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/acti
 import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
-import { SCENES } from '../../../../reducers/ngl/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 
@@ -127,17 +126,14 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
   return Promise.resolve();
 };
 
-export const clearMoleculeGroupSelection = ({ getNglView }) => dispatch => {
+export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getState) => {
   // Reset NGL VIEWS to default state
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
+  const snapshot = getState().projectReducers.currentSnapshot.data.nglReducers;
 
-  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW)).catch(error => {
-    throw new Error(error);
-  });
-  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW)).catch(error => {
-    throw new Error(error);
-  });
+  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW, snapshot));
+  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW, snapshot));
 
   // Reset selection reducer
   // remove sites selection

@@ -11,18 +11,16 @@ import {
 import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
 import { canCheckTarget, generateBondColorMap, generateObjectList } from '../helpers';
-import { savingStateConst, savingTypeConst } from '../constants';
+import { savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import {
-  loadProjectFromSnapshot,
-  saveCurrentSnapshot,
-  storeSnapshotToProject
-} from '../../projects/redux/dispatchActions';
+import { saveCurrentSnapshot, storeSnapshotToProject } from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 import { SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
+import { setProteinLoadingState } from '../../../reducers/ngl/actions';
+import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 
 export const handleVector = json => dispatch => {
   let objList = generateObjectList(json['3d']);
@@ -35,17 +33,19 @@ export const redeployVectorsLocal = url => dispatch => {
   return api({ url }).then(response => dispatch(handleVector(response.data['vectors'])));
 };
 
-// TODO: fix reload session method
-export const reloadSession = (myJson, nglViewList) => dispatch => {
-  let snapshotData = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
+export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
+  const state = getState();
+  const snapshotTitle = state.projectReducers.currentSnapshot.title;
+
   dispatch(reloadApiState(snapshotData.apiReducers));
-  dispatch(setSessionId(myJson.id));
-  dispatch(setSessionTitle(myJson.title));
+  // dispatch(setSessionId(myJson.id));
+  dispatch(setSessionTitle(snapshotTitle));
 
   if (nglViewList.length > 0) {
     dispatch(reloadSelectionReducer(snapshotData.selectionReducers));
-    nglViewList.forEach(nglView => {
-      dispatch(loadProjectFromSnapshot(nglView.stage, nglView.id, snapshotData));
+
+    nglViewList.forEach(async nglView => {
+      await dispatch(reloadNglViewFromSnapshot(nglView.stage, nglView.id, snapshotData.nglReducers));
     });
 
     if (snapshotData.selectionReducers.vectorOnList.length !== 0) {
@@ -63,59 +63,52 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
       dispatch(reloadPreviewReducer(snapshotData.previewReducers));
     }
   }
+
+  dispatch(setProteinLoadingState(true));
 };
 
-export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession, targetIdList }) => dispatch => {
-  if (loadedSession) {
-    let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
-    let target = jsonOfView.apiReducers.target_on_name;
-    let targetUnrecognised = true;
-    targetIdList.forEach(item => {
-      if (target === item.title) {
-        targetUnrecognised = false;
-      }
-    });
-
-    if (canCheckTarget(pathname) === false) {
-      dispatch(setTargetUnrecognised(targetUnrecognised));
-    }
-    if (targetUnrecognised === false && targetIdList.length > 0 && canCheckTarget(pathname) === true) {
-      dispatch(reloadSession(loadedSession, nglViewList));
-    }
-  }
-};
+// export const setTargetAndReloadSession = ({ pathname, nglViewList, loadedSession, targetIdList }) => dispatch => {
+//   if (loadedSession) {
+//     let jsonOfView = JSON.parse(JSON.parse(JSON.parse(loadedSession.scene)).state);
+//     let target = jsonOfView.apiReducers.target_on_name;
+//     let targetUnrecognised = true;
+//     targetIdList.forEach(item => {
+//       if (target === item.title) {
+//         targetUnrecognised = false;
+//       }
+//     });
+//
+//     if (canCheckTarget(pathname) === false) {
+//       dispatch(setTargetUnrecognised(targetUnrecognised));
+//     }
+//     if (targetUnrecognised === false && targetIdList.length > 0 && canCheckTarget(pathname) === true) {
+//       dispatch(reloadSession(loadedSession, nglViewList));
+//     }
+//   }
+// };
 
 export const postToServer = sessionState => dispatch => {
   // TODO save current state as snapshot
   dispatch(setSavingState(sessionState));
 };
 
-export const saveSnapshotToProject = ({ snapshot, snapshotDetail, projectId }) => async (dispatch, getState) => {
-  // TODO condition to check if project exists and if is open target or project
-  dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
-  if (projectId) {
-    dispatch(storeSnapshotToProject(snapshot, snapshotDetail, projectId));
-  } else {
-    throw new Error('Project ID is missing!');
-  }
-};
+export const createInitialSnapshot = projectID => async (dispatch, getState) => {
+  // const { objectsInView, nglOrientations, viewParams } = getState().nglReducers;
+  const { apiReducers, nglReducers, selectionReducers, previewReducers } = getState();
+  //const data = { objectsInView, nglOrientations, viewParams };
+  const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
+  const type = SnapshotType.INIT;
+  const title = 'Initial Snapshot';
+  const author = DJANGO_CONTEXT.pk || null;
+  const description = 'Auto generated initial snapshot';
+  const parent = null;
+  const children = [];
+  const created = moment();
 
-export const createInitialSnapshot = projectId => async (dispatch, getState) => {
-  const { objectsInView, nglOrientations, viewParams } = getState().nglReducers;
-  const snapshot = { objectsInView, nglOrientations, viewParams };
-  const snapshotDetail = {
-    type: SnapshotType.INIT,
-    title: 'Initial Snapshot',
-    authorID: DJANGO_CONTEXT.pk,
-    description: 'Auto generated initial snapshot',
-    children: null,
-    parent: null,
-    created: moment()
-  };
-  dispatch(saveCurrentSnapshot(snapshot, snapshotDetail));
+  await dispatch(saveCurrentSnapshot({ type, title, author, description, data, created, parent, children }));
 
-  if (projectId) {
-    dispatch(saveSnapshotToProject({ snapshot, snapshotDetail, projectId }));
+  if (projectID) {
+    await dispatch(storeSnapshotToProject({ projectID, snapshotID: getState().projectReducers.currentSnapshot.id }));
   }
 };
 

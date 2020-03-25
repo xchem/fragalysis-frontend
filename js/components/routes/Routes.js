@@ -6,6 +6,7 @@ import { Management } from '../management/management';
 import Tindspect from '../tindspect/Tindspect';
 import Landing from '../landing/Landing';
 import Preview from '../preview/Preview';
+import { ProjectPreview } from '../projects/projectPreview';
 import Funders from '../funders/fundersHolder';
 import { withLoadingTargetList } from '../target/withLoadingTargetIdList';
 import { BrowserCheck } from '../errorHandling/browserCheck';
@@ -15,7 +16,6 @@ import { Close } from '@material-ui/icons';
 import SessionList from '../snapshot/sessionList';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
-import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -30,7 +30,6 @@ const Routes = memo(() => {
   const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
-  const snapshot = useSelector(state => state.projectReducers.snapshot);
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -46,29 +45,23 @@ const Routes = memo(() => {
         <Switch>
           <Route exact path={URLS.projects} component={Projects} />
           <Route exact path={`${URLS.projects}:projectId/history`} component={ProjectDetailSessionList} />
-          <Route
-            exact
-            path={`${URLS.projects}:projectId`}
-            render={routeProps => (
-              <Preview isStateLoaded={snapshot !== null} headerHeight={headerHeight} {...routeProps} />
-            )}
-          />
+          <Route exact path={`${URLS.projects}:projectId`} component={ProjectPreview} />} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
           <Route
             exact
             path={`${URLS.target}:target`}
-            render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
+            render={routeProps => <Preview resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.sessions} component={SessionList} />
           <Route
             path={`${URLS.fragglebox}:uuid`}
-            render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
+            render={routeProps => <Preview isStateLoaded notCheckTarget {...routeProps} />}
           />
           <Route
             path={`${URLS.snapshot}:snapshotUuid`}
-            render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
+            render={routeProps => <Preview isStateLoaded notCheckTarget {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
         </Switch>

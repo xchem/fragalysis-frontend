@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { VIEWS } from '../../constants/constants';
 
 export const useDisableUserInteraction = () => {
   const [disableInteraction, setDisableInteraction] = useState(false);
@@ -13,7 +14,8 @@ export const useDisableUserInteraction = () => {
   useEffect(() => {
     if (
       countOfPendingVectorLoadRequests === 0 &&
-      countOfPendingNglObjects === 0 &&
+      countOfPendingNglObjects[VIEWS.SUMMARY_VIEW] === 0 &&
+      countOfPendingNglObjects[VIEWS.MAJOR_VIEW] === 0 &&
       ((countOfRemainingMoleculeGroups === 0 && proteinsHasLoaded === true) ||
         (countOfRemainingMoleculeGroups === null && proteinsHasLoaded === null))
     ) {

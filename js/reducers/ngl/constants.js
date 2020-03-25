@@ -10,7 +10,7 @@ export const CONSTANTS = {
 
   SET_NGL_VIEW_PARAMS: prefix + 'SET_NGL_VIEW_PARAMS',
   SET_ORIENTATION: prefix + 'SET_ORIENTATION',
-  SET_NGL_STATE_FROM_CURRENT_SNAPSHOT: prefix + 'RESET_NGL_VIEW_TO_SESSION_SCENE',
+  SET_NGL_STATE_FROM_CURRENT_SNAPSHOT: prefix + 'SET_NGL_STATE_FROM_CURRENT_SNAPSHOT',
   REMOVE_ALL_NGL_COMPONENTS: prefix + 'REMOVE_ALL_NGL_COMPONENTS',
 
   // Helper variables for marking that protein and molecule groups are successful loaded

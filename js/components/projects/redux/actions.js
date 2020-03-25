@@ -23,9 +23,13 @@ export const setProjectModalIsLoading = isLoading => ({
   payload: isLoading
 });
 
-export const setProjectSnapshot = (snapshot, snapshotDetail) => ({
+export const setCurrentSnapshot = currentSnapshot => ({
   type: constants.SET_SNAPSHOT,
-  payload: { snapshot, snapshotDetail }
+  payload: { currentSnapshot }
+});
+
+export const resetCurrentSnapshot = () => ({
+  type: constants.RESET_SNAPSHOT
 });
 
 export const resetProjectsReducer = () => ({ type: constants.RESET_PROJECTS_REDUCER });

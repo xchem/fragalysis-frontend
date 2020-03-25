@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
@@ -23,6 +23,7 @@ import { removeAllNglComponents } from '../../reducers/ngl/actions';
 import { resetCurrentCompoundsSettings } from './compounds/redux/actions';
 import { resetProjectsReducer } from '../projects/redux/actions';
 import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
+import { HeaderContext } from '../header/headerContext';
 //import HotspotList from '../hotspot/hotspotList';
 
 const hitNavigatorWidth = 504;
@@ -63,10 +64,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded, headerHeight }) => {
+const Preview = memo(({ isStateLoaded }) => {
   const classes = useStyles();
   const theme = useTheme();
 
+  const { headerHeight } = useContext(HeaderContext);
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 

@@ -1,8 +1,10 @@
 import { generateProteinObject } from '../../nglView/generatingObjects';
 import { SUFFIX, VIEWS } from '../../../constants/constants';
-import { loadObject, setProteinsHasLoaded, setOrientation } from '../../../reducers/ngl/dispatchActions';
+import { loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import { reloadSummaryReducer } from '../summary/redux/actions';
 import { reloadCompoundsReducer } from '../compounds/redux/actions';
+import { setProteinLoadingState } from '../../../reducers/ngl/actions';
+import { createInitialSnapshot, reloadSession } from '../../snapshot/redux/dispatchActions';
 // import { reloadMoleculeReducer } from '../molecule/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
@@ -33,11 +35,13 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded, projectId) => (dis
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
+  const snapshotID = state.projectReducers.currentSnapshot.id;
+  const snapshotData = state.projectReducers.currentSnapshot.data;
 
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
     if (!isStateLoaded) {
-      dispatch(setProteinsHasLoaded(false, undefined, projectId));
+      dispatch(setProteinLoadingState(false));
       Promise.all(
         nglViewList.map(nglView =>
           dispatch(loadProtein(nglView)).finally(() => {
@@ -45,10 +49,21 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded, projectId) => (dis
           })
         )
       )
-        .then(() => dispatch(setProteinsHasLoaded(true, undefined, projectId)))
-        .catch(() => dispatch(setProteinsHasLoaded(false, undefined, projectId)));
+        .then(() => {
+          dispatch(setProteinLoadingState(true));
+          if (getState().nglReducers.countOfRemainingMoleculeGroups === 0) {
+            dispatch(createInitialSnapshot(projectId));
+          }
+        })
+        .catch(error => {
+          dispatch(setProteinLoadingState(false));
+          throw new Error(error);
+        });
     } else {
-      dispatch(setProteinsHasLoaded(true, true, projectId));
+      // decide to load existing snapshot
+      if (snapshotID !== null && snapshotData !== null) {
+        dispatch(reloadSession(snapshotData, nglViewList));
+      }
     }
     if (targetOnName !== undefined) {
       document.title = targetOnName + ': Fragalysis';
@@ -59,5 +74,4 @@ export const shouldLoadProtein = (nglViewList, isStateLoaded, projectId) => (dis
 export const reloadPreviewReducer = newState => dispatch => {
   dispatch(reloadSummaryReducer(newState.summary));
   dispatch(reloadCompoundsReducer(newState.compounds));
-  // dispatch(reloadMoleculeReducer(newState.molecule));
 };

@@ -61,12 +61,14 @@ export const decrementCountOfRemainingMoleculeGroups = decrementedCount => ({
   payload: decrementedCount
 });
 
-export const incrementCountOfPendingNglObjects = () => ({
-  type: CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS
+export const incrementCountOfPendingNglObjects = NglViewId => ({
+  type: CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS,
+  payload: NglViewId
 });
 
-export const decrementCountOfPendingNglObjects = () => ({
-  type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS
+export const decrementCountOfPendingNglObjects = NglViewId => ({
+  type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS,
+  payload: NglViewId
 });
 
 export const setMoleculeOrientation = (moleculeId, orientation) => ({

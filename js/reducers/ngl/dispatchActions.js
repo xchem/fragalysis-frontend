@@ -6,8 +6,7 @@ import {
   loadNglObject,
   setNglStateFromCurrentSnapshot,
   setNglOrientation,
-  setNglViewParams,
-  setProteinLoadingState
+  setNglViewParams
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
@@ -16,9 +15,9 @@ import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorO
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 
-export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => dispatch => {
+export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => (dispatch, getState) => {
   if (stage) {
-    dispatch(incrementCountOfPendingNglObjects());
+    dispatch(incrementCountOfPendingNglObjects(target.display_div));
     return nglObjectDictionary[target.OBJECT_TYPE](
       stage,
       target,
@@ -30,7 +29,7 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
       .catch(error => {
         console.error(error);
       })
-      .finally(() => dispatch(decrementCountOfPendingNglObjects()));
+      .finally(() => dispatch(decrementCountOfPendingNglObjects(target.display_div)));
   }
   return Promise.reject('Instance of NGL View is missing');
 };
@@ -59,26 +58,11 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = projectId => (dispatch, getState) => {
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
+  // decide to create INIT snapshot
   if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
     dispatch(createInitialSnapshot(projectId));
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
-};
-
-// Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultState = false, projectId) => async (
-  dispatch,
-  getState
-) => {
-  const state = getState();
-  if (
-    state.nglReducers.countOfRemainingMoleculeGroups === 0 &&
-    hasLoaded === true &&
-    withoutSavingToDefaultState === false
-  ) {
-    dispatch(createInitialSnapshot(projectId));
-  }
-  dispatch(setProteinLoadingState(hasLoaded));
 };
 
 export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
@@ -98,10 +82,9 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
  *
  * @param stage - instance of NGL view
  * @param display_div - id of NGL View div
+ * @param snapshot - snapshot data of NGL View
  */
-export const reloadNglViewFromSnapshot = (stage, display_div) => (dispatch, getState) => {
-  const snapshot = getState().projectReducers.snapshot;
-
+export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (dispatch, getState) => {
   dispatch(setNglStateFromCurrentSnapshot(snapshot));
 
   // Remove all components in NGL View
