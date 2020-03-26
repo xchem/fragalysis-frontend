@@ -54,7 +54,7 @@ export const AddProjectDetail = memo(() => {
 
   return (
     <>
-      <Typography variant="h3">Add Project Detail</Typography>
+      <Typography variant="h3">Project Details</Typography>
       <Formik
         initialValues={{
           title: '',
@@ -73,15 +73,14 @@ export const AddProjectDetail = memo(() => {
         }}
         onSubmit={values => {
           const data = {
-            ...values,
-            author: {
-              username: DJANGO_CONTEXT['username'],
-              email: DJANGO_CONTEXT['email']
-            },
-            tags
+            title: values.title,
+            description: values.description,
+            target: targetId,
+            author: DJANGO_CONTEXT['pk'] || null,
+            tags: JSON.stringify(tags)
           };
           dispatch(setProjectModalIsLoading(true));
-          api({ url: `${base_url}/api/project`, method: METHOD.POST, data })
+          api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
             .then(response => {
               const projectID = response.data.id;
               dispatch(setCurrentProjectProperty('projectID', projectID));
