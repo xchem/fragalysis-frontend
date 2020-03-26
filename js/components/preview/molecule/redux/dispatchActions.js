@@ -89,7 +89,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
         Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
         stage,
         undefined,
-        orientationMatrix
+        orientationMatrix !== undefined ? null : undefined
       )
     )
   );
@@ -137,7 +137,7 @@ export const addComplex = (stage, data, colourToggle) => (dispatch, getState) =>
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
       undefined,
-      orientationMatrix
+      orientationMatrix !== undefined ? null : undefined
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -164,7 +164,7 @@ export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => 
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
       undefined,
-      orientationMatrix
+      orientationMatrix !== undefined ? null : undefined
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
