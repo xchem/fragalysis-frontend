@@ -22,7 +22,7 @@ import moment from 'moment';
 import { setProjectModalOpen } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
-import { loadListOfProjects, searchInProjects } from './redux/dispatchActions';
+import { loadListOfProjects, removeProject, searchInProjects } from './redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
@@ -50,7 +50,7 @@ export const Projects = memo(({}) => {
       tags: JSON.parse(project.tags),
       target: project.target.title,
       createdAt: project.init_date,
-      author: project.author.email
+      author: (project.author && project.author.email) || '-'
     };
   });
 
@@ -143,7 +143,14 @@ export const Projects = memo(({}) => {
                 <TableCell align="left">{project.author}</TableCell>
                 <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
                 <TableCell align="right">
-                  <IconButton>
+                  <IconButton
+                    disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
+                    onClick={() =>
+                      dispatch(removeProject(project.id)).catch(error => {
+                        throw new Error(error);
+                      })
+                    }
+                  >
                     <Delete />
                   </IconButton>
                 </TableCell>

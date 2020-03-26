@@ -68,6 +68,11 @@ export const searchInProjects = title => (dispatch, getState) => {
     dispatch(setListOfProjects((response && response.data && response.data.results) || []))
   );
 };
+export const removeProject = projectID => dispatch => {
+  return api({ url: `${base_url}/api/session-projects/${projectID}/`, method: METHOD.DELETE }).then(() =>
+    dispatch(loadListOfProjects())
+  );
+};
 
 export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
   return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` }).then(response => {
