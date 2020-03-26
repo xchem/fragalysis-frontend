@@ -2,15 +2,10 @@ import React, { memo, useState } from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { setCurrentProjectProperty, setProjectModalIsLoading } from '../../projects/redux/actions';
-import { api, METHOD } from '../../../utils/api';
-import { base_url, URLS } from '../../routes/constants';
-import { setDialogCurrentStep } from '../redux/actions';
 import { Form, Formik } from 'formik';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
-import { Description, Label, Title } from '@material-ui/icons';
+import { Description, Title } from '@material-ui/icons';
 import { TextField } from 'formik-material-ui';
-import { Autocomplete } from '@material-ui/lab';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';
@@ -71,16 +66,13 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
           const parent = currentSnapshot.id;
           const session_project = currentProject.projectID;
 
-          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project, history }))
-            .then(() => {
-              // redirect to project with newest created snapshot /:projectID/:snapshotID
-              history.push(`${URLS.projects}${session_project}/${currentSnapshot.id}`);
-            })
-            .catch(error => {
+          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project, history })).catch(
+            error => {
               setState(() => {
                 throw error;
               });
-            });
+            }
+          );
         }}
       >
         {({ submitForm }) => (

@@ -104,6 +104,29 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
     }
   });
 };
+export const loadSnapshotByID = snapshotID => (dispatch, getState) => {
+  return api({ url: `${base_url}/api/snapshots/${snapshotID}` }).then(response => {
+    if (response.data.id === undefined) {
+      dispatch(resetCurrentSnapshot());
+      return Promise.resolve(null);
+    } else {
+      dispatch(
+        setCurrentSnapshot({
+          id: response.data.id,
+          type: response.data.type,
+          title: response.data.title,
+          author: response.data.author,
+          description: response.data.description,
+          created: response.data.created,
+          children: response.data.children,
+          parent: response.data.parent,
+          data: JSON.parse(response.data.data)
+        })
+      );
+      return Promise.resolve(response.data.id);
+    }
+  });
+};
 
 export const createProjectFromSnapshotDialog = data => dispatch => {
   dispatch(setProjectModalIsLoading(true));

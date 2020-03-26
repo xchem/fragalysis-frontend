@@ -10,7 +10,7 @@ import { SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
-import { base_url } from '../../routes/constants';
+import { base_url, URLS } from '../../routes/constants';
 import { setCurrentSnapshot } from '../../projects/redux/actions';
 
 export const handleVector = json => dispatch => {
@@ -76,7 +76,7 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
   }
 };
 
-export const createNewSnapshot = ({ title, description, type, author, parent, session_project }) => (
+export const createNewSnapshot = ({ title, description, type, author, parent, session_project, history }) => (
   dispatch,
   getState
 ) => {
@@ -111,6 +111,10 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
           })
         )
       ]);
+      // redirect to project with newest created snapshot /:projectID/:snapshotID
+      if (response.data.id && session_project) {
+        history.push(`${URLS.projects}${session_project}/${response.data.id}`);
+      }
     })
   ]);
 };
