@@ -79,3 +79,8 @@ export const setMoleculeOrientation = (moleculeGroupID, orientation) => ({
   type: CONSTANTS.SET_MOLECULE_ORIENTATION,
   payload: { moleculeGroupID, orientation }
 });
+
+export const removeMoleculeOrientation = moleculeGroupID => ({
+  type: CONSTANTS.REMOVE_MOLECULE_ORIENTATION,
+  payload: moleculeGroupID
+});

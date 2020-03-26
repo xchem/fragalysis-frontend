@@ -17,7 +17,7 @@ import {
   setVectorList,
   setVectorOnList
 } from '../../../../reducers/selection/actions';
-import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
+import { removeMoleculeOrientation, setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
 import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
@@ -63,6 +63,9 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
     });
 
   dispatch(setObjectSelection(undefined));
+
+  // remove molecule orientation for given site
+  dispatch(removeMoleculeOrientation(site));
 };
 
 export const saveMoleculeGroupsToNglView = (molGroupList, stage) => dispatch => {

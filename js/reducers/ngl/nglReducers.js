@@ -204,6 +204,13 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       }
       return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
 
+    case CONSTANTS.REMOVE_MOLECULE_ORIENTATION:
+      const diminishedMoleculeOrientations = state.moleculeOrientations;
+      if (diminishedMoleculeOrientations[action.payload] !== undefined) {
+        delete diminishedMoleculeOrientations[action.payload];
+      }
+      return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
+
     default:
       return state;
   }
