@@ -6,7 +6,8 @@ export const INITIAL_STATE = {
   newSessionFlag: 0,
   loadedSession: undefined,
   openSavingDialog: false,
-  dialogCurrentStep: 0
+  dialogCurrentStep: 0,
+  isLoadingSnapshotDialog: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -38,6 +39,11 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_DIALOG_CURRENT_STEP:
       return Object.assign({}, state, {
         dialogCurrentStep: action.payload
+      });
+
+    case constants.SET_IS_LOADING_SNAPSHOT_DIALOG:
+      return Object.assign({}, state, {
+        isLoadingSnapshotDialog: action.payload
       });
 
     default:

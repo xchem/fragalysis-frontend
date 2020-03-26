@@ -1,29 +1,14 @@
 import React, { memo, useState } from 'react';
-import {
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Grid,
-  InputLabel,
-  makeStyles,
-  MenuItem,
-  Radio,
-  Typography
-} from '@material-ui/core';
-import Modal from '../../common/Modal';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { setCurrentProjectProperty, setProjectModalIsLoading, setProjectModalOpen } from '../redux/actions';
-import { api, METHOD } from '../../../utils/api';
-import { base_url, URLS } from '../../routes/constants';
 import { Form, Formik } from 'formik';
-import { RadioGroup, Select, TextField } from 'formik-material-ui';
-import { ProjectCreationType } from '../redux/constants';
+import { TextField } from 'formik-material-ui';
 import { InputFieldAvatar } from '../projectModal/inputFieldAvatar';
-import { Description, Label, Link, Title } from '@material-ui/icons';
+import { Description, Label, Title } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { setDialogCurrentStep } from '../../snapshot/redux/actions';
+import { createProjectFromSnapshotDialog } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -43,12 +28,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const AddProjectDetail = memo(() => {
+export const AddProjectDetail = memo(({ handleCloseModal }) => {
   const classes = useStyles();
   const [state, setState] = useState();
 
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
+  const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
 
   const [tags, setTags] = React.useState([]);
 
@@ -79,23 +65,14 @@ export const AddProjectDetail = memo(() => {
             author: DJANGO_CONTEXT['pk'] || null,
             tags: JSON.stringify(tags)
           };
-          dispatch(setProjectModalIsLoading(true));
-          api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
-            .then(response => {
-              const projectID = response.data.id;
-              dispatch(setCurrentProjectProperty('projectID', projectID));
-            })
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            })
-            .finally(() => {
-              dispatch(setDialogCurrentStep(1));
+          dispatch(createProjectFromSnapshotDialog(data)).catch(error => {
+            setState(() => {
+              throw error;
             });
+          });
         }}
       >
-        {({ submitForm, errors }) => (
+        {({ submitForm }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
@@ -107,7 +84,7 @@ export const AddProjectDetail = memo(() => {
                       name="title"
                       label="Title"
                       required
-                      //    disabled={isProjectModalLoading}
+                      disabled={isProjectModalLoading}
                     />
                   }
                 />
@@ -121,7 +98,7 @@ export const AddProjectDetail = memo(() => {
                       name="description"
                       label="Description"
                       required
-                      //    disabled={isProjectModalLoading}
+                      disabled={isProjectModalLoading}
                     />
                   }
                 />
@@ -139,7 +116,7 @@ export const AddProjectDetail = memo(() => {
                       onChange={(e, data) => {
                         setTags(data);
                       }}
-                      // disabled={isProjectModalLoading}
+                      disabled={isProjectModalLoading}
                       renderInput={params => (
                         <TextField
                           {...params}
@@ -161,17 +138,12 @@ export const AddProjectDetail = memo(() => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button
-                  color="secondary" //disabled={isProjectModalLoading} onClick={handleCloseModal}
-                >
+                <Button color="secondary" disabled={isProjectModalLoading} onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button
-                  color="primary"
-                  onClick={submitForm} //loading={isProjectModalLoading}
-                >
+                <Button color="primary" onClick={submitForm} loading={isProjectModalLoading}>
                   Create
                 </Button>
               </Grid>

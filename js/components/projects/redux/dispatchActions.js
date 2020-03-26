@@ -1,6 +1,13 @@
-import { setListOfProjects, setCurrentSnapshot, resetCurrentSnapshot } from './actions';
+import {
+  setListOfProjects,
+  setCurrentSnapshot,
+  resetCurrentSnapshot,
+  setCurrentProjectProperty,
+  setProjectModalIsLoading
+} from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
+import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 
 export const saveCurrentSnapshot = ({ type, title, author, description, data, created, parent, children }) => (
   dispatch,
@@ -96,4 +103,16 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
       return Promise.resolve(response.data.results[0].id);
     }
   });
+};
+
+export const createProjectFromSnapshotDialog = data => dispatch => {
+  dispatch(setProjectModalIsLoading(true));
+  return api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
+    .then(response => {
+      const projectID = response.data.id;
+      dispatch(setCurrentProjectProperty('projectID', projectID));
+    })
+    .finally(() => {
+      dispatch(setDialogCurrentStep(1));
+    });
 };

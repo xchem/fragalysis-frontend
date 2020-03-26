@@ -17,3 +17,8 @@ export const setDialogCurrentStep = (currentStep = 0) => ({
   type: constants.SET_DIALOG_CURRENT_STEP,
   payload: currentStep
 });
+
+export const setIsLoadingSnapshotDialog = isLoading => ({
+  type: constants.SET_IS_LOADING_SNAPSHOT_DIALOG,
+  payload: isLoading
+});
