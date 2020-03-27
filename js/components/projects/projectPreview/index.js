@@ -1,11 +1,13 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import Preview from '../../preview/Preview';
 import { useDispatch } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
 import { loadSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
+import { HeaderContext } from '../../header/headerContext';
 
 export const ProjectPreview = memo(({}) => {
-  const [canShow, setCanShow] = useState(false);
+  const { setSnackBarTitle } = useContext(HeaderContext);
+  const [canShow, setCanShow] = useState(undefined);
   const isSnapshotLoaded = useRef(undefined);
   let match = useRouteMatch();
   const dispatch = useDispatch();
@@ -26,8 +28,17 @@ export const ProjectPreview = memo(({}) => {
     } else {
       dispatch(loadSnapshotByID(snapshotId))
         .then(response => {
-          isSnapshotLoaded.current = response;
-          setCanShow(true);
+          if (response) {
+            if (response.session_project && `${response.session_project.id}` === projectId) {
+              isSnapshotLoaded.current = response.id;
+              setCanShow(true);
+            } else {
+              setCanShow(false);
+            }
+          } else {
+            isSnapshotLoaded.current = response;
+            setCanShow(false);
+          }
         })
         .catch(error => {
           console.log(error);
@@ -35,6 +46,10 @@ export const ProjectPreview = memo(({}) => {
         });
     }
   }, [dispatch, projectId, snapshotId]);
+
+  if (canShow === false) {
+    setSnackBarTitle('Not valid snapshot!');
+  }
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
     <Preview isStateLoaded={isSnapshotLoaded.current !== null} />

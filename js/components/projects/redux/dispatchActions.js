@@ -123,7 +123,7 @@ export const loadSnapshotByID = snapshotID => (dispatch, getState) => {
           data: JSON.parse(response.data.data)
         })
       );
-      return Promise.resolve(response.data.id);
+      return Promise.resolve(response.data);
     }
   });
 };
