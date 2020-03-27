@@ -303,12 +303,6 @@ export default memo(
                 <ListItemText primary="Projects" />
               </ListItem>
 
-              <ListItem button onClick={() => history.push(URLS.sessions)}>
-                <ListItemIcon>
-                  <Storage />
-                </ListItemIcon>
-                <ListItemText primary="Sessions" />
-              </ListItem>
               <ListItem button onClick={() => history.push(URLS.management)}>
                 <ListItemIcon>
                   <Work />

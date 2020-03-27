@@ -13,7 +13,6 @@ import { BrowserCheck } from '../errorHandling/browserCheck';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
-import SessionList from '../snapshot/sessionList';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 
@@ -53,16 +52,7 @@ const Routes = memo(() => {
           <Route
             exact
             path={`${URLS.target}:target`}
-            render={routeProps => <Preview resetSelection {...routeProps} />}
-          />
-          <Route exact path={URLS.sessions} component={SessionList} />
-          <Route
-            path={`${URLS.fragglebox}:uuid`}
-            render={routeProps => <Preview isStateLoaded notCheckTarget {...routeProps} />}
-          />
-          <Route
-            path={`${URLS.snapshot}:snapshotUuid`}
-            render={routeProps => <Preview isStateLoaded notCheckTarget {...routeProps} />}
+            render={routeProps => <Preview hideProjects resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
         </Switch>

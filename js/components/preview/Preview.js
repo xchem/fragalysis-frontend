@@ -64,7 +64,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded }) => {
+const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -141,21 +141,22 @@ const Preview = memo(({ isStateLoaded }) => {
           <Grid item>
             <CompoundList height={compoundHeight} />
           </Grid>
-          <Grid item>
-            <ProjectHistory
-              height={projectHistoryHeight}
-              setHeight={setProjectHistoryHeight}
-              showFullHistory={() => setShowHistory(!showHistory)}
-            />
-          </Grid>
+          {!hideProjects && (
+            <Grid item>
+              <ProjectHistory
+                setHeight={setProjectHistoryHeight}
+                showFullHistory={() => setShowHistory(!showHistory)}
+              />
+            </Grid>
+          )}
         </Grid>
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
       </Grid>
       <ModalStateSave />
-      <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />
       <NewSnapshotModal />
+      {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );
 });
