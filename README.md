@@ -28,7 +28,7 @@ The repositories are:
 
 - [xchem/fragalysis](https://github.com/xchem/fragalysis)
 - [xchem/fragalysis-frontend](https://github.com/xchem/fragalysis-frontend)
-- [xchem/fragalsysi-backend](https://github.com/xchem/fragalysis-backend)
+- [xchem/fragalysis-backend](https://github.com/xchem/fragalysis-backend)
 - [xchem/fragalysis-stack](https://github.com/xchem/fragalysis-stack)
 - [xchem/fragalysis-loader](https://github.com/xchem/fragalysis-loader)
 
@@ -165,8 +165,8 @@ To connect to `web_dock` container
 docker exec -it web_dock /bin/bash
 ```
 
-#IDEs
-###WebStorm, PhpStorm
+# IDEs
+### WebStorm, PhpStorm
 Please install following extension Prettier
 
 ```
@@ -177,14 +177,14 @@ Prettier reccomended settings: Files to watch - Scope - All changed files
 
 During the commit in this IDE, check `Run Git hooks`
 
-###Visual Studio Code
+### Visual Studio Code
 Please install following extensions
 
 Prettier - Code formatter https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
 
 ES-lint https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 
-#Environments
+# Environments
 to activate GitHub api create `.env` file and following environment variable
 
 ```
