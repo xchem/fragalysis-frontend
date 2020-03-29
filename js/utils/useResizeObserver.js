@@ -13,7 +13,9 @@ const useResizeObserver = observerCallback => {
   }, []);
 
   const observe = useCallback(() => {
-    observer.current = new ResizeObserver(([entry]) => observerCallback(entry, node));
+    observer.current = new ResizeObserver(([entry]) =>
+      observerCallback !== undefined ? observerCallback(entry, node) : null
+    );
     node && observer.current.observe(node);
   }, [node, observerCallback]);
 
