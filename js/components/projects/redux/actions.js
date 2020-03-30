@@ -38,3 +38,18 @@ export const setListOfProjects = projects => ({
   type: constants.SET_LIST_OF_PROJECTS,
   payload: projects
 });
+
+export const setIsLoadingTree = isLoading => ({
+  type: constants.SET_IS_LOADING_TREE,
+  payload: isLoading
+});
+
+export const setCurrentSnapshotTree = tree => ({
+  type: constants.SET_CURRENT_SNAPSHOT_TREE,
+  payload: tree
+});
+
+export const setCurrentSnapshotList = list => ({
+  type: constants.SET_CURRENT_SNAPSHOT_LIST,
+  payload: list
+});

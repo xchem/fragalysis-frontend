@@ -1,4 +1,5 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
+import { isEmpty } from 'lodash';
 import { Panel } from '../../common/Surfaces/Panel';
 import {
   Grid,
@@ -14,13 +15,18 @@ import {
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
 import { Delete, Share, MergeType } from '@material-ui/icons';
 import moment from 'moment';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, useRouteMatch } from 'react-router-dom';
+import { URLS } from '../../routes/constants';
+import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 
 export const heightOfProjectHistory = '164px';
 
 const useStyles = makeStyles(theme => ({
   containerExpanded: {
-    height: heightOfProjectHistory
+    width: '100%',
+    height: heightOfProjectHistory,
+    overflow: 'auto'
   },
   containerCollapsed: {
     height: 0
@@ -36,16 +42,24 @@ const useStyles = makeStyles(theme => ({
 export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const classes = useStyles();
   const ref = useRef(null);
+  let history = useHistory();
+  let match = useRouteMatch();
+  const dispatch = useDispatch();
+  const projectId = match && match.params && match.params.projectId;
+
   const snapshotDetail = useSelector(state => state.projectReducers.currentSnapshot);
+  const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
+  const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
+  const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
 
   const template = templateExtend(TemplateName.Metro, {
     branch: {
       lineWidth: 3,
-      spacing: 25,
+      spacing: 12,
       label: {
         font: 'normal 8pt Arial',
-        pointerWidth: 100
-        //  display: false
+        pointerWidth: 100,
+        display: false
       }
     },
     commit: {
@@ -54,11 +68,12 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
         font: 'normal 10pt Arial',
         displayAuthor: false
       },
-      spacing: 15,
+      spacing: 24,
       dot: {
         size: 8
       }
     },
+
     tag: {
       font: 'normal 8pt Arial'
     }
@@ -70,11 +85,13 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   };
 
   const handleClickOnCommit = commit => {
-    console.log('redirecting to session');
-    // history.push(`${URLS.target}NUDT5A`);
+    if (projectId && commit.hash) {
+      history.push(`${URLS.projects}${projectId}/${commit.hash}`);
+    }
   };
 
-  const commitFunction = ({ title, description, photo, author, email }) => ({
+  const commitFunction = ({ title, description, photo, author, email, hash }) => ({
+    hash: `${hash}`,
     subject: `${title}`,
     body: (
       <>
@@ -92,12 +109,39 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
       </>
     ),
     onMessageClick: handleClickOnCommit,
-    onClick: handleClickOnCommit
+    onClick: handleClickOnCommit,
+    color: 'red'
   });
 
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
+  useEffect(() => {
+    dispatch(loadSnapshotTree(projectId)).catch(error => {
+      throw new Error(error);
+    });
+  }, [dispatch, projectId]);
+
+  const renderTreeNode = (childID, gitgraph, parentBranch) => {
+    const node = currentSnapshotList[childID];
+    if (node !== undefined) {
+      const newBranch = gitgraph.branch({
+        parentBranch: parentBranch,
+        name: node.title,
+        column: 2
+      });
+      node.children.forEach(childID => {
+        renderTreeNode(childID, gitgraph, newBranch);
+      });
+
+      newBranch.commit(
+        commitFunction({
+          title: node.title,
+          description: node.description,
+          author: node.author.username,
+          email: node.author.email,
+          hash: node.id
+        })
+      );
+    }
+  };
 
   return (
     <Panel
@@ -117,108 +161,57 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
         }
       }}
     >
-      <Grid container direction="column" alignItems="center" className={classes.containerExpanded}>
-        <Grid item>
-          <Gitgraph options={options}>
-            {gitgraph => {
-              const master = gitgraph.branch('Basic molecules');
-              master.commit(
-                commitFunction({
-                  title: 'Add basic molecules',
-                  description: 'Add all molecules are in base form',
-                  author: 'Tibor Postek',
-                  email: 'tibor.postek@m2ms.sk'
-                })
-              );
-              const majorSnapshot = gitgraph.branch('Major molecule functionality');
-              majorSnapshot.commit(
-                commitFunction({
-                  title: 'Major snapshop',
-                  description: 'Create all major interactions are implemented',
-                  author: 'Pavol Brunclik',
-                  email: 'pavol.brunclik@m2ms.sk'
-                })
-              );
-              const cancerMolecules = gitgraph.branch('Cancer branch molecules');
-              cancerMolecules.commit(
-                commitFunction({
-                  title: 'Add cancer molecule models',
-                  description: 'Base model and 3 options are available',
-                  author: 'Pavol Brunclik',
-                  email: 'pavol.brunclik@m2ms.sk'
-                })
-              );
-              cancerMolecules.commit(
-                commitFunction({
-                  title: 'Add cancer molecule',
-                  description: 'This molecule is rare and expensive',
-                  author: 'Tibor Postek',
-                  email: 'tibor.postek@m2ms.sk'
-                })
-              );
-              cancerMolecules.commit(
-                commitFunction({
-                  title: 'Add medical experiment',
-                  description: 'Testing molecules for fighting with cancer',
-                  author: 'Tibor Postek',
-                  email: 'tibor.postek@m2ms.sk'
-                })
-              );
-              cancerMolecules.commit(
-                commitFunction({
-                  title: 'Add biological experiment',
-                  description: 'Testing molecules on animals, that are disabled by with cancer',
-                  author: 'Tibor Postek',
-                  email: 'tibor.postek@m2ms.sk'
-                })
-              );
+      <div className={classes.containerExpanded}>
+        {!isEmpty(currentSnapshotTree) &&
+          isLoadingTree === false &&
+          currentSnapshotTree.children &&
+          ((currentSnapshotTree.children.length > 0 && !isEmpty(currentSnapshotList)) ||
+            currentSnapshotTree.children.length === 0) && (
+            <Gitgraph options={options}>
+              {gitgraph => {
+                const initBranch = gitgraph.branch(currentSnapshotTree.title);
+                initBranch.commit(
+                  commitFunction({
+                    title: currentSnapshotTree.title,
+                    description: currentSnapshotTree.description,
+                    author: currentSnapshotTree.author.username,
+                    email: currentSnapshotTree.author.email,
+                    hash: currentSnapshotTree.id
+                  })
+                );
 
-              majorSnapshot.commit(
-                commitFunction({
-                  title: 'Create automatic snapshop',
-                  description: 'Automatic generated snapshot',
-                  author: 'Pavol Brunclik',
-                  email: 'pavol.brunclik@m2ms.sk'
-                })
-              );
-
-              master.commit(
-                commitFunction({
-                  title: 'Add methods',
-                  description: 'Add method of molecules molecule verification',
-                  author: 'Tibor Postek',
-                  email: 'tibor.postek@m2ms.sk'
-                })
-              );
-            }}
-          </Gitgraph>
-        </Grid>
-        <Grid item>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Title</TableCell>
-                <TableCell align="right">Author</TableCell>
-                <TableCell align="right">Created</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell component="th" scope="row">
-                  {snapshotDetail.name}
-                </TableCell>
-                <TableCell align="right">
-                  {snapshotDetail.author && snapshotDetail.author.username},
-                  {snapshotDetail.author && snapshotDetail.author.email}
-                </TableCell>
-                <TableCell align="right">
-                  {snapshotDetail.created && moment(snapshotDetail.created).format('LLL')}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </Grid>
-      </Grid>
+                currentSnapshotTree.children.forEach(childID => {
+                  renderTreeNode(childID, gitgraph, initBranch);
+                });
+              }}
+            </Gitgraph>
+          )}
+      </div>
+      {/*<Grid item>*/}
+      {/*  <Table>*/}
+      {/*    <TableHead>*/}
+      {/*      <TableRow>*/}
+      {/*        <TableCell>Title</TableCell>*/}
+      {/*        <TableCell align="right">Author</TableCell>*/}
+      {/*        <TableCell align="right">Created</TableCell>*/}
+      {/*      </TableRow>*/}
+      {/*    </TableHead>*/}
+      {/*    <TableBody>*/}
+      {/*      <TableRow>*/}
+      {/*        <TableCell component="th" scope="row">*/}
+      {/*          {snapshotDetail.name}*/}
+      {/*        </TableCell>*/}
+      {/*        <TableCell align="right">*/}
+      {/*          {snapshotDetail.author && snapshotDetail.author.username},*/}
+      {/*          {snapshotDetail.author && snapshotDetail.author.email}*/}
+      {/*        </TableCell>*/}
+      {/*        <TableCell align="right">*/}
+      {/*          {snapshotDetail.created && moment(snapshotDetail.created).format('LLL')}*/}
+      {/*        </TableCell>*/}
+      {/*      </TableRow>*/}
+      {/*    </TableBody>*/}
+      {/*  </Table>*/}
+      {/*</Grid>*/}
     </Panel>
   );
 });

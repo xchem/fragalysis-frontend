@@ -15,6 +15,7 @@ import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
+import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -55,6 +56,11 @@ const Routes = memo(() => {
             render={routeProps => <Preview hideProjects resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
+          <Route
+            exact
+            path={'/viewer/react/temp/'}
+            render={() => <ProjectDetailDrawer showHistory={true} setShowHistory={() => {}} />}
+          />
         </Switch>
       </Box>
       <BrowserCheck />

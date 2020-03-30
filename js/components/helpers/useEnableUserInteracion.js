@@ -10,9 +10,11 @@ export const useDisableUserInteraction = () => {
   const countOfRemainingMoleculeGroups = useSelector(state => state.nglReducers.countOfRemainingMoleculeGroups);
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
   const countOfPendingNglObjects = useSelector(state => state.nglReducers.countOfPendingNglObjects);
+  const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
 
   useEffect(() => {
     if (
+      isLoadingTree === false &&
       countOfPendingVectorLoadRequests === 0 &&
       countOfPendingNglObjects[VIEWS.SUMMARY_VIEW] === 0 &&
       countOfPendingNglObjects[VIEWS.MAJOR_VIEW] === 0 &&
@@ -32,6 +34,7 @@ export const useDisableUserInteraction = () => {
     countOfPendingVectorLoadRequests,
     countOfRemainingMoleculeGroups,
     disableInteraction,
+    isLoadingTree,
     proteinsHasLoaded
   ]);
 

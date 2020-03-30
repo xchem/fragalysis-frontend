@@ -2,7 +2,7 @@ import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import Preview from '../../preview/Preview';
 import { useDispatch } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
-import { loadSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
+import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
 
 export const ProjectPreview = memo(({}) => {
@@ -22,11 +22,11 @@ export const ProjectPreview = memo(({}) => {
           setCanShow(true);
         })
         .catch(error => {
-          console.log(error);
+          setCanShow(true);
           throw new Error(error);
         });
     } else {
-      dispatch(loadSnapshotByID(snapshotId))
+      dispatch(loadCurrentSnapshotByID(snapshotId))
         .then(response => {
           if (response) {
             if (response.session_project && `${response.session_project.id}` === projectId) {
@@ -41,7 +41,7 @@ export const ProjectPreview = memo(({}) => {
           }
         })
         .catch(error => {
-          console.log(error);
+          setCanShow(false);
           throw new Error(error);
         });
     }

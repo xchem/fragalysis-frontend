@@ -3,7 +3,10 @@ import {
   setCurrentSnapshot,
   resetCurrentSnapshot,
   setCurrentProjectProperty,
-  setProjectModalIsLoading
+  setProjectModalIsLoading,
+  setCurrentSnapshotTree,
+  setCurrentSnapshotList,
+  setIsLoadingTree
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
@@ -104,7 +107,8 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
     }
   });
 };
-export const loadSnapshotByID = snapshotID => (dispatch, getState) => {
+
+export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
   return api({ url: `${base_url}/api/snapshots/${snapshotID}` }).then(response => {
     if (response.data.id === undefined) {
       dispatch(resetCurrentSnapshot());
@@ -126,6 +130,56 @@ export const loadSnapshotByID = snapshotID => (dispatch, getState) => {
       return Promise.resolve(response.data);
     }
   });
+};
+
+const parseSnapshotAttributes = data => ({
+  id: data.id,
+  type: data.type,
+  title: data.title,
+  author: data.author,
+  description: data.description,
+  created: data.created,
+  children: data.children
+});
+
+export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
+  return api({ url: `${base_url}/api/snapshots/${snapshotID}` }).then(async response => {
+    if (response.data && response.data.id !== undefined) {
+      const currentSnapshotList = getState().projectReducers.currentSnapshotList;
+      currentSnapshotList[snapshotID] = parseSnapshotAttributes(response.data);
+      dispatch(setCurrentSnapshotList(currentSnapshotList));
+
+      if (response.data.children && response.data.children.length > 0) {
+        return dispatch(populateChildren(response.data.children));
+      }
+    }
+  });
+};
+
+const populateChildren = (children = []) => (dispatch, getState) => {
+  if (children && children.length > 0) {
+    children.forEach(async childID => {
+      return dispatch(getSnapshotAttributesByID(childID));
+    });
+  }
+};
+
+export const loadSnapshotTree = projectID => (dispatch, getState) => {
+  dispatch(setIsLoadingTree(true));
+  return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
+    .then(response => {
+      if (response.data.count === 0) {
+        dispatch(setCurrentSnapshotTree(null));
+        return Promise.reject('Not found INITIAL snapshot');
+      } else if (response.data.count === 1) {
+        const tree = parseSnapshotAttributes(response.data.results[0]);
+        dispatch(setCurrentSnapshotTree(tree));
+        return dispatch(populateChildren(tree.children));
+      }
+    })
+    .finally(() => {
+      dispatch(setIsLoadingTree(false));
+    });
 };
 
 export const createProjectFromSnapshotDialog = data => dispatch => {
