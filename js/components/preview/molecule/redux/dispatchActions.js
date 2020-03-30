@@ -27,7 +27,7 @@ import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../moleculeView';
-import { setMoleculeOrientation } from '../../../../reducers/ngl/actions';
+import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 
@@ -167,7 +167,7 @@ export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => 
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
 
-    dispatch(setMoleculeOrientation(data.site, currentOrientation));
+    dispatch(appendMoleculeOrientation(data.site, currentOrientation));
   });
   dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
 };

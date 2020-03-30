@@ -196,7 +196,10 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
       return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
 
-    case CONSTANTS.SET_MOLECULE_ORIENTATION:
+    case CONSTANTS.SET_MOLECULE_ORIENTATIONS:
+      return Object.assign({}, state, { moleculeOrientations: action.payload });
+
+    case CONSTANTS.APPEND_MOLECULE_ORIENTATION:
       const newMoleculeOrientations = state.moleculeOrientations;
 
       if (newMoleculeOrientations[action.payload.moleculeGroupID] === undefined) {
