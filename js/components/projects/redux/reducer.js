@@ -21,6 +21,7 @@ export const INITIAL_STATE = {
     tags: [],
     type: null
   },
+  isLoadingCurrentSnapshot: false,
   currentSnapshot: initCurrentSnapshot,
   isProjectModalOpen: false,
   isProjectModalLoading: false,
@@ -58,6 +59,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.RESET_SNAPSHOT:
       return Object.assign({}, state, { currentSnapshot: initCurrentSnapshot });
+
+    case constants.SET_IS_LOADING_CURRENT_SNAPSHOT:
+      return Object.assign({}, state, { isLoadingCurrentSnapshot: action.payload });
 
     case constants.SET_LIST_OF_PROJECTS:
       return Object.assign({}, state, { listOfProjects: action.payload });

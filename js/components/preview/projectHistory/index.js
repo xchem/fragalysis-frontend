@@ -44,10 +44,9 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const ref = useRef(null);
   let history = useHistory();
   let match = useRouteMatch();
-  const dispatch = useDispatch();
   const projectId = match && match.params && match.params.projectId;
 
-  const snapshotDetail = useSelector(state => state.projectReducers.currentSnapshot);
+  const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
@@ -90,7 +89,7 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
     }
   };
 
-  const commitFunction = ({ title, description, photo, author, email, hash }) => ({
+  const commitFunction = ({ title, description, photo, author, email, hash, isSelected = false }) => ({
     hash: `${hash}`,
     subject: `${title}`,
     body: (
@@ -110,14 +109,9 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
     ),
     onMessageClick: handleClickOnCommit,
     onClick: handleClickOnCommit,
-    color: 'red'
+    style: isSelected === true ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined
+    //tag: (isSelected === true && 'Selected') || undefined
   });
-
-  useEffect(() => {
-    dispatch(loadSnapshotTree(projectId)).catch(error => {
-      throw new Error(error);
-    });
-  }, [dispatch, projectId]);
 
   const renderTreeNode = (childID, gitgraph, parentBranch) => {
     const node = currentSnapshotList[childID];
@@ -137,7 +131,8 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
           description: node.description,
           author: node.author.username,
           email: node.author.email,
-          hash: node.id
+          hash: node.id,
+          isSelected: currentSnapshotID === node.id
         })
       );
     }
@@ -176,7 +171,8 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
                     description: currentSnapshotTree.description,
                     author: currentSnapshotTree.author.username,
                     email: currentSnapshotTree.author.email,
-                    hash: currentSnapshotTree.id
+                    hash: currentSnapshotTree.id,
+                    isSelected: currentSnapshotID === currentSnapshotTree.id
                   })
                 );
 

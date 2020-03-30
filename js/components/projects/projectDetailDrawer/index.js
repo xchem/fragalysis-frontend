@@ -1,11 +1,14 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
-import { HeaderContext } from '../../header/headerContext';
-import { Button, IconButton, makeStyles, Drawer, Typography, Input, Grid } from '@material-ui/core';
-import { Delete, History, Share } from '@material-ui/icons';
-import { Gitgraph, templateExtend, TemplateName, Orientation } from '@gitgraph/react';
+import React, { memo } from 'react';
+import { IconButton, makeStyles, Drawer, Typography, Grid } from '@material-ui/core';
+import { Delete, Share, Close } from '@material-ui/icons';
+import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
 import { URLS } from '../../routes/constants';
 import moment from 'moment';
 import Modal from '../../common/Modal';
+import { useSelector } from 'react-redux';
+import { isEmpty } from 'lodash';
+import { useHistory, useRouteMatch } from 'react-router-dom';
+import palette from '../../../theme/palette';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -21,18 +24,28 @@ const useStyles = makeStyles(theme => ({
   },
   historyHeader: {
     backgroundColor: theme.palette.primary.main,
-    padding: theme.spacing(1),
+    color: theme.palette.primary.contrastText,
     position: 'fixed',
     width: '100%'
   },
   historyBody: {
     marginTop: 49
+  },
+  headerTitle: {
+    padding: theme.spacing(1)
   }
 }));
 
 export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
+  let history = useHistory();
+  let match = useRouteMatch();
+  const projectId = match && match.params && match.params.projectId;
+  const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
+  const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
+  const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
+  const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
 
   var myTemplate = templateExtend(TemplateName.Metro, {
     branch: {
@@ -56,22 +69,23 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
       }
     },
     tag: {
-      font: 'normal 8pt Arial'
+      font: 'normal 8pt Arial',
+      color: palette.primary.contrastText,
+      bgColor: palette.primary.main
     }
   });
 
   const options = {
     template: myTemplate
-    //  orientation: Orientation.Horizontal
   };
 
   const handleClickOnCommit = commit => {
-    console.log('redirecting to session');
-    // history.push(`${URLS.target}NUDT5A`);
-    // handleClick(commit);
+    if (projectId && commit.hash) {
+      history.push(`${URLS.projects}${projectId}/${commit.hash}`);
+    }
   };
-
-  const commitFunction = ({ title, description, photo, author, email }) => ({
+  const commitFunction = ({ title, description, photo, author, email, hash, isSelected }) => ({
+    hash: `${hash}`,
     subject: `${title}`,
     body: (
       <>
@@ -90,139 +104,84 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
       </>
     ),
     onMessageClick: handleClickOnCommit,
-    onClick: handleClickOnCommit
+    onClick: handleClickOnCommit,
+    style: isSelected ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
+    tag: (isSelected === true && 'Selected') || undefined
   });
+
+  const renderTreeNode = (childID, gitgraph, parentBranch) => {
+    const node = currentSnapshotList[childID];
+    if (node !== undefined) {
+      const newBranch = gitgraph.branch({
+        parentBranch: parentBranch,
+        name: node.title,
+        column: 2
+      });
+      node.children.forEach(childID => {
+        renderTreeNode(childID, gitgraph, newBranch);
+      });
+
+      newBranch.commit(
+        commitFunction({
+          title: node.title,
+          description: node.description,
+          author: node.author.username,
+          email: node.author.email,
+          hash: node.id,
+          isSelected: currentSnapshot.id === node.id
+        })
+      );
+    }
+  };
+
+  const handleCloseHistory = () => {
+    setShowHistory(false);
+  };
 
   return (
     <>
-      <Drawer anchor="bottom" open={showHistory} onClose={() => setShowHistory(false)}>
+      <Drawer anchor="bottom" open={showHistory} onClose={handleCloseHistory}>
         <div className={classes.drawer}>
           <div className={classes.historyHeader}>
-            <form className={classes.root} noValidate autoComplete="off">
-              <Grid container direction="row" justify="space-between">
-                <Grid item>
-                  <Input defaultValue="Hello world" inputProps={{ 'aria-label': 'description' }} />
-                </Grid>
-                <Grid item>
-                  <Input defaultValue="Hello world" inputProps={{ 'aria-label': 'description' }} />
-                </Grid>
-                <Grid item>
-                  <Input defaultValue="Hello world" inputProps={{ 'aria-label': 'description' }} />
-                </Grid>
-                <Grid item>
-                  <Button variant="contained">Search</Button>
-                </Grid>
+            <Grid container direction="row" justify="space-between">
+              <Grid item className={classes.headerTitle}>
+                <Typography variant="h6" color="inherit" noWrap>
+                  Project History
+                </Typography>
               </Grid>
-            </form>
+              <Grid item>
+                <IconButton onClick={handleCloseHistory} color="inherit">
+                  <Close />
+                </IconButton>
+              </Grid>
+            </Grid>
           </div>
           <div className={classes.historyBody}>
-            <Gitgraph options={options}>
-              {gitgraph => {
-                const master = gitgraph.branch('Basic molecules');
-                master.commit(
-                  commitFunction({
-                    title: 'Add basic molecules',
-                    description: 'Add all molecules are in base form',
-                    author: 'Tibor Postek',
-                    email: 'tibor.postek@m2ms.sk'
-                  })
-                );
+            {!isEmpty(currentSnapshotTree) &&
+              isLoadingTree === false &&
+              currentSnapshotTree.children &&
+              ((currentSnapshotTree.children.length > 0 && !isEmpty(currentSnapshotList)) ||
+                currentSnapshotTree.children.length === 0) && (
+                <Gitgraph options={options}>
+                  {gitgraph => {
+                    const initBranch = gitgraph.branch(currentSnapshotTree.title);
+                    initBranch.commit(
+                      commitFunction({
+                        title: currentSnapshotTree.title,
+                        description: currentSnapshotTree.description,
+                        author: currentSnapshotTree.author.username,
+                        email: currentSnapshotTree.author.email,
+                        hash: currentSnapshotTree.id,
+                        isSelected: currentSnapshot.id === currentSnapshotTree.id
+                      })
+                    );
 
-                var hotfix1 = gitgraph.branch({
-                  parentBranch: master,
-                  name: 'hotfix1',
-                  column: 2 // which column index it should be displayed in
-                });
-                var hotfix2 = gitgraph.branch({
-                  parentBranch: master,
-                  name: 'hotfix2',
-                  column: 2 // which column index it should be displayed in
-                });
-                var hotfix3 = gitgraph.branch({
-                  parentBranch: master,
-                  name: 'hotfix3',
-                  column: 2 // which column index it should be displayed in
-                });
-
-                hotfix1.commit(
-                  commitFunction({
-                    title: 'Add methods',
-                    description: 'Add method of molecules molecule verification',
-                    author: 'Tibor Postek',
-                    email: 'tibor.postek@m2ms.sk'
-                  })
-                );
-
-                hotfix2.commit(
-                  commitFunction({
-                    title: 'Add methods',
-                    description: 'Add method of molecules molecule verification',
-                    author: 'Tibor Postek',
-                    email: 'tibor.postek@m2ms.sk'
-                  })
-                );
-                hotfix3.commit(
-                  commitFunction({
-                    title: 'Add methods',
-                    description: 'Add method of molecules molecule verification',
-                    author: 'Tibor Postek',
-                    email: 'tibor.postek@m2ms.sk'
-                  })
-                );
-
-                // const majorSnapshot = gitgraph.branch('Major molecule functionality');
-                // majorSnapshot.commit(
-                //   commitFunction({
-                //     title: 'Major snapshop',
-                //     description: 'Create all major interactions are implemented',
-                //     author: 'Pavol Brunclik',
-                //     email: 'pavol.brunclik@m2ms.sk'
-                //   })
-                // );
-                // const cancerMolecules = gitgraph.branch('Cancer branch molecules');
-                // cancerMolecules.commit(
-                //   commitFunction({
-                //     title: 'Add cancer molecule models',
-                //     description: 'Base model and 3 options are available',
-                //     author: 'Pavol Brunclik',
-                //     email: 'pavol.brunclik@m2ms.sk'
-                //   })
-                // );
-                // cancerMolecules.commit(
-                //   commitFunction({
-                //     title: 'Add cancer molecule',
-                //     description: 'This molecule is rare and expensive',
-                //     author: 'Tibor Postek',
-                //     email: 'tibor.postek@m2ms.sk'
-                //   })
-                // );
-                // cancerMolecules.commit(
-                //   commitFunction({
-                //     title: 'Add medical experiment',
-                //     description: 'Testing molecules for fighting with cancer',
-                //     author: 'Tibor Postek',
-                //     email: 'tibor.postek@m2ms.sk'
-                //   })
-                // );
-                // cancerMolecules.commit(
-                //   commitFunction({
-                //     title: 'Add biological experiment',
-                //     description: 'Testing molecules on animals, that are disabled by with cancer',
-                //     author: 'Tibor Postek',
-                //     email: 'tibor.postek@m2ms.sk'
-                //   })
-                // );
-                //
-                // majorSnapshot.commit(
-                //   commitFunction({
-                //     title: 'Create automatic snapshop',
-                //     description: 'Automatic generated snapshot',
-                //     author: 'Pavol Brunclik',
-                //     email: 'pavol.brunclik@m2ms.sk'
-                //   })
-                // );
-              }}
-            </Gitgraph>
+                    currentSnapshotTree.children.forEach(childID => {
+                      renderTreeNode(childID, gitgraph, initBranch);
+                    });
+                  }}
+                </Gitgraph>
+              )}
           </div>
         </div>
       </Drawer>

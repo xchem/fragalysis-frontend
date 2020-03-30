@@ -56,11 +56,6 @@ const Routes = memo(() => {
             render={routeProps => <Preview hideProjects resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
-          <Route
-            exact
-            path={'/viewer/react/temp/'}
-            render={() => <ProjectDetailDrawer showHistory={true} setShowHistory={() => {}} />}
-          />
         </Switch>
       </Box>
       <BrowserCheck />
