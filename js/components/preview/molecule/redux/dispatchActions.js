@@ -27,7 +27,7 @@ import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../moleculeView';
-import { setMoleculeOrientation } from '../../../../reducers/ngl/actions';
+import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 
@@ -79,7 +79,6 @@ const getViewUrl = (get_view, data) => {
 const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
   const to_select = state.selectionReducers.to_select;
-  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
   var objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList(objList));
   // loading vector objects
@@ -89,7 +88,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
         Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
         stage,
         undefined,
-        orientationMatrix
+        null
       )
     )
   );
@@ -129,15 +128,13 @@ export const removeVector = (stage, data) => (dispatch, getState) => {
   dispatch(removeFromVectorOnList(generateMoleculeId(data)));
 };
 
-export const addComplex = (stage, data, colourToggle) => (dispatch, getState) => {
-  const state = getState();
-  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
+export const addComplex = (stage, data, colourToggle) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
       undefined,
-      orientationMatrix
+      null
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -164,13 +161,13 @@ export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => 
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
       undefined,
-      orientationMatrix
+      orientationMatrix !== undefined ? null : undefined
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
 
-    dispatch(setMoleculeOrientation(data.site, currentOrientation));
+    dispatch(appendMoleculeOrientation(data.site, currentOrientation));
   });
   dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
 };
@@ -180,7 +177,7 @@ export const removeLigand = (stage, data) => dispatch => {
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
 };
 
-export const selectFirstMolecule = (majorView, moleculeList) => (dispatch, getState) => {
+export const selectFirstMolecule = (majorView, moleculeList) => dispatch => {
   if (moleculeList) {
     const firstMolecule = moleculeList[0];
     dispatch(addLigand(majorView, firstMolecule, colourList[0]));

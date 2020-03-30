@@ -60,6 +60,7 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
     dispatch(
       clearAfterDeselectingMoleculeGroup({
         molGroupId,
+        currentMolGroup,
         majorViewStage
       })
     );

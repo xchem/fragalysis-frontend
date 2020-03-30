@@ -35,7 +35,7 @@ const showMol = (stage, input_dict, object_name, representations, orientationMat
 
     if (orientationMatrix) {
       stage.viewerControls.orient(orientationMatrix);
-    } else {
+    } else if (orientationMatrix === undefined) {
       comp.autoView('ligand');
     }
     return assignRepresentationArrayToComp(reprArray, comp);
@@ -72,11 +72,11 @@ const renderComplex = (ol, representations, orientationMatrix) => {
   const reprArray = representations || createRepresentationsArray([repr2, repr3]);
   if (orientationMatrix) {
     stage.viewerControls.orient(orientationMatrix);
-  } else {
+  } else if (orientationMatrix === undefined) {
     comp.autoView('ligand');
+    //TODO setFocus should be in condition
+    comp.stage.setFocus(focus_let_temp);
   }
-  //TODO setFocus should be in condition
-  comp.stage.setFocus(focus_let_temp);
 
   return assignRepresentationArrayToComp(reprArray, comp);
 };
@@ -124,7 +124,7 @@ const showEvent = (stage, input_dict, object_name, representations, orientationM
 
         if (orientationMatrix) {
           stage.viewerControls.orient(orientationMatrix);
-        } else {
+        } else if (orientationMatrix === undefined) {
           comp.autoView('LIG');
         }
 
@@ -173,7 +173,7 @@ const showCylinder = (stage, input_dict, object_name, representations, orientati
   let comp = stage.addComponentFromObject(shape);
   if (orientationMatrix) {
     stage.viewerControls.orient(orientationMatrix);
-  } else {
+  } else if (orientationMatrix === undefined) {
     comp.autoView();
   }
   const reprArray =
@@ -196,7 +196,7 @@ const showArrow = (stage, input_dict, object_name, representations, orientationM
   let comp = stage.addComponentFromObject(shape);
   if (orientationMatrix) {
     stage.viewerControls.orient(orientationMatrix);
-  } else {
+  } else if (orientationMatrix === undefined) {
     comp.autoView();
   }
 
@@ -213,7 +213,7 @@ const showProtein = (stage, input_dict, object_name, representations, orientatio
 
     if (orientationMatrix) {
       stage.viewerControls.orient(orientationMatrix);
-    } else {
+    } else if (orientationMatrix === undefined) {
       comp.autoView();
     }
     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
