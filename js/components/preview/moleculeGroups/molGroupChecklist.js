@@ -46,16 +46,6 @@ const molGroupChecklist = memo(({}) => {
   const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const mol_group_selection = useSelector(state => state.selectionReducers.mol_group_selection);
 
-  const getSiteLabel = (moleculeGroup, idx) => {
-    let label = `Site ${idx + 1} - ${moleculeGroup.description}`;
-    /*if (moleculeGroup.description !== 'c_of_m') {
-      label = `${moleculeGroup.description}`;
-    } else {
-      label = `Site ${idx + 1} - (${moleculeGroup.description})`;
-    }*/
-    return label;
-  };
-
   return (
     <>
       <div className={classes.divContainer}>
@@ -64,7 +54,6 @@ const molGroupChecklist = memo(({}) => {
             {mol_group_list &&
               mol_group_list.map((moleculeGroup, idx) => {
                 const checked = mol_group_selection.some(i => i === moleculeGroup.id);
-                getSiteLabel(moleculeGroup, idx);
                 return (
                   <Grid
                     item
@@ -84,7 +73,7 @@ const molGroupChecklist = memo(({}) => {
                       />
                     </Grid>
                     <Grid item className={checked ? classes.selectedLine : null}>
-                      {getSiteLabel(moleculeGroup, idx)}
+                      {`Site ${idx + 1} - ${moleculeGroup.description}`}
                     </Grid>
                   </Grid>
                 );
