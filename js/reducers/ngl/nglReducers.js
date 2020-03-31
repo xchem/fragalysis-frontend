@@ -196,13 +196,23 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
       return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
 
-    case CONSTANTS.SET_MOLECULE_ORIENTATION:
+    case CONSTANTS.SET_MOLECULE_ORIENTATIONS:
+      return Object.assign({}, state, { moleculeOrientations: action.payload });
+
+    case CONSTANTS.APPEND_MOLECULE_ORIENTATION:
       const newMoleculeOrientations = state.moleculeOrientations;
 
       if (newMoleculeOrientations[action.payload.moleculeGroupID] === undefined) {
         newMoleculeOrientations[action.payload.moleculeGroupID] = action.payload.orientation;
       }
       return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
+
+    case CONSTANTS.REMOVE_MOLECULE_ORIENTATION:
+      const diminishedMoleculeOrientations = state.moleculeOrientations;
+      if (diminishedMoleculeOrientations[action.payload] !== undefined) {
+        delete diminishedMoleculeOrientations[action.payload];
+      }
+      return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
 
     default:
       return state;

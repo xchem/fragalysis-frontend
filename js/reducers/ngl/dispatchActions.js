@@ -7,6 +7,7 @@ import {
   resetStateToDefaultScene,
   resetStateToSessionScene,
   saveCurrentStateAsDefaultScene,
+  setMoleculeOrientations,
   setNglOrientation,
   setNglViewParams,
   setProteinLoadingState
@@ -140,6 +141,11 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
     const newOrientation = currentScene.nglOrientations[display_div];
     if (newOrientation) {
       stage.viewerControls.orient(newOrientation.elements);
+    }
+
+    // set molecule orientations
+    if (currentScene.moleculeOrientations) {
+      dispatch(setMoleculeOrientations(currentScene.moleculeOrientations));
     }
   });
 };
