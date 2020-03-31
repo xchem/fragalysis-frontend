@@ -1,5 +1,5 @@
 import React, { memo, useContext } from 'react';
-import { Grid, makeStyles, Checkbox } from '@material-ui/core';
+import { Grid, makeStyles, Checkbox, Tooltip, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { heightOfBody } from './molGroupSelector';
 import { VIEWS } from '../../../constants/constants';
@@ -33,6 +33,12 @@ const useStyles = makeStyles(theme => ({
   },
   rowItem: {
     height: 22
+  },
+  siteLabel: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    marginLeft: '-6px'
   }
 }));
 
@@ -59,10 +65,11 @@ const molGroupChecklist = memo(({}) => {
                     item
                     container
                     alignItems="center"
+                    justify="flex-start"
                     key={`mol-checklist-item-${idx}`}
                     className={classes.rowItem}
                   >
-                    <Grid item>
+                    <Grid item xs={2}>
                       <Checkbox
                         color="primary"
                         checked={checked}
@@ -72,8 +79,12 @@ const molGroupChecklist = memo(({}) => {
                         disabled={disableUserInteraction}
                       />
                     </Grid>
-                    <Grid item className={checked ? classes.selectedLine : null}>
-                      {`Site ${idx + 1} - ${moleculeGroup.description}`}
+                    <Grid item xs={10} className={checked ? classes.selectedLine : null}>
+                      <Tooltip title={moleculeGroup.description}>
+                        <Typography className={classes.siteLabel}>
+                          {`Site ${idx + 1} - ${moleculeGroup.description}`}
+                        </Typography>
+                      </Tooltip>
                     </Grid>
                   </Grid>
                 );
