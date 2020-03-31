@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { URLS } from '../../routes/constants';
 import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
+import palette from '../../../theme/palette';
 
 export const heightOfProjectHistory = '164px';
 
@@ -74,7 +75,9 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
     },
 
     tag: {
-      font: 'normal 8pt Arial'
+      font: 'normal 8pt Arial',
+      color: palette.primary.contrastText,
+      bgColor: palette.primary.main
     }
   });
 
@@ -109,8 +112,8 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
     ),
     onMessageClick: handleClickOnCommit,
     onClick: handleClickOnCommit,
-    style: isSelected === true ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined
-    //tag: (isSelected === true && 'Selected') || undefined
+    style: isSelected === true ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
+    tag: (isSelected === true && 'Selected') || undefined
   });
 
   const renderTreeNode = (childID, gitgraph, parentBranch) => {
@@ -127,10 +130,10 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
 
       newBranch.commit(
         commitFunction({
-          title: node.title,
-          description: node.description,
-          author: node.author.username,
-          email: node.author.email,
+          title: node.title || '',
+          description: node.description || '',
+          author: (node.author && node.author.username) || '',
+          email: (node.author && node.author.email) || '',
           hash: node.id,
           isSelected: currentSnapshotID === node.id
         })
@@ -167,10 +170,10 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
                 const initBranch = gitgraph.branch(currentSnapshotTree.title);
                 initBranch.commit(
                   commitFunction({
-                    title: currentSnapshotTree.title,
-                    description: currentSnapshotTree.description,
-                    author: currentSnapshotTree.author.username,
-                    email: currentSnapshotTree.author.email,
+                    title: currentSnapshotTree.title || '',
+                    description: currentSnapshotTree.description || '',
+                    author: (currentSnapshotTree.author && currentSnapshotTree.author.username) || '',
+                    email: (currentSnapshotTree.author && currentSnapshotTree.author.email) || '',
                     hash: currentSnapshotTree.id,
                     isSelected: currentSnapshotID === currentSnapshotTree.id
                   })

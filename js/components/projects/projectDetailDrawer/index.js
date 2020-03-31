@@ -89,14 +89,14 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
     subject: `${title}`,
     body: (
       <>
-        <img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />
-        <IconButton>
-          <Share />
-        </IconButton>
-        <IconButton>
-          <Delete />
-        </IconButton>
-        <br />
+        {/*<img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />*/}
+        {/*<IconButton>*/}
+        {/*  <Share />*/}
+        {/*</IconButton>*/}
+        {/*<IconButton>*/}
+        {/*  <Delete />*/}
+        {/*</IconButton>*/}
+        {/*<br />*/}
         <Typography variant="caption">
           <b>{`${moment().format('LLL')}, ${email}: `}</b>
           {description}
@@ -105,7 +105,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
     ),
     onMessageClick: handleClickOnCommit,
     onClick: handleClickOnCommit,
-    style: isSelected ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
+    //   style: isSelected ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
     tag: (isSelected === true && 'Selected') || undefined
   });
 
@@ -123,10 +123,10 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
 
       newBranch.commit(
         commitFunction({
-          title: node.title,
-          description: node.description,
-          author: node.author.username,
-          email: node.author.email,
+          title: node.title || '',
+          description: node.description || '',
+          author: (node.author && node.author.username) || '',
+          email: (node.author && node.author.email) || '',
           hash: node.id,
           isSelected: currentSnapshot.id === node.id
         })
@@ -167,10 +167,10 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
                     const initBranch = gitgraph.branch(currentSnapshotTree.title);
                     initBranch.commit(
                       commitFunction({
-                        title: currentSnapshotTree.title,
-                        description: currentSnapshotTree.description,
-                        author: currentSnapshotTree.author.username,
-                        email: currentSnapshotTree.author.email,
+                        title: currentSnapshotTree.title || '',
+                        description: currentSnapshotTree.description || '',
+                        author: (currentSnapshotTree.author && currentSnapshotTree.author.username) || '',
+                        email: (currentSnapshotTree.author && currentSnapshotTree.author.email) || '',
                         hash: currentSnapshotTree.id,
                         isSelected: currentSnapshot.id === currentSnapshotTree.id
                       })
