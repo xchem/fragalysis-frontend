@@ -2,7 +2,7 @@ import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import Preview from '../../preview/Preview';
 import { useDispatch } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
-import { loadCurrentSnapshotByID, loadSnapshotByProjectID, loadSnapshotTree } from '../redux/dispatchActions';
+import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
 
 export const ProjectPreview = memo(({}) => {
@@ -50,14 +50,6 @@ export const ProjectPreview = memo(({}) => {
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');
   }
-
-  useEffect(() => {
-    if (canShow) {
-      dispatch(loadSnapshotTree(projectId)).catch(error => {
-        throw new Error(error);
-      });
-    }
-  }, [dispatch, projectId, snapshotId, canShow]);
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
     <Preview isStateLoaded={isSnapshotLoaded.current !== null} />

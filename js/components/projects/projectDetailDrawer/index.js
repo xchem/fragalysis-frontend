@@ -6,7 +6,6 @@ import { URLS } from '../../routes/constants';
 import moment from 'moment';
 import Modal from '../../common/Modal';
 import { useSelector } from 'react-redux';
-import { isEmpty } from 'lodash';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import palette from '../../../theme/palette';
 
@@ -36,48 +35,48 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const myTemplate = templateExtend(TemplateName.Metro, {
+  branch: {
+    lineWidth: 3,
+    spacing: 25,
+    label: {
+      font: 'normal 8pt Arial',
+      pointerWidth: 100,
+      display: false
+    }
+  },
+  commit: {
+    message: {
+      displayHash: false,
+      font: 'normal 10pt Arial',
+      displayAuthor: false
+    },
+    spacing: 15,
+    dot: {
+      size: 8
+    }
+  },
+  tag: {
+    font: 'normal 8pt Arial',
+    color: palette.primary.contrastText,
+    bgColor: palette.primary.main
+  }
+});
+
+const options = {
+  template: myTemplate
+};
+
 export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
   let history = useHistory();
   let match = useRouteMatch();
   const projectId = match && match.params && match.params.projectId;
-  const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
+  const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
-
-  var myTemplate = templateExtend(TemplateName.Metro, {
-    branch: {
-      lineWidth: 3,
-      spacing: 25,
-      label: {
-        font: 'normal 8pt Arial',
-        pointerWidth: 100
-        //  display: false
-      }
-    },
-    commit: {
-      message: {
-        displayHash: false,
-        font: 'normal 10pt Arial',
-        displayAuthor: false
-      },
-      spacing: 15,
-      dot: {
-        size: 8
-      }
-    },
-    tag: {
-      font: 'normal 8pt Arial',
-      color: palette.primary.contrastText,
-      bgColor: palette.primary.main
-    }
-  });
-
-  const options = {
-    template: myTemplate
-  };
 
   const handleClickOnCommit = commit => {
     if (projectId && commit.hash) {
@@ -105,8 +104,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
     ),
     onMessageClick: handleClickOnCommit,
     onClick: handleClickOnCommit,
-    //   style: isSelected ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
-    tag: (isSelected === true && 'Selected') || undefined
+    style: isSelected ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
+    tag: (isSelected === true && 'selected snapshot') || undefined
   });
 
   const renderTreeNode = (childID, gitgraph, parentBranch) => {
@@ -128,7 +127,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
           author: (node.author && node.author.username) || '',
           email: (node.author && node.author.email) || '',
           hash: node.id,
-          isSelected: currentSnapshot.id === node.id
+          isSelected: currentSnapshotID === node.id
         })
       );
     }
@@ -157,11 +156,13 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
             </Grid>
           </div>
           <div className={classes.historyBody}>
-            {!isEmpty(currentSnapshotTree) &&
-              isLoadingTree === false &&
-              currentSnapshotTree.children &&
-              ((currentSnapshotTree.children.length > 0 && !isEmpty(currentSnapshotList)) ||
-                currentSnapshotTree.children.length === 0) && (
+            {isLoadingTree === false &&
+              currentSnapshotTree !== null &&
+              currentSnapshotTree.children !== null &&
+              currentSnapshotTree.title !== null &&
+              currentSnapshotTree.id !== null &&
+              currentSnapshotID !== null &&
+              currentSnapshotList !== null && (
                 <Gitgraph options={options}>
                   {gitgraph => {
                     const initBranch = gitgraph.branch(currentSnapshotTree.title);
@@ -172,7 +173,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
                         author: (currentSnapshotTree.author && currentSnapshotTree.author.username) || '',
                         email: (currentSnapshotTree.author && currentSnapshotTree.author.email) || '',
                         hash: currentSnapshotTree.id,
-                        isSelected: currentSnapshot.id === currentSnapshotTree.id
+                        isSelected: currentSnapshotID === currentSnapshotTree.id
                       })
                     );
 

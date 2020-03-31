@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { isEmpty } from 'lodash';
 import { Panel } from '../../common/Surfaces/Panel';
 import {
@@ -40,51 +40,53 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const template = templateExtend(TemplateName.Metro, {
+  branch: {
+    lineWidth: 3,
+    spacing: 12,
+    label: {
+      font: 'normal 8pt Arial',
+      pointerWidth: 100,
+      display: false
+    }
+  },
+  commit: {
+    message: {
+      displayHash: false,
+      font: 'normal 10pt Arial',
+      displayAuthor: false
+    },
+    spacing: 24,
+    dot: {
+      size: 8
+    }
+  },
+
+  tag: {
+    font: 'normal 8pt Arial',
+    color: palette.primary.contrastText,
+    bgColor: palette.primary.main
+  }
+});
+
+const options = {
+  template,
+  orientation: Orientation.Horizontal
+};
+
 export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const classes = useStyles();
   const ref = useRef(null);
   let history = useHistory();
+  const dispatch = useDispatch();
   let match = useRouteMatch();
   const projectId = match && match.params && match.params.projectId;
+  const snapshotId = match && match.params && match.params.snapshotId;
 
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
-
-  const template = templateExtend(TemplateName.Metro, {
-    branch: {
-      lineWidth: 3,
-      spacing: 12,
-      label: {
-        font: 'normal 8pt Arial',
-        pointerWidth: 100,
-        display: false
-      }
-    },
-    commit: {
-      message: {
-        displayHash: false,
-        font: 'normal 10pt Arial',
-        displayAuthor: false
-      },
-      spacing: 24,
-      dot: {
-        size: 8
-      }
-    },
-
-    tag: {
-      font: 'normal 8pt Arial',
-      color: palette.primary.contrastText,
-      bgColor: palette.primary.main
-    }
-  });
-
-  const options = {
-    template,
-    orientation: Orientation.Horizontal
-  };
 
   const handleClickOnCommit = commit => {
     if (projectId && commit.hash) {
@@ -92,28 +94,13 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
     }
   };
 
-  const commitFunction = ({ title, description, photo, author, email, hash, isSelected = false }) => ({
+  const commitFunction = ({ title, hash, isSelected = false }) => ({
     hash: `${hash}`,
     subject: `${title}`,
-    body: (
-      <>
-        <IconButton>
-          <Share />
-        </IconButton>
-        <IconButton>
-          <Delete />
-        </IconButton>
-        <br />
-        <Typography variant="caption">
-          <b>{`${moment().format('LLL')}, ${email}: `}</b>
-          {description}
-        </Typography>
-      </>
-    ),
     onMessageClick: handleClickOnCommit,
     onClick: handleClickOnCommit,
-    style: isSelected === true ? { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } } : undefined,
-    tag: (isSelected === true && 'Selected') || undefined
+    style:
+      (isSelected === true && { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } }) || undefined
   });
 
   const renderTreeNode = (childID, gitgraph, parentBranch) => {
@@ -131,15 +118,18 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
       newBranch.commit(
         commitFunction({
           title: node.title || '',
-          description: node.description || '',
-          author: (node.author && node.author.username) || '',
-          email: (node.author && node.author.email) || '',
           hash: node.id,
           isSelected: currentSnapshotID === node.id
         })
       );
     }
   };
+
+  useEffect(() => {
+    dispatch(loadSnapshotTree(projectId)).catch(error => {
+      throw new Error(error);
+    });
+  }, [dispatch, projectId, snapshotId]);
 
   return (
     <Panel
@@ -160,20 +150,20 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
       }}
     >
       <div className={classes.containerExpanded}>
-        {!isEmpty(currentSnapshotTree) &&
-          isLoadingTree === false &&
-          currentSnapshotTree.children &&
-          ((currentSnapshotTree.children.length > 0 && !isEmpty(currentSnapshotList)) ||
-            currentSnapshotTree.children.length === 0) && (
+        {isLoadingTree === false &&
+          currentSnapshotTree !== null &&
+          currentSnapshotTree.children !== null &&
+          currentSnapshotTree.title !== null &&
+          currentSnapshotTree.id !== null &&
+          currentSnapshotID !== null &&
+          currentSnapshotList !== null && (
             <Gitgraph options={options}>
               {gitgraph => {
                 const initBranch = gitgraph.branch(currentSnapshotTree.title);
+
                 initBranch.commit(
                   commitFunction({
                     title: currentSnapshotTree.title || '',
-                    description: currentSnapshotTree.description || '',
-                    author: (currentSnapshotTree.author && currentSnapshotTree.author.username) || '',
-                    email: (currentSnapshotTree.author && currentSnapshotTree.author.email) || '',
                     hash: currentSnapshotTree.id,
                     isSelected: currentSnapshotID === currentSnapshotTree.id
                   })

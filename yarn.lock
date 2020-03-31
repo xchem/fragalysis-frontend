@@ -876,17 +876,17 @@
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.7.4.tgz#f14932887422c9056b15a8d222a9074a7dfa2831"
   integrity sha512-fxfMSBMX3tlIbKUdtGKxqB1fyrH6gVrX39Gsv3y8lRYKUqlgDt3UMqQyGnR1bQMa2B8aGnhLZokZgg8vT0Le+A==
 
-"@gitgraph/core@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@gitgraph/core/-/core-1.4.3.tgz#211ae31af24b6baf4119540815119b1fbeb0374c"
-  integrity sha512-/84cYRd0W1hfUOY08UhphDXgs/Cnzapvb7Vb0ZmND+4IAq9V6SpdbQHlwinNucOxTbIku6hrd2tROiYdrmD/kg==
+"@gitgraph/core@1.4.4":
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/@gitgraph/core/-/core-1.4.4.tgz#5c76e3e33c82e2f7dd651f3bda142c3ba8ae3158"
+  integrity sha512-RLnObfv7XdHpc6k+CKQbSPC+KUJ5VKpDW1ff8RIf2oAIYGWDqdhsSg5PIbh68IbU++kkTrl8vb1zBn9KqOSwpg==
 
-"@gitgraph/react@^1.5.2":
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/@gitgraph/react/-/react-1.5.2.tgz#4e3ce638a56cff28972af67c4dafa80d391d5ba8"
-  integrity sha512-INAJGsNqvWtWEdRHNi4SEs3UurFyI6Y9Onlg8l3moOse0JHk8MWuWuwmj2OnOMUdmH6igQ4ra1cwKLf2t9RGjw==
+"@gitgraph/react@^1.5.3":
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/@gitgraph/react/-/react-1.5.3.tgz#f4a688cfbe96b43ec3109ef72223c41f26d0f367"
+  integrity sha512-0FYwkFvTXjfzH6JivLF3vNyGgjYYPkIucMJ1j3ghlPFfg1ux0lkHVcba5CTj1dplzj7vc/RKl8KM7vYXdtk3HA==
   dependencies:
-    "@gitgraph/core" "1.4.3"
+    "@gitgraph/core" "1.4.4"
 
 "@hot-loader/react-dom@^16.11.0":
   version "16.11.0"

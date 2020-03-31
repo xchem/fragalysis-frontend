@@ -28,7 +28,7 @@ export const INITIAL_STATE = {
   listOfProjects: [],
   isLoadingTree: false,
   currentSnapshotTree: null,
-  currentSnapshotList: {}
+  currentSnapshotList: null
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {

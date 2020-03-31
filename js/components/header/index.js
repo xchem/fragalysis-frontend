@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
   },
   loadingPaper: {
     backgroundColor: theme.palette.background.default,
-    zIndex: 1,
+    zIndex: 1301,
     width: '100%',
     position: 'absolute',
     opacity: 0.9,
