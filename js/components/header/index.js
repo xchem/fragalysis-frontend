@@ -23,7 +23,6 @@ import {
   Input,
   Person,
   Home,
-  Storage,
   SupervisorAccount,
   Menu as MenuIcon,
   Work,

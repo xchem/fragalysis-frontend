@@ -90,9 +90,6 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
       <>
         {/*<img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />*/}
         {/*<IconButton>*/}
-        {/*  <Share />*/}
-        {/*</IconButton>*/}
-        {/*<IconButton>*/}
         {/*  <Delete />*/}
         {/*</IconButton>*/}
         {/*<br />*/}
@@ -100,6 +97,9 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
           <b>{`${moment().format('LLL')}, ${email}: `}</b>
           {description}
         </Typography>
+        <IconButton disabled>
+          <Share />
+        </IconButton>
       </>
     ),
     onMessageClick: handleClickOnCommit,
@@ -112,12 +112,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
     const node = currentSnapshotList[childID];
     if (node !== undefined) {
       const newBranch = gitgraph.branch({
-        parentBranch: parentBranch,
-        name: node.title,
-        column: 2
-      });
-      node.children.forEach(childID => {
-        renderTreeNode(childID, gitgraph, newBranch);
+        from: parentBranch,
+        name: node.title
       });
 
       newBranch.commit(
@@ -130,6 +126,10 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
           isSelected: currentSnapshotID === node.id
         })
       );
+
+      node.children.forEach(childID => {
+        renderTreeNode(childID, gitgraph, newBranch);
+      });
     }
   };
 

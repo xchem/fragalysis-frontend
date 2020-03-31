@@ -1,5 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
-import { isEmpty } from 'lodash';
+import React, { memo, useEffect, useRef } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import {
   Grid,
@@ -13,8 +12,8 @@ import {
   makeStyles
 } from '@material-ui/core';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
-import { Delete, Share, MergeType } from '@material-ui/icons';
-import moment from 'moment';
+import { MergeType, Share } from '@material-ui/icons';
+import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { URLS } from '../../routes/constants';
@@ -107,12 +106,8 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
     const node = currentSnapshotList[childID];
     if (node !== undefined) {
       const newBranch = gitgraph.branch({
-        parentBranch: parentBranch,
         name: node.title,
-        column: 2
-      });
-      node.children.forEach(childID => {
-        renderTreeNode(childID, gitgraph, newBranch);
+        from: parentBranch
       });
 
       newBranch.commit(
@@ -122,6 +117,10 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
           isSelected: currentSnapshotID === node.id
         })
       );
+
+      node.children.forEach(childID => {
+        renderTreeNode(childID, gitgraph, newBranch);
+      });
     }
   };
 
@@ -137,9 +136,12 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
       hasHeader
       title="Project History"
       headerActions={[
-        <IconButton color="inherit" onClick={showFullHistory}>
-          <MergeType />
-        </IconButton>
+        <Button color="inherit" variant="text" size="small" disabled startIcon={<Share />}>
+          Share
+        </Button>,
+        <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
+          Detail
+        </Button>
       ]}
       hasExpansion
       defaultExpanded
