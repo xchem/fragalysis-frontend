@@ -54,7 +54,6 @@ const molGroupChecklist = memo(({}) => {
             {mol_group_list &&
               mol_group_list.map((moleculeGroup, idx) => {
                 const checked = mol_group_selection.some(i => i === moleculeGroup.id);
-                const site = idx + 1;
                 return (
                   <Grid
                     item
@@ -74,7 +73,7 @@ const molGroupChecklist = memo(({}) => {
                       />
                     </Grid>
                     <Grid item className={checked ? classes.selectedLine : null}>
-                      {`Site ${site} - (${moleculeGroup.id})`}
+                      {`Site ${idx + 1} - ${moleculeGroup.description}`}
                     </Grid>
                   </Grid>
                 );
