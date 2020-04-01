@@ -86,7 +86,6 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
     return () => {
       dispatch(removeAllNglComponents());
       dispatch(resetCurrentCompoundsSettings(true));
-      console.log(' Unmount Preview ');
     };
   }, [dispatch]);
 

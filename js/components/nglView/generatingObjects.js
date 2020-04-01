@@ -56,7 +56,7 @@ export const generateMoleculeObject = (data, colourToggle) => ({
 
 // Vector
 export const generateArrowObject = (data, start, end, name, colour) => ({
-  name: listTypes.VECTOR + '_' + name,
+  name: `${listTypes.VECTOR}_${name}`,
   OBJECT_TYPE: OBJECT_TYPE.ARROW,
   start: start,
   end: end,
@@ -68,7 +68,7 @@ export const generateArrowObject = (data, start, end, name, colour) => ({
 
 // Vector
 export const generateCylinderObject = (data, start, end, name, colour) => ({
-  name: listTypes.VECTOR + '_' + name,
+  name: `${listTypes.VECTOR}_${name}`,
   OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
   start: start,
   end: end,
@@ -126,15 +126,18 @@ export const generateMoleculeId = data => ({
   id: data.id
 });
 
-export const getVectorWithColorByCountOfCompounds = (item, to_select) => {
-  var thisSmi = item.name.split('VECTOR_')[1];
+export const getVectorWithColorByCountOfCompounds = (item, currentVectorCompounds) => {
+  var thisSmi = item.name.split(`${listTypes.VECTOR}_`)[1];
+
   var counter = 0;
-  Object.keys(to_select).forEach(key => {
-    var smi = key.split('_')[0];
-    if (smi === thisSmi) {
-      counter += to_select[key]['addition'].length;
-    }
-  });
+  if (currentVectorCompounds) {
+    Object.keys(currentVectorCompounds).forEach(compoundKey => {
+      var smi = compoundKey.split('_')[0];
+      if (smi === thisSmi) {
+        counter += currentVectorCompounds[compoundKey]['addition'].length;
+      }
+    });
+  }
 
   var colour = [1, 0, 0];
 

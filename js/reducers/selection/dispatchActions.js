@@ -1,12 +1,13 @@
 import { resetCurrentCompoundsSettings, setCurrentCompounds } from '../../components/preview/compounds/redux/actions';
-import { setFilter, selectVector } from './actions';
+import { setFilter, setCurrentVector } from './actions';
 import { getAllCompoundsList } from './selectors';
 import { MOL_ATTRIBUTES } from '../../components/preview/molecule/redux/constants';
 
-export const selectVectorAndResetCompounds = currentVector => async (dispatch, getState) => {
+export const selectVectorAndResetCompounds = vectorSmile => async (dispatch, getState) => {
   await dispatch(resetCurrentCompoundsSettings(false));
-  dispatch(selectVector(currentVector));
-  dispatch(setCurrentCompounds(getAllCompoundsList(getState())));
+  await dispatch(setCurrentVector(vectorSmile));
+  const currentCompoundsList = getAllCompoundsList(getState());
+  dispatch(setCurrentCompounds(currentCompoundsList));
 };
 
 export const getListedMolecules = (object_selection, cached_mol_lists) => {

@@ -14,11 +14,12 @@ import {
   removeFromDensityList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
-  setBondColorMap,
-  setInitialFullGraph,
-  setToQuery,
+  resetCompoundsOfVectors,
   setVectorList,
-  updateFullGraph
+  updateVectorCompounds,
+  updateBondColorMapOfCompounds,
+  resetBondColorMapOfVectors,
+  setCurrentVector
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -39,6 +40,8 @@ import { colourList } from '../moleculeView';
 import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
+import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
+import { resetCurrentCompoundsSettings, setCurrentCompounds } from '../../compounds/redux/actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -66,7 +69,6 @@ const generateObjectList = (out_data, data) => {
   for (let r in rings) {
     outList.push(generateCylinderObject(data, rings[r][0], rings[r][2], r, colour));
   }
-
   return outList;
 };
 
@@ -87,14 +89,18 @@ const getViewUrl = (get_view, data) => {
 
 const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
-  const to_select = state.selectionReducers.to_select;
+  const { vector_list, compoundsOfVectors } = state.selectionReducers;
+
   var objList = generateObjectList(json['3d'], data);
-  dispatch(setVectorList(objList));
+  dispatch(setVectorList([...vector_list, ...objList]));
+
+  const currentVectorCompounds = compoundsOfVectors && compoundsOfVectors[data.smiles];
+
   // loading vector objects
   objList.map(item =>
     dispatch(
       loadObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, getVectorWithColorByCountOfCompounds(item, to_select)),
+        { display_div: VIEWS.MAJOR_VIEW, ...getVectorWithColorByCountOfCompounds(item, currentVectorCompounds) },
         stage,
         undefined,
         null
@@ -102,26 +108,40 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
     )
   );
   var vectorBondColorMap = generateBondColorMap(json['indices']);
-  dispatch(setBondColorMap(vectorBondColorMap));
+  dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
 export const addVector = (stage, data) => async (dispatch, getState) => {
-  const state = getState();
-  const vector_list = state.selectionReducers.vector_list;
+  const currentVector = getState().selectionReducers.currentVector;
 
-  vector_list.forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
-  // Set this
-  dispatch(setInitialFullGraph(data));
-  // Do the query
   dispatch(incrementCountOfPendingVectorLoadRequests());
-
   dispatch(appendVectorOnList(generateMoleculeId(data)));
-  dispatch(selectVectorAndResetCompounds(undefined));
+  dispatch(selectVectorAndResetCompounds(currentVector));
 
   return api({ url: getViewUrl('graph', data) })
-    .then(response => dispatch(updateFullGraph(response.data['graph'])))
+    .then(response => {
+      const result = response.data.graph;
+      var new_dict = {};
+      // Uniquify
+      if (result) {
+        Object.keys(result).forEach(key => {
+          var smiSet = new Set();
+          new_dict[key] = {};
+          new_dict[key]['addition'] = [];
+          new_dict[key]['vector'] = result[key]['vector'];
+          Object.keys(result[key]['addition']).forEach(index => {
+            var newSmi = result[key]['addition'][index]['end'];
+            if (smiSet.has(newSmi) !== true) {
+              new_dict[key]['addition'].push(result[key]['addition'][index]);
+              smiSet.add(newSmi);
+            }
+          });
+        });
+      }
+      return dispatch(updateVectorCompounds(data.smiles, new_dict));
+    })
     .then(() => api({ url: getViewUrl('vector', data) }))
-    .then(response => dispatch(handleVector(response.data['vectors'], stage, data)))
+    .then(response => dispatch(handleVector(response.data.vectors, stage, data)))
     .finally(() => {
       dispatch(decrementCountOfPendingVectorLoadRequests());
       const currentOrientation = stage.viewerControls.getOrientation();
@@ -129,12 +149,29 @@ export const addVector = (stage, data) => async (dispatch, getState) => {
     });
 };
 
-export const removeVector = (stage, data) => (dispatch, getState) => {
+export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) => {
+  const state = getState();
+  const moleculeOfCurrentVector = getMoleculeOfCurrentVector(state);
+  if (moleculeOfCurrentVector && moleculeOfCurrentVector.smiles === currentMoleculeSmile) {
+    dispatch(setCurrentVector(null));
+    dispatch(resetCurrentCompoundsSettings([]));
+  }
+};
+
+export const removeVector = (stage, data) => async (dispatch, getState) => {
   const state = getState();
   const vector_list = state.selectionReducers.vector_list;
-  vector_list.forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
-  dispatch(setToQuery(''));
+  vector_list
+    .filter(item => item.moleculeId === data.id)
+    .forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
+
+  await dispatch(removeCurrentVector(data.smiles));
+
+  dispatch(updateVectorCompounds(data.smiles, undefined));
+  dispatch(updateBondColorMapOfCompounds(data.smiles, undefined));
   dispatch(removeFromVectorOnList(generateMoleculeId(data)));
+
+  dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
 };
 
 export const addProtein = (stage, data, colourToggle) => dispatch => {
@@ -263,6 +300,9 @@ export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => 
 export const removeLigand = (stage, data) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
+
+  // remove vector
+  dispatch(removeVector(stage, data));
 };
 
 /**
@@ -317,19 +357,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
 
   // vector_list
   dispatch(setVectorList([]));
-  // to_query_pk
-  // to_query_prot
-  // to_query_sdf_info
-  dispatch(
-    setInitialFullGraph({
-      to_query: undefined,
-      to_query_pk: undefined,
-      to_query_sdf_info: undefined,
-      to_query_prot: undefined,
-      to_select: undefined,
-      querying: undefined
-    })
-  );
-
+  dispatch(resetCompoundsOfVectors());
+  dispatch(resetBondColorMapOfVectors());
   dispatch(setCompoundImage(noCompoundImage));
 };

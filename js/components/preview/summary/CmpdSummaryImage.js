@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { Box } from '@material-ui/core';
 import { reloadSummaryCompoundImage } from './redux/dispatchAction';
+import { getAllCurrentBondColorMapOfVectors } from '../../../reducers/selection/selectors';
+import { resetCompoundImage } from './redux/actions';
 
 export const CmpdSummaryImage = memo(() => {
   const dispatch = useDispatch();
@@ -14,13 +16,19 @@ export const CmpdSummaryImage = memo(() => {
   const width = useSelector(state => state.previewReducers.summary.width);
   const height = useSelector(state => state.previewReducers.summary.height);
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
-  const bondColorMap = useSelector(state => state.selectionReducers.bondColorMap);
+  const currentBondColorMapOfVectors = useSelector(state => getAllCurrentBondColorMapOfVectors(state));
 
   useEffect(() => {
-    dispatch(reloadSummaryCompoundImage({ currentVector, bondColorMap })).catch(error => {
-      throw new Error(error);
-    });
-  }, [bondColorMap, currentVector, dispatch]);
+    if (currentVector && currentBondColorMapOfVectors) {
+      dispatch(reloadSummaryCompoundImage({ currentVector, bondColorMap: currentBondColorMapOfVectors })).catch(
+        error => {
+          throw new Error(error);
+        }
+      );
+    } else {
+      dispatch(resetCompoundImage());
+    }
+  }, [currentBondColorMapOfVectors, currentVector, dispatch]);
 
   return (
     <Box height={height} width={width}>

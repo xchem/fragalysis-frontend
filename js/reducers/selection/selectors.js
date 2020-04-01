@@ -1,40 +1,89 @@
 import { createSelector } from 'reselect';
+import { getMoleculeList } from '../api/selectors';
 
-const getToSelect = state => state.selectionReducers.to_select;
-const getToQuery = state => state.selectionReducers.to_query;
-const getThisVectorList = state => state.selectionReducers.this_vector_list;
 const getCurrentCompoundClass = state => state.previewReducers.compounds.currentCompoundClass;
+const getVectorList = state => state.selectionReducers.vector_list;
+const getCurrentVector = state => state.selectionReducers.currentVector;
+const getBondColorMapOfVectors = state => state.selectionReducers.bondColorMapOfVectors;
+const getCompoundsOfVectors = state => state.selectionReducers.compoundsOfVectors;
 
-export const getTotalCountOfMolecules = createSelector(getToSelect, to_select => {
-  let tot_num = 0;
-  Object.keys(to_select).forEach(key => {
-    tot_num += to_select[key].addition ? to_select[key].addition.length : 0;
-  });
-  return tot_num;
-});
+export const getMoleculeOfCurrentVector = createSelector(
+  getCurrentVector,
+  getVectorList,
+  getMoleculeList,
+  (selectedVectorSmile, vectorList, moleculeList) => {
+    if (selectedVectorSmile !== null && vectorList && moleculeList) {
+      const foundedVector = vectorList.find(vector => vector.name.includes(selectedVectorSmile));
+      if (foundedVector) {
+        return moleculeList.find(molecule => molecule.id === foundedVector.moleculeId);
+      }
+    }
+    return null;
+  }
+);
+
+export const getAllCurrentVectorCompounds = createSelector(
+  getCompoundsOfVectors,
+  getMoleculeOfCurrentVector,
+  (compoundsOfVectors, currentMolecule) => {
+    if (currentMolecule && currentMolecule.smiles && compoundsOfVectors) {
+      return compoundsOfVectors[currentMolecule.smiles];
+    }
+    return null;
+  }
+);
+
+export const getAllCurrentBondColorMapOfVectors = createSelector(
+  getBondColorMapOfVectors,
+  getMoleculeOfCurrentVector,
+  (bondColorMapOfVectors, currentMolecule) => {
+    if (currentMolecule && currentMolecule.smiles && bondColorMapOfVectors) {
+      return bondColorMapOfVectors[currentMolecule.smiles];
+    }
+    return null;
+  }
+);
+
+export const getCurrentVectorCompoundsFiltered = createSelector(
+  getAllCurrentVectorCompounds,
+  getCurrentVector,
+  (currentVectorCompounds, selectedVectorSmile) => {
+    if (currentVectorCompounds && selectedVectorSmile !== null) {
+      var new_this_vector_list = {};
+      Object.keys(currentVectorCompounds).forEach(key => {
+        if (key.split('_')[0] === selectedVectorSmile) {
+          new_this_vector_list[key] = currentVectorCompounds[key];
+        }
+      });
+      return new_this_vector_list;
+    }
+    return null;
+  }
+);
 
 export const getAllCompoundsList = createSelector(
-  getThisVectorList,
+  getCurrentVectorCompoundsFiltered,
   getCurrentCompoundClass,
-  getToQuery,
-  (thisVectorList, currentCompoundClass, to_query) => {
+  getMoleculeOfCurrentVector,
+  (currentVectorCompoundsFiltered, currentCompoundClass, moleculeOfVector) => {
     let compoundsList = [];
-    Object.keys(thisVectorList).forEach(key => {
-      const vector_smi = thisVectorList[key].vector;
-      const change_list = thisVectorList[key].addition;
-      change_list.forEach(data_transfer => {
-        const inputData = {};
-        inputData.smiles = data_transfer && data_transfer.end;
-        // Set this back for now - because it's confusing - alter to change if want later
-        inputData.show_frag = data_transfer && data_transfer.end;
-        inputData.vector = vector_smi;
-        inputData.mol = to_query;
-        inputData.class = currentCompoundClass;
-        inputData.isShowed = false;
-        compoundsList.push(inputData);
+    if (currentVectorCompoundsFiltered) {
+      Object.keys(currentVectorCompoundsFiltered).forEach(key => {
+        const vector_smi = currentVectorCompoundsFiltered[key].vector;
+        const change_list = currentVectorCompoundsFiltered[key].addition;
+        change_list.forEach(data_transfer => {
+          const inputData = {};
+          inputData.smiles = data_transfer && data_transfer.end;
+          // Set this back for now - because it's confusing - alter to change if want later
+          inputData.show_frag = data_transfer && data_transfer.end;
+          inputData.vector = vector_smi;
+          inputData.mol = moleculeOfVector && moleculeOfVector.smiles;
+          inputData.class = currentCompoundClass;
+          inputData.isShowed = false;
+          compoundsList.push(inputData);
+        });
       });
-    });
-
+    }
     return compoundsList;
   }
 );
