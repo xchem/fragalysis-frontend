@@ -19,6 +19,9 @@ import { snackbarColors } from '../header/constants';
 import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
 
+/* Min resolution is 960 x 540 */
+const FORM_MIN_WIDTH = 960;
+const FORM_MIN_HEIGHT = 540;
 const CANVAS_MAX_WIDTH = 605;
 const CANVAS_MAX_HEIGHT = 400;
 
@@ -64,13 +67,21 @@ const useStyles = makeStyles(theme => ({
     marginBottom: '2px'
   },
   formMinWidth: {
-    minWidth: '900px'
+    // 60 is padding (64 actually)
+    minWidth: FORM_MIN_WIDTH - 60 + 'px'
+  },
+  formModal: {
+    minWidth: FORM_MIN_WIDTH + 'px',
+    minHeight: FORM_MIN_HEIGHT + 'px'
   },
   canvasDrawWrapper: {
     overflow: 'auto',
-    maxWidth: CANVAS_MAX_WIDTH + 'px',
-    maxHeight: CANVAS_MAX_HEIGHT + 'px',
+    width: CANVAS_MAX_WIDTH + 'px',
+    height: CANVAS_MAX_HEIGHT + 'px',
     position: 'absolute'
+  },
+  canvasNoImage: {
+    paddingTop: '200px'
   }
 }));
 
@@ -164,11 +175,47 @@ export const ReportForm = memo(({ formType }) => {
   /* Modal handlers */
   const [openForm, setOpenForm] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [modalWidth, setModalWidth] = useState(0);
+  const [modalHeight, setModalHeight] = useState(0);
+  const canvasWrapperGridItem = useRef();
+  const canvasWrapper = useRef();
   const canvasDraw = useRef();
   const colorPicker = useRef();
+  const [wrapperWidth, setWrapperWidth] = useState(CANVAS_MAX_WIDTH);
+  const [wrapperHeight, setWrapperHeight] = useState(CANVAS_MAX_HEIGHT);
   const [openBrushColor, setOpenBrushColor] = useState(false);
   const [brushRadius, setBrushRadius] = useState(2);
   const [brushColor, setBrushColor] = useState('#444');
+
+  const modalOnResize = (entry, node) => {
+    // initialize modal width and height
+    if (node && !modalWidth && !modalHeight) {
+      setModalWidth(node.offsetWidth);
+      setModalHeight(node.offsetHeight);
+    }
+    if (canvasWrapper && canvasWrapper.current) {
+      const changedWidth = entry.target.offsetWidth;
+      if (modalWidth && modalWidth < changedWidth) {
+        // set new width from its flex div container
+        let newWidth = canvasWrapperGridItem.current.offsetWidth;
+        if (newWidth > formState.imageSource.width) {
+          // 17 is for scroll
+          newWidth = formState.imageSource.width + 17;
+        }
+        canvasWrapper.current.style.width = newWidth + 'px';
+      }
+      const changedHeight = entry.target.offsetHeight;
+      if (modalHeight && modalHeight < changedHeight) {
+        // compute new height
+        let newHeight = wrapperHeight + changedHeight - modalHeight;
+        if (newHeight > formState.imageSource.height) {
+          newHeight = formState.imageSource.height;
+        }
+        canvasWrapperGridItem.current.style.flexBasis = newHeight + 'px';
+        canvasWrapper.current.style.height = canvasWrapperGridItem.current.offsetHeight + 'px';
+      }
+    }
+  };
 
   const handleColorChange = color => {
     setBrushColor(color.hex);
@@ -279,7 +326,7 @@ export const ReportForm = memo(({ formType }) => {
           </Grid>
         </Grid>
       </Modal>
-      <Modal open={openForm}>
+      <Modal open={openForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
         <Formik
           initialValues={{
             name: formState.name,
@@ -372,7 +419,8 @@ export const ReportForm = memo(({ formType }) => {
                   </Grid>
 
                   <Grid item xs={8}>
-                    <Grid item container justify="flex-end" direction="column">
+                    <Grid item container direction="column">
+                      {/* Canvas options */}
                       <Grid
                         item
                         xs
@@ -482,21 +530,31 @@ export const ReportForm = memo(({ formType }) => {
                           </Grid>
                         </Grid>
                       </Grid>
-                      <Grid item xs>
-                        <div className={classes.canvasDrawWrapper}>
-                          {/* lazyRadius - how far is cursor from drawing point */}
-                          <CanvasDraw
-                            ref={canvasDraw}
-                            imgSrc={formState.imageSource ? formState.imageSource.toDataURL() : ''}
-                            canvasWidth={formState.imageSource ? formState.imageSource.width : CANVAS_MAX_WIDTH}
-                            canvasHeight={formState.imageSource ? formState.imageSource.height : CANVAS_MAX_HEIGHT}
-                            hideGrid={true}
-                            lazyRadius={0}
-                            brushRadius={brushRadius}
-                            brushColor={brushColor}
-                            disabled={isSubmitting}
-                          />
-                        </div>
+                      {/* Canvas */}
+                      <Grid ref={canvasWrapperGridItem} item xs align="center">
+                        {formState.imageSource ? (
+                          <div
+                            ref={canvasWrapper}
+                            width={wrapperWidth}
+                            height={wrapperHeight}
+                            className={classes.canvasDrawWrapper}
+                          >
+                            {/* lazyRadius - how far is cursor from drawing point */}
+                            <CanvasDraw
+                              ref={canvasDraw}
+                              imgSrc={formState.imageSource.toDataURL()}
+                              canvasWidth={formState.imageSource.width}
+                              canvasHeight={formState.imageSource.height}
+                              hideGrid={true}
+                              lazyRadius={0}
+                              brushRadius={brushRadius}
+                              brushColor={brushColor}
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        ) : (
+                          <Typography className={classes.canvasNoImage}>No image source.</Typography>
+                        )}
                       </Grid>
                     </Grid>
                   </Grid>
