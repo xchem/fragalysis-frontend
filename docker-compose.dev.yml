@@ -14,7 +14,7 @@ services:
       - "3306:3306"
   graph:
     container_name: neo4j
-    image: neo4j
+    image: neo4j:3.5
     ports:
 # Comment these two out in produciton
       - "7474:7474"
@@ -28,7 +28,7 @@ services:
       - ../data/neo4j/logs:/logs
     environment:
       - NEO4J_AUTH=none
-      - NEO4J_dbms_memory_pagecache_size=4G    
+      - NEO4J_dbms_memory_pagecache_size=4G
   web:
     container_name: web_dock
     image: xchem/fragalysis-stack:latest

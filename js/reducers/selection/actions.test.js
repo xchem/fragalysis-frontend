@@ -130,7 +130,7 @@ describe("testing selection reducer's actions", () => {
 
     let result = selectionReducer(
       Object.assign({}, initialState, initialData),
-      selectionActions.selectVector(vectorId)
+      selectionActions.setCurrentVector(vectorId)
     );
     expect(result.this_vector_list).toStrictEqual({ [vectorKey]: vectorValue });
     expect(result.currentVector).toStrictEqual(vectorId);

@@ -9,27 +9,16 @@ import {
   setSessionTitle,
   setTargetUnrecognised
 } from '../../../reducers/api/actions';
-import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
+import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { reloadNglViewFromScene } from '../../../reducers/ngl/dispatchActions';
 import { api, getCsrfToken, METHOD } from '../../../utils/api';
-import { canCheckTarget, generateBondColorMap, generateObjectList } from '../helpers';
+import { canCheckTarget } from '../helpers';
 import { saveCurrentStateAsSessionScene } from '../../../reducers/ngl/actions';
 import { savingStateConst, savingTypeConst } from '../constants';
 import { setLoadedSession, setNewSessionFlag, setNextUUID, setSaveType } from './actions';
 import { getStore } from '../../helpers/globalStore';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
-
-export const handleVector = json => dispatch => {
-  let objList = generateObjectList(json['3d']);
-  dispatch(setVectorList(objList));
-  let vectorBondColorMap = generateBondColorMap(json['indices']);
-  dispatch(setBondColorMap(vectorBondColorMap));
-};
-
-export const redeployVectorsLocal = url => dispatch => {
-  return api({ url }).then(response => dispatch(handleVector(response.data['vectors'])));
-};
 
 export const reloadSession = (myJson, nglViewList) => dispatch => {
   let jsonOfView = JSON.parse(JSON.parse(JSON.parse(myJson.scene)).state);
@@ -44,17 +33,6 @@ export const reloadSession = (myJson, nglViewList) => dispatch => {
     });
 
     if (jsonOfView.selectionReducers.vectorOnList.length !== 0) {
-      let url =
-        window.location.protocol +
-        '//' +
-        window.location.host +
-        '/api/vector/' +
-        jsonOfView.selectionReducers.vectorOnList[JSON.stringify(0)] +
-        '/';
-      dispatch(redeployVectorsLocal(url)).catch(error => {
-        throw new Error(error);
-      });
-
       dispatch(reloadPreviewReducer(jsonOfView.previewReducers));
     }
   }
@@ -141,8 +119,9 @@ export const generateNextUuid = () => (dispatch, getState) => {
   }
 };
 
-export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionId }) => dispatch => {
+export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionId }) => (dispatch, getState) => {
   dispatch(generateNextUuid());
+  const targetId = getState().apiReducers.target_on;
 
   if (saveType.length <= 0 && uuid !== 'UNSET') {
     return api({ method: METHOD.GET, url: '/api/viewscene/?uuid=' + uuid }).then(response =>
@@ -182,7 +161,8 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
       uuid: nextUuid,
       title: TITLE,
       user_id: userId,
-      scene: JSON.stringify(JSON.stringify(fullState))
+      scene: JSON.stringify(JSON.stringify(fullState)),
+      target_id: targetId
     };
     return api({
       url: '/api/viewscene/',
@@ -221,7 +201,8 @@ export const reloadScene = ({ saveType, newSessionFlag, nextUuid, uuid, sessionI
       uuid: uuidv4(),
       title: 'shared snapshot',
       user_id: userId,
-      scene: JSON.stringify(JSON.stringify(fullState))
+      scene: JSON.stringify(JSON.stringify(fullState)),
+      target_id: targetId
     };
     return api({
       url: '/api/viewscene/',

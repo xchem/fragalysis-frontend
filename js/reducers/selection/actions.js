@@ -25,34 +25,6 @@ export const removeFromToBuyList = function(item) {
   };
 };
 
-export const setInitialFullGraph = function(item) {
-  return {
-    type: constants.SET_INITIAL_FULL_GRAPH,
-    item: item
-  };
-};
-
-export const updateFullGraph = function(result) {
-  return {
-    type: constants.UPDATE_FULL_GRAPH,
-    input_mol_dict: result
-  };
-};
-
-export const setBondColorMap = function(result) {
-  return {
-    type: constants.SET_BOND_COLOR_MAP,
-    bondColorMap: result
-  };
-};
-
-export const setToQuery = function(to_query) {
-  return {
-    type: constants.SET_TO_QUERY,
-    to_query
-  };
-};
-
 export const setVectorList = function(vectList) {
   return {
     type: constants.SET_VECTOR_LIST,
@@ -60,10 +32,10 @@ export const setVectorList = function(vectList) {
   };
 };
 
-export const selectVector = function(vector) {
+export const setCurrentVector = vectorSmile => {
   return {
-    type: constants.SELECT_VECTOR,
-    vector: vector
+    type: constants.SET_CURRENT_VECTOR,
+    payload: vectorSmile
   };
 };
 
@@ -192,10 +164,10 @@ export const removeFromVectorOnList = function(item) {
   };
 };
 
-export const reloadSelectionReducer = function(savedSelectionReducers) {
+export const reloadSelectionReducer = savedSelectionReducers => {
   return {
     type: constants.RELOAD_SELECTION_REDUCER,
-    savedSelectionReducers
+    payload: savedSelectionReducers
   };
 };
 
@@ -236,7 +208,25 @@ export const setFilterSettings = filterSettings => ({
   payload: filterSettings
 });
 
+export const resetCompoundsOfVectors = () => ({
+  type: constants.RESET_COMPOUNDS_OF_VECTORS
+});
+
+export const updateVectorCompounds = (key, value) => ({
+  type: constants.UPDATE_VECTOR_COMPOUNDS,
+  payload: { key, value }
+});
+
 export const setFirstLoad = firstLoad => ({
   type: constants.SET_FIRST_LOAD,
   payload: firstLoad
+});
+
+export const resetBondColorMapOfVectors = () => ({
+  type: constants.RESET_BOND_COLOR_MAP_OF_VECTORS
+});
+
+export const updateBondColorMapOfCompounds = (key, value) => ({
+  type: constants.UPDATE_BOND_COLOR_MAP_OF_COMPOUNDS,
+  payload: { key, value }
 });
