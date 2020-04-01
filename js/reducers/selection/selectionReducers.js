@@ -22,7 +22,8 @@ export const INITIAL_STATE = {
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
-  filterSettings: undefined
+  filterSettings: undefined,
+  firstLoad: false
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -238,6 +239,11 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_FILTER_SETTINGS:
       return Object.assign({}, state, {
         filterSettings: action.payload
+      });
+
+    case constants.SET_FIRST_LOAD:
+      return Object.assign({}, state, {
+        firstLoad: action.payload
       });
 
     // Cases like: @@redux/INIT

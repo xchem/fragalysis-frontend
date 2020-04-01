@@ -173,3 +173,8 @@ export const setFilterSettings = filterSettings => ({
   type: constants.SET_FILTER_SETTINGS,
   payload: filterSettings
 });
+
+export const setFirstLoad = firstLoad => ({
+  type: constants.SET_FIRST_LOAD,
+  payload: firstLoad
+});

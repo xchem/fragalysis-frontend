@@ -177,6 +177,20 @@ export const removeLigand = (stage, data) => dispatch => {
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
 };
 
+/**
+ * Turn on the complex of the first ligand of the site
+ * Turn on every ligand of the site
+ */
+export const initializeMolecules = (majorView, moleculeList) => dispatch => {
+  if (moleculeList && majorView) {
+    const firstMolecule = moleculeList[0];
+    dispatch(addComplex(majorView, firstMolecule, colourList[0 % colourList.length]));
+    moleculeList.forEach((item, index) => {
+      dispatch(addLigand(majorView, item, colourList[index % colourList.length]));
+    });
+  }
+};
+
 export const selectFirstMolecule = (majorView, moleculeList) => dispatch => {
   if (moleculeList) {
     const firstMolecule = moleculeList[0];
