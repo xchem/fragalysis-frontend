@@ -276,11 +276,11 @@ export const removeLigand = (stage, data) => dispatch => {
 export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   if (moleculeList && majorView) {
     const firstMolecule = moleculeList[0];
-    dispatch(addComplex(majorView, firstMolecule, colourList[0 % colourList.length]));
+    dispatch(addProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
     moleculeList.forEach((item, index) => {
       // it should be first selected site
       item.site = 1;
-      dispatch(addLigand(majorView, item, colourList[index % colourList.length]));
+      dispatch(addLigand(majorView, item, colourList[item.id % colourList.length]));
     });
   }
 };
