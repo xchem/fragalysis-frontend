@@ -347,14 +347,14 @@ const MoleculeList = memo(
 
     const removeSelectedType = type => {
       currentMolecules.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, () => colourList[molecule.id % colourList.length]));
+        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
       });
       selectedAll.current = false;
     };
 
     const addNewType = type => {
       currentMolecules.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, () => colourList[molecule.id % colourList.length]));
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
       });
     };
 
