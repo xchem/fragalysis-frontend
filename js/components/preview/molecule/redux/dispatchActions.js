@@ -186,6 +186,8 @@ export const initializeMolecules = (majorView, moleculeList) => dispatch => {
     const firstMolecule = moleculeList[0];
     dispatch(addComplex(majorView, firstMolecule, colourList[0 % colourList.length]));
     moleculeList.forEach((item, index) => {
+      // it should be first selected site
+      item.site = 1;
       dispatch(addLigand(majorView, item, colourList[index % colourList.length]));
     });
   }

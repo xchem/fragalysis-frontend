@@ -328,6 +328,7 @@ export const ReportForm = memo(({ formType }) => {
       </Modal>
       <Modal open={openForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
         <Formik
+          validateOnChange={false}
           initialValues={{
             name: formState.name,
             email: formState.email,
