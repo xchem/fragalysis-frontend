@@ -30,8 +30,8 @@ import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { hideAllSelectedMolecules } from './redux/dispatchActions';
-import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { hideAllSelectedMolecules, initializeMolecules } from './redux/dispatchActions';
+import { setFilter, setFilterSettings, setFirstLoad } from '../../../reducers/selection/actions';
 import { initializeFilter, getListedMolecules } from '../../../reducers/selection/dispatchActions';
 import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
 import { MOL_ATTRIBUTES } from './redux/constants';
@@ -198,7 +198,8 @@ const MoleculeList = memo(
     filter,
     filterSettings,
     sortDialogOpen,
-    setSortDialogOpen
+    setSortDialogOpen,
+    firstLoad
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -256,11 +257,26 @@ const MoleculeList = memo(
         .then(() => {
           console.log('initializing filter');
           setPredefinedFilter(dispatch(initializeFilter()).predefined);
+          // initialize molecules on first target load
+          if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && firstLoad) {
+            dispatch(setFirstLoad(false));
+            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
+          }
         })
         .catch(error => {
           throw new Error(error);
         });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists, dispatch]);
+    }, [
+      list_type,
+      mol_group_on,
+      setMoleculeList,
+      stage,
+      firstLoad,
+      target_on,
+      setCachedMolLists,
+      cached_mol_lists,
+      dispatch
+    ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -431,7 +447,7 @@ const MoleculeList = memo(
                 }
               }}
               color={'inherit'}
-              disabled={!(object_selection || []).length || filter.predefined !== 'none'}
+              disabled={!(object_selection || []).length || predefinedFilter !== 'none'}
               variant="text"
               startIcon={<FilterList />}
               size="small"
@@ -666,7 +682,8 @@ function mapStateToProps(state) {
     getJoinedMoleculeList: getJoinedMoleculeList(state),
     filter: state.selectionReducers.filter,
     filterSettings: state.selectionReducers.filterSettings,
-    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
+    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen,
+    firstLoad: state.selectionReducers.firstLoad
   };
 }
 const mapDispatchToProps = {

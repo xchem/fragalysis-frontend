@@ -109,6 +109,10 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
       isEmpty(nglOrientations) ||
       (nglOrientations && nglOrientations[div_id] === undefined))
   ) {
+    // TODO Zoom out (about 2x demagnification) from whatever value it currently calculates
+    orientation.elements[0] = 10 + orientation.elements[0];
+    orientation.elements[5] = 10 + orientation.elements[5];
+    orientation.elements[10] = 10 + orientation.elements[10];
     dispatch(setNglOrientation(orientation, div_id));
   }
 };
