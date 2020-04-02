@@ -90,7 +90,7 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     const nglViewFromContext = getNglView(div_id);
     if (stage === undefined && !nglViewFromContext) {
       const newStage = new Stage(div_id);
-      newStage.setParameters({ [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.white });
+      newStage.setParameters({ [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black });
       registerNglView(div_id, newStage);
       registerStageEvents(newStage, getNglView);
       setStage(newStage);

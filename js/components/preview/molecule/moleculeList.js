@@ -15,10 +15,10 @@ import {
 } from '@material-ui/core';
 import { FilterList, ClearAll } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
-import MoleculeView from './moleculeView';
+import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './redux/selectors';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
@@ -30,12 +30,28 @@ import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { hideAllSelectedMolecules } from './redux/dispatchActions';
-import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { hideAllSelectedMolecules, initializeMolecules } from './redux/dispatchActions';
+import { setFilter, setFilterSettings, setFirstLoad } from '../../../reducers/selection/actions';
 import { initializeFilter, getListedMolecules } from '../../../reducers/selection/dispatchActions';
 import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { getFilteredMoleculesCount } from './moleculeListSortFilterDialog';
+import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+import classNames from 'classnames';
+import {
+  addVector,
+  removeVector,
+  addProtein,
+  removeProtein,
+  addComplex,
+  removeComplex,
+  addSurface,
+  removeSurface,
+  addDensity,
+  removeDensity,
+  addLigand,
+  removeLigand
+} from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -127,6 +143,43 @@ const useStyles = makeStyles(theme => ({
       borderRight: 'none',
       width: 32
     }
+  },
+  contButtonsMargin: {
+    margin: theme.spacing(1) / 2
+  },
+  contColButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingBottom: theme.spacing(1) / 8,
+    paddingTop: theme.spacing(1) / 8,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white'
+    }
+  },
+  contColButtonSelected: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.black
+    }
+  },
+  contColButtonHalfSelected: {
+    backgroundColor: theme.palette.primary.semidark,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.black
+    }
   }
 }));
 
@@ -145,7 +198,8 @@ const MoleculeList = memo(
     filter,
     filterSettings,
     sortDialogOpen,
-    setSortDialogOpen
+    setSortDialogOpen,
+    firstLoad
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -170,6 +224,8 @@ const MoleculeList = memo(
     const filterRef = useRef();
 
     let joinedMoleculeLists = getJoinedMoleculeList;
+
+    const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
     /*useEffect(() => {
@@ -201,11 +257,26 @@ const MoleculeList = memo(
         .then(() => {
           console.log('initializing filter');
           setPredefinedFilter(dispatch(initializeFilter()).predefined);
+          // initialize molecules on first target load
+          if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && firstLoad) {
+            dispatch(setFirstLoad(false));
+            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
+          }
         })
         .catch(error => {
           throw new Error(error);
         });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists, dispatch]);
+    }, [
+      list_type,
+      mol_group_on,
+      setMoleculeList,
+      stage,
+      firstLoad,
+      target_on,
+      setCachedMolLists,
+      cached_mol_lists,
+      dispatch
+    ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -253,6 +324,75 @@ const MoleculeList = memo(
       // currently do not filter molecules by excluding them
       /*setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
       handleFilterChange(newFilter);*/
+    };
+
+    const selectedAll = useRef(false);
+    const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const complexList = useSelector(state => state.selectionReducers.complexList);
+    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+    const densityList = useSelector(state => state.selectionReducers.densityList);
+    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+
+    const isLigandOn = fragmentDisplayList.length > 0 || false;
+    const isProteinOn = proteinList.length > 0 || false;
+    const isComplexOn = complexList.length > 0 || false;
+    const isSurfaceOn = surfaceList.length > 0 || false;
+    const isDensityOn = densityList.length > 0 || false;
+    const isVectorOn = vectorOnList.length > 0 || false;
+    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn; // && isVectorOn;
+    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isVectorOn);
+
+    const addType = {
+      ligand: addLigand,
+      protein: addProtein,
+      complex: addComplex,
+      surface: addSurface,
+      density: addDensity,
+      vector: addVector
+    };
+
+    const removeType = {
+      ligand: removeLigand,
+      protein: removeProtein,
+      complex: removeComplex,
+      surface: removeSurface,
+      density: removeDensity,
+      vector: removeVector
+    };
+
+    const removeSelectedType = type => {
+      currentMolecules.forEach(molecule => {
+        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+      });
+      selectedAll.current = false;
+    };
+
+    const addNewType = type => {
+      currentMolecules.forEach(molecule => {
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+      });
+    };
+
+    const ucfirst = string => {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    const onButtonToggle = (type, calledFromSelectAll = false) => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        // REDO
+        if (eval('is' + ucfirst(type) + 'On') === false) {
+          addNewType(type);
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeSelectedType(type);
+      } else if (!calledFromSelectAll) {
+        if (eval('is' + ucfirst(type) + 'On') === false) {
+          addNewType(type);
+        } else {
+          removeSelectedType(type);
+        }
+      }
     };
 
     return (
@@ -307,7 +447,7 @@ const MoleculeList = memo(
                 }
               }}
               color={'inherit'}
-              disabled={!(object_selection || []).length || filter.predefined !== 'none'}
+              disabled={!(object_selection || []).length || predefinedFilter !== 'none'}
               variant="text"
               startIcon={<FilterList />}
               size="small"
@@ -370,6 +510,7 @@ const MoleculeList = memo(
             style={{ height: height }}
           >
             <Grid item>
+              {/* Header */}
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justify="flex-start" direction="row">
                   {Object.keys(moleculeProperty).map(key => (
@@ -377,6 +518,122 @@ const MoleculeList = memo(
                       {moleculeProperty[key]}
                     </Grid>
                   ))}
+                  {currentMolecules.length > 0 && (
+                    <Grid item>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="flex-start"
+                        alignItems="center"
+                        wrap="nowrap"
+                        className={classes.contButtonsMargin}
+                      >
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(
+                              classes.contColButton,
+                              {
+                                [classes.contColButtonSelected]: hasAllValuesOn
+                              },
+                              {
+                                [classes.contColButtonHalfSelected]: hasSomeValuesOn
+                              }
+                            )}
+                            onClick={() => {
+                              // TODO rework all these buttons into a separate component!
+                              // always deselect all if are selected only some of options
+                              selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+
+                              onButtonToggle('ligand', true);
+                              onButtonToggle('protein', true);
+                              onButtonToggle('complex', true);
+                              // onSurface(true);
+                              // onDensity(true);
+                              // onVector(true);
+                            }}
+                            disabled={disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">A</Typography>
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isLigandOn
+                            })}
+                            onClick={() => onButtonToggle('ligand')}
+                            disabled={disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">L</Typography>
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isProteinOn
+                            })}
+                            onClick={() => onButtonToggle('protein')}
+                            disabled={disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">P</Typography>
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          {/* C stands for contacts now */}
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isComplexOn
+                            })}
+                            onClick={() => onButtonToggle('complex')}
+                            disabled={disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">C</Typography>
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isSurfaceOn
+                            })}
+                            onClick={() => onButtonToggle('surface')}
+                            disabled={true || disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">S</Typography>
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          {/* TODO waiting for backend data */}
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isDensityOn
+                            })}
+                            onClick={() => onButtonToggle('density')}
+                            disabled={true || disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">D</Typography>
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isVectorOn
+                            })}
+                            onClick={() => onButtonToggle('vector')}
+                            disabled={true || disableUserInteraction}
+                          >
+                            <Typography variant="subtitle2">V</Typography>
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
             </Grid>
@@ -425,7 +682,8 @@ function mapStateToProps(state) {
     getJoinedMoleculeList: getJoinedMoleculeList(state),
     filter: state.selectionReducers.filter,
     filterSettings: state.selectionReducers.filterSettings,
-    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
+    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen,
+    firstLoad: state.selectionReducers.firstLoad
   };
 }
 const mapDispatchToProps = {

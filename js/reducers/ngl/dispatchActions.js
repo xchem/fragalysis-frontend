@@ -16,7 +16,14 @@ import { isEmpty, isEqual } from 'lodash';
 import { SCENES } from './constants';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 import { SELECTION_TYPE } from '../../components/nglView/constants';
-import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
+import {
+  removeFromComplexList,
+  removeFromFragmentDisplayList,
+  removeFromVectorOnList,
+  removeFromProteinList,
+  removeFromSurfaceList,
+  removeFromDensityList
+} from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 
 export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => dispatch => {
@@ -47,8 +54,17 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
       case SELECTION_TYPE.LIGAND:
         dispatch(removeFromFragmentDisplayList(objectId));
         break;
+      case SELECTION_TYPE.PROTEIN:
+        dispatch(removeFromProteinList(objectId));
+        break;
       case SELECTION_TYPE.COMPLEX:
         dispatch(removeFromComplexList(objectId));
+        break;
+      case SELECTION_TYPE.SURFACE:
+        dispatch(removeFromSurfaceList(objectId));
+        break;
+      case SELECTION_TYPE.DENSITY:
+        dispatch(removeFromDensityList(objectId));
         break;
       case SELECTION_TYPE.VECTOR:
         dispatch(removeFromVectorOnList(objectId));
@@ -93,6 +109,10 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
       isEmpty(nglOrientations) ||
       (nglOrientations && nglOrientations[div_id] === undefined))
   ) {
+    // TODO Zoom out (about 2x demagnification) from whatever value it currently calculates
+    orientation.elements[0] = 10 + orientation.elements[0];
+    orientation.elements[5] = 10 + orientation.elements[5];
+    orientation.elements[10] = 10 + orientation.elements[10];
     dispatch(setNglOrientation(orientation, div_id));
   }
 };
