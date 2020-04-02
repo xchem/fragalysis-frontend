@@ -78,6 +78,17 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
   selectionType: SELECTION_TYPE.VECTOR
 });
 
+// Protein
+export const generateHitProteinObject = (data, colourToggle, base_url) => ({
+  name: data.protein_code + '_PROT',
+  OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
+  sdf_info: data.sdf_info,
+  colour: colourToggle,
+  prot_url: base_url + data.molecule_protein,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.PROTEIN
+});
+
 // Complex
 export const generateComplexObject = (data, colourToggle, base_url) => ({
   name: data.protein_code + '_COMP',
@@ -87,6 +98,28 @@ export const generateComplexObject = (data, colourToggle, base_url) => ({
   prot_url: base_url + data.molecule_protein,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.COMPLEX
+});
+
+// Surface
+export const generateSurfaceObject = (data, colourToggle, base_url) => ({
+  name: data.protein_code + '_SURF',
+  OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
+  sdf_info: data.sdf_info,
+  colour: colourToggle,
+  prot_url: base_url + data.molecule_protein,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.SURFACE
+});
+
+// Density
+export const generateDensityObject = (data, colourToggle, base_url) => ({
+  name: data.protein_code + '_COMP',
+  OBJECT_TYPE: OBJECT_TYPE.DENSITY,
+  sdf_info: data.sdf_info,
+  colour: colourToggle,
+  prot_url: base_url + data.molecule_protein,
+  moleculeId: data.id,
+  selectionType: SELECTION_TYPE.DENSITY
 });
 
 export const generateMoleculeId = data => ({

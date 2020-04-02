@@ -12,7 +12,20 @@ import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
-import { addVector, removeVector, addComplex, removeComplex, addLigand, removeLigand } from './redux/dispatchActions';
+import {
+  addVector,
+  removeVector,
+  addProtein,
+  removeProtein,
+  addComplex,
+  removeComplex,
+  addSurface,
+  removeSurface,
+  addDensity,
+  removeDensity,
+  addLigand,
+  removeLigand
+} from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { api } from '../../../utils/api';
@@ -143,7 +156,10 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
 
   const dispatch = useDispatch();
   const to_query = useSelector(state => state.selectionReducers.to_query);
+  const proteinList = useSelector(state => state.selectionReducers.proteinList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
+  const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+  const densityList = useSelector(state => state.selectionReducers.densityList);
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
@@ -156,11 +172,14 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const isLigandOn = (currentID && fragmentDisplayList.includes(currentID)) || false;
+  const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
   const isComplexOn = (currentID && complexList.includes(currentID)) || false;
+  const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
+  const isDensityOn = (currentID && densityList.includes(currentID)) || false;
   const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
 
-  const hasAllValuesOn = isLigandOn && isComplexOn && isVectorOn;
-  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isComplexOn || isVectorOn);
+  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isVectorOn;
+  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isVectorOn);
 
   const disableUserInteraction = useDisableUserInteraction();
 
@@ -267,6 +286,31 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
     }
   };
 
+  const removeSelectedProtein = () => {
+    dispatch(removeProtein(stage, data, colourToggle));
+    selectedAll.current = false;
+  };
+
+  const addNewProtein = () => {
+    dispatch(addProtein(stage, data, colourToggle));
+  };
+
+  const onProtein = calledFromSelectAll => {
+    if (calledFromSelectAll === true && selectedAll.current === true) {
+      if (isProteinOn === false) {
+        addNewProtein();
+      }
+    } else if (calledFromSelectAll && selectedAll.current === false) {
+      removeSelectedProtein();
+    } else if (!calledFromSelectAll) {
+      if (isProteinOn === false) {
+        addNewProtein();
+      } else {
+        removeSelectedProtein();
+      }
+    }
+  };
+
   const removeSelectedComplex = () => {
     dispatch(removeComplex(stage, data, colourToggle));
     selectedAll.current = false;
@@ -288,6 +332,56 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
         addNewComplex();
       } else {
         removeSelectedComplex();
+      }
+    }
+  };
+
+  const removeSelectedSurface = () => {
+    dispatch(removeSurface(stage, data, colourToggle));
+    selectedAll.current = false;
+  };
+
+  const addNewSurface = () => {
+    dispatch(addSurface(stage, data, colourToggle));
+  };
+
+  const onSurface = calledFromSelectAll => {
+    if (calledFromSelectAll === true && selectedAll.current === true) {
+      if (isSurfaceOn === false) {
+        addNewSurface();
+      }
+    } else if (calledFromSelectAll && selectedAll.current === false) {
+      removeSelectedSurface();
+    } else if (!calledFromSelectAll) {
+      if (isSurfaceOn === false) {
+        addNewSurface();
+      } else {
+        removeSelectedSurface();
+      }
+    }
+  };
+
+  const removeSelectedDensity = () => {
+    dispatch(removeDensity(stage, data, colourToggle));
+    selectedAll.current = false;
+  };
+
+  const addNewDensity = () => {
+    dispatch(addDensity(stage, data, colourToggle));
+  };
+
+  const onDensity = calledFromSelectAll => {
+    if (calledFromSelectAll === true && selectedAll.current === true) {
+      if (isDensityOn === false) {
+        addNewDensity();
+      }
+    } else if (calledFromSelectAll && selectedAll.current === false) {
+      removeSelectedDensity();
+    } else if (!calledFromSelectAll) {
+      if (isDensityOn === false) {
+        addNewDensity();
+      } else {
+        removeSelectedDensity();
       }
     }
   };
@@ -399,7 +493,10 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
 
                   onLigand(true);
+                  onProtein(true);
                   onComplex(true);
+                  // onSurface(true);
+                  // onDensity(true);
                   onVector(true);
                 }}
                 disabled={disableUserInteraction}
@@ -423,12 +520,50 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isProteinOn
+                })}
+                onClick={() => onProtein()}
+                disabled={disableUserInteraction}
+              >
+                <Typography variant="subtitle2">P</Typography>
+              </Button>
+            </Grid>
+            <Grid item>
+              {/* C stands for contacts now */}
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: isComplexOn
                 })}
                 onClick={() => onComplex()}
                 disabled={disableUserInteraction}
               >
                 <Typography variant="subtitle2">C</Typography>
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isSurfaceOn
+                })}
+                onClick={() => onSurface()}
+                disabled={true || disableUserInteraction}
+              >
+                <Typography variant="subtitle2">S</Typography>
+              </Button>
+            </Grid>
+            <Grid item>
+              {/* TODO waiting for backend data */}
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isDensityOn
+                })}
+                onClick={() => onDensity()}
+                disabled={true || disableUserInteraction}
+              >
+                <Typography variant="subtitle2">D</Typography>
               </Button>
             </Grid>
             <Grid item>
