@@ -42,7 +42,7 @@ const showMol = (stage, input_dict, object_name, representations, orientationMat
   });
 };
 
-const renderComplex = (ol, representations, orientationMatrix) => {
+const renderHitProtein = (ol, representations, orientationMatrix) => {
   let cs = concatStructures(
     ol[4],
     ol[0].structure.getView(new Selection('not ligand')),
@@ -51,6 +51,47 @@ const renderComplex = (ol, representations, orientationMatrix) => {
   let stage = ol[2];
   let focus_let_temp = ol[3];
   let colour = ol[5];
+  // Set the object name
+  let comp = stage.addComponentFromObject(cs);
+
+  const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
+    colorScheme: 'element',
+    colorValue: colour,
+    sele: '/0'
+  });
+
+  const reprArray = representations || createRepresentationsArray([repr3]);
+  if (orientationMatrix) {
+    stage.viewerControls.orient(orientationMatrix);
+  } else if (orientationMatrix === undefined) {
+    comp.autoView('ligand');
+    //TODO setFocus should be in condition
+    comp.stage.setFocus(focus_let_temp);
+  }
+
+  return assignRepresentationArrayToComp(reprArray, comp);
+};
+
+const showHitProtein = (stage, input_dict, object_name, representations, orientationMatrix) => {
+  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
+  return Promise.all([
+    stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
+    stage.loadFile(stringBlob, { ext: 'sdf' }),
+    stage,
+    defaultFocus,
+    object_name,
+    input_dict.colour
+  ]).then(ol => renderHitProtein(ol, representations, orientationMatrix));
+};
+
+const renderComplex = (ol, representations, orientationMatrix) => {
+  let cs = concatStructures(
+    ol[4],
+    ol[0].structure.getView(new Selection('not ligand')),
+    ol[1].structure.getView(new Selection(''))
+  );
+  let stage = ol[2];
+  let focus_let_temp = ol[3];
   // Set the object name
   let comp = stage.addComponentFromObject(cs);
   // duplication of protein
@@ -63,13 +104,7 @@ const renderComplex = (ol, representations, orientationMatrix) => {
     sele: '/0 or /1'
   });
 
-  const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
-    colorScheme: 'element',
-    colorValue: colour,
-    sele: '/0'
-  });
-
-  const reprArray = representations || createRepresentationsArray([repr2, repr3]);
+  const reprArray = representations || createRepresentationsArray([repr2]);
   if (orientationMatrix) {
     stage.viewerControls.orient(orientationMatrix);
   } else if (orientationMatrix === undefined) {
@@ -281,6 +316,7 @@ const showHotspot = (stage, input_dict, object_name, representations, orientatio
 export const nglObjectDictionary = {
   [OBJECT_TYPE.SPHERE]: showSphere,
   [OBJECT_TYPE.MOLECULE]: showMol,
+  [OBJECT_TYPE.HITPROTEIN]: showHitProtein,
   [OBJECT_TYPE.COMPLEX]: showComplex,
   [OBJECT_TYPE.CYLINDER]: showCylinder,
   [OBJECT_TYPE.ARROW]: showArrow,

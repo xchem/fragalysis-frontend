@@ -1,11 +1,17 @@
 import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/dispatchActions';
 import {
+  appendProteinList,
   appendComplexList,
+  appendSurfaceList,
+  appendDensityList,
   appendFragmentDisplayList,
   appendVectorOnList,
   decrementCountOfPendingVectorLoadRequests,
   incrementCountOfPendingVectorLoadRequests,
+  removeFromProteinList,
   removeFromComplexList,
+  removeFromSurfaceList,
+  removeFromDensityList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
   setBondColorMap,
@@ -20,7 +26,10 @@ import {
   generateMoleculeId,
   generateCylinderObject,
   getVectorWithColorByCountOfCompounds,
+  generateHitProteinObject,
   generateComplexObject,
+  generateSurfaceObject,
+  generateDensityObject,
   generateMoleculeObject
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
@@ -128,6 +137,31 @@ export const removeVector = (stage, data) => (dispatch, getState) => {
   dispatch(removeFromVectorOnList(generateMoleculeId(data)));
 };
 
+export const addProtein = (stage, data, colourToggle) => dispatch => {
+  dispatch(
+    loadObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      stage,
+      undefined,
+      null
+    )
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
+  dispatch(appendProteinList(generateMoleculeId(data)));
+};
+
+export const removeProtein = (stage, data, colourToggle) => dispatch => {
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      stage
+    )
+  );
+  dispatch(removeFromProteinList(generateMoleculeId(data)));
+};
+
 export const addComplex = (stage, data, colourToggle) => dispatch => {
   dispatch(
     loadObject(
@@ -151,6 +185,64 @@ export const removeComplex = (stage, data, colourToggle) => dispatch => {
     )
   );
   dispatch(removeFromComplexList(generateMoleculeId(data)));
+};
+
+export const addSurface = (stage, data, colourToggle) => dispatch => {
+  console.log('TODO');
+  return;
+  dispatch(
+    loadObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+      stage,
+      undefined,
+      null
+    )
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
+  dispatch(appendSurfaceList(generateMoleculeId(data)));
+};
+
+export const removeSurface = (stage, data, colourToggle) => dispatch => {
+  console.log('TODO');
+  return;
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+      stage
+    )
+  );
+  dispatch(removeFromSurfaceList(generateMoleculeId(data)));
+};
+
+export const addDensity = (stage, data, colourToggle) => dispatch => {
+  console.log('TODO');
+  return;
+  dispatch(
+    loadObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
+      stage,
+      undefined,
+      null
+    )
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
+  dispatch(appendDensityList(generateMoleculeId(data)));
+};
+
+export const removeDensity = (stage, data, colourToggle) => dispatch => {
+  console.log('TODO');
+  return;
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
+      stage
+    )
+  );
+  dispatch(removeFromDensityList(generateMoleculeId(data)));
 };
 
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
