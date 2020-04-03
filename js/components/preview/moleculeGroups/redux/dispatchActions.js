@@ -47,21 +47,13 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
     // remove Ligand
     dispatch(
       deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info, 'ligand')),
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info)),
         majorViewStage
       )
     );
 
-    // remove Surface
-    dispatch(
-      deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info, 'surface')),
-        majorViewStage
-      )
-    );
-
-    // remove Complex, Protein
-    ['contacts', 'protein'].forEach(type => {
+    // remove Complex, Protein, Surface
+    ['contacts', 'protein', 'surface'].forEach(type => {
       dispatch(
         deleteObject(
           Object.assign(

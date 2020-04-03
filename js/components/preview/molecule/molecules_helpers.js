@@ -1,14 +1,9 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
 
-const moleculeObjectByType = {
-  ligand: OBJECT_TYPE.MOLECULE,
-  surface: OBJECT_TYPE.SURFACE
-};
-
-export const generateMolecule = (id, sdf_info, type) => {
+export const generateMolecule = (id, sdf_info) => {
   return {
-    name: moleculeObjectByType[type] + '_' + id,
-    OBJECT_TYPE: moleculeObjectByType[type],
+    name: OBJECT_TYPE.MOLECULE + '_' + id,
+    OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
     colour: '#FFFFFF',
     sdf_info: sdf_info
   };
@@ -18,13 +13,15 @@ const base_url = window.location.protocol + '//' + window.location.host;
 
 // TODO unify names!
 const complexNameByType = {
-  contacts: code => code + '_COMP',
-  protein: code => code + '_PROT'
+  contacts: code => code + '_CONTACTS',
+  protein: code => code + '_PROTEIN',
+  surface: code => code + '_SURFACE'
 };
 
 const complexObjectByType = {
   contacts: OBJECT_TYPE.COMPLEX,
-  protein: OBJECT_TYPE.PROTEIN
+  protein: OBJECT_TYPE.PROTEIN,
+  surface: OBJECT_TYPE.SURFACE
 };
 
 export const generateComplex = (id, protein_code, sdf_info, molecule_protein, type = 'contacts') => {
