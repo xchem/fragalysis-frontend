@@ -144,8 +144,9 @@ const renderSurface = (ol, representations, orientationMatrix) => {
     sele: 'polymer',
     colorScheme: 'electrostatic',
     colorDomain: [-0.3, 0.3],
-    radiusType: 'covalent',
     surfaceType: 'av',
+    radiusType: 'vdw',
+    opacity: 0.47,
     colorValue: colour
   });
 
@@ -203,6 +204,10 @@ const showEvent = (stage, input_dict, object_name, representations, orientationM
         });
 
         if (orientationMatrix) {
+          // #227 Zoom out (about 2x demagnification) from whatever value it currently calculates
+          orientationMatrix.elements[0] = 10 + orientationMatrix.elements[0];
+          orientationMatrix.elements[5] = 10 + orientationMatrix.elements[5];
+          orientationMatrix.elements[10] = 10 + orientationMatrix.elements[10];
           stage.viewerControls.orient(orientationMatrix);
         } else if (orientationMatrix === undefined) {
           comp.autoView('LIG');
