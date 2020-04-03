@@ -178,8 +178,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   const isDensityOn = (currentID && densityList.includes(currentID)) || false;
   const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
 
-  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isVectorOn;
-  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isVectorOn);
+  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn && isVectorOn;
+  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
 
   const disableUserInteraction = useDisableUserInteraction();
 
@@ -495,7 +495,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onLigand(true);
                   onProtein(true);
                   onComplex(true);
-                  // onSurface(true);
+                  onSurface(true);
                   // onDensity(true);
                   onVector(true);
                 }}
@@ -548,7 +548,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   [classes.contColButtonSelected]: isSurfaceOn
                 })}
                 onClick={() => onSurface()}
-                disabled={true || disableUserInteraction}
+                disabled={disableUserInteraction}
               >
                 <Typography variant="subtitle2">S</Typography>
               </Button>

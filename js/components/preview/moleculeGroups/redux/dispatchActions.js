@@ -9,6 +9,8 @@ import {
 import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   removeFromComplexList,
+  removeFromProteinList,
+  removeFromSurfaceList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
   resetSelectionState,
@@ -45,21 +47,31 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
     // remove Ligand
     dispatch(
       deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info)),
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info, 'ligand')),
         majorViewStage
       )
     );
 
-    // remove Complex
+    // remove Surface
     dispatch(
       deleteObject(
-        Object.assign(
-          { display_div: VIEWS.MAJOR_VIEW },
-          generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
-        ),
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info, 'surface')),
         majorViewStage
       )
     );
+
+    // remove Complex, Protein
+    ['contacts', 'protein'].forEach(type => {
+      dispatch(
+        deleteObject(
+          Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein, type)
+          ),
+          majorViewStage
+        )
+      );
+    });
   });
 
   // remove all Vectors
@@ -81,6 +93,10 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
     dispatch(removeFromFragmentDisplayList({ id: moleculeID }));
     // Complex
     dispatch(removeFromComplexList({ id: moleculeID }));
+    // Protein
+    dispatch(removeFromProteinList({ id: moleculeID }));
+    // Surface
+    dispatch(removeFromSurfaceList({ id: moleculeID }));
     // Vectors
     dispatch(removeFromVectorOnList({ id: moleculeID }));
   });

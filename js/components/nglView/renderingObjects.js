@@ -128,6 +128,32 @@ const showComplex = (stage, input_dict, object_name, representations, orientatio
   ]).then(ol => renderComplex(ol, representations, orientationMatrix));
 };
 
+const showSurface = (stage, input_dict, object_name, representations, orientationMatrix) => {
+  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
+  return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
+    const reprArray =
+      representations ||
+      createRepresentationsArray([
+        createRepresentationStructure(MOL_REPRESENTATION.surface, {
+          // sele: 'polymer', // got from #214, but it seemed to prevent rendering this one
+          colorScheme: 'electrostatic',
+          colorDomain: [-0.3, 0.3],
+          colorValue: input_dict.colour,
+          radiusType: 'covalent',
+          surfaceType: 'av',
+          diffuse: input_dict.colour // colour of surface
+        })
+      ]);
+
+    if (orientationMatrix) {
+      stage.viewerControls.orient(orientationMatrix);
+    } else if (orientationMatrix === undefined) {
+      comp.autoView('ligand');
+    }
+    return assignRepresentationArrayToComp(reprArray, comp);
+  });
+};
+
 // ligand
 const showEvent = (stage, input_dict, object_name, representations, orientationMatrix) =>
   Promise.all(
@@ -318,6 +344,7 @@ export const nglObjectDictionary = {
   [OBJECT_TYPE.MOLECULE]: showMol,
   [OBJECT_TYPE.HITPROTEIN]: showHitProtein,
   [OBJECT_TYPE.COMPLEX]: showComplex,
+  [OBJECT_TYPE.SURFACE]: showSurface,
   [OBJECT_TYPE.CYLINDER]: showCylinder,
   [OBJECT_TYPE.ARROW]: showArrow,
   [OBJECT_TYPE.PROTEIN]: showProtein,
