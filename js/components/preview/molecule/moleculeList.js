@@ -366,14 +366,14 @@ const MoleculeList = memo(
     // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
     const removeSelectedType = type => {
-      currentMolecules.forEach(molecule => {
+      joinedMoleculeLists.forEach(molecule => {
         dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
       });
       selectedAll.current = false;
     };
 
     const addNewType = type => {
-      currentMolecules.forEach(molecule => {
+      joinedMoleculeLists.forEach(molecule => {
         dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
       });
     };

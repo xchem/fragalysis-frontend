@@ -259,7 +259,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
     backgroundColor: colourToggle
   };
   const not_selected_style = {};
-  const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
+  const current_style =
+    isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
   const addNewLigand = () => {
     dispatch(addLigand(stage, data, colourToggle));

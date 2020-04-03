@@ -11,9 +11,10 @@ import * as selectionActions from '../../reducers/selection/actions';
 import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { throttle } from 'lodash';
-import { BACKGROUND_COLOR, NGL_PARAMS } from './constants';
+import { NGL_PARAMS } from './constants';
 import { makeStyles, useTheme } from '@material-ui/core';
 import { VIEWS } from '../../constants/constants';
+import { INITIAL_STATE as NGL_INITIAL } from '../../reducers/ngl/nglReducers';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -90,7 +91,11 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     const nglViewFromContext = getNglView(div_id);
     if (stage === undefined && !nglViewFromContext) {
       const newStage = new Stage(div_id);
-      newStage.setParameters({ [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black });
+      // set default settings
+      console.log(NGL_INITIAL.viewParams);
+      for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
+        newStage.setParameters({ [key]: value });
+      }
       registerNglView(div_id, newStage);
       registerStageEvents(newStage, getNglView);
       setStage(newStage);
