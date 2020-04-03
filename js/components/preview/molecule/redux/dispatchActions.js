@@ -190,7 +190,7 @@ export const removeComplex = (stage, data, colourToggle) => dispatch => {
 export const addSurface = (stage, data, colourToggle) => dispatch => {
   dispatch(
     loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle)),
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage,
       undefined,
       null

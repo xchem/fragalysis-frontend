@@ -128,30 +128,49 @@ const showComplex = (stage, input_dict, object_name, representations, orientatio
   ]).then(ol => renderComplex(ol, representations, orientationMatrix));
 };
 
+const renderSurface = (ol, representations, orientationMatrix) => {
+  let cs = concatStructures(
+    ol[4],
+    ol[0].structure.getView(new Selection('not ligand')),
+    ol[1].structure.getView(new Selection(''))
+  );
+  let stage = ol[2];
+  let focus_let_temp = ol[3];
+  let colour = ol[5];
+  // Set the object name
+  let comp = stage.addComponentFromObject(cs);
+
+  const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, {
+    sele: 'polymer',
+    colorScheme: 'electrostatic',
+    colorDomain: [-0.3, 0.3],
+    radiusType: 'covalent',
+    surfaceType: 'av',
+    colorValue: colour
+  });
+
+  const reprArray = representations || createRepresentationsArray([repr]);
+  if (orientationMatrix) {
+    stage.viewerControls.orient(orientationMatrix);
+  } else if (orientationMatrix === undefined) {
+    comp.autoView('ligand');
+    //TODO setFocus should be in condition
+    comp.stage.setFocus(focus_let_temp);
+  }
+
+  return assignRepresentationArrayToComp(reprArray, comp);
+};
+
 const showSurface = (stage, input_dict, object_name, representations, orientationMatrix) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-  return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
-    const reprArray =
-      representations ||
-      createRepresentationsArray([
-        createRepresentationStructure(MOL_REPRESENTATION.surface, {
-          // sele: 'polymer', // got from #214, but it seemed to prevent rendering this one
-          colorScheme: 'electrostatic',
-          colorDomain: [-0.3, 0.3],
-          colorValue: input_dict.colour,
-          radiusType: 'covalent',
-          surfaceType: 'av',
-          diffuse: input_dict.colour // colour of surface
-        })
-      ]);
-
-    if (orientationMatrix) {
-      stage.viewerControls.orient(orientationMatrix);
-    } else if (orientationMatrix === undefined) {
-      comp.autoView('ligand');
-    }
-    return assignRepresentationArrayToComp(reprArray, comp);
-  });
+  return Promise.all([
+    stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
+    stage.loadFile(stringBlob, { ext: 'sdf' }),
+    stage,
+    defaultFocus,
+    object_name,
+    input_dict.colour
+  ]).then(ol => renderSurface(ol, representations, orientationMatrix));
 };
 
 // ligand
