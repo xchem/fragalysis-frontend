@@ -101,17 +101,16 @@ export const generateComplexObject = (data, colourToggle, base_url) => ({
 });
 
 // Surface
-export const generateSurfaceObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_SURF',
-  OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-  sdf_info: data.sdf_info,
+export const generateSurfaceObject = (data, colourToggle) => ({
+  name: OBJECT_TYPE.SURFACE + '_' + data.id.toString(),
+  OBJECT_TYPE: OBJECT_TYPE.SURFACE,
   colour: colourToggle,
-  prot_url: base_url + data.molecule_protein,
+  sdf_info: data.sdf_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.SURFACE
 });
 
-// Density
+// Density TODO not implemented
 export const generateDensityObject = (data, colourToggle, base_url) => ({
   name: data.protein_code + '_COMP',
   OBJECT_TYPE: OBJECT_TYPE.DENSITY,

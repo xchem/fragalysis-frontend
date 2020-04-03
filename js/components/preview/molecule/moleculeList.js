@@ -340,8 +340,8 @@ const MoleculeList = memo(
     const isSurfaceOn = surfaceList.length > 0 || false;
     const isDensityOn = densityList.length > 0 || false;
     const isVectorOn = vectorOnList.length > 0 || false;
-    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn; // && isVectorOn;
-    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isVectorOn);
+    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn; // && isVectorOn;
+    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
 
     const addType = {
       ligand: addLigand,
@@ -360,6 +360,10 @@ const MoleculeList = memo(
       density: removeDensity,
       vector: removeVector
     };
+
+    // TODO "currentMolecules" do not need to correspondent to selections in {type}List
+    // TODO so this could lead to inconsistend behaviour while scrolling
+    // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
     const removeSelectedType = type => {
       currentMolecules.forEach(molecule => {
@@ -548,7 +552,7 @@ const MoleculeList = memo(
                               onButtonToggle('ligand', true);
                               onButtonToggle('protein', true);
                               onButtonToggle('complex', true);
-                              // onSurface(true);
+                              onButtonToggle('surface', true);
                               // onDensity(true);
                               // onVector(true);
                             }}
@@ -601,7 +605,7 @@ const MoleculeList = memo(
                               [classes.contColButtonSelected]: isSurfaceOn
                             })}
                             onClick={() => onButtonToggle('surface')}
-                            disabled={true || disableUserInteraction}
+                            disabled={disableUserInteraction}
                           >
                             <Typography variant="subtitle2">S</Typography>
                           </Button>
