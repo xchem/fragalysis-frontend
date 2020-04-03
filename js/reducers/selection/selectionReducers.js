@@ -240,9 +240,21 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
         newFraments.add(f);
       });
+      let newProteins = new Set();
+      action.savedSelectionReducers.proteinList.forEach(p => {
+        newProteins.add(p);
+      });
       let newComplexes = new Set();
       action.savedSelectionReducers.complexList.forEach(c => {
         newComplexes.add(c);
+      });
+      let newSurfaces = new Set();
+      action.savedSelectionReducers.surfaceList.forEach(s => {
+        newSurfaces.add(s);
+      });
+      let newDensities = new Set();
+      action.savedSelectionReducers.densityList.forEach(d => {
+        newDensities.add(d);
       });
       let newVectors = new Set();
       action.savedSelectionReducers.vectorOnList.forEach(v => {
@@ -252,7 +264,10 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         this_vector_list: this_vector_list,
         ...action.savedSelectionReducers,
         fragmentDisplayList: [...newFraments],
+        proteinList: [...newProteins],
         complexList: [...newComplexes],
+        surfaceList: [...newSurfaces],
+        densityList: [...newDensities],
         vectorOnList: [...newVectors]
       });
 
