@@ -92,7 +92,6 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     if (stage === undefined && !nglViewFromContext) {
       const newStage = new Stage(div_id);
       // set default settings
-      console.log(NGL_INITIAL.viewParams);
       for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
         newStage.setParameters({ [key]: value });
       }
