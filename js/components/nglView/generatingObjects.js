@@ -46,7 +46,7 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 
 // Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
-  name: OBJECT_TYPE.MOLECULE + '_' + data.id.toString(),
+  name: OBJECT_TYPE.MOLECULE + '_' + data.id.toString() + '_LIGAND',
   OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
   colour: colourToggle,
   sdf_info: data.sdf_info,
@@ -80,7 +80,7 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
 
 // Protein
 export const generateHitProteinObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_PROT',
+  name: data.protein_code + '_PROTEIN',
   OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
   sdf_info: data.sdf_info,
   colour: colourToggle,
@@ -91,7 +91,7 @@ export const generateHitProteinObject = (data, colourToggle, base_url) => ({
 
 // Complex
 export const generateComplexObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_COMP',
+  name: data.protein_code + '_CONTACTS',
   OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
   sdf_info: data.sdf_info,
   colour: colourToggle,
@@ -102,8 +102,8 @@ export const generateComplexObject = (data, colourToggle, base_url) => ({
 
 // Surface
 export const generateSurfaceObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_SURF',
-  OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
+  name: data.protein_code + '_SURFACE',
+  OBJECT_TYPE: OBJECT_TYPE.SURFACE,
   sdf_info: data.sdf_info,
   colour: colourToggle,
   prot_url: base_url + data.molecule_protein,
@@ -111,7 +111,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url) => ({
   selectionType: SELECTION_TYPE.SURFACE
 });
 
-// Density
+// Density TODO not implemented
 export const generateDensityObject = (data, colourToggle, base_url) => ({
   name: data.protein_code + '_COMP',
   OBJECT_TYPE: OBJECT_TYPE.DENSITY,

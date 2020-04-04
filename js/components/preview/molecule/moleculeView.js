@@ -178,8 +178,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   const isDensityOn = (currentID && densityList.includes(currentID)) || false;
   const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
 
-  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isVectorOn;
-  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isVectorOn);
+  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn && isVectorOn;
+  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
 
   const disableUserInteraction = useDisableUserInteraction();
 
@@ -259,7 +259,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
     backgroundColor: colourToggle
   };
   const not_selected_style = {};
-  const current_style = isLigandOn || isComplexOn || isVectorOn ? selected_style : not_selected_style;
+  const current_style =
+    isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
   const addNewLigand = () => {
     dispatch(addLigand(stage, data, colourToggle));
@@ -476,108 +477,122 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
             wrap="nowrap"
             className={classes.contButtonsMargin}
           >
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(
-                  classes.contColButton,
-                  {
-                    [classes.contColButtonSelected]: hasAllValuesOn
-                  },
-                  {
-                    [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                  }
-                )}
-                onClick={() => {
-                  // always deselect all if are selected only some of options
-                  selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+            <Tooltip title="all">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(
+                    classes.contColButton,
+                    {
+                      [classes.contColButtonSelected]: hasAllValuesOn
+                    },
+                    {
+                      [classes.contColButtonHalfSelected]: hasSomeValuesOn
+                    }
+                  )}
+                  onClick={() => {
+                    // always deselect all if are selected only some of options
+                    selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
 
-                  onLigand(true);
-                  onProtein(true);
-                  onComplex(true);
-                  // onSurface(true);
-                  // onDensity(true);
-                  onVector(true);
-                }}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">A</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isLigandOn
-                })}
-                onClick={() => onLigand()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">L</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isProteinOn
-                })}
-                onClick={() => onProtein()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">P</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              {/* C stands for contacts now */}
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isComplexOn
-                })}
-                onClick={() => onComplex()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">C</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isSurfaceOn
-                })}
-                onClick={() => onSurface()}
-                disabled={true || disableUserInteraction}
-              >
-                <Typography variant="subtitle2">S</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              {/* TODO waiting for backend data */}
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isDensityOn
-                })}
-                onClick={() => onDensity()}
-                disabled={true || disableUserInteraction}
-              >
-                <Typography variant="subtitle2">D</Typography>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isVectorOn
-                })}
-                onClick={() => onVector()}
-                disabled={disableUserInteraction}
-              >
-                <Typography variant="subtitle2">V</Typography>
-              </Button>
-            </Grid>
+                    onLigand(true);
+                    onProtein(true);
+                    onComplex(true);
+                    onSurface(true);
+                    // onDensity(true);
+                    onVector(true);
+                  }}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">A</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="ligand">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isLigandOn
+                  })}
+                  onClick={() => onLigand()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">L</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="sidechains">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isProteinOn
+                  })}
+                  onClick={() => onProtein()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">P</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="interactions">
+              <Grid item>
+                {/* C stands for contacts now */}
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isComplexOn
+                  })}
+                  onClick={() => onComplex()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">C</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="surface">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isSurfaceOn
+                  })}
+                  onClick={() => onSurface()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">S</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="electron density">
+              <Grid item>
+                {/* TODO waiting for backend data */}
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isDensityOn
+                  })}
+                  onClick={() => onDensity()}
+                  disabled={true || disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">D</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="vectors">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isVectorOn
+                  })}
+                  onClick={() => onVector()}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">V</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
           </Grid>
         </Grid>
         <Grid item xs={12}>

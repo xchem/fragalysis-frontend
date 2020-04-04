@@ -188,8 +188,6 @@ export const removeComplex = (stage, data, colourToggle) => dispatch => {
 };
 
 export const addSurface = (stage, data, colourToggle) => dispatch => {
-  console.log('TODO');
-  return;
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
@@ -205,8 +203,6 @@ export const addSurface = (stage, data, colourToggle) => dispatch => {
 };
 
 export const removeSurface = (stage, data, colourToggle) => dispatch => {
-  console.log('TODO');
-  return;
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),

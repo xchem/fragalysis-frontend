@@ -75,7 +75,7 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
 const showHitProtein = (stage, input_dict, object_name, representations, orientationMatrix) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return Promise.all([
-    stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
+    stage.loadFile(input_dict.prot_url, { ext: 'pdb', defaultAssembly: 'BU1' }),
     stage.loadFile(stringBlob, { ext: 'sdf' }),
     stage,
     defaultFocus,
@@ -119,7 +119,7 @@ const renderComplex = (ol, representations, orientationMatrix) => {
 const showComplex = (stage, input_dict, object_name, representations, orientationMatrix) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return Promise.all([
-    stage.loadFile(input_dict.prot_url, { ext: 'pdb' }),
+    stage.loadFile(input_dict.prot_url, { ext: 'pdb', defaultAssembly: 'BU1' }),
     stage.loadFile(stringBlob, { ext: 'sdf' }),
     stage,
     defaultFocus,
@@ -128,11 +128,58 @@ const showComplex = (stage, input_dict, object_name, representations, orientatio
   ]).then(ol => renderComplex(ol, representations, orientationMatrix));
 };
 
+const renderSurface = (ol, representations, orientationMatrix) => {
+  let cs = concatStructures(
+    ol[4],
+    ol[0].structure.getView(new Selection('not ligand')),
+    ol[1].structure.getView(new Selection(''))
+  );
+  let stage = ol[2];
+  let focus_let_temp = ol[3];
+  let colour = ol[5];
+  // Set the object name
+  let comp = stage.addComponentFromObject(cs);
+
+  const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, {
+    sele: 'polymer',
+    colorScheme: 'electrostatic',
+    //colorScale: 'RdYlGn',
+    colorDomain: [-0.3, 0.3],
+    surfaceType: 'av',
+    radiusType: 'vdw',
+    opacity: 0.47,
+    colorValue: colour
+  });
+
+  const reprArray = representations || createRepresentationsArray([repr]);
+  if (orientationMatrix) {
+    stage.viewerControls.orient(orientationMatrix);
+  } else if (orientationMatrix === undefined) {
+    comp.autoView('ligand');
+    //TODO setFocus should be in condition
+    comp.stage.setFocus(focus_let_temp);
+  }
+
+  return assignRepresentationArrayToComp(reprArray, comp);
+};
+
+const showSurface = (stage, input_dict, object_name, representations, orientationMatrix) => {
+  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
+  return Promise.all([
+    stage.loadFile(input_dict.prot_url, { ext: 'pdb', defaultAssembly: 'BU1' }),
+    stage.loadFile(stringBlob, { ext: 'sdf' }),
+    stage,
+    defaultFocus,
+    object_name,
+    input_dict.colour
+  ]).then(ol => renderSurface(ol, representations, orientationMatrix));
+};
+
 // ligand
 const showEvent = (stage, input_dict, object_name, representations, orientationMatrix) =>
   Promise.all(
     [
-      stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb' }).then(comp => {
+      stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
         const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
         let selection = new Selection('LIG');
         let radius = 5;
@@ -242,7 +289,7 @@ const showArrow = (stage, input_dict, object_name, representations, orientationM
 };
 
 const showProtein = (stage, input_dict, object_name, representations, orientationMatrix) =>
-  stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb' }).then(comp => {
+  stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
     const reprArray =
       representations || createRepresentationsArray([createRepresentationStructure(input_dict.nglProtStyle, {})]);
 
@@ -318,6 +365,7 @@ export const nglObjectDictionary = {
   [OBJECT_TYPE.MOLECULE]: showMol,
   [OBJECT_TYPE.HITPROTEIN]: showHitProtein,
   [OBJECT_TYPE.COMPLEX]: showComplex,
+  [OBJECT_TYPE.SURFACE]: showSurface,
   [OBJECT_TYPE.CYLINDER]: showCylinder,
   [OBJECT_TYPE.ARROW]: showArrow,
   [OBJECT_TYPE.PROTEIN]: showProtein,
