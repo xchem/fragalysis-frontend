@@ -24,12 +24,12 @@ export const INITIAL_STATE = {
     [NGL_PARAMS.ambientColor]: 0xdddddd,
     [NGL_PARAMS.ambientIntensity]: 0.2,
     [NGL_PARAMS.hoverTimeout]: 0, */
-    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.white,
-    [NGL_PARAMS.clipNear]: 0,
+    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+    [NGL_PARAMS.clipNear]: 42,
     [NGL_PARAMS.clipFar]: 100,
     [NGL_PARAMS.clipDist]: 10,
     [NGL_PARAMS.fogNear]: 50,
-    [NGL_PARAMS.fogFar]: 100
+    [NGL_PARAMS.fogFar]: 62
   },
 
   // Helper variables for marking that protein and molecule groups are successful loaded
@@ -156,11 +156,23 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       newPendingCounts[action.payload] = state.countOfPendingNglObjects[action.payload] + 1;
       return Object.assign({}, state, { countOfPendingNglObjects: newPendingCounts });
 
-    case CONSTANTS.SET_MOLECULE_ORIENTATION:
-      const newMoleculeOrientations = state.moleculeOrientations;
-      newMoleculeOrientations[action.payload.moleculeId] = action.payload.orientation;
+    case CONSTANTS.SET_MOLECULE_ORIENTATIONS:
+      return Object.assign({}, state, { moleculeOrientations: action.payload });
 
+    case CONSTANTS.APPEND_MOLECULE_ORIENTATION:
+      const newMoleculeOrientations = state.moleculeOrientations;
+
+      if (newMoleculeOrientations[action.payload.moleculeGroupID] === undefined) {
+        newMoleculeOrientations[action.payload.moleculeGroupID] = action.payload.orientation;
+      }
       return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
+
+    case CONSTANTS.REMOVE_MOLECULE_ORIENTATION:
+      const diminishedMoleculeOrientations = state.moleculeOrientations;
+      if (diminishedMoleculeOrientations[action.payload] !== undefined) {
+        delete diminishedMoleculeOrientations[action.payload];
+      }
+      return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
 
     default:
       return state;

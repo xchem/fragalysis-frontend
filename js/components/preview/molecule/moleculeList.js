@@ -1,14 +1,24 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
+import {
+  Grid,
+  Chip,
+  Tooltip,
+  makeStyles,
+  CircularProgress,
+  Divider,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl
+} from '@material-ui/core';
 import { FilterList, ClearAll } from '@material-ui/icons';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
-import MoleculeView from './moleculeView';
+import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './redux/selectors';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
@@ -20,7 +30,28 @@ import { moleculeProperty } from './helperConstants';
 import { setSortDialogOpen } from './redux/actions';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { hideAllSelectedMolecules } from './redux/dispatchActions';
+import { hideAllSelectedMolecules, initializeMolecules } from './redux/dispatchActions';
+import { setFilter, setFilterSettings, setFirstLoad } from '../../../reducers/selection/actions';
+import { initializeFilter, getListedMolecules } from '../../../reducers/selection/dispatchActions';
+import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
+import { MOL_ATTRIBUTES } from './redux/constants';
+import { getFilteredMoleculesCount } from './moleculeListSortFilterDialog';
+import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+import classNames from 'classnames';
+import {
+  addVector,
+  removeVector,
+  addProtein,
+  removeProtein,
+  addComplex,
+  removeComplex,
+  addSurface,
+  removeSurface,
+  addDensity,
+  removeDensity,
+  addLigand,
+  removeLigand
+} from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -71,6 +102,28 @@ const useStyles = makeStyles(theme => ({
   filterTitle: {
     transform: 'rotate(-90deg)'
   },
+  formControl: {
+    color: 'inherit',
+    margin: theme.spacing(1),
+    minWidth: 87,
+    fontSize: '1.2rem'
+  },
+  select: {
+    color: 'inherit',
+    fill: 'inherit',
+    '&:hover:not(.Mui-disabled):before': {
+      borderColor: 'inherit'
+    },
+    '&:before': {
+      borderColor: 'inherit'
+    },
+    '&:not(.Mui-disabled)': {
+      fill: theme.palette.white
+    }
+  },
+  selectIcon: {
+    fill: 'inherit'
+  },
   molHeader: {
     marginLeft: 19,
     width: 'inherit'
@@ -90,6 +143,43 @@ const useStyles = makeStyles(theme => ({
       borderRight: 'none',
       width: 32
     }
+  },
+  contButtonsMargin: {
+    margin: theme.spacing(1) / 2
+  },
+  contColButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingBottom: theme.spacing(1) / 8,
+    paddingTop: theme.spacing(1) / 8,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white'
+    }
+  },
+  contColButtonSelected: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.black
+    }
+  },
+  contColButtonHalfSelected: {
+    backgroundColor: theme.palette.primary.semidark,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.black
+    }
   }
 }));
 
@@ -105,11 +195,14 @@ const MoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     getJoinedMoleculeList,
+    filter,
     filterSettings,
     sortDialogOpen,
-    setSortDialogOpen
+    setSortDialogOpen,
+    firstLoad
   }) => {
     const classes = useStyles();
+    const dispatch = useDispatch();
     const list_type = listType.MOLECULE;
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -121,15 +214,18 @@ const MoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
 
+    const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
+
     const isActiveFilter = !!(filterSettings || {}).active;
 
-    const dispatch = useDispatch();
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const filterRef = useRef();
 
     let joinedMoleculeLists = getJoinedMoleculeList;
+
+    const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
     /*useEffect(() => {
@@ -139,6 +235,7 @@ const MoleculeList = memo(
     if (isActiveFilter) {
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
     } else {
+      // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
     }
 
@@ -152,16 +249,34 @@ const MoleculeList = memo(
         setOldUrl: url => setOldUrl(url),
         old_url: oldUrl.current,
         list_type,
-        setObjectList: moleculeList => {
-          setMoleculeList(moleculeList);
-        },
+        setObjectList: setMoleculeList,
         setCachedMolLists,
         mol_group_on,
         cached_mol_lists
-      }).catch(error => {
-        throw new Error(error);
-      });
-    }, [list_type, mol_group_on, setMoleculeList, target_on, setCachedMolLists, cached_mol_lists]);
+      })
+        .then(() => {
+          console.log('initializing filter');
+          setPredefinedFilter(dispatch(initializeFilter()).predefined);
+          // initialize molecules on first target load
+          if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && firstLoad) {
+            dispatch(setFirstLoad(false));
+            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
+          }
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
+    }, [
+      list_type,
+      mol_group_on,
+      setMoleculeList,
+      stage,
+      firstLoad,
+      target_on,
+      setCachedMolLists,
+      cached_mol_lists,
+      dispatch
+    ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -172,6 +287,117 @@ const MoleculeList = memo(
         setFilterItemsHeight(0);
       }
     }, [isActiveFilter, setFilterItemsHeight]);
+
+    const handleFilterChange = filter => {
+      const filterSet = Object.assign({}, filter);
+      for (let attr of MOL_ATTRIBUTES) {
+        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+          filterSet.filter[attr.key].priority = 0;
+        }
+      }
+      dispatch(setFilterSettings(filterSet));
+    };
+
+    const changePredefinedFilter = event => {
+      let newFilter = Object.assign({}, filter);
+
+      const preFilterKey = event.target.value;
+      setPredefinedFilter(preFilterKey);
+
+      if (preFilterKey !== 'none') {
+        newFilter.active = true;
+        newFilter.predefined = preFilterKey;
+        Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
+          const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
+          newFilter.filter[attr].maxValue = maxValue;
+          newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
+        });
+        dispatch(setFilter(newFilter));
+      } else {
+        // close filter dialog options
+        setSortDialogAnchorEl(null);
+        setSortDialogOpen(false);
+        // reset filter
+        dispatch(setFilter(undefined));
+        newFilter = dispatch(initializeFilter());
+      }
+      // currently do not filter molecules by excluding them
+      /*setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
+      handleFilterChange(newFilter);*/
+    };
+
+    const selectedAll = useRef(false);
+    const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const complexList = useSelector(state => state.selectionReducers.complexList);
+    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+    const densityList = useSelector(state => state.selectionReducers.densityList);
+    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+
+    const isLigandOn = fragmentDisplayList.length > 0 || false;
+    const isProteinOn = proteinList.length > 0 || false;
+    const isComplexOn = complexList.length > 0 || false;
+    const isSurfaceOn = surfaceList.length > 0 || false;
+    const isDensityOn = densityList.length > 0 || false;
+    const isVectorOn = vectorOnList.length > 0 || false;
+    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn; // && isVectorOn;
+    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
+
+    const addType = {
+      ligand: addLigand,
+      protein: addProtein,
+      complex: addComplex,
+      surface: addSurface,
+      density: addDensity,
+      vector: addVector
+    };
+
+    const removeType = {
+      ligand: removeLigand,
+      protein: removeProtein,
+      complex: removeComplex,
+      surface: removeSurface,
+      density: removeDensity,
+      vector: removeVector
+    };
+
+    // TODO "currentMolecules" do not need to correspondent to selections in {type}List
+    // TODO so this could lead to inconsistend behaviour while scrolling
+    // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
+
+    const removeSelectedType = type => {
+      joinedMoleculeLists.forEach(molecule => {
+        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+      });
+      selectedAll.current = false;
+    };
+
+    const addNewType = type => {
+      joinedMoleculeLists.forEach(molecule => {
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+      });
+    };
+
+    const ucfirst = string => {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    const onButtonToggle = (type, calledFromSelectAll = false) => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        // REDO
+        if (eval('is' + ucfirst(type) + 'On') === false) {
+          addNewType(type);
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeSelectedType(type);
+      } else if (!calledFromSelectAll) {
+        if (eval('is' + ucfirst(type) + 'On') === false) {
+          addNewType(type);
+        } else {
+          removeSelectedType(type);
+        }
+      }
+    };
 
     return (
       <ComputeSize
@@ -184,6 +410,26 @@ const MoleculeList = memo(
           hasHeader
           title="Hit navigator"
           headerActions={[
+            <FormControl className={classes.formControl} disabled={!(object_selection || []).length || sortDialogOpen}>
+              <Select
+                className={classes.select}
+                value={predefinedFilter}
+                onChange={changePredefinedFilter}
+                inputProps={{
+                  name: 'predefined',
+                  id: 'predefined-label-placeholder',
+                  classes: { icon: classes.selectIcon }
+                }}
+                displayEmpty
+                name="predefined"
+              >
+                {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
+                  <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
+                    {PREDEFINED_FILTERS[preFilterKey].name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>,
             <Button
               color={'inherit'}
               size="small"
@@ -205,7 +451,7 @@ const MoleculeList = memo(
                 }
               }}
               color={'inherit'}
-              disabled={!(object_selection || []).length}
+              disabled={!(object_selection || []).length || predefinedFilter !== 'none'}
               variant="text"
               startIcon={<FilterList />}
               size="small"
@@ -220,6 +466,7 @@ const MoleculeList = memo(
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
+              filter={filter}
               filterSettings={filterSettings}
             />
           )}
@@ -267,6 +514,7 @@ const MoleculeList = memo(
             style={{ height: height }}
           >
             <Grid item>
+              {/* Header */}
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justify="flex-start" direction="row">
                   {Object.keys(moleculeProperty).map(key => (
@@ -274,6 +522,136 @@ const MoleculeList = memo(
                       {moleculeProperty[key]}
                     </Grid>
                   ))}
+                  {currentMolecules.length > 0 && (
+                    <Grid item>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="flex-start"
+                        alignItems="center"
+                        wrap="nowrap"
+                        className={classes.contButtonsMargin}
+                      >
+                        <Tooltip title="all alls">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(
+                                classes.contColButton,
+                                {
+                                  [classes.contColButtonSelected]: hasAllValuesOn
+                                },
+                                {
+                                  [classes.contColButtonHalfSelected]: hasSomeValuesOn
+                                }
+                              )}
+                              onClick={() => {
+                                // TODO rework all these buttons into a separate component!
+                                // always deselect all if are selected only some of options
+                                selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+
+                                onButtonToggle('ligand', true);
+                                onButtonToggle('protein', true);
+                                onButtonToggle('complex', true);
+                                onButtonToggle('surface', true);
+                                // onDensity(true);
+                                // onVector(true);
+                              }}
+                              disabled={disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">A</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all ligands">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isLigandOn
+                              })}
+                              onClick={() => onButtonToggle('ligand')}
+                              disabled={disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">L</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all sidechains">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isProteinOn
+                              })}
+                              onClick={() => onButtonToggle('protein')}
+                              disabled={disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">P</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all interactions">
+                          <Grid item>
+                            {/* C stands for contacts now */}
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isComplexOn
+                              })}
+                              onClick={() => onButtonToggle('complex')}
+                              disabled={disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">C</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all surfaces">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isSurfaceOn
+                              })}
+                              onClick={() => onButtonToggle('surface')}
+                              disabled={disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">S</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all electron densities">
+                          <Grid item>
+                            {/* TODO waiting for backend data */}
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isDensityOn
+                              })}
+                              onClick={() => onButtonToggle('density')}
+                              disabled={true || disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">D</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all vectors">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isVectorOn
+                              })}
+                              onClick={() => onButtonToggle('vector')}
+                              disabled={true || disableUserInteraction}
+                            >
+                              <Typography variant="subtitle2">V</Typography>
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
             </Grid>
@@ -320,8 +698,10 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
+    filter: state.selectionReducers.filter,
     filterSettings: state.selectionReducers.filterSettings,
-    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen
+    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen,
+    firstLoad: state.selectionReducers.firstLoad
   };
 }
 const mapDispatchToProps = {

@@ -8,6 +8,11 @@ import {
 } from '../../../../reducers/ngl/dispatchActions';
 import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
+  removeFromComplexList,
+  removeFromProteinList,
+  removeFromSurfaceList,
+  removeFromFragmentDisplayList,
+  removeFromVectorOnList,
   resetSelectionState,
   setComplexList,
   setFilterSettings,
@@ -15,16 +20,20 @@ import {
   setMolGroupSelection,
   setObjectSelection,
   setVectorList,
-  setVectorOnList
+  setVectorOnList,
+  setFirstLoad
 } from '../../../../reducers/selection/actions';
-import { setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
+import { removeMoleculeOrientation, setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
 import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 
-export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage }) => (dispatch, getState) => {
+export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup, majorViewStage }) => (
+  dispatch,
+  getState
+) => {
   dispatch(setObjectSelection([molGroupId]));
 
   let site;
@@ -42,16 +51,18 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
       )
     );
 
-    // remove Complex
-    dispatch(
-      deleteObject(
-        Object.assign(
-          { display_div: VIEWS.MAJOR_VIEW },
-          generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein)
-        ),
-        majorViewStage
-      )
-    );
+    // remove Complex, Protein, Surface
+    ['contacts', 'protein', 'surface'].forEach(type => {
+      dispatch(
+        deleteObject(
+          Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein, type)
+          ),
+          majorViewStage
+        )
+      );
+    });
   });
 
   // remove all Vectors
@@ -62,6 +73,24 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, majorViewStage 
     });
 
   dispatch(setObjectSelection(undefined));
+
+  // remove molecule orientation for given site
+  dispatch(removeMoleculeOrientation(site));
+
+  // remove all selected ALCV of given site
+  currentMolGroup.mol_id.forEach(moleculeID => {
+    // remove Ligand, Complex, Vectors from selection
+    //Ligand
+    dispatch(removeFromFragmentDisplayList({ id: moleculeID }));
+    // Complex
+    dispatch(removeFromComplexList({ id: moleculeID }));
+    // Protein
+    dispatch(removeFromProteinList({ id: moleculeID }));
+    // Surface
+    dispatch(removeFromSurfaceList({ id: moleculeID }));
+    // Vectors
+    dispatch(removeFromVectorOnList({ id: moleculeID }));
+  });
 };
 
 export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => dispatch => {
@@ -75,25 +104,37 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => d
   }
 };
 
+export const selectMoleculeGroup = (moleculeGroup, summaryViewStage) => (dispatch, getState) => {
+  const state = getState();
+  const moleculeGroupSelection = state.selectionReducers.mol_group_selection.slice();
+  const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${moleculeGroup.id}`;
+  // update redux states
+  dispatch(setMolGroupOn(moleculeGroup.id));
+  moleculeGroupSelection.push(moleculeGroup.id);
+  dispatch(setMolGroupSelection(moleculeGroupSelection));
+  // re-render molecule group in NGL summary view
+  dispatch(
+    deleteObject(
+      {
+        display_div: VIEWS.SUMMARY_VIEW,
+        name: currentMolGroupStringID
+      },
+      summaryViewStage
+    )
+  );
+  dispatch(
+    loadObject(
+      Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(moleculeGroup, true)),
+      summaryViewStage
+    )
+  );
+};
+
 export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => {
   const currentMolGroup = getState().apiReducers.mol_group_list[0];
   if (currentMolGroup) {
-    const currMolGroupID = currentMolGroup.id;
-    dispatch(setMolGroupOn(currMolGroupID));
-    const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${currMolGroupID}`;
-    dispatch(setMolGroupSelection([currMolGroupID]));
-    dispatch(
-      deleteObject(
-        {
-          display_div: VIEWS.SUMMARY_VIEW,
-          name: currentMolGroupStringID
-        },
-        summaryView
-      )
-    );
-    dispatch(
-      loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)), summaryView)
-    );
+    dispatch(selectMoleculeGroup(currentMolGroup, summaryView));
+    dispatch(setFirstLoad(true));
   }
 };
 
@@ -115,7 +156,7 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
       list_type,
       setObjectList: async mol_group_list => {
         await dispatch(setMolGroupList(mol_group_list));
-        //  dispatch(selectFirstMolGroup({ summaryView }));
+        dispatch(selectFirstMolGroup({ summaryView }));
       },
       cancel: onCancel
     });
@@ -174,28 +215,12 @@ export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorVi
   const currentMolGroup = mol_group_list.find(o => o.id === moleculeGroup.id);
   const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${moleculeGroup.id}`;
   if (event.target.checked && objIdx === -1) {
-    dispatch(setMolGroupOn(moleculeGroup.id));
-    selectionCopy.push(moleculeGroup.id);
-    dispatch(
-      deleteObject(
-        {
-          display_div: VIEWS.SUMMARY_VIEW,
-          name: currentMolGroupStringID
-        },
-        stageSummaryView
-      )
-    );
-    dispatch(
-      loadObject(
-        Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
-        stageSummaryView
-      )
-    );
-    dispatch(setMolGroupSelection(selectionCopy));
+    dispatch(selectMoleculeGroup(currentMolGroup, stageSummaryView));
   } else if (!event.target.checked && objIdx > -1) {
     dispatch(
       clearAfterDeselectingMoleculeGroup({
         molGroupId: moleculeGroup.id,
+        currentMolGroup,
         majorViewStage
       })
     );

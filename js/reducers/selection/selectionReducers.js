@@ -15,13 +15,18 @@ export const INITIAL_STATE = {
   to_query: undefined,
   fragmentDisplayList: [],
   bondColorMap: undefined,
+  proteinList: [],
   complexList: [],
+  surfaceList: [],
+  densityList: [],
   vectorOnList: [],
   currentVector: undefined,
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined,
-  filterSettings: undefined
+  filter: undefined,
+  filterSettings: undefined,
+  firstLoad: false
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -143,6 +148,21 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         fragmentDisplayList: [...diminishedFragmentList]
       });
 
+    case constants.SET_PROTEIN_LIST:
+      let newProteinList = new Set();
+      action.proteinList.forEach(f => {
+        newProteinList.add(f);
+      });
+      return Object.assign({}, state, { proteinList: [...newProteinList] });
+
+    case constants.APPEND_PROTEIN_LIST:
+      return Object.assign({}, state, { proteinList: [...new Set([...state.proteinList, action.item.id])] });
+
+    case constants.REMOVE_FROM_PROTEIN_LIST:
+      let diminishedProteinList = new Set(state.proteinList);
+      diminishedProteinList.delete(action.item.id);
+      return Object.assign({}, state, { proteinList: [...diminishedProteinList] });
+
     case constants.SET_COMPLEX_LIST:
       let newComplexList = new Set();
       action.complexList.forEach(f => {
@@ -157,6 +177,36 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedComplexList = new Set(state.complexList);
       diminishedComplexList.delete(action.item.id);
       return Object.assign({}, state, { complexList: [...diminishedComplexList] });
+
+    case constants.SET_SURFACE_LIST:
+      let newSurfaceList = new Set();
+      action.surfaceList.forEach(f => {
+        newSurfaceList.add(f);
+      });
+      return Object.assign({}, state, { surfaceList: [...newSurfaceList] });
+
+    case constants.APPEND_SURFACE_LIST:
+      return Object.assign({}, state, { surfaceList: [...new Set([...state.surfaceList, action.item.id])] });
+
+    case constants.REMOVE_FROM_SURFACE_LIST:
+      let diminishedSurfaceList = new Set(state.surfaceList);
+      diminishedSurfaceList.delete(action.item.id);
+      return Object.assign({}, state, { surfaceList: [...diminishedSurfaceList] });
+
+    case constants.SET_DENSITY_LIST:
+      let newDensityList = new Set();
+      action.densityList.forEach(f => {
+        newDensityList.add(f);
+      });
+      return Object.assign({}, state, { densityList: [...newDensityList] });
+
+    case constants.APPEND_DENSITY_LIST:
+      return Object.assign({}, state, { densityList: [...new Set([...state.densityList, action.item.id])] });
+
+    case constants.REMOVE_FROM_DENSITY_LIST:
+      let diminishedDensityList = new Set(state.densityList);
+      diminishedDensityList.delete(action.item.id);
+      return Object.assign({}, state, { densityList: [...diminishedDensityList] });
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();
@@ -190,9 +240,21 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
         newFraments.add(f);
       });
+      let newProteins = new Set();
+      action.savedSelectionReducers.proteinList.forEach(p => {
+        newProteins.add(p);
+      });
       let newComplexes = new Set();
       action.savedSelectionReducers.complexList.forEach(c => {
         newComplexes.add(c);
+      });
+      let newSurfaces = new Set();
+      action.savedSelectionReducers.surfaceList.forEach(s => {
+        newSurfaces.add(s);
+      });
+      let newDensities = new Set();
+      action.savedSelectionReducers.densityList.forEach(d => {
+        newDensities.add(d);
       });
       let newVectors = new Set();
       action.savedSelectionReducers.vectorOnList.forEach(v => {
@@ -202,7 +264,10 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         this_vector_list: this_vector_list,
         ...action.savedSelectionReducers,
         fragmentDisplayList: [...newFraments],
+        proteinList: [...newProteins],
         complexList: [...newComplexes],
+        surfaceList: [...newSurfaces],
+        densityList: [...newDensities],
         vectorOnList: [...newVectors]
       });
 
@@ -229,9 +294,19 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         object_selection: action.payload
       });
 
+    case constants.SET_FILTER:
+      return Object.assign({}, state, {
+        filter: action.payload
+      });
+
     case constants.SET_FILTER_SETTINGS:
       return Object.assign({}, state, {
         filterSettings: action.payload
+      });
+
+    case constants.SET_FIRST_LOAD:
+      return Object.assign({}, state, {
+        firstLoad: action.payload
       });
 
     // Cases like: @@redux/INIT

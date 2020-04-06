@@ -1,5 +1,7 @@
 import { CircularProgress, makeStyles, Modal as MaterialModal } from '@material-ui/core';
 import React, { memo } from 'react';
+import classNames from 'classnames';
+import useResizeObserver from '../../../utils/useResizeObserver';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -14,25 +16,43 @@ const useStyles = makeStyles(theme => ({
   },
   withPadding: {
     padding: theme.spacing(2, 4, 3)
+  },
+  resizable: {
+    resize: 'both',
+    overflow: 'hidden'
   }
 }));
 
-export const Modal = memo(({ children, open, loading, onClose, noPadding, ...rest }) => {
-  const classes = useStyles();
-  const content = loading ? <CircularProgress /> : children;
-  return (
-    <MaterialModal
-      aria-labelledby="simple-modal-title"
-      aria-describedby="simple-modal-description"
-      open={open}
-      onClose={onClose}
-      {...rest}
-    >
-      <div className={classes.paper}>
-        <div className={noPadding ? undefined : classes.withPadding}>{content}</div>
-      </div>
-    </MaterialModal>
-  );
-});
+export const Modal = memo(
+  ({ children, open, loading, onClose, noPadding, resizable, onResize, otherClasses, ...rest }) => {
+    const classes = useStyles();
+    const content = loading ? <CircularProgress /> : children;
+
+    const [containerDiv] = useResizeObserver(onResize);
+
+    return (
+      <MaterialModal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={open}
+        onClose={onClose}
+        {...rest}
+      >
+        <div
+          ref={containerDiv}
+          className={classNames(
+            classes.paper,
+            {
+              [classes.resizable]: resizable
+            },
+            { [otherClasses]: !!otherClasses }
+          )}
+        >
+          <div className={noPadding ? undefined : classes.withPadding}>{content}</div>
+        </div>
+      </MaterialModal>
+    );
+  }
+);
 
 export default Modal;

@@ -88,6 +88,26 @@ export const removeFromFragmentDisplayList = function(item) {
   };
 };
 
+export const setProteinList = function(proteinList) {
+  return {
+    type: constants.SET_PROTEIN_LIST,
+    proteinList: proteinList
+  };
+};
+
+export const appendProteinList = function(item) {
+  return {
+    type: constants.APPEND_PROTEIN_LIST,
+    item: item
+  };
+};
+
+export const removeFromProteinList = function(item) {
+  return {
+    type: constants.REMOVE_FROM_PROTEIN_LIST,
+    item: item
+  };
+};
 export const setComplexList = function(complexList) {
   return {
     type: constants.SET_COMPLEX_LIST,
@@ -105,6 +125,48 @@ export const appendComplexList = function(item) {
 export const removeFromComplexList = function(item) {
   return {
     type: constants.REMOVE_FROM_COMPLEX_LIST,
+    item: item
+  };
+};
+
+export const setSurfaceList = function(surfaceList) {
+  return {
+    type: constants.SET_SURFACE_LIST,
+    surfaceList: surfaceList
+  };
+};
+
+export const appendSurfaceList = function(item) {
+  return {
+    type: constants.APPEND_SURFACE_LIST,
+    item: item
+  };
+};
+
+export const removeFromSurfaceList = function(item) {
+  return {
+    type: constants.REMOVE_FROM_SURFACE_LIST,
+    item: item
+  };
+};
+
+export const setDensityList = function(densityList) {
+  return {
+    type: constants.SET_DENSITY_LIST,
+    densityList: densityList
+  };
+};
+
+export const appendDensityList = function(item) {
+  return {
+    type: constants.APPEND_DENSITY_LIST,
+    item: item
+  };
+};
+
+export const removeFromDensityList = function(item) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST,
     item: item
   };
 };
@@ -164,7 +226,17 @@ export const setObjectSelection = object_selection => ({
   payload: object_selection
 });
 
+export const setFilter = filter => ({
+  type: constants.SET_FILTER,
+  payload: filter
+});
+
 export const setFilterSettings = filterSettings => ({
   type: constants.SET_FILTER_SETTINGS,
   payload: filterSettings
+});
+
+export const setFirstLoad = firstLoad => ({
+  type: constants.SET_FIRST_LOAD,
+  payload: firstLoad
 });

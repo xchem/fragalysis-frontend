@@ -16,7 +16,7 @@ import {
   Avatar,
   Box,
   ButtonGroup,
-  CircularProgress
+  LinearProgress
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -68,13 +68,12 @@ const useStyles = makeStyles(theme => ({
     zIndex: 1301,
     width: '100%',
     position: 'absolute',
-    opacity: 0.9,
-    pointerEvents: 'initial'
+    opacity: 0,
+    pointerEvents: 'initial',
+    cursor: 'progress'
   },
-  loadingWheel: {
-    top: '50%',
-    left: '50%',
-    position: 'fixed'
+  loadingProgress: {
+    height: '7px'
   },
   clickableImage: {
     cursor: 'pointer'
@@ -324,15 +323,14 @@ export default memo(
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%">
           {(isLoading === true || disableUserInteraction === true) && (
-            <Box
-              className={classes.loadingPaper}
-              width="100%"
-              height={`calc(${document.documentElement.offsetHeight}px - ${headerHeight}px)`}
-            >
-              <div className={classes.loadingWheel}>
-                <CircularProgress />
-              </div>
-            </Box>
+            <>
+              <LinearProgress color="secondary" className={classes.loadingProgress} />
+              <Box
+                className={classes.loadingPaper}
+                width="100%"
+                height={`calc(${document.documentElement.offsetHeight}px - ${headerHeight}px)`}
+              />
+            </>
           )}
         </Box>
       </ComputeSize>

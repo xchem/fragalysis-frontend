@@ -23,7 +23,8 @@ export default {
     contrastText: white,
     dark: colors.green[900],
     main: colors.green[600],
-    light: colors.green[400]
+    light: colors.green[400],
+    lighter: colors.green[100]
   },
   info: {
     contrastText: white,
@@ -41,7 +42,8 @@ export default {
     contrastText: white,
     dark: colors.red[900],
     main: colors.red[600],
-    light: colors.red[400]
+    light: colors.red[400],
+    lighter: colors.red[100]
   },
   text: {
     primary: colors.blueGrey[900],
@@ -51,7 +53,7 @@ export default {
   background: {
     default: '#F4F6F8',
     paper: white,
-    divider: '#DEDEDE'
+    divider: '#CECECE'
   },
   icon: colors.blueGrey[600],
   divider: colors.grey[200]
