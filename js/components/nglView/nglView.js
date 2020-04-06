@@ -92,8 +92,14 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     if (stage === undefined && !nglViewFromContext) {
       const newStage = new Stage(div_id);
       // set default settings
-      for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
-        newStage.setParameters({ [key]: value });
+      if (div_id === VIEWS.MAJOR_VIEW) {
+        // set all defaults for main view
+        for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
+          newStage.setParameters({ [key]: value });
+        }
+      } else {
+        // set only background color for preview view
+        newStage.setParameters({ [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams[NGL_PARAMS.backgroundColor] });
       }
       registerNglView(div_id, newStage);
       registerStageEvents(newStage, getNglView);
