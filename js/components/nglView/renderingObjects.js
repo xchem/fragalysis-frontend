@@ -57,7 +57,8 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
     colorScheme: 'element',
     colorValue: colour,
-    sele: '/0'
+    sele: '/0',
+    linewidth: 4
   });
 
   const reprArray = representations || createRepresentationsArray([repr3]);
@@ -83,6 +84,27 @@ const showHitProtein = (stage, input_dict, object_name, representations, orienta
     input_dict.colour
   ]).then(ol => renderHitProtein(ol, representations, orientationMatrix));
 };
+
+const showHitProteinn = (stage, input_dict, object_name, representations, orientationMatrix) =>
+  stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
+    const reprArray =
+      representations ||
+      createRepresentationsArray([
+        createRepresentationStructure(MOL_REPRESENTATION.line, {
+          colorScheme: 'element',
+          colorValue: input_dict.colour,
+          sele: '/0',
+          linewidth: 4
+        })
+      ]);
+
+    if (orientationMatrix) {
+      stage.viewerControls.orient(orientationMatrix);
+    } else if (orientationMatrix === undefined) {
+      comp.autoView();
+    }
+    return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
+  });
 
 const renderComplex = (ol, representations, orientationMatrix) => {
   let cs = concatStructures(
@@ -128,52 +150,29 @@ const showComplex = (stage, input_dict, object_name, representations, orientatio
   ]).then(ol => renderComplex(ol, representations, orientationMatrix));
 };
 
-const renderSurface = (ol, representations, orientationMatrix) => {
-  let cs = concatStructures(
-    ol[4],
-    ol[0].structure.getView(new Selection('not ligand')),
-    ol[1].structure.getView(new Selection(''))
-  );
-  let stage = ol[2];
-  let focus_let_temp = ol[3];
-  let colour = ol[5];
-  // Set the object name
-  let comp = stage.addComponentFromObject(cs);
+const showSurface = (stage, input_dict, object_name, representations, orientationMatrix) =>
+  stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
+    const reprArray =
+      representations ||
+      createRepresentationsArray([
+        createRepresentationStructure(MOL_REPRESENTATION.surface, {
+          sele: 'polymer',
+          colorScheme: 'electrostatic',
+          // colorDomain: [-0.3, 0.3],
+          surfaceType: 'av',
+          radiusType: 'vdw',
+          opacity: 0.74,
+          colorValue: input_dict.colour
+        })
+      ]);
 
-  const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, {
-    sele: 'polymer',
-    colorScheme: 'electrostatic',
-    //colorScale: 'RdYlGn',
-    colorDomain: [-0.3, 0.3],
-    surfaceType: 'av',
-    radiusType: 'vdw',
-    opacity: 0.47,
-    colorValue: colour
+    if (orientationMatrix) {
+      stage.viewerControls.orient(orientationMatrix);
+    } else if (orientationMatrix === undefined) {
+      comp.autoView();
+    }
+    return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });
-
-  const reprArray = representations || createRepresentationsArray([repr]);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else if (orientationMatrix === undefined) {
-    comp.autoView('ligand');
-    //TODO setFocus should be in condition
-    comp.stage.setFocus(focus_let_temp);
-  }
-
-  return assignRepresentationArrayToComp(reprArray, comp);
-};
-
-const showSurface = (stage, input_dict, object_name, representations, orientationMatrix) => {
-  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-  return Promise.all([
-    stage.loadFile(input_dict.prot_url, { ext: 'pdb', defaultAssembly: 'BU1' }),
-    stage.loadFile(stringBlob, { ext: 'sdf' }),
-    stage,
-    defaultFocus,
-    object_name,
-    input_dict.colour
-  ]).then(ol => renderSurface(ol, representations, orientationMatrix));
-};
 
 // ligand
 const showEvent = (stage, input_dict, object_name, representations, orientationMatrix) =>

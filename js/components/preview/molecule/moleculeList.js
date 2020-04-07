@@ -243,7 +243,11 @@ const MoleculeList = memo(
       setCurrentPage(currentPage + 1);
     };
 
+    // prevent loading molecules multiple times
+    const firstLoadRef = useRef(!firstLoad);
+
     useEffect(() => {
+      // TODO this reloads too much..
       loadFromServer({
         url: getUrl({ list_type, target_on, mol_group_on }),
         setOldUrl: url => setOldUrl(url),
@@ -258,7 +262,9 @@ const MoleculeList = memo(
           console.log('initializing filter');
           setPredefinedFilter(dispatch(initializeFilter()).predefined);
           // initialize molecules on first target load
-          if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && firstLoad) {
+          if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && firstLoadRef && firstLoadRef.current) {
+            console.log('initializing molecules');
+            firstLoadRef.current = false;
             dispatch(setFirstLoad(false));
             dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
           }
