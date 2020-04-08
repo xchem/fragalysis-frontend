@@ -98,14 +98,24 @@ export const Panel = memo(
                 className={classes.headerGrid}
               >
                 {title && (
-                  <Grid item xs={hasExpansion || headerActions ? 4 : 12} className={classes.headerTitle}>
+                  <Grid
+                    item
+                    xs={hasExpansion || headerActions ? (headerActions && headerActions.length > 2 ? 4 : 6) : 12}
+                    className={classes.headerTitle}
+                  >
                     <Typography variant="h6" color="inherit" noWrap>
                       {title}
                     </Typography>
                   </Grid>
                 )}
                 {(headerActions || hasExpansion) && (
-                  <Grid item container direction="row" justify="flex-end" xs={title ? 8 : 12}>
+                  <Grid
+                    item
+                    container
+                    direction="row"
+                    justify="flex-end"
+                    xs={title ? (headerActions && headerActions.length > 2 ? 8 : 6) : 12}
+                  >
                     {headerActions &&
                       headerActions.map((action, index) => (
                         <Grid item key={index}>

@@ -63,7 +63,7 @@ export const SettingControls = memo(({ open, onClose }) => {
           </Grid>
           <Grid item className={classes.value}>
             <Slider
-              defaultValue={viewParams[NGL_PARAMS.clipNear]}
+              value={viewParams[NGL_PARAMS.clipNear]}
               valueLabelDisplay="auto"
               step={1}
               min={0}
@@ -78,7 +78,7 @@ export const SettingControls = memo(({ open, onClose }) => {
           </Grid>
           <Grid item className={classes.value}>
             <Slider
-              defaultValue={viewParams[NGL_PARAMS.clipFar]}
+              value={viewParams[NGL_PARAMS.clipFar]}
               valueLabelDisplay="auto"
               step={1}
               min={0}
@@ -106,7 +106,7 @@ export const SettingControls = memo(({ open, onClose }) => {
           </Grid>
           <Grid item className={classes.value}>
             <Slider
-              defaultValue={viewParams[NGL_PARAMS.fogNear]}
+              value={viewParams[NGL_PARAMS.fogNear]}
               valueLabelDisplay="auto"
               step={1}
               min={0}
@@ -121,7 +121,7 @@ export const SettingControls = memo(({ open, onClose }) => {
           </Grid>
           <Grid item className={classes.value}>
             <Slider
-              defaultValue={viewParams[NGL_PARAMS.fogFar]}
+              value={viewParams[NGL_PARAMS.fogFar]}
               valueLabelDisplay="auto"
               step={1}
               min={0}
