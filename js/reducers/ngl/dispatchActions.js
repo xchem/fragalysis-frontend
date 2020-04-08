@@ -133,8 +133,8 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
     }
 
     // set molecule orientations
-    if (currentScene.moleculeOrientations) {
-      dispatch(setMoleculeOrientations(currentScene.moleculeOrientations));
+    if (snapshot.moleculeOrientations) {
+      dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
     }
   });
 };

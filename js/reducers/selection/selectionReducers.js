@@ -236,30 +236,49 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
           this_vector_list[to_select_item] = action.savedSelectionReducers.to_select[to_select_item];
         }
       }
+
       let newFraments = new Set();
-      action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
-        newFraments.add(f);
-      });
+      if (action.savedSelectionReducers.fragmentDisplayList) {
+        action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
+          newFraments.add(f);
+        });
+      }
+
       let newProteins = new Set();
-      action.savedSelectionReducers.proteinList.forEach(p => {
-        newProteins.add(p);
-      });
+      if (action.savedSelectionReducers.proteinList) {
+        action.savedSelectionReducers.proteinList.forEach(p => {
+          newProteins.add(p);
+        });
+      }
+
       let newComplexes = new Set();
-      action.savedSelectionReducers.complexList.forEach(c => {
-        newComplexes.add(c);
-      });
+      if (action.savedSelectionReducers.complexList) {
+        action.savedSelectionReducers.complexList.forEach(c => {
+          newComplexes.add(c);
+        });
+      }
+
       let newSurfaces = new Set();
-      action.savedSelectionReducers.surfaceList.forEach(s => {
-        newSurfaces.add(s);
-      });
+      if (action.savedSelectionReducers.surfaceList) {
+        action.savedSelectionReducers.surfaceList.forEach(s => {
+          newSurfaces.add(s);
+        });
+      }
+
       let newDensities = new Set();
-      action.savedSelectionReducers.densityList.forEach(d => {
-        newDensities.add(d);
-      });
+      if (action.savedSelectionReducers.densityList) {
+        action.savedSelectionReducers.densityList.forEach(d => {
+          newDensities.add(d);
+        });
+      }
+
       let newVectors = new Set();
-      action.savedSelectionReducers.vectorOnList.forEach(v => {
-        newVectors.add(v);
-      });
+      if (action.savedSelectionReducers.vectorOnList) {
+        action.savedSelectionReducers.vectorOnList.forEach(v => {
+          newVectors.add(v);
+        });
+      }
+
       return Object.assign({}, state, {
         this_vector_list: this_vector_list,
         ...action.savedSelectionReducers,
