@@ -178,7 +178,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         action.stage.removeAllComponents();
       }
       // clear all arrays of object
-      return INITIAL_STATE;
+      return Object.assign({}, INITIAL_STATE);
 
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOADED:
@@ -200,7 +200,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { moleculeOrientations: action.payload });
 
     case CONSTANTS.APPEND_MOLECULE_ORIENTATION:
-      const newMoleculeOrientations = state.moleculeOrientations;
+      const newMoleculeOrientations = Object.assign({}, state.moleculeOrientations);
 
       if (newMoleculeOrientations[action.payload.moleculeGroupID] === undefined) {
         newMoleculeOrientations[action.payload.moleculeGroupID] = action.payload.orientation;
@@ -208,7 +208,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
 
     case CONSTANTS.REMOVE_MOLECULE_ORIENTATION:
-      const diminishedMoleculeOrientations = state.moleculeOrientations;
+      const diminishedMoleculeOrientations = Object.assign({}, state.moleculeOrientations);
       if (diminishedMoleculeOrientations[action.payload] !== undefined) {
         delete diminishedMoleculeOrientations[action.payload];
       }
