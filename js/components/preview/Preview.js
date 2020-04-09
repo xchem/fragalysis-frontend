@@ -115,6 +115,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               height={moleculeListHeight}
               setFilterItemsHeight={setFilterItemsHeight}
               filterItemsHeight={filterItemsHeight}
+              isStateLoaded={isStateLoaded}
             />
           </Grid>
         </Grid>
