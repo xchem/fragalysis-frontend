@@ -73,7 +73,8 @@ const useStyles = makeStyles(theme => ({
     cursor: 'progress'
   },
   loadingProgress: {
-    height: '7px'
+    height: 2,
+    bottom: -2
   },
   clickableImage: {
     cursor: 'pointer'
@@ -256,6 +257,9 @@ export default memo(
               </Grid>
             </Grid>
           </Grid>
+          {(isLoading === true || disableUserInteraction === true) && (
+            <LinearProgress color="secondary" className={classes.loadingProgress} />
+          )}
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         <Drawer
@@ -321,18 +325,7 @@ export default memo(
             </Grid>
           </Grid>
         </Drawer>
-        <Box paddingTop={`${headerHeight}px`} width="100%">
-          {(isLoading === true || disableUserInteraction === true) && (
-            <>
-              <LinearProgress color="secondary" className={classes.loadingProgress} />
-              <Box
-                className={classes.loadingPaper}
-                width="100%"
-                height={`calc(${document.documentElement.offsetHeight}px - ${headerHeight}px)`}
-              />
-            </>
-          )}
-        </Box>
+        <Box paddingTop={`${headerHeight}px`} width="100%" />
       </ComputeSize>
     );
   })

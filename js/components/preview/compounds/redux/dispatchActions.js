@@ -20,21 +20,27 @@ import { api, getCsrfToken, METHOD } from '../../../../utils/api';
 import { base_url } from '../../../routes/constants';
 import { loadFromServer } from '../../../../utils/genericView';
 import { compoundsColors } from './constants';
+import {
+  getCurrentVectorCompoundsFiltered,
+  getMoleculeOfCurrentVector
+} from '../../../../reducers/selection/selectors';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
-  const thisVectorList = state.selectionReducers.this_vector_list;
-  const to_query = state.selectionReducers.to_query;
+  const currentVectorCompoundsFiltered = getCurrentVectorCompoundsFiltered(state);
+
+  const moleculeOfVector = getMoleculeOfCurrentVector(state);
+  const smiles = moleculeOfVector && moleculeOfVector.smiles;
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
 
-  for (let key in thisVectorList) {
-    for (let index in thisVectorList[key]) {
+  for (let key in currentVectorCompoundsFiltered) {
+    for (let index in currentVectorCompoundsFiltered[key]) {
       if (index !== 'vector') {
-        for (let indexOfCompound in thisVectorList[key][index]) {
+        for (let indexOfCompound in currentVectorCompoundsFiltered[key][index]) {
           var thisObj = {
-            smiles: thisVectorList[key][index][indexOfCompound].end,
-            vector: thisVectorList[key].vector.split('_')[0],
-            mol: to_query,
+            smiles: currentVectorCompoundsFiltered[key][index][indexOfCompound].end,
+            vector: currentVectorCompoundsFiltered[key].vector.split('_')[0],
+            mol: smiles,
             class: parseInt(currentCompoundClass)
           };
           dispatch(appendToBuyList(thisObj));
@@ -73,7 +79,8 @@ export const loadNextPageOfCompounds = () => (dispatch, getState) => {
 
 const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getState) => {
   const state = getState();
-  const to_query_sdf_info = state.selectionReducers.to_query_sdf_info;
+  const moleculeOfVector = getMoleculeOfCurrentVector(state);
+  const sdf_info = moleculeOfVector && moleculeOfVector.sdf_info;
   const configuration = state.previewReducers.compounds.configuration;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
 
@@ -92,7 +99,7 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
     var post_data = {
       INPUT_VECTOR: data.vector,
       INPUT_SMILES: [data.smiles],
-      INPUT_MOL_BLOCK: to_query_sdf_info
+      INPUT_MOL_BLOCK: sdf_info
     };
 
     api({

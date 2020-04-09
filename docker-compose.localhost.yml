@@ -14,7 +14,7 @@ services:
       - "3306:3306"
   graph:
     container_name: neo4j
-    image: neo4j
+    image: neo4j:3.5
     ports:
 # Comment these two out in production
       - "7474:7474"

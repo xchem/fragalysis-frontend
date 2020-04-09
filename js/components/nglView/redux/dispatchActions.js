@@ -126,8 +126,8 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
       //else if (type === listTypes.MOLECULE) {
       //}
       else if (type === listTypes.VECTOR) {
-        const vectorSmi = name.split('_')[1];
-        dispatch(selectVectorAndResetCompounds(vectorSmi));
+        const vectorSmile = name.split('_')[1];
+        dispatch(selectVectorAndResetCompounds(vectorSmile));
       }
     }
   }

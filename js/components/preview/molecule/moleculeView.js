@@ -152,7 +152,6 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   const key = 'mol_image';
 
   const dispatch = useDispatch();
-  const to_query = useSelector(state => state.selectionReducers.to_query);
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
@@ -237,7 +236,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
         refOnCancel.current();
       }
     };
-  }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, to_query, url, vectorOnList, imageWidth]);
+  }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, url, vectorOnList, imageWidth]);
 
   const svg_image = (
     <SVGInline

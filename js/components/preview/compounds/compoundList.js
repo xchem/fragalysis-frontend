@@ -16,7 +16,6 @@ import {
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
-// import { getTotalCountOfMolecules } from '../../../reducers/selection/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selectors';
 import { NglContext } from '../../nglView/nglProvider';
@@ -71,8 +70,6 @@ export const CompoundList = memo(({ height }) => {
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-  const to_query = useSelector(state => state.selectionReducers.to_query);
-  // const compoundClasses = useSelector(state => getCompoundClasses(state));
   const blueInput = useSelector(state => state.previewReducers.compounds[compoundsColors.blue.key]);
   const redInput = useSelector(state => state.previewReducers.compounds[compoundsColors.red.key]);
   const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
@@ -88,22 +85,18 @@ export const CompoundList = memo(({ height }) => {
   };
 
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
-  // const totalCountOfMolecules = useSelector(state => getTotalCountOfMolecules(state));
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
-  const querying = useSelector(state => state.selectionReducers.querying);
-  // const currentVector = useSelector(state => state.selectionReducers.currentVector);
+  const currentVector = useSelector(state => state.selectionReducers.currentVector);
   const currentCompounds = useSelector(state => state.previewReducers.compounds.currentCompounds);
   const compoundsListOffset = useSelector(state => getCompoundListOffset(state));
 
-  let mol_string = currentCompounds.length + ' Compounds on vector to pick';
-
-  if (to_query === '' || to_query === undefined) {
-    mol_string = '';
+  let headerMessage = currentCompounds.length + ' Compounds on vector to pick';
+  if (currentVector === null) {
+    headerMessage = 'Not selected vector';
   }
 
-  //if (currentVector !== undefined && to_query !== undefined) {
   return (
-    <Panel hasHeader title={querying ? 'Loading....' : mol_string} ref={panelRef}>
+    <Panel hasHeader title={headerMessage} ref={panelRef}>
       {currentCompounds && (
         <Box height={height} width="100%">
           <Grid container direction="row" justify="space-between" alignItems="center">
@@ -161,7 +154,4 @@ export const CompoundList = memo(({ height }) => {
       )}
     </Panel>
   );
-  // } else {
-  //   return null;
-  // }
 });
