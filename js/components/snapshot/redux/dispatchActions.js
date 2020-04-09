@@ -1,7 +1,6 @@
 import { reloadApiState, setSessionTitle } from '../../../reducers/api/actions';
-import { reloadSelectionReducer, setBondColorMap, setVectorList } from '../../../reducers/selection/actions';
+import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { api, METHOD } from '../../../utils/api';
-import { generateBondColorMap, generateObjectList } from '../helpers';
 import { setDialogCurrentStep, setIsLoadingSnapshotDialog, setOpenSnapshotSavingDialog } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { saveCurrentSnapshot, storeSnapshotToProject } from '../../projects/redux/dispatchActions';
@@ -12,17 +11,6 @@ import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
 import { setCurrentSnapshot } from '../../projects/redux/actions';
-
-export const handleVector = json => dispatch => {
-  let objList = generateObjectList(json['3d']);
-  dispatch(setVectorList(objList));
-  let vectorBondColorMap = generateBondColorMap(json['indices']);
-  dispatch(setBondColorMap(vectorBondColorMap));
-};
-
-export const redeployVectorsLocal = url => dispatch => {
-  return api({ url }).then(response => dispatch(handleVector(response.data['vectors'])));
-};
 
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
   const state = getState();
@@ -40,17 +28,6 @@ export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState)
     });
 
     if (snapshotData.selectionReducers.vectorOnList.length !== 0) {
-      let url =
-        window.location.protocol +
-        '//' +
-        window.location.host +
-        '/api/vector/' +
-        snapshotData.selectionReducers.vectorOnList[JSON.stringify(0)] +
-        '/';
-      dispatch(redeployVectorsLocal(url)).catch(error => {
-        throw new Error(error);
-      });
-
       dispatch(reloadPreviewReducer(snapshotData.previewReducers));
     }
   }
