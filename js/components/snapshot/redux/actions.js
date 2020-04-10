@@ -22,3 +22,13 @@ export const setIsLoadingSnapshotDialog = isLoading => ({
   type: constants.SET_IS_LOADING_SNAPSHOT_DIALOG,
   payload: isLoading
 });
+
+export const setListOfSnapshots = list => ({
+  type: constants.SET_LIST_OF_SNAPSHOTS,
+  payload: list
+});
+
+export const setIsLoadingListOfSnapshots = isLoading => ({
+  type: constants.SET_IS_LOADING_LIST_OF_SNAPSHOTS,
+  payload: isLoading
+});

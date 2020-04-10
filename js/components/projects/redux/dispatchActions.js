@@ -12,6 +12,7 @@ import {
 import { api, METHOD } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
 import { setDialogCurrentStep } from '../../snapshot/redux/actions';
+import { getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 
 export const saveCurrentSnapshot = ({ type, title, author, description, data, created, parent, children }) => (
   dispatch,
@@ -38,8 +39,12 @@ export const saveCurrentSnapshot = ({ type, title, author, description, data, cr
         })
       )
     )
+
     .catch(error => {
       throw new Error(error);
+    })
+    .finally(() => {
+      dispatch(getListOfSnapshots());
     });
 };
 
@@ -65,8 +70,12 @@ export const storeSnapshotToProject = ({ projectID, snapshotID }) => (dispatch, 
         })
       )
     )
+
     .catch(error => {
       throw new Error(error);
+    })
+    .finally(() => {
+      dispatch(getListOfSnapshots());
     });
 };
 
@@ -125,6 +134,7 @@ export const removeProject = projectID => dispatch => {
     )
     .finally(() => {
       dispatch(setIsLoadingTree(false));
+      dispatch(getListOfSnapshots());
     });
 };
 

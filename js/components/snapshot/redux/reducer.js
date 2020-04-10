@@ -7,7 +7,9 @@ export const INITIAL_STATE = {
   loadedSession: undefined,
   openSavingDialog: false,
   dialogCurrentStep: 0,
-  isLoadingSnapshotDialog: false
+  isLoadingSnapshotDialog: false,
+  listOfSnapshots: [],
+  isLoadingListOfSnapshots: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -44,6 +46,16 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_SNAPSHOT_DIALOG:
       return Object.assign({}, state, {
         isLoadingSnapshotDialog: action.payload
+      });
+
+    case constants.SET_LIST_OF_SNAPSHOTS:
+      return Object.assign({}, state, {
+        listOfSnapshots: action.payload
+      });
+
+    case constants.SET_IS_LOADING_LIST_OF_SNAPSHOTS:
+      return Object.assign({}, state, {
+        isLoadingListOfSnapshots: action.payload
       });
 
     default:
