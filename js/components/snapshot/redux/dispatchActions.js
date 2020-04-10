@@ -63,35 +63,52 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
   }
+
+  let newType = type;
+
   return Promise.all([
     dispatch(setIsLoadingSnapshotDialog(true)),
-    api({
-      url: `${base_url}/api/snapshots/`,
-      data: { title, description, type, author, parent, session_project, data: JSON.stringify(data), children: [] },
-      method: METHOD.POST
-    }).then(response => {
-      Promise.all([
-        dispatch(setDialogCurrentStep(0)),
-        dispatch(setIsLoadingSnapshotDialog(false)),
-        dispatch(setOpenSnapshotSavingDialog(false)),
-        dispatch(
-          setCurrentSnapshot({
-            id: response.data.id,
-            type: response.data.type,
-            title: response.data.title,
-            author: response.data.author,
-            description: response.data.description,
-            created: response.data.created,
-            children: response.data.children,
-            parent: response.data.parent,
-            data: JSON.parse(response.data.data)
-          })
-        )
-      ]);
-      // redirect to project with newest created snapshot /:projectID/:snapshotID
-      if (response.data.id && session_project) {
-        history.push(`${URLS.projects}${session_project}/${response.data.id}`);
+    api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
+      if (response.data.count === 0) {
+        newType = SnapshotType.INIT;
       }
+      return api({
+        url: `${base_url}/api/snapshots/`,
+        data: {
+          title,
+          description,
+          type: newType,
+          author,
+          parent,
+          session_project,
+          data: JSON.stringify(data),
+          children: []
+        },
+        method: METHOD.POST
+      }).then(response => {
+        Promise.all([
+          dispatch(setDialogCurrentStep(0)),
+          dispatch(setIsLoadingSnapshotDialog(false)),
+          dispatch(setOpenSnapshotSavingDialog(false)),
+          dispatch(
+            setCurrentSnapshot({
+              id: response.data.id,
+              type: response.data.type,
+              title: response.data.title,
+              author: response.data.author,
+              description: response.data.description,
+              created: response.data.created,
+              children: response.data.children,
+              parent: response.data.parent,
+              data: JSON.parse(response.data.data)
+            })
+          )
+        ]);
+        // redirect to project with newest created snapshot /:projectID/:snapshotID
+        if (response.data.id && session_project) {
+          history.push(`${URLS.projects}${session_project}/${response.data.id}`);
+        }
+      });
     })
   ]);
 };

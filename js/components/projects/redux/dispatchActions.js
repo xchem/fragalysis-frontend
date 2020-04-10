@@ -103,7 +103,7 @@ const removeChildren = (children = []) => dispatch => {
 export const removeSnapshotTree = projectID => dispatch => {
   return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` }).then(response => {
     if (response.data.count === 0) {
-      return Promise.reject('Not found INITIAL snapshot');
+      return Promise.resolve('Not found INITIAL snapshot');
     } else if (response.data.count === 1) {
       const tree = parseSnapshotAttributes(response.data.results[0]);
       if (tree.children && tree.children.length === 0) {
