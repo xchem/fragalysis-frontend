@@ -81,10 +81,51 @@ export const searchInProjects = title => (dispatch, getState) => {
     dispatch(setListOfProjects((response && response.data && response.data.results) || []))
   );
 };
+
+export const removeSnapshotByID = snapshotID => dispatch => {
+  return api({ url: `${base_url}/api/snapshots/${snapshotID}` }).then(response => {
+    if (response.data && response.data.id !== undefined) {
+      if (response.data.children && response.data.children.length > 0) {
+        return dispatch(removeChildren(response.data.children));
+      } else {
+        return api({ url: `${base_url}/api/snapshots/${snapshotID}/`, method: METHOD.DELETE });
+      }
+    }
+  });
+};
+
+const removeChildren = (children = []) => dispatch => {
+  if (children && children.length > 0) {
+    return Promise.all(children.map(childID => dispatch(removeSnapshotByID(childID))));
+  }
+};
+
+export const removeSnapshotTree = projectID => dispatch => {
+  return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` }).then(response => {
+    if (response.data.count === 0) {
+      return Promise.reject('Not found INITIAL snapshot');
+    } else if (response.data.count === 1) {
+      const tree = parseSnapshotAttributes(response.data.results[0]);
+      if (tree.children && tree.children.length === 0) {
+        return dispatch(removeChildren([tree.id]));
+      }
+      return dispatch(removeChildren(tree.children));
+    }
+  });
+};
+
 export const removeProject = projectID => dispatch => {
-  return api({ url: `${base_url}/api/session-projects/${projectID}/`, method: METHOD.DELETE }).then(() =>
-    dispatch(loadListOfProjects())
-  );
+  dispatch(setIsLoadingTree(true));
+  return dispatch(removeSnapshotTree(projectID))
+    .then(() => dispatch(removeSnapshotTree(projectID)))
+    .then(() =>
+      api({ url: `${base_url}/api/session-projects/${projectID}/`, method: METHOD.DELETE }).then(() =>
+        dispatch(loadListOfProjects())
+      )
+    )
+    .finally(() => {
+      dispatch(setIsLoadingTree(false));
+    });
 };
 
 export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
