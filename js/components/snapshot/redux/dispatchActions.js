@@ -9,14 +9,14 @@ import {
   setOpenSnapshotSavingDialog
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { saveCurrentSnapshot, storeSnapshotToProject } from '../../projects/redux/dispatchActions';
+import { assignSnapshotToProject } from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 import { SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
-import { setCurrentSnapshot } from '../../projects/redux/actions';
+import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
 
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
   const state = getState();
@@ -41,6 +41,47 @@ export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState)
   dispatch(setProteinLoadingState(true));
 };
 
+export const saveCurrentSnapshot = ({
+  type,
+  title,
+  author,
+  description,
+  data,
+  created,
+  parent,
+  children,
+  session_project = null
+}) => (dispatch, getState) => {
+  dispatch(resetCurrentSnapshot());
+  return api({
+    url: `${base_url}/api/snapshots/`,
+    data: { type, title, author, description, data: JSON.stringify(data), created, parent, children, session_project },
+    method: METHOD.POST
+  })
+    .then(response =>
+      dispatch(
+        setCurrentSnapshot({
+          id: response.data.id,
+          type,
+          title,
+          author,
+          description,
+          created,
+          parent,
+          children: response.data.children,
+          data
+        })
+      )
+    )
+
+    .catch(error => {
+      throw new Error(error);
+    })
+    .finally(() => {
+      dispatch(getListOfSnapshots());
+    });
+};
+
 export const createInitialSnapshot = projectID => async (dispatch, getState) => {
   const { apiReducers, nglReducers, selectionReducers, previewReducers } = getState();
   const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
@@ -55,8 +96,36 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
   await dispatch(saveCurrentSnapshot({ type, title, author, description, data, created, parent, children }));
 
   if (projectID) {
-    await dispatch(storeSnapshotToProject({ projectID, snapshotID: getState().projectReducers.currentSnapshot.id }));
+    await dispatch(assignSnapshotToProject({ projectID, snapshotID: getState().projectReducers.currentSnapshot.id }));
   }
+};
+
+export const createInitSnapshotFromCopy = ({
+  title,
+  author,
+  description,
+  data,
+  created,
+  parent,
+  children,
+  session_project
+}) => (dispatch, getState) => {
+  if (session_project) {
+    return dispatch(
+      saveCurrentSnapshot({
+        type: SnapshotType.INIT,
+        title,
+        author,
+        description,
+        data,
+        created,
+        parent,
+        children,
+        session_project
+      })
+    );
+  }
+  return Promise.reject('ProjectID is missing');
 };
 
 export const createNewSnapshot = ({ title, description, type, author, parent, session_project, history }) => (

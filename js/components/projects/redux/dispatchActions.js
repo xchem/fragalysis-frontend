@@ -7,52 +7,24 @@ import {
   setCurrentSnapshotTree,
   setCurrentSnapshotList,
   setIsLoadingTree,
-  setIsLoadingCurrentSnapshot
+  setIsLoadingCurrentSnapshot,
+  setCurrentProject
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
-import { base_url } from '../../routes/constants';
+import { base_url, URLS } from '../../routes/constants';
 import { setDialogCurrentStep } from '../../snapshot/redux/actions';
-import { getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
+import {
+  createInitSnapshotFromCopy,
+  createSnapshotFromOld,
+  getListOfSnapshots
+} from '../../snapshot/redux/dispatchActions';
+import { SnapshotType } from './constants';
 
-export const saveCurrentSnapshot = ({ type, title, author, description, data, created, parent, children }) => (
-  dispatch,
-  getState
-) => {
-  dispatch(resetCurrentSnapshot());
-  return api({
-    url: `${base_url}/api/snapshots/`,
-    data: { type, title, author, description, data: JSON.stringify(data), created, parent, children },
-    method: METHOD.POST
-  })
-    .then(response =>
-      dispatch(
-        setCurrentSnapshot({
-          id: response.data.id,
-          type,
-          title,
-          author,
-          description,
-          created,
-          parent,
-          children: response.data.children,
-          data
-        })
-      )
-    )
-
-    .catch(error => {
-      throw new Error(error);
-    })
-    .finally(() => {
-      dispatch(getListOfSnapshots());
-    });
-};
-
-export const storeSnapshotToProject = ({ projectID, snapshotID }) => (dispatch, getState) => {
+export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
   return api({
     url: `${base_url}/api/snapshots/${snapshotID}/`,
-    data: { session_project: projectID },
+    data: { session_project: projectID, ...rest },
     method: METHOD.PATCH
   })
     .then(response =>
@@ -261,5 +233,113 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
     })
     .finally(() => {
       dispatch(setDialogCurrentStep(1));
+    });
+};
+
+export const createProject = ({ title, description, target, author, tags }) => dispatch => {
+  dispatch(setProjectModalIsLoading(true));
+  return api({
+    url: `${base_url}/api/session-projects/`,
+    method: METHOD.POST,
+    data: { title, description, target, author, tags }
+  })
+    .then(response => {
+      const projectID = response.data.id;
+      const title = response.data.title;
+      const authorID = response.data.author;
+      const description = response.data.description;
+      const targetID = response.data.target;
+      const tags = response.data.tags;
+
+      dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
+    })
+    .finally(() => {
+      dispatch(setProjectModalIsLoading(false));
+    });
+};
+
+const copySnapshot = (selectedSnapshot, response, history) => dispatch => {
+  return dispatch(
+    createInitSnapshotFromCopy({
+      title: selectedSnapshot.title,
+      author: selectedSnapshot.author,
+      description: selectedSnapshot.description,
+      data: selectedSnapshot.data,
+      created: selectedSnapshot.created,
+      parent: null,
+      children: selectedSnapshot.children,
+      session_project: response.data.id
+    })
+  )
+    .then(() => {
+      history.push(`${URLS.projects}${response.data.id}`);
+    })
+    .finally(() => {
+      dispatch(setProjectModalIsLoading(false));
+    });
+};
+
+export const createProjectFromSnapshot = ({ title, description, target, author, tags, history, parentSnapshotId }) => (
+  dispatch,
+  getState
+) => {
+  dispatch(setProjectModalIsLoading(true));
+  return dispatch(createProject({ title, description, target, author, tags })).then(response => {
+    const listOfSnapshots = getState().snapshotReducers.listOfSnapshots;
+    const selectedSnapshot = listOfSnapshots.find(item => item.id === parentSnapshotId);
+
+    // in case when snapshot has assigned project => make copy
+    if (selectedSnapshot && selectedSnapshot.session_project !== null) {
+      return copySnapshot(selectedSnapshot, response, history);
+    }
+    // in case when snapshot has not assigned project => mark snapshot as INIT and assign to project
+    else if (selectedSnapshot && selectedSnapshot.session_project === null) {
+      // in case when snapshot has no parent, use given snapshot, but mark it as INIT
+      if (!selectedSnapshot.parent) {
+        return dispatch(
+          assignSnapshotToProject({
+            projectID: response.data.id,
+            snapshotID: selectedSnapshot.id,
+            type: SnapshotType.INIT
+          })
+        )
+          .then(() => {
+            history.push(`${URLS.projects}${response.data.id}`);
+          })
+          .finally(() => {
+            dispatch(setProjectModalIsLoading(false));
+          });
+      } // in case when snapshot has parent => create new snapshot with INIT type and copy all data from previous snapshot
+      else {
+        return copySnapshot(selectedSnapshot, response, history);
+      }
+    }
+  });
+};
+
+export const createProjectFromScratch = ({ title, description, target, author, tags, history }) => (
+  dispatch,
+  getState
+) => {
+  dispatch(setProjectModalIsLoading(true));
+  return api({
+    url: `${base_url}/api/session-projects/`,
+    method: METHOD.POST,
+    data: { title, description, target, author, tags }
+  })
+    .then(response => {
+      const projectID = response.data.id;
+      const title = response.data.title;
+      const authorID = response.data.author;
+      const description = response.data.description;
+      const targetID = response.data.target;
+      const tags = response.data.tags;
+
+      dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
+      // create project_target relationShip on BE
+      history.push(`${URLS.projects}${projectID}`);
+    })
+    .finally(() => {
+      dispatch(setProjectModalIsLoading(false));
     });
 };

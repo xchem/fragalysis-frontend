@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { groupBy } from 'lodash';
-import { setCurrentProject, setProjectModalIsLoading, setProjectModalOpen } from '../redux/actions';
+import { setProjectModalOpen } from '../redux/actions';
 import {
   makeStyles,
   Radio,
@@ -13,7 +13,7 @@ import {
   FormControl,
   FormHelperText,
   FormControlLabel,
-  ListSubheader
+  ListItemText
 } from '@material-ui/core';
 import { Title, Description, Label, Link } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
@@ -24,10 +24,9 @@ import { ProjectCreationType, SnapshotProjectType } from '../redux/constants';
 import { Formik, Form } from 'formik';
 import { TextField, Select, RadioGroup } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
-import { api, METHOD } from '../../../utils/api';
-import { base_url, URLS } from '../../routes/constants';
-import { createSnapshotFromOld, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
+import { getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 import moment from 'moment';
+import { createProjectFromScratch, createProjectFromSnapshot } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -57,8 +56,10 @@ export const ProjectModal = memo(({}) => {
   const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
   const listOfProjects = useSelector(state => state.projectReducers.listOfProjects);
   const isLoadingListOfSnapshots = useSelector(state => state.snapshotReducers.isLoadingListOfSnapshots);
-  const listOfSnapshots = useSelector(state => state.snapshotReducers.listOfSnapshots);
-  const gropuppedListOfSnapshots = groupBy(listOfSnapshots, 'session_project.id');
+  const grouppedListOfSnapshots = groupBy(
+    useSelector(state => state.snapshotReducers.listOfSnapshots),
+    'session_project.id'
+  );
   const targetList = useSelector(state => state.apiReducers.target_id_list);
 
   const handleCloseModal = () => {
@@ -80,6 +81,7 @@ export const ProjectModal = memo(({}) => {
     const project = listOfProjects.find(item => `${item.id}` === projectID);
     return project && `${project.title} - ${project.description}`;
   };
+
   return (
     <Modal open={isProjectModalOpen} onClose={handleCloseModal}>
       <Typography variant="h3">Create project</Typography>
@@ -119,16 +121,15 @@ export const ProjectModal = memo(({}) => {
             author: DJANGO_CONTEXT['pk'],
             tags: JSON.stringify(tags)
           };
+
           // Create from snapshot
           if (values.type === ProjectCreationType.FROM_SNAPSHOT) {
-            // create new snapshot with INIT type and copy all data from previous snapshot
-            dispatch(setProjectModalIsLoading(true));
-
             dispatch(
-              createSnapshotFromOld(
-                listOfSnapshots.find(item => item.id === values.parentSnapshotId),
-                history
-              )
+              createProjectFromSnapshot({
+                ...data,
+                history,
+                parentSnapshotId: values.parentSnapshotId
+              })
             )
               .catch(error => {
                 setState(() => {
@@ -136,34 +137,24 @@ export const ProjectModal = memo(({}) => {
                 });
               })
               .finally(() => {
-                dispatch(setProjectModalIsLoading(false));
                 handleCloseModal();
               });
           }
 
           // Create from scratch
           if (values.type === ProjectCreationType.NEW) {
-            dispatch(setProjectModalIsLoading(true));
-            api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
-              .then(response => {
-                const projectID = response.data.id;
-                const title = response.data.title;
-                const authorID = response.data.author;
-                const description = response.data.description;
-                const targetID = response.data.target;
-                const tags = response.data.tags;
-
-                dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
-                // create project_target relationShip on BE
-                history.push(`${URLS.projects}${projectID}`);
+            dispatch(
+              createProjectFromScratch({
+                ...data,
+                history
               })
+            )
               .catch(error => {
                 setState(() => {
                   throw error;
                 });
               })
               .finally(() => {
-                dispatch(setProjectModalIsLoading(false));
                 handleCloseModal();
               });
           }
@@ -266,7 +257,7 @@ export const ProjectModal = memo(({}) => {
                         error={errors.parentSnapshotId !== undefined}
                         disabled={isLoadingListOfSnapshots}
                       >
-                        <InputLabel htmlFor="selected-target" required disabled={isLoadingListOfSnapshots}>
+                        <InputLabel htmlFor="selected-parent-snapshot-id" required disabled={isLoadingListOfSnapshots}>
                           From Snapshot
                         </InputLabel>
                         <Select
@@ -276,16 +267,18 @@ export const ProjectModal = memo(({}) => {
                             id: 'selected-parent-snapshot-id'
                           }}
                         >
-                          {Object.keys(gropuppedListOfSnapshots).map((projectID, index) => (
-                            <div key={index}>
-                              <ListSubheader>{getProjectTitle(projectID)}</ListSubheader>
-                              {gropuppedListOfSnapshots[projectID].map(snapshot => (
-                                <MenuItem key={snapshot.id} value={snapshot.id}>
-                                  {`${snapshot.id} - ${snapshot.title}, ${moment(snapshot.created).format('LLL')}`}
-                                </MenuItem>
-                              ))}
-                            </div>
-                          ))}
+                          {Object.keys(grouppedListOfSnapshots).map((projectID, index) =>
+                            grouppedListOfSnapshots[projectID].map(snapshot => (
+                              <MenuItem key={snapshot.id} value={snapshot.id}>
+                                <ListItemText
+                                  primary={`${snapshot.id} - ${snapshot.title}, ${moment(snapshot.created).format(
+                                    'LLL'
+                                  )}`}
+                                  secondary={getProjectTitle(projectID)}
+                                />
+                              </MenuItem>
+                            ))
+                          )}
                         </Select>
                         <FormHelperText disabled={isLoadingListOfSnapshots}>{errors.parentSnapshotId}</FormHelperText>
                       </FormControl>
