@@ -51,8 +51,6 @@ export const ProjectPreview = memo(({}) => {
     setSnackBarTitle('Not valid snapshot!');
   }
 
-  console.log('*** render ProjectPreview');
-
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
     <Preview isStateLoaded={isSnapshotLoaded.current !== null} />
   ) : null;

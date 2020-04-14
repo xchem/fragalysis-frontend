@@ -93,15 +93,30 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
   const children = [];
   const created = moment();
 
-  // TODO specify cases, when snapshot has to be saved to BE or not
-
-  await dispatch(saveCurrentSnapshot({ type, title, author, description, data, created, parent, children }));
-
+  // store initial snapshot to BE
   if (projectID) {
+    await dispatch(saveCurrentSnapshot({ type, title, author, description, data, created, parent, children }));
+
     await dispatch(assignSnapshotToProject({ projectID, snapshotID: getState().projectReducers.currentSnapshot.id }));
     dispatch(loadSnapshotTree(projectID)).catch(error => {
       throw new Error(error);
     });
+  }
+  // store initial snapshot only to redux state
+  else {
+    dispatch(
+      setCurrentSnapshot({
+        id: null,
+        type,
+        title,
+        author,
+        description,
+        created,
+        parent,
+        children,
+        data
+      })
+    );
   }
 };
 
