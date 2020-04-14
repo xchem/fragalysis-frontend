@@ -13,11 +13,7 @@ import {
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
 import { setDialogCurrentStep } from '../../snapshot/redux/actions';
-import {
-  createInitSnapshotFromCopy,
-  createSnapshotFromOld,
-  getListOfSnapshots
-} from '../../snapshot/redux/dispatchActions';
+import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 import { SnapshotType } from './constants';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
@@ -262,9 +258,9 @@ const copySnapshot = (selectedSnapshot, projectID, history) => dispatch => {
   return dispatch(
     createInitSnapshotFromCopy({
       title: selectedSnapshot.title,
-      author: selectedSnapshot.author,
+      author: (selectedSnapshot && selectedSnapshot.author && selectedSnapshot.author.id) || null,
       description: selectedSnapshot.description,
-      data: selectedSnapshot.data,
+      data: JSON.parse(selectedSnapshot.data),
       created: selectedSnapshot.created,
       parent: null,
       children: selectedSnapshot.children,
@@ -301,7 +297,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
 
     // in case when snapshot has assigned project => make copy
     if (selectedSnapshot && selectedSnapshot.session_project !== null) {
-      return copySnapshot(selectedSnapshot, projectID, history);
+      return dispatch(copySnapshot(selectedSnapshot, projectID, history));
     }
     // in case when snapshot has not assigned project => mark snapshot as INIT and assign to project
     else if (selectedSnapshot && selectedSnapshot.session_project === null) {
@@ -322,7 +318,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
           });
       } // in case when snapshot has parent => create new snapshot with INIT type and copy all data from previous snapshot
       else {
-        return copySnapshot(selectedSnapshot, projectID, history);
+        return dispatch(copySnapshot(selectedSnapshot, projectID, history));
       }
     }
   });

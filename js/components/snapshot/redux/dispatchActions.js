@@ -9,7 +9,7 @@ import {
   setOpenSnapshotSavingDialog
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { assignSnapshotToProject } from '../../projects/redux/dispatchActions';
+import { assignSnapshotToProject, loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 import { SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
@@ -93,10 +93,15 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
   const children = [];
   const created = moment();
 
+  // TODO specify cases, when snapshot has to be saved to BE or not
+
   await dispatch(saveCurrentSnapshot({ type, title, author, description, data, created, parent, children }));
 
   if (projectID) {
     await dispatch(assignSnapshotToProject({ projectID, snapshotID: getState().projectReducers.currentSnapshot.id }));
+    dispatch(loadSnapshotTree(projectID)).catch(error => {
+      throw new Error(error);
+    });
   }
 };
 

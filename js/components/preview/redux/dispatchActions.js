@@ -31,17 +31,16 @@ const loadProtein = nglView => (dispatch, getState) => {
   return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);
 };
 
-export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snapshotId, currentSnapshot }) => (
-  dispatch,
-  getState
-) => {
+export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snapshotId }) => (dispatch, getState) => {
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
+  const currentSnapshotID = state.projectReducers.currentSnapshot.id;
+  const currentSnapshotData = state.projectReducers.currentSnapshot.data;
 
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
-    if (!isStateLoaded && currentSnapshot && currentSnapshot.id === null) {
+    if (!isStateLoaded && currentSnapshotID === null) {
       dispatch(setProteinLoadingState(false));
       Promise.all(
         nglViewList.map(nglView =>
@@ -60,12 +59,12 @@ export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snaps
           dispatch(setProteinLoadingState(false));
           throw new Error(error);
         });
-    } else {
-      // decide to load existing snapshot
-      if (snapshotId !== null && currentSnapshot && currentSnapshot.data !== null) {
-        dispatch(reloadSession(currentSnapshot.data, nglViewList));
-      }
     }
+    // decide to load existing snapshot
+    else if (snapshotId !== null && currentSnapshotData !== null) {
+      dispatch(reloadSession(currentSnapshotData, nglViewList));
+    }
+
     if (targetOnName !== undefined) {
       document.title = targetOnName + ': Fragalysis';
     }

@@ -125,10 +125,12 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   };
 
   useEffect(() => {
-    dispatch(loadSnapshotTree(projectId)).catch(error => {
-      throw new Error(error);
-    });
-  }, [dispatch, projectId, snapshotId]);
+    if (currentSnapshotID !== null) {
+      dispatch(loadSnapshotTree(projectId)).catch(error => {
+        throw new Error(error);
+      });
+    }
+  }, [currentSnapshotID, dispatch, projectId, snapshotId]);
 
   return (
     <Panel
