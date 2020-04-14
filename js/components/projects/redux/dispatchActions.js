@@ -251,14 +251,14 @@ export const createProject = ({ title, description, target, author, tags }) => d
       const targetID = response.data.target;
       const tags = response.data.tags;
 
-      dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
+      return dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
     })
     .finally(() => {
       dispatch(setProjectModalIsLoading(false));
     });
 };
 
-const copySnapshot = (selectedSnapshot, response, history) => dispatch => {
+const copySnapshot = (selectedSnapshot, projectID, history) => dispatch => {
   return dispatch(
     createInitSnapshotFromCopy({
       title: selectedSnapshot.title,
@@ -268,29 +268,40 @@ const copySnapshot = (selectedSnapshot, response, history) => dispatch => {
       created: selectedSnapshot.created,
       parent: null,
       children: selectedSnapshot.children,
-      session_project: response.data.id
+      session_project: projectID
     })
   )
     .then(() => {
-      history.push(`${URLS.projects}${response.data.id}`);
+      history.push(`${URLS.projects}${projectID}`);
     })
     .finally(() => {
       dispatch(setProjectModalIsLoading(false));
     });
 };
 
-export const createProjectFromSnapshot = ({ title, description, target, author, tags, history, parentSnapshotId }) => (
+export const createProjectFromSnapshot = ({ title, description, author, tags, history, parentSnapshotId }) => (
   dispatch,
   getState
 ) => {
+  const listOfSnapshots = getState().snapshotReducers.listOfSnapshots;
+  const selectedSnapshot = listOfSnapshots.find(item => item.id === parentSnapshotId);
+  const snapshotData = JSON.parse(selectedSnapshot && selectedSnapshot.data);
+
   dispatch(setProjectModalIsLoading(true));
-  return dispatch(createProject({ title, description, target, author, tags })).then(response => {
-    const listOfSnapshots = getState().snapshotReducers.listOfSnapshots;
-    const selectedSnapshot = listOfSnapshots.find(item => item.id === parentSnapshotId);
+  return dispatch(
+    createProject({
+      title,
+      description,
+      target: (snapshotData && snapshotData.apiReducers && snapshotData.apiReducers.target_on) || null,
+      author,
+      tags
+    })
+  ).then(() => {
+    const { projectID } = getState().projectReducers.currentProject;
 
     // in case when snapshot has assigned project => make copy
     if (selectedSnapshot && selectedSnapshot.session_project !== null) {
-      return copySnapshot(selectedSnapshot, response, history);
+      return copySnapshot(selectedSnapshot, projectID, history);
     }
     // in case when snapshot has not assigned project => mark snapshot as INIT and assign to project
     else if (selectedSnapshot && selectedSnapshot.session_project === null) {
@@ -298,20 +309,20 @@ export const createProjectFromSnapshot = ({ title, description, target, author, 
       if (!selectedSnapshot.parent) {
         return dispatch(
           assignSnapshotToProject({
-            projectID: response.data.id,
+            projectID,
             snapshotID: selectedSnapshot.id,
             type: SnapshotType.INIT
           })
         )
           .then(() => {
-            history.push(`${URLS.projects}${response.data.id}`);
+            history.push(`${URLS.projects}${projectID}`);
           })
           .finally(() => {
             dispatch(setProjectModalIsLoading(false));
           });
       } // in case when snapshot has parent => create new snapshot with INIT type and copy all data from previous snapshot
       else {
-        return copySnapshot(selectedSnapshot, response, history);
+        return copySnapshot(selectedSnapshot, projectID, history);
       }
     }
   });
