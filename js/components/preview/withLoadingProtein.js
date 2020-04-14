@@ -15,10 +15,11 @@ export const withLoadingProtein = WrappedComponent => {
     const dispatch = useDispatch();
     const projectId = match && match.params && match.params.projectId;
     const snapshotId = match && match.params && match.params.snapshotId;
+    const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
 
     useEffect(() => {
       dispatch(shouldLoadProtein({ nglViewList, isStateLoaded, projectId, snapshotId }));
-    }, [dispatch, isStateLoaded, nglViewList, projectId, snapshotId]);
+    }, [dispatch, isStateLoaded, nglViewList, projectId, snapshotId, currentSnapshotID]);
 
     return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
   });
