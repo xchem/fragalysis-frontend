@@ -18,11 +18,10 @@ import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
 import { useDispatch } from 'react-redux';
 import { ProjectHistory } from './projectHistory';
 import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
-import { removeAllNglComponents } from '../../reducers/ngl/actions';
-import { resetCurrentCompoundsSettings } from './compounds/redux/actions';
-import { resetProjectsReducer } from '../projects/redux/actions';
 import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
 import { HeaderContext } from '../header/headerContext';
+import { unmountPreviewComponent } from './redux/dispatchActions';
+import { NglContext } from '../nglView/nglProvider';
 //import HotspotList from '../hotspot/hotspotList';
 
 const hitNavigatorWidth = 504;
@@ -68,6 +67,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const theme = useTheme();
 
   const { headerHeight } = useContext(HeaderContext);
+  const { nglViewList } = useContext(NglContext);
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -94,11 +94,9 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   useEffect(() => {
     // Unmount Preview - reset NGL state
     return () => {
-      dispatch(removeAllNglComponents());
-      dispatch(resetCurrentCompoundsSettings(true));
-      dispatch(resetProjectsReducer());
+      dispatch(unmountPreviewComponent(nglViewList));
     };
-  }, [dispatch]);
+  }, [dispatch, nglViewList]);
 
   return (
     <>

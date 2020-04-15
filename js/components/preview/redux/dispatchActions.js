@@ -2,9 +2,11 @@ import { generateProteinObject } from '../../nglView/generatingObjects';
 import { SUFFIX, VIEWS } from '../../../constants/constants';
 import { loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import { reloadSummaryReducer } from '../summary/redux/actions';
-import { reloadCompoundsReducer } from '../compounds/redux/actions';
-import { setProteinLoadingState } from '../../../reducers/ngl/actions';
+import { reloadCompoundsReducer, resetCurrentCompoundsSettings } from '../compounds/redux/actions';
+import { removeAllNglComponents, setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { createInitialSnapshot, reloadSession } from '../../snapshot/redux/dispatchActions';
+import { resetLoadedSnapshots, resetProjectsReducer } from '../../projects/redux/actions';
+import { resetSelectionState } from '../../../reducers/selection/actions';
 // import { reloadMoleculeReducer } from '../molecule/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
@@ -74,4 +76,31 @@ export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snaps
 export const reloadPreviewReducer = newState => dispatch => {
   dispatch(reloadSummaryReducer(newState.summary));
   dispatch(reloadCompoundsReducer(newState.compounds));
+};
+
+export const unmountPreviewComponent = (stages = []) => dispatch => {
+  stages.forEach(stage => {
+    if (stage.stage !== undefined || stage.stage !== null) {
+      dispatch(removeAllNglComponents(stage.stage));
+    }
+  });
+
+  dispatch(resetCurrentCompoundsSettings(true));
+  dispatch(resetProjectsReducer());
+
+  dispatch(resetSelectionState());
+};
+
+export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
+  stages.forEach(stage => {
+    if (stage.stage !== undefined || stage.stage !== null) {
+      dispatch(removeAllNglComponents(stage.stage));
+    }
+  });
+  dispatch(removeAllNglComponents());
+  // dispatch(resetCurrentCompoundsSettings(true));
+  // dispatch(resetProjectsReducer());
+
+  dispatch(resetLoadedSnapshots());
+  dispatch(resetSelectionState());
 };

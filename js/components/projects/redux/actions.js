@@ -39,6 +39,8 @@ export const setIsLoadingCurrentSnapshot = isLoading => ({
 
 export const resetProjectsReducer = () => ({ type: constants.RESET_PROJECTS_REDUCER });
 
+export const resetLoadedSnapshots = () => ({ type: constants.RESET_LOADED_SNAPSHOTS });
+
 export const setListOfProjects = projects => ({
   type: constants.SET_LIST_OF_PROJECTS,
   payload: projects

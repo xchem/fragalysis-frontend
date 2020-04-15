@@ -78,6 +78,14 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.RESET_PROJECTS_REDUCER:
       return Object.assign({}, INITIAL_STATE);
 
+    case constants.RESET_LOADED_SNAPSHOTS:
+      const currentState = JSON.parse(JSON.stringify(state));
+      currentState.currentSnapshot = initCurrentSnapshot;
+      currentState.currentSnapshotTree = null;
+      currentState.currentSnapshotList = null;
+
+      return Object.assign({}, currentState);
+
     default:
       return state;
   }

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { IconButton, makeStyles, Drawer, Typography, Grid } from '@material-ui/core';
 import { Delete, Share, Close } from '@material-ui/icons';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import palette from '../../../theme/palette';
 import { setSharedSnapshotURL } from '../../snapshot/redux/actions';
+import { resetReducersBetweenSnapshots } from '../../preview/redux/dispatchActions';
+import { NglContext } from '../../nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -73,6 +75,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const classes = useStyles();
   let history = useHistory();
   let match = useRouteMatch();
+  const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
   const projectId = match && match.params && match.params.projectId;
   const currentProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
@@ -83,9 +86,11 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
 
   const handleClickOnCommit = commit => {
     if (projectId && commit.hash) {
+      dispatch(resetReducersBetweenSnapshots(nglViewList));
       history.push(`${URLS.projects}${projectId}/${commit.hash}`);
     }
   };
+
   const commitFunction = ({ title, description, photo, author, email, hash, isSelected }) => ({
     hash: `${hash}`,
     subject: `${title}`,

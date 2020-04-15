@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useContext, useEffect, useRef } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import {
   Grid,
@@ -21,6 +21,8 @@ import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
 import { ModalStateSave } from '../../snapshot/modals/modalStateSave';
 import { setSharedSnapshotURL } from '../../snapshot/redux/actions';
+import { resetReducersBetweenSnapshots } from '../redux/dispatchActions';
+import { NglContext } from '../../nglView/nglProvider';
 
 export const heightOfProjectHistory = '164px';
 
@@ -79,6 +81,7 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const classes = useStyles();
   const ref = useRef(null);
   let history = useHistory();
+  const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
   let match = useRouteMatch();
   const projectId = match && match.params && match.params.projectId;
@@ -91,6 +94,7 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
 
   const handleClickOnCommit = commit => {
     if (projectId && commit.hash) {
+      dispatch(resetReducersBetweenSnapshots(nglViewList));
       history.push(`${URLS.projects}${projectId}/${commit.hash}`);
     }
   };
