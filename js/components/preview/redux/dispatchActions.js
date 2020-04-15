@@ -33,11 +33,16 @@ const loadProtein = nglView => (dispatch, getState) => {
   return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);
 };
 
-export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snapshotId }) => (dispatch, getState) => {
+export const shouldLoadProtein = ({
+  nglViewList,
+  isStateLoaded,
+  routeProjectID,
+  routeSnapshotID,
+  currentSnapshotID
+}) => (dispatch, getState) => {
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
-  const currentSnapshotID = state.projectReducers.currentSnapshot.id;
   const currentSnapshotData = state.projectReducers.currentSnapshot.data;
 
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
@@ -54,7 +59,7 @@ export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snaps
         .then(() => {
           dispatch(setProteinLoadingState(true));
           if (getState().nglReducers.countOfRemainingMoleculeGroups === 0) {
-            dispatch(createInitialSnapshot(projectId));
+            dispatch(createInitialSnapshot(routeProjectID));
           }
         })
         .catch(error => {
@@ -62,8 +67,9 @@ export const shouldLoadProtein = ({ nglViewList, isStateLoaded, projectId, snaps
           throw new Error(error);
         });
     }
+
     // decide to load existing snapshot
-    else if (snapshotId !== null && currentSnapshotData !== null) {
+    else if (routeSnapshotID !== null && currentSnapshotData !== null) {
       dispatch(reloadSession(currentSnapshotData, nglViewList));
     }
 

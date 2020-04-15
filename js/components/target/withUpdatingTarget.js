@@ -7,16 +7,7 @@ import { useRouteMatch } from 'react-router-dom';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
-    ({
-      target_on,
-      resetSelection,
-      notCheckTarget,
-      updateTarget,
-      setTargetUUIDs,
-      resetTargetAndSelection,
-      targetIdList,
-      ...rest
-    }) => {
+    ({ target_on, resetSelection, updateTarget, setTargetUUIDs, resetTargetAndSelection, targetIdList, ...rest }) => {
       let match = useRouteMatch();
 
       const target = match && match.params && match.params.target;
@@ -36,12 +27,12 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [setTargetUUIDs, snapshotUuid, uuid]);
 
       useEffect(() => {
-        updateTarget({ notCheckTarget, target, setIsLoading, targetIdList, projectId }).catch(error => {
+        updateTarget({ target, setIsLoading, targetIdList, projectId }).catch(error => {
           setState(() => {
             throw error;
           });
         });
-      }, [notCheckTarget, setIsLoading, target, updateTarget, targetIdList, projectId]);
+      }, [setIsLoading, target, updateTarget, targetIdList, projectId]);
 
       if (isLoading === true) {
         return null;
