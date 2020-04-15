@@ -9,7 +9,8 @@ export const INITIAL_STATE = {
   dialogCurrentStep: 0,
   isLoadingSnapshotDialog: false,
   listOfSnapshots: [],
-  isLoadingListOfSnapshots: false
+  isLoadingListOfSnapshots: false,
+  sharedSnapshotURL: null
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -56,6 +57,10 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_LIST_OF_SNAPSHOTS:
       return Object.assign({}, state, {
         isLoadingListOfSnapshots: action.payload
+      });
+    case constants.SET_SHARED_SNAPSHOT_ULR:
+      return Object.assign({}, state, {
+        sharedSnapshotURL: action.payload
       });
 
     default:

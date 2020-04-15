@@ -19,6 +19,8 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { URLS } from '../../routes/constants';
 import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
+import { ModalStateSave } from '../../snapshot/modals/modalStateSave';
+import { setSharedSnapshotURL } from '../../snapshot/redux/actions';
 
 export const heightOfProjectHistory = '164px';
 
@@ -133,78 +135,89 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   }, [currentSnapshotID, dispatch, projectId, snapshotId]);
 
   return (
-    <Panel
-      ref={ref}
-      hasHeader
-      title="Project History"
-      headerActions={[
-        <Button color="inherit" variant="text" size="small" disabled startIcon={<Share />}>
-          Share
-        </Button>,
-        <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
-          Detail
-        </Button>
-      ]}
-      hasExpansion
-      defaultExpanded
-      onExpandChange={expand => {
-        if (ref.current && setHeight instanceof Function) {
-          setHeight(ref.current.offsetHeight);
-        }
-      }}
-    >
-      <div className={classes.containerExpanded}>
-        {isLoadingTree === false &&
-          currentSnapshotTree !== null &&
-          currentSnapshotTree.children !== null &&
-          currentSnapshotTree.title !== null &&
-          currentSnapshotTree.id !== null &&
-          currentSnapshotID !== null &&
-          currentSnapshotList !== null && (
-            <Gitgraph options={options}>
-              {gitgraph => {
-                const initBranch = gitgraph.branch(currentSnapshotTree.title);
+    <>
+      <Panel
+        ref={ref}
+        hasHeader
+        title="Project History"
+        headerActions={[
+          <Button
+            color="inherit"
+            variant="text"
+            size="small"
+            startIcon={<Share />}
+            onClick={() => {
+              dispatch(setSharedSnapshotURL(window.location.href));
+            }}
+          >
+            Share
+          </Button>,
+          <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
+            Detail
+          </Button>
+        ]}
+        hasExpansion
+        defaultExpanded
+        onExpandChange={expand => {
+          if (ref.current && setHeight instanceof Function) {
+            setHeight(ref.current.offsetHeight);
+          }
+        }}
+      >
+        <div className={classes.containerExpanded}>
+          {isLoadingTree === false &&
+            currentSnapshotTree !== null &&
+            currentSnapshotTree.children !== null &&
+            currentSnapshotTree.title !== null &&
+            currentSnapshotTree.id !== null &&
+            currentSnapshotID !== null &&
+            currentSnapshotList !== null && (
+              <Gitgraph options={options}>
+                {gitgraph => {
+                  const initBranch = gitgraph.branch(currentSnapshotTree.title);
 
-                initBranch.commit(
-                  commitFunction({
-                    title: currentSnapshotTree.title || '',
-                    hash: currentSnapshotTree.id,
-                    isSelected: currentSnapshotID === currentSnapshotTree.id
-                  })
-                );
+                  initBranch.commit(
+                    commitFunction({
+                      title: currentSnapshotTree.title || '',
+                      hash: currentSnapshotTree.id,
+                      isSelected: currentSnapshotID === currentSnapshotTree.id
+                    })
+                  );
 
-                currentSnapshotTree.children.forEach(childID => {
-                  renderTreeNode(childID, gitgraph, initBranch);
-                });
-              }}
-            </Gitgraph>
-          )}
-      </div>
-      {/*<Grid item>*/}
-      {/*  <Table>*/}
-      {/*    <TableHead>*/}
-      {/*      <TableRow>*/}
-      {/*        <TableCell>Title</TableCell>*/}
-      {/*        <TableCell align="right">Author</TableCell>*/}
-      {/*        <TableCell align="right">Created</TableCell>*/}
-      {/*      </TableRow>*/}
-      {/*    </TableHead>*/}
-      {/*    <TableBody>*/}
-      {/*      <TableRow>*/}
-      {/*        <TableCell component="th" scope="row">*/}
-      {/*          {snapshotDetail.name}*/}
-      {/*        </TableCell>*/}
-      {/*        <TableCell align="right">*/}
-      {/*          {snapshotDetail.author && snapshotDetail.author.username},*/}
-      {/*          {snapshotDetail.author && snapshotDetail.author.email}*/}
-      {/*        </TableCell>*/}
-      {/*        <TableCell align="right">*/}
-      {/*          {snapshotDetail.created && moment(snapshotDetail.created).format('LLL')}*/}
-      {/*        </TableCell>*/}
-      {/*      </TableRow>*/}
-      {/*    </TableBody>*/}
-      {/*  </Table>*/}
-      {/*</Grid>*/}
-    </Panel>
+                  currentSnapshotTree.children.forEach(childID => {
+                    renderTreeNode(childID, gitgraph, initBranch);
+                  });
+                }}
+              </Gitgraph>
+            )}
+        </div>
+        {/*<Grid item>*/}
+        {/*  <Table>*/}
+        {/*    <TableHead>*/}
+        {/*      <TableRow>*/}
+        {/*        <TableCell>Title</TableCell>*/}
+        {/*        <TableCell align="right">Author</TableCell>*/}
+        {/*        <TableCell align="right">Created</TableCell>*/}
+        {/*      </TableRow>*/}
+        {/*    </TableHead>*/}
+        {/*    <TableBody>*/}
+        {/*      <TableRow>*/}
+        {/*        <TableCell component="th" scope="row">*/}
+        {/*          {snapshotDetail.name}*/}
+        {/*        </TableCell>*/}
+        {/*        <TableCell align="right">*/}
+        {/*          {snapshotDetail.author && snapshotDetail.author.username},*/}
+        {/*          {snapshotDetail.author && snapshotDetail.author.email}*/}
+        {/*        </TableCell>*/}
+        {/*        <TableCell align="right">*/}
+        {/*          {snapshotDetail.created && moment(snapshotDetail.created).format('LLL')}*/}
+        {/*        </TableCell>*/}
+        {/*      </TableRow>*/}
+        {/*    </TableBody>*/}
+        {/*  </Table>*/}
+        {/*</Grid>*/}
+      </Panel>
+      <ModalStateSave />
+    </>
   );
 });

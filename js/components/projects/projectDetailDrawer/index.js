@@ -2,12 +2,13 @@ import React, { memo } from 'react';
 import { IconButton, makeStyles, Drawer, Typography, Grid } from '@material-ui/core';
 import { Delete, Share, Close } from '@material-ui/icons';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
-import { URLS } from '../../routes/constants';
+import { base_url, URLS } from '../../routes/constants';
 import moment from 'moment';
 import Modal from '../../common/Modal';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import palette from '../../../theme/palette';
+import { setSharedSnapshotURL } from '../../snapshot/redux/actions';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -72,7 +73,9 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const classes = useStyles();
   let history = useHistory();
   let match = useRouteMatch();
+  const dispatch = useDispatch();
   const projectId = match && match.params && match.params.projectId;
+  const currentProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
@@ -97,7 +100,12 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
           <b>{`${moment().format('LLL')}, ${email}: `}</b>
           {description}
         </Typography>
-        <IconButton disabled>
+        <IconButton
+          disabled={!currentProjectID || !hash}
+          onClick={() => {
+            dispatch(setSharedSnapshotURL(`${base_url}${URLS.projects}${currentProjectID}/${hash}`));
+          }}
+        >
           <Share />
         </IconButton>
       </>

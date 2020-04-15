@@ -12,7 +12,6 @@ import { CompoundList } from './compounds/compoundList';
 import { ViewerControls } from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
-import ModalStateSave from '../snapshot/modals/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
 import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
@@ -155,7 +154,6 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           <HotspotList />
         </Grid>*/}
       </Grid>
-      <ModalStateSave />
       <NewSnapshotModal />
       {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
