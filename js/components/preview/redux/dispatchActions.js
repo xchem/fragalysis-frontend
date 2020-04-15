@@ -69,7 +69,7 @@ export const shouldLoadProtein = ({
     }
 
     // decide to load existing snapshot
-    else if (currentSnapshotID !== null && routeSnapshotID === currentSnapshotID && currentSnapshotData !== null) {
+    else if (currentSnapshotID !== null && currentSnapshotData !== null) {
       dispatch(reloadSession(currentSnapshotData, nglViewList));
     }
 
@@ -103,7 +103,6 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
       dispatch(removeAllNglComponents(stage.stage));
     }
   });
-  dispatch(removeAllNglComponents());
   // dispatch(resetCurrentCompoundsSettings(true));
   // dispatch(resetProjectsReducer());
 
