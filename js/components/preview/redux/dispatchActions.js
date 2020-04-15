@@ -47,7 +47,7 @@ export const shouldLoadProtein = ({
 
   if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
-    if (!isStateLoaded && currentSnapshotID === null) {
+    if (!isStateLoaded && currentSnapshotID === null && !routeSnapshotID) {
       dispatch(setProteinLoadingState(false));
       Promise.all(
         nglViewList.map(nglView =>
@@ -69,7 +69,7 @@ export const shouldLoadProtein = ({
     }
 
     // decide to load existing snapshot
-    else if (routeSnapshotID !== null && currentSnapshotData !== null) {
+    else if (currentSnapshotID !== null && routeSnapshotID === currentSnapshotID && currentSnapshotData !== null) {
       dispatch(reloadSession(currentSnapshotData, nglViewList));
     }
 
