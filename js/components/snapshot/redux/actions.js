@@ -1,4 +1,5 @@
 import { constants } from './constants';
+import { initSharedSnapshot } from './reducer';
 
 export const setOpenSnapshotSavingDialog = (isOpen = false) => ({
   type: constants.SET_OPEN_SAVING_DIALOG,
@@ -25,7 +26,7 @@ export const setIsLoadingListOfSnapshots = isLoading => ({
   payload: isLoading
 });
 
-export const setSharedSnapshotURL = (url = null) => ({
-  type: constants.SET_SHARED_SNAPSHOT_ULR,
-  payload: url
+export const setSharedSnapshot = (sharedSnapshot = initSharedSnapshot) => ({
+  type: constants.SET_SHARED_SNAPSHOT,
+  payload: sharedSnapshot
 });

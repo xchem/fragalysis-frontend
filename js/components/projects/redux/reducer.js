@@ -2,9 +2,9 @@ import { constants } from './constants';
 const initCurrentSnapshot = {
   id: null,
   type: null,
-  name: null,
+  title: null,
   author: null,
-  message: null,
+  description: null,
   children: [], // if it has got children, it is created branch,
   parent: null,
   created: null,

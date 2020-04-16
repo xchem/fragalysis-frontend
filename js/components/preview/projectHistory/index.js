@@ -16,11 +16,11 @@ import { MergeType, Share } from '@material-ui/icons';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { URLS } from '../../routes/constants';
+import { base_url, URLS } from '../../routes/constants';
 import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
-import { ModalStateSave } from '../../snapshot/modals/modalStateSave';
-import { setSharedSnapshotURL } from '../../snapshot/redux/actions';
+import { ModalShareSnapshot } from '../../snapshot/modals/modalShareSnapshot';
+import { setSharedSnapshot } from '../../snapshot/redux/actions';
 import { resetReducersBetweenSnapshots } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 
@@ -87,7 +87,10 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
 
+  const currentProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
+  const currentSnapshotTitle = useSelector(state => state.projectReducers.currentSnapshot.title);
+  const currentSnapshotDescription = useSelector(state => state.projectReducers.currentSnapshot.description);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
@@ -151,7 +154,13 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
             size="small"
             startIcon={<Share />}
             onClick={() => {
-              dispatch(setSharedSnapshotURL(window.location.href));
+              dispatch(
+                setSharedSnapshot({
+                  title: currentSnapshotTitle,
+                  description: currentSnapshotDescription,
+                  url: `${base_url}${URLS.projects}${currentProjectID}/${currentSnapshotID}`
+                })
+              );
             }}
           >
             Share
@@ -221,7 +230,7 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
         {/*  </Table>*/}
         {/*</Grid>*/}
       </Panel>
-      <ModalStateSave />
+      <ModalShareSnapshot />
     </>
   );
 });

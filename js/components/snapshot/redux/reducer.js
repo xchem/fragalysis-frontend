@@ -1,5 +1,11 @@
 import { constants } from './constants';
 
+export const initSharedSnapshot = {
+  url: null,
+  title: null,
+  description: null
+};
+
 export const INITIAL_STATE = {
   saveType: '',
   nextUuid: '',
@@ -10,7 +16,8 @@ export const INITIAL_STATE = {
   isLoadingSnapshotDialog: false,
   listOfSnapshots: [],
   isLoadingListOfSnapshots: false,
-  sharedSnapshotURL: null
+  sharedSnapshotURL: null,
+  sharedSnapshot: initSharedSnapshot
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -58,9 +65,9 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         isLoadingListOfSnapshots: action.payload
       });
-    case constants.SET_SHARED_SNAPSHOT_ULR:
+    case constants.SET_SHARED_SNAPSHOT:
       return Object.assign({}, state, {
-        sharedSnapshotURL: action.payload
+        sharedSnapshot: action.payload
       });
 
     default:

@@ -8,7 +8,7 @@ import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import palette from '../../../theme/palette';
-import { setSharedSnapshotURL } from '../../snapshot/redux/actions';
+import { setSharedSnapshot } from '../../snapshot/redux/actions';
 import { resetReducersBetweenSnapshots } from '../../preview/redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 
@@ -108,7 +108,9 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
         <IconButton
           disabled={!currentProjectID || !hash}
           onClick={() => {
-            dispatch(setSharedSnapshotURL(`${base_url}${URLS.projects}${currentProjectID}/${hash}`));
+            dispatch(
+              setSharedSnapshot({ title, description, url: `${base_url}${URLS.projects}${currentProjectID}/${hash}` })
+            );
           }}
         >
           <Share />
