@@ -44,8 +44,14 @@ export const shouldLoadProtein = ({
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
   const currentSnapshotData = state.projectReducers.currentSnapshot.data;
-
-  if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
+  const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
+  if (
+    targetIdList &&
+    targetIdList.length > 0 &&
+    nglViewList &&
+    nglViewList.length > 0 &&
+    isLoadingCurrentSnapshot === false
+  ) {
     //  1. Generate new protein or skip this action and everything will be loaded from session
     if (!isStateLoaded && currentSnapshotID === null && !routeSnapshotID) {
       dispatch(setProteinLoadingState(false));

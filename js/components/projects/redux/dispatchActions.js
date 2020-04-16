@@ -107,61 +107,77 @@ export const removeProject = projectID => dispatch => {
 };
 
 export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
-  dispatch(setIsLoadingCurrentSnapshot(true));
-  dispatch(resetCurrentSnapshot());
-  return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
-    .then(response => {
-      if (response.data.results.length === 0) {
-        return Promise.resolve(null);
-      } else if (response.data.results[0] !== undefined) {
-        dispatch(
-          setCurrentSnapshot({
-            id: response.data.results[0].id,
-            type: response.data.results[0].type,
-            title: response.data.results[0].title,
-            author: response.data.results[0].author,
-            description: response.data.results[0].description,
-            created: response.data.results[0].created,
-            children: response.data.results[0].children,
-            parent: response.data.results[0].parent,
-            data: JSON.parse(response.data.results[0].data)
-          })
-        );
-        return Promise.resolve(response.data.results[0].id);
-      }
-    })
-    .finally(() => {
-      dispatch(setIsLoadingCurrentSnapshot(false));
-    });
+  const state = getState();
+  const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
+  if (isLoadingCurrentSnapshot === false) {
+    dispatch(setIsLoadingCurrentSnapshot(true));
+    return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
+      .then(response => {
+        if (response.data.results.length === 0) {
+          dispatch(resetCurrentSnapshot());
+          return Promise.resolve(null);
+        } else if (response.data.results[0] !== undefined) {
+          dispatch(
+            setCurrentSnapshot({
+              id: response.data.results[0].id,
+              type: response.data.results[0].type,
+              title: response.data.results[0].title,
+              author: response.data.results[0].author,
+              description: response.data.results[0].description,
+              created: response.data.results[0].created,
+              children: response.data.results[0].children,
+              parent: response.data.results[0].parent,
+              data: JSON.parse(response.data.results[0].data)
+            })
+          );
+          return Promise.resolve(response.data.results[0].id);
+        }
+      })
+      .catch(error => {
+        dispatch(resetCurrentSnapshot());
+      })
+      .finally(() => {
+        dispatch(setIsLoadingCurrentSnapshot(false));
+      });
+  }
+  return Promise.resolve(false);
 };
 
 export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
-  dispatch(setIsLoadingCurrentSnapshot(true));
-  dispatch(resetCurrentSnapshot());
-  return api({ url: `${base_url}/api/snapshots/${snapshotID}` })
-    .then(response => {
-      if (response.data.id === undefined) {
-        return Promise.resolve(null);
-      } else {
-        dispatch(
-          setCurrentSnapshot({
-            id: response.data.id,
-            type: response.data.type,
-            title: response.data.title,
-            author: response.data.author,
-            description: response.data.description,
-            created: response.data.created,
-            children: response.data.children,
-            parent: response.data.parent,
-            data: JSON.parse(response.data.data)
-          })
-        );
-        return Promise.resolve(response.data);
-      }
-    })
-    .finally(() => {
-      dispatch(setIsLoadingCurrentSnapshot(false));
-    });
+  const state = getState();
+  const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
+  if (isLoadingCurrentSnapshot === false) {
+    dispatch(setIsLoadingCurrentSnapshot(true));
+    return api({ url: `${base_url}/api/snapshots/${snapshotID}` })
+      .then(response => {
+        if (response.data.id === undefined) {
+          dispatch(resetCurrentSnapshot());
+          return Promise.resolve(null);
+        } else {
+          dispatch(
+            setCurrentSnapshot({
+              id: response.data.id,
+              type: response.data.type,
+              title: response.data.title,
+              author: response.data.author,
+              description: response.data.description,
+              created: response.data.created,
+              children: response.data.children,
+              parent: response.data.parent,
+              data: JSON.parse(response.data.data)
+            })
+          );
+          return Promise.resolve(response.data);
+        }
+      })
+      .catch(error => {
+        dispatch(resetCurrentSnapshot());
+      })
+      .finally(() => {
+        dispatch(setIsLoadingCurrentSnapshot(false));
+      });
+  }
+  return Promise.resolve(false);
 };
 
 const parseSnapshotAttributes = data => ({
