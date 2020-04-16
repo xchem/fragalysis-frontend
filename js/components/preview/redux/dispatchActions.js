@@ -69,7 +69,11 @@ export const shouldLoadProtein = ({
     }
 
     // decide to load existing snapshot
-    else if (currentSnapshotID !== null && currentSnapshotData !== null) {
+    else if (
+      currentSnapshotID !== null &&
+      (!routeSnapshotID || routeSnapshotID === currentSnapshotID.toString()) &&
+      currentSnapshotData !== null
+    ) {
       dispatch(reloadSession(currentSnapshotData, nglViewList));
     }
 

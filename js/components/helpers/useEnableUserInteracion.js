@@ -21,7 +21,8 @@ export const useDisableUserInteraction = () => {
       countOfPendingNglObjects[VIEWS.SUMMARY_VIEW] === 0 &&
       countOfPendingNglObjects[VIEWS.MAJOR_VIEW] === 0 &&
       ((countOfRemainingMoleculeGroups === 0 && proteinsHasLoaded === true) ||
-        (countOfRemainingMoleculeGroups === null && proteinsHasLoaded === null))
+        (countOfRemainingMoleculeGroups === null && proteinsHasLoaded === null) ||
+        (countOfRemainingMoleculeGroups === null && proteinsHasLoaded === true))
     ) {
       if (disableInteraction === true) {
         setDisableInteraction(false);

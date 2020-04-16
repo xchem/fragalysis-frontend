@@ -29,8 +29,8 @@ export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState)
   if (nglViewList.length > 0) {
     dispatch(reloadSelectionReducer(snapshotData.selectionReducers));
 
-    nglViewList.forEach(async nglView => {
-      await dispatch(reloadNglViewFromSnapshot(nglView.stage, nglView.id, snapshotData.nglReducers));
+    nglViewList.forEach(nglView => {
+      dispatch(reloadNglViewFromSnapshot(nglView.stage, nglView.id, snapshotData.nglReducers));
     });
 
     if (snapshotData.selectionReducers.vectorOnList.length !== 0) {
