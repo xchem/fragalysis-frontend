@@ -16,6 +16,7 @@ export const withLoadingProtein = WrappedComponent => {
     const routeProjectID = match && match.params && match.params.projectId;
     const routeSnapshotID = match && match.params && match.params.snapshotId;
     const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
+    const isLoadingCurrentSnapshot = useSelector(state => state.projectReducers.isLoadingCurrentSnapshot);
 
     useEffect(() => {
       dispatch(
@@ -24,10 +25,19 @@ export const withLoadingProtein = WrappedComponent => {
           isStateLoaded,
           routeProjectID,
           routeSnapshotID,
-          currentSnapshotID
+          currentSnapshotID,
+          isLoadingCurrentSnapshot
         })
       );
-    }, [dispatch, isStateLoaded, nglViewList, routeProjectID, routeSnapshotID, currentSnapshotID]);
+    }, [
+      dispatch,
+      isStateLoaded,
+      nglViewList,
+      routeProjectID,
+      routeSnapshotID,
+      currentSnapshotID,
+      isLoadingCurrentSnapshot
+    ]);
 
     return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
   });

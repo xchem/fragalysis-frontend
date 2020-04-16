@@ -38,13 +38,14 @@ export const shouldLoadProtein = ({
   isStateLoaded,
   routeProjectID,
   routeSnapshotID,
-  currentSnapshotID
+  currentSnapshotID,
+  isLoadingCurrentSnapshot
 }) => (dispatch, getState) => {
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
   const currentSnapshotData = state.projectReducers.currentSnapshot.data;
-  const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
+  // const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
   if (
     targetIdList &&
     targetIdList.length > 0 &&
