@@ -91,7 +91,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
     }
   };
 
-  const commitFunction = ({ title, description, photo, author, email, hash, isSelected }) => ({
+  const commitFunction = ({ title, description, photo, author, email, hash, isSelected, created }) => ({
     hash: `${hash}`,
     subject: `${title}`,
     body: (
@@ -102,7 +102,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
         {/*</IconButton>*/}
         {/*<br />*/}
         <Typography variant="caption">
-          <b>{`${moment().format('LLL')}, ${email}: `}</b>
+          <b>{`${moment(created).format('LLL')}, ${email}: `}</b>
           {description}
         </Typography>
         <IconButton
@@ -138,7 +138,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
           author: (node.author && node.author.username) || '',
           email: (node.author && node.author.email) || '',
           hash: node.id,
-          isSelected: currentSnapshotID === node.id
+          isSelected: currentSnapshotID === node.id,
+          created: node.created
         })
       );
 
@@ -188,7 +189,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
                         author: (currentSnapshotTree.author && currentSnapshotTree.author.username) || '',
                         email: (currentSnapshotTree.author && currentSnapshotTree.author.email) || '',
                         hash: currentSnapshotTree.id,
-                        isSelected: currentSnapshotID === currentSnapshotTree.id
+                        isSelected: currentSnapshotID === currentSnapshotTree.id,
+                        created: currentSnapshotTree.created
                       })
                     );
 

@@ -12,7 +12,9 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Chip
+  Chip,
+  Tooltip,
+  Zoom
 } from '@material-ui/core';
 import { Delete, Add, Search } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
@@ -50,7 +52,8 @@ export const Projects = memo(({}) => {
       tags: JSON.parse(project.tags),
       target: project.target.title,
       createdAt: project.init_date,
-      author: (project.author && project.author.email) || '-'
+      author: (project.author && project.author.email) || '-',
+      description: project.description
     };
   });
 
@@ -127,34 +130,42 @@ export const Projects = memo(({}) => {
           </TableHead>
           <TableBody>
             {listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
-              <TableRow key={project.id} hover>
-                <TableCell component="th" scope="row">
-                  <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
-                </TableCell>
-                <TableCell align="left">
-                  <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
-                </TableCell>
-                <TableCell align="left">
-                  {project.tags &&
-                    project.tags.map((tag, index) => (
-                      <Chip key={index} label={tag} size="small" className={classes.chip} />
-                    ))}
-                </TableCell>
-                <TableCell align="left">{project.author}</TableCell>
-                <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                    onClick={() =>
-                      dispatch(removeProject(project.id)).catch(error => {
-                        throw new Error(error);
-                      })
-                    }
-                  >
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+              <Tooltip
+                title={project.description}
+                key={project.id}
+                placement="bottom-start"
+                TransitionProps={{ timeout: 600 }}
+                TransitionComponent={Zoom}
+              >
+                <TableRow hover>
+                  <TableCell component="th" scope="row">
+                    <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
+                  </TableCell>
+                  <TableCell align="left">
+                    {project.tags &&
+                      project.tags.map((tag, index) => (
+                        <Chip key={index} label={tag} size="small" className={classes.chip} />
+                      ))}
+                  </TableCell>
+                  <TableCell align="left">{project.author}</TableCell>
+                  <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
+                      onClick={() =>
+                        dispatch(removeProject(project.id)).catch(error => {
+                          throw new Error(error);
+                        })
+                      }
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              </Tooltip>
             ))}
           </TableBody>
           <TableFooter>
