@@ -76,6 +76,11 @@ export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = pro
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
   // decide to create INIT snapshot
+  console.log(
+    '**** decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState ',
+    decrementedCount,
+    state.nglReducers.proteinsHasLoaded
+  );
   if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
     dispatch(createInitialSnapshot(projectId));
   }
