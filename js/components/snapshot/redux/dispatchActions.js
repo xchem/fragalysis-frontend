@@ -202,7 +202,9 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
         ]);
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (response.data.id && session_project) {
-          history.push(`${URLS.projects}${session_project}/${response.data.id}`);
+          // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
+          // use react-router !
+          window.location.replace(`${URLS.projects}${session_project}/${response.data.id}`);
         }
       });
     })

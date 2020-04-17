@@ -44,7 +44,7 @@ export const withSnapshotManagement = WrappedComponent => {
           startIcon={<Save />}
           // disabled={disableButtons}
         >
-          Save Snapshot
+          Save
         </Button>,
         <DownloadPdb key="download" />
       ]);

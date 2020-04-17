@@ -114,8 +114,6 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
       dispatch(removeAllNglComponents(stage.stage));
     }
   });
-  // dispatch(resetCurrentCompoundsSettings(true));
-  // dispatch(resetProjectsReducer());
 
   dispatch(resetLoadedSnapshots());
   dispatch(resetSelectionState());

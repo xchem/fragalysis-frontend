@@ -115,7 +115,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               </Grid>
               <Grid item>
                 <Button color="primary" onClick={submitForm} loading={isLoadingSnapshotDialog}>
-                  Save snapshot
+                  Save
                 </Button>
               </Grid>
             </Grid>
