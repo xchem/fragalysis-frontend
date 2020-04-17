@@ -65,7 +65,6 @@ export const shouldLoadProtein = ({
       )
         .then(() => {
           dispatch(setProteinLoadingState(true));
-          console.log('** shouldLoadProtein ', getState().nglReducers.countOfRemainingMoleculeGroups);
           if (getState().nglReducers.countOfRemainingMoleculeGroups === 0) {
             dispatch(createInitialSnapshot(routeProjectID));
           }
