@@ -200,7 +200,7 @@ const MoleculeList = memo(
     sortDialogOpen,
     setSortDialogOpen,
     firstLoad,
-    isStateLoaded
+    hideProjects
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -269,7 +269,7 @@ const MoleculeList = memo(
             cached_mol_lists[mol_group_on] &&
             firstLoadRef &&
             firstLoadRef.current &&
-            !isStateLoaded
+            hideProjects
           ) {
             console.log('initializing molecules');
             firstLoadRef.current = false;
@@ -289,8 +289,7 @@ const MoleculeList = memo(
       target_on,
       setCachedMolLists,
       cached_mol_lists,
-      dispatch,
-      isStateLoaded
+      dispatch
     ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;

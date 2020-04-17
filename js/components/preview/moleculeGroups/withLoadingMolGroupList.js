@@ -9,7 +9,7 @@ import { loadMoleculeGroups } from './redux/dispatchActions';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
-  return memo(({ isStateLoaded, match, ...rest }) => {
+  return memo(({ isStateLoaded, hideProjects, match, ...rest }) => {
     const [state, setState] = useState();
     const [wasLoaded, setWasLoaded] = useState(false);
     const { getNglView } = useContext(NglContext);
@@ -32,7 +32,8 @@ export const withLoadingMolGroupList = WrappedComponent => {
             oldUrl: oldUrl.current,
             onCancel,
             isStateLoaded,
-            projectId
+            projectId,
+            hideProjects
           })
         ).catch(error => {
           setState(() => {
@@ -45,7 +46,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
       return () => {
         onCancel();
       };
-    }, [isStateLoaded, onCancel, dispatch, oldUrl, getNglView, projectId, wasLoaded]);
+    }, [isStateLoaded, hideProjects, onCancel, dispatch, oldUrl, getNglView, projectId, wasLoaded]);
 
     return <WrappedComponent {...rest} match={match} />;
   });

@@ -138,10 +138,15 @@ export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => 
   }
 };
 
-export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, isStateLoaded, projectId }) => (
-  dispatch,
-  getState
-) => {
+export const loadMoleculeGroups = ({
+  summaryView,
+  setOldUrl,
+  oldUrl,
+  onCancel,
+  isStateLoaded,
+  projectId,
+  hideProjects
+}) => (dispatch, getState) => {
   const state = getState();
   const group_type = state.apiReducers.group_type;
   const target_on = state.apiReducers.target_on;
@@ -156,7 +161,9 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
       list_type,
       setObjectList: async mol_group_list => {
         await dispatch(setMolGroupList(mol_group_list));
-        dispatch(selectFirstMolGroup({ summaryView }));
+        if (hideProjects) {
+          dispatch(selectFirstMolGroup({ summaryView }));
+        }
       },
       cancel: onCancel
     });

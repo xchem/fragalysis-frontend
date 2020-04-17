@@ -104,7 +104,11 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
           <Grid item>
-            <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
+            <MolGroupSelector
+              isStateLoaded={isStateLoaded}
+              hideProjects={hideProjects}
+              handleHeightChange={setMolGroupsHeight}
+            />
           </Grid>
           {/* Hit navigator */}
           <Grid item>
@@ -112,7 +116,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               height={moleculeListHeight}
               setFilterItemsHeight={setFilterItemsHeight}
               filterItemsHeight={filterItemsHeight}
-              isStateLoaded={isStateLoaded}
+              hideProjects={hideProjects}
             />
           </Grid>
         </Grid>
