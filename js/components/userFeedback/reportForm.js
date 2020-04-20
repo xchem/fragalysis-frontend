@@ -9,7 +9,7 @@ import { ReportProblem, EmojiObjects, Delete } from '@material-ui/icons';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
 import { HeaderContext } from '../header/headerContext';
-import { Formik, Form } from 'formik';
+import { Formik, Form, FastField } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
@@ -65,10 +65,6 @@ const useStyles = makeStyles(theme => ({
   canvasDrawOptions: {
     marginTop: '6px',
     marginBottom: '2px'
-  },
-  formMinWidth: {
-    // 60 is padding (64 actually)
-    minWidth: FORM_MIN_WIDTH - 60 + 'px'
   },
   formModal: {
     minWidth: FORM_MIN_WIDTH + 'px',
@@ -175,6 +171,7 @@ export const ReportForm = memo(({ formType }) => {
   /* Modal handlers */
   const [openForm, setOpenForm] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [disablePictureModification, setDisablePictureModification] = useState(false);
   const [modalWidth, setModalWidth] = useState(0);
   const [modalHeight, setModalHeight] = useState(0);
   const canvasWrapperGridItem = useRef();
@@ -327,256 +324,234 @@ export const ReportForm = memo(({ formType }) => {
         </Grid>
       </Modal>
       <Modal open={openForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
-        <Formik
-          validateOnChange={false}
-          initialValues={{
-            name: formState.name,
-            email: formState.email,
-            title: formState.title,
-            description: formState.description
-          }}
-          validate={values => {
-            const errors = {};
-            if (!values.title) {
-              errors.title = 'Required field.';
-            } else if (values.title.length > 256) {
-              errors.title = 'Title has limit of 256 characters: ' + Math.abs(256 - values.title.length) + ' exceeded.';
-            }
-            if (!values.description) {
-              errors.description = 'Required field.';
-            }
-            if (values.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-              errors.email = 'Invalid email address.';
-            }
-            return errors;
-          }}
-          onSubmit={async (values, { setSubmitting }) => {
-            // dispatch(setImageSource(getCanvasDrawDataUrl(canvasDraw))); // does not update in time
-            // set new image from drawing before creating issue
-            const imageSource = getCanvasDrawDataUrl(canvasDraw);
-            await dispatch(
-              createIssue(formState, imageSource, formType.toLowerCase(), getLabels(), afterCreateIssueCallback)
-            );
-            setSubmitting(false);
-          }}
-        >
-          {({ submitForm, isSubmitting }) => (
-            <Form className={classes.formMinWidth}>
-              <Grid container direction="column" className={classes.body}>
-                {isResponse() && <Alert severity="error">{formState.response}</Alert>}
+        <Grid container direction="row" className={classes.body} spacing={1}>
+          <Grid item xs={4}>
+            <Formik
+              initialValues={{
+                name: formState.name,
+                email: formState.email,
+                title: formState.title,
+                description: formState.description
+              }}
+              validate={values => {
+                const errors = {};
+                if (!values.title) {
+                  errors.title = 'Required field.';
+                } else if (values.title.length > 256) {
+                  errors.title =
+                    'Title has limit of 256 characters: ' + Math.abs(256 - values.title.length) + ' exceeded.';
+                }
+                if (!values.description) {
+                  errors.description = 'Required field.';
+                }
+                if (values.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+                  errors.email = 'Invalid email address.';
+                }
+                return errors;
+              }}
+              onSubmit={async values => {
+                // dispatch(setImageSource(getCanvasDrawDataUrl(canvasDraw))); // does not update in time
+                // set new image from drawing before creating issue
+                dispatch(setName(values.name));
+                dispatch(setEmail(values.email));
+                dispatch(setTitle(values.title));
+                dispatch(setDescription(values.description));
+                setDisablePictureModification(true);
+                const imageSource = getCanvasDrawDataUrl(canvasDraw);
+                await dispatch(
+                  createIssue(formState, imageSource, formType.toLowerCase(), getLabels(), afterCreateIssueCallback)
+                );
+              }}
+            >
+              {({ submitForm, isSubmitting }) => (
+                <Form>
+                  {isResponse() && <Alert severity="error">{formState.response}</Alert>}
 
-                <Grid item xs={12} container direction="row" spacing={2}>
-                  <Grid item xs={4}>
-                    <Grid container direction="column">
-                      <Grid item xs>
-                        <Typography variant="h3">{getTitle()}</Typography>
-                        <TextField
-                          name="name"
-                          label="Name"
-                          value={formState.name}
-                          onInput={e => dispatch(setName(e.target.value))}
-                          disabled={isSubmitting}
-                          className={classes.input}
-                        />
+                  <Grid container direction="column">
+                    <Grid item xs={12}>
+                      <Typography variant="h3">{getTitle()}</Typography>
+                      <TextField name="name" label="Name" disabled={isSubmitting} className={classes.input} />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField name="email" label="Email" disabled={isSubmitting} className={classes.input} />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        name="title"
+                        label="Subject"
+                        multiline
+                        rows={getTextAreaRows(3)}
+                        disabled={isSubmitting}
+                        className={classes.input}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        name="description"
+                        label="Description"
+                        placeholder="Describe your problem in a detail."
+                        multiline
+                        rows={getTextAreaRows(12)}
+                        disabled={isSubmitting}
+                        className={classes.input + ' ' + classes.description}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} container justify="flex-start" direction="row">
+                      <Grid item>
+                        <Button disabled={isSubmitting} onClick={handleCloseForm}>
+                          Close
+                        </Button>
                       </Grid>
-                      <Grid item xs>
-                        <TextField
-                          name="email"
-                          label="Email"
-                          value={formState.email}
-                          onInput={e => dispatch(setEmail(e.target.value))}
-                          disabled={isSubmitting}
-                          className={classes.input}
-                        />
-                      </Grid>
-                      <Grid item xs>
-                        <TextField
-                          required
-                          name="title"
-                          label="Subject"
-                          multiline
-                          rows={getTextAreaRows(3)}
-                          value={formState.title}
-                          onInput={e => dispatch(setTitle(e.target.value))}
-                          disabled={isSubmitting}
-                          className={classes.input}
-                        />
-                      </Grid>
-                      <Grid item xs>
-                        <TextField
-                          required
-                          name="description"
-                          label="Description"
-                          placeholder="Describe your problem in a detail."
-                          multiline
-                          rows={getTextAreaRows(12)}
-                          value={formState.description}
-                          onInput={e => dispatch(setDescription(e.target.value))}
-                          disabled={isSubmitting}
-                          className={classes.input + ' ' + classes.description}
-                        />
+                      <Grid item>
+                        <Button color="primary" loading={isSubmitting} onClick={submitForm}>
+                          {getTitle()}
+                        </Button>
                       </Grid>
                     </Grid>
                   </Grid>
-
-                  <Grid item xs={8}>
-                    <Grid item container direction="column">
-                      {/* Canvas options */}
-                      <Grid
-                        item
-                        xs
-                        container
-                        justify="center"
-                        alignItems="center"
-                        direction="row"
-                        spacing={2}
-                        className={classes.canvasDrawOptions}
-                      >
-                        <Grid
-                          item
-                          xs={2}
-                          align="center"
-                          container
-                          direction="row"
-                          justify="space-between"
-                          alignItems="center"
-                          spacing={1}
-                        >
-                          <Grid item xs={5}>
-                            <Typography>Color</Typography>
-                          </Grid>
-                          <Grid item xs={5}>
-                            <Tooltip title="Select color">
-                              <Box
-                                ref={colorPicker}
-                                border="1px solid black"
-                                bgcolor={brushColor}
-                                width={24}
-                                height={24}
-                                spacing={1}
-                                onClick={() => setOpenBrushColor(true)}
-                              />
-                            </Tooltip>
-                            <Popover
-                              anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left'
-                              }}
-                              transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right'
-                              }}
-                              anchorEl={colorPicker.current}
-                              open={openBrushColor}
-                              onClose={() => setOpenBrushColor(false)}
-                            >
-                              <SketchPicker
-                                color={brushColor}
-                                disableAlpha={true}
-                                onChangeComplete={handleColorChange}
-                              />
-                            </Popover>
-                          </Grid>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={7}
-                          align="center"
-                          container
-                          direction="row"
-                          justify="space-between"
-                          alignItems="center"
-                          spacing={1}
-                        >
-                          <Grid item xs={2}>
-                            <Typography>Radius</Typography>
-                          </Grid>
-                          <Grid item xs={10}>
-                            <Tooltip title="Select brush radius">
-                              <Slider
-                                value={brushRadius}
-                                step={1}
-                                marks
-                                min={1}
-                                max={6}
-                                valueLabelDisplay="auto"
-                                onChange={(event, newValue) => setBrushRadius(newValue)}
-                                disabled={isSubmitting}
-                              />
-                            </Tooltip>
-                          </Grid>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={3}
-                          align="center"
-                          container
-                          direction="row"
-                          justify="flex-end"
-                          alignItems="center"
-                          spacing={1}
-                        >
-                          <Grid item xs>
-                            <Tooltip title="Clear drawing">
-                              <Button
-                                startIcon={<Delete />}
-                                variant="text"
-                                size="small"
-                                onClick={handleClearDrawing}
-                                disabled={isSubmitting}
-                              >
-                                Clear
-                              </Button>
-                            </Tooltip>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                      {/* Canvas */}
-                      <Grid ref={canvasWrapperGridItem} item xs align="center">
-                        {formState.imageSource ? (
-                          <div
-                            ref={canvasWrapper}
-                            width={wrapperWidth}
-                            height={wrapperHeight}
-                            className={classes.canvasDrawWrapper}
-                          >
-                            {/* lazyRadius - how far is cursor from drawing point */}
-                            <CanvasDraw
-                              ref={canvasDraw}
-                              imgSrc={formState.imageSource.toDataURL()}
-                              canvasWidth={formState.imageSource.width}
-                              canvasHeight={formState.imageSource.height}
-                              hideGrid={true}
-                              lazyRadius={0}
-                              brushRadius={brushRadius}
-                              brushColor={brushColor}
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                        ) : (
-                          <Typography className={classes.canvasNoImage}>No image source.</Typography>
-                        )}
-                      </Grid>
-                    </Grid>
-                  </Grid>
+                </Form>
+              )}
+            </Formik>
+          </Grid>
+          <Grid item xs={8} container direction="column">
+            {/* Canvas options */}
+            <Grid
+              item
+              xs
+              container
+              justify="center"
+              alignItems="center"
+              direction="row"
+              spacing={2}
+              className={classes.canvasDrawOptions}
+            >
+              <Grid
+                item
+                xs={2}
+                align="center"
+                container
+                direction="row"
+                justify="space-between"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid item xs={5}>
+                  <Typography>Color</Typography>
                 </Grid>
-
-                <Grid item xs={12} container justify="flex-end" direction="row">
-                  <Grid item>
-                    <Button disabled={isSubmitting} onClick={handleCloseForm}>
-                      Close
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button color="primary" loading={isSubmitting} onClick={submitForm}>
-                      {getTitle()}
-                    </Button>
-                  </Grid>
+                <Grid item xs={5}>
+                  <Tooltip title="Select color">
+                    <Box
+                      ref={colorPicker}
+                      border="1px solid black"
+                      bgcolor={brushColor}
+                      width={24}
+                      height={24}
+                      spacing={1}
+                      onClick={() => setOpenBrushColor(true)}
+                    />
+                  </Tooltip>
+                  <Popover
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left'
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right'
+                    }}
+                    anchorEl={colorPicker.current}
+                    open={openBrushColor}
+                    onClose={() => setOpenBrushColor(false)}
+                  >
+                    <SketchPicker color={brushColor} disableAlpha={true} onChangeComplete={handleColorChange} />
+                  </Popover>
                 </Grid>
               </Grid>
-            </Form>
-          )}
-        </Formik>
+              <Grid
+                item
+                xs={7}
+                align="center"
+                container
+                direction="row"
+                justify="space-between"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid item xs={2}>
+                  <Typography>Radius</Typography>
+                </Grid>
+                <Grid item xs={10}>
+                  <Tooltip title="Select brush radius">
+                    <Slider
+                      value={brushRadius}
+                      step={1}
+                      marks
+                      min={1}
+                      max={6}
+                      valueLabelDisplay="auto"
+                      onChange={(event, newValue) => setBrushRadius(newValue)}
+                      disabled={disablePictureModification}
+                    />
+                  </Tooltip>
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                xs={3}
+                align="center"
+                container
+                direction="row"
+                justify="flex-end"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid item xs>
+                  <Tooltip title="Clear drawing">
+                    <Button
+                      startIcon={<Delete />}
+                      variant="text"
+                      size="small"
+                      onClick={handleClearDrawing}
+                      disabled={disablePictureModification}
+                    >
+                      Clear
+                    </Button>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </Grid>
+            {/* Canvas */}
+            <Grid ref={canvasWrapperGridItem} item xs align="center">
+              {formState.imageSource ? (
+                <div
+                  ref={canvasWrapper}
+                  // TODO remove width and height!
+                  width={wrapperWidth}
+                  height={wrapperHeight}
+                  className={classes.canvasDrawWrapper}
+                >
+                  {/* lazyRadius - how far is cursor from drawing point */}
+                  <CanvasDraw
+                    ref={canvasDraw}
+                    imgSrc={formState.imageSource.toDataURL()}
+                    canvasWidth={formState.imageSource.width}
+                    canvasHeight={formState.imageSource.height}
+                    hideGrid={true}
+                    lazyRadius={0}
+                    brushRadius={brushRadius}
+                    brushColor={brushColor}
+                    disabled={disablePictureModification}
+                  />
+                </div>
+              ) : (
+                <Typography className={classes.canvasNoImage}>No image source.</Typography>
+              )}
+            </Grid>
+          </Grid>
+        </Grid>
       </Modal>
     </div>
   );
