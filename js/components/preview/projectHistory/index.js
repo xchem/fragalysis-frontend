@@ -20,8 +20,8 @@ import { base_url, URLS } from '../../routes/constants';
 import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
 import { ModalShareSnapshot } from '../../snapshot/modals/modalShareSnapshot';
-import { setSharedSnapshot } from '../../snapshot/redux/actions';
-import { resetReducersBetweenSnapshots } from '../redux/dispatchActions';
+import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch, setSharedSnapshot } from '../../snapshot/redux/actions';
+import { resetReducersBetweenSnapshots, switchBetweenSnapshots } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 
 export const heightOfProjectHistory = '164px';
@@ -84,7 +84,7 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
   let match = useRouteMatch();
-  const projectId = match && match.params && match.params.projectId;
+  const projectID = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
 
   const currentProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
@@ -96,10 +96,8 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
 
   const handleClickOnCommit = commit => {
-    if (projectId && commit.hash) {
-      dispatch(resetReducersBetweenSnapshots(nglViewList));
-      history.push(`${URLS.projects}${projectId}/${commit.hash}`);
-    }
+    dispatch(setSelectedSnapshotToSwitch(commit.hash));
+    dispatch(setIsOpenModalBeforeExit(true));
   };
 
   const commitFunction = ({ title, hash, isSelected = false }) => ({
@@ -135,11 +133,11 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
 
   useEffect(() => {
     if (currentSnapshotID !== null) {
-      dispatch(loadSnapshotTree(projectId)).catch(error => {
+      dispatch(loadSnapshotTree(projectID)).catch(error => {
         throw new Error(error);
       });
     }
-  }, [currentSnapshotID, dispatch, projectId, snapshotId]);
+  }, [currentSnapshotID, dispatch, projectID, snapshotId]);
 
   return (
     <>

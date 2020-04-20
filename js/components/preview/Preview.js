@@ -22,6 +22,7 @@ import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
 import { HeaderContext } from '../header/headerContext';
 import { unmountPreviewComponent } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
+import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExit';
 //import HotspotList from '../hotspot/hotspotList';
 
 const hitNavigatorWidth = 504;
@@ -157,6 +158,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         </Grid>*/}
       </Grid>
       <NewSnapshotModal />
+      <SaveSnapshotBeforeExit />
       {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );

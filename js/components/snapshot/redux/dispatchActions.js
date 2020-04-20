@@ -148,12 +148,14 @@ export const createInitSnapshotFromCopy = ({
   return Promise.reject('ProjectID is missing');
 };
 
-export const createNewSnapshot = ({ title, description, type, author, parent, session_project, history }) => (
+export const createNewSnapshot = ({ title, description, type, author, parent, session_project }) => (
   dispatch,
   getState
 ) => {
-  const { apiReducers, nglReducers, selectionReducers, previewReducers } = getState();
+  const state = getState();
+  const { apiReducers, nglReducers, selectionReducers, previewReducers } = state;
   const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
+  const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
 
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -204,7 +206,11 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
         if (response.data.id && session_project) {
           // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
           // use react-router !
-          window.location.replace(`${URLS.projects}${session_project}/${response.data.id}`);
+          window.location.replace(
+            `${URLS.projects}${session_project}/${
+              selectedSnapshotToSwitch === null ? response.data.id : selectedSnapshotToSwitch
+            }`
+          );
         }
       });
     })

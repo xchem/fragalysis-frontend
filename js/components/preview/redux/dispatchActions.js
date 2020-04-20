@@ -7,6 +7,7 @@ import { removeAllNglComponents, setProteinLoadingState } from '../../../reducer
 import { createInitialSnapshot, reloadSession } from '../../snapshot/redux/dispatchActions';
 import { resetLoadedSnapshots, resetProjectsReducer } from '../../projects/redux/actions';
 import { resetSelectionState } from '../../../reducers/selection/actions';
+import { URLS } from '../../routes/constants';
 // import { reloadMoleculeReducer } from '../molecule/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
@@ -117,4 +118,13 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
 
   dispatch(resetLoadedSnapshots());
   dispatch(resetSelectionState());
+};
+
+export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, history }) => (dispatch, getState) => {
+  if (projectID && snapshotID) {
+    dispatch(resetReducersBetweenSnapshots(nglViewList));
+    history.push(`${URLS.projects}${projectID}/${snapshotID}`);
+  } else {
+    throw new Error('ProjectID or SnapshotID is missing!');
+  }
 };

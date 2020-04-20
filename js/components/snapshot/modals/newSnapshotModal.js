@@ -16,11 +16,9 @@ export const NewSnapshotModal = memo(({}) => {
   };
 
   return (
-    <>
-      <Modal open={openSavingDialog}>
-        {!projectID && dialogCurrentStep === 0 && <AddProjectDetail handleCloseModal={handleCloseModal} />}
-        {projectID && <NewSnapshotForm handleCloseModal={handleCloseModal} />}
-      </Modal>
-    </>
+    <Modal open={openSavingDialog}>
+      {!projectID && dialogCurrentStep === 0 && <AddProjectDetail handleCloseModal={handleCloseModal} />}
+      {projectID && <NewSnapshotForm handleCloseModal={handleCloseModal} />}
+    </Modal>
   );
 });

@@ -33,7 +33,6 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const classes = useStyles();
   const [state, setState] = useState();
   const dispatch = useDispatch();
-  let history = useHistory();
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
@@ -66,13 +65,11 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
           const parent = currentSnapshot.id;
           const session_project = currentProject.projectID;
 
-          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project, history })).catch(
-            error => {
-              setState(() => {
-                throw error;
-              });
-            }
-          );
+          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project })).catch(error => {
+            setState(() => {
+              throw error;
+            });
+          });
         }}
       >
         {({ submitForm }) => (

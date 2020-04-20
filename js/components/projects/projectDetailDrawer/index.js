@@ -1,6 +1,6 @@
 import React, { memo, useContext } from 'react';
 import { IconButton, makeStyles, Drawer, Typography, Grid } from '@material-ui/core';
-import { Delete, Share, Close } from '@material-ui/icons';
+import { Share, Close } from '@material-ui/icons';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
 import { base_url, URLS } from '../../routes/constants';
 import moment from 'moment';
@@ -8,8 +8,7 @@ import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import palette from '../../../theme/palette';
-import { setSharedSnapshot } from '../../snapshot/redux/actions';
-import { resetReducersBetweenSnapshots } from '../../preview/redux/dispatchActions';
+import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch, setSharedSnapshot } from '../../snapshot/redux/actions';
 import { NglContext } from '../../nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
@@ -77,7 +76,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   let match = useRouteMatch();
   const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
-  const projectId = match && match.params && match.params.projectId;
+  const projectID = match && match.params && match.params.projectId;
   const currentProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
@@ -85,10 +84,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
 
   const handleClickOnCommit = commit => {
-    if (projectId && commit.hash) {
-      dispatch(resetReducersBetweenSnapshots(nglViewList));
-      history.push(`${URLS.projects}${projectId}/${commit.hash}`);
-    }
+    dispatch(setSelectedSnapshotToSwitch(commit.hash));
+    dispatch(setIsOpenModalBeforeExit(true));
   };
 
   const commitFunction = ({ title, description, photo, author, email, hash, isSelected, created }) => ({

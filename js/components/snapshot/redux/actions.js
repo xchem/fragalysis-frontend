@@ -30,3 +30,13 @@ export const setSharedSnapshot = (sharedSnapshot = initSharedSnapshot) => ({
   type: constants.SET_SHARED_SNAPSHOT,
   payload: sharedSnapshot
 });
+
+export const setIsOpenModalBeforeExit = (isOpen = false) => ({
+  type: constants.SET_IS_OPEN_MODAL_BEFORE_EXIT,
+  payload: isOpen
+});
+
+export const setSelectedSnapshotToSwitch = (snapshot = null) => ({
+  type: constants.SET_SELECTED_SNAPSHOT_TO_SWITCH,
+  payload: snapshot
+});

@@ -17,7 +17,9 @@ export const INITIAL_STATE = {
   listOfSnapshots: [],
   isLoadingListOfSnapshots: false,
   sharedSnapshotURL: null,
-  sharedSnapshot: initSharedSnapshot
+  sharedSnapshot: initSharedSnapshot,
+  isOpenModalSaveSnapshotBeforeExit: false,
+  selectedSnapshotToSwitch: null
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -68,6 +70,16 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_SHARED_SNAPSHOT:
       return Object.assign({}, state, {
         sharedSnapshot: action.payload
+      });
+
+    case constants.SET_IS_OPEN_MODAL_BEFORE_EXIT:
+      return Object.assign({}, state, {
+        isOpenModalSaveSnapshotBeforeExit: action.payload
+      });
+
+    case constants.SET_SELECTED_SNAPSHOT_TO_SWITCH:
+      return Object.assign({}, state, {
+        selectedSnapshotToSwitch: action.payload
       });
 
     default:
