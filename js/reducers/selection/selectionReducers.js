@@ -5,27 +5,28 @@ import { constants } from './constants';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
-  to_select: {},
   vector_list: [],
-  to_query_pk: undefined,
-  to_query_prot: undefined,
-  to_query_sdf_info: undefined,
-  this_vector_list: {},
-  querying: false,
-  to_query: undefined,
   fragmentDisplayList: [],
-  bondColorMap: undefined,
   proteinList: [],
   complexList: [],
   surfaceList: [],
   densityList: [],
   vectorOnList: [],
-  currentVector: undefined,
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
   filterSettings: undefined,
+
+  compoundsOfVectors: null, // list of all vector's compounds to pick
+  // compoundsOfVectors: {
+  //   [vectorID] :{}  // this object replaces to_select, based on vector smile
+  // }
+  bondColorMapOfVectors: null, // list of all vector's compounds to pick
+  // bondColorMapOfVectors: {
+  //   [vectorID] :{}  // based on currentVector  (smile)
+  // }
+  currentVector: null, // selected vector smile (ID) of compoundsOfVectors
   firstLoad: false
 };
 
@@ -75,55 +76,9 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         return Object.assign({}, state);
       }
 
-    case constants.SET_INITIAL_FULL_GRAPH:
-      var input_mol = action.item;
+    case constants.SET_CURRENT_VECTOR:
       return Object.assign({}, state, {
-        to_query: input_mol.smiles,
-        to_query_pk: input_mol.id,
-        to_query_sdf_info: input_mol.sdf_info,
-        to_query_prot: input_mol.prot_id,
-        to_select: {},
-        querying: true
-      });
-
-    case constants.SET_TO_QUERY:
-      return Object.assign({}, state, {
-        to_query: action.to_query
-      });
-
-    case constants.UPDATE_FULL_GRAPH:
-      const input_mol_dict = action.input_mol_dict;
-      var new_dict = {};
-      // Uniquify
-      for (var input_mol_dict_key in input_mol_dict) {
-        var smiSet = new Set();
-        new_dict[input_mol_dict_key] = {};
-        new_dict[input_mol_dict_key]['addition'] = [];
-        new_dict[input_mol_dict_key]['vector'] = input_mol_dict[input_mol_dict_key]['vector'];
-        for (var index in input_mol_dict[input_mol_dict_key]['addition']) {
-          var newSmi = input_mol_dict[input_mol_dict_key]['addition'][index]['end'];
-          if (smiSet.has(newSmi) !== true) {
-            new_dict[input_mol_dict_key]['addition'].push(input_mol_dict[input_mol_dict_key]['addition'][index]);
-            smiSet.add(newSmi);
-          }
-        }
-      }
-      return Object.assign({}, state, {
-        to_select: new_dict,
-        querying: false
-      });
-
-    case constants.SELECT_VECTOR:
-      var input_mol_key = action.vector;
-      var new_this_vector_list = {};
-      for (var key_to_select in state.to_select) {
-        if (key_to_select.split('_')[0] === input_mol_key) {
-          new_this_vector_list[key_to_select] = state.to_select[key_to_select];
-        }
-      }
-      return Object.assign({}, state, {
-        this_vector_list: new_this_vector_list,
-        currentVector: action.vector
+        currentVector: action.payload
       });
 
     case constants.SET_FRAGMENT_DISPLAY_LIST:
@@ -217,52 +172,44 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { vectorOnList: [...newVectorOnList] });
 
     case constants.APPEND_VECTOR_ON_LIST:
-      return Object.assign({}, state, { vectorOnList: [action.item.id] });
+      return Object.assign({}, state, { vectorOnList: [...new Set([...state.vectorOnList, action.item.id])] });
 
     case constants.REMOVE_FROM_VECTOR_ON_LIST:
       let diminishedVectorOnList = new Set(state.vectorOnList);
       diminishedVectorOnList.delete(action.item.id);
-      return Object.assign({}, state, { vectorOnList: [...diminishedVectorOnList], currentVector: undefined });
-
-    case constants.SET_BOND_COLOR_MAP:
       return Object.assign({}, state, {
-        bondColorMap: action.bondColorMap
+        vectorOnList: [...diminishedVectorOnList],
+        currentVector: action.item.id === state.currentVector ? null : state.currentVector
       });
 
     case constants.RELOAD_SELECTION_REDUCER:
-      var this_vector_list = {};
-      for (var to_select_item in action.savedSelectionReducers.to_select) {
-        if (to_select_item === action.savedSelectionReducers.currentVector) {
-          this_vector_list[to_select_item] = action.savedSelectionReducers.to_select[to_select_item];
-        }
-      }
       let newFraments = new Set();
-      action.savedSelectionReducers.fragmentDisplayList.forEach(f => {
+      action.payload.fragmentDisplayList.forEach(f => {
         newFraments.add(f);
       });
       let newProteins = new Set();
-      action.savedSelectionReducers.proteinList.forEach(p => {
+      action.payload.proteinList.forEach(p => {
         newProteins.add(p);
       });
       let newComplexes = new Set();
-      action.savedSelectionReducers.complexList.forEach(c => {
+      action.payload.complexList.forEach(c => {
         newComplexes.add(c);
       });
       let newSurfaces = new Set();
-      action.savedSelectionReducers.surfaceList.forEach(s => {
+      action.payload.surfaceList.forEach(s => {
         newSurfaces.add(s);
       });
       let newDensities = new Set();
-      action.savedSelectionReducers.densityList.forEach(d => {
+      action.payload.densityList.forEach(d => {
         newDensities.add(d);
       });
       let newVectors = new Set();
-      action.savedSelectionReducers.vectorOnList.forEach(v => {
+      action.payload.vectorOnList.forEach(v => {
         newVectors.add(v);
       });
+
       return Object.assign({}, state, {
-        this_vector_list: this_vector_list,
-        ...action.savedSelectionReducers,
+        ...action.payload,
         fragmentDisplayList: [...newFraments],
         proteinList: [...newProteins],
         complexList: [...newComplexes],
@@ -309,6 +256,37 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
         firstLoad: action.payload
       });
 
+    case constants.RESET_COMPOUNDS_OF_VECTORS:
+      return Object.assign({}, state, {
+        compoundsOfVectors: null
+      });
+
+    case constants.UPDATE_VECTOR_COMPOUNDS:
+      let compoundsOfVectors = JSON.parse(JSON.stringify(state.compoundsOfVectors));
+      if (!compoundsOfVectors) {
+        compoundsOfVectors = {};
+      }
+      compoundsOfVectors[action.payload.key] = action.payload.value;
+
+      return Object.assign({}, state, {
+        compoundsOfVectors: compoundsOfVectors
+      });
+
+    case constants.RESET_BOND_COLOR_MAP_OF_VECTORS:
+      return Object.assign({}, state, {
+        bondColorMapOfVectors: null
+      });
+
+    case constants.UPDATE_BOND_COLOR_MAP_OF_COMPOUNDS:
+      let bondColorMapOfVectors = JSON.parse(JSON.stringify(state.bondColorMapOfVectors));
+      if (!bondColorMapOfVectors) {
+        bondColorMapOfVectors = {};
+      }
+      bondColorMapOfVectors[action.payload.key] = action.payload.value;
+
+      return Object.assign({}, state, {
+        bondColorMapOfVectors
+      });
     // Cases like: @@redux/INIT
     default:
       return state;

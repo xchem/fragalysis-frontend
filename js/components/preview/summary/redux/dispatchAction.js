@@ -12,6 +12,7 @@ import {
 } from './actions';
 import { base_url } from '../../../routes/constants';
 import { isEmpty } from 'lodash';
+import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 
 const fetchCompoundImage = url => (dispatch, getState) => {
   const state = getState();
@@ -31,7 +32,7 @@ const fetchCompoundImage = url => (dispatch, getState) => {
 };
 
 const getAtomIndices = ({ currentVector, bondColorMap }) => {
-  if (currentVector === undefined) {
+  if (currentVector === null) {
     return undefined;
   }
   if (bondColorMap === undefined) {
@@ -56,15 +57,16 @@ const getAtomIndices = ({ currentVector, bondColorMap }) => {
 
 export const reloadSummaryCompoundImage = ({ currentVector, bondColorMap }) => (dispatch, getState) => {
   const state = getState();
-  const { to_query } = state.selectionReducers;
+  const moleculeOfVector = getMoleculeOfCurrentVector(state);
+  const smiles = moleculeOfVector && moleculeOfVector.smiles;
 
   let atomIndices = getAtomIndices({ currentVector, bondColorMap });
   const url = new URL(base_url + '/viewer/img_from_smiles/');
   let get_params = {};
-  if (atomIndices !== undefined && to_query !== undefined) {
-    get_params = { smiles: to_query, atom_indices: atomIndices };
-  } else if (to_query !== undefined) {
-    get_params = { smiles: to_query };
+  if (atomIndices !== undefined && smiles !== undefined) {
+    get_params = { smiles, atom_indices: atomIndices };
+  } else if (smiles !== undefined) {
+    get_params = { smiles };
   }
 
   if (!isEmpty(get_params)) {
