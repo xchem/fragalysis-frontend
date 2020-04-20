@@ -254,20 +254,16 @@ export const createProject = ({ title, description, target, author, tags }) => d
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,
     data: { title, description, target, author, tags }
-  })
-    .then(response => {
-      const projectID = response.data.id;
-      const title = response.data.title;
-      const authorID = response.data.author;
-      const description = response.data.description;
-      const targetID = response.data.target;
-      const tags = response.data.tags;
+  }).then(response => {
+    const projectID = response.data.id;
+    const title = response.data.title;
+    const authorID = response.data.author;
+    const description = response.data.description;
+    const targetID = response.data.target;
+    const tags = response.data.tags;
 
-      return dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
-    })
-    .finally(() => {
-      dispatch(setProjectModalIsLoading(false));
-    });
+    return dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
+  });
 };
 
 const copySnapshot = (selectedSnapshot, projectID, history) => dispatch => {
