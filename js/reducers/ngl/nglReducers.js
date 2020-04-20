@@ -1,5 +1,7 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
-import { CONSTANTS, SCENES } from './constants';
+import { CONSTANTS } from './constants';
+import NglView from '../../components/nglView/nglView';
+import { VIEWS } from '../../constants/constants';
 
 export const INITIAL_STATE = {
   // NGL Scene properties
@@ -29,12 +31,14 @@ export const INITIAL_STATE = {
     [NGL_PARAMS.fogNear]: 50,
     [NGL_PARAMS.fogFar]: 62
   },
-  [SCENES.defaultScene]: {},
-  [SCENES.sessionScene]: {},
+
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
   proteinsHasLoaded: null,
-  countOfPendingNglObjects: 0,
+  countOfPendingNglObjects: {
+    [VIEWS.MAJOR_VIEW]: 0,
+    [VIEWS.SUMMARY_VIEW]: 0
+  },
   moleculeOrientations: {}
 };
 
@@ -118,60 +122,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         viewParams: newViewParams
       });
 
-    case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
-      const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
-      return Object.assign({}, state, newStateWithoutScene);
-
-    case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
-      // return Object.assign({}, state, action.payload);
-      // in payload are apiReducers, nglReducers and selectionsReducers
-      // they are probabably not needed for ngl and they flood nglReducers recursively in time
-      return Object.assign({}, state);
-
-    case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
-      // load state from default scene and replace current state by these data
-      const stateWithoutScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutScene[SCENES.defaultScene];
-      delete stateWithoutScene[SCENES.sessionScene];
-      delete stateWithoutScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutScene['proteinsHasLoaded'];
-      delete stateWithoutScene['countOfPendingNglObjects'];
-
-      Object.keys(stateWithoutScene.objectsInView).forEach(objInView => {
-        stateWithoutScene.objectsInView[objInView].representations = stateWithoutScene.objectsInView[
-          objInView
-        ].representations.map(item => {
-          delete item['lastKnownID'];
-          delete item['uuid'];
-          return item;
-        });
-      });
-
-      return Object.assign({}, state, {
-        [SCENES.defaultScene]: stateWithoutScene
-      });
-
-    case CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE:
-      // load state from default scene and replace current state by these data
-      const stateWithoutSessionScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutSessionScene[SCENES.sessionScene];
-      delete stateWithoutSessionScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutSessionScene['proteinsHasLoaded'];
-      delete stateWithoutSessionScene['countOfPendingNglObjects'];
-
-      Object.keys(stateWithoutSessionScene.objectsInView).forEach(objInView => {
-        stateWithoutSessionScene.objectsInView[objInView].representations = stateWithoutSessionScene.objectsInView[
-          objInView
-        ].representations.map(item => {
-          delete item['lastKnownID'];
-          delete item['uuid'];
-          return item;
-        });
-      });
-
-      return Object.assign({}, state, {
-        [SCENES.sessionScene]: stateWithoutSessionScene
-      });
+    case CONSTANTS.SET_NGL_STATE_FROM_CURRENT_SNAPSHOT:
+      const snapshot = action.payload;
+      delete snapshot.countOfPendingNglObjects;
+      delete snapshot.countOfRemainingMoleculeGroups;
+      delete snapshot.proteinsHasLoaded;
+      return Object.assign({}, state, snapshot);
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
       if (action.stage) {
@@ -191,10 +147,14 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
-      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects - 1 });
+      const newCounts = JSON.parse(JSON.stringify(state.countOfPendingNglObjects));
+      newCounts[action.payload] = state.countOfPendingNglObjects[action.payload] - 1;
+      return Object.assign({}, state, { countOfPendingNglObjects: newCounts });
 
     case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
-      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
+      const newPendingCounts = JSON.parse(JSON.stringify(state.countOfPendingNglObjects));
+      newPendingCounts[action.payload] = state.countOfPendingNglObjects[action.payload] + 1;
+      return Object.assign({}, state, { countOfPendingNglObjects: newPendingCounts });
 
     case CONSTANTS.SET_MOLECULE_ORIENTATIONS:
       return Object.assign({}, state, { moleculeOrientations: action.payload });

@@ -4,16 +4,12 @@ import {
   deleteNglObject,
   incrementCountOfPendingNglObjects,
   loadNglObject,
-  resetStateToDefaultScene,
-  resetStateToSessionScene,
-  saveCurrentStateAsDefaultScene,
+  setNglStateFromCurrentSnapshot,
   setMoleculeOrientations,
   setNglOrientation,
-  setNglViewParams,
-  setProteinLoadingState
+  setNglViewParams
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { SCENES } from './constants';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
 import { SELECTION_TYPE } from '../../components/nglView/constants';
 import {
@@ -25,10 +21,11 @@ import {
   removeFromDensityList
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
+import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 
-export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => dispatch => {
+export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => (dispatch, getState) => {
   if (stage) {
-    dispatch(incrementCountOfPendingNglObjects());
+    dispatch(incrementCountOfPendingNglObjects(target.display_div));
     return nglObjectDictionary[target.OBJECT_TYPE](
       stage,
       target,
@@ -40,7 +37,7 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
       .catch(error => {
         console.error(error);
       })
-      .finally(() => dispatch(decrementCountOfPendingNglObjects()));
+      .finally(() => dispatch(decrementCountOfPendingNglObjects(target.display_div)));
   }
   return Promise.reject('Instance of NGL View is missing');
 };
@@ -75,29 +72,14 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
   dispatch(deleteNglObject(target));
 };
 
-export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = () => (dispatch, getState) => {
+export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = projectId => (dispatch, getState) => {
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
+  // decide to create INIT snapshot
   if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
-    dispatch(saveCurrentStateAsDefaultScene());
+    dispatch(createInitialSnapshot(projectId));
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
-};
-
-// Helper actions for marking that protein and molecule groups are successful loaded
-export const setProteinsHasLoaded = (hasLoaded = false, withoutSavingToDefaultState = false) => (
-  dispatch,
-  getState
-) => {
-  const state = getState();
-  if (
-    state.nglReducers.countOfRemainingMoleculeGroups === 0 &&
-    hasLoaded === true &&
-    withoutSavingToDefaultState === false
-  ) {
-    dispatch(saveCurrentStateAsDefaultScene());
-  }
-  dispatch(setProteinLoadingState(hasLoaded));
 };
 
 export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
@@ -117,31 +99,22 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
  *
  * @param stage - instance of NGL view
  * @param display_div - id of NGL View div
- * @param scene - type of scene (default or session)
- * @param sessionData - new session data loaded from API
- * @returns {function(...[*]=)}
+ * @param snapshot - snapshot data of NGL View
  */
-export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) => (dispatch, getState) => {
-  const currentScene = (sessionData && sessionData.nglReducers[scene]) || getState().nglReducers[scene];
-  switch (scene) {
-    case SCENES.defaultScene:
-      dispatch(resetStateToDefaultScene());
-      break;
-    case SCENES.sessionScene:
-      dispatch(resetStateToSessionScene(sessionData));
-      break;
-  }
+export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (dispatch, getState) => {
+  dispatch(setNglStateFromCurrentSnapshot(snapshot));
+
   // Remove all components in NGL View
   stage.removeAllComponents();
 
   // Reconstruction of state in NGL View from currentScene data
   // objectsInView
-  return Promise.all(
-    Object.keys(currentScene.objectsInView || {}).map(objInView => {
-      if (currentScene.objectsInView[objInView].display_div === display_div) {
-        let representations = currentScene.objectsInView[objInView].representations;
+  Promise.all(
+    Object.keys(snapshot.objectsInView || {}).map(objInView => {
+      if (snapshot.objectsInView[objInView].display_div === display_div) {
+        let representations = snapshot.objectsInView[objInView].representations;
         return dispatch(
-          loadObject(currentScene.objectsInView[objInView], stage, createRepresentationsArray(representations))
+          loadObject(snapshot.objectsInView[objInView], stage, createRepresentationsArray(representations))
         );
       } else {
         return Promise.resolve();
@@ -149,19 +122,19 @@ export const reloadNglViewFromScene = (stage, display_div, scene, sessionData) =
     })
   ).finally(() => {
     // loop over nglViewParams
-    Object.keys(currentScene.viewParams).forEach(param => {
-      dispatch(setNglViewParams(param, currentScene.viewParams[param], stage));
+    Object.keys(snapshot.viewParams).forEach(param => {
+      dispatch(setNglViewParams(param, snapshot.viewParams[param], stage));
     });
 
     // nglOrientations
-    const newOrientation = currentScene.nglOrientations[display_div];
+    const newOrientation = snapshot.nglOrientations[display_div];
     if (newOrientation) {
       stage.viewerControls.orient(newOrientation.elements);
     }
 
     // set molecule orientations
-    if (currentScene.moleculeOrientations) {
-      dispatch(setMoleculeOrientations(currentScene.moleculeOrientations));
+    if (snapshot.moleculeOrientations) {
+      dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
     }
   });
 };

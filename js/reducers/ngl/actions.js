@@ -44,15 +44,9 @@ export const setNglOrientation = (orientation, div_id) => ({ type: CONSTANTS.SET
 
 export const setProteinLoadingState = hasLoaded => ({ type: CONSTANTS.SET_PROTEINS_HAS_LOADED, payload: hasLoaded });
 
-export const saveCurrentStateAsDefaultScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE });
-
-export const saveCurrentStateAsSessionScene = () => ({ type: CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE });
-
-export const resetStateToDefaultScene = () => ({ type: CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE });
-
-export const resetStateToSessionScene = sessionData => ({
-  type: CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE,
-  payload: sessionData
+export const setNglStateFromCurrentSnapshot = snapshot => ({
+  type: CONSTANTS.SET_NGL_STATE_FROM_CURRENT_SNAPSHOT,
+  payload: snapshot
 });
 
 export const removeAllNglComponents = (stage = undefined) => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
@@ -67,12 +61,14 @@ export const decrementCountOfRemainingMoleculeGroups = decrementedCount => ({
   payload: decrementedCount
 });
 
-export const incrementCountOfPendingNglObjects = () => ({
-  type: CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS
+export const incrementCountOfPendingNglObjects = NglViewId => ({
+  type: CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS,
+  payload: NglViewId
 });
 
-export const decrementCountOfPendingNglObjects = () => ({
-  type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS
+export const decrementCountOfPendingNglObjects = NglViewId => ({
+  type: CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS,
+  payload: NglViewId
 });
 
 export const appendMoleculeOrientation = (moleculeGroupID, orientation) => ({

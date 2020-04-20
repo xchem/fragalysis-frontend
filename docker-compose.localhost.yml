@@ -2,9 +2,9 @@ version: '3'
 
 services:
   mysql:
-    image: mysql:5.7.23
+    image: mysql:5.7
     volumes:
-      - ../data/mysql_data:/var/lib/mysql
+       - ../data/mysql_data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: django_db
@@ -16,7 +16,7 @@ services:
     container_name: neo4j
     image: neo4j:3.5
     ports:
-      # Comment these two out in produciton
+# Comment these two out in production
       - "7474:7474"
       - "7687:7687"
     ulimits:
@@ -36,7 +36,7 @@ services:
     volumes:
       - ../data/logs:/code/logs/
       - ../data/media:/code/media/
-      - ../fragalysis-frontend:/code/frontend
+      - ../fragalysis-frontend:/code/frontend/
       - ../fragalysis-backend:/code/
     ports:
       - "8080:80"
@@ -45,15 +45,26 @@ services:
       - graph
   loader:
     container_name: loader
-    image: loader:latest
+    image: xchem/fragalysis-stack:latest
+    command: /bin/bash /code/docker-entrypoint.sh
     volumes:
-      - ../data/input:/fragalysis
-      - ../data/media:/code/media
+      - ../data/input:/fragalysis/
+      - ../data/media:/code/media/
+      - ../fragalysis-frontend:/code/frontend/
+      - ../fragalysis-backend:/code/
+      - ../dls-fragalysis-stack-openshift/images/loader/docker-entrypoint.sh:/code/docker-entrypoint.sh
+      - ../fragalysis-loader/run_loader.sh:/code/run_loader.sh
+      - ../fragalysis-loader/loader.py:/code/loader.py
+      - ../fragalysis-loader/test_entry.sh:/code/test_entry.sh
+      - ../fragalysis-loader/wait-for-it.sh:/code/wait-for-it.sh
+      - ../fragalysis-loader/database_check.py:/code/database_check.py
+      - ../fragalysis-loader/tests:/code/tests
+      - ../fragalysis-loader/loader:/code/loader
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: django_db
-      MYSQL_PASSWORD: django_password
-      MYSQL_USER: django
-      DATA_ORIGIN: EXAMPLE
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_DATABASE: django_db
+        MYSQL_PASSWORD: django_password
+        MYSQL_USER: django
+        DATA_ORIGIN: EXAMPLE
     depends_on:
       - mysql

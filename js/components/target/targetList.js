@@ -7,10 +7,11 @@ import { connect } from 'react-redux';
 import { ListItemText, ListItemSecondaryAction } from '@material-ui/core';
 import { List, ListItem, Panel } from '../common';
 import { Link } from 'react-router-dom';
+import { URLS } from '../routes/constants';
 
 const TargetList = memo(({ target_id_list }) => {
   const render_method = data => {
-    const preview = '/viewer/react/preview/target/' + data.title;
+    const preview = URLS.target + data.title;
     const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + data.title + '/html/index.html';
     const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
 
