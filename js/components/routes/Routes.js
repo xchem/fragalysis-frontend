@@ -6,13 +6,15 @@ import { Management } from '../management/management';
 import Tindspect from '../tindspect/Tindspect';
 import Landing from '../landing/Landing';
 import Preview from '../preview/Preview';
+import { ProjectPreview } from '../projects/projectPreview';
 import Funders from '../funders/fundersHolder';
 import { withLoadingTargetList } from '../target/withLoadingTargetIdList';
 import { BrowserCheck } from '../errorHandling/browserCheck';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
-import SessionList from '../session/sessionList';
+import { Projects } from '../projects';
+import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -40,22 +42,17 @@ const Routes = memo(() => {
       <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
+          <Route exact path={URLS.projects} component={Projects} />
+          <Route exact path={`${URLS.projects}:projectId/history`} component={ProjectDetailSessionList} />
+          <Route exact path={`${URLS.projects}:projectId`} component={ProjectPreview} />} />
+          <Route exact path={`${URLS.projects}:projectId/:snapshotId`} component={ProjectPreview} />} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
           <Route
             exact
-            path="/viewer/react/preview/target/:target"
-            render={routeProps => <Preview headerHeight={headerHeight} resetSelection {...routeProps} />}
-          />
-          <Route exact path={URLS.sessions} component={SessionList} />
-          <Route
-            path={`${URLS.fragglebox}:uuid`}
-            render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
-          />
-          <Route
-            path={`${URLS.snapshot}:snapshotUuid`}
-            render={routeProps => <Preview headerHeight={headerHeight} isStateLoaded notCheckTarget {...routeProps} />}
+            path={`${URLS.target}:target`}
+            render={routeProps => <Preview hideProjects resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
         </Switch>
@@ -79,7 +76,7 @@ const Routes = memo(() => {
             <Close />
           </IconButton>
         }
-      ></Snackbar>
+      />
     </Box>
   );
 });

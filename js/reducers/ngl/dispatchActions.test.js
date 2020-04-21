@@ -4,7 +4,7 @@ import {
   decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
   deleteObject,
   loadObject,
-  reloadNglViewFromScene,
+  reloadNglViewFromSnapshot,
   setOrientation,
   setProteinsHasLoaded
 } from './dispatchActions';
@@ -17,7 +17,7 @@ import {
   incrementCountOfPendingNglObjects,
   loadNglObject,
   resetStateToDefaultScene,
-  resetStateToSessionScene,
+  setNglStateFromCurrentSnapshot,
   saveCurrentStateAsDefaultScene,
   setNglOrientation,
   setProteinLoadingState
@@ -289,10 +289,11 @@ describe("testing ngl reducer's async actions", () => {
         }
       }
     };
-    store.dispatch(reloadNglViewFromScene(stage, display_div, scene, sessionData));
 
-    expect(await getAction(store, resetStateToSessionScene)).toStrictEqual({
-      type: getActionType(resetStateToSessionScene),
+    store.dispatch(reloadNglViewFromSnapshot(stage, display_div, scene, sessionData));
+
+    expect(await getAction(store, setNglStateFromCurrentSnapshot)).toStrictEqual({
+      type: getActionType(setNglStateFromCurrentSnapshot),
       payload: sessionData
     });
   });
@@ -318,7 +319,7 @@ describe("testing ngl reducer's async actions", () => {
     };
 
     const display_div = 'MajorView';
-    store.dispatch(reloadNglViewFromScene(stage, display_div, scene));
+    store.dispatch(reloadNglViewFromSnapshot(stage, display_div, scene));
 
     expect(await getAction(store, resetStateToDefaultScene)).not.toBeNull();
   });

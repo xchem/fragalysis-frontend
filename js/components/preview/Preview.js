@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import MoleculeList from './molecule/moleculeList';
@@ -12,13 +12,17 @@ import { CompoundList } from './compounds/compoundList';
 import { ViewerControls } from './viewerControls';
 import { ComputeSize } from '../../utils/computeSize';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
-import ModalStateSave from '../session/modalStateSave';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
-import { withSessionManagement } from '../session/withSessionManagement';
+import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
 import { useDispatch } from 'react-redux';
-import { removeAllNglComponents } from '../../reducers/ngl/actions';
-import { resetCurrentCompoundsSettings } from './compounds/redux/actions';
+import { ProjectHistory } from './projectHistory';
+import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
+import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
+import { HeaderContext } from '../header/headerContext';
+import { unmountPreviewComponent } from './redux/dispatchActions';
+import { NglContext } from '../nglView/nglProvider';
+import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExit';
 //import HotspotList from '../hotspot/hotspotList';
 
 const hitNavigatorWidth = 504;
@@ -59,10 +63,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded, headerHeight }) => {
+const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const classes = useStyles();
   const theme = useTheme();
 
+  const { headerHeight } = useContext(HeaderContext);
+  const { nglViewList } = useContext(NglContext);
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -79,15 +85,19 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
 
-  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${summaryViewHeight}px - 64px)`;
+  const [projectHistoryHeight, setProjectHistoryHeight] = useState(0);
+
+  const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
+    2
+  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 72px)`;
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     // Unmount Preview - reset NGL state
     return () => {
-      dispatch(removeAllNglComponents());
-      dispatch(resetCurrentCompoundsSettings(true));
+      dispatch(unmountPreviewComponent(nglViewList));
     };
-  }, [dispatch]);
+  }, [dispatch, nglViewList]);
 
   return (
     <>
@@ -95,7 +105,11 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
         <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
           <Grid item>
-            <MolGroupSelector isStateLoaded={isStateLoaded} handleHeightChange={setMolGroupsHeight} />
+            <MolGroupSelector
+              isStateLoaded={isStateLoaded}
+              hideProjects={hideProjects}
+              handleHeightChange={setMolGroupsHeight}
+            />
           </Grid>
           {/* Hit navigator */}
           <Grid item>
@@ -103,6 +117,7 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
               height={moleculeListHeight}
               setFilterItemsHeight={setFilterItemsHeight}
               filterItemsHeight={filterItemsHeight}
+              hideProjects={hideProjects}
             />
           </Grid>
         </Grid>
@@ -129,14 +144,24 @@ const Preview = memo(({ isStateLoaded, headerHeight }) => {
           <Grid item>
             <CompoundList height={compoundHeight} />
           </Grid>
+          {!hideProjects && (
+            <Grid item>
+              <ProjectHistory
+                setHeight={setProjectHistoryHeight}
+                showFullHistory={() => setShowHistory(!showHistory)}
+              />
+            </Grid>
+          )}
         </Grid>
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
       </Grid>
-      <ModalStateSave />
+      <NewSnapshotModal />
+      <SaveSnapshotBeforeExit />
+      {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );
 });
 
-export default withSessionManagement(withUpdatingTarget(withLoadingProtein(Preview)));
+export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview)));

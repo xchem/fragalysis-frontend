@@ -6,15 +6,19 @@ import { useDispatch } from 'react-redux';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import { loadMoleculeGroups } from './redux/dispatchActions';
+import { useRouteMatch } from 'react-router-dom';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
-  return memo(({ isStateLoaded, ...rest }) => {
+  return memo(({ isStateLoaded, hideProjects, ...rest }) => {
+    const [state, setState] = useState();
     const [wasLoaded, setWasLoaded] = useState(false);
     const { getNglView } = useContext(NglContext);
 
     const [oldUrl, setOldUrl] = useState('');
     const onCancel = useCallback(() => {}, []);
+    let match = useRouteMatch();
+    const projectId = match && match.params && match.params.projectId;
 
     const dispatch = useDispatch();
 
@@ -28,10 +32,14 @@ export const withLoadingMolGroupList = WrappedComponent => {
             setOldUrl,
             oldUrl: oldUrl.current,
             onCancel,
-            isStateLoaded
+            isStateLoaded,
+            projectId,
+            hideProjects
           })
         ).catch(error => {
-          throw new Error(error);
+          setState(() => {
+            throw error;
+          });
         });
         setWasLoaded(true);
       }
@@ -39,7 +47,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
       return () => {
         onCancel();
       };
-    }, [isStateLoaded, onCancel, dispatch, oldUrl, getNglView, wasLoaded]);
+    }, [isStateLoaded, hideProjects, onCancel, dispatch, oldUrl, getNglView, projectId, wasLoaded]);
 
     return <WrappedComponent {...rest} />;
   });

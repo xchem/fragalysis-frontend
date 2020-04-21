@@ -23,10 +23,10 @@ import {
   Input,
   Person,
   Home,
-  Storage,
   SupervisorAccount,
   Menu as MenuIcon,
-  Work
+  Work,
+  Description
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -65,7 +65,7 @@ const useStyles = makeStyles(theme => ({
   },
   loadingPaper: {
     backgroundColor: theme.palette.background.default,
-    zIndex: 1,
+    zIndex: 1301,
     width: '100%',
     position: 'absolute',
     opacity: 0,
@@ -296,13 +296,15 @@ export default memo(
                 </ListItemIcon>
                 <ListItemText primary="Home" />
               </ListItem>
+              <Divider />
 
-              <ListItem button onClick={() => history.push(URLS.sessions)}>
+              <ListItem button onClick={() => history.push(URLS.projects)}>
                 <ListItemIcon>
-                  <Storage />
+                  <Description />
                 </ListItemIcon>
-                <ListItemText primary="Sessions" />
+                <ListItemText primary="Projects" />
               </ListItem>
+
               <ListItem button onClick={() => history.push(URLS.management)}>
                 <ListItemIcon>
                   <Work />

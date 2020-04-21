@@ -199,7 +199,8 @@ const MoleculeList = memo(
     filterSettings,
     sortDialogOpen,
     setSortDialogOpen,
-    firstLoad
+    firstLoad,
+    hideProjects
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -262,7 +263,14 @@ const MoleculeList = memo(
           console.log('initializing filter');
           setPredefinedFilter(dispatch(initializeFilter()).predefined);
           // initialize molecules on first target load
-          if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && firstLoadRef && firstLoadRef.current) {
+          if (
+            stage &&
+            cached_mol_lists &&
+            cached_mol_lists[mol_group_on] &&
+            firstLoadRef &&
+            firstLoadRef.current &&
+            hideProjects
+          ) {
             console.log('initializing molecules');
             firstLoadRef.current = false;
             dispatch(setFirstLoad(false));
