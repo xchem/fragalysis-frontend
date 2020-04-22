@@ -1,16 +1,26 @@
 import { reloadApiState, setSessionTitle } from '../../../reducers/api/actions';
 import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { api, METHOD } from '../../../utils/api';
-import { setIsLoadingListOfSnapshots, setIsLoadingSnapshotDialog, setListOfSnapshots } from './actions';
+import {
+  setIsLoadingListOfSnapshots,
+  setIsLoadingSnapshotDialog,
+  setListOfSnapshots,
+  setOpenSnapshotSavingDialog
+} from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { assignSnapshotToProject, loadSnapshotTree } from '../../projects/redux/dispatchActions';
+import {
+  assignSnapshotToProject,
+  createProjectFromSnapshotDialog,
+  loadSnapshotTree
+} from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
-import { SnapshotType } from '../../projects/redux/constants';
+import { ProjectCreationType, SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
+import { useSelector } from 'react-redux';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   dispatch(setIsLoadingListOfSnapshots(true));
@@ -204,4 +214,26 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       });
     })
   ]);
+};
+
+export const activateSnapshotDialog = (isUserLoggedIn = undefined) => (dispatch, getState) => {
+  const targetId = getState().apiReducers.target_on;
+  if (!isUserLoggedIn && targetId) {
+    const data = {
+      title: ProjectCreationType.READ_ONLY,
+      description: ProjectCreationType.READ_ONLY,
+      target: targetId,
+      author: null,
+      tags: '[]'
+    };
+    dispatch(createProjectFromSnapshotDialog(data))
+      .then(() => {
+        dispatch(setOpenSnapshotSavingDialog(true));
+      })
+      .catch(error => {
+        throw new Error(error);
+      });
+  } else {
+    dispatch(setOpenSnapshotSavingDialog(true));
+  }
 };

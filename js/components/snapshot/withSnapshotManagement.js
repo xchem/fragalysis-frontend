@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Save, Share } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
-import { savingStateConst } from './constants';
 import { HeaderContext } from '../header/headerContext';
-import { setOpenSnapshotSavingDialog, setSharedSnapshot } from './redux/actions';
+import { setSharedSnapshot } from './redux/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { base_url, URLS } from '../routes/constants';
+import { activateSnapshotDialog } from './redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -20,7 +20,6 @@ export const withSnapshotManagement = WrappedComponent => {
     let match = useRouteMatch();
     const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
     const dispatch = useDispatch();
-    const savingState = useSelector(state => state.apiReducers.savingState);
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
 
     const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
@@ -50,18 +49,18 @@ export const withSnapshotManagement = WrappedComponent => {
         <Button
           key="saveSnapshot"
           color="primary"
-          onClick={() => dispatch(setOpenSnapshotSavingDialog(true))}
+          onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
           startIcon={<Save />}
           disabled={!enableButton || disableUserInteraction}
         >
           Save
         </Button>,
         <Button
+          key="shareSnapshot"
           color="primary"
           size="small"
           startIcon={<Share />}
           disabled={
-            !enableButton ||
             disableUserInteraction ||
             currentSnapshotID === null ||
             (currentProject && currentProject.projectID === null)

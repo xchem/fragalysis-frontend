@@ -170,7 +170,6 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
             )}
         </div>
       </Panel>
-      <ModalShareSnapshot />
     </>
   );
 });
