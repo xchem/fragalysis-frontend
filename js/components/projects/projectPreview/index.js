@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 export const ProjectPreview = memo(({}) => {
   const { setSnackBarTitle } = useContext(HeaderContext);
@@ -55,8 +56,9 @@ export const ProjectPreview = memo(({}) => {
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');
   }
+  const userID = DJANGO_CONTEXT['pk'] || null;
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
-    <Preview isStateLoaded={isSnapshotLoaded.current !== null} />
+    <Preview isStateLoaded={isSnapshotLoaded.current !== null} hideProjects={userID === null} />
   ) : null;
 });
