@@ -7,6 +7,8 @@ import { savingStateConst } from './constants';
 import { HeaderContext } from '../header/headerContext';
 import { setOpenSnapshotSavingDialog } from './redux/actions';
 import { useRouteMatch } from 'react-router-dom';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -22,14 +24,17 @@ export const withSnapshotManagement = WrappedComponent => {
 
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
+    const currentProject = useSelector(state => state.projectReducers.currentProject);
     const projectId = match && match.params && match.params.projectId;
+    const target = match && match.params && match.params.target;
+    const disableUserInteraction = useDisableUserInteraction();
 
-    const disableButtons =
-      (savingState &&
-        (savingState.startsWith(savingStateConst.saving) || savingState.startsWith(savingStateConst.overwriting))) ||
-      !projectId ||
-      !targetName ||
-      false;
+    const enableButton =
+      (projectId &&
+        currentProject.projectID !== null &&
+        DJANGO_CONTEXT['pk'] === currentProject.authorID &&
+        currentProject.authorID !== null) ||
+      target;
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
@@ -42,7 +47,7 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           onClick={() => dispatch(setOpenSnapshotSavingDialog(true))}
           startIcon={<Save />}
-          // disabled={disableButtons}
+          disabled={!enableButton || disableUserInteraction}
         >
           Save
         </Button>,
@@ -57,7 +62,7 @@ export const withSnapshotManagement = WrappedComponent => {
         setHeaderNavbarTitle('');
       };
     }, [
-      disableButtons,
+      enableButton,
       dispatch,
       sessionTitle,
       setHeaderNavbarTitle,
@@ -66,7 +71,8 @@ export const withSnapshotManagement = WrappedComponent => {
       targetIdList,
       targetName,
       setSnackBarColor,
-      projectId
+      projectId,
+      disableUserInteraction
     ]);
 
     return <WrappedComponent {...rest} />;
