@@ -15,6 +15,7 @@ import { base_url, URLS } from '../../routes/constants';
 import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 import { SnapshotType } from './constants';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -47,16 +48,26 @@ export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (
     });
 };
 
-export const loadListOfProjects = () => (dispatch, getState) => {
-  return api({ url: `${base_url}/api/session-projects/` }).then(response =>
-    dispatch(setListOfProjects((response && response.data && response.data.results) || []))
-  );
+export const loadListOfAllProjects = () => (dispatch, getState) => {
+  const userID = DJANGO_CONTEXT['pk'] || null;
+  if (userID !== null) {
+    return api({ url: `${base_url}/api/session-projects/?author=${userID}` }).then(response =>
+      dispatch(setListOfProjects((response && response.data && response.data.results) || []))
+    );
+  } else {
+    return Promise.resolve();
+  }
 };
 
 export const searchInProjects = title => (dispatch, getState) => {
-  return api({ url: `${base_url}/api/session-projects/?title=${title}` }).then(response =>
-    dispatch(setListOfProjects((response && response.data && response.data.results) || []))
-  );
+  const userID = DJANGO_CONTEXT['pk'] || null;
+  if (userID !== null) {
+    return api({ url: `${base_url}/api/session-projects/?author=${userID}&title=${title}` }).then(response =>
+      dispatch(setListOfProjects((response && response.data && response.data.results) || []))
+    );
+  } else {
+    return Promise.resolve();
+  }
 };
 
 export const removeSnapshotByID = snapshotID => dispatch => {
@@ -97,7 +108,7 @@ export const removeProject = projectID => dispatch => {
     .then(() => dispatch(removeSnapshotTree(projectID)))
     .then(() =>
       api({ url: `${base_url}/api/session-projects/${projectID}/`, method: METHOD.DELETE }).then(() =>
-        dispatch(loadListOfProjects())
+        dispatch(loadListOfAllProjects())
       )
     )
     .finally(() => {

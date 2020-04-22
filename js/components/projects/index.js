@@ -24,7 +24,7 @@ import moment from 'moment';
 import { setProjectModalOpen } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
-import { loadListOfProjects, removeProject, searchInProjects } from './redux/dispatchActions';
+import { loadListOfAllProjects, removeProject, searchInProjects } from './redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
@@ -58,7 +58,7 @@ export const Projects = memo(({}) => {
   });
 
   useEffect(() => {
-    dispatch(loadListOfProjects()).catch(error => {
+    dispatch(loadListOfAllProjects()).catch(error => {
       throw new Error(error);
     });
   }, [dispatch]);
