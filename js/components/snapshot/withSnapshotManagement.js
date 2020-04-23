@@ -36,9 +36,9 @@ export const withSnapshotManagement = WrappedComponent => {
     const enableButton =
       (projectId &&
         currentProject.projectID !== null &&
-        DJANGO_CONTEXT['pk'] === currentProject.authorID &&
-        currentProject.authorID !== null) ||
-      target;
+        (DJANGO_CONTEXT['pk'] === currentProject.authorID ||
+          (DJANGO_CONTEXT['pk'] && currentProject.authorID == null))) ||
+      target !== undefined;
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
