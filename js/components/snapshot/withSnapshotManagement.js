@@ -34,7 +34,8 @@ export const withSnapshotManagement = WrappedComponent => {
     const disableUserInteraction = useDisableUserInteraction();
 
     const enableButton =
-      (projectId && currentProject.projectID !== null && currentProject.authorID != null) || target !== undefined;
+      (projectId && currentProject.projectID !== null && currentProject.authorID !== null && DJANGO_CONTEXT['pk']) ||
+      target !== undefined;
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
