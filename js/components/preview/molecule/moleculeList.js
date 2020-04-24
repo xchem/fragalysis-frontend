@@ -52,6 +52,7 @@ import {
   addLigand,
   removeLigand
 } from './redux/dispatchActions';
+import { useRouteMatch } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -214,6 +215,8 @@ const MoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 34;
     const imgWidth = 150;
+    let match = useRouteMatch();
+    const target = match && match.params && match.params.target;
 
     const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -269,7 +272,8 @@ const MoleculeList = memo(
             cached_mol_lists[mol_group_on] &&
             firstLoadRef &&
             firstLoadRef.current &&
-            hideProjects
+            hideProjects &&
+            target !== undefined
           ) {
             console.log('initializing molecules');
             firstLoadRef.current = false;
@@ -289,7 +293,9 @@ const MoleculeList = memo(
       target_on,
       setCachedMolLists,
       cached_mol_lists,
-      dispatch
+      dispatch,
+      hideProjects,
+      target
     ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;

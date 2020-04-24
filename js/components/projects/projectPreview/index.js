@@ -62,7 +62,8 @@ export const ProjectPreview = memo(({}) => {
     <Preview
       isStateLoaded={isSnapshotLoaded.current !== null}
       hideProjects={
-        DJANGO_CONTEXT['pk'] === undefined || currentProject.projectID === null || currentProject.authorID === null
+        DJANGO_CONTEXT['pk'] === undefined ||
+        (DJANGO_CONTEXT['pk'] !== undefined && (currentProject.projectID === null || currentProject.authorID === null))
       }
     />
   ) : null;
