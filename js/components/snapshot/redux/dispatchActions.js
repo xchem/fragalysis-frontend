@@ -24,7 +24,7 @@ import { useSelector } from 'react-redux';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   dispatch(setIsLoadingListOfSnapshots(true));
-  return api({ url: `${base_url}/api/snapshots/?session_project!=null` })
+  return api({ url: `${base_url}/api/snapshots/?session_project__isnull=False&author=${DJANGO_CONTEXT['pk']}` })
     .then(response => {
       if (response && response.data && response.data.results) {
         dispatch(setListOfSnapshots(response.data.results));
