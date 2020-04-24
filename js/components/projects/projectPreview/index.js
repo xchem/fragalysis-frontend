@@ -15,6 +15,7 @@ export const ProjectPreview = memo(({}) => {
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
+  const currentProject = useSelector(state => state.projectReducers.currentProject);
 
   useEffect(() => {
     if (!snapshotId && currentSnapshotID === null) {
@@ -56,9 +57,11 @@ export const ProjectPreview = memo(({}) => {
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');
   }
-  const userID = DJANGO_CONTEXT['pk'] || null;
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
-    <Preview isStateLoaded={isSnapshotLoaded.current !== null} hideProjects={userID === null} />
+    <Preview
+      isStateLoaded={isSnapshotLoaded.current !== null}
+      hideProjects={currentProject.projectID === null || currentProject.authorID === null}
+    />
   ) : null;
 });
