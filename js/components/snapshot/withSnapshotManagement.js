@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
-import { Save, Share } from '@material-ui/icons';
+import { Save, Restore, Share } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
 import { setSharedSnapshot } from './redux/actions';
@@ -10,6 +10,11 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { base_url, URLS } from '../routes/constants';
 import { activateSnapshotDialog } from './redux/dispatchActions';
+import { NglContext } from '../nglView/nglProvider';
+import {
+  clearMoleculeGroupSelection,
+  restoreFromCurrentSnapshot
+} from '../preview/moleculeGroups/redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -19,6 +24,7 @@ export const withSnapshotManagement = WrappedComponent => {
   return memo(({ ...rest }) => {
     let match = useRouteMatch();
     const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
+    const { getNglView } = useContext(NglContext);
     const dispatch = useDispatch();
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
 
@@ -51,6 +57,15 @@ export const withSnapshotManagement = WrappedComponent => {
           disabled={!enableButton || disableUserInteraction}
         >
           Save
+        </Button>,
+        <Button
+          key="restoreSnapshot"
+          color="primary"
+          onClick={() => dispatch(restoreFromCurrentSnapshot({ getNglView }))}
+          startIcon={<Restore />}
+          disabled={!enableButton || disableUserInteraction}
+        >
+          Restore
         </Button>,
         <Button
           key="shareSnapshot"
@@ -95,7 +110,12 @@ export const withSnapshotManagement = WrappedComponent => {
       targetName,
       setSnackBarColor,
       projectId,
-      disableUserInteraction
+      disableUserInteraction,
+      currentSnapshotID,
+      currentProject,
+      getNglView,
+      currentSnapshotTitle,
+      currentSnapshotDescription
     ]);
 
     return <WrappedComponent {...rest} />;
