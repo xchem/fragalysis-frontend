@@ -15,6 +15,7 @@ import { HeaderContext } from '../header/headerContext';
 import { Close } from '@material-ui/icons';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
+import { SessionRedirect } from '../snapshot/sessionRedirect';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -49,6 +50,7 @@ const Routes = memo(() => {
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
+          <Route exact path={`${URLS.sessions}:sessionUUID`} component={SessionRedirect} />
           <Route
             exact
             path={`${URLS.target}:target`}

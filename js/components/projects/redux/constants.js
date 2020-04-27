@@ -21,7 +21,8 @@ export const constants = {
 
 export const ProjectCreationType = {
   NEW: 'NEW',
-  FROM_SNAPSHOT: 'FROM_SNAPSHOT'
+  FROM_SNAPSHOT: 'FROM_SNAPSHOT',
+  READ_ONLY: 'READ_ONLY'
 };
 
 export const SnapshotType = {

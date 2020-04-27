@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 export const ProjectPreview = memo(({}) => {
   const { setSnackBarTitle } = useContext(HeaderContext);
@@ -14,6 +15,7 @@ export const ProjectPreview = memo(({}) => {
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
+  const currentProject = useSelector(state => state.projectReducers.currentProject);
 
   useEffect(() => {
     if (!snapshotId && currentSnapshotID === null) {
@@ -57,6 +59,12 @@ export const ProjectPreview = memo(({}) => {
   }
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
-    <Preview isStateLoaded={isSnapshotLoaded.current !== null} />
+    <Preview
+      isStateLoaded={isSnapshotLoaded.current !== null}
+      hideProjects={
+        DJANGO_CONTEXT['pk'] === undefined ||
+        (DJANGO_CONTEXT['pk'] !== undefined && (currentProject.projectID === null || currentProject.authorID === null))
+      }
+    />
   ) : null;
 });

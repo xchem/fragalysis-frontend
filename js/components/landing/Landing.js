@@ -23,7 +23,7 @@ const Landing = memo(
       if (DJANGO_CONTEXT['authenticated'] !== true) {
         setLoginText(
           <>
-            {'To view own targets login here: '}
+            {'To view own projects login here: '}
             <Link href="/accounts/login" color="inherit" variant="subtitle2">
               FedID Login
             </Link>
