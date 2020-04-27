@@ -20,7 +20,7 @@ import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
-import { useSelector } from 'react-redux';
+import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   dispatch(setIsLoadingListOfSnapshots(true));
@@ -34,6 +34,7 @@ export const getListOfSnapshots = () => (dispatch, getState) => {
       dispatch(setIsLoadingListOfSnapshots(false));
     });
 };
+
 
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
   const state = getState();
@@ -99,7 +100,7 @@ export const saveCurrentSnapshot = ({
     });
 };
 
-export const createInitialSnapshot = projectID => async (dispatch, getState) => {
+export const createInitialSnapshot = (projectID, summaryView) => async (dispatch, getState) => {
   const { apiReducers, nglReducers, selectionReducers, previewReducers } = getState();
   const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
   const type = SnapshotType.INIT;
@@ -121,7 +122,7 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
   }
   // store initial snapshot only to redux state
   else {
-    dispatch(
+    await dispatch(
       setCurrentSnapshot({
         id: null,
         type,
@@ -134,6 +135,7 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
         data
       })
     );
+    dispatch(selectFirstMolGroup({ summaryView }));
   }
 };
 
