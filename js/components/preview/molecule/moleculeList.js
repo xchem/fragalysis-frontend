@@ -32,10 +32,12 @@ import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import { hideAllSelectedMolecules, initializeMolecules } from './redux/dispatchActions';
 import { setFilter, setFilterSettings, setFirstLoad } from '../../../reducers/selection/actions';
-import { initializeFilter, getListedMolecules } from '../../../reducers/selection/dispatchActions';
+import {
+  initializeFilter //, getListedMolecules
+} from '../../../reducers/selection/dispatchActions';
 import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
 import { MOL_ATTRIBUTES } from './redux/constants';
-import { getFilteredMoleculesCount } from './moleculeListSortFilterDialog';
+// import { getFilteredMoleculesCount } from './moleculeListSortFilterDialog';
 import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
@@ -308,15 +310,15 @@ const MoleculeList = memo(
       }
     }, [isActiveFilter, setFilterItemsHeight]);
 
-    const handleFilterChange = filter => {
-      const filterSet = Object.assign({}, filter);
-      for (let attr of MOL_ATTRIBUTES) {
-        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
-          filterSet.filter[attr.key].priority = 0;
-        }
-      }
-      dispatch(setFilterSettings(filterSet));
-    };
+    // const handleFilterChange = filter => {
+    //   const filterSet = Object.assign({}, filter);
+    //   for (let attr of MOL_ATTRIBUTES) {
+    //     if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+    //       filterSet.filter[attr.key].priority = 0;
+    //     }
+    //   }
+    //   dispatch(setFilterSettings(filterSet));
+    // };
 
     const changePredefinedFilter = event => {
       let newFilter = Object.assign({}, filter);
@@ -349,19 +351,11 @@ const MoleculeList = memo(
     const selectedAll = useRef(false);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
     const complexList = useSelector(state => state.selectionReducers.complexList);
-    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
-    const densityList = useSelector(state => state.selectionReducers.densityList);
     const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
     const isLigandOn = fragmentDisplayList.length > 0 || false;
     const isProteinOn = proteinList.length > 0 || false;
     const isComplexOn = complexList.length > 0 || false;
-    const isSurfaceOn = surfaceList.length > 0 || false;
-    const isDensityOn = densityList.length > 0 || false;
-    const isVectorOn = vectorOnList.length > 0 || false;
-    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn; // && isVectorOn;
-    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
 
     const addType = {
       ligand: addLigand,
@@ -552,37 +546,6 @@ const MoleculeList = memo(
                         wrap="nowrap"
                         className={classes.contButtonsMargin}
                       >
-                        <Tooltip title="all alls">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(
-                                classes.contColButton,
-                                {
-                                  [classes.contColButtonSelected]: hasAllValuesOn
-                                },
-                                {
-                                  [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                                }
-                              )}
-                              onClick={() => {
-                                // TODO rework all these buttons into a separate component!
-                                // always deselect all if are selected only some of options
-                                selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
-
-                                onButtonToggle('ligand', true);
-                                onButtonToggle('protein', true);
-                                onButtonToggle('complex', true);
-                                onButtonToggle('surface', true);
-                                // onDensity(true);
-                                // onVector(true);
-                              }}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">A</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
                         <Tooltip title="all ligands">
                           <Grid item>
                             <Button
@@ -623,49 +586,6 @@ const MoleculeList = memo(
                               disabled={disableUserInteraction}
                             >
                               <Typography variant="subtitle2">C</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all surfaces">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isSurfaceOn
-                              })}
-                              onClick={() => onButtonToggle('surface')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">S</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all electron densities">
-                          <Grid item>
-                            {/* TODO waiting for backend data */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isDensityOn
-                              })}
-                              onClick={() => onButtonToggle('density')}
-                              disabled={true || disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">D</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all vectors">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isVectorOn
-                              })}
-                              onClick={() => onButtonToggle('vector')}
-                              disabled={true || disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">V</Typography>
                             </Button>
                           </Grid>
                         </Tooltip>

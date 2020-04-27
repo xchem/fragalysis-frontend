@@ -493,9 +493,6 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                     onLigand(true);
                     onProtein(true);
                     onComplex(true);
-                    onSurface(true);
-                    // onDensity(true);
-                    onVector(true);
                   }}
                   disabled={disableUserInteraction}
                 >
