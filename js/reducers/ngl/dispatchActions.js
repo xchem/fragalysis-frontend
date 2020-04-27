@@ -22,6 +22,7 @@ import {
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
+import { VIEWS } from '../../constants/constants';
 
 export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => (dispatch, getState) => {
   if (stage) {
@@ -72,12 +73,15 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
   dispatch(deleteNglObject(target));
 };
 
-export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = projectId => (dispatch, getState) => {
+export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = (projectId, summaryView) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
   // decide to create INIT snapshot
   if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
-    dispatch(createInitialSnapshot(projectId));
+    dispatch(createInitialSnapshot(projectId, summaryView));
   }
   dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
 };
@@ -121,20 +125,22 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
       }
     })
   ).finally(() => {
-    // loop over nglViewParams
-    Object.keys(snapshot.viewParams).forEach(param => {
-      dispatch(setNglViewParams(param, snapshot.viewParams[param], stage));
-    });
+    if (display_div !== VIEWS.SUMMARY_VIEW) {
+      // loop over nglViewParams
+      Object.keys(snapshot.viewParams).forEach(param => {
+        dispatch(setNglViewParams(param, snapshot.viewParams[param], stage));
+      });
 
-    // nglOrientations
-    const newOrientation = snapshot.nglOrientations[display_div];
-    if (newOrientation) {
-      stage.viewerControls.orient(newOrientation.elements);
-    }
+      // nglOrientations
+      const newOrientation = snapshot.nglOrientations[display_div];
+      if (newOrientation) {
+        stage.viewerControls.orient(newOrientation.elements);
+      }
 
-    // set molecule orientations
-    if (snapshot.moleculeOrientations) {
-      dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
+      // set molecule orientations
+      if (snapshot.moleculeOrientations) {
+        dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
+      }
     }
   });
 };

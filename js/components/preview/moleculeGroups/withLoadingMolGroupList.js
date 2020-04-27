@@ -2,11 +2,12 @@
  * Created by abradley on 13/03/2018.
  */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import { loadMoleculeGroups } from './redux/dispatchActions';
 import { useRouteMatch } from 'react-router-dom';
+import nglReducers from '../../../reducers/ngl/nglReducers';
 
 // is responsible for loading molecules list
 export const withLoadingMolGroupList = WrappedComponent => {
@@ -20,12 +21,14 @@ export const withLoadingMolGroupList = WrappedComponent => {
     let match = useRouteMatch();
     const projectId = match && match.params && match.params.projectId;
 
+    const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
       const summaryView = getNglView(VIEWS.SUMMARY_VIEW);
 
-      if (summaryView && wasLoaded === false) {
+      if (summaryView && wasLoaded === false && proteinsHasLoaded === true) {
         dispatch(
           loadMoleculeGroups({
             summaryView: summaryView.stage,
@@ -33,8 +36,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
             oldUrl: oldUrl.current,
             onCancel,
             isStateLoaded,
-            projectId,
-            hideProjects
+            projectId
           })
         ).catch(error => {
           setState(() => {
@@ -47,7 +49,7 @@ export const withLoadingMolGroupList = WrappedComponent => {
       return () => {
         onCancel();
       };
-    }, [isStateLoaded, hideProjects, onCancel, dispatch, oldUrl, getNglView, projectId, wasLoaded]);
+    }, [isStateLoaded, onCancel, dispatch, oldUrl, getNglView, projectId, wasLoaded, proteinsHasLoaded]);
 
     return <WrappedComponent {...rest} />;
   });
