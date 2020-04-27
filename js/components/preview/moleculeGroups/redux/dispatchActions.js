@@ -201,6 +201,41 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
   dispatch(resetCurrentCompoundsSettings(true));
 };
 
+export const restoreFromCurrentSnapshot = ({ getNglView }) => (dispatch, getState) => {
+  // Reset NGL VIEWS to default state
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
+  const snapshot = getState().projectReducers.currentSnapshot.data.nglReducers;
+
+  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW, snapshot));
+  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW, snapshot));
+  //
+  // // Reset selection reducer
+  // // remove sites selection
+  // dispatch(setMolGroupOn(undefined));
+  // dispatch(setMolGroupSelection([]));
+  //
+  // // reset all selection state
+  // dispatch(resetSelectionState());
+  //
+  // // remove Ligand, Complex, Vectors from selection
+  // //Ligand
+  // dispatch(setFragmentDisplayList([]));
+  // // Complex
+  // dispatch(setComplexList([]));
+  // // Vectors
+  // dispatch(setVectorOnList([]));
+  // dispatch(setVectorList([]));
+  //
+  // // reset filterSettings of molecules
+  // dispatch(setFilterSettings(undefined));
+  // // close sort dialog
+  // dispatch(setSortDialogOpen(false));
+  //
+  // // reset compounds
+  // dispatch(resetCurrentCompoundsSettings(true));
+};
+
 export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, event }) => (
   dispatch,
   getState
