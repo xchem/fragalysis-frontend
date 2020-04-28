@@ -6,7 +6,7 @@ import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 import { Button } from '../common';
 import * as apiActions from '../../reducers/api/actions';
-import TargetList from './targetList';
+import { TargetList } from './targetList';
 import { ErrorReport } from '../header/errorReport';
 import { Modal } from '../common/Modal';
 import { URLS } from '../routes/constants';

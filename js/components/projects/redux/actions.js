@@ -46,6 +46,11 @@ export const setListOfProjects = projects => ({
   payload: projects
 });
 
+export const setIsLoadingListOfProjects = isLoading => ({
+  type: constants.SET_IS_LOADING_LIST_OF_PROJECTS,
+  payload: isLoading
+});
+
 export const setIsLoadingTree = isLoading => ({
   type: constants.SET_IS_LOADING_TREE,
   payload: isLoading
