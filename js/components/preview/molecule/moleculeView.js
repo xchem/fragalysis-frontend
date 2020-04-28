@@ -430,7 +430,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
    */
   const getValueMatchingClass = item => {
     let cssClass = '';
-    if (filter.predefined !== 'none') {
+    if (filter && filter.predefined !== 'none') {
       cssClass = isMatchingValue(item) ? classes.matchingValue : classes.unmatchingValue;
     }
     return cssClass;
