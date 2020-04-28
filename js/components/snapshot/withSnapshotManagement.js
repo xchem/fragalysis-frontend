@@ -11,10 +11,7 @@ import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { base_url, URLS } from '../routes/constants';
 import { activateSnapshotDialog } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
-import {
-  clearMoleculeGroupSelection,
-  restoreFromCurrentSnapshot
-} from '../preview/moleculeGroups/redux/dispatchActions';
+import { restoreFromCurrentSnapshot } from '../preview/moleculeGroups/redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -58,15 +55,17 @@ export const withSnapshotManagement = WrappedComponent => {
         >
           Save
         </Button>,
-        <Button
-          key="restoreSnapshot"
-          color="primary"
-          onClick={() => dispatch(restoreFromCurrentSnapshot({ getNglView }))}
-          startIcon={<Restore />}
-          disabled={!enableButton || disableUserInteraction}
-        >
-          Restore
-        </Button>,
+        !target && (
+          <Button
+            key="restoreSnapshot"
+            color="primary"
+            onClick={() => dispatch(restoreFromCurrentSnapshot({ getNglView }))}
+            startIcon={<Restore />}
+            disabled={!enableButton || disableUserInteraction}
+          >
+            Restore
+          </Button>
+        ),
         <Button
           key="shareSnapshot"
           color="primary"
@@ -91,8 +90,6 @@ export const withSnapshotManagement = WrappedComponent => {
         </Button>,
         <DownloadPdb key="download" />
       ]);
-      //   setSnackBarTitle('Currently no active session.');
-      //  setSnackBarTitle(`Session: ${sessionTitle}`);
 
       return () => {
         setHeaderButtons(null);
