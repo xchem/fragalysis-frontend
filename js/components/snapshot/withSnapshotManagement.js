@@ -21,7 +21,7 @@ export const withSnapshotManagement = WrappedComponent => {
   return memo(({ ...rest }) => {
     let match = useRouteMatch();
     const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
-    const { getNglView } = useContext(NglContext);
+    const { nglViewList } = useContext(NglContext);
     const dispatch = useDispatch();
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
 
@@ -55,11 +55,11 @@ export const withSnapshotManagement = WrappedComponent => {
         >
           Save
         </Button>,
-        !target && (
+        !target && currentSnapshotID && (
           <Button
             key="restoreSnapshot"
             color="primary"
-            onClick={() => dispatch(restoreFromCurrentSnapshot({ getNglView }))}
+            onClick={() => dispatch(restoreFromCurrentSnapshot({ nglViewList }))}
             startIcon={<Restore />}
             disabled={!enableButton || disableUserInteraction}
           >
@@ -110,7 +110,7 @@ export const withSnapshotManagement = WrappedComponent => {
       disableUserInteraction,
       currentSnapshotID,
       currentProject,
-      getNglView,
+      nglViewList,
       currentSnapshotTitle,
       currentSnapshotDescription
     ]);
