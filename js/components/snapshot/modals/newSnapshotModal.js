@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setOpenSnapshotSavingDialog } from '../redux/actions';
 import { NewSnapshotForm } from './newSnapshotForm';
 import { AddProjectDetail } from '../../projects/addProjectDetail';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 export const NewSnapshotModal = memo(({}) => {
   const dispatch = useDispatch();
@@ -17,7 +18,9 @@ export const NewSnapshotModal = memo(({}) => {
 
   return (
     <Modal open={openSavingDialog}>
-      {!projectID && dialogCurrentStep === 0 && <AddProjectDetail handleCloseModal={handleCloseModal} />}
+      {!projectID && dialogCurrentStep === 0 && DJANGO_CONTEXT['pk'] && (
+        <AddProjectDetail handleCloseModal={handleCloseModal} />
+      )}
       {projectID && <NewSnapshotForm handleCloseModal={handleCloseModal} />}
     </Modal>
   );

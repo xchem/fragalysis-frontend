@@ -2,21 +2,38 @@ import { reloadApiState, setSessionTitle } from '../../../reducers/api/actions';
 import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { api, METHOD } from '../../../utils/api';
 import {
-  setDialogCurrentStep,
   setIsLoadingListOfSnapshots,
   setIsLoadingSnapshotDialog,
   setListOfSnapshots,
   setOpenSnapshotSavingDialog
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { assignSnapshotToProject, loadSnapshotTree } from '../../projects/redux/dispatchActions';
+import {
+  assignSnapshotToProject,
+  createProjectFromSnapshotDialog,
+  loadSnapshotTree
+} from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
-import { SnapshotType } from '../../projects/redux/constants';
+import { ProjectCreationType, SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
+import { useSelector } from 'react-redux';
+
+export const getListOfSnapshots = () => (dispatch, getState) => {
+  dispatch(setIsLoadingListOfSnapshots(true));
+  return api({ url: `${base_url}/api/snapshots/?session_project__isnull=False&author=${DJANGO_CONTEXT['pk']}` })
+    .then(response => {
+      if (response && response.data && response.data.results) {
+        dispatch(setListOfSnapshots(response.data.results));
+      }
+    })
+    .finally(() => {
+      dispatch(setIsLoadingListOfSnapshots(false));
+    });
+};
 
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
   const state = getState();
@@ -169,6 +186,7 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       if (response.data.count === 0) {
         newType = SnapshotType.INIT;
       }
+
       return api({
         url: `${base_url}/api/snapshots/`,
         data: {
@@ -182,33 +200,14 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
           children: []
         },
         method: METHOD.POST
-      }).then(response => {
-        Promise.all([
-          dispatch(setDialogCurrentStep(0)),
-          dispatch(setIsLoadingSnapshotDialog(false)),
-          dispatch(setOpenSnapshotSavingDialog(false)),
-          dispatch(
-            setCurrentSnapshot({
-              id: response.data.id,
-              type: response.data.type,
-              title: response.data.title,
-              author: response.data.author,
-              description: response.data.description,
-              created: response.data.created,
-              children: response.data.children,
-              parent: response.data.parent,
-              data: JSON.parse(response.data.data)
-            })
-          ),
-          dispatch(getListOfSnapshots())
-        ]);
+      }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
-        if (response.data.id && session_project) {
+        if (res.data.id && session_project) {
           // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
           // use react-router !
           window.location.replace(
             `${URLS.projects}${session_project}/${
-              selectedSnapshotToSwitch === null ? response.data.id : selectedSnapshotToSwitch
+              selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
             }`
           );
         }
@@ -217,64 +216,24 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   ]);
 };
 
-export const createSnapshotFromOld = (snapshot, history) => (dispatch, getState) => {
-  if (!snapshot) {
-    return Promise.reject('Snapshot is missing!');
+export const activateSnapshotDialog = (isUserLoggedIn = undefined) => (dispatch, getState) => {
+  const targetId = getState().apiReducers.target_on;
+  if (!isUserLoggedIn && targetId) {
+    const data = {
+      title: ProjectCreationType.READ_ONLY,
+      description: ProjectCreationType.READ_ONLY,
+      target: targetId,
+      author: null,
+      tags: '[]'
+    };
+    dispatch(createProjectFromSnapshotDialog(data))
+      .then(() => {
+        dispatch(setOpenSnapshotSavingDialog(true));
+      })
+      .catch(error => {
+        throw new Error(error);
+      });
+  } else {
+    dispatch(setOpenSnapshotSavingDialog(true));
   }
-  const { title, description, data, author, session_project, children } = snapshot;
-  if (!session_project) {
-    return Promise.reject('Project ID is missing!');
-  }
-
-  return Promise.all([
-    dispatch(setIsLoadingSnapshotDialog(true)),
-    api({
-      url: `${base_url}/api/snapshots/`,
-      data: {
-        title,
-        description,
-        type: SnapshotType.INIT,
-        author,
-        parent: null,
-        session_project,
-        data: JSON.stringify(data),
-        children
-      },
-      method: METHOD.POST
-    }).then(response => {
-      Promise.all([
-        dispatch(
-          setCurrentSnapshot({
-            id: response.data.id,
-            type: response.data.type,
-            title: response.data.title,
-            author: response.data.author,
-            description: response.data.description,
-            created: response.data.created,
-            children: response.data.children,
-            parent: response.data.parent,
-            data: JSON.parse(response.data.data)
-          })
-        ),
-        dispatch(getListOfSnapshots())
-      ]);
-      // redirect to project with newest created snapshot /:projectID/:snapshotID
-      if (response.data.id && session_project) {
-        history.push(`${URLS.projects}${session_project}/${response.data.id}`);
-      }
-    })
-  ]);
-};
-
-export const getListOfSnapshots = () => (dispatch, getState) => {
-  dispatch(setIsLoadingListOfSnapshots(true));
-  return api({ url: `${base_url}/api/snapshots/?session_project!=null` })
-    .then(response => {
-      if (response && response.data && response.data.results) {
-        dispatch(setListOfSnapshots(response.data.results));
-      }
-    })
-    .finally(() => {
-      dispatch(setIsLoadingListOfSnapshots(false));
-    });
 };

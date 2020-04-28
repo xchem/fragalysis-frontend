@@ -8,9 +8,11 @@ import { Button } from '@material-ui/core';
 import FileSaver from 'file-saver';
 import { api } from '../../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
+import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 
 const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   const [downloading, setDownloading] = useState(false);
+  const disableUserInteraction = useDisableUserInteraction();
 
   const handlePdbDownload = async () => {
     setDownloading(true);
@@ -67,7 +69,13 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
     );
   } else {
     return (
-      <Button key={key} color="primary" onClick={handlePdbDownload} startIcon={<CloudDownload />}>
+      <Button
+        key={key}
+        color="primary"
+        disabled={disableUserInteraction}
+        onClick={handlePdbDownload}
+        startIcon={<CloudDownload />}
+      >
         Download structures
       </Button>
     );
