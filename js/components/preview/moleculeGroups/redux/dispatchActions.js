@@ -172,8 +172,11 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
   const snapshot = getState().projectReducers.currentSnapshot.data.nglReducers;
 
-  dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW, snapshot));
-  dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW, snapshot));
+  // dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW, snapshot));
+  // dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW, snapshot));
+
+  // TODO remove objects from summary view
+  // TODO remove objects from major view
 
   // Reset selection reducer
   // remove sites selection
@@ -209,6 +212,8 @@ export const restoreFromCurrentSnapshot = ({ getNglView }) => (dispatch, getStat
 
   dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW, snapshot));
   dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW, snapshot));
+
+  // TODO update all reducers from snapshot state!!!! not only NGL views
   //
   // // Reset selection reducer
   // // remove sites selection
