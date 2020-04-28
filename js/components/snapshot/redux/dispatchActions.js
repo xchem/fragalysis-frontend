@@ -35,7 +35,6 @@ export const getListOfSnapshots = () => (dispatch, getState) => {
     });
 };
 
-
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
   const state = getState();
   const snapshotTitle = state.projectReducers.currentSnapshot.title;

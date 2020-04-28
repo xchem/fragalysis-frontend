@@ -29,6 +29,7 @@ import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { hideAllSelectedMolecules } from '../../molecule/redux/dispatchActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup, majorViewStage }) => (
   dispatch,
@@ -167,16 +168,17 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
 };
 
 export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getState) => {
-  // Reset NGL VIEWS to default state
+  const state = getState();
+  const molGroupList = state.apiReducers.mol_group_list;
+
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
-  const snapshot = getState().projectReducers.currentSnapshot.data.nglReducers;
 
-  // dispatch(reloadNglViewFromSnapshot(majorViewStage, VIEWS.MAJOR_VIEW, snapshot));
-  // dispatch(reloadNglViewFromSnapshot(summaryViewStage, VIEWS.SUMMARY_VIEW, snapshot));
-
-  // TODO remove objects from summary view
-  // TODO remove objects from major view
+  molGroupList.forEach(moleculeGroup => {
+    dispatch(
+      onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView: summaryViewStage, majorViewStage: majorViewStage })
+    );
+  });
 
   // Reset selection reducer
   // remove sites selection
@@ -241,6 +243,49 @@ export const restoreFromCurrentSnapshot = ({ getNglView }) => (dispatch, getStat
   // dispatch(resetCurrentCompoundsSettings(true));
 };
 
+export const onDeselectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage }) => (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+  const mol_group_list = state.apiReducers.mol_group_list;
+  const currentMolGroup = mol_group_list.find(o => o.id === moleculeGroup.id);
+  const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${moleculeGroup.id}`;
+
+  const mol_group_selection = state.selectionReducers.mol_group_selection;
+  const selectionCopy = mol_group_selection.slice();
+  const objIdx = mol_group_selection.indexOf(moleculeGroup.id);
+  dispatch(
+    clearAfterDeselectingMoleculeGroup({
+      molGroupId: moleculeGroup.id,
+      currentMolGroup,
+      majorViewStage
+    })
+  );
+  selectionCopy.splice(objIdx, 1);
+  dispatch(
+    deleteObject(
+      {
+        display_div: VIEWS.SUMMARY_VIEW,
+        name: currentMolGroupStringID
+      },
+      stageSummaryView
+    )
+  );
+  dispatch(
+    loadObject(
+      Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
+      stageSummaryView
+    )
+  );
+  dispatch(setMolGroupSelection(selectionCopy));
+  if (selectionCopy.length > 0) {
+    dispatch(setMolGroupOn(selectionCopy.slice(-1)[0]));
+  } else {
+    dispatch(setMolGroupOn(undefined));
+  }
+};
+
 export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, event }) => (
   dispatch,
   getState
@@ -250,40 +295,11 @@ export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorVi
   const mol_group_selection = state.selectionReducers.mol_group_selection;
 
   const objIdx = mol_group_selection.indexOf(moleculeGroup.id);
-  const selectionCopy = mol_group_selection.slice();
   const currentMolGroup = mol_group_list.find(o => o.id === moleculeGroup.id);
-  const currentMolGroupStringID = `${OBJECT_TYPE.MOLECULE_GROUP}_${moleculeGroup.id}`;
+
   if (event.target.checked && objIdx === -1) {
     dispatch(selectMoleculeGroup(currentMolGroup, stageSummaryView));
   } else if (!event.target.checked && objIdx > -1) {
-    dispatch(
-      clearAfterDeselectingMoleculeGroup({
-        molGroupId: moleculeGroup.id,
-        currentMolGroup,
-        majorViewStage
-      })
-    );
-    selectionCopy.splice(objIdx, 1);
-    dispatch(
-      deleteObject(
-        {
-          display_div: VIEWS.SUMMARY_VIEW,
-          name: currentMolGroupStringID
-        },
-        stageSummaryView
-      )
-    );
-    dispatch(
-      loadObject(
-        Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
-        stageSummaryView
-      )
-    );
-    dispatch(setMolGroupSelection(selectionCopy));
-    if (selectionCopy.length > 0) {
-      dispatch(setMolGroupOn(selectionCopy.slice(-1)[0]));
-    } else {
-      dispatch(setMolGroupOn(undefined));
-    }
+    dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
   }
 };
