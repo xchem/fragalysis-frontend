@@ -4,32 +4,31 @@
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import MoleculeView, { colourList } from './moleculeView';
-import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
+import DatasetMoleculeView, { colourList } from './datasetMoleculeView';
+import {
+  MoleculeListSortFilterDialog,
+  filterMolecules,
+  getAttrDefinition
+} from '../preview/molecule/moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Button } from '../../common/Inputs/Button';
-import { Panel } from '../../common/Surfaces/Panel';
-import { ComputeSize } from '../../../utils/computeSize';
-import { moleculeProperty } from './helperConstants';
-import { VIEWS } from '../../../constants/constants';
-import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+import { Button } from '../common/Inputs/Button';
+import { Panel } from '../common/Surfaces/Panel';
+import { ComputeSize } from '../../utils/computeSize';
+import { moleculeProperty } from '../preview/molecule/helperConstants';
+import { VIEWS } from '../../constants/constants';
+import { NglContext } from '../nglView/nglProvider';
+import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
-  addVector,
-  removeVector,
+  addLigand,
+  removeLigand,
   addProtein,
   removeProtein,
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface,
-  addDensity,
-  removeDensity,
-  addLigand,
-  removeLigand
+  removeSurface
 } from './redux/dispatchActions';
-import { useRouteMatch } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -139,7 +138,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const MoleculeList = memo(
+export const DatasetMoleculeList = memo(
   ({
     height,
     setFilterItemsHeight,
@@ -152,7 +151,8 @@ export const MoleculeList = memo(
     title,
     actions,
     sortDialogAnchorEl,
-    setCurrentMolecules
+    setCurrentMolecules,
+    datasetID
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -162,8 +162,6 @@ export const MoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
-    let match = useRouteMatch();
-    const target = match && match.params && match.params.target;
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
@@ -192,57 +190,6 @@ export const MoleculeList = memo(
       setCurrentPage(currentPage + 1);
     };
 
-    // prevent loading molecules multiple times
-    const firstLoadRef = useRef(!firstLoad);
-
-    useEffect(() => {
-      // TODO this reloads too much..
-      loadFromServer({
-        url: getUrl({ list_type, target_on, mol_group_on }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl.current,
-        list_type,
-        setObjectList: setMoleculeList,
-        setCachedMolLists,
-        mol_group_on,
-        cached_mol_lists
-      })
-        .then(() => {
-          console.log('initializing filter');
-          setPredefinedFilter(dispatch(initializeFilter()).predefined);
-          // initialize molecules on first target load
-          if (
-            stage &&
-            cached_mol_lists &&
-            cached_mol_lists[mol_group_on] &&
-            firstLoadRef &&
-            firstLoadRef.current &&
-            hideProjects &&
-            target !== undefined
-          ) {
-            console.log('initializing molecules');
-            firstLoadRef.current = false;
-            dispatch(setFirstLoad(false));
-            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
-          }
-        })
-        .catch(error => {
-          throw new Error(error);
-        });
-    }, [
-      list_type,
-      mol_group_on,
-      setMoleculeList,
-      stage,
-      firstLoad,
-      target_on,
-      setCachedMolLists,
-      cached_mol_lists,
-      dispatch,
-      hideProjects,
-      target
-    ]);
-
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     // setCurrentMolecules(currentMolecules);
@@ -255,39 +202,26 @@ export const MoleculeList = memo(
     }, [isActiveFilter, setFilterItemsHeight]);
 
     const selectedAll = useRef(false);
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
-    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
+    const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
+    const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
 
-    const changeButtonClassname = (givenList = []) => {
-      if (currentMolecules.length === givenList.length) {
-        return true;
-      } else if (givenList.length > 0) {
-        return null;
-      }
-      return false;
-    };
-
-    const isLigandOn = changeButtonClassname(fragmentDisplayList);
-    const isProteinOn = changeButtonClassname(proteinList);
-    const isComplexOn = changeButtonClassname(complexList);
+    const isLigandOn = ligandList.length > 0 || false;
+    const isProteinOn = proteinList.length > 0 || false;
+    const isComplexOn = complexList.length > 0 || false;
 
     const addType = {
       ligand: addLigand,
       protein: addProtein,
       complex: addComplex,
-      surface: addSurface,
-      density: addDensity,
-      vector: addVector
+      surface: addSurface
     };
 
     const removeType = {
       ligand: removeLigand,
       protein: removeProtein,
       complex: removeComplex,
-      surface: removeSurface,
-      density: removeDensity,
-      vector: removeVector
+      surface: removeSurface
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -296,14 +230,14 @@ export const MoleculeList = memo(
 
     const removeSelectedType = type => {
       joinedMoleculeLists.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
       });
       selectedAll.current = false;
     };
 
     const addNewType = type => {
       joinedMoleculeLists.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
       });
     };
 
@@ -336,7 +270,7 @@ export const MoleculeList = memo(
         forceCompute={isActiveFilter}
       >
         <Panel hasHeader title={title} headerActions={actions}>
-          {sortDialogOpen && (
+          {false && sortDialogOpen && (
             <MoleculeListSortFilterDialog
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
@@ -413,8 +347,7 @@ export const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn === true,
-                                [classes.contColButtonHalfSelected]: isLigandOn === null
+                                [classes.contColButtonSelected]: isLigandOn
                               })}
                               onClick={() => onButtonToggle('ligand')}
                               disabled={disableUserInteraction}
@@ -428,8 +361,7 @@ export const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn,
-                                [classes.contColButtonHalfSelected]: isProteinOn === null
+                                [classes.contColButtonSelected]: isProteinOn
                               })}
                               onClick={() => onButtonToggle('protein')}
                               disabled={disableUserInteraction}
@@ -444,8 +376,7 @@ export const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn,
-                                [classes.contColButtonHalfSelected]: isComplexOn === null
+                                [classes.contColButtonSelected]: isComplexOn
                               })}
                               onClick={() => onButtonToggle('complex')}
                               disabled={disableUserInteraction}
@@ -482,7 +413,13 @@ export const MoleculeList = memo(
                   useWindow={false}
                 >
                   {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
+                    <DatasetMoleculeView
+                      key={data.id}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data}
+                      datasetID={datasetID}
+                    />
                   ))}
                 </InfiniteScroll>
               </Grid>

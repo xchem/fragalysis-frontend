@@ -26,8 +26,7 @@ export const INITIAL_STATE = {
   // bondColorMapOfVectors: {
   //   [vectorID] :{}  // based on currentVector  (smile)
   // }
-  currentVector: null, // selected vector smile (ID) of compoundsOfVectors
-  firstLoad: false
+  currentVector: null // selected vector smile (ID) of compoundsOfVectors
 };
 
 export default function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -249,11 +248,6 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_FILTER_SETTINGS:
       return Object.assign({}, state, {
         filterSettings: action.payload
-      });
-
-    case constants.SET_FIRST_LOAD:
-      return Object.assign({}, state, {
-        firstLoad: action.payload
       });
 
     case constants.RESET_COMPOUNDS_OF_VECTORS:

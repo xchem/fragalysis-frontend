@@ -20,8 +20,7 @@ import {
   setMolGroupSelection,
   setObjectSelection,
   setVectorList,
-  setVectorOnList,
-  setFirstLoad
+  setVectorOnList
 } from '../../../../reducers/selection/actions';
 import { removeMoleculeOrientation, setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
 import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
@@ -136,7 +135,6 @@ export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => 
   const currentMolGroup = getState().apiReducers.mol_group_list[0];
   if (currentMolGroup) {
     dispatch(selectMoleculeGroup(currentMolGroup, summaryView));
-    dispatch(setFirstLoad(true));
   }
 };
 
