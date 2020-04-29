@@ -217,11 +217,6 @@ export const updateVectorCompounds = (key, value) => ({
   payload: { key, value }
 });
 
-export const setFirstLoad = firstLoad => ({
-  type: constants.SET_FIRST_LOAD,
-  payload: firstLoad
-});
-
 export const resetBondColorMapOfVectors = () => ({
   type: constants.RESET_BOND_COLOR_MAP_OF_VECTORS
 });
