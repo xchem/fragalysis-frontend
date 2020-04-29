@@ -338,8 +338,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
 
-  // L, C, V
-
   fragmentDisplayList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {

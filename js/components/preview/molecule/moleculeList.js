@@ -353,9 +353,18 @@ const MoleculeList = memo(
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
 
-    const isLigandOn = fragmentDisplayList.length > 0 || false;
-    const isProteinOn = proteinList.length > 0 || false;
-    const isComplexOn = complexList.length > 0 || false;
+    const changeButtonClassname = (givenList = []) => {
+      if (currentMolecules.length === givenList.length) {
+        return true;
+      } else if (givenList.length > 0) {
+        return null;
+      }
+      return false;
+    };
+
+    const isLigandOn = changeButtonClassname(fragmentDisplayList);
+    const isProteinOn = changeButtonClassname(proteinList);
+    const isComplexOn = changeButtonClassname(complexList);
 
     const addType = {
       ligand: addLigand,
@@ -551,7 +560,8 @@ const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn
+                                [classes.contColButtonSelected]: isLigandOn === true,
+                                [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
                               disabled={disableUserInteraction}
@@ -565,7 +575,8 @@ const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn
+                                [classes.contColButtonSelected]: isProteinOn,
+                                [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
                               disabled={disableUserInteraction}
@@ -580,7 +591,8 @@ const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn
+                                [classes.contColButtonSelected]: isComplexOn,
+                                [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
                               disabled={disableUserInteraction}
