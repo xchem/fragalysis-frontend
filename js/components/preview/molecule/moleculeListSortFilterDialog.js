@@ -161,7 +161,7 @@ export const MoleculeListSortFilterDialog = memo(
         // Selected molecule groups
         const molGroup = cachedMolList[molgroupId];
         if (molGroup) {
-          molecules = molecules.concat(molGroup.results);
+          molecules = molecules.concat(molGroup);
         } else {
           console.log(`Molecule group ${molgroupId} not found in cached list`);
         }

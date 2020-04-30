@@ -93,7 +93,7 @@ const CustomDatasetList = memo(
           ) {
             console.log('initializing molecules');
             firstLoadRef.current = false;
-            // dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
+            // dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
           }
         })
         .catch(error => {
