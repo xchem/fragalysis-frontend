@@ -4,12 +4,10 @@ import { Button } from '@material-ui/core';
 import { Save, Share } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
-import { setSharedSnapshot } from './redux/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { base_url, URLS } from '../routes/constants';
-import { activateSnapshotDialog } from './redux/dispatchActions';
+import { activateSnapshotDialog, shareSnapshot } from './redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -23,8 +21,6 @@ export const withSnapshotManagement = WrappedComponent => {
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
 
     const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
-    const currentSnapshotTitle = useSelector(state => state.projectReducers.currentSnapshot.title);
-    const currentSnapshotDescription = useSelector(state => state.projectReducers.currentSnapshot.description);
 
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
@@ -33,9 +29,12 @@ export const withSnapshotManagement = WrappedComponent => {
     const target = match && match.params && match.params.target;
     const disableUserInteraction = useDisableUserInteraction();
 
-    const enableButton =
+    const enableSaveButton =
       (projectId && currentProject.projectID !== null && currentProject.authorID !== null && DJANGO_CONTEXT['pk']) ||
       target !== undefined;
+
+    const enableShareButton =
+      (projectId && currentProject.projectID !== null && currentSnapshotID !== null) || target !== undefined;
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
@@ -48,7 +47,7 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
           startIcon={<Save />}
-          disabled={!enableButton || disableUserInteraction}
+          disabled={!enableSaveButton || disableUserInteraction}
         >
           Save
         </Button>,
@@ -57,27 +56,20 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           size="small"
           startIcon={<Share />}
-          disabled={
-            disableUserInteraction ||
-            currentSnapshotID === null ||
-            (currentProject && currentProject.projectID === null)
-          }
+          disabled={!enableShareButton || disableUserInteraction}
+          // disabled={
+          //   disableUserInteraction ||
+          //   currentSnapshotID === null ||
+          //   (currentProject && currentProject.projectID === null)
+          // }
           onClick={() => {
-            dispatch(
-              setSharedSnapshot({
-                title: currentSnapshotTitle,
-                description: currentSnapshotDescription,
-                url: `${base_url}${URLS.projects}${currentProject.projectID}/${currentSnapshotID}`
-              })
-            );
+            dispatch(shareSnapshot());
           }}
         >
           Share
         </Button>,
         <DownloadPdb key="download" />
       ]);
-      //   setSnackBarTitle('Currently no active session.');
-      //  setSnackBarTitle(`Session: ${sessionTitle}`);
 
       return () => {
         setHeaderButtons(null);
@@ -85,7 +77,7 @@ export const withSnapshotManagement = WrappedComponent => {
         setHeaderNavbarTitle('');
       };
     }, [
-      enableButton,
+      enableSaveButton,
       dispatch,
       sessionTitle,
       setHeaderNavbarTitle,

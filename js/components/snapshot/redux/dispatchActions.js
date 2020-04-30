@@ -2,10 +2,12 @@ import { reloadApiState, setSessionTitle } from '../../../reducers/api/actions';
 import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { api, METHOD } from '../../../utils/api';
 import {
+  setDisableRedirect,
   setIsLoadingListOfSnapshots,
   setIsLoadingSnapshotDialog,
   setListOfSnapshots,
-  setOpenSnapshotSavingDialog
+  setOpenSnapshotSavingDialog,
+  setSharedSnapshot
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import {
@@ -20,7 +22,6 @@ import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
-import { useSelector } from 'react-redux';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   dispatch(setIsLoadingListOfSnapshots(true));
@@ -173,6 +174,7 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   const { apiReducers, nglReducers, selectionReducers, previewReducers } = state;
   const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
+  const disableRedirect = state.snapshotReducers.disableRedirect;
 
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -203,21 +205,39 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
-          // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
-          // use react-router !
-          window.location.replace(
-            `${URLS.projects}${session_project}/${
-              selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
-            }`
-          );
+          if (disableRedirect === false) {
+            // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
+            // use react-router !
+            window.location.replace(
+              `${URLS.projects}${session_project}/${
+                selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
+              }`
+            );
+          } else {
+            dispatch(setOpenSnapshotSavingDialog(false));
+            dispatch(setIsLoadingSnapshotDialog(false)),
+              dispatch(
+                setSharedSnapshot({
+                  title,
+                  description,
+                  url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
+                })
+              );
+          }
         }
       });
     })
   ]);
 };
 
-export const activateSnapshotDialog = (isUserLoggedIn = undefined) => (dispatch, getState) => {
+export const activateSnapshotDialog = (isUserLoggedIn = undefined, finallyShareSnapshot = false) => (
+  dispatch,
+  getState
+) => {
   const targetId = getState().apiReducers.target_on;
+
+  dispatch(setDisableRedirect(finallyShareSnapshot));
+
   if (!isUserLoggedIn && targetId) {
     const data = {
       title: ProjectCreationType.READ_ONLY,
@@ -235,5 +255,28 @@ export const activateSnapshotDialog = (isUserLoggedIn = undefined) => (dispatch,
       });
   } else {
     dispatch(setOpenSnapshotSavingDialog(true));
+  }
+};
+
+export const shareSnapshot = () => (dispatch, getState) => {
+  const state = getState();
+  const currentSnapshotID = state.projectReducers.currentSnapshot.id;
+  const currentProject = state.projectReducers.currentProject;
+  // project and current snapshot doesnt exist
+  if (currentSnapshotID === null || (currentProject && currentProject.projectID === null)) {
+    dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk'], true));
+  }
+  // project and current snapshot exists
+  else {
+    const currentSnapshotID = state.projectReducers.currentSnapshot.id;
+    const currentSnapshotTitle = state.projectReducers.currentSnapshot.title;
+    const currentSnapshotDescription = state.projectReducers.currentSnapshot.description;
+    dispatch(
+      setSharedSnapshot({
+        title: currentSnapshotTitle,
+        description: currentSnapshotDescription,
+        url: `${base_url}${URLS.projects}${currentProject.projectID}/${currentSnapshotID}`
+      })
+    );
   }
 };
