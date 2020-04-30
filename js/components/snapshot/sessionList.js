@@ -201,7 +201,7 @@ const SessionList = memo(
               <Panel hasHeader title={sessionListTitle}>
                 <List>{sessionIdList.slice(0, 10).map(data => render_method(data))}</List>
                 <p>
-                  Full list and session management here: <Link to={URLS.sessions}>Sessions</Link>
+                  Full list and session management here: <Link to={URLS.snapshot}>Sessions</Link>
                 </p>
               </Panel>
             );

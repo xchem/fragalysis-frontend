@@ -50,7 +50,7 @@ const Routes = memo(() => {
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
-          <Route exact path={`${URLS.sessions}:sessionUUID`} component={SessionRedirect} />
+          <Route exact path={`${URLS.snapshot}:sessionUUID`} component={SessionRedirect} />
           <Route
             exact
             path={`${URLS.target}:target`}
