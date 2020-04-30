@@ -15,7 +15,7 @@ import {
   removeFromVectorOnList,
   resetSelectionState,
   setComplexList,
-  setFilterSettings,
+  setFilter,
   setFragmentDisplayList,
   setMolGroupSelection,
   setObjectSelection,
@@ -196,8 +196,8 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
   dispatch(setVectorOnList([]));
   dispatch(setVectorList([]));
 
-  // reset filterSettings of molecules
-  dispatch(setFilterSettings(undefined));
+  // reset filter of molecules
+  dispatch(setFilter(undefined));
   // close sort dialog
   dispatch(setSortDialogOpen(false));
 

@@ -30,7 +30,6 @@ const CustomDatasetList = memo(
     filterItemsHeight,
     moleculeLists,
     filter,
-    filterSettings,
     sortDialogOpen,
     setSortDialogOpen,
     firstLoad,
@@ -43,7 +42,7 @@ const CustomDatasetList = memo(
       oldUrl.current = url;
     };
 
-    const isActiveFilter = !!(filterSettings || {}).active;
+    const isActiveFilter = !!(filter || {}).active;
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
 
     const { getNglView } = useContext(NglContext);
@@ -57,7 +56,7 @@ const CustomDatasetList = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
+      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -149,7 +148,6 @@ const CustomDatasetList = memo(
         moleculeDataList={joinedMoleculeLists}
         object_selection={object_selection}
         cached_mol_lists={cached_mol_lists}
-        filterSettings={filterSettings}
         filter={filter}
         actions={actions}
         sortDialogAnchorEl={sortDialogAnchorEl}
@@ -169,7 +167,6 @@ function mapStateToProps(state) {
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     moleculeLists: state.datasetsReducers.moleculeLists,
     filter: state.selectionReducers.filter,
-    filterSettings: state.selectionReducers.filterSettings,
     sortDialogOpen: state.previewReducers.molecule.sortDialogOpen,
     firstLoad: state.selectionReducers.firstLoad
   };

@@ -8,7 +8,7 @@ import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch } from 'react-redux';
-import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { setFilter } from '../../../reducers/selection/actions';
 import { MOL_ATTRIBUTES } from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -181,7 +181,7 @@ export const MoleculeListSortFilterDialog = memo(
           filterSet.filter[attr.key].priority = 0;
         }
       }
-      dispatch(setFilterSettings(filterSet));
+      dispatch(setFilter(filterSet));
     };
 
     const handleItemChange = key => setting => {
