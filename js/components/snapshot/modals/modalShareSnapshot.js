@@ -3,16 +3,13 @@
  */
 
 import React, { memo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Modal from '../../common/Modal';
 import { DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { updateClipboard } from '../helpers';
-import { setSharedSnapshot } from '../redux/actions';
-import { initSharedSnapshot } from '../redux/reducer';
 
 export const ModalShareSnapshot = memo(({}) => {
-  const dispatch = useDispatch();
   const sharedSnapshot = useSelector(state => state.snapshotReducers.sharedSnapshot);
 
   const openInNewTab = () => {
@@ -20,7 +17,9 @@ export const ModalShareSnapshot = memo(({}) => {
   };
 
   const closeModal = () => {
-    dispatch(setSharedSnapshot(initSharedSnapshot));
+    // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
+    // use react-router !
+    window.location.replace(sharedSnapshot.url);
   };
 
   return (

@@ -7,7 +7,7 @@ import { HeaderContext } from '../header/headerContext';
 import { useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { activateSnapshotDialog, shareSnapshot } from './redux/dispatchActions';
+import { activateSnapshotDialog } from './redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -57,13 +57,8 @@ export const withSnapshotManagement = WrappedComponent => {
           size="small"
           startIcon={<Share />}
           disabled={!enableShareButton || disableUserInteraction}
-          // disabled={
-          //   disableUserInteraction ||
-          //   currentSnapshotID === null ||
-          //   (currentProject && currentProject.projectID === null)
-          // }
           onClick={() => {
-            dispatch(shareSnapshot());
+            dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk'], true));
           }}
         >
           Share
@@ -87,7 +82,8 @@ export const withSnapshotManagement = WrappedComponent => {
       targetName,
       setSnackBarColor,
       projectId,
-      disableUserInteraction
+      disableUserInteraction,
+      enableShareButton
     ]);
 
     return <WrappedComponent {...rest} />;

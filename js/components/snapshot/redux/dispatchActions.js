@@ -215,14 +215,14 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
             );
           } else {
             dispatch(setOpenSnapshotSavingDialog(false));
-            dispatch(setIsLoadingSnapshotDialog(false)),
-              dispatch(
-                setSharedSnapshot({
-                  title,
-                  description,
-                  url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
-                })
-              );
+            dispatch(setIsLoadingSnapshotDialog(false));
+            dispatch(
+              setSharedSnapshot({
+                title,
+                description,
+                url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
+              })
+            );
           }
         }
       });
@@ -255,28 +255,5 @@ export const activateSnapshotDialog = (isUserLoggedIn = undefined, finallyShareS
       });
   } else {
     dispatch(setOpenSnapshotSavingDialog(true));
-  }
-};
-
-export const shareSnapshot = () => (dispatch, getState) => {
-  const state = getState();
-  const currentSnapshotID = state.projectReducers.currentSnapshot.id;
-  const currentProject = state.projectReducers.currentProject;
-  // project and current snapshot doesnt exist
-  if (currentSnapshotID === null || (currentProject && currentProject.projectID === null)) {
-    dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk'], true));
-  }
-  // project and current snapshot exists
-  else {
-    const currentSnapshotID = state.projectReducers.currentSnapshot.id;
-    const currentSnapshotTitle = state.projectReducers.currentSnapshot.title;
-    const currentSnapshotDescription = state.projectReducers.currentSnapshot.description;
-    dispatch(
-      setSharedSnapshot({
-        title: currentSnapshotTitle,
-        description: currentSnapshotDescription,
-        url: `${base_url}${URLS.projects}${currentProject.projectID}/${currentSnapshotID}`
-      })
-    );
   }
 };
