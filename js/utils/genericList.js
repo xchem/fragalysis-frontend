@@ -127,7 +127,7 @@ export const loadFromServer = ({
         if (list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
           // update cached mol lists
           const newMolLists = Object.assign({}, cached_mol_lists, {
-            [mol_group_on]: response.data
+            [mol_group_on]: response.data.results
           });
           setCachedMolLists(newMolLists);
         }

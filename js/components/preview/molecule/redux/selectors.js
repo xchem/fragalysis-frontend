@@ -17,8 +17,8 @@ export const getJoinedMoleculeList = createSelector(
       object_selection.forEach(obj => {
         const cachedData = cached_mol_lists[obj];
         const site = (mol_group_list || []).findIndex(group => group.id === obj) + 1;
-        if (cachedData && cachedData.results) {
-          cachedData.results.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
+        if (cachedData) {
+          cachedData.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
         }
       });
     }
