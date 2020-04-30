@@ -29,7 +29,6 @@ import {
   addLigand,
   removeLigand
 } from './redux/dispatchActions';
-import { useRouteMatch } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -162,8 +161,6 @@ export const MoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
-    let match = useRouteMatch();
-    const target = match && match.params && match.params.target;
 
     const isActiveFilter = !!(filterSettings || {}).active;
 
@@ -191,57 +188,6 @@ export const MoleculeList = memo(
     const loadNextMolecules = () => {
       setCurrentPage(currentPage + 1);
     };
-
-    // prevent loading molecules multiple times
-    const firstLoadRef = useRef(!firstLoad);
-
-    useEffect(() => {
-      // TODO this reloads too much..
-      loadFromServer({
-        url: getUrl({ list_type, target_on, mol_group_on }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl.current,
-        list_type,
-        setObjectList: setMoleculeList,
-        setCachedMolLists,
-        mol_group_on,
-        cached_mol_lists
-      })
-        .then(() => {
-          console.log('initializing filter');
-          setPredefinedFilter(dispatch(initializeFilter()).predefined);
-          // initialize molecules on first target load
-          if (
-            stage &&
-            cached_mol_lists &&
-            cached_mol_lists[mol_group_on] &&
-            firstLoadRef &&
-            firstLoadRef.current &&
-            hideProjects &&
-            target !== undefined
-          ) {
-            console.log('initializing molecules');
-            firstLoadRef.current = false;
-            dispatch(setFirstLoad(false));
-            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on].results));
-          }
-        })
-        .catch(error => {
-          throw new Error(error);
-        });
-    }, [
-      list_type,
-      mol_group_on,
-      setMoleculeList,
-      stage,
-      firstLoad,
-      target_on,
-      setCachedMolLists,
-      cached_mol_lists,
-      dispatch,
-      hideProjects,
-      target
-    ]);
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);

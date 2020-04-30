@@ -21,6 +21,7 @@ import { MoleculeList } from './moleculeList';
 import { hideAllSelectedMolecules, initializeMolecules } from './redux/dispatchActions';
 import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
 import { initializeDatasetMoleculeLists } from '../../datasets/redux/dispatchActions';
+import { useRouteMatch } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -74,6 +75,9 @@ const HitNavigator = memo(
       oldUrl.current = url;
     };
 
+    let match = useRouteMatch();
+    const target = match && match.params && match.params.target;
+
     const isActiveFilter = !!(filterSettings || {}).active;
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const [currentMolecules, setCurrentMolecules] = useState(null);
@@ -121,7 +125,8 @@ const HitNavigator = memo(
             cached_mol_lists[mol_group_on] &&
             firstLoadRef &&
             firstLoadRef.current &&
-            hideProjects
+            hideProjects &&
+            target !== undefined
           ) {
             console.log('initializing molecules');
             firstLoadRef.current = false;
@@ -141,8 +146,9 @@ const HitNavigator = memo(
       target_on,
       setCachedMolLists,
       cached_mol_lists,
+      dispatch,
       hideProjects,
-      dispatch
+      target
     ]);
 
     useEffect(() => {
