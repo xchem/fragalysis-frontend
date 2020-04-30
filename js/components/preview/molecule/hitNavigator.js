@@ -14,7 +14,7 @@ import { getUrl, loadFromServer } from '../../../utils/genericList';
 import { setSortDialogOpen } from './redux/actions';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
+import { setFilter } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { MoleculeList } from './moleculeList';
@@ -61,7 +61,6 @@ const HitNavigator = memo(
     filterItemsHeight,
     getJoinedMoleculeList,
     filter,
-    filterSettings,
     sortDialogOpen,
     setSortDialogOpen,
     firstLoad,
@@ -78,7 +77,7 @@ const HitNavigator = memo(
     let match = useRouteMatch();
     const target = match && match.params && match.params.target;
 
-    const isActiveFilter = !!(filterSettings || {}).active;
+    const isActiveFilter = !!(filter || {}).active;
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const [currentMolecules, setCurrentMolecules] = useState(null);
 
@@ -93,7 +92,7 @@ const HitNavigator = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
+      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -164,7 +163,7 @@ const HitNavigator = memo(
           filterSet.filter[attr.key].priority = 0;
         }
       }
-      dispatch(setFilterSettings(filterSet));
+      dispatch(setFilter(filterSet));
     };
 
     const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
@@ -257,7 +256,6 @@ const HitNavigator = memo(
         moleculeDataList={joinedMoleculeLists}
         object_selection={object_selection}
         cached_mol_lists={cached_mol_lists}
-        filterSettings={filterSettings}
         filter={filter}
         actions={actions}
         sortDialogAnchorEl={sortDialogAnchorEl}
@@ -277,7 +275,6 @@ function mapStateToProps(state) {
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     getJoinedMoleculeList: getJoinedMoleculeList(state),
     filter: state.selectionReducers.filter,
-    filterSettings: state.selectionReducers.filterSettings,
     sortDialogOpen: state.previewReducers.molecule.sortDialogOpen,
     firstLoad: state.selectionReducers.firstLoad
   };

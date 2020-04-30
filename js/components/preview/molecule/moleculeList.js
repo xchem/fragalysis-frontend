@@ -146,7 +146,6 @@ export const MoleculeList = memo(
     object_selection,
     cached_mol_lists,
     moleculeDataList,
-    filterSettings,
     filter,
     title,
     actions,
@@ -162,7 +161,7 @@ export const MoleculeList = memo(
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
 
-    const isActiveFilter = !!(filterSettings || {}).active;
+    const isActiveFilter = !!(filter || {}).active;
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -179,7 +178,7 @@ export const MoleculeList = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filterSettings);
+      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -288,7 +287,6 @@ export const MoleculeList = memo(
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
               filter={filter}
-              filterSettings={filterSettings}
             />
           )}
           <div ref={filterRef}>
@@ -303,11 +301,11 @@ export const MoleculeList = memo(
                     </Grid>
                     <Grid item xs={11}>
                       <Grid container direction="row" justify="flex-start" spacing={1}>
-                        {filterSettings.priorityOrder.map(attr => (
+                        {filter.priorityOrder.map(attr => (
                           <Grid item key={`Mol-Tooltip-${attr}`}>
                             <Tooltip
-                              title={`${filterSettings.filter[attr].minValue}-${filterSettings.filter[attr].maxValue} ${
-                                filterSettings.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                              title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
+                                filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
                               }`}
                               placement="top"
                             >

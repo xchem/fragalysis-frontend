@@ -16,7 +16,6 @@ export const INITIAL_STATE = {
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
-  filterSettings: undefined,
 
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
@@ -243,11 +242,6 @@ export default function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_FILTER:
       return Object.assign({}, state, {
         filter: action.payload
-      });
-
-    case constants.SET_FILTER_SETTINGS:
-      return Object.assign({}, state, {
-        filterSettings: action.payload
       });
 
     case constants.RESET_COMPOUNDS_OF_VECTORS:
