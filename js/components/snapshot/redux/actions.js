@@ -40,3 +40,8 @@ export const setSelectedSnapshotToSwitch = (snapshot = null) => ({
   type: constants.SET_SELECTED_SNAPSHOT_TO_SWITCH,
   payload: snapshot
 });
+
+export const setDisableRedirect = (disable = false) => ({
+  type: constants.SET_DISABLE_REDIRECT,
+  payload: disable
+});

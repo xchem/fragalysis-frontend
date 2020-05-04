@@ -19,7 +19,8 @@ export const INITIAL_STATE = {
   sharedSnapshotURL: null,
   sharedSnapshot: initSharedSnapshot,
   isOpenModalSaveSnapshotBeforeExit: false,
-  selectedSnapshotToSwitch: null
+  selectedSnapshotToSwitch: null,
+  disableRedirect: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -80,6 +81,10 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_SELECTED_SNAPSHOT_TO_SWITCH:
       return Object.assign({}, state, {
         selectedSnapshotToSwitch: action.payload
+      });
+    case constants.SET_DISABLE_REDIRECT:
+      return Object.assign({}, state, {
+        disableRedirect: action.payload
       });
 
     default:
