@@ -4,6 +4,11 @@ export const INITIAL_STATE = {
   datasets: [], // list of dataset objects
   moleculeLists: {}, // map of $datasetID and its $moleculeList
 
+  // filter
+  filter: undefined,
+  filterDialogOpen: false,
+
+  // control buttons
   ligandLists: {}, // map of $datasetID and its $list
   proteinLists: {}, // map of $datasetID and its $list
   complexLists: {}, // map of $datasetID and its $list
@@ -98,41 +103,47 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       }
       return Object.assign({}, state, { moleculeLists: decreasedMolecules });
 
+    case constants.SET_FILTER:
+      return Object.assign({}, state, { filter: action.payload });
+
+    case constants.SET_FILTER_DIALOG_OPEN:
+      return Object.assign({}, state, { filterDialogOpen: action.payload });
+
     case constants.SET_LIGAND_LIST:
-      return setList(state, 'ligandLists', action.datasetID, action.ligandList);
+      return setList(state, 'ligandLists', action.payload.datasetID, action.payload.ligandList);
 
     case constants.APPEND_LIGAND_LIST:
-      return appendToList(state, 'ligandLists', action.datasetID, action.item.id);
+      return appendToList(state, 'ligandLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.REMOVE_FROM_LIGAND_LIST:
-      return removeFromList(state, 'ligandLists', action.datasetID, action.item.id);
+      return removeFromList(state, 'ligandLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.SET_PROTEIN_LIST:
-      return setList(state, 'proteinLists', action.datasetID, action.proteinList);
+      return setList(state, 'proteinLists', action.payload.datasetID, action.payload.proteinList);
 
     case constants.APPEND_PROTEIN_LIST:
-      return appendToList(state, 'proteinLists', action.datasetID, action.item.id);
+      return appendToList(state, 'proteinLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.REMOVE_FROM_PROTEIN_LIST:
-      return removeFromList(state, 'proteinLists', action.datasetID, action.item.id);
+      return removeFromList(state, 'proteinLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.SET_COMPLEX_LIST:
-      return setList(state, 'complexLists', action.datasetID, action.complexList);
+      return setList(state, 'complexLists', action.payload.datasetID, action.payload.complexList);
 
     case constants.APPEND_COMPLEX_LIST:
-      return appendToList(state, 'complexLists', action.datasetID, action.item.id);
+      return appendToList(state, 'complexLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.REMOVE_FROM_COMPLEX_LIST:
-      return removeFromList(state, 'complexLists', action.datasetID, action.item.id);
+      return removeFromList(state, 'complexLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.SET_SURFACE_LIST:
-      return setList(state, 'surfaceLists', action.datasetID, action.surfaceList);
+      return setList(state, 'surfaceLists', action.payload.datasetID, action.payload.surfaceList);
 
     case constants.APPEND_SURFACE_LIST:
-      return appendToList(state, 'surfaceLists', action.datasetID, action.item.id);
+      return appendToList(state, 'surfaceLists', action.payload.datasetID, action.payload.item.id);
 
     case constants.REMOVE_FROM_SURFACE_LIST:
-      return removeFromList(state, 'surfaceLists', action.datasetID, action.item.id);
+      return removeFromList(state, 'surfaceLists', action.payload.datasetID, action.payload.item.id);
 
     default:
       return state;

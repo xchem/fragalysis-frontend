@@ -1,5 +1,6 @@
 import { deleteObject, loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import {
+  setFilter,
   appendLigandList,
   appendProteinList,
   appendComplexList,
@@ -18,6 +19,7 @@ import {
   generateMoleculeObject
 } from '../../nglView/generatingObjects';
 import { VIEWS } from '../../../constants/constants';
+import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
 
 import { addMoleculeList } from './actions';
 
@@ -42,6 +44,73 @@ export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getStat
       )
     );
   });
+};
+
+export const getListedMolecules = (object_selection, cached_mol_lists) => {
+  let molecules = [];
+  if ((object_selection || []).length) {
+    for (let molgroupId of object_selection) {
+      // Selected molecule groups
+      const molGroup = cached_mol_lists[molgroupId];
+      if (molGroup) {
+        molecules = molecules.concat(molGroup);
+      } else {
+        console.log(`Molecule group ${molgroupId} not found in cached list`);
+      }
+    }
+  }
+
+  return molecules;
+};
+
+export const initializeFilter = (object_selection, cached_mol_lists) => (dispatch, getState) => {
+  const state = getState();
+  if (!object_selection || !cached_mol_lists) {
+    object_selection = (() => {
+      let tmp = [];
+      state.datasetsReducers.datasets.forEach(dataset => {
+        tmp.push(dataset.id);
+      });
+      return tmp;
+    })(state.datasetsReducers.datasets);
+    cached_mol_lists = state.datasetsReducers.moleculeLists;
+  }
+
+  let initObject = state.selectionReducers.filter;
+
+  if (initObject === undefined) {
+    initObject = {
+      active: false,
+      predefined: 'none',
+      filter: {},
+      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
+    };
+  } else {
+    initObject = Object.assign({}, initObject);
+    console.log('using saved filter');
+  }
+
+  for (let attr of MOL_ATTRIBUTES) {
+    const lowAttr = attr.key.toLowerCase();
+    let minValue = -999999;
+    let maxValue = 0;
+    for (let molecule of getListedMolecules(object_selection, cached_mol_lists)) {
+      const attrValue = molecule[lowAttr];
+      if (attrValue > maxValue) maxValue = attrValue;
+      if (minValue === -999999) minValue = maxValue;
+      if (attrValue < minValue) minValue = attrValue;
+    }
+
+    initObject.filter[attr.key] = {
+      priority: 0,
+      order: 1,
+      minValue: minValue,
+      maxValue: maxValue,
+      isFloat: attr.isFloat
+    };
+  }
+  dispatch(setFilter(initObject));
+  return initObject;
 };
 
 /* ----------------------------------------------- */
