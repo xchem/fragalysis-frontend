@@ -11,6 +11,7 @@ export const NewSnapshotModal = memo(({}) => {
   const openSavingDialog = useSelector(state => state.snapshotReducers.openSavingDialog);
   const dialogCurrentStep = useSelector(state => state.snapshotReducers.dialogCurrentStep);
   const projectID = useSelector(state => state.projectReducers.currentProject.projectID);
+  const forceCreateProject = useSelector(state => state.projectReducers.forceCreateProject);
 
   const handleCloseModal = () => {
     dispatch(setOpenSnapshotSavingDialog(false));
@@ -18,10 +19,10 @@ export const NewSnapshotModal = memo(({}) => {
 
   return (
     <Modal open={openSavingDialog}>
-      {!projectID && dialogCurrentStep === 0 && DJANGO_CONTEXT['pk'] && (
+      {(!projectID || forceCreateProject === true) && dialogCurrentStep === 0 && DJANGO_CONTEXT['pk'] && (
         <AddProjectDetail handleCloseModal={handleCloseModal} />
       )}
-      {projectID && <NewSnapshotForm handleCloseModal={handleCloseModal} />}
+      {projectID && forceCreateProject === false && <NewSnapshotForm handleCloseModal={handleCloseModal} />}
     </Modal>
   );
 });

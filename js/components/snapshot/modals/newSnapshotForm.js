@@ -37,6 +37,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
+  const isForceProjectCreated = useSelector(state => state.projectReducers.isForceProjectCreated);
 
   return (
     <>
@@ -62,7 +63,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
           const description = values.description;
           const type = SnapshotType.MANUAL;
           const author = DJANGO_CONTEXT['pk'] || null;
-          const parent = currentSnapshot.id;
+          const parent = isForceProjectCreated === false ? currentSnapshot.id : null;
           const session_project = currentProject.projectID;
 
           dispatch(createNewSnapshot({ title, description, type, author, parent, session_project })).catch(error => {
