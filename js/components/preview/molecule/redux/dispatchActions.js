@@ -335,6 +335,8 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
   const complexList = state.selectionReducers.complexList;
   const vectorOnList = state.selectionReducers.vectorOnList;
+  const surfaceList = state.selectionReducers.surfaceList;
+  const proteinList = state.selectionReducers.proteinList;
 
   fragmentDisplayList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
@@ -352,6 +354,22 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
       dispatch(removeVector(stage, data));
+    }
+  });
+
+  // remove Surface
+  surfaceList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      dispatch(removeSurface(stage, data));
+    }
+  });
+
+  // remove Protein
+  proteinList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      dispatch(removeProtein(stage, data));
     }
   });
 
