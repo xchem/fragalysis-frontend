@@ -43,6 +43,7 @@ export const Projects = memo(({}) => {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const isLoadingListOfProjects = useSelector(state => state.projectReducers.isLoadingListOfProjects);
   const dispatch = useDispatch();
 
   const listOfProjects = useSelector(state => state.projectReducers.listOfProjects).map(project => {
@@ -116,75 +117,78 @@ export const Projects = memo(({}) => {
             <Add />
           </IconButton>
         ]}
+        isLoading={isLoadingListOfProjects}
       >
-        <Table className={classes.table} size="small" aria-label="a dense table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell align="left">Target</TableCell>
-              <TableCell align="left">Tags</TableCell>
-              <TableCell align="left">Author</TableCell>
-              <TableCell align="left">Created at</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
-              <Tooltip
-                title={project.description}
-                key={project.id}
-                placement="bottom-start"
-                TransitionProps={{ timeout: 600 }}
-                TransitionComponent={Zoom}
-              >
-                <TableRow hover>
-                  <TableCell component="th" scope="row">
-                    <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
-                  </TableCell>
-                  <TableCell align="left">
-                    {project.tags &&
-                      project.tags.map((tag, index) => (
-                        <Chip key={index} label={tag} size="small" className={classes.chip} />
-                      ))}
-                  </TableCell>
-                  <TableCell align="left">{project.author}</TableCell>
-                  <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                      onClick={() =>
-                        dispatch(removeProject(project.id)).catch(error => {
-                          throw new Error(error);
-                        })
-                      }
-                    >
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              </Tooltip>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[10, 15, 30, 50, 100]}
-                count={listOfProjects.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true
-                }}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
+        {isLoadingListOfProjects === false && (
+          <Table className={classes.table} size="small" aria-label="a dense table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell align="left">Target</TableCell>
+                <TableCell align="left">Tags</TableCell>
+                <TableCell align="left">Author</TableCell>
+                <TableCell align="left">Created at</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
+                <Tooltip
+                  title={project.description}
+                  key={project.id}
+                  placement="bottom-start"
+                  TransitionProps={{ timeout: 600 }}
+                  TransitionComponent={Zoom}
+                >
+                  <TableRow hover>
+                    <TableCell component="th" scope="row">
+                      <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
+                    </TableCell>
+                    <TableCell align="left">
+                      {project.tags &&
+                        project.tags.map((tag, index) => (
+                          <Chip key={index} label={tag} size="small" className={classes.chip} />
+                        ))}
+                    </TableCell>
+                    <TableCell align="left">{project.author}</TableCell>
+                    <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
+                        onClick={() =>
+                          dispatch(removeProject(project.id)).catch(error => {
+                            throw new Error(error);
+                          })
+                        }
+                      >
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                </Tooltip>
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[10, 15, 30, 50, 100]}
+                  count={listOfProjects.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  SelectProps={{
+                    inputProps: { 'aria-label': 'rows per page' },
+                    native: true
+                  }}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              </TableRow>
+            </TableFooter>
+          </Table>
+        )}
       </Panel>
       <ProjectModal />
     </>

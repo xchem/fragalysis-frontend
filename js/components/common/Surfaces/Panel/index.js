@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useEffect, useState } from 'react';
-import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography } from '@material-ui/core';
+import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography, CircularProgress } from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 
@@ -44,6 +44,9 @@ const useStyles = makeStyles(theme => ({
   hidden: {
     height: 0,
     display: 'none'
+  },
+  loading: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -60,6 +63,7 @@ export const Panel = memo(
         onExpandChange,
         children,
         bodyOverflow,
+        isLoading,
         ...rest
       },
       ref
@@ -131,6 +135,13 @@ export const Panel = memo(
                 )}
               </Grid>
             </div>
+          )}
+          {isLoading && (
+            <Grid container alignItems="center" justify="center" className={classes.loading}>
+              <Grid item>
+                <CircularProgress />
+              </Grid>
+            </Grid>
           )}
           {hasExpansion && <div className={expanded === true ? bodyClass : classes.hidden}>{children}</div>}
           {!hasExpansion && <div className={bodyClass}>{children}</div>}

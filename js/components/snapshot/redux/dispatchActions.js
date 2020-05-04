@@ -2,10 +2,12 @@ import { reloadApiState, setSessionTitle } from '../../../reducers/api/actions';
 import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { api, METHOD } from '../../../utils/api';
 import {
+  setDisableRedirect,
   setIsLoadingListOfSnapshots,
   setIsLoadingSnapshotDialog,
   setListOfSnapshots,
-  setOpenSnapshotSavingDialog
+  setOpenSnapshotSavingDialog,
+  setSharedSnapshot
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import {
@@ -20,7 +22,7 @@ import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
-import { useSelector } from 'react-redux';
+import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   dispatch(setIsLoadingListOfSnapshots(true));
@@ -99,7 +101,7 @@ export const saveCurrentSnapshot = ({
     });
 };
 
-export const createInitialSnapshot = projectID => async (dispatch, getState) => {
+export const createInitialSnapshot = (projectID, summaryView) => async (dispatch, getState) => {
   const { apiReducers, nglReducers, selectionReducers, previewReducers } = getState();
   const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
   const type = SnapshotType.INIT;
@@ -121,7 +123,7 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
   }
   // store initial snapshot only to redux state
   else {
-    dispatch(
+    await dispatch(
       setCurrentSnapshot({
         id: null,
         type,
@@ -134,6 +136,7 @@ export const createInitialSnapshot = projectID => async (dispatch, getState) => 
         data
       })
     );
+    dispatch(selectFirstMolGroup({ summaryView }));
   }
 };
 
@@ -173,6 +176,7 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   const { apiReducers, nglReducers, selectionReducers, previewReducers } = state;
   const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
+  const disableRedirect = state.snapshotReducers.disableRedirect;
 
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -203,21 +207,39 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
-          // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
-          // use react-router !
-          window.location.replace(
-            `${URLS.projects}${session_project}/${
-              selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
-            }`
-          );
+          if (disableRedirect === false) {
+            // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
+            // use react-router !
+            window.location.replace(
+              `${URLS.projects}${session_project}/${
+                selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
+              }`
+            );
+          } else {
+            dispatch(setOpenSnapshotSavingDialog(false));
+            dispatch(setIsLoadingSnapshotDialog(false));
+            dispatch(
+              setSharedSnapshot({
+                title,
+                description,
+                url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
+              })
+            );
+          }
         }
       });
     })
   ]);
 };
 
-export const activateSnapshotDialog = (isUserLoggedIn = undefined) => (dispatch, getState) => {
+export const activateSnapshotDialog = (isUserLoggedIn = undefined, finallyShareSnapshot = false) => (
+  dispatch,
+  getState
+) => {
   const targetId = getState().apiReducers.target_on;
+
+  dispatch(setDisableRedirect(finallyShareSnapshot));
+
   if (!isUserLoggedIn && targetId) {
     const data = {
       title: ProjectCreationType.READ_ONLY,
