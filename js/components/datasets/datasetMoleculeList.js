@@ -147,6 +147,7 @@ export const DatasetMoleculeList = memo(
     cached_mol_lists,
     moleculeDataList,
     filter,
+    setFilter,
     title,
     actions,
     sortDialogAnchorEl,
@@ -160,7 +161,7 @@ export const DatasetMoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 34;
     const imgWidth = 150;
-    const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
+    const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
 
     const isActiveFilter = !!(filter || {}).active;
 
@@ -269,13 +270,16 @@ export const DatasetMoleculeList = memo(
         forceCompute={isActiveFilter}
       >
         <Panel hasHeader title={title} headerActions={actions}>
-          {false && sortDialogOpen && (
+          {sortDialogOpen && (
             <MoleculeListSortFilterDialog
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
               filter={filter}
+              setFilter={setFilter}
+              parentID="datasets"
+              placement="left-start"
             />
           )}
           <div ref={filterRef}>

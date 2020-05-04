@@ -10,10 +10,11 @@ import * as listType from '../../constants/listTypes';
 import { filterMolecules } from '../preview/molecule/moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from '../preview/molecule/redux/selectors';
 import { getUrl, loadFromServer } from '../../utils/genericList';
-import { setSortDialogOpen } from '../preview/molecule/redux/actions';
+import { setFilterDialogOpen } from './redux/actions';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { initializeFilter } from '../../reducers/selection/dispatchActions';
+import { initializeFilter } from './redux/dispatchActions';
+import { setFilter } from './redux/actions';
 import { DatasetMoleculeList } from './datasetMoleculeList';
 
 const CustomDatasetList = memo(
@@ -31,7 +32,7 @@ const CustomDatasetList = memo(
     moleculeLists,
     filter,
     sortDialogOpen,
-    setSortDialogOpen,
+    setFilterDialogOpen,
     firstLoad,
     hideProjects
   }) => {
@@ -122,14 +123,14 @@ const CustomDatasetList = memo(
         onClick={event => {
           if (sortDialogOpen === false) {
             setSortDialogAnchorEl(event.currentTarget);
-            setSortDialogOpen(true);
+            setFilterDialogOpen(true);
           } else {
             setSortDialogAnchorEl(null);
-            setSortDialogOpen(false);
+            setFilterDialogOpen(false);
           }
         }}
         color={'inherit'}
-        disabled={true || !(object_selection || []).length}
+        disabled={!(object_selection || []).length}
         variant="text"
         startIcon={<FilterList />}
         size="small"
@@ -149,6 +150,7 @@ const CustomDatasetList = memo(
         object_selection={object_selection}
         cached_mol_lists={cached_mol_lists}
         filter={filter}
+        setFilter={setFilter}
         actions={actions}
         sortDialogAnchorEl={sortDialogAnchorEl}
         datasetID={dataset.id}
@@ -166,15 +168,15 @@ function mapStateToProps(state) {
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
     moleculeLists: state.datasetsReducers.moleculeLists,
-    filter: state.selectionReducers.filter,
-    sortDialogOpen: state.previewReducers.molecule.sortDialogOpen,
+    filter: state.datasetsReducers.filter,
+    sortDialogOpen: state.datasetsReducers.filterDialogOpen,
     firstLoad: state.selectionReducers.firstLoad
   };
 }
 const mapDispatchToProps = {
   setMoleculeList: apiActions.setMoleculeList,
   setCachedMolLists: apiActions.setCachedMolLists,
-  setSortDialogOpen
+  setFilterDialogOpen
 };
 CustomDatasetList.displayName = 'CustomDatasetList';
 export default connect(mapStateToProps, mapDispatchToProps)(CustomDatasetList);

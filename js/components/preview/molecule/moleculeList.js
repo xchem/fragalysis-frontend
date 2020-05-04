@@ -147,10 +147,10 @@ export const MoleculeList = memo(
     cached_mol_lists,
     moleculeDataList,
     filter,
+    setFilter,
     title,
     actions,
-    sortDialogAnchorEl,
-    setCurrentMolecules
+    sortDialogAnchorEl
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -190,7 +190,6 @@ export const MoleculeList = memo(
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
-    // setCurrentMolecules(currentMolecules);
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
     useEffect(() => {
@@ -287,6 +286,7 @@ export const MoleculeList = memo(
               molGroupSelection={object_selection}
               cachedMolList={cached_mol_lists}
               filter={filter}
+              setFilter={setFilter}
             />
           )}
           <div ref={filterRef}>

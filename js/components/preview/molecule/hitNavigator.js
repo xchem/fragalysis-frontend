@@ -257,9 +257,9 @@ const HitNavigator = memo(
         object_selection={object_selection}
         cached_mol_lists={cached_mol_lists}
         filter={filter}
+        setFilter={setFilter}
         actions={actions}
         sortDialogAnchorEl={sortDialogAnchorEl}
-        setCurrentMolecules={setCurrentMolecules}
       />
     );
   }
