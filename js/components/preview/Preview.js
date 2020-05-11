@@ -27,7 +27,7 @@ import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExi
 import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
 //import HotspotList from '../hotspot/hotspotList';
 import { TabsHeader, Tab, TabPanel, a11yTabProps } from '../common/Tabs';
-import { addDataset } from '../datasets/redux/actions';
+import { loadDataSets } from '../datasets/redux/dispatchActions';
 
 const hitNavigatorWidth = 504;
 
@@ -82,19 +82,13 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 
-  // TODO testing preview
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
-  if (customDatasets.length === 0) {
-    // TODO testing preview
-    const testingDatasets = [
-      { id: 0, title: 'First dataset' },
-      { id: 1, title: 'Second dataset' },
-      { id: 2, title: 'Third dataset' }
-    ];
-    testingDatasets.forEach(dataset => {
-      dispatch(addDataset(dataset));
-    });
-  }
+
+  useEffect(() => {
+    if (customDatasets.length === 0) {
+      dispatch(loadDataSets());
+    }
+  }, [customDatasets.length, dispatch]);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);

@@ -8,7 +8,9 @@ import {
   removeFromLigandList,
   removeFromProteinList,
   removeFromComplexList,
-  removeFromSurfaceList
+  removeFromSurfaceList,
+  addDataset,
+  setDataset
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -22,6 +24,7 @@ import { VIEWS } from '../../../constants/constants';
 import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
 
 import { addMoleculeList } from './actions';
+import { api } from '../../../utils/api';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
   console.log('initializing testing datasets');
@@ -209,3 +212,8 @@ export const removeLigand = (stage, data, colourToggle, datasetID) => dispatch =
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
 };
+
+export const loadDataSets = () => dispatch =>
+  api({ url: `${base_url}/api/compound-sets/` }).then(response => {
+    dispatch(setDataset(response.data.results.map(ds => ({ id: ds.id, title: ds.name }))));
+  });

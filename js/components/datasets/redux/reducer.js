@@ -86,6 +86,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
       return Object.assign({}, state, { datasets: increasedDatasets });
 
+    case constants.SET_DATASET:
+      return Object.assign({}, state, { datasets: action.payload });
+
     case constants.ADD_MOLECULELIST:
       const increasedMolecules = Object.assign({}, state.moleculeLists);
 

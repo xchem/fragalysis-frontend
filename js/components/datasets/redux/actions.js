@@ -1,6 +1,14 @@
 import { constants } from './constants';
 
 export const addDataset = dataset => ({ type: constants.ADD_DATASET, payload: dataset });
+
+// datasetList has to contain follow structure
+//[{ id: 0, title: 'First dataset' },...]
+export const setDataset = datasetList => ({
+  type: constants.SET_DATASET,
+  payload: datasetList.map(ds => ({ id: ds.id, title: ds.title }))
+});
+
 export const addMoleculeList = (datasetID, moleculeList) => ({
   type: constants.ADD_MOLECULELIST,
   payload: { datasetID, moleculeList }

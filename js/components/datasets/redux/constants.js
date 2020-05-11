@@ -2,6 +2,7 @@ const prefix = 'CUSTOM_DATASETS_';
 
 export const constants = {
   ADD_DATASET: prefix + 'ADD_DATASET',
+  SET_DATASET: prefix + 'SET_DATASET',
   ADD_MOLECULELIST: prefix + 'ADD_MOLECULELIST',
   REMOVE_MOLECULELIST: prefix + 'REMOVE_MOLECULELIST',
 
