@@ -29,7 +29,7 @@ const CustomDatasetList = memo(
     setCachedMolLists,
     setFilterItemsHeight,
     filterItemsHeight,
-    moleculeLists,
+    // moleculeLists,
     filter,
     sortDialogOpen,
     setFilterDialogOpen,
@@ -49,7 +49,7 @@ const CustomDatasetList = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    let joinedMoleculeLists = moleculeLists[dataset.id];
+    let joinedMoleculeLists = []; //moleculeLists[dataset.id];
 
     // TODO Reset Infinity scroll
     /*useEffect(() => {
@@ -141,7 +141,7 @@ const CustomDatasetList = memo(
 
     return (
       <DatasetMoleculeList
-        title={dataset.title}
+        title={dataset && dataset.title}
         height={height}
         setFilterItemsHeight={setFilterItemsHeight}
         filterItemsHeight={filterItemsHeight}
@@ -153,12 +153,11 @@ const CustomDatasetList = memo(
         setFilter={setFilter}
         actions={actions}
         sortDialogAnchorEl={sortDialogAnchorEl}
-        datasetID={dataset.id}
+        datasetID={dataset && dataset.id}
       />
     );
   }
 );
-
 function mapStateToProps(state) {
   return {
     group_type: state.apiReducers.group_type,
@@ -167,7 +166,7 @@ function mapStateToProps(state) {
     object_selection: state.selectionReducers.mol_group_selection,
     object_list: state.apiReducers.molecule_list,
     cached_mol_lists: state.apiReducers.cached_mol_lists,
-    moleculeLists: state.datasetsReducers.moleculeLists,
+    // moleculeLists: state.datasetsReducers.moleculeLists,
     filter: state.datasetsReducers.filter,
     sortDialogOpen: state.datasetsReducers.filterDialogOpen,
     firstLoad: state.selectionReducers.firstLoad

@@ -151,7 +151,7 @@ export const DatasetMoleculeList = memo(
     title,
     actions,
     sortDialogAnchorEl,
-    setCurrentMolecules,
+    // setCurrentMolecules,
     datasetID
   }) => {
     const classes = useStyles();
@@ -206,9 +206,9 @@ export const DatasetMoleculeList = memo(
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
 
-    const isLigandOn = ligandList.length > 0 || false;
-    const isProteinOn = proteinList.length > 0 || false;
-    const isComplexOn = complexList.length > 0 || false;
+    const isLigandOn = (ligandList && ligandList.length > 0) || false;
+    const isProteinOn = (proteinList && proteinList.length > 0) || false;
+    const isComplexOn = (complexList && complexList.length > 0) || false;
 
     const addType = {
       ligand: addLigand,
@@ -414,15 +414,16 @@ export const DatasetMoleculeList = memo(
                   }
                   useWindow={false}
                 >
-                  {currentMolecules.map(data => (
-                    <DatasetMoleculeView
-                      key={data.id}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data}
-                      datasetID={datasetID}
-                    />
-                  ))}
+                  {datasetID &&
+                    currentMolecules.map(data => (
+                      <DatasetMoleculeView
+                        key={data.id}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data}
+                        datasetID={datasetID}
+                      />
+                    ))}
                 </InfiniteScroll>
               </Grid>
             )}
