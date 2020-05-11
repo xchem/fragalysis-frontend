@@ -201,19 +201,20 @@ export const MoleculeList = memo(
     const selectedAll = useRef(false);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
     const complexList = useSelector(state => state.selectionReducers.complexList);
-    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
-    const densityList = useSelector(state => state.selectionReducers.densityList);
     const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
-    const isLigandOn = fragmentDisplayList.length > 0 || false;
-    const isProteinOn = proteinList.length > 0 || false;
-    const isComplexOn = complexList.length > 0 || false;
-    const isSurfaceOn = surfaceList.length > 0 || false;
-    const isDensityOn = densityList.length > 0 || false;
-    const isVectorOn = vectorOnList.length > 0 || false;
-    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn; // && isVectorOn;
-    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
+    const changeButtonClassname = (givenList = []) => {
+      if (currentMolecules.length === givenList.length) {
+        return true;
+      } else if (givenList.length > 0) {
+        return null;
+      }
+      return false;
+    };
+
+    const isLigandOn = changeButtonClassname(fragmentDisplayList);
+    const isProteinOn = changeButtonClassname(proteinList);
+    const isComplexOn = changeButtonClassname(complexList);
 
     const addType = {
       ligand: addLigand,
@@ -351,43 +352,13 @@ export const MoleculeList = memo(
                         wrap="nowrap"
                         className={classes.contButtonsMargin}
                       >
-                        <Tooltip title="all alls">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(
-                                classes.contColButton,
-                                {
-                                  [classes.contColButtonSelected]: hasAllValuesOn
-                                },
-                                {
-                                  [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                                }
-                              )}
-                              onClick={() => {
-                                // TODO rework all these buttons into a separate component!
-                                // always deselect all if are selected only some of options
-                                selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
-
-                                onButtonToggle('ligand', true);
-                                onButtonToggle('protein', true);
-                                onButtonToggle('complex', true);
-                                onButtonToggle('surface', true);
-                                // onDensity(true);
-                                // onVector(true);
-                              }}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">A</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
                         <Tooltip title="all ligands">
                           <Grid item>
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn
+                                [classes.contColButtonSelected]: isLigandOn === true,
+                                [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
                               disabled={disableUserInteraction}
@@ -401,7 +372,8 @@ export const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn
+                                [classes.contColButtonSelected]: isProteinOn,
+                                [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
                               disabled={disableUserInteraction}
@@ -416,55 +388,13 @@ export const MoleculeList = memo(
                             <Button
                               variant="outlined"
                               className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn
+                                [classes.contColButtonSelected]: isComplexOn,
+                                [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
                               disabled={disableUserInteraction}
                             >
                               <Typography variant="subtitle2">C</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all surfaces">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isSurfaceOn
-                              })}
-                              onClick={() => onButtonToggle('surface')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">S</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all electron densities">
-                          <Grid item>
-                            {/* TODO waiting for backend data */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isDensityOn
-                              })}
-                              onClick={() => onButtonToggle('density')}
-                              disabled={true || disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">D</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all vectors">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isVectorOn
-                              })}
-                              onClick={() => onButtonToggle('vector')}
-                              disabled={true || disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">V</Typography>
                             </Button>
                           </Grid>
                         </Tooltip>

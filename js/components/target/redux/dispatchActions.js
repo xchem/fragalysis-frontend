@@ -7,7 +7,7 @@ import {
   setTargetUnrecognised,
   setUuid
 } from '../../../reducers/api/actions';
-import { setOldUrl } from './actions';
+import { setIsTargetLoading, setOldUrl } from './actions';
 import { api } from '../../../utils/api';
 import { resetSelectionState } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
@@ -16,9 +16,13 @@ import { setCurrentProject } from '../../projects/redux/actions';
 export const loadTargetList = onCancel => (dispatch, getState) => {
   const oldUrl = getState().targetReducers.oldUrl;
   const list_type = listType.TARGET;
+  dispatch(setIsTargetLoading(true));
   return loadFromServer({
     url: getUrl({ list_type }),
-    setOldUrl: url => dispatch(setOldUrl(url)),
+    setOldUrl: url => {
+      dispatch(setOldUrl(url));
+      dispatch(setIsTargetLoading(false));
+    },
     old_url: oldUrl,
     setObjectList: params => dispatch(setTargetIdList(params)),
     list_type,

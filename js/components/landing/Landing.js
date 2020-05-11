@@ -3,8 +3,7 @@
  */
 import { Grid, Link } from '@material-ui/core';
 import React, { memo, useContext, useEffect, useState } from 'react';
-import TargetList from '../target/targetList';
-//import SessionList from '../session/sessionList';
+import { TargetList } from '../target/targetList';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
 import * as selectionActions from '../../reducers/selection/actions';
@@ -50,10 +49,9 @@ const Landing = memo(
     return (
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <TargetList key="TARGLIST" />
+          <TargetList />
         </Grid>
         <Grid item xs={8}>
-          {/*<SessionList />*/}
           <Projects />
         </Grid>
       </Grid>

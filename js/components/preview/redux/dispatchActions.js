@@ -67,7 +67,8 @@ export const shouldLoadProtein = ({
         .then(() => {
           dispatch(setProteinLoadingState(true));
           if (getState().nglReducers.countOfRemainingMoleculeGroups === 0) {
-            dispatch(createInitialSnapshot(routeProjectID));
+            const summaryView = nglViewList.find(view => view.id === VIEWS.SUMMARY_VIEW);
+            dispatch(createInitialSnapshot(routeProjectID, summaryView));
           }
         })
         .catch(error => {

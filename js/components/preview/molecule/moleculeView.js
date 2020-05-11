@@ -174,8 +174,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   const isDensityOn = (currentID && densityList.includes(currentID)) || false;
   const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
 
-  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn && isVectorOn;
-  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn);
+  const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
+  const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
   const disableUserInteraction = useDisableUserInteraction();
 
@@ -335,57 +335,38 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
 
   const removeSelectedSurface = () => {
     dispatch(removeSurface(stage, data, colourToggle));
-    selectedAll.current = false;
   };
 
   const addNewSurface = () => {
     dispatch(addSurface(stage, data, colourToggle));
   };
 
-  const onSurface = calledFromSelectAll => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      if (isSurfaceOn === false) {
-        addNewSurface();
-      }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
+  const onSurface = () => {
+    if (isSurfaceOn === false) {
+      addNewSurface();
+    } else {
       removeSelectedSurface();
-    } else if (!calledFromSelectAll) {
-      if (isSurfaceOn === false) {
-        addNewSurface();
-      } else {
-        removeSelectedSurface();
-      }
     }
   };
 
   const removeSelectedDensity = () => {
     dispatch(removeDensity(stage, data, colourToggle));
-    selectedAll.current = false;
   };
 
   const addNewDensity = () => {
     dispatch(addDensity(stage, data, colourToggle));
   };
 
-  const onDensity = calledFromSelectAll => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      if (isDensityOn === false) {
-        addNewDensity();
-      }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
+  const onDensity = () => {
+    if (isDensityOn === false) {
+      addNewDensity();
+    } else {
       removeSelectedDensity();
-    } else if (!calledFromSelectAll) {
-      if (isDensityOn === false) {
-        addNewDensity();
-      } else {
-        removeSelectedDensity();
-      }
     }
   };
 
   const removeSelectedVector = () => {
     dispatch(removeVector(stage, data));
-    selectedAll.current = false;
   };
 
   const addNewVector = () => {
@@ -394,19 +375,11 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
     });
   };
 
-  const onVector = calledFromSelectAll => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      if (isVectorOn === false) {
-        addNewVector();
-      }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
+  const onVector = () => {
+    if (isVectorOn === false) {
+      addNewVector();
+    } else {
       removeSelectedVector();
-    } else if (!calledFromSelectAll) {
-      if (isVectorOn === false) {
-        addNewVector();
-      } else {
-        removeSelectedVector();
-      }
     }
   };
 
@@ -430,7 +403,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
    */
   const getValueMatchingClass = item => {
     let cssClass = '';
-    if (filter.predefined !== 'none') {
+    if (filter && filter.predefined !== 'none') {
       cssClass = isMatchingValue(item) ? classes.matchingValue : classes.unmatchingValue;
     }
     return cssClass;
@@ -493,9 +466,6 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                     onLigand(true);
                     onProtein(true);
                     onComplex(true);
-                    onSurface(true);
-                    // onDensity(true);
-                    onVector(true);
                   }}
                   disabled={disableUserInteraction}
                 >

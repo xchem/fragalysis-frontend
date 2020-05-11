@@ -8,7 +8,6 @@ export const setCurrentProjectProperty = (key, value) => ({
   type: constants.SET_CURRENT_PROJECT_PROPERTY,
   payload: { key, value }
 });
-
 export const resetProjectState = () => ({
   type: constants.RESET_CURRENT_PROJECT_STATE
 });
@@ -26,6 +25,11 @@ export const setProjectModalIsLoading = isLoading => ({
 export const setCurrentSnapshot = currentSnapshot => ({
   type: constants.SET_SNAPSHOT,
   payload: { currentSnapshot }
+});
+
+export const setCurrentSnapshotProperty = (key, value) => ({
+  type: constants.SET_CURRENT_SNAPSHOT_PROPERTY,
+  payload: { key, value }
 });
 
 export const resetCurrentSnapshot = () => ({
@@ -46,6 +50,11 @@ export const setListOfProjects = projects => ({
   payload: projects
 });
 
+export const setIsLoadingListOfProjects = isLoading => ({
+  type: constants.SET_IS_LOADING_LIST_OF_PROJECTS,
+  payload: isLoading
+});
+
 export const setIsLoadingTree = isLoading => ({
   type: constants.SET_IS_LOADING_TREE,
   payload: isLoading
@@ -59,4 +68,14 @@ export const setCurrentSnapshotTree = tree => ({
 export const setCurrentSnapshotList = list => ({
   type: constants.SET_CURRENT_SNAPSHOT_LIST,
   payload: list
+});
+
+export const setForceCreateProject = isForce => ({
+  type: constants.SET_FORCE_CREATE_PROJECT,
+  payload: isForce
+});
+
+export const setForceProjectCreated = isCreated => ({
+  type: constants.SET_FORCE_PROJECT_CREATED,
+  payload: isCreated
 });

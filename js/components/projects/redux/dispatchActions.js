@@ -8,7 +8,10 @@ import {
   setCurrentSnapshotList,
   setIsLoadingTree,
   setIsLoadingCurrentSnapshot,
-  setCurrentProject
+  setCurrentProject,
+  setForceCreateProject,
+  setForceProjectCreated,
+  setIsLoadingListOfProjects
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -51,9 +54,12 @@ export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (
 export const loadListOfAllProjects = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
   if (userID !== null) {
-    return api({ url: `${base_url}/api/session-projects/?author=${userID}` }).then(response =>
-      dispatch(setListOfProjects((response && response.data && response.data.results) || []))
-    );
+    dispatch(setIsLoadingListOfProjects(true));
+    return api({ url: `${base_url}/api/session-projects/?author=${userID}` })
+      .then(response => dispatch(setListOfProjects((response && response.data && response.data.results) || [])))
+      .finally(() => {
+        dispatch(setIsLoadingListOfProjects(false));
+      });
   } else {
     return Promise.resolve();
   }
@@ -62,9 +68,12 @@ export const loadListOfAllProjects = () => (dispatch, getState) => {
 export const searchInProjects = title => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
   if (userID !== null) {
-    return api({ url: `${base_url}/api/session-projects/?author=${userID}&title=${title}` }).then(response =>
-      dispatch(setListOfProjects((response && response.data && response.data.results) || []))
-    );
+    dispatch(setIsLoadingListOfProjects(true));
+    return api({ url: `${base_url}/api/session-projects/?author=${userID}&title=${title}` })
+      .then(response => dispatch(setListOfProjects((response && response.data && response.data.results) || [])))
+      .finally(() => {
+        dispatch(setIsLoadingListOfProjects(false));
+      });
   } else {
     return Promise.resolve();
   }
@@ -255,6 +264,8 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
       dispatch(setCurrentProjectProperty('projectID', projectID));
     })
     .finally(() => {
+      dispatch(setForceCreateProject(false));
+      dispatch(setForceProjectCreated(true));
       dispatch(setDialogCurrentStep(1));
     });
 };

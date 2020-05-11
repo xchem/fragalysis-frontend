@@ -6,10 +6,6 @@ export const updateClipboard = valueToClipboard => {
   navigator.clipboard.writeText(valueToClipboard);
 };
 
-export const canCheckTarget = pathname => {
-  return pathname.includes(URLS.fragglebox) || pathname.includes(URLS.snapshot);
-};
-
 export const generateBondColorMap = inputDict => {
   let out_d = {};
   Object.keys(inputDict || {}).forEach(keyItem => {
