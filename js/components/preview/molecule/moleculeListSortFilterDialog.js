@@ -116,7 +116,7 @@ export const filterMolecules = (molecules, filter) => {
 export const MoleculeListSortFilterDialog = memo(
   ({
     molGroupSelection,
-    cachedMolList,
+    moleculeGroupList,
     filter,
     setFilter,
     anchorEl,
@@ -161,7 +161,7 @@ export const MoleculeListSortFilterDialog = memo(
       let molecules = [];
       for (let molgroupId of molGroupSelection) {
         // Selected molecule groups
-        const molGroup = cachedMolList[molgroupId];
+        const molGroup = moleculeGroupList;
         if (molGroup) {
           molecules = molecules.concat(molGroup);
         } else {

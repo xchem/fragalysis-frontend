@@ -9,7 +9,8 @@ import {
   removeFromProteinList,
   removeFromComplexList,
   removeFromSurfaceList,
-  setDataset
+  setDataset,
+  setMoleculeList
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -215,4 +216,10 @@ export const removeLigand = (stage, data, colourToggle, datasetID) => dispatch =
 export const loadDataSets = () => dispatch =>
   api({ url: `${base_url}/api/compound-sets/` }).then(response => {
     dispatch(setDataset(response.data.results.map(ds => ({ id: ds.id, title: ds.name }))));
+  });
+
+export const loadMoleculesOfDataSet = dataSetID => dispatch =>
+  api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
+    dispatch(addMoleculeList(dataSetID, response.data.results));
+    //dispatch(setDataset(response.data.results.map(ds => ({ id: ds.id, title: ds.name }))));
   });

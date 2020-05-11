@@ -144,14 +144,12 @@ export const DatasetMoleculeList = memo(
     setFilterItemsHeight,
     filterItemsHeight,
     object_selection,
-    cached_mol_lists,
-    moleculeDataList,
+    moleculeGroupList,
     filter,
     setFilter,
     title,
     actions,
     sortDialogAnchorEl,
-    // setCurrentMolecules,
     datasetID
   }) => {
     const classes = useStyles();
@@ -162,6 +160,8 @@ export const DatasetMoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
+    const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+    const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
 
     const isActiveFilter = !!(filter || {}).active;
 
@@ -170,7 +170,7 @@ export const DatasetMoleculeList = memo(
 
     const filterRef = useRef();
 
-    let joinedMoleculeLists = moleculeDataList;
+    let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
     const disableUserInteraction = useDisableUserInteraction();
 
@@ -269,13 +269,13 @@ export const DatasetMoleculeList = memo(
         height={filterItemsHeight}
         forceCompute={isActiveFilter}
       >
-        <Panel hasHeader title={title} headerActions={actions}>
+        <Panel hasHeader title={title} headerActions={actions} isLoading={isLoadingMoleculeList}>
           {sortDialogOpen && (
             <MoleculeListSortFilterDialog
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
-              cachedMolList={cached_mol_lists}
+              moleculeGroupList={moleculeGroupList}
               filter={filter}
               setFilter={setFilter}
               parentID="datasets"
@@ -327,71 +327,73 @@ export const DatasetMoleculeList = memo(
           >
             <Grid item>
               {/* Header */}
-              <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                <Grid item container justify="flex-start" direction="row">
-                  {Object.keys(moleculeProperty).map(key => (
-                    <Grid item key={key} className={classes.rightBorder}>
-                      {moleculeProperty[key]}
-                    </Grid>
-                  ))}
-                  {currentMolecules.length > 0 && (
-                    <Grid item>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="flex-start"
-                        alignItems="center"
-                        wrap="nowrap"
-                        className={classes.contButtonsMargin}
-                      >
-                        <Tooltip title="all ligands">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn
-                              })}
-                              onClick={() => onButtonToggle('ligand')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">L</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all sidechains">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn
-                              })}
-                              onClick={() => onButtonToggle('protein')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">P</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all interactions">
-                          <Grid item>
-                            {/* C stands for contacts now */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn
-                              })}
-                              onClick={() => onButtonToggle('complex')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">C</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
+              {isLoadingMoleculeList === false && (
+                <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                  <Grid item container justify="flex-start" direction="row">
+                    {Object.keys(moleculeProperty).map(key => (
+                      <Grid item key={key} className={classes.rightBorder}>
+                        {moleculeProperty[key]}
                       </Grid>
-                    </Grid>
-                  )}
+                    ))}
+                    {currentMolecules.length > 0 && (
+                      <Grid item>
+                        <Grid
+                          container
+                          direction="row"
+                          justify="flex-start"
+                          alignItems="center"
+                          wrap="nowrap"
+                          className={classes.contButtonsMargin}
+                        >
+                          <Tooltip title="all ligands">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isLigandOn
+                                })}
+                                onClick={() => onButtonToggle('ligand')}
+                                disabled={disableUserInteraction}
+                              >
+                                <Typography variant="subtitle2">L</Typography>
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                          <Tooltip title="all sidechains">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isProteinOn
+                                })}
+                                onClick={() => onButtonToggle('protein')}
+                                disabled={disableUserInteraction}
+                              >
+                                <Typography variant="subtitle2">P</Typography>
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                          <Tooltip title="all interactions">
+                            <Grid item>
+                              {/* C stands for contacts now */}
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isComplexOn
+                                })}
+                                onClick={() => onButtonToggle('complex')}
+                                disabled={disableUserInteraction}
+                              >
+                                <Typography variant="subtitle2">C</Typography>
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>
+                    )}
+                  </Grid>
                 </Grid>
-              </Grid>
+              )}
             </Grid>
             {currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList}>

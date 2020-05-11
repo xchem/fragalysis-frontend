@@ -15,6 +15,11 @@ export const addMoleculeList = (datasetID, moleculeList) => ({
 });
 export const removeMoleculeList = datasetID => ({ type: constants.REMOVE_MOLECULELIST, payload: datasetID });
 
+export const setMoleculeListIsLoading = isLoading => ({
+  type: constants.SET_IS_LOADING_MOLECULE_LIST,
+  payload: isLoading
+});
+
 export const setFilter = filter => ({ type: constants.SET_FILTER, payload: filter });
 export const setFilterDialogOpen = filterDialogOpen => ({
   type: constants.SET_FILTER_DIALOG_OPEN,

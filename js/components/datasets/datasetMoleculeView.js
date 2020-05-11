@@ -388,7 +388,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
         {/* Title label */}
         <Grid item>
           <Typography variant="button" noWrap>
-            {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
+            {data && data.name}
           </Typography>
         </Grid>
         {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)

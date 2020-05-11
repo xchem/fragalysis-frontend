@@ -3,6 +3,7 @@ import { constants } from './constants';
 export const INITIAL_STATE = {
   datasets: [], // list of dataset objects
   moleculeLists: {}, // map of $datasetID and its $moleculeList
+  isLoadingMoleculeList: false,
 
   // filter
   filter: undefined,
@@ -105,6 +106,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         delete decreasedMolecules[action.payload];
       }
       return Object.assign({}, state, { moleculeLists: decreasedMolecules });
+
+    case constants.SET_IS_LOADING_MOLECULE_LIST:
+      return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
     case constants.SET_FILTER:
       return Object.assign({}, state, { filter: action.payload });
