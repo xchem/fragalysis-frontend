@@ -99,7 +99,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   }px - ${theme.spacing(8)}px)`;
 
   /* Custom dataset list height */
-  const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${
+  const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${molGroupsHeight}px - ${
     filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
   }px - ${theme.spacing(8)}px - ${TABS_HEADER_HEIGHT}px)`;
 

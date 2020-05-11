@@ -221,5 +221,5 @@ export const loadDataSets = () => dispatch =>
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
     dispatch(addMoleculeList(dataSetID, response.data.results));
-    //dispatch(setDataset(response.data.results.map(ds => ({ id: ds.id, title: ds.name }))));
+    dispatch(initializeFilter());
   });
