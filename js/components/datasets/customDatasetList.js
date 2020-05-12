@@ -7,7 +7,7 @@ import { FilterList } from '@material-ui/icons';
 import { connect, useDispatch } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
 import { setFilterDialogOpen, setMoleculeListIsLoading } from './redux/actions';
-import { loadMoleculesOfDataSet } from './redux/dispatchActions';
+import { loadCompoundScoresListOfDataSet, loadMoleculesOfDataSet } from './redux/dispatchActions';
 import { setFilter } from './redux/actions';
 import { DatasetMoleculeList } from './datasetMoleculeList';
 
@@ -30,9 +30,16 @@ const CustomDatasetList = memo(
     useEffect(() => {
       if (dataset && dataset.id) {
         dispatch(setMoleculeListIsLoading(true));
-        dispatch(loadMoleculesOfDataSet(dataset.id)).finally(() => {
-          dispatch(setMoleculeListIsLoading(false));
-        });
+        Promise.all([
+          dispatch(loadMoleculesOfDataSet(dataset.id)),
+          dispatch(loadCompoundScoresListOfDataSet(dataset.id))
+        ])
+          .catch(error => {
+            throw new Error(error);
+          })
+          .finally(() => {
+            dispatch(setMoleculeListIsLoading(false));
+          });
       }
     }, [dataset, dispatch]);
 

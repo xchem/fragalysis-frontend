@@ -4,6 +4,8 @@ export const INITIAL_STATE = {
   datasets: [], // list of dataset objects
   moleculeLists: {}, // map of $datasetID and its $moleculeList
   isLoadingMoleculeList: false,
+  scoreDatasetMap: {}, // map of $datasetID and its $scoreList
+  // scoreMoleculeMap: {}, // map of $moleculeID and its $scoreList
 
   // filter
   filter: undefined,
@@ -151,6 +153,16 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.REMOVE_FROM_SURFACE_LIST:
       return removeFromList(state, 'surfaceLists', action.payload.datasetID, action.payload.item.id);
+
+    case constants.APPEND_TO_SCORE_DATASET_MAP:
+      const currentScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));
+      currentScoreDatasetMap[action.payload.key] = action.payload.value;
+      return Object.assign({}, state, { scoreDatasetMap: currentScoreDatasetMap });
+
+    case constants.REMOVE_FROM_SCORE_DATASET_MAP:
+      const diminishedScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));
+      delete diminishedScoreDatasetMap[action.payload];
+      return Object.assign({}, state, { scoreDatasetMap: diminishedScoreDatasetMap });
 
     default:
       return state;

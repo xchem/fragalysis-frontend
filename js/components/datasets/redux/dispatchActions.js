@@ -10,7 +10,8 @@ import {
   removeFromComplexList,
   removeFromSurfaceList,
   setDataset,
-  setMoleculeList
+  setMoleculeList,
+  appendToScoreDatasetMap
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -222,4 +223,9 @@ export const loadMoleculesOfDataSet = dataSetID => dispatch =>
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
     dispatch(addMoleculeList(dataSetID, response.data.results));
     dispatch(initializeFilter());
+  });
+
+export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
+  api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
+    dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
   });

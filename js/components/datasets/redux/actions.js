@@ -137,3 +137,13 @@ export const removeFromSurfaceList = function(datsetID, item) {
     }
   };
 };
+
+export const appendToScoreDatasetMap = (datasetID, scoreList) => ({
+  type: constants.APPEND_TO_SCORE_DATASET_MAP,
+  payload: { key: datasetID, value: scoreList }
+});
+
+export const removeFromScoreDatasetMap = datasetID => ({
+  type: constants.REMOVE_FROM_SCORE_DATASET_MAP,
+  payload: datasetID
+});

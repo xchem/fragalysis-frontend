@@ -116,6 +116,12 @@ const useStyles = makeStyles(theme => ({
   },
   unmatchingValue: {
     backgroundColor: theme.palette.error.lighter
+  },
+  moleculeTitleLabel: {
+    ...theme.typography.button,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis'
   }
 }));
 
@@ -375,6 +381,8 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
     return cssClass;
   };
 
+  const moleculeTitle = data && data.name;
+
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
       {/* Site number */}
@@ -386,10 +394,10 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
 
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item>
-          <Typography variant="button" noWrap>
-            {data && data.name}
-          </Typography>
+        <Grid item xs={7}>
+          <Tooltip title={moleculeTitle} placement="bottom-start">
+            <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
+          </Tooltip>
         </Grid>
         {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
         <Grid item>

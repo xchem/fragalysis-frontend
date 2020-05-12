@@ -97,7 +97,9 @@ const useStyles = makeStyles(theme => ({
     '&:last-child': {
       borderRight: 'none',
       width: 32
-    }
+    },
+    overflow: 'hidden',
+    whiteSpace: 'nowrap'
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2
@@ -162,6 +164,7 @@ export const DatasetMoleculeList = memo(
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+    const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
 
     const isActiveFilter = !!(filter || {}).active;
 
@@ -330,11 +333,21 @@ export const DatasetMoleculeList = memo(
               {isLoadingMoleculeList === false && (
                 <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                   <Grid item container justify="flex-start" direction="row">
-                    {Object.keys(moleculeProperty).map(key => (
-                      <Grid item key={key} className={classes.rightBorder}>
-                        {moleculeProperty[key]}
-                      </Grid>
-                    ))}
+                    {/*{Object.keys(moleculeProperty).map(key => (*/}
+                    {/*  <Grid item key={key} className={classes.rightBorder}>*/}
+                    {/*    {moleculeProperty[key]}*/}
+                    {/*  </Grid>*/}
+                    {/*))}*/}
+                    {datasetID &&
+                      scoreDatasetMap &&
+                      scoreDatasetMap[datasetID] &&
+                      scoreDatasetMap[datasetID].slice(0, 11).map(score => (
+                        <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
+                          <Grid item className={classes.rightBorder}>
+                            {score.name.substring(0, 4)}
+                          </Grid>
+                        </Tooltip>
+                      ))}
                     {currentMolecules.length > 0 && (
                       <Grid item>
                         <Grid
