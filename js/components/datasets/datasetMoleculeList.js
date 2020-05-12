@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     fontSize: 8,
-    width: 25,
+    width: 32,
     textAlign: 'center',
     '&:last-child': {
       borderRight: 'none',
@@ -341,7 +341,7 @@ export const DatasetMoleculeList = memo(
                     {datasetID &&
                       scoreDatasetMap &&
                       scoreDatasetMap[datasetID] &&
-                      scoreDatasetMap[datasetID].slice(0, 11).map(score => (
+                      scoreDatasetMap[datasetID].slice(0, 7).map(score => (
                         <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
                           <Grid item className={classes.rightBorder}>
                             {score.name.substring(0, 4)}

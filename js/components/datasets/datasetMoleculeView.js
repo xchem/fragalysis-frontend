@@ -2,11 +2,10 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip, LinearProgress } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
-import MoleculeStatusView, { molStatusTypes } from '../preview/molecule/moleculeStatusView';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
 import { loadFromServer } from '../../utils/genericView';
@@ -20,10 +19,10 @@ import {
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface
+  removeSurface,
+  loadCompoundScoreList
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
-import { moleculeProperty } from '../preview/molecule/helperConstants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -90,7 +89,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
     paddingBottom: theme.spacing(1) / 4,
-    width: 25,
+    width: 32,
     textAlign: 'center',
     '&:last-child': {
       borderRight: 'none',
@@ -122,6 +121,10 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
+  },
+  loadingProgress: {
+    height: 2,
+    width: '100%'
   }
 }));
 
@@ -158,7 +161,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
-  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
+  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id]);
   const filter = useSelector(state => state.selectionReducers.filter);
 
   const url = new URL(base_url + '/api/molimg/' + data.id + '/');
@@ -181,30 +184,14 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const setOldUrl = url => {
     oldUrl.current = url;
   };
-  const refOnCancel = useRef();
+  const refOnCancelImage = useRef();
+  const refOnCancelScore = useRef();
   const getRandomColor = () => colourList[data.id % colourList.length];
   const colourToggle = getRandomColor();
 
-  const getCalculatedProps = useCallback(
-    () => [
-      { name: moleculeProperty.mw, value: data.mw },
-      { name: moleculeProperty.logP, value: data.logp },
-      { name: moleculeProperty.tpsa, value: data.tpsa },
-      { name: moleculeProperty.ha, value: data.ha },
-      { name: moleculeProperty.hacc, value: data.hacc },
-      { name: moleculeProperty.hdon, value: data.hdon },
-      { name: moleculeProperty.rots, value: data.rots },
-      { name: moleculeProperty.rings, value: data.rings },
-      { name: moleculeProperty.velec, value: data.velec }
-      //   { name: moleculeProperty.vectors, value: countOfVectors },
-      //   { name: moleculeProperty.cpd, value: cmpds }
-    ],
-    [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
-  );
-
   // componentDidMount
   useEffect(() => {
-    if (refOnCancel.current === undefined) {
+    if (refOnCancelImage.current === undefined) {
       let onCancel = () => {};
       Promise.all([
         loadFromServer({
@@ -227,14 +214,29 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
       ]).catch(error => {
         throw new Error(error);
       });
-      refOnCancel.current = onCancel;
+      refOnCancelImage.current = onCancel;
     }
     return () => {
-      if (refOnCancel) {
-        refOnCancel.current();
+      if (refOnCancelImage) {
+        refOnCancelImage.current();
       }
     };
   }, [complexList, data.id, data.smiles, ligandList, imageHeight, url, imageWidth]);
+
+  useEffect(() => {
+    if (refOnCancelScore.current === undefined && data && data.id) {
+      let onCancel = () => {};
+      dispatch(loadCompoundScoreList(data.id, onCancel)).catch(error => {
+        throw new Error(error);
+      });
+      refOnCancelScore.current = onCancel;
+    }
+    return () => {
+      if (refOnCancelScore) {
+        refOnCancelScore.current();
+      }
+    };
+  });
 
   const svg_image = (
     <SVGInline
@@ -518,19 +520,17 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
             wrap="nowrap"
             className={classes.fullHeight}
           >
-            {getCalculatedProps().map(item => (
-              <Tooltip title={item.name} key={item.name}>
-                <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                  {item.name === moleculeProperty.mw && Math.round(item.value)}
-                  {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
-                  {item.name === moleculeProperty.tpsa && Math.round(item.value)}
-                  {item.name !== moleculeProperty.mw &&
-                    item.name !== moleculeProperty.logP &&
-                    item.name !== moleculeProperty.tpsa &&
-                    item.value}
-                </Grid>
-              </Tooltip>
-            ))}
+            {scoreCompoundMap &&
+              scoreCompoundMap.map(item => (
+                <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
+                  <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                    {item.value && Math.round(item.value)}
+                  </Grid>
+                </Tooltip>
+              ))}
+            {!scoreCompoundMap && (
+              <LinearProgress variant="query" color="secondary" className={classes.loadingProgress} />
+            )}
           </Grid>
         </Grid>
       </Grid>

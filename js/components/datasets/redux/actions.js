@@ -147,3 +147,13 @@ export const removeFromScoreDatasetMap = datasetID => ({
   type: constants.REMOVE_FROM_SCORE_DATASET_MAP,
   payload: datasetID
 });
+
+export const appendToScoreCompoundMap = (compoundID, scoreList) => ({
+  type: constants.APPEND_TO_SCORE_COMPOUND_MAP,
+  payload: { key: compoundID, value: scoreList }
+});
+
+export const removeFromScoreCompoundMap = compoundID => ({
+  type: constants.REMOVE_FROM_SCORE_COMPOUND_MAP,
+  payload: compoundID
+});

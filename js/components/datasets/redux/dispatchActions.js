@@ -11,7 +11,8 @@ import {
   removeFromSurfaceList,
   setDataset,
   setMoleculeList,
-  appendToScoreDatasetMap
+  appendToScoreDatasetMap,
+  appendToScoreCompoundMap
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -228,4 +229,9 @@ export const loadMoleculesOfDataSet = dataSetID => dispatch =>
 export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
     dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
+  });
+
+export const loadCompoundScoreList = (compoundID, onCancel) => dispatch =>
+  api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}`, cancel: onCancel }).then(response => {
+    dispatch(appendToScoreCompoundMap(compoundID, response.data.results));
   });

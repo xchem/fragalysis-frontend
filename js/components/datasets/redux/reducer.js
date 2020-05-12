@@ -5,7 +5,7 @@ export const INITIAL_STATE = {
   moleculeLists: {}, // map of $datasetID and its $moleculeList
   isLoadingMoleculeList: false,
   scoreDatasetMap: {}, // map of $datasetID and its $scoreList
-  // scoreMoleculeMap: {}, // map of $moleculeID and its $scoreList
+  scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
   // filter
   filter: undefined,
@@ -163,6 +163,16 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       const diminishedScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));
       delete diminishedScoreDatasetMap[action.payload];
       return Object.assign({}, state, { scoreDatasetMap: diminishedScoreDatasetMap });
+
+    case constants.APPEND_TO_SCORE_COMPOUND_MAP:
+      const currentScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
+      currentScoreCompoundMap[action.payload.key] = action.payload.value;
+      return Object.assign({}, state, { scoreCompoundMap: currentScoreCompoundMap });
+
+    case constants.REMOVE_FROM_SCORE_COMPOUND_MAP:
+      const diminishedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
+      delete diminishedScoreCompoundMap[action.payload];
+      return Object.assign({}, state, { scoreCompoundMap: diminishedScoreCompoundMap });
 
     default:
       return state;
