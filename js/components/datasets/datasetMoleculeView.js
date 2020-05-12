@@ -8,7 +8,6 @@ import { Grid, Button, makeStyles, Typography, Tooltip, LinearProgress } from '@
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
-import { loadFromServer } from '../../utils/genericView';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
@@ -23,6 +22,7 @@ import {
   loadCompoundScoreList
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
+import { api } from '../../utils/api';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -154,7 +154,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const selectedAll = useRef(false);
   const currentID = (data && data.id) || undefined;
   const classes = useStyles();
-  const key = 'mol_image';
 
   const dispatch = useDispatch();
   const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
@@ -164,8 +163,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id]);
   const filter = useSelector(state => state.selectionReducers.filter);
 
-  const url = new URL(base_url + '/api/molimg/' + data.id + '/');
-  const [img_data, setImg_data] = useState(img_data_init);
+  const [image, setImage] = useState(img_data_init);
 
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -180,10 +178,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
 
   const disableUserInteraction = useDisableUserInteraction();
 
-  const oldUrl = useRef('');
-  const setOldUrl = url => {
-    oldUrl.current = url;
-  };
   const refOnCancelImage = useRef();
   const refOnCancelScore = useRef();
   const getRandomColor = () => colourList[data.id % colourList.length];
@@ -193,27 +187,18 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   useEffect(() => {
     if (refOnCancelImage.current === undefined) {
       let onCancel = () => {};
-      Promise.all([
-        loadFromServer({
-          width: imageHeight,
-          height: imageWidth,
-          key,
-          old_url: oldUrl.current,
-          setImg_data,
-          setOld_url: newUrl => setOldUrl(newUrl),
-          url,
-          cancel: onCancel
+      api({
+        url: `${base_url}/viewer/img_from_smiles/?smiles=${data.smiles}&width=${imageHeight}&height=${imageWidth}`,
+        cancel: onCancel
+      })
+        .then(response => {
+          if (response.data !== undefined) {
+            setImage(response.data);
+          }
         })
-        /*  api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
-          const vectors = response.data.vectors['3d'];
-          setCountOfVectors(generateObjectList(vectors).length);
-        }),
-        api({ url: `${base_url}/api/graph/${data.id}` }).then(response => {
-          setCmpds(getTotalCountOfCompounds(response.data.graph));
-        })*/
-      ]).catch(error => {
-        throw new Error(error);
-      });
+        .catch(error => {
+          throw new Error(error);
+        });
       refOnCancelImage.current = onCancel;
     }
     return () => {
@@ -221,7 +206,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
         refOnCancelImage.current();
       }
     };
-  }, [complexList, data.id, data.smiles, ligandList, imageHeight, url, imageWidth]);
+  }, [complexList, data.id, data.smiles, ligandList, imageHeight, imageWidth]);
 
   useEffect(() => {
     if (refOnCancelScore.current === undefined && data && data.id) {
@@ -241,7 +226,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const svg_image = (
     <SVGInline
       component="div"
-      svg={img_data}
+      svg={image}
       className={classes.imageMargin}
       style={{
         height: `${imageHeight}px`,
