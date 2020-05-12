@@ -258,7 +258,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
   const addNewLigand = () => {
-    console.log(data);
     dispatch(addLigand(stage, data, colourToggle, datasetID));
   };
 

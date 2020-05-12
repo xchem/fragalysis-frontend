@@ -80,33 +80,33 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
 
 // Protein
 export const generateHitProteinObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_PROTEIN',
+  name: data.protein_code || data.name + '_PROTEIN',
   OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: base_url + data.molecule_protein,
+  prot_url: (data.molecule_protein && base_url + data.molecule_protein) || data.pdb_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.PROTEIN
 });
 
 // Complex
 export const generateComplexObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_CONTACTS',
+  name: data.protein_code || data.name + '_CONTACTS',
   OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: base_url + data.molecule_protein,
+  prot_url: (data.molecule_protein && base_url + data.molecule_protein) || data.pdb_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.COMPLEX
 });
 
 // Surface
 export const generateSurfaceObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_SURFACE',
+  name: data.protein_code || data.name + '_SURFACE',
   OBJECT_TYPE: OBJECT_TYPE.SURFACE,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: base_url + data.molecule_protein,
+  prot_url: (data.molecule_protein && base_url + data.molecule_protein) || data.pdb_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.SURFACE
 });
