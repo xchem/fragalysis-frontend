@@ -120,6 +120,12 @@ const useStyles = makeStyles(theme => ({
   },
   unmatchingValue: {
     backgroundColor: theme.palette.error.lighter
+  },
+  moleculeTitleLabel: {
+    ...theme.typography.button,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis'
   }
 }));
 
@@ -409,6 +415,8 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
     return cssClass;
   };
 
+  const moleculeTitle = target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '');
+
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
       {/* Site number */}
@@ -417,13 +425,12 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
           <Typography variant="subtitle2">{data.site}</Typography>
         </Grid>
       </Grid>
-
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item>
-          <Typography variant="button" noWrap>
-            {target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '')}
-          </Typography>
+        <Grid item xs={7}>
+          <Tooltip title={moleculeTitle} placement="bottom-start">
+            <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
+          </Tooltip>
         </Grid>
         {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
         <Grid item>
@@ -437,7 +444,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
         </Grid>*/}
 
         {/* Control Buttons A, L, C, V */}
-        <Grid item>
+        <Grid item xs={5}>
           <Grid
             container
             direction="row"
