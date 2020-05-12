@@ -21,7 +21,7 @@ import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
-import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
+import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
@@ -232,15 +232,18 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   ]);
 };
 
-export const activateSnapshotDialog = (isUserLoggedIn = undefined, finallyShareSnapshot = false) => (
+export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareSnapshot = false) => (
   dispatch,
   getState
 ) => {
-  const targetId = getState().apiReducers.target_on;
+  const state = getState();
+  const targetId = state.apiReducers.target_on;
+  const projectID = state.projectReducers.currentProject.projectID;
+  const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
 
   dispatch(setDisableRedirect(finallyShareSnapshot));
 
-  if (!isUserLoggedIn && targetId) {
+  if (!loggedInUserID && targetId) {
     const data = {
       title: ProjectCreationType.READ_ONLY,
       description: ProjectCreationType.READ_ONLY,
@@ -255,6 +258,10 @@ export const activateSnapshotDialog = (isUserLoggedIn = undefined, finallyShareS
       .catch(error => {
         throw new Error(error);
       });
+  } else if (finallyShareSnapshot === true && loggedInUserID && projectID !== null && currentSnapshotAuthor === null) {
+    dispatch(setForceCreateProject(true));
+
+    dispatch(setOpenSnapshotSavingDialog(true));
   } else {
     dispatch(setOpenSnapshotSavingDialog(true));
   }

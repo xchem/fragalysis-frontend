@@ -9,6 +9,8 @@ import {
   setIsLoadingTree,
   setIsLoadingCurrentSnapshot,
   setCurrentProject,
+  setForceCreateProject,
+  setForceProjectCreated,
   setIsLoadingListOfProjects
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
@@ -262,6 +264,8 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
       dispatch(setCurrentProjectProperty('projectID', projectID));
     })
     .finally(() => {
+      dispatch(setForceCreateProject(false));
+      dispatch(setForceProjectCreated(true));
       dispatch(setDialogCurrentStep(1));
     });
 };
