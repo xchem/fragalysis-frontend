@@ -201,7 +201,7 @@ export const addLigand = (stage, data, colourToggle, datasetID) => dispatch => {
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
       undefined,
-      null
+      undefined
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();

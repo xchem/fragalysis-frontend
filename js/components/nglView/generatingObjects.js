@@ -46,7 +46,7 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 
 // Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
-  name: data.protein_code + '_LIGAND',
+  name: data.protein_code || data.name + '_LIGAND',
   OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
   colour: colourToggle,
   sdf_info: data.sdf_info,
