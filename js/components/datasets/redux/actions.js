@@ -20,7 +20,8 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
-export const setFilter = filter => ({ type: constants.SET_FILTER, payload: filter });
+export const setFilterProperty = (key, value) => ({ type: constants.SET_FILTER_PROPERTY, payload: { key, value } });
+
 export const setFilterDialogOpen = filterDialogOpen => ({
   type: constants.SET_FILTER_DIALOG_OPEN,
   payload: filterDialogOpen
@@ -148,6 +149,11 @@ export const removeFromScoreDatasetMap = datasetID => ({
   payload: datasetID
 });
 
+export const appendToScoreCompoundMapByScoreCategory = scoreListCategories => ({
+  type: constants.APPEND_TO_SCORE_COMPOUND_MAP_BY_SCORE_CATEGORY,
+  payload: scoreListCategories
+});
+
 export const appendToScoreCompoundMap = (compoundID, scoreList) => ({
   type: constants.APPEND_TO_SCORE_COMPOUND_MAP,
   payload: { key: compoundID, value: scoreList }
@@ -157,3 +163,5 @@ export const removeFromScoreCompoundMap = compoundID => ({
   type: constants.REMOVE_FROM_SCORE_COMPOUND_MAP,
   payload: compoundID
 });
+
+export const clearScoreCompoundMap = () => ({ type: constants.CLEAR_SCORE_COMPOUND_MAP });

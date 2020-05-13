@@ -1,6 +1,6 @@
 import { deleteObject, loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import {
-  setFilter,
+  setFilterProperty,
   appendLigandList,
   appendProteinList,
   appendComplexList,
@@ -12,7 +12,8 @@ import {
   setDataset,
   setMoleculeList,
   appendToScoreDatasetMap,
-  appendToScoreCompoundMap
+  appendToScoreCompoundMap,
+  appendToScoreCompoundMapByScoreCategory
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -68,7 +69,7 @@ export const getListedMolecules = (object_selection, cached_mol_lists) => {
   return molecules;
 };
 
-export const initializeFilter = (object_selection, cached_mol_lists) => (dispatch, getState) => {
+export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const state = getState();
   if (!object_selection || !cached_mol_lists) {
     object_selection = (() => {
@@ -114,7 +115,7 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
       isFloat: attr.isFloat
     };
   }
-  dispatch(setFilter(initObject));
+  dispatch(setFilterProperty(initObject));
   return initObject;
 };
 
@@ -223,15 +224,24 @@ export const loadDataSets = () => dispatch =>
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
     dispatch(addMoleculeList(dataSetID, response.data.results));
-    dispatch(initializeFilter());
   });
 
 export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
     dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
+    return Promise.all(
+      response &&
+        response.data &&
+        response.data.results.map(score => dispatch(loadNumericalScoreListByScoreID(score.id)))
+    );
   });
 
 export const loadCompoundScoreList = (compoundID, onCancel) => dispatch =>
   api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}`, cancel: onCancel }).then(response => {
     dispatch(appendToScoreCompoundMap(compoundID, response.data.results));
+  });
+
+export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>
+  api({ url: `${base_url}/api/numerical-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
+    dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
   });

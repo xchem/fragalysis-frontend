@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, LinearProgress } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -18,8 +18,7 @@ import {
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface,
-  loadCompoundScoreList
+  removeSurface
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
@@ -120,7 +119,8 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    paddingLeft: theme.spacing(1) / 4
   },
   loadingProgress: {
     height: 2,
@@ -179,7 +179,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const disableUserInteraction = useDisableUserInteraction();
 
   const refOnCancelImage = useRef();
-  const refOnCancelScore = useRef();
   const getRandomColor = () => colourList[data.id % colourList.length];
   const colourToggle = getRandomColor();
 
@@ -207,21 +206,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
       }
     };
   }, [complexList, data.id, data.smiles, ligandList, imageHeight, imageWidth]);
-
-  useEffect(() => {
-    if (refOnCancelScore.current === undefined && data && data.id) {
-      let onCancel = () => {};
-      dispatch(loadCompoundScoreList(data.id, onCancel)).catch(error => {
-        throw new Error(error);
-      });
-      refOnCancelScore.current = onCancel;
-    }
-    return () => {
-      if (refOnCancelScore) {
-        refOnCancelScore.current();
-      }
-    };
-  });
 
   const svg_image = (
     <SVGInline
@@ -372,13 +356,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
 
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
-      {/* Site number */}
-      <Grid item container justify="center" direction="column" className={classes.site}>
-        <Grid item>
-          <Typography variant="subtitle2">{data.site}</Typography>
-        </Grid>
-      </Grid>
-
+      {/*Site number*/}
+      {/*<Grid item container justify="center" direction="column" className={classes.site}>*/}
+      {/*  <Grid item>*/}
+      {/*    <Typography variant="subtitle2">{data.site}</Typography>*/}
+      {/*  </Grid>*/}
+      {/*</Grid>*/}
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
         <Grid item xs={7}>
@@ -513,9 +496,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   </Grid>
                 </Tooltip>
               ))}
-            {!scoreCompoundMap && (
-              <LinearProgress variant="query" color="secondary" className={classes.loadingProgress} />
-            )}
           </Grid>
         </Grid>
       </Grid>

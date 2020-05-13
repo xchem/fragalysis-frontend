@@ -6,7 +6,7 @@ import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
-import CustomDatasetList from '../datasets/customDatasetList';
+import { CustomDatasetList } from '../datasets/customDatasetList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import { SummaryView } from './summary/summaryView';
 import { CompoundList } from './compounds/compoundList';

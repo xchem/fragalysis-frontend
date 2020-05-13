@@ -5,16 +5,11 @@ import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography 
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import DatasetMoleculeView, { colourList } from './datasetMoleculeView';
-import {
-  MoleculeListSortFilterDialog,
-  filterMolecules,
-  getAttrDefinition
-} from '../preview/molecule/moleculeListSortFilterDialog';
+import { filterMolecules, getAttrDefinition } from '../preview/molecule/moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
-import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
@@ -29,6 +24,9 @@ import {
   addSurface,
   removeSurface
 } from './redux/dispatchActions';
+import { setFilterDialogOpen } from './redux/actions';
+import { DatasetFilter } from './datasetFilter';
+import { FilterList } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -80,7 +78,7 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
-    marginLeft: 19,
+    marginLeft: 3,
     width: 'inherit'
   },
   rightBorder: {
@@ -141,19 +139,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const DatasetMoleculeList = memo(
-  ({
-    height,
-    setFilterItemsHeight,
-    filterItemsHeight,
-    object_selection,
-    moleculeGroupList,
-    filter,
-    setFilter,
-    title,
-    actions,
-    sortDialogAnchorEl,
-    datasetID
-  }) => {
+  ({ height, setFilterItemsHeight, filterItemsHeight, moleculeGroupList, title, datasetID }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -165,7 +151,9 @@ export const DatasetMoleculeList = memo(
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
     const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
+    const filter = useSelector(state => state.datasetsReducers.filterDatasetMap[datasetID]);
 
+    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const isActiveFilter = !!(filter || {}).active;
 
     const { getNglView } = useContext(NglContext);
@@ -265,6 +253,26 @@ export const DatasetMoleculeList = memo(
       }
     };
 
+    const actions = [
+      <Button
+        onClick={event => {
+          if (sortDialogOpen === false) {
+            setSortDialogAnchorEl(filterRef.current);
+            dispatch(setFilterDialogOpen(true));
+          } else {
+            setSortDialogAnchorEl(null);
+            dispatch(setFilterDialogOpen(false));
+          }
+        }}
+        color={'inherit'}
+        variant="text"
+        startIcon={<FilterList />}
+        size="small"
+      >
+        sort/filter
+      </Button>
+    ];
+
     return (
       <ComputeSize
         componentRef={filterRef.current}
@@ -274,15 +282,12 @@ export const DatasetMoleculeList = memo(
       >
         <Panel hasHeader title={title} headerActions={actions} isLoading={isLoadingMoleculeList}>
           {sortDialogOpen && (
-            <MoleculeListSortFilterDialog
+            <DatasetFilter
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
-              molGroupSelection={object_selection}
               moleculeGroupList={moleculeGroupList}
               filter={filter}
-              setFilter={setFilter}
-              parentID="datasets"
-              placement="left-start"
+              datasetID={datasetID}
             />
           )}
           <div ref={filterRef}>
@@ -408,7 +413,7 @@ export const DatasetMoleculeList = memo(
                 </Grid>
               )}
             </Grid>
-            {currentMolecules.length > 0 && (
+            {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList}>
                 <InfiniteScroll
                   pageStart={0}

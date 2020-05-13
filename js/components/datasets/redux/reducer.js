@@ -1,4 +1,5 @@
 import { constants } from './constants';
+import { appendToScoreCompoundMap } from './actions';
 
 export const INITIAL_STATE = {
   datasets: [], // list of dataset objects
@@ -8,7 +9,7 @@ export const INITIAL_STATE = {
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
   // filter
-  filter: undefined,
+  filterDatasetMap: {}, // map of $datasetID and its $moleculeList
   filterDialogOpen: false,
 
   // control buttons
@@ -112,8 +113,10 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
-    case constants.SET_FILTER:
-      return Object.assign({}, state, { filter: action.payload });
+    case constants.SET_FILTER_PROPERTY:
+      const currentFilterDatasetMap = JSON.parse(JSON.stringify(state.filterDatasetMap));
+      currentFilterDatasetMap[action.payload.key] = action.payload.value;
+      return Object.assign({}, state, { filterDatasetMap: currentFilterDatasetMap });
 
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });
@@ -164,6 +167,19 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       delete diminishedScoreDatasetMap[action.payload];
       return Object.assign({}, state, { scoreDatasetMap: diminishedScoreDatasetMap });
 
+    case constants.APPEND_TO_SCORE_COMPOUND_MAP_BY_SCORE_CATEGORY:
+      const extendedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
+      action.payload.forEach(score => {
+        let array = [];
+        if (extendedScoreCompoundMap && extendedScoreCompoundMap[score.compound]) {
+          array = extendedScoreCompoundMap[score.compound];
+        }
+        array.push(score);
+        extendedScoreCompoundMap[score.compound] = array;
+      });
+
+      return Object.assign({}, state, { scoreCompoundMap: extendedScoreCompoundMap });
+
     case constants.APPEND_TO_SCORE_COMPOUND_MAP:
       const currentScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
       currentScoreCompoundMap[action.payload.key] = action.payload.value;
@@ -173,6 +189,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       const diminishedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
       delete diminishedScoreCompoundMap[action.payload];
       return Object.assign({}, state, { scoreCompoundMap: diminishedScoreCompoundMap });
+
+    case constants.CLEAR_SCORE_COMPOUND_MAP:
+      return Object.assign({}, state, { scoreCompoundMap: {} });
 
     default:
       return state;
