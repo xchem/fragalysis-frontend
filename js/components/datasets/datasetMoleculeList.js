@@ -4,30 +4,30 @@
 import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import MoleculeView, { colourList } from './moleculeView';
-import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
+import DatasetMoleculeView, { colourList } from './datasetMoleculeView';
+import {
+  MoleculeListSortFilterDialog,
+  filterMolecules,
+  getAttrDefinition
+} from '../preview/molecule/moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Button } from '../../common/Inputs/Button';
-import { Panel } from '../../common/Surfaces/Panel';
-import { ComputeSize } from '../../../utils/computeSize';
-import { moleculeProperty } from './helperConstants';
-import { VIEWS } from '../../../constants/constants';
-import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+import { Button } from '../common/Inputs/Button';
+import { Panel } from '../common/Surfaces/Panel';
+import { ComputeSize } from '../../utils/computeSize';
+import { moleculeProperty } from '../preview/molecule/helperConstants';
+import { VIEWS } from '../../constants/constants';
+import { NglContext } from '../nglView/nglProvider';
+import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
-  addVector,
-  removeVector,
+  addLigand,
+  removeLigand,
   addProtein,
   removeProtein,
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface,
-  addDensity,
-  removeDensity,
-  addLigand,
-  removeLigand
+  removeSurface
 } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
@@ -92,12 +92,14 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     fontSize: 8,
-    width: 25,
+    width: 32,
     textAlign: 'center',
     '&:last-child': {
       borderRight: 'none',
       width: 32
-    }
+    },
+    overflow: 'hidden',
+    whiteSpace: 'nowrap'
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2
@@ -138,19 +140,19 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const MoleculeList = memo(
+export const DatasetMoleculeList = memo(
   ({
     height,
     setFilterItemsHeight,
     filterItemsHeight,
     object_selection,
-    cached_mol_lists,
-    moleculeDataList,
+    moleculeGroupList,
     filter,
     setFilter,
     title,
     actions,
-    sortDialogAnchorEl
+    sortDialogAnchorEl,
+    datasetID
   }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -159,7 +161,10 @@ export const MoleculeList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const imgHeight = 34;
     const imgWidth = 150;
-    const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
+    const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
+    const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+    const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+    const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
 
     const isActiveFilter = !!(filter || {}).active;
 
@@ -168,7 +173,7 @@ export const MoleculeList = memo(
 
     const filterRef = useRef();
 
-    let joinedMoleculeLists = moleculeDataList;
+    let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
     const disableUserInteraction = useDisableUserInteraction();
 
@@ -190,6 +195,7 @@ export const MoleculeList = memo(
 
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
+    // setCurrentMolecules(currentMolecules);
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
     useEffect(() => {
@@ -199,39 +205,26 @@ export const MoleculeList = memo(
     }, [isActiveFilter, setFilterItemsHeight]);
 
     const selectedAll = useRef(false);
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
-    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
+    const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
+    const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
 
-    const changeButtonClassname = (givenList = []) => {
-      if (currentMolecules.length === givenList.length) {
-        return true;
-      } else if (givenList.length > 0) {
-        return null;
-      }
-      return false;
-    };
-
-    const isLigandOn = changeButtonClassname(fragmentDisplayList);
-    const isProteinOn = changeButtonClassname(proteinList);
-    const isComplexOn = changeButtonClassname(complexList);
+    const isLigandOn = (ligandList && ligandList.length > 0) || false;
+    const isProteinOn = (proteinList && proteinList.length > 0) || false;
+    const isComplexOn = (complexList && complexList.length > 0) || false;
 
     const addType = {
       ligand: addLigand,
       protein: addProtein,
       complex: addComplex,
-      surface: addSurface,
-      density: addDensity,
-      vector: addVector
+      surface: addSurface
     };
 
     const removeType = {
       ligand: removeLigand,
       protein: removeProtein,
       complex: removeComplex,
-      surface: removeSurface,
-      density: removeDensity,
-      vector: removeVector
+      surface: removeSurface
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -240,14 +233,14 @@ export const MoleculeList = memo(
 
     const removeSelectedType = type => {
       joinedMoleculeLists.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
       });
       selectedAll.current = false;
     };
 
     const addNewType = type => {
       joinedMoleculeLists.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
       });
     };
 
@@ -279,15 +272,17 @@ export const MoleculeList = memo(
         height={filterItemsHeight}
         forceCompute={isActiveFilter}
       >
-        <Panel hasHeader title={title} headerActions={actions}>
+        <Panel hasHeader title={title} headerActions={actions} isLoading={isLoadingMoleculeList}>
           {sortDialogOpen && (
             <MoleculeListSortFilterDialog
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               molGroupSelection={object_selection}
-              cachedMolList={cached_mol_lists}
+              moleculeGroupList={moleculeGroupList}
               filter={filter}
               setFilter={setFilter}
+              parentID="datasets"
+              placement="left-start"
             />
           )}
           <div ref={filterRef}>
@@ -335,74 +330,83 @@ export const MoleculeList = memo(
           >
             <Grid item>
               {/* Header */}
-              <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                <Grid item container justify="flex-start" direction="row">
-                  {Object.keys(moleculeProperty).map(key => (
-                    <Grid item key={key} className={classes.rightBorder}>
-                      {moleculeProperty[key]}
-                    </Grid>
-                  ))}
-                  {currentMolecules.length > 0 && (
-                    <Grid item>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="flex-start"
-                        alignItems="center"
-                        wrap="nowrap"
-                        className={classes.contButtonsMargin}
-                      >
-                        <Tooltip title="all ligands">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn === true,
-                                [classes.contColButtonHalfSelected]: isLigandOn === null
-                              })}
-                              onClick={() => onButtonToggle('ligand')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">L</Typography>
-                            </Button>
+              {isLoadingMoleculeList === false && (
+                <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                  <Grid item container justify="flex-start" direction="row">
+                    {/*{Object.keys(moleculeProperty).map(key => (*/}
+                    {/*  <Grid item key={key} className={classes.rightBorder}>*/}
+                    {/*    {moleculeProperty[key]}*/}
+                    {/*  </Grid>*/}
+                    {/*))}*/}
+                    {datasetID &&
+                      scoreDatasetMap &&
+                      scoreDatasetMap[datasetID] &&
+                      scoreDatasetMap[datasetID].slice(0, 7).map(score => (
+                        <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
+                          <Grid item className={classes.rightBorder}>
+                            {score.name.substring(0, 4)}
                           </Grid>
                         </Tooltip>
-                        <Tooltip title="all sidechains">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn,
-                                [classes.contColButtonHalfSelected]: isProteinOn === null
-                              })}
-                              onClick={() => onButtonToggle('protein')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">P</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all interactions">
-                          <Grid item>
-                            {/* C stands for contacts now */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn,
-                                [classes.contColButtonHalfSelected]: isComplexOn === null
-                              })}
-                              onClick={() => onButtonToggle('complex')}
-                              disabled={disableUserInteraction}
-                            >
-                              <Typography variant="subtitle2">C</Typography>
-                            </Button>
-                          </Grid>
-                        </Tooltip>
+                      ))}
+                    {currentMolecules.length > 0 && (
+                      <Grid item>
+                        <Grid
+                          container
+                          direction="row"
+                          justify="flex-start"
+                          alignItems="center"
+                          wrap="nowrap"
+                          className={classes.contButtonsMargin}
+                        >
+                          <Tooltip title="all ligands">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isLigandOn
+                                })}
+                                onClick={() => onButtonToggle('ligand')}
+                                disabled={disableUserInteraction}
+                              >
+                                <Typography variant="subtitle2">L</Typography>
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                          <Tooltip title="all sidechains">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isProteinOn
+                                })}
+                                onClick={() => onButtonToggle('protein')}
+                                disabled={disableUserInteraction}
+                              >
+                                <Typography variant="subtitle2">P</Typography>
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                          <Tooltip title="all interactions">
+                            <Grid item>
+                              {/* C stands for contacts now */}
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isComplexOn
+                                })}
+                                onClick={() => onButtonToggle('complex')}
+                                disabled={disableUserInteraction}
+                              >
+                                <Typography variant="subtitle2">C</Typography>
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  )}
+                    )}
+                  </Grid>
                 </Grid>
-              </Grid>
+              )}
             </Grid>
             {currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList}>
@@ -425,9 +429,16 @@ export const MoleculeList = memo(
                   }
                   useWindow={false}
                 >
-                  {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
-                  ))}
+                  {datasetID &&
+                    currentMolecules.map(data => (
+                      <DatasetMoleculeView
+                        key={data.id}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data}
+                        datasetID={datasetID}
+                      />
+                    ))}
                 </InfiniteScroll>
               </Grid>
             )}

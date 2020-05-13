@@ -8,7 +8,6 @@ import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch } from 'react-redux';
-import { setFilter, setFilterSettings } from '../../../reducers/selection/actions';
 import { MOL_ATTRIBUTES } from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -56,17 +55,14 @@ const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
-export const getFilteredMoleculesCount = (molecules, filterSettings) => {
+export const getFilteredMoleculesCount = (molecules, filter) => {
   let count = 0;
   for (let molecule of molecules) {
     let add = true; // By default molecule passes filter
     for (let attr of MOL_ATTRIBUTES) {
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
-      if (
-        attrValue < filterSettings.filter[attr.key].minValue ||
-        attrValue > filterSettings.filter[attr.key].maxValue
-      ) {
+      if (attrValue < filter.filter[attr.key].minValue || attrValue > filter.filter[attr.key].maxValue) {
         add = false;
         break; // Do not loop over other attributes
       }
@@ -82,7 +78,7 @@ export const getAttrDefinition = attr => {
   return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr);
 };
 
-export const filterMolecules = (molecules, filterSettings) => {
+export const filterMolecules = (molecules, filter) => {
   // 1. Filter
   let filteredMolecules = [];
   for (let molecule of molecules) {
@@ -91,10 +87,7 @@ export const filterMolecules = (molecules, filterSettings) => {
       if (!attr.filter) continue;
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
-      if (
-        attrValue < filterSettings.filter[attr.key].minValue ||
-        attrValue > filterSettings.filter[attr.key].maxValue
-      ) {
+      if (attrValue < filter.filter[attr.key].minValue || attrValue > filter.filter[attr.key].maxValue) {
         add = false;
         break; // Do not loop over other attributes
       }
@@ -105,11 +98,11 @@ export const filterMolecules = (molecules, filterSettings) => {
   }
 
   // 2. Sort
-  let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
+  let sortedAttributes = filter.priorityOrder.map(attr => attr);
 
   return filteredMolecules.sort((a, b) => {
     for (let prioAttr of sortedAttributes) {
-      const order = filterSettings.filter[prioAttr].order;
+      const order = filter.filter[prioAttr].order;
 
       const attrLo = prioAttr.toLowerCase();
       let diff = order * (a[attrLo] - b[attrLo]);
@@ -121,7 +114,16 @@ export const filterMolecules = (molecules, filterSettings) => {
 };
 
 export const MoleculeListSortFilterDialog = memo(
-  ({ molGroupSelection, cachedMolList, filter, filterSettings, anchorEl, open }) => {
+  ({
+    molGroupSelection,
+    moleculeGroupList,
+    filter,
+    setFilter,
+    anchorEl,
+    open,
+    parentID = 'default',
+    placement = 'right-start'
+  }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
 
@@ -159,9 +161,9 @@ export const MoleculeListSortFilterDialog = memo(
       let molecules = [];
       for (let molgroupId of molGroupSelection) {
         // Selected molecule groups
-        const molGroup = cachedMolList[molgroupId];
+        const molGroup = moleculeGroupList;
         if (molGroup) {
-          molecules = molecules.concat(molGroup.results);
+          molecules = molecules.concat(molGroup);
         } else {
           console.log(`Molecule group ${molgroupId} not found in cached list`);
         }
@@ -181,7 +183,7 @@ export const MoleculeListSortFilterDialog = memo(
           filterSet.filter[attr.key].priority = 0;
         }
       }
-      dispatch(setFilterSettings(filterSet));
+      dispatch(setFilter(filterSet));
     };
 
     const handleItemChange = key => setting => {
@@ -228,10 +230,10 @@ export const MoleculeListSortFilterDialog = memo(
       }
     }
 
-    const id = open ? 'simple-popover' : undefined;
+    const id = open ? 'simple-popover-' + parentID : undefined;
 
     return (
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="right-start">
+      <Popper id={id} open={open} anchorEl={anchorEl} placement={placement}>
         <Paper className={classes.paper} elevation={21}>
           <Grid container justify="space-between" direction="row" alignItems="center">
             <Grid item>
@@ -305,7 +307,7 @@ MoleculeListSortFilterDialog.propTypes = {
   molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
   cachedMolList: PropTypes.object.isRequired,
   filter: PropTypes.object,
-  filterSettings: PropTypes.object,
+  setFilter: PropTypes.func,
   anchorEl: PropTypes.object,
   open: PropTypes.bool.isRequired
 };
