@@ -258,7 +258,7 @@ export default memo(
             </Grid>
           </Grid>
           {(isLoading === true || disableUserInteraction === true) && (
-            <LinearProgress color="secondary" className={classes.loadingProgress} />
+            <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
           )}
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />

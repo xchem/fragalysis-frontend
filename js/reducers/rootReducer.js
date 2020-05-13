@@ -10,6 +10,7 @@ import { snapshotReducers } from '../components/snapshot/redux/reducer';
 import { previewReducers } from '../components/preview/redux';
 import { projectReducers } from '../components/projects/redux/reducer';
 import { issueReducers } from '../components/userFeedback/redux/reducer';
+import { datasetsReducers } from '../components/datasets/redux/reducer';
 
 const rootReducer = combineReducers({
   apiReducers,
@@ -19,7 +20,8 @@ const rootReducer = combineReducers({
   snapshotReducers,
   previewReducers,
   projectReducers,
-  issueReducers
+  issueReducers,
+  datasetsReducers
 });
 
 export { rootReducer };

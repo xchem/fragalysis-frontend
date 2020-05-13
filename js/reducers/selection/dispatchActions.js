@@ -17,7 +17,7 @@ export const getListedMolecules = (object_selection, cached_mol_lists) => {
       // Selected molecule groups
       const molGroup = cached_mol_lists[molgroupId];
       if (molGroup) {
-        molecules = molecules.concat(molGroup.results);
+        molecules = molecules.concat(molGroup);
       } else {
         console.log(`Molecule group ${molgroupId} not found in cached list`);
       }

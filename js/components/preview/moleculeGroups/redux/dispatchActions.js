@@ -15,13 +15,12 @@ import {
   removeFromVectorOnList,
   resetSelectionState,
   setComplexList,
-  setFilterSettings,
+  setFilter,
   setFragmentDisplayList,
   setMolGroupSelection,
   setObjectSelection,
   setVectorList,
-  setVectorOnList,
-  setFirstLoad
+  setVectorOnList
 } from '../../../../reducers/selection/actions';
 import { removeMoleculeOrientation, setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
 import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
@@ -136,7 +135,6 @@ export const selectFirstMolGroup = ({ summaryView }) => (dispatch, getState) => 
   const currentMolGroup = getState().apiReducers.mol_group_list[0];
   if (currentMolGroup) {
     dispatch(selectMoleculeGroup(currentMolGroup, summaryView));
-    dispatch(setFirstLoad(true));
   }
 };
 
@@ -198,8 +196,8 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
   dispatch(setVectorOnList([]));
   dispatch(setVectorList([]));
 
-  // reset filterSettings of molecules
-  dispatch(setFilterSettings(undefined));
+  // reset filter of molecules
+  dispatch(setFilter(undefined));
   // close sort dialog
   dispatch(setSortDialogOpen(false));
 

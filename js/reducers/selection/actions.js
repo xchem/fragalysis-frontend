@@ -203,11 +203,6 @@ export const setFilter = filter => ({
   payload: filter
 });
 
-export const setFilterSettings = filterSettings => ({
-  type: constants.SET_FILTER_SETTINGS,
-  payload: filterSettings
-});
-
 export const resetCompoundsOfVectors = () => ({
   type: constants.RESET_COMPOUNDS_OF_VECTORS
 });
@@ -215,11 +210,6 @@ export const resetCompoundsOfVectors = () => ({
 export const updateVectorCompounds = (key, value) => ({
   type: constants.UPDATE_VECTOR_COMPOUNDS,
   payload: { key, value }
-});
-
-export const setFirstLoad = firstLoad => ({
-  type: constants.SET_FIRST_LOAD,
-  payload: firstLoad
 });
 
 export const resetBondColorMapOfVectors = () => ({
