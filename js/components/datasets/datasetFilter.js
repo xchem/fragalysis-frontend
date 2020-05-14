@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import { Delete } from '@material-ui/icons';
 import { getFilteredMoleculesCount } from '../preview/molecule/moleculeListSortFilterDialog';
 import { setFilterProperty } from './redux/actions';
+import { scoreListOfMolecules } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -57,12 +58,7 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
   const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap);
 
-  //TODO filter scoreCompoundMap by compound_set property
-  const scoresOfMolecules = moleculeLists.map(molecule => ({
-    score: scoreCompoundMap[molecule.id]
-  }));
-
-  console.log(scoresOfMolecules);
+  const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
 
   const initialize = () => {
     let initObject = {

@@ -28,6 +28,7 @@ import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
 
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
+import { scoreListOfMolecules } from './selectors';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
   console.log('initializing testing datasets');
@@ -71,43 +72,34 @@ export const getListedMolecules = (object_selection, cached_mol_lists) => {
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const state = getState();
-  if (!object_selection || !cached_mol_lists) {
-    object_selection = (() => {
-      let tmp = [];
-      state.datasetsReducers.datasets.forEach(dataset => {
-        tmp.push(dataset.id);
-      });
-      return tmp;
-    })(state.datasetsReducers.datasets);
-    cached_mol_lists = state.datasetsReducers.moleculeLists;
-  }
+  const scoreListOfMoleculeListOfDataset = scoreListOfMolecules(state, datasetID);
+  const scoreDatasetMap = state.datasetsReducers.scoreDatasetMap[datasetID];
 
-  let initObject = state.selectionReducers.filter;
+  let initObject = state.datasetsReducers.filterDatasetMap[datasetID];
 
   if (initObject === undefined) {
     initObject = {
       active: false,
       predefined: 'none',
       filter: {},
-      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
+      priorityOrder: scoreDatasetMap.map(score => score.name)
     };
   } else {
     initObject = Object.assign({}, initObject);
     console.log('using saved filter');
   }
 
-  for (let attr of MOL_ATTRIBUTES) {
-    const lowAttr = attr.key.toLowerCase();
+  for (let attr of scoreDatasetMap) {
     let minValue = -999999;
     let maxValue = 0;
-    for (let molecule of getListedMolecules(object_selection, cached_mol_lists)) {
-      const attrValue = molecule[lowAttr];
+    for (let molecule of scoreListOfMoleculeListOfDataset) {
+      const attrValue = (molecule.find(item => item.score.name === attr.name) || {}).value;
       if (attrValue > maxValue) maxValue = attrValue;
       if (minValue === -999999) minValue = maxValue;
       if (attrValue < minValue) minValue = attrValue;
     }
 
-    initObject.filter[attr.key] = {
+    initObject.filter[attr.name] = {
       priority: 0,
       order: 1,
       minValue: minValue,
@@ -115,11 +107,9 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
       isFloat: attr.isFloat
     };
   }
-  dispatch(setFilterProperty(initObject));
+  dispatch(setFilterProperty(datasetID, initObject));
   return initObject;
 };
-
-/* ----------------------------------------------- */
 
 export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
