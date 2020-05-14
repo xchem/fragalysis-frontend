@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Paper, Popper } from '@material-ui/core';
+import { Paper, Popper, useTheme } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import { MOL_ATTRIBUTES } from '../preview/molecule/redux/constants';
@@ -7,9 +7,9 @@ import Grid from '@material-ui/core/Grid';
 import WarningIcon from '@material-ui/icons/Warning';
 import Button from '@material-ui/core/Button';
 import { Delete } from '@material-ui/icons';
-import { getFilteredMoleculesCount } from '../preview/molecule/moleculeListSortFilterDialog';
 import { setFilterProperty } from './redux/actions';
-import { scoreListOfMolecules } from './redux/selectors';
+import { getInitialDatasetFilterObject, scoreListOfMolecules } from './redux/selectors';
+import MoleculeListSortFilterItem from '../preview/molecule/moleculeListSortFilterItem';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -50,44 +50,29 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const widthPrio = 50;
+const widthOrder = 60;
+const widthProperty = 212;
+const widthMin = 30;
+const widthSlider = 170;
+
 export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
   let classes = useStyles();
   const dispatch = useDispatch();
+  const theme = useTheme();
   const id = open ? 'simple-popover-datasets' : undefined;
+  const initState = useSelector(state => getInitialDatasetFilterObject(state, datasetID));
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists[datasetID]);
   const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
-  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap);
+  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
 
   const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
 
-  const initialize = () => {
-    let initObject = {
-      active: false,
-      predefined: 'none',
-      filter: {},
-      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
-    };
+  // const [filteredCount, setFilteredCount] = useState(filter && getFilteredMoleculesCount(scoreDatasetList, filter));
+  const [predefinedFilter, setPredefinedFilter] = useState(filter && filter.predefined);
 
-    for (let attr of MOL_ATTRIBUTES) {
-      const lowAttr = attr.key.toLowerCase();
-      let minValue = -999999;
-      let maxValue = 0;
-      for (let molecule of scoreDatasetList) {
-        const attrValue = molecule[lowAttr];
-        if (attrValue > maxValue) maxValue = attrValue;
-        if (minValue === -999999) minValue = maxValue;
-        if (attrValue < minValue) minValue = attrValue;
-      }
-
-      initObject.filter[attr.key] = {
-        priority: 0,
-        order: 1,
-        minValue: minValue,
-        maxValue: maxValue,
-        isFloat: attr.isFloat
-      };
-    }
-    return initObject;
+  const getAttributeName = attr => {
+    return scoreDatasetList.find(item => item.name === attr);
   };
 
   const getListedMolecules = () => {
@@ -105,10 +90,6 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
     return molecules;
   };
 
-  const [initState] = useState(initialize());
-  const [filteredCount, setFilteredCount] = useState(filter && getFilteredMoleculesCount(scoreDatasetList, filter));
-  const [predefinedFilter, setPredefinedFilter] = useState(filter && filter.predefined);
-
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
     for (let attr of MOL_ATTRIBUTES) {
@@ -117,6 +98,15 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
       }
     }
     dispatch(setFilterProperty(datasetID, filterSet));
+  };
+
+  const handleItemChange = key => setting => {
+    let newFilter = Object.assign({}, filter);
+    newFilter.filter[key] = setting;
+    newFilter.active = true;
+    dispatch(setFilterProperty(datasetID, newFilter));
+    // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
+    handleFilterChange(newFilter);
   };
 
   const handlePrioChange = key => inc => () => {
@@ -136,18 +126,18 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
   };
 
   const handleClear = () => {
-    const resetFilter = initialize();
-    setPredefinedFilter('none');
-    dispatch(setFilterProperty(datasetID, resetFilter));
-    setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
-    handleFilterChange(resetFilter);
+    // const resetFilter = initialize();
+    // setPredefinedFilter('none');
+    // dispatch(setFilterProperty(datasetID, resetFilter));
+    // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
+    // handleFilterChange(resetFilter);
   };
 
   // Check for multiple attributes with same sorting priority
   let prioWarning = false;
   let prioWarningTest = {};
-  for (const attr of MOL_ATTRIBUTES) {
-    const prioKey = filter.filter[attr.key].priority;
+  for (const attr of scoreCompoundMap) {
+    const prioKey = filter.filter[attr.score.name].priority;
     if (prioKey > 0) {
       prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
       if (prioWarningTest[prioKey] > 1) prioWarning = true;
@@ -160,7 +150,7 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
         <Grid container justify="space-between" direction="row" alignItems="center">
           <Grid item>
             <div className={classes.numberOfHits}>
-              # of hits matching selection: <b>{filteredCount}</b>
+              {/*# of hits matching selection: <b>{filteredCount}</b>*/}
               {prioWarning && (
                 <div>
                   <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
@@ -173,6 +163,51 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
               Clear
             </Button>
           </Grid>
+        </Grid>
+        <Grid container>
+          <Grid container item className={classes.gridItemHeader}>
+            <Grid item className={classes.centered} style={{ width: widthPrio }}>
+              priority
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthOrder }}>
+              <div style={{ textAlign: 'center' }}>
+                order
+                <br />
+                <span style={{ fontSize: 'smaller' }}>(up/down)</span>
+              </div>
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthProperty }}>
+              property
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthMin }}>
+              min
+            </Grid>
+            <Grid item className={classes.centered} style={{ width: widthSlider }} />
+            <Grid item className={classes.centered} style={{ width: widthMin }}>
+              max
+            </Grid>
+          </Grid>
+
+          {filter.priorityOrder.map(attr => {
+            let attrDef = getAttributeName(attr);
+            return (
+              <MoleculeListSortFilterItem
+                key={attr}
+                property={attrDef.name}
+                order={filter.filter[attr].order}
+                minValue={filter.filter[attr].minValue}
+                maxValue={filter.filter[attr].maxValue}
+                min={initState.filter[attr].minValue}
+                max={initState.filter[attr].maxValue}
+                isFloat={initState.filter[attr].isFloat}
+                color={theme.palette.primary.light}
+                disabled={predefinedFilter !== 'none'}
+                onChange={handleItemChange(attr)}
+                onChangePrio={handlePrioChange(attr)}
+                filter={attrDef.filter}
+              />
+            );
+          })}
         </Grid>
       </Paper>
     </Popper>
