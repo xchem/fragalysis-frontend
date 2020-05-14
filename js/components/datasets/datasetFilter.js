@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Paper, Popper, useTheme } from '@material-ui/core';
+import { Checkbox, Paper, Popper, useTheme } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import { MOL_ATTRIBUTES } from '../preview/molecule/redux/constants';
@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import { Delete } from '@material-ui/icons';
 import { setFilterProperty } from './redux/actions';
 import { getInitialDatasetFilterObject, scoreListOfMolecules } from './redux/selectors';
-import MoleculeListSortFilterItem from '../preview/molecule/moleculeListSortFilterItem';
+import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -44,12 +44,13 @@ const useStyles = makeStyles(theme => ({
     top: 2
   },
   paper: {
-    width: 570,
+    width: 700,
     overflow: 'none',
     padding: theme.spacing(1)
   }
 }));
 
+const widthCheckbox = 70;
 const widthPrio = 50;
 const widthOrder = 60;
 const widthProperty = 212;
@@ -166,6 +167,9 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
         </Grid>
         <Grid container>
           <Grid container item className={classes.gridItemHeader}>
+            <Grid item className={classes.centered} style={{ width: widthCheckbox }}>
+              Is showed
+            </Grid>
             <Grid item className={classes.centered} style={{ width: widthPrio }}>
               priority
             </Grid>
@@ -191,7 +195,7 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
           {filter.priorityOrder.map(attr => {
             let attrDef = getAttributeName(attr);
             return (
-              <MoleculeListSortFilterItem
+              <DatasetMoleculeListSortFilter
                 key={attr}
                 property={attrDef.name}
                 order={filter.filter[attr].order}
@@ -204,7 +208,7 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
                 disabled={predefinedFilter !== 'none'}
                 onChange={handleItemChange(attr)}
                 onChangePrio={handlePrioChange(attr)}
-                filter={attrDef.filter}
+                filter={true} //{attrDef.filter} //{true} // I can specify, that such attribute can be filtered
               />
             );
           })}

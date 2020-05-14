@@ -9,6 +9,7 @@ import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
+import { Checkbox } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   centered: {
@@ -66,13 +67,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const widthPrio = 50;
+const widthCheckbox = 70;
+const widthPrio = 100;
 const widthOrder = 60;
 const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
-const moleculeListSortFilterItem = memo(
+export const DatasetMoleculeListSortFilter = memo(
   ({ property, min, max, onChange, isFloat, color, disabled, onChangePrio, filter, order, minValue, maxValue }) => {
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
@@ -84,7 +86,7 @@ const moleculeListSortFilterItem = memo(
     let normMaxValue = isFloat ? maxValue * MULT : maxValue;
 
     let classes = useStyles();
-    const [sliderValue, setSliderValue] = useState([normMinValue, normMaxValue]); // Internal state of slider
+    const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
     const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
 
     let setting = {
@@ -113,14 +115,21 @@ const moleculeListSortFilterItem = memo(
       onChange(setting);
     };
 
-    // In case of 'CLEAR' filter we need reset internal state
-    if (sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
-      setSliderValue([normMinValue, normMaxValue]);
-      setSliderCommittedValue([normMinValue, normMaxValue]);
-    }
+    // // In case of 'CLEAR' filter we need reset internal state
+    // if (sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
+    //   setSliderValue([normMinValue, normMaxValue]);
+    //   setSliderCommittedValue([normMinValue, normMaxValue]);
+    // }
 
     return (
       <Grid container item className={classes.gridItemHeader}>
+        <Grid item container className={classes.centered} style={{ width: widthCheckbox }}>
+          <Grid item container justify="center">
+            <Grid item>
+              <Checkbox color="primary" />
+            </Grid>
+          </Grid>
+        </Grid>
         <Grid item container className={classes.centered} style={{ width: widthPrio }}>
           <Grid item container justify="center">
             <Grid item>
@@ -178,7 +187,6 @@ const moleculeListSortFilterItem = memo(
                 aria-labelledby="range-slider"
                 max={normMax}
                 min={normMin}
-                marks={isFloat !== true ? true : undefined}
                 valueLabelFormat={value => {
                   return isFloat ? value / MULT : value;
                 }}
@@ -195,7 +203,7 @@ const moleculeListSortFilterItem = memo(
   }
 );
 
-moleculeListSortFilterItem.propTypes = {
+DatasetMoleculeListSortFilter.propTypes = {
   order: PropTypes.number.isRequired,
   property: PropTypes.string.isRequired,
   min: PropTypes.number.isRequired,
@@ -205,5 +213,3 @@ moleculeListSortFilterItem.propTypes = {
   disabled: PropTypes.bool,
   filter: PropTypes.bool
 };
-
-export default moleculeListSortFilterItem;
