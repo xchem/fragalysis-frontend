@@ -5,7 +5,6 @@ import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography 
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import DatasetMoleculeView, { colourList } from './datasetMoleculeView';
-import { filterMolecules, getAttrDefinition } from '../preview/molecule/moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
@@ -27,6 +26,7 @@ import {
 import { setFilterDialogOpen } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList } from '@material-ui/icons';
+import { isEqual } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -135,6 +135,9 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.light,
       color: theme.palette.black
     }
+  },
+  propertyChip: {
+    fontWeight: 'bolder'
   }
 }));
 
@@ -150,8 +153,9 @@ export const DatasetMoleculeList = memo(
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
-    const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
-    const filter = useSelector(state => state.datasetsReducers.filterDatasetMap[datasetID]);
+    const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
+    const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap, isEqual);
+    const filter = filterMap && filterMap[datasetID];
 
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const isActiveFilter = !!(filter || {}).active;
@@ -171,7 +175,7 @@ export const DatasetMoleculeList = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
+      // TODO filter by datasetID  joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -268,6 +272,7 @@ export const DatasetMoleculeList = memo(
         variant="text"
         startIcon={<FilterList />}
         size="small"
+        disabled={isLoadingMoleculeList}
       >
         sort/filter
       </Button>
@@ -286,8 +291,8 @@ export const DatasetMoleculeList = memo(
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
               moleculeGroupList={moleculeGroupList}
-              filter={filter}
               datasetID={datasetID}
+              filter={filter}
             />
           )}
           <div ref={filterRef}>
@@ -310,11 +315,7 @@ export const DatasetMoleculeList = memo(
                               }`}
                               placement="top"
                             >
-                              <Chip
-                                size="small"
-                                label={attr}
-                                style={{ backgroundColor: getAttrDefinition(attr).color }}
-                              />
+                              <Chip size="small" label={attr} className={classes.propertyChip} />
                             </Tooltip>
                           </Grid>
                         ))}
@@ -338,15 +339,10 @@ export const DatasetMoleculeList = memo(
               {isLoadingMoleculeList === false && (
                 <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                   <Grid item container justify="flex-start" direction="row">
-                    {/*{Object.keys(moleculeProperty).map(key => (*/}
-                    {/*  <Grid item key={key} className={classes.rightBorder}>*/}
-                    {/*    {moleculeProperty[key]}*/}
-                    {/*  </Grid>*/}
-                    {/*))}*/}
                     {datasetID &&
-                      scoreDatasetMap &&
-                      scoreDatasetMap[datasetID] &&
-                      scoreDatasetMap[datasetID].slice(0, 7).map(score => (
+                      filteredScoreProperties &&
+                      filteredScoreProperties[datasetID] &&
+                      filteredScoreProperties[datasetID].map(score => (
                         <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
                           <Grid item className={classes.rightBorder}>
                             {score.name.substring(0, 4)}

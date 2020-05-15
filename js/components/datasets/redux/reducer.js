@@ -1,5 +1,4 @@
 import { constants } from './constants';
-import { appendToScoreCompoundMap } from './actions';
 
 export const INITIAL_STATE = {
   datasets: [], // list of dataset objects
@@ -11,6 +10,7 @@ export const INITIAL_STATE = {
   // filter
   filterDatasetMap: {}, // map of $datasetID and its $moleculeList
   filterDialogOpen: false,
+  filteredScoreProperties: {}, // map of $datasetID and its $scoreList
 
   // control buttons
   ligandLists: {}, // map of $datasetID and its $list
@@ -115,6 +115,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_FILTER_PROPERTY:
       const currentFilterDatasetMap = JSON.parse(JSON.stringify(state.filterDatasetMap));
+      delete currentFilterDatasetMap[action.payload.key];
       currentFilterDatasetMap[action.payload.key] = action.payload.value;
       return Object.assign({}, state, { filterDatasetMap: currentFilterDatasetMap });
 
@@ -192,6 +193,16 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.CLEAR_SCORE_COMPOUND_MAP:
       return Object.assign({}, state, { scoreCompoundMap: {} });
+
+    case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
+      const currentFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
+      currentFilterShowedScoreProperties[action.payload.datasetID] = action.payload.scoreList;
+      return Object.assign({}, state, { filteredScoreProperties: currentFilterShowedScoreProperties });
+
+    case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
+      const diminishedFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
+      delete diminishedFilterShowedScoreProperties[action.payload];
+      return Object.assign({}, state, { filteredScoreProperties: diminishedFilterShowedScoreProperties });
 
     default:
       return state;

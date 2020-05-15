@@ -1,14 +1,11 @@
 import React, { memo, useState } from 'react';
-import { Checkbox, Paper, Popper, useTheme } from '@material-ui/core';
+import { Paper, Popper, Button, Grid } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
-import { MOL_ATTRIBUTES } from '../preview/molecule/redux/constants';
-import Grid from '@material-ui/core/Grid';
 import WarningIcon from '@material-ui/icons/Warning';
-import Button from '@material-ui/core/Button';
 import { Delete } from '@material-ui/icons';
 import { setFilterProperty } from './redux/actions';
-import { getInitialDatasetFilterObject, scoreListOfMolecules } from './redux/selectors';
+import { getInitialDatasetFilterObject } from './redux/selectors';
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 
 const useStyles = makeStyles(theme => ({
@@ -51,23 +48,22 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const widthCheckbox = 70;
-const widthPrio = 50;
+const widthPrio = 100;
 const widthOrder = 60;
 const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
-export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
+export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
   let classes = useStyles();
   const dispatch = useDispatch();
-  const theme = useTheme();
   const id = open ? 'simple-popover-datasets' : undefined;
   const initState = useSelector(state => getInitialDatasetFilterObject(state, datasetID));
-  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists[datasetID]);
+  //  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists[datasetID]);
   const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
 
-  const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
+  // const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
 
   // const [filteredCount, setFilteredCount] = useState(filter && getFilteredMoleculesCount(scoreDatasetList, filter));
   const [predefinedFilter, setPredefinedFilter] = useState(filter && filter.predefined);
@@ -91,11 +87,11 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
     return molecules;
   };
 
-  const handleFilterChange = filter => {
-    const filterSet = Object.assign({}, filter);
-    for (let attr of MOL_ATTRIBUTES) {
-      if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
-        filterSet.filter[attr.key].priority = 0;
+  const handleFilterChange = newFilter => {
+    const filterSet = Object.assign({}, newFilter);
+    for (let attr of scoreDatasetList) {
+      if (filterSet.filter[attr.name].priority === undefined || filterSet.filter[attr.name].priority === '') {
+        filterSet.filter[attr.name].priority = 0;
       }
     }
     dispatch(setFilterProperty(datasetID, filterSet));
@@ -105,13 +101,13 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
     let newFilter = Object.assign({}, filter);
     newFilter.filter[key] = setting;
     newFilter.active = true;
-    dispatch(setFilterProperty(datasetID, newFilter));
     // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
+    // missing priority
     handleFilterChange(newFilter);
   };
 
   const handlePrioChange = key => inc => () => {
-    const maxPrio = MOL_ATTRIBUTES.length - 1;
+    const maxPrio = scoreDatasetList.length - 1;
     const minPrio = 0;
     let priorityOrder = filter.priorityOrder;
     const index = filter.priorityOrder.indexOf(key);
@@ -197,14 +193,15 @@ export const DatasetFilter = memo(({ open, anchorEl, filter, datasetID }) => {
             return (
               <DatasetMoleculeListSortFilter
                 key={attr}
-                property={attrDef.name}
+                datasetID={datasetID}
+                scoreName={attrDef.name}
+                scoreID={attrDef.id}
                 order={filter.filter[attr].order}
                 minValue={filter.filter[attr].minValue}
                 maxValue={filter.filter[attr].maxValue}
                 min={initState.filter[attr].minValue}
                 max={initState.filter[attr].maxValue}
                 isFloat={initState.filter[attr].isFloat}
-                color={theme.palette.primary.light}
                 disabled={predefinedFilter !== 'none'}
                 onChange={handleItemChange(attr)}
                 onChangePrio={handlePrioChange(attr)}

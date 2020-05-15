@@ -10,6 +10,8 @@ import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
 import { Checkbox } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectScoreProperty } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   centered: {
@@ -75,7 +77,25 @@ const widthMin = 30;
 const widthSlider = 170;
 
 export const DatasetMoleculeListSortFilter = memo(
-  ({ property, min, max, onChange, isFloat, color, disabled, onChangePrio, filter, order, minValue, maxValue }) => {
+  ({
+    scoreName,
+    scoreID,
+    min,
+    max,
+    onChange,
+    isFloat,
+    disabled,
+    onChangePrio,
+    filter,
+    order,
+    minValue,
+    maxValue,
+    datasetID
+  }) => {
+    const dispatch = useDispatch();
+    const filteredScorePropertiesOfDataset = useSelector(
+      state => state.datasetsReducers.filteredScoreProperties[datasetID]
+    );
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
 
@@ -100,6 +120,7 @@ export const DatasetMoleculeListSortFilter = memo(
       if (value !== order) {
         setting.order = value;
         onChange(setting);
+        console.log('handleChangeOrder');
       }
     };
 
@@ -113,6 +134,7 @@ export const DatasetMoleculeListSortFilter = memo(
       setting.maxValue = isFloat ? newValue[1] / MULT : newValue[1];
       setSliderCommittedValue(newValue);
       onChange(setting);
+      console.log('handleCommitChangeSlider');
     };
 
     // // In case of 'CLEAR' filter we need reset internal state
@@ -126,7 +148,16 @@ export const DatasetMoleculeListSortFilter = memo(
         <Grid item container className={classes.centered} style={{ width: widthCheckbox }}>
           <Grid item container justify="center">
             <Grid item>
-              <Checkbox color="primary" />
+              <Checkbox
+                color="primary"
+                checked={
+                  filteredScorePropertiesOfDataset &&
+                  !!filteredScorePropertiesOfDataset.find(item => item.id === scoreID)
+                }
+                onChange={event =>
+                  dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreID: scoreID }))
+                }
+              />
             </Grid>
           </Grid>
         </Grid>
@@ -171,7 +202,7 @@ export const DatasetMoleculeListSortFilter = memo(
           />
         </Grid>
         <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
-          <Chip size="small" className={classes.propertyChip} label={property} style={{ backgroundColor: color }} />
+          <Chip size="small" className={classes.propertyChip} label={scoreName} />
         </Grid>
         {filter && (
           <>
@@ -205,10 +236,10 @@ export const DatasetMoleculeListSortFilter = memo(
 
 DatasetMoleculeListSortFilter.propTypes = {
   order: PropTypes.number.isRequired,
-  property: PropTypes.string.isRequired,
+  scoreName: PropTypes.string.isRequired,
+  scoreID: PropTypes.number.isRequired,
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
-  color: PropTypes.string.isRequired,
   isFloat: PropTypes.bool,
   disabled: PropTypes.bool,
   filter: PropTypes.bool

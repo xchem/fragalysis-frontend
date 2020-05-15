@@ -165,3 +165,13 @@ export const removeFromScoreCompoundMap = compoundID => ({
 });
 
 export const clearScoreCompoundMap = () => ({ type: constants.CLEAR_SCORE_COMPOUND_MAP });
+
+export const updateFilterShowedScoreProperties = ({ datasetID, scoreList = [] }) => ({
+  type: constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES,
+  payload: { datasetID, scoreList }
+});
+
+export const removeFromFilterShowedScoreProperties = datasetID => ({
+  type: constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES,
+  payload: datasetID
+});

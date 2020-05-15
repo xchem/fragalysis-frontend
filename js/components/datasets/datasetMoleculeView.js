@@ -22,6 +22,7 @@ import {
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
+import { isEqual } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -160,7 +161,8 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
-  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id]);
+  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id], isEqual);
+  const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
 
   const [image, setImage] = useState(img_data_init);
@@ -488,14 +490,21 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
             wrap="nowrap"
             className={classes.fullHeight}
           >
-            {scoreCompoundMap &&
-              scoreCompoundMap.map(item => (
-                <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
-                  <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                    {item.value && Math.round(item.value)}
-                  </Grid>
-                </Tooltip>
-              ))}
+            {filteredScoreProperties &&
+              datasetID &&
+              filteredScoreProperties[datasetID] &&
+              filteredScoreProperties[datasetID].map(score => {
+                const item = scoreCompoundMap.find(o => o.score.id === score.id);
+                if (item) {
+                  return (
+                    <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
+                      <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                        {item.value && Math.round(item.value)}
+                      </Grid>
+                    </Tooltip>
+                  );
+                }
+              })}
           </Grid>
         </Grid>
       </Grid>

@@ -13,7 +13,8 @@ import {
   setMoleculeList,
   appendToScoreDatasetMap,
   appendToScoreCompoundMap,
-  appendToScoreCompoundMapByScoreCategory
+  appendToScoreCompoundMapByScoreCategory,
+  updateFilterShowedScoreProperties
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -29,6 +30,8 @@ import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
 import { getInitialDatasetFilterObject, scoreListOfMolecules } from './selectors';
+import { COUNT_OF_VISIBLE_SCORES } from './constants';
+import { useSelector } from 'react-redux';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
   console.log('initializing testing datasets');
@@ -184,6 +187,12 @@ export const loadMoleculesOfDataSet = dataSetID => dispatch =>
 export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
     dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: (response.data.results || []).slice(0, COUNT_OF_VISIBLE_SCORES)
+      })
+    );
     return Promise.all(
       response &&
         response.data &&
@@ -200,3 +209,31 @@ export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch,
   api({ url: `${base_url}/api/numerical-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
     dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
   });
+
+export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispatch, getState) => {
+  const state = getState();
+  const filteredScorePropertiesOfDataset = state.datasetsReducers.filteredScoreProperties[datasetID];
+  const scoreDatasetMap = state.datasetsReducers.scoreDatasetMap[datasetID];
+
+  if (isChecked === true) {
+    if (filteredScorePropertiesOfDataset.length === COUNT_OF_VISIBLE_SCORES) {
+      // 1. unselect first
+      filteredScorePropertiesOfDataset.shift();
+    }
+    // 2. select new property
+    filteredScorePropertiesOfDataset.push(scoreDatasetMap.find(item => item.id === scoreID));
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filteredScorePropertiesOfDataset
+      })
+    );
+  } else {
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filteredScorePropertiesOfDataset.filter(item => item.id !== scoreID)
+      })
+    );
+  }
+};
