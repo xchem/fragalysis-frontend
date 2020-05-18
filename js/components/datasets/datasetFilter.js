@@ -7,6 +7,7 @@ import { Delete } from '@material-ui/icons';
 import { setFilterProperty } from './redux/actions';
 import { getInitialDatasetFilterObject } from './redux/selectors';
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
+import { createFilterObject } from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -54,7 +55,7 @@ const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
-export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
+export const DatasetFilter = memo(({ open, anchorEl, datasetID, active, predefined, priorityOrder, filter }) => {
   let classes = useStyles();
   const dispatch = useDispatch();
   const id = open ? 'simple-popover-datasets' : undefined;
@@ -63,10 +64,12 @@ export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
   const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
 
+  console.log(filter);
+
   // const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
 
   // const [filteredCount, setFilteredCount] = useState(filter && getFilteredMoleculesCount(scoreDatasetList, filter));
-  const [predefinedFilter, setPredefinedFilter] = useState(filter && filter.predefined);
+  const [predefinedFilter, setPredefinedFilter] = useState(predefined);
 
   const getAttributeName = attr => {
     return scoreDatasetList.find(item => item.name === attr);
@@ -88,34 +91,41 @@ export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
   };
 
   const handleFilterChange = newFilter => {
-    const filterSet = Object.assign({}, newFilter);
-    for (let attr of scoreDatasetList) {
+    const filterSet = JSON.parse(JSON.stringify(newFilter));
+    scoreDatasetList.forEach(attr => {
       if (filterSet.filter[attr.name].priority === undefined || filterSet.filter[attr.name].priority === '') {
         filterSet.filter[attr.name].priority = 0;
       }
-    }
+    });
+    console.log(filterSet);
     dispatch(setFilterProperty(datasetID, filterSet));
   };
 
   const handleItemChange = key => setting => {
-    let newFilter = Object.assign({}, filter);
-    newFilter.filter[key] = setting;
+    let newFilter = JSON.parse(JSON.stringify(createFilterObject({ active, predefined, priorityOrder, filter })));
+    const newSettings = JSON.parse(JSON.stringify({ ...newFilter.filter[key], ...setting }));
+    delete newFilter.filter[key];
+    newFilter.filter[key] = newSettings;
     newFilter.active = true;
     // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
     // missing priority
+
     handleFilterChange(newFilter);
   };
 
   const handlePrioChange = key => inc => () => {
     const maxPrio = scoreDatasetList.length - 1;
     const minPrio = 0;
-    let priorityOrder = filter.priorityOrder;
-    const index = filter.priorityOrder.indexOf(key);
+    let localPriorityOrder = priorityOrder;
+    const index = localPriorityOrder.indexOf(key);
     if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
-      priorityOrder.splice(index, 1);
-      priorityOrder.splice(index + inc, 0, key);
-      let newFilter = Object.assign({}, filter);
-      newFilter.priorityOrder = priorityOrder;
+      localPriorityOrder.splice(index, 1);
+      localPriorityOrder.splice(index + inc, 0, key);
+      let newFilter = Object.assign(
+        {},
+        createFilterObject({ active, predefined, priorityOrder: localPriorityOrder, filter })
+      );
+      newFilter.priorityOrder = localPriorityOrder;
       newFilter.active = true;
       dispatch(setFilterProperty(datasetID, newFilter));
       handleFilterChange(newFilter);
@@ -134,7 +144,7 @@ export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
   let prioWarning = false;
   let prioWarningTest = {};
   for (const attr of scoreCompoundMap) {
-    const prioKey = filter.filter[attr.score.name].priority;
+    const prioKey = filter[attr.score.name].priority;
     if (prioKey > 0) {
       prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
       if (prioWarningTest[prioKey] > 1) prioWarning = true;
@@ -188,7 +198,7 @@ export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
             </Grid>
           </Grid>
 
-          {filter.priorityOrder.map(attr => {
+          {priorityOrder.map(attr => {
             let attrDef = getAttributeName(attr);
             return (
               <DatasetMoleculeListSortFilter
@@ -196,9 +206,9 @@ export const DatasetFilter = memo(({ open, anchorEl, datasetID, filter }) => {
                 datasetID={datasetID}
                 scoreName={attrDef.name}
                 scoreID={attrDef.id}
-                order={filter.filter[attr].order}
-                minValue={filter.filter[attr].minValue}
-                maxValue={filter.filter[attr].maxValue}
+                order={filter[attr].order}
+                minValue={filter[attr].minValue}
+                maxValue={filter[attr].maxValue}
                 min={initState.filter[attr].minValue}
                 max={initState.filter[attr].maxValue}
                 isFloat={initState.filter[attr].isFloat}

@@ -10,7 +10,6 @@ import {
   removeFromComplexList,
   removeFromSurfaceList,
   setDataset,
-  setMoleculeList,
   appendToScoreDatasetMap,
   appendToScoreCompoundMap,
   appendToScoreCompoundMapByScoreCategory,
@@ -25,13 +24,10 @@ import {
   generateMoleculeObject
 } from '../../nglView/generatingObjects';
 import { VIEWS } from '../../../constants/constants';
-import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
-
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
-import { getInitialDatasetFilterObject, scoreListOfMolecules } from './selectors';
+import { getInitialDatasetFilterObject } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
-import { useSelector } from 'react-redux';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
   console.log('initializing testing datasets');
@@ -236,4 +232,19 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
       })
     );
   }
+};
+
+export const handleFilterChange = (filterSettings, datasetID) => (dispatch, getState) => {
+  const state = getState();
+  const scoreDatasetList = state.datasetsReducers.scoreDatasetMap[datasetID];
+  const filterSet = JSON.parse(JSON.stringify(filterSettings));
+  scoreDatasetList.forEach(attr => {
+    if (filterSet.filter[attr.name].priority === undefined || filterSet.filter[attr.name].priority === '') {
+      filterSet.filter[attr.name].priority = 0;
+    }
+  });
+  console.log(filterSet);
+  Object.keys(filterSet).forEach(propertyID => {
+    dispatch(setFilterProperty(datasetID, propertyID, filterSet[propertyID]));
+  });
 };

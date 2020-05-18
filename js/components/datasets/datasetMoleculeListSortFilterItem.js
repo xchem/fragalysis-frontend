@@ -119,6 +119,7 @@ export const DatasetMoleculeListSortFilter = memo(
       const value = parseInt(e.target.value);
       if (value !== order) {
         setting.order = value;
+        console.log(setting);
         onChange(setting);
         console.log('handleChangeOrder');
       }

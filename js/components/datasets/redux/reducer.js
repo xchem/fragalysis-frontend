@@ -114,10 +114,19 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
     case constants.SET_FILTER_PROPERTY:
-      const currentFilterDatasetMap = JSON.parse(JSON.stringify(state.filterDatasetMap));
-      delete currentFilterDatasetMap[action.payload.key];
-      currentFilterDatasetMap[action.payload.key] = action.payload.value;
-      return Object.assign({}, state, { filterDatasetMap: currentFilterDatasetMap });
+      const currentFilterDatasetMap = state.filterDatasetMap;
+      const newFilter = JSON.parse(JSON.stringify(action.payload.filter));
+
+      const newFilterDatasetMap = {};
+      Object.keys(currentFilterDatasetMap).forEach(datasetKey => {
+        if (`${action.payload.datasetID}` !== datasetKey) {
+          newFilterDatasetMap[datasetKey] = currentFilterDatasetMap[datasetKey];
+        }
+      });
+      delete currentFilterDatasetMap[action.payload.datasetID];
+      newFilterDatasetMap[action.payload.datasetID] = newFilter;
+
+      return Object.assign({}, state, { filterDatasetMap: newFilterDatasetMap });
 
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });

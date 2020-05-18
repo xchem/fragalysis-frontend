@@ -292,7 +292,10 @@ export const DatasetMoleculeList = memo(
               anchorEl={sortDialogAnchorEl}
               moleculeGroupList={moleculeGroupList}
               datasetID={datasetID}
-              filter={filter}
+              filter={filter && filter.filter}
+              active={filter && filter.active}
+              predefined={filter && filter.predefined}
+              priorityOrder={filter && filter.priorityOrder}
             />
           )}
           <div ref={filterRef}>

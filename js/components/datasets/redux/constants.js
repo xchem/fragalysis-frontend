@@ -36,3 +36,10 @@ export const constants = {
 };
 
 export const COUNT_OF_VISIBLE_SCORES = 7;
+
+export const createFilterObject = ({ active, predefined, priorityOrder, filter }) => ({
+  active,
+  predefined,
+  priorityOrder,
+  filter
+});
