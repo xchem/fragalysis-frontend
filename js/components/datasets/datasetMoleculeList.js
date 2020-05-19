@@ -26,7 +26,6 @@ import {
 import { setFilterDialogOpen } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList } from '@material-ui/icons';
-import { isEqual } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -154,11 +153,13 @@ export const DatasetMoleculeList = memo(
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
-    const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap, isEqual);
-    const filter = filterMap && filterMap[datasetID];
+    const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap);
+    const filterSettings = filterMap && datasetID && filterMap[datasetID];
+    const filterPropertiesMap = useSelector(state => state.datasetsReducers.filterPropertiesDatasetMap);
+    const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
 
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
-    const isActiveFilter = !!(filter || {}).active;
+    const isActiveFilter = !!(filterSettings || {}).active;
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -292,10 +293,10 @@ export const DatasetMoleculeList = memo(
               anchorEl={sortDialogAnchorEl}
               moleculeGroupList={moleculeGroupList}
               datasetID={datasetID}
-              filter={filter && filter.filter}
-              active={filter && filter.active}
-              predefined={filter && filter.predefined}
-              priorityOrder={filter && filter.priorityOrder}
+              filterProperties={filterProperties}
+              active={filterSettings && filterSettings.active}
+              predefined={filterSettings && filterSettings.predefined}
+              priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
           )}
           <div ref={filterRef}>
@@ -310,11 +311,11 @@ export const DatasetMoleculeList = memo(
                     </Grid>
                     <Grid item xs={11}>
                       <Grid container direction="row" justify="flex-start" spacing={1}>
-                        {filter.priorityOrder.map(attr => (
+                        {filterSettings.priorityOrder.map(attr => (
                           <Grid item key={`Mol-Tooltip-${attr}`}>
                             <Tooltip
-                              title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                                filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                              title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
+                                filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
                               }`}
                               placement="top"
                             >

@@ -1,6 +1,6 @@
 import { deleteObject, loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import {
-  setFilterProperty,
+  setFilterSettings,
   appendLigandList,
   appendProteinList,
   appendComplexList,
@@ -13,7 +13,8 @@ import {
   appendToScoreDatasetMap,
   appendToScoreCompoundMap,
   appendToScoreCompoundMapByScoreCategory,
-  updateFilterShowedScoreProperties
+  updateFilterShowedScoreProperties,
+  setFilterProperties
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -26,7 +27,7 @@ import {
 import { VIEWS } from '../../../constants/constants';
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
-import { getInitialDatasetFilterObject } from './selectors';
+import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
@@ -70,9 +71,11 @@ export const getListedMolecules = (object_selection, cached_mol_lists) => {
 };
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
-  const initObject = getInitialDatasetFilterObject(getState(), datasetID);
-  dispatch(setFilterProperty(datasetID, initObject));
-  return initObject;
+  const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
+  const initFilterProperties = getInitialDatasetFilterProperties(getState(), datasetID);
+
+  dispatch(setFilterSettings(datasetID, initFilterSettings));
+  dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
 
 export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => {
@@ -232,19 +235,4 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
       })
     );
   }
-};
-
-export const handleFilterChange = (filterSettings, datasetID) => (dispatch, getState) => {
-  const state = getState();
-  const scoreDatasetList = state.datasetsReducers.scoreDatasetMap[datasetID];
-  const filterSet = JSON.parse(JSON.stringify(filterSettings));
-  scoreDatasetList.forEach(attr => {
-    if (filterSet.filter[attr.name].priority === undefined || filterSet.filter[attr.name].priority === '') {
-      filterSet.filter[attr.name].priority = 0;
-    }
-  });
-  console.log(filterSet);
-  Object.keys(filterSet).forEach(propertyID => {
-    dispatch(setFilterProperty(datasetID, propertyID, filterSet[propertyID]));
-  });
 };

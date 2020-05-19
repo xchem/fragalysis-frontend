@@ -20,9 +20,14 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
-export const setFilterProperty = (datasetID, filter) => ({
-  type: constants.SET_FILTER_PROPERTY,
+export const setFilterSettings = (datasetID, filter) => ({
+  type: constants.SET_FILTER_SETTINGS,
   payload: { datasetID, filter }
+});
+
+export const setFilterProperties = (datasetID, properties) => ({
+  type: constants.SET_FILTER_PROPERTIES,
+  payload: { datasetID, properties }
 });
 
 export const setFilterDialogOpen = filterDialogOpen => ({

@@ -119,9 +119,7 @@ export const DatasetMoleculeListSortFilter = memo(
       const value = parseInt(e.target.value);
       if (value !== order) {
         setting.order = value;
-        console.log(setting);
         onChange(setting);
-        console.log('handleChangeOrder');
       }
     };
 
@@ -135,7 +133,6 @@ export const DatasetMoleculeListSortFilter = memo(
       setting.maxValue = isFloat ? newValue[1] / MULT : newValue[1];
       setSliderCommittedValue(newValue);
       onChange(setting);
-      console.log('handleCommitChangeSlider');
     };
 
     // // In case of 'CLEAR' filter we need reset internal state
@@ -169,6 +166,7 @@ export const DatasetMoleculeListSortFilter = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonGreen)}
                 onClick={onChangePrio(-1)}
+                disabled={disabled}
               >
                 <KeyboardArrowUp />
               </Button>
@@ -178,6 +176,7 @@ export const DatasetMoleculeListSortFilter = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonRed)}
                 onClick={onChangePrio(1)}
+                disabled={disabled}
               >
                 <KeyboardArrowDown />
               </Button>
@@ -188,48 +187,46 @@ export const DatasetMoleculeListSortFilter = memo(
           <Radio
             classes={{ root: classes.radioOrder }}
             style={{ left: 4 }}
-            checked={order === 1}
+            checked={setting.order === 1}
             onChange={handleChangeOrder}
             value={1}
             name="radio-button-demo"
+            disabled={disabled}
           />
           <Radio
             classes={{ root: classes.radioOrder }}
             style={{ right: 4 }}
-            checked={order === -1}
+            checked={setting.order === -1}
             onChange={handleChangeOrder}
             value={-1}
             name="radio-button-demo"
+            disabled={disabled}
           />
         </Grid>
         <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
           <Chip size="small" className={classes.propertyChip} label={scoreName} />
         </Grid>
-        {filter && (
-          <>
-            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-              {min}
-            </Grid>
-            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
-              <Slider
-                value={sliderValue}
-                onChange={handleChangeSlider}
-                onChangeCommitted={handleCommitChangeSlider}
-                valueLabelDisplay="auto"
-                aria-labelledby="range-slider"
-                max={normMax}
-                min={normMin}
-                valueLabelFormat={value => {
-                  return isFloat ? value / MULT : value;
-                }}
-                disabled={disabled}
-              />
-            </Grid>
-            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-              {max}
-            </Grid>
-          </>
-        )}
+        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+          {!disabled ? Math.round(min) : <span>-&#8734;</span>}
+        </Grid>
+        <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+          <Slider
+            value={sliderValue}
+            onChange={handleChangeSlider}
+            onChangeCommitted={handleCommitChangeSlider}
+            valueLabelDisplay="auto"
+            aria-labelledby="range-slider"
+            max={normMax}
+            min={normMin}
+            valueLabelFormat={value => {
+              return isFloat ? value / MULT : value;
+            }}
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+          {!disabled ? Math.round(max) : <span>&#8734;</span>}
+        </Grid>
       </Grid>
     );
   }
@@ -242,6 +239,5 @@ DatasetMoleculeListSortFilter.propTypes = {
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
   isFloat: PropTypes.bool,
-  disabled: PropTypes.bool,
-  filter: PropTypes.bool
+  disabledSlider: PropTypes.bool
 };

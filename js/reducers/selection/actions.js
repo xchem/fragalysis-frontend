@@ -198,10 +198,12 @@ export const setObjectSelection = object_selection => ({
   payload: object_selection
 });
 
-export const setFilter = filter => ({
-  type: constants.SET_FILTER,
-  payload: filter
-});
+export const setFilter = filter => {
+  return {
+    type: constants.SET_FILTER,
+    payload: filter
+  };
+};
 
 export const resetCompoundsOfVectors = () => ({
   type: constants.RESET_COMPOUNDS_OF_VECTORS

@@ -8,7 +8,8 @@ export const INITIAL_STATE = {
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
   // filter
-  filterDatasetMap: {}, // map of $datasetID and its $moleculeList
+  filterDatasetMap: {}, // map of $datasetID and its $filterSettings
+  filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
   filterDialogOpen: false,
   filteredScoreProperties: {}, // map of $datasetID and its $scoreList
 
@@ -113,20 +114,12 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
-    case constants.SET_FILTER_PROPERTY:
-      const currentFilterDatasetMap = state.filterDatasetMap;
-      const newFilter = JSON.parse(JSON.stringify(action.payload.filter));
+    case constants.SET_FILTER_SETTINGS:
+      const { datasetID, filter } = action.payload;
+      return { ...state, filterDatasetMap: { ...state.filterDatasetMap, [datasetID]: filter } };
 
-      const newFilterDatasetMap = {};
-      Object.keys(currentFilterDatasetMap).forEach(datasetKey => {
-        if (`${action.payload.datasetID}` !== datasetKey) {
-          newFilterDatasetMap[datasetKey] = currentFilterDatasetMap[datasetKey];
-        }
-      });
-      delete currentFilterDatasetMap[action.payload.datasetID];
-      newFilterDatasetMap[action.payload.datasetID] = newFilter;
-
-      return Object.assign({}, state, { filterDatasetMap: newFilterDatasetMap });
+    case constants.SET_FILTER_PROPERTIES:
+      return { ...state, filterPropertiesDatasetMap: { [action.payload.datasetID]: action.payload.properties } };
 
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });

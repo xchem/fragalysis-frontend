@@ -7,7 +7,8 @@ export const constants = {
   REMOVE_MOLECULELIST: prefix + 'REMOVE_MOLECULELIST',
   SET_IS_LOADING_MOLECULE_LIST: prefix + 'SET_IS_LOADING_MOLECULE_LIST',
 
-  SET_FILTER_PROPERTY: prefix + 'SET_FILTER_PROPERTY',
+  SET_FILTER_SETTINGS: prefix + 'SET_FILTER_SETTINGS',
+  SET_FILTER_PROPERTIES: prefix + 'SET_FILTER_PROPERTIES',
   SET_FILTER_DIALOG_OPEN: prefix + 'SET_FILTER_DIALOG_OPEN',
 
   SET_LIGAND_LIST: prefix + 'SET_LIGAND_LIST',
@@ -37,9 +38,8 @@ export const constants = {
 
 export const COUNT_OF_VISIBLE_SCORES = 7;
 
-export const createFilterObject = ({ active, predefined, priorityOrder, filter }) => ({
+export const createFilterSettingsObject = ({ active, predefined, priorityOrder }) => ({
   active,
   predefined,
-  priorityOrder,
-  filter
+  priorityOrder
 });
