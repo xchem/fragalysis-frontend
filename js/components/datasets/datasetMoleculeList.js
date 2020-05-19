@@ -21,7 +21,8 @@ import {
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface
+  removeSurface,
+  filterDatasetMolecules
 } from './redux/dispatchActions';
 import { setFilterDialogOpen } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -176,7 +177,7 @@ export const DatasetMoleculeList = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      // TODO filter by datasetID  joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
+      joinedMoleculeLists = dispatch(filterDatasetMolecules(datasetID));
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
@@ -435,9 +436,9 @@ export const DatasetMoleculeList = memo(
                   useWindow={false}
                 >
                   {datasetID &&
-                    currentMolecules.map(data => (
+                    currentMolecules.map((data, index) => (
                       <DatasetMoleculeView
-                        key={data.id}
+                        key={index}
                         imageHeight={imgHeight}
                         imageWidth={imgWidth}
                         data={data}

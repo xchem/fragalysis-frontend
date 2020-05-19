@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
 import { Delete } from '@material-ui/icons';
 import { setFilterProperties, setFilterSettings } from './redux/actions';
-import { getInitialDatasetFilterProperties } from './redux/selectors';
+import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './redux/selectors';
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 import { createFilterSettingsObject } from './redux/constants';
 
@@ -60,6 +60,7 @@ export const DatasetFilter = memo(
     let classes = useStyles();
     const dispatch = useDispatch();
     const id = open ? 'simple-popover-datasets' : undefined;
+    const defaultFilterSettings = useSelector(state => getInitialDatasetFilterSettings(state, datasetID));
     const defaultFilterProperties = useSelector(state => getInitialDatasetFilterProperties(state, datasetID));
     //  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists[datasetID]);
     const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
@@ -125,9 +126,9 @@ export const DatasetFilter = memo(
     };
 
     const handleClear = () => {
-      // const resetFilter = initialize();
-      // setPredefinedFilter('none');
-      // dispatch(setFilterProperty(datasetID, resetFilter));
+      setPredefinedFilter('none');
+      handleFilterChange(defaultFilterProperties, defaultFilterSettings);
+
       // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
       // handleFilterChange(resetFilter);
     };
