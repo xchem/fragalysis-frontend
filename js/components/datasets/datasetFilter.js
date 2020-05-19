@@ -100,12 +100,9 @@ export const DatasetFilter = memo(
     };
 
     const handleItemChange = key => setting => {
-      const newFilterSettings = createFilterSettingsObject({ active, predefined, priorityOrder });
-      let newFilterProperties;
-      const newSettings = { ...newFilter.filter[key], ...setting };
-      delete newFilter.filter[key];
-      newFilter.filter[key] = newSettings;
-      newFilter.active = true;
+      const newFilterSettings = createFilterSettingsObject({ active: true, predefined, priorityOrder });
+      const newFilterProperties = { ...filterProperties, [key]: setting };
+
       // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
       // missing priority
       handleFilterChange(newFilterProperties, newFilterSettings);
@@ -114,7 +111,7 @@ export const DatasetFilter = memo(
     const handlePrioChange = key => inc => () => {
       const maxPrio = scoreDatasetList.length - 1;
       const minPrio = 0;
-      let localPriorityOrder = priorityOrder;
+      let localPriorityOrder = JSON.parse(JSON.stringify(priorityOrder));
       const index = localPriorityOrder.indexOf(key);
       if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
         localPriorityOrder.splice(index, 1);

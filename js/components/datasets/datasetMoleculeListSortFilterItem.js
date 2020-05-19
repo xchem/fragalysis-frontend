@@ -110,9 +110,10 @@ export const DatasetMoleculeListSortFilter = memo(
     const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
 
     let setting = {
-      order: order,
-      minValue: minValue,
-      maxValue: maxValue
+      order,
+      minValue,
+      maxValue,
+      disabled
     };
 
     const handleChangeOrder = e => {
