@@ -114,7 +114,16 @@ export const filterMolecules = (molecules, filter) => {
 };
 
 export const MoleculeListSortFilterDialog = memo(
-  ({ molGroupSelection, moleculeGroupList, filter, setFilter, anchorEl, open, parentID = 'default', c }) => {
+  ({
+    molGroupSelection,
+    moleculeGroupList,
+    filter,
+    setFilter,
+    anchorEl,
+    open,
+    parentID = 'default',
+    placement = 'right-start'
+  }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
 
