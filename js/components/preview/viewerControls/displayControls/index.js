@@ -235,9 +235,6 @@ export default memo(({ open, onClose }) => {
               objectsInView[item].display_div === VIEWS.MAJOR_VIEW &&
               objectsInView[item].selectionType !== SELECTION_TYPE.VECTOR
           )
-          .sort((a, b) => {
-            return a.localeCompare(b);
-          })
           .map(parentItem => (
             <TreeItem
               nodeId={objectsInView[parentItem].name}
