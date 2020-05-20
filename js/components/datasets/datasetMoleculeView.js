@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, LinearProgress } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -18,11 +18,11 @@ import {
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface,
-  loadCompoundScoreList
+  removeSurface
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
+import { isEqual } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -120,7 +120,8 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    paddingLeft: theme.spacing(1) / 4
   },
   loadingProgress: {
     height: 2,
@@ -160,7 +161,8 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
-  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id]);
+  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id], isEqual);
+  const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
 
   const [image, setImage] = useState(img_data_init);
@@ -179,7 +181,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const disableUserInteraction = useDisableUserInteraction();
 
   const refOnCancelImage = useRef();
-  const refOnCancelScore = useRef();
   const getRandomColor = () => colourList[data.id % colourList.length];
   const colourToggle = getRandomColor();
 
@@ -207,21 +208,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
       }
     };
   }, [complexList, data.id, data.smiles, ligandList, imageHeight, imageWidth]);
-
-  useEffect(() => {
-    if (refOnCancelScore.current === undefined && data && data.id) {
-      let onCancel = () => {};
-      dispatch(loadCompoundScoreList(data.id, onCancel)).catch(error => {
-        throw new Error(error);
-      });
-      refOnCancelScore.current = onCancel;
-    }
-    return () => {
-      if (refOnCancelScore) {
-        refOnCancelScore.current();
-      }
-    };
-  });
 
   const svg_image = (
     <SVGInline
@@ -372,13 +358,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
 
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
-      {/* Site number */}
-      <Grid item container justify="center" direction="column" className={classes.site}>
-        <Grid item>
-          <Typography variant="subtitle2">{data.site}</Typography>
-        </Grid>
-      </Grid>
-
+      {/*Site number*/}
+      {/*<Grid item container justify="center" direction="column" className={classes.site}>*/}
+      {/*  <Grid item>*/}
+      {/*    <Typography variant="subtitle2">{data.site}</Typography>*/}
+      {/*  </Grid>*/}
+      {/*</Grid>*/}
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
         <Grid item xs={7}>
@@ -505,17 +490,21 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
             wrap="nowrap"
             className={classes.fullHeight}
           >
-            {scoreCompoundMap &&
-              scoreCompoundMap.map(item => (
-                <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
-                  <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                    {item.value && Math.round(item.value)}
-                  </Grid>
-                </Tooltip>
-              ))}
-            {!scoreCompoundMap && (
-              <LinearProgress variant="query" color="secondary" className={classes.loadingProgress} />
-            )}
+            {filteredScoreProperties &&
+              datasetID &&
+              filteredScoreProperties[datasetID] &&
+              filteredScoreProperties[datasetID].map(score => {
+                const item = scoreCompoundMap && scoreCompoundMap.find(o => o.score.id === score.id);
+                if (item) {
+                  return (
+                    <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
+                      <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                        {item.value && Math.round(item.value)}
+                      </Grid>
+                    </Tooltip>
+                  );
+                }
+              })}
           </Grid>
         </Grid>
       </Grid>
