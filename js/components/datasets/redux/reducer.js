@@ -8,8 +8,10 @@ export const INITIAL_STATE = {
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
   // filter
-  filter: undefined,
+  filterDatasetMap: {}, // map of $datasetID and its $filterSettings
+  filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
   filterDialogOpen: false,
+  filteredScoreProperties: {}, // map of $datasetID and its $scoreList
 
   // control buttons
   ligandLists: {}, // map of $datasetID and its $list
@@ -112,8 +114,18 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
-    case constants.SET_FILTER:
-      return Object.assign({}, state, { filter: action.payload });
+    case constants.SET_FILTER_SETTINGS:
+      const { datasetID, filter } = action.payload;
+      return { ...state, filterDatasetMap: { ...state.filterDatasetMap, [datasetID]: filter } };
+
+    case constants.SET_FILTER_PROPERTIES:
+      return {
+        ...state,
+        filterPropertiesDatasetMap: {
+          ...state.filterPropertiesDatasetMap,
+          [action.payload.datasetID]: action.payload.properties
+        }
+      };
 
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });
@@ -164,6 +176,19 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       delete diminishedScoreDatasetMap[action.payload];
       return Object.assign({}, state, { scoreDatasetMap: diminishedScoreDatasetMap });
 
+    case constants.APPEND_TO_SCORE_COMPOUND_MAP_BY_SCORE_CATEGORY:
+      const extendedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
+      action.payload.forEach(score => {
+        let array = [];
+        if (extendedScoreCompoundMap && extendedScoreCompoundMap[score.compound]) {
+          array = extendedScoreCompoundMap[score.compound];
+        }
+        array.push(score);
+        extendedScoreCompoundMap[score.compound] = array;
+      });
+
+      return Object.assign({}, state, { scoreCompoundMap: extendedScoreCompoundMap });
+
     case constants.APPEND_TO_SCORE_COMPOUND_MAP:
       const currentScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
       currentScoreCompoundMap[action.payload.key] = action.payload.value;
@@ -173,6 +198,23 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       const diminishedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
       delete diminishedScoreCompoundMap[action.payload];
       return Object.assign({}, state, { scoreCompoundMap: diminishedScoreCompoundMap });
+
+    case constants.CLEAR_SCORE_COMPOUND_MAP:
+      return Object.assign({}, state, { scoreCompoundMap: {} });
+
+    case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
+      return {
+        ...state,
+        filteredScoreProperties: {
+          ...state.filteredScoreProperties,
+          [action.payload.datasetID]: action.payload.scoreList
+        }
+      };
+
+    case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
+      const diminishedFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
+      delete diminishedFilterShowedScoreProperties[action.payload];
+      return Object.assign({}, state, { filteredScoreProperties: diminishedFilterShowedScoreProperties });
 
     default:
       return state;

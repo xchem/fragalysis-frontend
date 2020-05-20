@@ -9,6 +9,9 @@ import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
+import { Checkbox } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectScoreProperty } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   centered: {
@@ -66,14 +69,30 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const widthPrio = 50;
+const widthCheckbox = 70;
+const widthPrio = 100;
 const widthOrder = 60;
 const widthProperty = 212;
 const widthMin = 30;
 const widthSlider = 170;
 
-const moleculeListSortFilterItem = memo(
-  ({ property, min, max, onChange, isFloat, color, disabled, onChangePrio, filter, order, minValue, maxValue }) => {
+export const DatasetMoleculeListSortFilter = memo(
+  ({
+    scoreName,
+    scoreID,
+    min,
+    max,
+    onChange,
+    isFloat,
+    disabled,
+    onChangePrio,
+    order,
+    minValue,
+    maxValue,
+    datasetID
+  }) => {
+    const dispatch = useDispatch();
+    const filteredScorePropertiesOfDataset = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
 
@@ -84,13 +103,14 @@ const moleculeListSortFilterItem = memo(
     let normMaxValue = isFloat ? maxValue * MULT : maxValue;
 
     let classes = useStyles();
-    const [sliderValue, setSliderValue] = useState([normMinValue, normMaxValue]); // Internal state of slider
+    const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
     const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
 
     let setting = {
-      order: order,
-      minValue: minValue,
-      maxValue: maxValue
+      order,
+      minValue,
+      maxValue,
+      disabled
     };
 
     const handleChangeOrder = e => {
@@ -113,14 +133,31 @@ const moleculeListSortFilterItem = memo(
       onChange(setting);
     };
 
-    // In case of 'CLEAR' filter we need reset internal state
-    if (sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
-      setSliderValue([normMinValue, normMaxValue]);
-      setSliderCommittedValue([normMinValue, normMaxValue]);
-    }
+    // // In case of 'CLEAR' filter we need reset internal state
+    // if (sliderCommittedValue[0] !== normMinValue || sliderCommittedValue[1] !== normMaxValue) {
+    //   setSliderValue([normMinValue, normMaxValue]);
+    //   setSliderCommittedValue([normMinValue, normMaxValue]);
+    // }
 
     return (
       <Grid container item className={classes.gridItemHeader}>
+        <Grid item container className={classes.centered} style={{ width: widthCheckbox }}>
+          <Grid item container justify="center">
+            <Grid item>
+              <Checkbox
+                color="primary"
+                checked={
+                  filteredScorePropertiesOfDataset &&
+                  datasetID &&
+                  !!filteredScorePropertiesOfDataset[datasetID].find(item => item.id === scoreID)
+                }
+                onChange={event =>
+                  dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreID: scoreID }))
+                }
+              />
+            </Grid>
+          </Grid>
+        </Grid>
         <Grid item container className={classes.centered} style={{ width: widthPrio }}>
           <Grid item container justify="center">
             <Grid item>
@@ -128,6 +165,7 @@ const moleculeListSortFilterItem = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonGreen)}
                 onClick={onChangePrio(-1)}
+                disabled={disabled}
               >
                 <KeyboardArrowUp />
               </Button>
@@ -137,6 +175,7 @@ const moleculeListSortFilterItem = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonRed)}
                 onClick={onChangePrio(1)}
+                disabled={disabled}
               >
                 <KeyboardArrowDown />
               </Button>
@@ -147,63 +186,57 @@ const moleculeListSortFilterItem = memo(
           <Radio
             classes={{ root: classes.radioOrder }}
             style={{ left: 4 }}
-            checked={order === 1}
+            checked={setting.order === 1}
             onChange={handleChangeOrder}
             value={1}
             name="radio-button-demo"
+            disabled={disabled}
           />
           <Radio
             classes={{ root: classes.radioOrder }}
             style={{ right: 4 }}
-            checked={order === -1}
+            checked={setting.order === -1}
             onChange={handleChangeOrder}
             value={-1}
             name="radio-button-demo"
+            disabled={disabled}
           />
         </Grid>
         <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
-          <Chip size="small" className={classes.propertyChip} label={property} style={{ backgroundColor: color }} />
+          <Chip size="small" className={classes.propertyChip} label={scoreName} />
         </Grid>
-        {filter && (
-          <>
-            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-              {min}
-            </Grid>
-            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
-              <Slider
-                value={sliderValue}
-                onChange={handleChangeSlider}
-                onChangeCommitted={handleCommitChangeSlider}
-                valueLabelDisplay="auto"
-                aria-labelledby="range-slider"
-                max={normMax}
-                min={normMin}
-                marks={isFloat !== true ? true : undefined}
-                valueLabelFormat={value => {
-                  return isFloat ? value / MULT : value;
-                }}
-                disabled={disabled}
-              />
-            </Grid>
-            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-              {max}
-            </Grid>
-          </>
-        )}
+        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+          {!disabled ? Math.round(min) : <span>-&#8734;</span>}
+        </Grid>
+        <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+          <Slider
+            value={sliderValue}
+            onChange={handleChangeSlider}
+            onChangeCommitted={handleCommitChangeSlider}
+            valueLabelDisplay="auto"
+            aria-labelledby="range-slider"
+            max={normMax}
+            min={normMin}
+            valueLabelFormat={value => {
+              return isFloat ? value / MULT : value;
+            }}
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+          {!disabled ? Math.round(max) : <span>&#8734;</span>}
+        </Grid>
       </Grid>
     );
   }
 );
 
-moleculeListSortFilterItem.propTypes = {
+DatasetMoleculeListSortFilter.propTypes = {
   order: PropTypes.number.isRequired,
-  property: PropTypes.string.isRequired,
+  scoreName: PropTypes.string.isRequired,
+  scoreID: PropTypes.number.isRequired,
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
-  color: PropTypes.string.isRequired,
   isFloat: PropTypes.bool,
-  disabled: PropTypes.bool,
-  filter: PropTypes.bool
+  disabledSlider: PropTypes.bool
 };
-
-export default moleculeListSortFilterItem;
