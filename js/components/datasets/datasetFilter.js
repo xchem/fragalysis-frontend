@@ -5,7 +5,11 @@ import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
 import { Delete } from '@material-ui/icons';
 import { setFilterProperties, setFilterSettings } from './redux/actions';
-import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './redux/selectors';
+import {
+  getFilteredDatasetMoleculeList,
+  getInitialDatasetFilterProperties,
+  getInitialDatasetFilterSettings
+} from './redux/selectors';
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 import { createFilterSettingsObject } from './redux/constants';
 
@@ -65,10 +69,11 @@ export const DatasetFilter = memo(
     //  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists[datasetID]);
     const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
     const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
+    const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
     // const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
 
-    // const [filteredCount, setFilteredCount] = useState(filter && getFilteredMoleculesCount(scoreDatasetList, filter));
+    //filter && getFilteredCountOfDatasetMolecules(scoreDatasetList, filter)
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
 
     const getAttributeName = attr => {
@@ -103,8 +108,6 @@ export const DatasetFilter = memo(
     const handleItemChange = key => setting => {
       const newFilterSettings = createFilterSettingsObject({ active: true, predefined, priorityOrder });
       const newFilterProperties = { ...filterProperties, [key]: setting };
-
-      // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
       // missing priority
       handleFilterChange(newFilterProperties, newFilterSettings);
     };
@@ -129,7 +132,6 @@ export const DatasetFilter = memo(
       setPredefinedFilter('none');
       handleFilterChange(defaultFilterProperties, defaultFilterSettings);
 
-      // setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
       // handleFilterChange(resetFilter);
     };
 
@@ -151,7 +153,7 @@ export const DatasetFilter = memo(
           <Grid container justify="space-between" direction="row" alignItems="center">
             <Grid item>
               <div className={classes.numberOfHits}>
-                {/*# of hits matching selection: <b>{filteredCount}</b>*/}
+                # of hits matching selection: <b>{(filteredDatasetMoleculeList || []).length}</b>
                 {prioWarning && (
                   <div>
                     <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority

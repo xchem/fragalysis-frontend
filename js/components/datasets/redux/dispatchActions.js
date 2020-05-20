@@ -29,8 +29,6 @@ import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
-import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
-import { useSelector } from 'react-redux';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
   console.log('initializing testing datasets');
@@ -53,23 +51,6 @@ export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getStat
       )
     );
   });
-};
-
-export const getListedMolecules = (object_selection, cached_mol_lists) => {
-  let molecules = [];
-  if ((object_selection || []).length) {
-    for (let molgroupId of object_selection) {
-      // Selected molecule groups
-      const molGroup = cached_mol_lists[molgroupId];
-      if (molGroup) {
-        molecules = molecules.concat(molGroup);
-      } else {
-        console.log(`Molecule group ${molgroupId} not found in cached list`);
-      }
-    }
-  }
-
-  return molecules;
 };
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
@@ -222,7 +203,8 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
       filteredScorePropertiesOfDataset.shift();
     }
     // 2. select new property
-    filteredScorePropertiesOfDataset.push(scoreDatasetMap.find(item => item.id === scoreID));
+    const selectedProperty = scoreDatasetMap.find(item => item.id === scoreID);
+    filteredScorePropertiesOfDataset.push(selectedProperty);
     dispatch(
       updateFilterShowedScoreProperties({
         datasetID,
@@ -237,77 +219,4 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
       })
     );
   }
-};
-
-// export const getFilteredMoleculesCount = (molecules, filter) => {
-//   let count = 0;
-//   for (let molecule of molecules) {
-//     let add = true; // By default molecule passes filter
-//     for (let attr of MOL_ATTRIBUTES) {
-//       const lowAttr = attr.key.toLowerCase();
-//       const attrValue = molecule[lowAttr];
-//       if (attrValue < filter.filter[attr.key].minValue || attrValue > filter.filter[attr.key].maxValue) {
-//         add = false;
-//         break; // Do not loop over other attributes
-//       }
-//     }
-//     if (add) {
-//       count = count + 1;
-//     }
-//   }
-//   return count;
-// };
-//
-// export const getAttrDefinition = attr => {
-//   return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr);
-// };
-
-export const filterDatasetMolecules = datasetID => (dispatch, getState) => {
-  const state = getState();
-  const filterSettingsMap = state.datasetsReducers.filterDatasetMap;
-  const filterSettings = filterSettingsMap && datasetID && filterSettingsMap[datasetID];
-  const filterPropertiesMap = state.datasetsReducers.filterPropertiesDatasetMap;
-  const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
-  const scoreCompoundMap = state.datasetsReducers.scoreCompoundMap;
-
-  const moleculeLists = state.datasetsReducers.moleculeLists;
-  let datasetMoleculeList = moleculeLists[datasetID] || [];
-
-  const scoreDatasetList = state.datasetsReducers.scoreDatasetMap[datasetID];
-
-  // 1. Filter
-  let filteredMolecules = [];
-  Object.keys(scoreCompoundMap).forEach(moleculeID => {
-    let add = true; // By default molecule passes filter
-    for (let attr of scoreDatasetList) {
-      const foundedMolecule = scoreCompoundMap[moleculeID].find(item => item.score.name === attr.name);
-      if (
-        foundedMolecule &&
-        (foundedMolecule.value < filterProperties[attr.name].minValue ||
-          foundedMolecule.value > filterProperties[attr.name].maxValue)
-      ) {
-        add = false;
-        break; // Do not loop over other attributes
-      }
-    }
-    if (add) {
-      filteredMolecules.push(datasetMoleculeList.find(molecule => `${molecule.id}` === moleculeID));
-    }
-  });
-
-  // 2. Sort
-  let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
-
-  const sorted = filteredMolecules.sort((a, b) => {
-    for (let prioAttr of sortedAttributes) {
-      const order = filterProperties[prioAttr].order;
-      const attrLo = prioAttr.toLowerCase();
-      let diff = order * (a[attrLo] - b[attrLo]);
-      if (diff !== 0) {
-        return diff;
-      }
-    }
-  });
-
-  return sorted;
 };

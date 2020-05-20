@@ -21,12 +21,12 @@ import {
   addComplex,
   removeComplex,
   addSurface,
-  removeSurface,
-  filterDatasetMolecules
+  removeSurface
 } from './redux/dispatchActions';
 import { setFilterDialogOpen } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList } from '@material-ui/icons';
+import { getFilteredDatasetMoleculeList } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -158,6 +158,7 @@ export const DatasetMoleculeList = memo(
     const filterSettings = filterMap && datasetID && filterMap[datasetID];
     const filterPropertiesMap = useSelector(state => state.datasetsReducers.filterPropertiesDatasetMap);
     const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
+    const filteredDatasetMolecules = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const isActiveFilter = !!(filterSettings || {}).active;
@@ -177,7 +178,7 @@ export const DatasetMoleculeList = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      joinedMoleculeLists = dispatch(filterDatasetMolecules(datasetID));
+      joinedMoleculeLists = filteredDatasetMolecules;
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);

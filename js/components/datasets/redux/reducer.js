@@ -119,7 +119,13 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return { ...state, filterDatasetMap: { ...state.filterDatasetMap, [datasetID]: filter } };
 
     case constants.SET_FILTER_PROPERTIES:
-      return { ...state, filterPropertiesDatasetMap: { [action.payload.datasetID]: action.payload.properties } };
+      return {
+        ...state,
+        filterPropertiesDatasetMap: {
+          ...state.filterPropertiesDatasetMap,
+          [action.payload.datasetID]: action.payload.properties
+        }
+      };
 
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });
@@ -197,9 +203,13 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { scoreCompoundMap: {} });
 
     case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
-      const currentFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
-      currentFilterShowedScoreProperties[action.payload.datasetID] = action.payload.scoreList;
-      return Object.assign({}, state, { filteredScoreProperties: currentFilterShowedScoreProperties });
+      return {
+        ...state,
+        filteredScoreProperties: {
+          ...state.filteredScoreProperties,
+          [action.payload.datasetID]: action.payload.scoreList
+        }
+      };
 
     case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
       const diminishedFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));

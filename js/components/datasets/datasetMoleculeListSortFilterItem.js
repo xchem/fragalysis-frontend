@@ -86,16 +86,13 @@ export const DatasetMoleculeListSortFilter = memo(
     isFloat,
     disabled,
     onChangePrio,
-    filter,
     order,
     minValue,
     maxValue,
     datasetID
   }) => {
     const dispatch = useDispatch();
-    const filteredScorePropertiesOfDataset = useSelector(
-      state => state.datasetsReducers.filteredScoreProperties[datasetID]
-    );
+    const filteredScorePropertiesOfDataset = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
 
@@ -151,7 +148,8 @@ export const DatasetMoleculeListSortFilter = memo(
                 color="primary"
                 checked={
                   filteredScorePropertiesOfDataset &&
-                  !!filteredScorePropertiesOfDataset.find(item => item.id === scoreID)
+                  datasetID &&
+                  !!filteredScorePropertiesOfDataset[datasetID].find(item => item.id === scoreID)
                 }
                 onChange={event =>
                   dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreID: scoreID }))
