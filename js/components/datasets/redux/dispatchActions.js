@@ -1,6 +1,6 @@
 import { deleteObject, loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import {
-  setFilter,
+  setFilterSettings,
   appendLigandList,
   appendProteinList,
   appendComplexList,
@@ -10,9 +10,11 @@ import {
   removeFromComplexList,
   removeFromSurfaceList,
   setDataset,
-  setMoleculeList,
   appendToScoreDatasetMap,
-  appendToScoreCompoundMap
+  appendToScoreCompoundMap,
+  appendToScoreCompoundMapByScoreCategory,
+  updateFilterShowedScoreProperties,
+  setFilterProperties
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -23,10 +25,10 @@ import {
   generateMoleculeObject
 } from '../../nglView/generatingObjects';
 import { VIEWS } from '../../../constants/constants';
-import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
-
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
+import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
+import { COUNT_OF_VISIBLE_SCORES } from './constants';
 
 export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
   console.log('initializing testing datasets');
@@ -51,74 +53,13 @@ export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getStat
   });
 };
 
-export const getListedMolecules = (object_selection, cached_mol_lists) => {
-  let molecules = [];
-  if ((object_selection || []).length) {
-    for (let molgroupId of object_selection) {
-      // Selected molecule groups
-      const molGroup = cached_mol_lists[molgroupId];
-      if (molGroup) {
-        molecules = molecules.concat(molGroup);
-      } else {
-        console.log(`Molecule group ${molgroupId} not found in cached list`);
-      }
-    }
-  }
+export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
+  const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
+  const initFilterProperties = getInitialDatasetFilterProperties(getState(), datasetID);
 
-  return molecules;
+  dispatch(setFilterSettings(datasetID, initFilterSettings));
+  dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
-
-export const initializeFilter = (object_selection, cached_mol_lists) => (dispatch, getState) => {
-  const state = getState();
-  if (!object_selection || !cached_mol_lists) {
-    object_selection = (() => {
-      let tmp = [];
-      state.datasetsReducers.datasets.forEach(dataset => {
-        tmp.push(dataset.id);
-      });
-      return tmp;
-    })(state.datasetsReducers.datasets);
-    cached_mol_lists = state.datasetsReducers.moleculeLists;
-  }
-
-  let initObject = state.selectionReducers.filter;
-
-  if (initObject === undefined) {
-    initObject = {
-      active: false,
-      predefined: 'none',
-      filter: {},
-      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
-    };
-  } else {
-    initObject = Object.assign({}, initObject);
-    console.log('using saved filter');
-  }
-
-  for (let attr of MOL_ATTRIBUTES) {
-    const lowAttr = attr.key.toLowerCase();
-    let minValue = -999999;
-    let maxValue = 0;
-    for (let molecule of getListedMolecules(object_selection, cached_mol_lists)) {
-      const attrValue = molecule[lowAttr];
-      if (attrValue > maxValue) maxValue = attrValue;
-      if (minValue === -999999) minValue = maxValue;
-      if (attrValue < minValue) minValue = attrValue;
-    }
-
-    initObject.filter[attr.key] = {
-      priority: 0,
-      order: 1,
-      minValue: minValue,
-      maxValue: maxValue,
-      isFloat: attr.isFloat
-    };
-  }
-  dispatch(setFilter(initObject));
-  return initObject;
-};
-
-/* ----------------------------------------------- */
 
 export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
@@ -223,15 +164,59 @@ export const loadDataSets = () => dispatch =>
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
     dispatch(addMoleculeList(dataSetID, response.data.results));
-    dispatch(initializeFilter());
   });
 
 export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
     dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: (response.data.results || []).slice(0, COUNT_OF_VISIBLE_SCORES)
+      })
+    );
+    return Promise.all(
+      response &&
+        response.data &&
+        response.data.results.map(score => dispatch(loadNumericalScoreListByScoreID(score.id)))
+    );
   });
 
 export const loadCompoundScoreList = (compoundID, onCancel) => dispatch =>
   api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}`, cancel: onCancel }).then(response => {
     dispatch(appendToScoreCompoundMap(compoundID, response.data.results));
   });
+
+export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>
+  api({ url: `${base_url}/api/numerical-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
+    dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
+  });
+
+export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispatch, getState) => {
+  const state = getState();
+  const filteredScorePropertiesOfDataset = state.datasetsReducers.filteredScoreProperties[datasetID];
+  const scoreDatasetMap = state.datasetsReducers.scoreDatasetMap[datasetID];
+
+  if (isChecked === true) {
+    if (filteredScorePropertiesOfDataset.length === COUNT_OF_VISIBLE_SCORES) {
+      // 1. unselect first
+      filteredScorePropertiesOfDataset.shift();
+    }
+    // 2. select new property
+    const selectedProperty = scoreDatasetMap.find(item => item.id === scoreID);
+    filteredScorePropertiesOfDataset.push(selectedProperty);
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filteredScorePropertiesOfDataset
+      })
+    );
+  } else {
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filteredScorePropertiesOfDataset.filter(item => item.id !== scoreID)
+      })
+    );
+  }
+};
