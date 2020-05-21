@@ -50,14 +50,22 @@ export const getInitialDatasetFilterProperties = createSelector(
       let maxValue = -999999;
       let disableFilter = true;
       for (let molecule of scoreListOfMolecules) {
-        const foundedMolecule = molecule.find(item => item.score.name === attr.name);
-        if (disableFilter && foundedMolecule) {
-          disableFilter = false;
+        if (molecule) {
+          const foundedMolecule = molecule.find(item => item.score.name === attr.name);
+          if (disableFilter && foundedMolecule) {
+            disableFilter = false;
+          }
+          const attrValue = (foundedMolecule || {}).value;
+          if (attrValue > maxValue) {
+            maxValue = attrValue;
+          }
+          if (minValue === -999999) {
+            minValue = maxValue;
+          }
+          if (attrValue < minValue) {
+            minValue = attrValue;
+          }
         }
-        const attrValue = (foundedMolecule || {}).value;
-        if (attrValue > maxValue) maxValue = attrValue;
-        if (minValue === -999999) minValue = maxValue;
-        if (attrValue < minValue) minValue = attrValue;
       }
 
       initObject[attr.name] = {

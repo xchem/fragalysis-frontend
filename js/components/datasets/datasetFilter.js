@@ -66,33 +66,14 @@ export const DatasetFilter = memo(
     const id = open ? 'simple-popover-datasets' : undefined;
     const defaultFilterSettings = useSelector(state => getInitialDatasetFilterSettings(state, datasetID));
     const defaultFilterProperties = useSelector(state => getInitialDatasetFilterProperties(state, datasetID));
-    //  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists[datasetID]);
     const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
     const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
-    // const scoresOfMolecules = useSelector(state => scoreListOfMolecules(state, datasetID));
-
-    //filter && getFilteredCountOfDatasetMolecules(scoreDatasetList, filter)
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
 
     const getAttributeName = attr => {
       return scoreDatasetList.find(item => item.name === attr);
-    };
-
-    const getListedMolecules = () => {
-      let molecules = [];
-      for (let molgroupId of molGroupSelection) {
-        // Selected molecule groups
-        const molGroup = moleculeGroupList;
-        if (molGroup) {
-          molecules = molecules.concat(molGroup);
-        } else {
-          console.log(`Molecule group ${molgroupId} not found in cached list`);
-        }
-      }
-
-      return molecules;
     };
 
     const handleFilterChange = (newFilterProperties, newFilterSettings) => {
@@ -108,7 +89,6 @@ export const DatasetFilter = memo(
     const handleItemChange = key => setting => {
       const newFilterSettings = createFilterSettingsObject({ active: true, predefined, priorityOrder });
       const newFilterProperties = { ...filterProperties, [key]: setting };
-      // missing priority
       handleFilterChange(newFilterProperties, newFilterSettings);
     };
 
@@ -131,8 +111,6 @@ export const DatasetFilter = memo(
     const handleClear = () => {
       setPredefinedFilter('none');
       handleFilterChange(defaultFilterProperties, defaultFilterSettings);
-
-      // handleFilterChange(resetFilter);
     };
 
     // Check for multiple attributes with same sorting priority
