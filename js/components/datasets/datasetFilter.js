@@ -122,7 +122,9 @@ export const DatasetFilter = memo(
         const prioKey = filterProperties[attr.score.name].priority;
         if (prioKey > 0) {
           prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
-          if (prioWarningTest[prioKey] > 1) prioWarning = true;
+          if (prioWarningTest[prioKey] > 1) {
+            prioWarning = true;
+          }
         }
       }
     }
