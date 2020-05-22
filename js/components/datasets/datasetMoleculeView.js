@@ -23,6 +23,7 @@ import {
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isEqual } from 'lodash';
+import { appendInspirationList, removeFromInspirationList } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -174,6 +175,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
   const isComplexOn = (currentID && complexList.includes(currentID)) || false;
   const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
+  const [isInspirationOn, setIsInspirationOn] = useState(false);
 
   const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
   const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
@@ -474,6 +476,35 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   disabled={disableUserInteraction}
                 >
                   <Typography variant="subtitle2">S</Typography>
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="inspirations - cross reference">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isInspirationOn
+                  })}
+                  onClick={() => {
+                    if (isInspirationOn === false) {
+                      if (data && data.inspiration_frags) {
+                        data.inspiration_frags.forEach(item => {
+                          dispatch(appendInspirationList(datasetID, item));
+                        });
+                      }
+                    } else {
+                      if (data && data.inspiration_frags) {
+                        data.inspiration_frags.forEach(item => {
+                          dispatch(removeFromInspirationList(datasetID, item));
+                        });
+                      }
+                    }
+                    setIsInspirationOn(prevState => !prevState);
+                  }}
+                  disabled={disableUserInteraction}
+                >
+                  <Typography variant="subtitle2">X</Typography>
                 </Button>
               </Grid>
             </Tooltip>

@@ -18,6 +18,7 @@ export const INITIAL_STATE = {
   proteinLists: {}, // map of $datasetID and its $list
   complexLists: {}, // map of $datasetID and its $list
   surfaceLists: {}, // map of $datasetID and its $list
+  inspirationLists: {}, // map of $datasetID and its $list
 
   // search
   searchString: null
@@ -51,6 +52,7 @@ const setList = (state, listsName, datasetId, list) => {
  */
 const appendToList = (state, listsName, datasetId, itemId) => {
   const newState = Object.assign({}, state);
+
   newState[listsName][datasetId] = [...new Set([...newState[listsName][datasetId], itemId])];
 
   return newState;
@@ -84,6 +86,7 @@ const initializeContainerLists = (state, datasetID) => {
   state.proteinLists[datasetID] = [];
   state.complexLists[datasetID] = [];
   state.surfaceLists[datasetID] = [];
+  state.inspirationLists[datasetID] = [];
 };
 
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
@@ -168,6 +171,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.REMOVE_FROM_SURFACE_LIST:
       return removeFromList(state, 'surfaceLists', action.payload.datasetID, action.payload.item.id);
+
+    case constants.SET_INSPIRATION_LIST:
+      return setList(state, 'inspirationLists', action.payload.datasetID, action.payload.inspirationList);
+
+    case constants.APPEND_INSPIRATION_LIST:
+      return appendToList(state, 'inspirationLists', action.payload.datasetID, action.payload.itemID);
+
+    case constants.REMOVE_FROM_INSPIRATION_LIST:
+      return removeFromList(state, 'inspirationLists', action.payload.datasetID, action.payload.itemID);
 
     case constants.APPEND_TO_SCORE_DATASET_MAP:
       const currentScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));

@@ -37,7 +37,8 @@ import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actio
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
-import { debounce } from 'lodash';
+import { debounce, isEqual } from 'lodash';
+import { InspirationDialog } from './inspirationDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -175,6 +176,8 @@ export const DatasetMoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
+    const inspirationList = useSelector(state => state.datasetsReducers.inspirationLists[datasetID], isEqual);
+
     const searchString = useSelector(state => state.datasetsReducers.searchString);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
@@ -357,6 +360,9 @@ export const DatasetMoleculeList = memo(
               predefined={filterSettings && filterSettings.predefined}
               priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
+          )}
+          {inspirationList && inspirationList.length > 0 && (
+            <InspirationDialog open anchorEl={filterRef.current} inspirationList={inspirationList} />
           )}
           <div ref={filterRef}>
             {isActiveFilter && (

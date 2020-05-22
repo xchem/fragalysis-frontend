@@ -147,6 +147,34 @@ export const removeFromSurfaceList = function(datsetID, item) {
   };
 };
 
+export const setInspirationList = function(datasetID, inspirationList) {
+  return {
+    type: constants.SET_INSPIRATION_LIST,
+    payload: {
+      datasetID,
+      inspirationList
+    }
+  };
+};
+export const appendInspirationList = function(datasetID, itemID) {
+  return {
+    type: constants.APPEND_INSPIRATION_LIST,
+    payload: {
+      datasetID,
+      itemID
+    }
+  };
+};
+export const removeFromInspirationList = function(datasetID, itemID) {
+  return {
+    type: constants.REMOVE_FROM_INSPIRATION_LIST,
+    payload: {
+      datasetID,
+      itemID
+    }
+  };
+};
+
 export const appendToScoreDatasetMap = (datasetID, scoreList) => ({
   type: constants.APPEND_TO_SCORE_DATASET_MAP,
   payload: { key: datasetID, value: scoreList }
