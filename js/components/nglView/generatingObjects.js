@@ -84,7 +84,10 @@ export const generateHitProteinObject = (data, colourToggle, base_url) => ({
   OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: (data.molecule_protein && base_url + data.molecule_protein) || data.pdb_info.replace('http://', 'https://'),
+  prot_url:
+    (data.molecule_protein && base_url + data.molecule_protein) || location.protocol === 'https:'
+      ? data.pdb_info.replace('http://', 'https://')
+      : data.pdb_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.PROTEIN
 });
@@ -95,7 +98,10 @@ export const generateComplexObject = (data, colourToggle, base_url) => ({
   OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: (data.molecule_protein && base_url + data.molecule_protein) || data.pdb_info.replace('http://', 'https://'),
+  prot_url:
+    (data.molecule_protein && base_url + data.molecule_protein) || location.protocol === 'https:'
+      ? data.pdb_info.replace('http://', 'https://')
+      : data.pdb_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.COMPLEX
 });
@@ -106,7 +112,10 @@ export const generateSurfaceObject = (data, colourToggle, base_url) => ({
   OBJECT_TYPE: OBJECT_TYPE.SURFACE,
   sdf_info: data.sdf_info,
   colour: colourToggle,
-  prot_url: (data.molecule_protein && base_url + data.molecule_protein) || data.pdb_info.replace('http://', 'https://'),
+  prot_url:
+    (data.molecule_protein && base_url + data.molecule_protein) || location.protocol === 'https:'
+      ? data.pdb_info.replace('http://', 'https://')
+      : data.pdb_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.SURFACE
 });
