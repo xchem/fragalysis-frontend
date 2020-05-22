@@ -21,7 +21,11 @@ export const INITIAL_STATE = {
   inspirationLists: {}, // map of $datasetID and its $list
 
   // search
-  searchString: null
+  searchString: null,
+
+  // inspirations
+  isLoadingInspirationListOfMolecules: false,
+  inspirationMoleculeDataList: []
 };
 
 /**
@@ -233,6 +237,31 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_SEARCH_STRING:
       return Object.assign({}, state, { searchString: action.payload });
+
+    case constants.SET_IS_LOADING_INSPIRATION_LIST_OF_MOLECULES:
+      return Object.assign({}, state, { isLoadingInspirationListOfMolecules: action.payload });
+
+    case constants.SET_INSPIRATION_MOLECULE_DATA_LIST:
+      return Object.assign({}, state, { inspirationMoleculeDataList: action.payload });
+
+    case constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST:
+      const extendedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
+      extendedInspirationMoleculeDataList.add(action.payload);
+      return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
+
+    case constants.REMOVE_FROM_INSPIRATION_MOLECULE_DATA_LIST:
+      const diminishedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
+
+      let foundedItem;
+      diminishedInspirationMoleculeDataList.forEach(item => {
+        if (item && item.id === action.payload) {
+          foundedItem = item;
+        }
+      });
+      if (foundedItem) {
+        diminishedInspirationMoleculeDataList.delete(foundedItem);
+      }
+      return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
 
     default:
       return state;

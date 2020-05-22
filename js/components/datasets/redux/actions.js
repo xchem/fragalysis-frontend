@@ -216,3 +216,23 @@ export const setSearchStringOfCompoundSet = searchString => ({
   type: constants.SET_SEARCH_STRING,
   payload: searchString
 });
+
+export const setIsLoadingInspirationListOfMolecules = isLoading => ({
+  type: constants.SET_IS_LOADING_INSPIRATION_LIST_OF_MOLECULES,
+  payload: isLoading
+});
+
+export const setInspirationMoleculeDataList = (moleculeList = []) => ({
+  type: constants.SET_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: moleculeList
+});
+
+export const appendToInspirationMoleculeDataList = molecule => ({
+  type: constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: molecule
+});
+
+export const removeFromInspirationMoleculeDataList = moleculeID => ({
+  type: constants.REMOVE_FROM_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: moleculeID
+});

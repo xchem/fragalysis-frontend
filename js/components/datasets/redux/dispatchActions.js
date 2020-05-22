@@ -14,7 +14,9 @@ import {
   appendToScoreCompoundMap,
   appendToScoreCompoundMapByScoreCategory,
   updateFilterShowedScoreProperties,
-  setFilterProperties
+  setFilterProperties,
+  setIsLoadingInspirationListOfMolecules,
+  appendToInspirationMoleculeDataList
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -219,4 +221,20 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
       })
     );
   }
+};
+
+export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispatch, getState) => {
+  if (inspirationList && inspirationList.length > 0) {
+    dispatch(setIsLoadingInspirationListOfMolecules(true));
+    return Promise.all(
+      inspirationList.map(moleculeID =>
+        api({ url: `${base_url}/api/molecules/${moleculeID}/` }).then(response => {
+          dispatch(appendToInspirationMoleculeDataList(response.data));
+        })
+      )
+    ).finally(() => {
+      dispatch(setIsLoadingInspirationListOfMolecules(false));
+    });
+  }
+  return Promise.resolve();
 };
