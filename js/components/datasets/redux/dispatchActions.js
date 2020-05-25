@@ -17,7 +17,10 @@ import {
   setFilterProperties,
   setIsLoadingInspirationListOfMolecules,
   appendToInspirationMoleculeDataList,
-  setInspirationMoleculeDataList
+  setInspirationMoleculeDataList,
+  setInspirationList,
+  setIsOpenInspirationDialog,
+  clearScoreCompoundMap
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -241,4 +244,19 @@ export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispa
     });
   }
   return Promise.resolve();
+};
+
+export const clearInspirationsOfDataset = datasetID => dispatch => {
+  // clear inspirations
+  dispatch(setInspirationList(datasetID, []));
+  dispatch(setIsOpenInspirationDialog(false));
+};
+
+export const clearDatasetSettings = datasetID => dispatch => {
+  if (datasetID) {
+    dispatch(clearScoreCompoundMap());
+
+    // clear inspirations
+    dispatch(clearInspirationsOfDataset(datasetID));
+  }
 };
