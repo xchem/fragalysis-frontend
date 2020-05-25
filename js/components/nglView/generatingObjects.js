@@ -79,57 +79,103 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
 });
 
 // Protein
-export const generateHitProteinObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code || data.name + '_PROTEIN',
-  OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
-  sdf_info: data.sdf_info,
-  colour: colourToggle,
-  prot_url:
-    (data.molecule_protein && base_url + data.molecule_protein) || location.protocol === 'https:'
-      ? data.pdb_info.replace('http://', 'https://')
-      : data.pdb_info,
-  moleculeId: data.id,
-  selectionType: SELECTION_TYPE.PROTEIN
-});
+export const generateHitProteinObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+
+  return {
+    name: data.protein_code || data.name + '_PROTEIN',
+    OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.PROTEIN
+  };
+};
 
 // Complex
-export const generateComplexObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code || data.name + '_CONTACTS',
-  OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-  sdf_info: data.sdf_info,
-  colour: colourToggle,
-  prot_url:
-    (data.molecule_protein && base_url + data.molecule_protein) || location.protocol === 'https:'
-      ? data.pdb_info.replace('http://', 'https://')
-      : data.pdb_info,
-  moleculeId: data.id,
-  selectionType: SELECTION_TYPE.COMPLEX
-});
+export const generateComplexObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+
+  return {
+    name: data.protein_code || data.name + '_CONTACTS',
+    OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.COMPLEX
+  };
+};
 
 // Surface
-export const generateSurfaceObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code || data.name + '_SURFACE',
-  OBJECT_TYPE: OBJECT_TYPE.SURFACE,
-  sdf_info: data.sdf_info,
-  colour: colourToggle,
-  prot_url:
-    (data.molecule_protein && base_url + data.molecule_protein) || location.protocol === 'https:'
-      ? data.pdb_info.replace('http://', 'https://')
-      : data.pdb_info,
-  moleculeId: data.id,
-  selectionType: SELECTION_TYPE.SURFACE
-});
+export const generateSurfaceObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+  return {
+    name: data.protein_code || data.name + '_SURFACE',
+    OBJECT_TYPE: OBJECT_TYPE.SURFACE,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.SURFACE
+  };
+};
 
 // Density TODO not implemented
-export const generateDensityObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_COMP',
-  OBJECT_TYPE: OBJECT_TYPE.DENSITY,
-  sdf_info: data.sdf_info,
-  colour: colourToggle,
-  prot_url: base_url + data.molecule_protein,
-  moleculeId: data.id,
-  selectionType: SELECTION_TYPE.DENSITY
-});
+export const generateDensityObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+
+  ({
+    name: data.protein_code + '_COMP',
+    OBJECT_TYPE: OBJECT_TYPE.DENSITY,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.DENSITY
+  });
+};
 
 export const generateMoleculeId = data => ({
   id: data.id
