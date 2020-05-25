@@ -174,6 +174,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
             </Grid>
           </Grid>
         )}
+        {!hasMolecules && <Typography variant="body2">No molecules found!</Typography>}
       </Paper>
     </Popper>
   );
