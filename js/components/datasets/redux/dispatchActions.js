@@ -249,6 +249,7 @@ export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispa
 export const clearInspirationsOfDataset = datasetID => dispatch => {
   // clear inspirations
   dispatch(setInspirationList(datasetID, []));
+  dispatch(setInspirationMoleculeDataList([]));
   dispatch(setIsOpenInspirationDialog(false));
 };
 
