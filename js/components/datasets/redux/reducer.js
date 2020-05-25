@@ -24,6 +24,7 @@ export const INITIAL_STATE = {
   searchString: null,
 
   // inspirations
+  isOpenInspirationDialog: false,
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: []
 };
@@ -237,6 +238,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_SEARCH_STRING:
       return Object.assign({}, state, { searchString: action.payload });
+
+    case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
+      return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
 
     case constants.SET_IS_LOADING_INSPIRATION_LIST_OF_MOLECULES:
       return Object.assign({}, state, { isLoadingInspirationListOfMolecules: action.payload });

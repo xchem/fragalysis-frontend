@@ -236,3 +236,8 @@ export const removeFromInspirationMoleculeDataList = moleculeID => ({
   type: constants.REMOVE_FROM_INSPIRATION_MOLECULE_DATA_LIST,
   payload: moleculeID
 });
+
+export const setIsOpenInspirationDialog = isOpen => ({
+  type: constants.SET_IS_OPEN_INSPIRATION_DIALOG,
+  payload: isOpen
+});

@@ -177,6 +177,7 @@ export const DatasetMoleculeList = memo(
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
     const inspirationList = useSelector(state => state.datasetsReducers.inspirationLists[datasetID], isEqual);
+    const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
 
     const searchString = useSelector(state => state.datasetsReducers.searchString);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
@@ -320,6 +321,7 @@ export const DatasetMoleculeList = memo(
           )
         }}
         onChange={handleSearch}
+        disabled={isLoadingMoleculeList}
       />,
       <Button
         onClick={event => {
@@ -361,9 +363,13 @@ export const DatasetMoleculeList = memo(
               priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
           )}
-          {inspirationList && inspirationList.length > 0 && (
-            <InspirationDialog open anchorEl={filterRef.current} inspirationList={inspirationList} />
-          )}
+
+          <InspirationDialog
+            open={inspirationList && inspirationList.length > 0 && isOpenInspirationDialog}
+            anchorEl={filterRef.current}
+            inspirationList={inspirationList}
+          />
+
           <div ref={filterRef}>
             {isActiveFilter && (
               <>

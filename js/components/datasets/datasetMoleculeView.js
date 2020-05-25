@@ -23,7 +23,7 @@ import {
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isEqual } from 'lodash';
-import { appendInspirationList, removeFromInspirationList } from './redux/actions';
+import { appendInspirationList, removeFromInspirationList, setIsOpenInspirationDialog } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -488,6 +488,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   })}
                   onClick={() => {
                     if (isInspirationOn === false) {
+                      dispatch(setIsOpenInspirationDialog(true));
                       if (data && data.inspiration_frags) {
                         data.inspiration_frags.forEach(item => {
                           dispatch(appendInspirationList(datasetID, item));
@@ -504,7 +505,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   }}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">X</Typography>
+                  <Typography variant="subtitle2">F</Typography>
                 </Button>
               </Grid>
             </Tooltip>

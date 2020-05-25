@@ -16,7 +16,8 @@ import {
   updateFilterShowedScoreProperties,
   setFilterProperties,
   setIsLoadingInspirationListOfMolecules,
-  appendToInspirationMoleculeDataList
+  appendToInspirationMoleculeDataList,
+  setInspirationMoleculeDataList
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -226,8 +227,11 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
 export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispatch, getState) => {
   if (inspirationList && inspirationList.length > 0) {
     dispatch(setIsLoadingInspirationListOfMolecules(true));
+    const arrayOfInspirationListSet = [...new Set(inspirationList)];
+    dispatch(setInspirationMoleculeDataList([]));
+
     return Promise.all(
-      inspirationList.map(moleculeID =>
+      arrayOfInspirationListSet.map(moleculeID =>
         api({ url: `${base_url}/api/molecules/${moleculeID}/` }).then(response => {
           dispatch(appendToInspirationMoleculeDataList(response.data));
         })
