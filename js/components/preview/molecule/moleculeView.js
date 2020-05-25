@@ -427,24 +427,14 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
       </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item xs={7}>
+        <Grid item xs={6}>
           <Tooltip title={moleculeTitle} placement="bottom-start">
             <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
           </Tooltip>
         </Grid>
-        {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
-        <Grid item>
-          <Grid container direction="row" justify="space-between" alignItems="center">
-            {Object.values(molStatusTypes).map(type => (
-              <Grid item key={`molecule-status-${type}`} className={classes.qualityLabel}>
-                <MoleculeStatusView type={type} data={data} />
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>*/}
 
         {/* Control Buttons A, L, C, V */}
-        <Grid item xs={5}>
+        <Grid item xs={6}>
           <Grid
             container
             direction="row"
