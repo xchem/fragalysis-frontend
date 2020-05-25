@@ -201,6 +201,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                     setFilterItemsHeight={setFilterItemsHeight}
                     filterItemsHeight={filterItemsHeight}
                     hideProjects={hideProjects}
+                    tabValue={tabValue}
                   />
                 </Grid>
               </TabPanel>

@@ -3,7 +3,13 @@
  */
 import React, { useEffect, memo } from 'react';
 import { useDispatch } from 'react-redux';
-import { clearScoreCompoundMap, setMoleculeListIsLoading } from './redux/actions';
+import {
+  clearScoreCompoundMap,
+  setInspirationList,
+  setInspirationMoleculeDataList,
+  setIsOpenInspirationDialog,
+  setMoleculeListIsLoading
+} from './redux/actions';
 import {
   initializeDatasetFilter,
   loadCompoundScoresListOfDataSet,
@@ -29,6 +35,10 @@ export const CustomDatasetList = memo(({ dataset, height, setFilterItemsHeight, 
     return () => {
       if (dataset && dataset.id) {
         dispatch(clearScoreCompoundMap());
+
+        // clear inspirations
+        dispatch(setInspirationList(dataset.id, []));
+        dispatch(setIsOpenInspirationDialog(false));
       }
     };
   }, [dataset, dispatch]);

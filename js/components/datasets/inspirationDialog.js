@@ -126,7 +126,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
               <Grid item>
                 <TextField
                   className={classes.search}
-                  id="input-with-icon-textfield"
+                  id="search-inspiration-dialog"
                   placeholder="Search"
                   size="small"
                   // color="primary"
