@@ -39,7 +39,7 @@ export const CustomDatasetList = memo(
           dispatch(clearDatasetSettings(dataset.id));
         }
       };
-    }, [dataset, dispatch]);
+    }, [dataset, dispatch, isActive]);
 
     return (
       <DatasetMoleculeList
