@@ -63,6 +63,9 @@ const useStyles = makeStyles(theme => ({
   search: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1)
+  },
+  notFound: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -110,7 +113,6 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
   } else {
     moleculeList = inspirationMoleculeDataList;
   }
-  const hasMolecules = isLoadingInspirationListOfMolecules === false && moleculeList && moleculeList.length > 0;
 
   return (
     <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start">
@@ -138,7 +140,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
                     )
                   }}
                   onChange={handleSearch}
-                  disabled={!hasMolecules}
+                  disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
                 />
               </Grid>
               <Grid item>
@@ -149,7 +151,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
             </Grid>
           </Grid>
         </Grid>
-        {hasMolecules && (
+        {isLoadingInspirationListOfMolecules === false && moleculeList && (
           <>
             <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
               <Grid item container justify="flex-start" direction="row">
@@ -161,9 +163,17 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
               </Grid>
             </Grid>
             <div className={classes.content}>
-              {moleculeList.map((molecule, index) => (
-                <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
-              ))}
+              {moleculeList.length > 0 &&
+                moleculeList.map((molecule, index) => (
+                  <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
+                ))}
+              {!(moleculeList.length > 0) && (
+                <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
+                  <Grid item>
+                    <Typography variant="body2">No molecules found!</Typography>
+                  </Grid>
+                </Grid>
+              )}
             </div>
           </>
         )}
@@ -174,7 +184,6 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
             </Grid>
           </Grid>
         )}
-        {!hasMolecules && <Typography variant="body2">No molecules found!</Typography>}
       </Paper>
     </Popper>
   );
