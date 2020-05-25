@@ -166,7 +166,7 @@ export const generateDensityObject = (data, colourToggle, base_url) => {
     }
   }
 
-  ({
+  return {
     name: data.protein_code + '_COMP',
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: data.sdf_info,
@@ -174,7 +174,7 @@ export const generateDensityObject = (data, colourToggle, base_url) => {
     prot_url,
     moleculeId: data.id,
     selectionType: SELECTION_TYPE.DENSITY
-  });
+  };
 };
 
 export const generateMoleculeId = data => ({

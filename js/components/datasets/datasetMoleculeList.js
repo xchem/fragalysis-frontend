@@ -363,12 +363,9 @@ export const DatasetMoleculeList = memo(
               priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
           )}
-
-          <InspirationDialog
-            open={inspirationList && inspirationList.length > 0 && isOpenInspirationDialog}
-            anchorEl={filterRef.current}
-            inspirationList={inspirationList}
-          />
+          {inspirationList && inspirationList.length > 0 && isOpenInspirationDialog && (
+            <InspirationDialog open anchorEl={filterRef.current} inspirationList={inspirationList} />
+          )}
 
           <div ref={filterRef}>
             {isActiveFilter && (
