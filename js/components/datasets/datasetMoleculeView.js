@@ -414,7 +414,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                     onLigand(true);
                     onProtein(true);
                     onComplex(true);
-                    onSurface(true);
                   }}
                   disabled={disableUserInteraction}
                 >
