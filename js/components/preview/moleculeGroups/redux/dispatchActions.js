@@ -5,7 +5,7 @@ import {
   deleteObject,
   loadObject
 } from '../../../../reducers/ngl/dispatchActions';
-import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
+import { selectJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   removeFromComplexList,
   removeFromProteinList,
@@ -40,7 +40,7 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
   const vector_list = state.selectionReducers.vector_list;
 
   // loop through all molecules
-  getJoinedMoleculeList(state).forEach(mol => {
+  selectJoinedMoleculeList(state).forEach(mol => {
     site = mol.site;
 
     // remove Ligand

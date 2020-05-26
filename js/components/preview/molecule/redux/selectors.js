@@ -5,7 +5,7 @@ const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
 const getMoleculeGroupSelection = state => state.selectionReducers.mol_group_selection;
 const getObjectSelection = state => state.selectionReducers.object_selection;
 
-export const getJoinedMoleculeList = createSelector(
+export const selectJoinedMoleculeList = createSelector(
   getCachedMoleculeLists,
   getMoleculeGroupLists,
   getMoleculeGroupSelection,
