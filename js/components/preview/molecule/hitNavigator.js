@@ -2,13 +2,20 @@
  * Created by abradley on 14/03/2018.
  */
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
-import { Select, MenuItem, FormControl, makeStyles } from '@material-ui/core';
-import { Button } from '../../common/Inputs/Button';
-import { FilterList, ClearAll } from '@material-ui/icons';
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  makeStyles,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Tooltip
+} from '@material-ui/core';
+import { FilterList, DeleteSweep, Search } from '@material-ui/icons';
 import { connect, useDispatch } from 'react-redux';
 import * as apiActions from '../../../reducers/api/actions';
 import * as listType from '../../../constants/listTypes';
-import { filterMolecules } from './moleculeListSortFilterDialog';
 import { getJoinedMoleculeList } from './redux/selectors';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
 import { setSortDialogOpen } from './redux/actions';
@@ -22,13 +29,15 @@ import { hideAllSelectedMolecules, initializeMolecules } from './redux/dispatchA
 import { PREDEFINED_FILTERS, DEFAULT_FILTER } from '../../../reducers/selection/constants';
 import { initializeDatasetMoleculeLists } from '../../datasets/redux/dispatchActions';
 import { useRouteMatch } from 'react-router-dom';
+import { debounce } from 'lodash';
+import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
     color: 'inherit',
     margin: theme.spacing(1),
-    minWidth: 87,
-    fontSize: '1.2rem'
+    width: 87
+    //   fontSize: '1.2rem'
   },
   select: {
     color: 'inherit',
@@ -45,6 +54,19 @@ const useStyles = makeStyles(theme => ({
   },
   selectIcon: {
     fill: 'inherit'
+  },
+  search: {
+    margin: theme.spacing(1),
+    width: 116,
+    '& .MuiInputBase-root': {
+      color: 'inherit'
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: 'inherit'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'inherit'
+    }
   }
 }));
 
@@ -80,23 +102,11 @@ const HitNavigator = memo(
     const isActiveFilter = !!(filter || {}).active;
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
     const [currentMolecules, setCurrentMolecules] = useState(null);
+    const [searchString, setSearchString] = useState(null);
 
+    const disableUserInteraction = useDisableUserInteraction();
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-
-    let joinedMoleculeLists = getJoinedMoleculeList;
-
-    // TODO Reset Infinity scroll
-    /*useEffect(() => {
-      // setCurrentPage(0);
-    }, [object_selection]);*/
-
-    if (isActiveFilter) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
-    } else {
-      // default sort is by site
-      joinedMoleculeLists.sort((a, b) => a.site - b.site);
-    }
 
     // prevent loading molecules multiple times
     const firstLoadRef = useRef(!firstLoad);
@@ -195,6 +205,27 @@ const HitNavigator = memo(
       handleFilterChange(newFilter);*/
     };
 
+    let debouncedFn;
+
+    const handleSearch = event => {
+      /* signal to React not to nullify the event object */
+      event.persist();
+      if (!debouncedFn) {
+        debouncedFn = debounce(() => {
+          setSearchString(event.target.value !== '' ? event.target.value : null);
+        }, 350);
+      }
+      debouncedFn();
+    };
+
+    let joinedMoleculeLists = [];
+    if (searchString !== null) {
+      joinedMoleculeLists = getJoinedMoleculeList.filter(molecule =>
+        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+      );
+    } else {
+      joinedMoleculeLists = getJoinedMoleculeList;
+    }
     const actions = [
       <FormControl className={classes.formControl} disabled={!(object_selection || []).length || sortDialogOpen}>
         <Select
@@ -216,17 +247,31 @@ const HitNavigator = memo(
           ))}
         </Select>
       </FormControl>,
-      <Button
+      <TextField
+        className={classes.search}
+        id="search-hit-navigator"
+        placeholder="Search"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search color="inherit" />
+            </InputAdornment>
+          )
+        }}
+        onChange={handleSearch}
+        disabled={disableUserInteraction || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
+      />,
+
+      <IconButton
         color={'inherit'}
-        size="small"
-        variant="text"
-        startIcon={<ClearAll />}
         disabled={!(object_selection || []).length}
         onClick={() => dispatch(hideAllSelectedMolecules(stage, currentMolecules))}
       >
-        Hide all
-      </Button>,
-      <Button
+        <Tooltip title="Hide all">
+          <DeleteSweep />
+        </Tooltip>
+      </IconButton>,
+      <IconButton
         onClick={event => {
           if (sortDialogOpen === false) {
             setSortDialogAnchorEl(event.currentTarget);
@@ -238,12 +283,11 @@ const HitNavigator = memo(
         }}
         color={'inherit'}
         disabled={!(object_selection || []).length || predefinedFilter !== 'none'}
-        variant="text"
-        startIcon={<FilterList />}
-        size="small"
       >
-        sort/filter
-      </Button>
+        <Tooltip title="Filter/Sort">
+          <FilterList />
+        </Tooltip>
+      </IconButton>
     ];
 
     return (
