@@ -517,7 +517,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             molGroupSelection={object_selection}
             cachedMolList={cached_mol_lists}
             filter={filter}
-            setFilter={setFilter}
           />
         )}
         <div ref={filterRef}>
