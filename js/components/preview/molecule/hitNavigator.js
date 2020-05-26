@@ -101,7 +101,6 @@ const HitNavigator = memo(
 
     const isActiveFilter = !!(filter || {}).active;
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
-    const [currentMolecules, setCurrentMolecules] = useState(null);
     const [searchString, setSearchString] = useState(null);
 
     const disableUserInteraction = useDisableUserInteraction();
@@ -265,7 +264,7 @@ const HitNavigator = memo(
       <IconButton
         color={'inherit'}
         disabled={!(object_selection || []).length}
-        onClick={() => dispatch(hideAllSelectedMolecules(stage, currentMolecules))}
+        onClick={() => dispatch(hideAllSelectedMolecules(stage, joinedMoleculeLists))}
       >
         <Tooltip title="Hide all">
           <DeleteSweep />

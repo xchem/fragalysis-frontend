@@ -45,7 +45,9 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
 
 export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
   const comps = stage.getComponentsByName(target.name);
+  debugger;
   comps.list.forEach(component => stage.removeComponent(component));
+
   if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
     const objectId = { id: target.moleculeId };
     switch (target.selectionType) {

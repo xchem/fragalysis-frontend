@@ -1,8 +1,8 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
 
-export const generateMolecule = (id, sdf_info) => {
+export const generateMolecule = (protein_code, sdf_info) => {
   return {
-    name: OBJECT_TYPE.MOLECULE + '_' + id + '_LIGAND',
+    name: `${protein_code}_LIGAND`,
     OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
     colour: '#FFFFFF',
     sdf_info: sdf_info

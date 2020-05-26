@@ -3,8 +3,7 @@ import { VIEWS } from '../../../../constants/constants';
 import {
   decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
   deleteObject,
-  loadObject,
-  reloadNglViewFromSnapshot
+  loadObject
 } from '../../../../reducers/ngl/dispatchActions';
 import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
@@ -28,7 +27,6 @@ import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { hideAllSelectedMolecules } from '../../molecule/redux/dispatchActions';
 import { reloadSession } from '../../../snapshot/redux/dispatchActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup, majorViewStage }) => (
@@ -44,10 +42,11 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
   // loop through all molecules
   getJoinedMoleculeList(state).forEach(mol => {
     site = mol.site;
+
     // remove Ligand
     dispatch(
       deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info)),
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.protein_code, mol.sdf_info)),
         majorViewStage
       )
     );
@@ -172,6 +171,8 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
 
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
+
+  debugger;
 
   molGroupList.forEach(moleculeGroup => {
     dispatch(
