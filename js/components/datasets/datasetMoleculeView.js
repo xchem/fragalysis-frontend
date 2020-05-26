@@ -190,8 +190,9 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   useEffect(() => {
     if (refOnCancelImage.current === undefined) {
       let onCancel = () => {};
+
       api({
-        url: `${base_url}/viewer/img_from_smiles/?smiles=${data.smiles}&width=${imageHeight}&height=${imageWidth}`,
+        url: `${base_url}/viewer/img_from_smiles/?width=${imageHeight}&height=${imageWidth}&smiles=${data.smiles}`,
         cancel: onCancel
       })
         .then(response => {
