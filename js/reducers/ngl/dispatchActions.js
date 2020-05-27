@@ -53,7 +53,7 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
       case SELECTION_TYPE.LIGAND:
         dispatch(removeFromFragmentDisplayList(objectId));
         break;
-      case SELECTION_TYPE.PROTEIN:
+      case SELECTION_TYPE.HIT_PROTEIN:
         dispatch(removeFromProteinList(objectId));
         break;
       case SELECTION_TYPE.COMPLEX:

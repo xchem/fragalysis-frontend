@@ -174,7 +174,7 @@ export const removeVector = (stage, data) => async (dispatch, getState) => {
   dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
 };
 
-export const addProtein = (stage, data, colourToggle) => dispatch => {
+export const addHitProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -189,7 +189,7 @@ export const addProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(appendProteinList(generateMoleculeId(data)));
 };
 
-export const removeProtein = (stage, data, colourToggle) => dispatch => {
+export const removeHitProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -312,7 +312,7 @@ export const removeLigand = (stage, data) => dispatch => {
 export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   if (moleculeList && majorView) {
     const firstMolecule = moleculeList[0];
-    dispatch(addProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+    dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
     moleculeList.forEach((item, index) => {
       // it should be first selected site
       item.site = 1;
@@ -369,7 +369,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   proteinList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeProtein(stage, data));
+      dispatch(removeHitProtein(stage, data));
     }
   });
 

@@ -32,8 +32,8 @@ import classNames from 'classnames';
 import {
   addVector,
   removeVector,
-  addProtein,
-  removeProtein,
+  addHitProtein,
+  removeHitProtein,
   addComplex,
   removeComplex,
   addSurface,
@@ -371,7 +371,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const addType = {
     ligand: addLigand,
-    protein: addProtein,
+    protein: addHitProtein,
     complex: addComplex,
     surface: addSurface,
     density: addDensity,
@@ -380,7 +380,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const removeType = {
     ligand: removeLigand,
-    protein: removeProtein,
+    protein: removeHitProtein,
     complex: removeComplex,
     surface: removeSurface,
     density: removeDensity,

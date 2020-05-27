@@ -1,4 +1,9 @@
-import { generateComplex, generateMolecule, generateSphere } from '../../molecule/molecules_helpers';
+import {
+  complexObjectTypes,
+  generateComplex,
+  generateMolecule,
+  generateSphere
+} from '../../molecule/molecules_helpers';
 import { VIEWS } from '../../../../constants/constants';
 import {
   decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
@@ -52,12 +57,12 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
     );
 
     // remove Complex, Protein, Surface
-    ['contacts', 'protein', 'surface'].forEach(type => {
+    Object.keys(complexObjectTypes).forEach(type => {
       dispatch(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein, type)
+            generateComplex(mol.protein_code, mol.sdf_info, mol.molecule_protein, type)
           ),
           majorViewStage
         )
@@ -171,8 +176,6 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
 
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryViewStage = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
-
-  debugger;
 
   molGroupList.forEach(moleculeGroup => {
     dispatch(

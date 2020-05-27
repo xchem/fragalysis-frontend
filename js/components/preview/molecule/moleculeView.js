@@ -15,8 +15,8 @@ import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion
 import {
   addVector,
   removeVector,
-  addProtein,
-  removeProtein,
+  addHitProtein,
+  removeHitProtein,
   addComplex,
   removeComplex,
   addSurface,
@@ -290,12 +290,12 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
   };
 
   const removeSelectedProtein = () => {
-    dispatch(removeProtein(stage, data, colourToggle));
+    dispatch(removeHitProtein(stage, data, colourToggle));
     selectedAll.current = false;
   };
 
   const addNewProtein = () => {
-    dispatch(addProtein(stage, data, colourToggle));
+    dispatch(addHitProtein(stage, data, colourToggle));
   };
 
   const onProtein = calledFromSelectAll => {

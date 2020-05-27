@@ -78,7 +78,7 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
   selectionType: SELECTION_TYPE.VECTOR
 });
 
-// Protein
+// Hit Protein
 export const generateHitProteinObject = (data, colourToggle, base_url) => {
   let prot_url;
 
@@ -93,13 +93,13 @@ export const generateHitProteinObject = (data, colourToggle, base_url) => {
   }
 
   return {
-    name: data.protein_code || data.name + '_PROTEIN',
-    OBJECT_TYPE: OBJECT_TYPE.HITPROTEIN,
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}`,
+    OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
     sdf_info: data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
-    selectionType: SELECTION_TYPE.PROTEIN
+    selectionType: SELECTION_TYPE.HIT_PROTEIN
   };
 };
 
@@ -118,7 +118,7 @@ export const generateComplexObject = (data, colourToggle, base_url) => {
   }
 
   return {
-    name: data.protein_code || data.name + '_CONTACTS',
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.COMPLEX}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
     sdf_info: data.sdf_info,
     colour: colourToggle,
@@ -142,7 +142,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url) => {
     }
   }
   return {
-    name: data.protein_code || data.name + '_SURFACE',
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.SURFACE}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
     sdf_info: data.sdf_info,
     colour: colourToggle,
@@ -167,7 +167,7 @@ export const generateDensityObject = (data, colourToggle, base_url) => {
   }
 
   return {
-    name: data.protein_code + '_COMP',
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: data.sdf_info,
     colour: colourToggle,
