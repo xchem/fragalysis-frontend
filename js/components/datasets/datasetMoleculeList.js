@@ -10,7 +10,8 @@ import {
   Divider,
   Typography,
   TextField,
-  InputAdornment
+  InputAdornment,
+  IconButton
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,7 +36,7 @@ import {
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
-import { FilterList, Search } from '@material-ui/icons';
+import { FilterList, Search, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
 import { debounce, isEqual } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
@@ -167,7 +168,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const DatasetMoleculeList = memo(
-  ({ height, setFilterItemsHeight, filterItemsHeight, moleculeGroupList, title, datasetID }) => {
+  ({ height, setFilterItemsHeight, filterItemsHeight, moleculeGroupList, title, datasetID, url }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -311,8 +312,6 @@ export const DatasetMoleculeList = memo(
         className={classes.search}
         id="input-with-icon-textfield"
         placeholder="Search"
-        size="small"
-        // color="primary"
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -323,7 +322,12 @@ export const DatasetMoleculeList = memo(
         onChange={handleSearch}
         disabled={isLoadingMoleculeList}
       />,
-      <Button
+      <IconButton color={'inherit'} onClick={() => window.open(url, '_blank')}>
+        <Tooltip title="Link to dataset">
+          <Link />
+        </Tooltip>
+      </IconButton>,
+      <IconButton
         onClick={event => {
           if (sortDialogOpen === false) {
             setSortDialogAnchorEl(filterRef.current);
@@ -334,13 +338,12 @@ export const DatasetMoleculeList = memo(
           }
         }}
         color={'inherit'}
-        variant="text"
-        startIcon={<FilterList />}
-        size="small"
         disabled={isLoadingMoleculeList}
       >
-        filter
-      </Button>
+        <Tooltip title="Filter/Sort">
+          <FilterList />
+        </Tooltip>
+      </IconButton>
     ];
 
     return (
@@ -350,7 +353,7 @@ export const DatasetMoleculeList = memo(
         height={filterItemsHeight}
         forceCompute={isActiveFilter}
       >
-        <Panel hasHeader title={title} headerActions={actions} isLoading={isLoadingMoleculeList}>
+        <Panel hasHeader title={title} withTooltip headerActions={actions} isLoading={isLoadingMoleculeList}>
           {sortDialogOpen && (
             <DatasetFilter
               open={sortDialogOpen}

@@ -164,7 +164,17 @@ export const removeLigand = (stage, data, colourToggle, datasetID) => dispatch =
 
 export const loadDataSets = () => dispatch =>
   api({ url: `${base_url}/api/compound-sets/` }).then(response => {
-    dispatch(setDataset(response.data.results.map(ds => ({ id: ds.id, title: ds.name }))));
+    dispatch(
+      setDataset(
+        response.data.results.map(ds => ({
+          id: ds.id,
+          title: ds.name,
+          url: ds.method_url,
+          version: ds.spec_version,
+          submitted_sdf: ds.submitted_sdf
+        }))
+      )
+    );
   });
 
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>

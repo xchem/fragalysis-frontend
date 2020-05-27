@@ -6,7 +6,13 @@ export const addDataset = dataset => ({ type: constants.ADD_DATASET, payload: da
 //[{ id: 0, title: 'First dataset' },...]
 export const setDataset = datasetList => ({
   type: constants.SET_DATASET,
-  payload: datasetList.map(ds => ({ id: ds.id, title: ds.title }))
+  payload: datasetList.map(ds => ({
+    id: ds.id,
+    title: ds.title,
+    url: ds.url,
+    version: ds.version,
+    submitted_sdf: ds.submitted_sdf
+  }))
 });
 
 export const addMoleculeList = (datasetID, moleculeList) => ({

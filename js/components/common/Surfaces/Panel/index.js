@@ -1,5 +1,13 @@
 import React, { forwardRef, memo, useEffect, useState } from 'react';
-import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography, CircularProgress } from '@material-ui/core';
+import {
+  Paper as MaterialPaper,
+  makeStyles,
+  Grid,
+  IconButton,
+  Typography,
+  CircularProgress,
+  Tooltip
+} from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 
@@ -57,6 +65,7 @@ export const Panel = memo(
         hasHeader,
         secondaryBackground,
         title,
+        withTooltip,
         headerActions,
         hasExpansion,
         defaultExpanded = false,
@@ -107,9 +116,17 @@ export const Panel = memo(
                     xs={hasExpansion || headerActions ? (headerActions && headerActions.length > 2 ? 4 : 6) : 12}
                     className={classes.headerTitle}
                   >
-                    <Typography variant="h6" color="inherit" noWrap>
-                      {title}
-                    </Typography>
+                    {withTooltip ? (
+                      <Tooltip title={title}>
+                        <Typography variant="h6" color="inherit" noWrap>
+                          {title}
+                        </Typography>
+                      </Tooltip>
+                    ) : (
+                      <Typography variant="h6" color="inherit" noWrap>
+                        {title}
+                      </Typography>
+                    )}
                   </Grid>
                 )}
                 {(headerActions || hasExpansion) && (

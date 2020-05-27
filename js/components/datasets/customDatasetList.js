@@ -41,9 +41,12 @@ export const CustomDatasetList = memo(
       };
     }, [dataset, dispatch, isActive]);
 
+    const title = dataset && `${dataset.title} v.${dataset.version}`;
+
     return (
       <DatasetMoleculeList
-        title={dataset && dataset.title}
+        title={title}
+        url={dataset && dataset.url}
         height={height}
         setFilterItemsHeight={setFilterItemsHeight}
         filterItemsHeight={filterItemsHeight}
