@@ -41,7 +41,8 @@ import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
-import { resetCurrentCompoundsSettings, setCurrentCompounds } from '../../compounds/redux/actions';
+import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { isEqual } from 'lodash';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -280,13 +281,23 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
 
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
   const state = getState();
-  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
+  const storedOrientation = state.nglReducers.moleculeOrientations[data.site];
+  const currentOrientation = stage.viewerControls.getOrientation();
+  let orientationMatrix = undefined;
+  if (storedOrientation && currentOrientation) {
+    if (isEqual(storedOrientation, currentOrientation)) {
+      orientationMatrix = null;
+    } else {
+      orientationMatrix = storedOrientation;
+    }
+  }
+  debugger;
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
       undefined,
-      orientationMatrix !== undefined ? null : undefined
+      orientationMatrix
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
