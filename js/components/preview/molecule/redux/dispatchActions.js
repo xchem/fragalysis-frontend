@@ -291,7 +291,6 @@ export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => 
       orientationMatrix = storedOrientation;
     }
   }
-  debugger;
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
