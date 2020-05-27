@@ -357,7 +357,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const changeButtonClassname = (givenList = []) => {
-    if (currentMolecules.length === givenList.length) {
+    if (joinedMoleculeLists.length === givenList.length) {
       return true;
     } else if (givenList.length > 0) {
       return null;
