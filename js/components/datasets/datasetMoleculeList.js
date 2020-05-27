@@ -367,7 +367,12 @@ export const DatasetMoleculeList = memo(
             />
           )}
           {inspirationList && isOpenInspirationDialog && (
-            <InspirationDialog open anchorEl={filterRef.current} inspirationList={inspirationList} />
+            <InspirationDialog
+              open
+              anchorEl={filterRef.current}
+              inspirationList={inspirationList}
+              datasetID={datasetID}
+            />
           )}
 
           <div ref={filterRef}>
