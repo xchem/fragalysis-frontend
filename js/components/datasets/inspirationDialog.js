@@ -27,7 +27,7 @@ import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { debounce } from 'lodash';
-import { setIsOpenInspirationDialog } from './redux/actions';
+import { setInspirationMoleculeDataList, setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
@@ -123,7 +123,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList, datasetID }) => {
+export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) => {
   const id = open ? 'simple-popover-compound-cross-reference' : undefined;
   const imgHeight = 34;
   const imgWidth = 150;
@@ -134,6 +134,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
+  const inspirationList = useSelector(state => state.datasetsReducers.inspirationLists[datasetID]);
   const isLoadingInspirationListOfMolecules = useSelector(
     state => state.datasetsReducers.isLoadingInspirationListOfMolecules
   );
@@ -153,6 +154,8 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
       dispatch(loadInspirationMoleculesDataList([...setOfInspirations])).catch(error => {
         throw new Error(error);
       });
+    } else {
+      dispatch(setInspirationMoleculeDataList([]));
     }
   }, [dispatch, inspirationList]);
 

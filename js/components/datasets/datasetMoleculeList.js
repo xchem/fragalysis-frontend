@@ -177,7 +177,6 @@ export const DatasetMoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
-    const inspirationList = useSelector(state => state.datasetsReducers.inspirationLists[datasetID], isEqual);
     const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
 
     const searchString = useSelector(state => state.datasetsReducers.searchString);
@@ -366,14 +365,7 @@ export const DatasetMoleculeList = memo(
               priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
           )}
-          {inspirationList && isOpenInspirationDialog && (
-            <InspirationDialog
-              open
-              anchorEl={filterRef.current}
-              inspirationList={inspirationList}
-              datasetID={datasetID}
-            />
-          )}
+          {isOpenInspirationDialog && <InspirationDialog open anchorEl={filterRef.current} datasetID={datasetID} />}
 
           <div ref={filterRef}>
             {isActiveFilter && (
