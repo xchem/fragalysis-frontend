@@ -20,7 +20,11 @@ import {
   setInspirationMoleculeDataList,
   setInspirationList,
   setIsOpenInspirationDialog,
-  clearScoreCompoundMap
+  clearScoreCompoundMap,
+  appendInspirationList,
+  setInspirationFragmentList,
+  removeFromInspirationList,
+  removeFromInspirationFragmentList
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -269,5 +273,26 @@ export const clearDatasetSettings = datasetID => dispatch => {
 
     // clear inspirations
     dispatch(clearInspirationsOfDataset(datasetID));
+  }
+};
+
+export const clickOnInspirations = (datasetID, currentID, inspiration_frags) => (dispatch, getState) => {
+  const inspirationLists = getState().datasetsReducers.inspirationLists[datasetID];
+  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
+
+  if (isInspirationOn === false) {
+    dispatch(setInspirationList(datasetID, [currentID]));
+    if (inspiration_frags) {
+      dispatch(setInspirationFragmentList(inspiration_frags));
+    }
+    dispatch(setIsOpenInspirationDialog(true));
+  } else {
+    dispatch(removeFromInspirationList(datasetID, currentID));
+    if (inspiration_frags) {
+      inspiration_frags.forEach(item => {
+        dispatch(removeFromInspirationFragmentList(item));
+      });
+    }
+    dispatch(setIsOpenInspirationDialog(false));
   }
 };

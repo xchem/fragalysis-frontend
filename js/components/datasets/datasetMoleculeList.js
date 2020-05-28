@@ -15,7 +15,7 @@ import {
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import DatasetMoleculeView, { colourList } from './datasetMoleculeView';
+import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
@@ -38,7 +38,7 @@ import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actio
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
-import { debounce, isEqual } from 'lodash';
+import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 
 const useStyles = makeStyles(theme => ({

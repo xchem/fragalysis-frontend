@@ -134,7 +134,8 @@ export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) =>
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-  const inspirationList = useSelector(state => state.datasetsReducers.inspirationLists[datasetID]);
+  const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
+
   const isLoadingInspirationListOfMolecules = useSelector(
     state => state.datasetsReducers.isLoadingInspirationListOfMolecules
   );
@@ -148,16 +149,14 @@ export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) =>
   const disableUserInteraction = useDisableUserInteraction();
 
   useEffect(() => {
-    const setOfInspirations = new Set(inspirationList);
-    const arrayOfInspirations = [...setOfInspirations];
-    if (arrayOfInspirations && arrayOfInspirations.length > 0) {
-      dispatch(loadInspirationMoleculesDataList([...setOfInspirations])).catch(error => {
+    if (inspirationFragmentList && inspirationFragmentList.length > 0) {
+      dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
         throw new Error(error);
       });
     } else {
       dispatch(setInspirationMoleculeDataList([]));
     }
-  }, [dispatch, inspirationList]);
+  }, [dispatch, inspirationFragmentList]);
 
   let debouncedFn;
 

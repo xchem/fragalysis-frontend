@@ -181,6 +181,16 @@ export const removeFromInspirationList = function(datasetID, itemID) {
   };
 };
 
+export const setInspirationFragmentList = (moleculeList = []) => ({
+  type: constants.SET_INSPIRATION_FRAGMENT_LIST,
+  payload: moleculeList
+});
+
+export const removeFromInspirationFragmentList = item => ({
+  type: constants.REMOVE_FROM_INSPIRATION_FRAGMENT_LIST,
+  payload: item
+});
+
 export const appendToScoreDatasetMap = (datasetID, scoreList) => ({
   type: constants.APPEND_TO_SCORE_DATASET_MAP,
   payload: { key: datasetID, value: scoreList }

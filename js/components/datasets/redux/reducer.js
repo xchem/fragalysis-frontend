@@ -25,6 +25,7 @@ export const INITIAL_STATE = {
 
   // inspirations
   isOpenInspirationDialog: false,
+  inspirationFragmentList: [],
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: []
 };
@@ -266,6 +267,23 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         diminishedInspirationMoleculeDataList.delete(foundedItem);
       }
       return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
+
+    case constants.SET_INSPIRATION_FRAGMENT_LIST:
+      return Object.assign({}, state, { inspirationFragmentList: action.payload });
+
+    case constants.REMOVE_FROM_INSPIRATION_FRAGMENT_LIST:
+      const diminishedInspirationFragmentList = new Set(state.inspirationFragmentList);
+
+      let foundtem;
+      diminishedInspirationFragmentList.forEach(item => {
+        if (item === action.payload) {
+          foundtem = item;
+        }
+      });
+      if (foundtem) {
+        diminishedInspirationFragmentList.delete(foundtem);
+      }
+      return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
 
     default:
       return state;

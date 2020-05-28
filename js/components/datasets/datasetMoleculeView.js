@@ -18,12 +18,12 @@ import {
   addDatasetComplex,
   removeDatasetComplex,
   addDatasetSurface,
-  removeDatasetSurface
+  removeDatasetSurface,
+  clickOnInspirations
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isEqual } from 'lodash';
-import { appendInspirationList, removeFromInspirationList, setIsOpenInspirationDialog } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -150,7 +150,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) => {
+export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
@@ -162,6 +162,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+  const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists[datasetID]);
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id], isEqual);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
@@ -175,7 +176,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
   const isComplexOn = (currentID && complexList.includes(currentID)) || false;
   const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
-  const [isInspirationOn, setIsInspirationOn] = useState(false);
+  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
 
   const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
   const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
@@ -487,21 +488,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                     [classes.contColButtonSelected]: isInspirationOn
                   })}
                   onClick={() => {
-                    if (isInspirationOn === false) {
-                      dispatch(setIsOpenInspirationDialog(true));
-                      if (data && data.inspiration_frags) {
-                        data.inspiration_frags.forEach(item => {
-                          dispatch(appendInspirationList(datasetID, item));
-                        });
-                      }
-                    } else {
-                      if (data && data.inspiration_frags) {
-                        data.inspiration_frags.forEach(item => {
-                          dispatch(removeFromInspirationList(datasetID, item));
-                        });
-                      }
-                    }
-                    setIsInspirationOn(prevState => !prevState);
+                    dispatch(clickOnInspirations(datasetID, currentID, data && data.inspiration_frags));
                   }}
                   disabled={disableUserInteraction}
                 >
@@ -556,6 +543,3 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
     </Grid>
   );
 });
-
-DatasetMoleculeView.displayName = 'DatasetMoleculeView';
-export default DatasetMoleculeView;
