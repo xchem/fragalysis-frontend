@@ -13,7 +13,7 @@ import {
   InputAdornment,
   IconButton
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -176,6 +176,7 @@ export const DatasetMoleculeList = memo(
 
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
+
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
@@ -197,6 +198,7 @@ export const DatasetMoleculeList = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
+    const [selectedInspirationMoleculeRef, setSelectedInspirationMoleculeRef] = useState(null);
     const filterRef = useRef();
 
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
@@ -347,6 +349,54 @@ export const DatasetMoleculeList = memo(
       </IconButton>
     ];
 
+    const inspirationDialogRef = useRef();
+    const scrollBarRef = useRef();
+
+    const handleIntersect = (changes, observer) => {
+      //useCallback(
+      let previousY = 0;
+      let previousRatio = 0;
+      console.log(changes, observer);
+
+      changes.forEach(entry => {
+        const currentY = entry.boundingClientRect.y;
+        const currentRatio = entry.intersectionRatio;
+        const isIntersecting = entry.isIntersecting;
+
+        // Scrolling down/up
+        if (currentY < previousY) {
+          if (currentRatio > previousRatio && isIntersecting) {
+            console.log('Scrolling down enter');
+          } else {
+            console.log('Scrolling down leave');
+          }
+        } else if (currentY > previousY && isIntersecting) {
+          if (currentRatio < previousRatio) {
+            console.log('Scrolling up leave');
+          } else {
+            console.log('Scrolling up enter');
+          }
+        }
+
+        previousY = currentY;
+        previousRatio = currentRatio;
+      });
+    }; //, []);
+
+    //  useEffect(() => {
+    const observer = new IntersectionObserver(handleIntersect, {
+      // root: scrollBarRef && scrollBarRef.current,
+      rootMargin: '100px'
+      //threshold: [0.98, 0.99, 1]
+    });
+    // if (inspirationDialogRef.current) {
+    console.log('has observed');
+    if (inspirationDialogRef && inspirationDialogRef.current) {
+      observer.observe(inspirationDialogRef.current);
+    }
+    // }
+    // }, [handleIntersect]);
+
     return (
       <ComputeSize
         componentRef={filterRef.current}
@@ -367,7 +417,14 @@ export const DatasetMoleculeList = memo(
               priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
           )}
-          {isOpenInspirationDialog && <InspirationDialog open anchorEl={filterRef.current} datasetID={datasetID} />}
+          {isOpenInspirationDialog && (
+            <InspirationDialog
+              open
+              anchorEl={selectedInspirationMoleculeRef}
+              datasetID={datasetID}
+              ref={inspirationDialogRef}
+            />
+          )}
 
           <div ref={filterRef}>
             {isActiveFilter && (
@@ -484,7 +541,7 @@ export const DatasetMoleculeList = memo(
               )}
             </Grid>
             {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
-              <Grid item className={classes.gridItemList}>
+              <Grid item className={classes.gridItemList} ref={scrollBarRef}>
                 <InfiniteScroll
                   pageStart={0}
                   loadMore={loadNextMolecules}
@@ -512,6 +569,7 @@ export const DatasetMoleculeList = memo(
                         imageWidth={imgWidth}
                         data={data}
                         datasetID={datasetID}
+                        setRef={setSelectedInspirationMoleculeRef}
                       />
                     ))}
                 </InfiniteScroll>

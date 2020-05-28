@@ -252,17 +252,22 @@ export const clearDatasetSettings = datasetID => dispatch => {
   }
 };
 
-export const clickOnInspirations = (datasetID, currentID, inspiration_frags) => (dispatch, getState) => {
+export const clickOnInspirations = ({ datasetID, currentID, inspiration_frags, ref, setRef }) => (
+  dispatch,
+  getState
+) => {
   const inspirationLists = getState().datasetsReducers.inspirationLists[datasetID];
   const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
 
   if (isInspirationOn === false) {
+    setRef((ref && ref.current) || null);
     dispatch(setInspirationList(datasetID, [currentID]));
     if (inspiration_frags) {
       dispatch(setInspirationFragmentList(inspiration_frags));
     }
     dispatch(setIsOpenInspirationDialog(true));
   } else {
+    setRef(null);
     dispatch(removeFromInspirationList(datasetID, currentID));
     if (inspiration_frags) {
       inspiration_frags.forEach(item => {

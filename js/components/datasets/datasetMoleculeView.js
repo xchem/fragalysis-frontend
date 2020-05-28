@@ -152,12 +152,13 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) => {
+export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID, setRef }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
   const currentID = (data && data.id) || undefined;
   const classes = useStyles();
+  const ref = useRef(null);
 
   const dispatch = useDispatch();
   const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
@@ -372,7 +373,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
       {/*</Grid>*/}
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item xs={7}>
+        <Grid item xs={7} ref={ref}>
           <Tooltip title={moleculeTitle} placement="bottom-start">
             <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
           </Tooltip>
@@ -490,7 +491,15 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
                     [classes.contColButtonSelected]: isInspirationOn
                   })}
                   onClick={() => {
-                    dispatch(clickOnInspirations(datasetID, currentID, data && data.inspiration_frags));
+                    dispatch(
+                      clickOnInspirations({
+                        datasetID,
+                        currentID,
+                        inspiration_frags: data && data.inspiration_frags,
+                        ref,
+                        setRef
+                      })
+                    );
                   }}
                   disabled={disableUserInteraction}
                 >

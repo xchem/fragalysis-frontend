@@ -127,255 +127,260 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) => {
-  const id = open ? 'simple-popover-compound-cross-reference' : undefined;
-  const imgHeight = 34;
-  const imgWidth = 150;
-  const classes = useStyles();
-  const [searchString, setSearchString] = useState(null);
-  const selectedAll = useRef(false);
+export const InspirationDialog = memo(
+  forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
+    const id = open ? 'simple-popover-compound-cross-reference' : undefined;
+    const imgHeight = 34;
+    const imgWidth = 150;
+    const classes = useStyles();
+    const [searchString, setSearchString] = useState(null);
+    const selectedAll = useRef(false);
 
-  const { getNglView } = useContext(NglContext);
-  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const { getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-  const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
+    const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
 
-  const isLoadingInspirationListOfMolecules = useSelector(
-    state => state.datasetsReducers.isLoadingInspirationListOfMolecules
-  );
-  const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
-
-  const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-  const proteinList = useSelector(state => state.selectionReducers.proteinList);
-  const complexList = useSelector(state => state.selectionReducers.complexList);
-
-  const dispatch = useDispatch();
-  const disableUserInteraction = useDisableUserInteraction();
-
-  useEffect(() => {
-    if (inspirationFragmentList && inspirationFragmentList.length > 0) {
-      dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
-        throw new Error(error);
-      });
-    } else {
-      dispatch(setInspirationMoleculeDataList([]));
-    }
-  }, [dispatch, inspirationFragmentList]);
-
-  let debouncedFn;
-
-  const handleSearch = event => {
-    /* signal to React not to nullify the event object */
-    event.persist();
-    if (!debouncedFn) {
-      debouncedFn = debounce(() => {
-        setSearchString(event.target.value !== '' ? event.target.value : null);
-      }, 350);
-    }
-    debouncedFn();
-  };
-
-  let moleculeList = [];
-  if (searchString !== null) {
-    moleculeList = inspirationMoleculeDataList.filter(molecule =>
-      molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+    const isLoadingInspirationListOfMolecules = useSelector(
+      state => state.datasetsReducers.isLoadingInspirationListOfMolecules
     );
-  } else {
-    moleculeList = inspirationMoleculeDataList;
-  }
-  // TODO refactor from this line (duplicity in datasetMoleculeList.js)
-  const changeButtonClassname = (givenList = []) => {
-    if (moleculeList.length === givenList.length) {
-      return true;
-    } else if (givenList.length > 0) {
-      return null;
-    }
-    return false;
-  };
+    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
 
-  const isLigandOn = changeButtonClassname(ligandList);
-  const isProteinOn = changeButtonClassname(proteinList);
-  const isComplexOn = changeButtonClassname(complexList);
+    const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const complexList = useSelector(state => state.selectionReducers.complexList);
 
-  const addType = {
-    ligand: addLigand,
-    protein: addHitProtein,
-    complex: addComplex,
-    surface: addSurface
-  };
+    const dispatch = useDispatch();
+    const disableUserInteraction = useDisableUserInteraction();
 
-  const removeType = {
-    ligand: removeLigand,
-    protein: removeHitProtein,
-    complex: removeComplex,
-    surface: removeSurface
-  };
-
-  const removeSelectedType = type => {
-    moleculeList.forEach(molecule => {
-      dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
-    });
-    selectedAll.current = false;
-  };
-
-  const addNewType = type => {
-    moleculeList.forEach(molecule => {
-      dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
-    });
-  };
-
-  const ucfirst = string => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  };
-
-  const onButtonToggle = (type, calledFromSelectAll = false) => {
-    if (calledFromSelectAll === true && selectedAll.current === true) {
-      // REDO
-      if (eval('is' + ucfirst(type) + 'On') === false) {
-        addNewType(type);
-      }
-    } else if (calledFromSelectAll && selectedAll.current === false) {
-      removeSelectedType(type);
-    } else if (!calledFromSelectAll) {
-      if (eval('is' + ucfirst(type) + 'On') === false) {
-        addNewType(type);
+    useEffect(() => {
+      if (inspirationFragmentList && inspirationFragmentList.length > 0) {
+        dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
+          throw new Error(error);
+        });
       } else {
-        removeSelectedType(type);
+        dispatch(setInspirationMoleculeDataList([]));
       }
-    }
-  };
-  //  TODO refactor to this line
+    }, [dispatch, inspirationFragmentList]);
 
-  return (
-    <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start">
-      <Paper className={classes.paper} elevation={21}>
-        <Grid container justify="space-between" direction="row">
-          <Grid item>
-            <Typography variant="h6" className={classes.title}>
-              Inspirations
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Grid container justify="space-between" direction="row">
-              <Grid item>
-                <TextField
-                  className={classes.search}
-                  id="search-inspiration-dialog"
-                  placeholder="Search"
-                  size="small"
-                  // color="primary"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search color="inherit" />
-                      </InputAdornment>
-                    )
-                  }}
-                  onChange={handleSearch}
-                  disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
-                />
-              </Grid>
-              <Grid item>
-                <IconButton className={classes.closeButton} onClick={() => dispatch(setIsOpenInspirationDialog(false))}>
-                  <Close />
-                </IconButton>
+    let debouncedFn;
+
+    const handleSearch = event => {
+      /* signal to React not to nullify the event object */
+      event.persist();
+      if (!debouncedFn) {
+        debouncedFn = debounce(() => {
+          setSearchString(event.target.value !== '' ? event.target.value : null);
+        }, 350);
+      }
+      debouncedFn();
+    };
+
+    let moleculeList = [];
+    if (searchString !== null) {
+      moleculeList = inspirationMoleculeDataList.filter(molecule =>
+        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+      );
+    } else {
+      moleculeList = inspirationMoleculeDataList;
+    }
+    // TODO refactor from this line (duplicity in datasetMoleculeList.js)
+    const changeButtonClassname = (givenList = []) => {
+      if (moleculeList.length === givenList.length) {
+        return true;
+      } else if (givenList.length > 0) {
+        return null;
+      }
+      return false;
+    };
+
+    const isLigandOn = changeButtonClassname(ligandList);
+    const isProteinOn = changeButtonClassname(proteinList);
+    const isComplexOn = changeButtonClassname(complexList);
+
+    const addType = {
+      ligand: addLigand,
+      protein: addHitProtein,
+      complex: addComplex,
+      surface: addSurface
+    };
+
+    const removeType = {
+      ligand: removeLigand,
+      protein: removeHitProtein,
+      complex: removeComplex,
+      surface: removeSurface
+    };
+
+    const removeSelectedType = type => {
+      moleculeList.forEach(molecule => {
+        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
+      });
+      selectedAll.current = false;
+    };
+
+    const addNewType = type => {
+      moleculeList.forEach(molecule => {
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
+      });
+    };
+
+    const ucfirst = string => {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    const onButtonToggle = (type, calledFromSelectAll = false) => {
+      if (calledFromSelectAll === true && selectedAll.current === true) {
+        // REDO
+        if (eval('is' + ucfirst(type) + 'On') === false) {
+          addNewType(type);
+        }
+      } else if (calledFromSelectAll && selectedAll.current === false) {
+        removeSelectedType(type);
+      } else if (!calledFromSelectAll) {
+        if (eval('is' + ucfirst(type) + 'On') === false) {
+          addNewType(type);
+        } else {
+          removeSelectedType(type);
+        }
+      }
+    };
+    //  TODO refactor to this line
+
+    return (
+      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
+        <Paper className={classes.paper} elevation={21}>
+          <Grid container justify="space-between" direction="row">
+            <Grid item>
+              <Typography variant="h6" className={classes.title}>
+                Inspirations
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Grid container justify="space-between" direction="row">
+                <Grid item>
+                  <TextField
+                    className={classes.search}
+                    id="search-inspiration-dialog"
+                    placeholder="Search"
+                    size="small"
+                    // color="primary"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search color="inherit" />
+                        </InputAdornment>
+                      )
+                    }}
+                    onChange={handleSearch}
+                    disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
+                  />
+                </Grid>
+                <Grid item>
+                  <IconButton
+                    className={classes.closeButton}
+                    onClick={() => dispatch(setIsOpenInspirationDialog(false))}
+                  >
+                    <Close />
+                  </IconButton>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
-        </Grid>
-        {isLoadingInspirationListOfMolecules === false && moleculeList && (
-          <>
-            <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-              <Grid item container justify="flex-start" direction="row">
-                {Object.keys(moleculeProperty).map(key => (
-                  <Grid item key={key} className={classes.rightBorder}>
-                    {moleculeProperty[key]}
-                  </Grid>
-                ))}
-                {moleculeList.length > 0 && (
-                  <Grid item>
-                    <Grid
-                      container
-                      direction="row"
-                      justify="flex-start"
-                      alignItems="center"
-                      wrap="nowrap"
-                      className={classes.contButtonsMargin}
-                    >
-                      <Tooltip title="all ligands">
-                        <Grid item>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isLigandOn,
-                              [classes.contColButtonHalfSelected]: isLigandOn === null
-                            })}
-                            onClick={() => onButtonToggle('ligand')}
-                            disabled={disableUserInteraction}
-                          >
-                            L
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                      <Tooltip title="all sidechains">
-                        <Grid item>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isProteinOn,
-                              [classes.contColButtonHalfSelected]: isProteinOn === null
-                            })}
-                            onClick={() => onButtonToggle('protein')}
-                            disabled={disableUserInteraction}
-                          >
-                            P
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                      <Tooltip title="all interactions">
-                        <Grid item>
-                          {/* C stands for contacts now */}
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isComplexOn,
-                              [classes.contColButtonHalfSelected]: isComplexOn === null
-                            })}
-                            onClick={() => onButtonToggle('complex')}
-                            disabled={disableUserInteraction}
-                          >
-                            C
-                          </Button>
-                        </Grid>
-                      </Tooltip>
+          {isLoadingInspirationListOfMolecules === false && moleculeList && (
+            <>
+              <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                <Grid item container justify="flex-start" direction="row">
+                  {Object.keys(moleculeProperty).map(key => (
+                    <Grid item key={key} className={classes.rightBorder}>
+                      {moleculeProperty[key]}
+                    </Grid>
+                  ))}
+                  {moleculeList.length > 0 && (
+                    <Grid item>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="flex-start"
+                        alignItems="center"
+                        wrap="nowrap"
+                        className={classes.contButtonsMargin}
+                      >
+                        <Tooltip title="all ligands">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isLigandOn,
+                                [classes.contColButtonHalfSelected]: isLigandOn === null
+                              })}
+                              onClick={() => onButtonToggle('ligand')}
+                              disabled={disableUserInteraction}
+                            >
+                              L
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all sidechains">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isProteinOn,
+                                [classes.contColButtonHalfSelected]: isProteinOn === null
+                              })}
+                              onClick={() => onButtonToggle('protein')}
+                              disabled={disableUserInteraction}
+                            >
+                              P
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all interactions">
+                          <Grid item>
+                            {/* C stands for contacts now */}
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isComplexOn,
+                                [classes.contColButtonHalfSelected]: isComplexOn === null
+                              })}
+                              onClick={() => onButtonToggle('complex')}
+                              disabled={disableUserInteraction}
+                            >
+                              C
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                      </Grid>
+                    </Grid>
+                  )}
+                </Grid>
+              </Grid>
+              <div className={classes.content}>
+                {moleculeList.length > 0 &&
+                  moleculeList.map((molecule, index) => (
+                    <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
+                  ))}
+                {!(moleculeList.length > 0) && (
+                  <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
+                    <Grid item>
+                      <Typography variant="body2">No molecules found!</Typography>
                     </Grid>
                   </Grid>
                 )}
+              </div>
+            </>
+          )}
+          {isLoadingInspirationListOfMolecules === true && (
+            <Grid container alignItems="center" justify="center">
+              <Grid item>
+                <CircularProgress />
               </Grid>
             </Grid>
-            <div className={classes.content}>
-              {moleculeList.length > 0 &&
-                moleculeList.map((molecule, index) => (
-                  <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
-                ))}
-              {!(moleculeList.length > 0) && (
-                <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
-                  <Grid item>
-                    <Typography variant="body2">No molecules found!</Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
-          </>
-        )}
-        {isLoadingInspirationListOfMolecules === true && (
-          <Grid container alignItems="center" justify="center">
-            <Grid item>
-              <CircularProgress />
-            </Grid>
-          </Grid>
-        )}
-      </Paper>
-    </Popper>
-  );
-});
+          )}
+        </Paper>
+      </Popper>
+    );
+  })
+);
