@@ -25,14 +25,14 @@ import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
-  addLigand,
-  removeLigand,
-  addProtein,
-  removeProtein,
-  addComplex,
-  removeComplex,
-  addSurface,
-  removeSurface
+  addDatasetLigand,
+  removeDatasetLigand,
+  addDatasetHitProtein,
+  removeDatasetHitProtein,
+  addDatasetComplex,
+  removeDatasetComplex,
+  addDatasetSurface,
+  removeDatasetSurface
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -244,17 +244,17 @@ export const DatasetMoleculeList = memo(
     const isComplexOn = (complexList && complexList.length > 0) || false;
 
     const addType = {
-      ligand: addLigand,
-      protein: addProtein,
-      complex: addComplex,
-      surface: addSurface
+      ligand: addDatasetLigand,
+      protein: addDatasetHitProtein,
+      complex: addDatasetComplex,
+      surface: addDatasetSurface
     };
 
     const removeType = {
-      ligand: removeLigand,
-      protein: removeProtein,
-      complex: removeComplex,
-      surface: removeSurface
+      ligand: removeDatasetLigand,
+      protein: removeDatasetHitProtein,
+      complex: removeDatasetComplex,
+      surface: removeDatasetSurface
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List

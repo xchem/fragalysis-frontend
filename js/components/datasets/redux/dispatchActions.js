@@ -67,7 +67,7 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
 
-export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -82,7 +82,7 @@ export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => 
   dispatch(appendProteinList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeProtein = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -92,7 +92,7 @@ export const removeProtein = (stage, data, colourToggle, datasetID) => dispatch 
   dispatch(removeFromProteinList(datasetID, generateMoleculeId(data)));
 };
 
-export const addComplex = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
@@ -107,7 +107,7 @@ export const addComplex = (stage, data, colourToggle, datasetID) => dispatch => 
   dispatch(appendComplexList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeComplex = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
@@ -117,7 +117,7 @@ export const removeComplex = (stage, data, colourToggle, datasetID) => dispatch 
   dispatch(removeFromComplexList(datasetID, generateMoleculeId(data)));
 };
 
-export const addSurface = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
@@ -132,7 +132,7 @@ export const addSurface = (stage, data, colourToggle, datasetID) => dispatch => 
   dispatch(appendSurfaceList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeSurface = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
@@ -142,7 +142,7 @@ export const removeSurface = (stage, data, colourToggle, datasetID) => dispatch 
   dispatch(removeFromSurfaceList(datasetID, generateMoleculeId(data)));
 };
 
-export const addLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
@@ -157,7 +157,7 @@ export const addLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(appendLigandList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
 };

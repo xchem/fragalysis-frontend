@@ -282,7 +282,7 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
   const state = getState();
   const storedOrientation = state.nglReducers.moleculeOrientations[data.site];
-  const currentOrientation = stage.viewerControls.getOrientation();
+  const currentOrientation = stage && stage.viewerControls.getOrientation();
   let orientationMatrix = undefined;
   if (storedOrientation && currentOrientation) {
     if (isEqual(storedOrientation, currentOrientation)) {

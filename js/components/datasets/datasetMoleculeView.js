@@ -11,14 +11,14 @@ import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
-  addLigand,
-  removeLigand,
-  addProtein,
-  removeProtein,
-  addComplex,
-  removeComplex,
-  addSurface,
-  removeSurface
+  addDatasetLigand,
+  removeDatasetLigand,
+  addDatasetHitProtein,
+  removeDatasetHitProtein,
+  addDatasetComplex,
+  removeDatasetComplex,
+  addDatasetSurface,
+  removeDatasetSurface
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
@@ -232,11 +232,11 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
   const addNewLigand = () => {
-    dispatch(addLigand(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetLigand(stage, data, colourToggle, datasetID));
   };
 
   const removeSelectedLigand = () => {
-    dispatch(removeLigand(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetLigand(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
@@ -257,12 +257,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   };
 
   const removeSelectedProtein = () => {
-    dispatch(removeProtein(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
   const addNewProtein = () => {
-    dispatch(addProtein(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID));
   };
 
   const onProtein = calledFromSelectAll => {
@@ -282,12 +282,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   };
 
   const removeSelectedComplex = () => {
-    dispatch(removeComplex(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
   const addNewComplex = () => {
-    dispatch(addComplex(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetComplex(stage, data, colourToggle, datasetID));
   };
 
   const onComplex = calledFromSelectAll => {
@@ -307,12 +307,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   };
 
   const removeSelectedSurface = () => {
-    dispatch(removeSurface(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetSurface(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
   const addNewSurface = () => {
-    dispatch(addSurface(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
   };
 
   const onSurface = calledFromSelectAll => {

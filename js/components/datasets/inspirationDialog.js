@@ -16,14 +16,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   addComplex,
   addLigand,
-  addProtein,
+  addHitProtein,
   addSurface,
-  loadInspirationMoleculesDataList,
   removeComplex,
   removeLigand,
-  removeProtein,
+  removeHitProtein,
   removeSurface
-} from './redux/dispatchActions';
+} from '../preview/molecule/redux/dispatchActions';
+import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { debounce } from 'lodash';
@@ -112,6 +112,14 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.light,
       color: theme.palette.black
     }
+  },
+  contColButtonHalfSelected: {
+    backgroundColor: theme.palette.primary.semidark,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.black
+    }
   }
 }));
 
@@ -131,7 +139,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
   );
   const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
 
-  const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+  const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
 
@@ -179,20 +187,20 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
     return false;
   };
 
-  const isLigandOn = changeButtonClassname(fragmentDisplayList);
+  const isLigandOn = changeButtonClassname(ligandList);
   const isProteinOn = changeButtonClassname(proteinList);
   const isComplexOn = changeButtonClassname(complexList);
 
   const addType = {
     ligand: addLigand,
-    protein: addProtein,
+    protein: addHitProtein,
     complex: addComplex,
     surface: addSurface
   };
 
   const removeType = {
     ligand: removeLigand,
-    protein: removeProtein,
+    protein: removeHitProtein,
     complex: removeComplex,
     surface: removeSurface
   };
@@ -205,7 +213,6 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
   };
 
   const addNewType = type => {
-    debugger;
     moleculeList.forEach(molecule => {
       dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
     });
@@ -294,7 +301,8 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
                           <Button
                             variant="outlined"
                             className={classNames(classes.contColButton, {
-                              //      [classes.contColButtonSelected]: isLigandOn
+                              [classes.contColButtonSelected]: isLigandOn,
+                              [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
                             onClick={() => onButtonToggle('ligand')}
                             disabled={disableUserInteraction}
@@ -308,7 +316,8 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
                           <Button
                             variant="outlined"
                             className={classNames(classes.contColButton, {
-                              //       [classes.contColButtonSelected]: isProteinOn
+                              [classes.contColButtonSelected]: isProteinOn,
+                              [classes.contColButtonHalfSelected]: isProteinOn === null
                             })}
                             onClick={() => onButtonToggle('protein')}
                             disabled={disableUserInteraction}
@@ -323,7 +332,8 @@ export const InspirationDialog = memo(({ open = false, anchorEl, inspirationList
                           <Button
                             variant="outlined"
                             className={classNames(classes.contColButton, {
-                              //     [classes.contColButtonSelected]: isComplexOn
+                              [classes.contColButtonSelected]: isComplexOn,
+                              [classes.contColButtonHalfSelected]: isComplexOn === null
                             })}
                             onClick={() => onButtonToggle('complex')}
                             disabled={disableUserInteraction}
