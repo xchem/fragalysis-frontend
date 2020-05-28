@@ -181,6 +181,7 @@ export const DatasetFilter = memo(
                   key={attr}
                   datasetID={datasetID}
                   scoreName={attrDef.name}
+                  scoreDescription={attrDef.description}
                   scoreID={attrDef.id}
                   order={filterProperties[attr].order}
                   minValue={filterProperties[attr].minValue}

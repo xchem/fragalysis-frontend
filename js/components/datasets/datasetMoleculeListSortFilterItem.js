@@ -9,7 +9,7 @@ import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox, Tooltip } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectScoreProperty } from './redux/dispatchActions';
 
@@ -89,7 +89,8 @@ export const DatasetMoleculeListSortFilter = memo(
     order,
     minValue,
     maxValue,
-    datasetID
+    datasetID,
+    scoreDescription
   }) => {
     const dispatch = useDispatch();
     const filteredScorePropertiesOfDataset = useSelector(state => state.datasetsReducers.filteredScoreProperties);
@@ -203,7 +204,9 @@ export const DatasetMoleculeListSortFilter = memo(
           />
         </Grid>
         <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
-          <Chip size="small" className={classes.propertyChip} label={scoreName} />
+          <Tooltip title={scoreDescription}>
+            <Chip size="small" className={classes.propertyChip} label={scoreName} />
+          </Tooltip>
         </Grid>
         <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
           {!disabled ? Math.round(min) : <span>-&#8734;</span>}
