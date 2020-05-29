@@ -81,6 +81,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const { nglViewList } = useContext(NglContext);
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
+  const isFilterDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
 
@@ -175,9 +176,9 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               scrollButtons="auto"
               aria-label="right side tabs"
             >
-              <Tab label="Vector selector" {...a11yTabProps(0)} />
+              <Tab label="Vector selector" disabled={isFilterDialogOpen} {...a11yTabProps(0)} />
               {customDatasets.map((dataset, index) => (
-                <Tab key={index + 1} label={dataset.title} {...a11yTabProps(index + 1)} />
+                <Tab key={index + 1} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 1)} />
               ))}
             </TabsHeader>
             <TabPanel value={tabValue} index={0}>
