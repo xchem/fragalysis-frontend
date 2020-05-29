@@ -1,8 +1,8 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
 
-export const generateMolecule = (id, sdf_info) => {
+export const generateMolecule = (protein_code, sdf_info) => {
   return {
-    name: OBJECT_TYPE.MOLECULE + '_' + id + '_LIGAND',
+    name: `${protein_code}_LIGAND`,
     OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
     colour: '#FFFFFF',
     sdf_info: sdf_info
@@ -11,23 +11,16 @@ export const generateMolecule = (id, sdf_info) => {
 
 const base_url = window.location.protocol + '//' + window.location.host;
 
-// TODO unify names!
-const complexNameByType = {
-  contacts: code => code + '_CONTACTS',
-  protein: code => code + '_PROTEIN',
-  surface: code => code + '_SURFACE'
-};
-
-const complexObjectByType = {
+export const complexObjectTypes = {
   contacts: OBJECT_TYPE.COMPLEX,
-  protein: OBJECT_TYPE.PROTEIN,
+  hitProtein: OBJECT_TYPE.HIT_PROTEIN,
   surface: OBJECT_TYPE.SURFACE
 };
 
-export const generateComplex = (id, protein_code, sdf_info, molecule_protein, type = 'contacts') => {
+export const generateComplex = (protein_code, sdf_info, molecule_protein, type = 'contacts') => {
   return {
-    name: complexNameByType[type](protein_code),
-    OBJECT_TYPE: complexObjectByType[type],
+    name: `${protein_code}_${complexObjectTypes[type]}`,
+    OBJECT_TYPE: complexObjectTypes[type],
     sdf_info: sdf_info,
     colour: '#FFFFFF',
     prot_url: base_url + molecule_protein

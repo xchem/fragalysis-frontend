@@ -4,25 +4,26 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, LinearProgress } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
-  addLigand,
-  removeLigand,
-  addProtein,
-  removeProtein,
-  addComplex,
-  removeComplex,
-  addSurface,
-  removeSurface,
-  loadCompoundScoreList
+  addDatasetLigand,
+  removeDatasetLigand,
+  addDatasetHitProtein,
+  removeDatasetHitProtein,
+  addDatasetComplex,
+  removeDatasetComplex,
+  addDatasetSurface,
+  removeDatasetSurface,
+  clickOnInspirations
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
+import { isEqual } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -35,10 +36,12 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 8,
-    paddingTop: theme.spacing(1) / 8,
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
     borderRadius: 0,
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
@@ -120,7 +123,8 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    paddingLeft: theme.spacing(1) / 4
   },
   loadingProgress: {
     height: 2,
@@ -148,7 +152,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) => {
+export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
@@ -160,7 +164,9 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
-  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id]);
+  const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists[datasetID]);
+  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id], isEqual);
+  const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
 
   const [image, setImage] = useState(img_data_init);
@@ -172,6 +178,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
   const isComplexOn = (currentID && complexList.includes(currentID)) || false;
   const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
+  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
 
   const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
   const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
@@ -179,7 +186,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const disableUserInteraction = useDisableUserInteraction();
 
   const refOnCancelImage = useRef();
-  const refOnCancelScore = useRef();
   const getRandomColor = () => colourList[data.id % colourList.length];
   const colourToggle = getRandomColor();
 
@@ -187,8 +193,9 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   useEffect(() => {
     if (refOnCancelImage.current === undefined) {
       let onCancel = () => {};
+
       api({
-        url: `${base_url}/viewer/img_from_smiles/?smiles=${data.smiles}&width=${imageHeight}&height=${imageWidth}`,
+        url: `${base_url}/viewer/img_from_smiles/?width=${imageHeight}&height=${imageWidth}&smiles=${data.smiles}`,
         cancel: onCancel
       })
         .then(response => {
@@ -207,21 +214,6 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
       }
     };
   }, [complexList, data.id, data.smiles, ligandList, imageHeight, imageWidth]);
-
-  useEffect(() => {
-    if (refOnCancelScore.current === undefined && data && data.id) {
-      let onCancel = () => {};
-      dispatch(loadCompoundScoreList(data.id, onCancel)).catch(error => {
-        throw new Error(error);
-      });
-      refOnCancelScore.current = onCancel;
-    }
-    return () => {
-      if (refOnCancelScore) {
-        refOnCancelScore.current();
-      }
-    };
-  });
 
   const svg_image = (
     <SVGInline
@@ -243,11 +235,11 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
   const addNewLigand = () => {
-    dispatch(addLigand(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetLigand(stage, data, colourToggle, datasetID));
   };
 
   const removeSelectedLigand = () => {
-    dispatch(removeLigand(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetLigand(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
@@ -268,12 +260,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   };
 
   const removeSelectedProtein = () => {
-    dispatch(removeProtein(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
   const addNewProtein = () => {
-    dispatch(addProtein(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID));
   };
 
   const onProtein = calledFromSelectAll => {
@@ -293,12 +285,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   };
 
   const removeSelectedComplex = () => {
-    dispatch(removeComplex(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
   const addNewComplex = () => {
-    dispatch(addComplex(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetComplex(stage, data, colourToggle, datasetID));
   };
 
   const onComplex = calledFromSelectAll => {
@@ -318,12 +310,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
   };
 
   const removeSelectedSurface = () => {
-    dispatch(removeSurface(stage, data, colourToggle, datasetID));
+    dispatch(removeDatasetSurface(stage, data, colourToggle, datasetID));
     selectedAll.current = false;
   };
 
   const addNewSurface = () => {
-    dispatch(addSurface(stage, data, colourToggle, datasetID));
+    dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
   };
 
   const onSurface = calledFromSelectAll => {
@@ -362,7 +354,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
    */
   const getValueMatchingClass = item => {
     let cssClass = '';
-    if (filter.predefined !== 'none') {
+    if (filter && filter.predefined !== 'none') {
       cssClass = isMatchingValue(item) ? classes.matchingValue : classes.unmatchingValue;
     }
     return cssClass;
@@ -372,13 +364,12 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
 
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
-      {/* Site number */}
-      <Grid item container justify="center" direction="column" className={classes.site}>
-        <Grid item>
-          <Typography variant="subtitle2">{data.site}</Typography>
-        </Grid>
-      </Grid>
-
+      {/*Site number*/}
+      {/*<Grid item container justify="center" direction="column" className={classes.site}>*/}
+      {/*  <Grid item>*/}
+      {/*    <Typography variant="subtitle2">{data.site}</Typography>*/}
+      {/*  </Grid>*/}
+      {/*</Grid>*/}
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
         <Grid item xs={7}>
@@ -427,11 +418,10 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                     onLigand(true);
                     onProtein(true);
                     onComplex(true);
-                    onSurface(true);
                   }}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">A</Typography>
+                  A
                 </Button>
               </Grid>
             </Tooltip>
@@ -445,7 +435,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   onClick={() => onLigand()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">L</Typography>
+                  L
                 </Button>
               </Grid>
             </Tooltip>
@@ -459,7 +449,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   onClick={() => onProtein()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">P</Typography>
+                  P
                 </Button>
               </Grid>
             </Tooltip>
@@ -474,7 +464,7 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   onClick={() => onComplex()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">C</Typography>
+                  C
                 </Button>
               </Grid>
             </Tooltip>
@@ -488,7 +478,23 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
                   onClick={() => onSurface()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">S</Typography>
+                  S
+                </Button>
+              </Grid>
+            </Tooltip>
+            <Tooltip title="inspirations - cross reference">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isInspirationOn
+                  })}
+                  onClick={() => {
+                    dispatch(clickOnInspirations(datasetID, currentID, data && data.inspiration_frags));
+                  }}
+                  disabled={disableUserInteraction}
+                >
+                  F
                 </Button>
               </Grid>
             </Tooltip>
@@ -505,17 +511,25 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
             wrap="nowrap"
             className={classes.fullHeight}
           >
-            {scoreCompoundMap &&
-              scoreCompoundMap.map(item => (
-                <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
-                  <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                    {item.value && Math.round(item.value)}
-                  </Grid>
-                </Tooltip>
-              ))}
-            {!scoreCompoundMap && (
-              <LinearProgress variant="query" color="secondary" className={classes.loadingProgress} />
-            )}
+            {filteredScoreProperties &&
+              datasetID &&
+              filteredScoreProperties[datasetID] &&
+              filteredScoreProperties[datasetID].map((score, index) => {
+                const item = scoreCompoundMap && scoreCompoundMap.find(o => o.score.id === score.id);
+                return (
+                  <Tooltip title={`${score.name} - ${score.description}`} key={index}>
+                    {(item && (
+                      <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                        {item.value && Math.round(item.value)}
+                      </Grid>
+                    )) || (
+                      <Grid item className={classNames(classes.rightBorder)}>
+                        -
+                      </Grid>
+                    )}
+                  </Tooltip>
+                );
+              })}
           </Grid>
         </Grid>
       </Grid>
@@ -535,6 +549,3 @@ const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datasetID }) 
     </Grid>
   );
 });
-
-DatasetMoleculeView.displayName = 'DatasetMoleculeView';
-export default DatasetMoleculeView;

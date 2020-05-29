@@ -85,26 +85,26 @@ const showHitProtein = (stage, input_dict, object_name, representations, orienta
   ]).then(ol => renderHitProtein(ol, representations, orientationMatrix));
 };
 
-const showHitProteinn = (stage, input_dict, object_name, representations, orientationMatrix) =>
-  stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
-    const reprArray =
-      representations ||
-      createRepresentationsArray([
-        createRepresentationStructure(MOL_REPRESENTATION.line, {
-          colorScheme: 'element',
-          colorValue: input_dict.colour,
-          sele: '/0',
-          linewidth: 4
-        })
-      ]);
-
-    if (orientationMatrix) {
-      stage.viewerControls.orient(orientationMatrix);
-    } else if (orientationMatrix === undefined) {
-      comp.autoView();
-    }
-    return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
-  });
+// const showHitProteinn = (stage, input_dict, object_name, representations, orientationMatrix) =>
+//   stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
+//     const reprArray =
+//       representations ||
+//       createRepresentationsArray([
+//         createRepresentationStructure(MOL_REPRESENTATION.line, {
+//           colorScheme: 'element',
+//           colorValue: input_dict.colour,
+//           sele: '/0',
+//           linewidth: 4
+//         })
+//       ]);
+//
+//     if (orientationMatrix) {
+//       stage.viewerControls.orient(orientationMatrix);
+//     } else if (orientationMatrix === undefined) {
+//       comp.autoView();
+//     }
+//     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
+//   });
 
 const renderComplex = (ol, representations, orientationMatrix) => {
   let cs = concatStructures(
@@ -362,7 +362,7 @@ const showHotspot = (stage, input_dict, object_name, representations, orientatio
 export const nglObjectDictionary = {
   [OBJECT_TYPE.SPHERE]: showSphere,
   [OBJECT_TYPE.MOLECULE]: showMol,
-  [OBJECT_TYPE.HITPROTEIN]: showHitProtein,
+  [OBJECT_TYPE.HIT_PROTEIN]: showHitProtein,
   [OBJECT_TYPE.COMPLEX]: showComplex,
   [OBJECT_TYPE.SURFACE]: showSurface,
   [OBJECT_TYPE.CYLINDER]: showCylinder,

@@ -7,8 +7,9 @@ import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { MOL_ATTRIBUTES } from './redux/constants';
+import { setFilter } from '../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -114,18 +115,25 @@ export const filterMolecules = (molecules, filter) => {
 };
 
 export const MoleculeListSortFilterDialog = memo(
-  ({
-    molGroupSelection,
-    moleculeGroupList,
-    filter,
-    setFilter,
-    anchorEl,
-    open,
-    parentID = 'default',
-    placement = 'right-start'
-  }) => {
+  ({ molGroupSelection, cachedMolList, filter, anchorEl, open, parentID = 'default', placement = 'right-start' }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
+    const moleculeGroupList = useSelector(state => state.apiReducers.mol_group_list);
+
+    const getListedMolecules = () => {
+      let molecules = [];
+      for (let molGroupId of molGroupSelection) {
+        // Selected molecule groups
+        const molGroup = cachedMolList[molGroupId];
+        if (molGroup) {
+          molecules = molecules.concat(molGroup);
+        } else {
+          console.log(`Molecule group ${molGroupId} not found in cached list`);
+        }
+      }
+
+      return molecules;
+    };
 
     const initialize = () => {
       let initObject = {
@@ -139,12 +147,14 @@ export const MoleculeListSortFilterDialog = memo(
         const lowAttr = attr.key.toLowerCase();
         let minValue = -999999;
         let maxValue = 0;
-        for (let molecule of getListedMolecules()) {
+        const moleculeList = getListedMolecules();
+
+        moleculeList.forEach(molecule => {
           const attrValue = molecule[lowAttr];
           if (attrValue > maxValue) maxValue = attrValue;
           if (minValue === -999999) minValue = maxValue;
           if (attrValue < minValue) minValue = attrValue;
-        }
+        });
 
         initObject.filter[attr.key] = {
           priority: 0,
@@ -155,21 +165,6 @@ export const MoleculeListSortFilterDialog = memo(
         };
       }
       return initObject;
-    };
-
-    const getListedMolecules = () => {
-      let molecules = [];
-      for (let molgroupId of molGroupSelection) {
-        // Selected molecule groups
-        const molGroup = moleculeGroupList;
-        if (molGroup) {
-          molecules = molecules.concat(molGroup);
-        } else {
-          console.log(`Molecule group ${molgroupId} not found in cached list`);
-        }
-      }
-
-      return molecules;
     };
 
     const [initState] = useState(initialize());
@@ -278,6 +273,7 @@ export const MoleculeListSortFilterDialog = memo(
 
             {filter.priorityOrder.map(attr => {
               let attrDef = getAttrDefinition(attr);
+
               return (
                 <MoleculeListSortFilterItem
                   key={attr}

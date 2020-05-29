@@ -6,7 +6,7 @@ import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
-import CustomDatasetList from '../datasets/customDatasetList';
+import { CustomDatasetList } from '../datasets/customDatasetList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import { SummaryView } from './summary/summaryView';
 import { CompoundList } from './compounds/compoundList';
@@ -81,6 +81,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const { nglViewList } = useContext(NglContext);
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
+  const isFilterDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
 
@@ -175,9 +176,9 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               scrollButtons="auto"
               aria-label="right side tabs"
             >
-              <Tab label="Vector selector" {...a11yTabProps(0)} />
+              <Tab label="Vector selector" disabled={isFilterDialogOpen} {...a11yTabProps(0)} />
               {customDatasets.map((dataset, index) => (
-                <Tab key={index + 1} label={dataset.title} {...a11yTabProps(index + 1)} />
+                <Tab key={index + 1} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 1)} />
               ))}
             </TabsHeader>
             <TabPanel value={tabValue} index={0}>
@@ -201,6 +202,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                     setFilterItemsHeight={setFilterItemsHeight}
                     filterItemsHeight={filterItemsHeight}
                     hideProjects={hideProjects}
+                    isActive={tabValue === index + 1}
                   />
                 </Grid>
               </TabPanel>

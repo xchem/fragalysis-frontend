@@ -41,7 +41,8 @@ import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
-import { resetCurrentCompoundsSettings, setCurrentCompounds } from '../../compounds/redux/actions';
+import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { isEqual } from 'lodash';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -174,7 +175,7 @@ export const removeVector = (stage, data) => async (dispatch, getState) => {
   dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
 };
 
-export const addProtein = (stage, data, colourToggle) => dispatch => {
+export const addHitProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -189,7 +190,7 @@ export const addProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(appendProteinList(generateMoleculeId(data)));
 };
 
-export const removeProtein = (stage, data, colourToggle) => dispatch => {
+export const removeHitProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -280,13 +281,22 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
 
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
   const state = getState();
-  const orientationMatrix = state.nglReducers.moleculeOrientations[data.site];
+  const storedOrientation = state.nglReducers.moleculeOrientations[data.site];
+  const currentOrientation = stage && stage.viewerControls.getOrientation();
+  let orientationMatrix = undefined;
+  if (storedOrientation && currentOrientation) {
+    if (isEqual(storedOrientation, currentOrientation)) {
+      orientationMatrix = null;
+    } else {
+      orientationMatrix = storedOrientation;
+    }
+  }
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
       undefined,
-      orientationMatrix !== undefined ? null : undefined
+      orientationMatrix
     )
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -312,7 +322,7 @@ export const removeLigand = (stage, data) => dispatch => {
 export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   if (moleculeList && majorView) {
     const firstMolecule = moleculeList[0];
-    dispatch(addProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+    dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
     moleculeList.forEach((item, index) => {
       // it should be first selected site
       item.site = 1;
@@ -369,7 +379,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   proteinList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeProtein(stage, data));
+      dispatch(removeHitProtein(stage, data));
     }
   });
 

@@ -32,7 +32,16 @@ const useStyles = makeStyles(theme => ({
     minWidth: 650
   },
   search: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
+    '& .MuiInputBase-root': {
+      color: 'white'
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: 'white'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'white'
+    }
   },
   chip: {
     margin: theme.spacing(1) / 2
@@ -83,7 +92,7 @@ export const Projects = memo(({}) => {
         dispatch(searchInProjects(event.target.value)).catch(error => {
           throw new Error(error);
         });
-      }, 500);
+      }, 350);
     }
     debouncedFn();
   };

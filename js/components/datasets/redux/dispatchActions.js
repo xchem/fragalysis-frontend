@@ -1,6 +1,6 @@
 import { deleteObject, loadObject, setOrientation } from '../../../reducers/ngl/dispatchActions';
 import {
-  setFilter,
+  setFilterSettings,
   appendLigandList,
   appendProteinList,
   appendComplexList,
@@ -10,9 +10,20 @@ import {
   removeFromComplexList,
   removeFromSurfaceList,
   setDataset,
-  setMoleculeList,
   appendToScoreDatasetMap,
-  appendToScoreCompoundMap
+  appendToScoreCompoundMap,
+  appendToScoreCompoundMapByScoreCategory,
+  updateFilterShowedScoreProperties,
+  setFilterProperties,
+  setIsLoadingInspirationListOfMolecules,
+  appendToInspirationMoleculeDataList,
+  setInspirationMoleculeDataList,
+  setInspirationList,
+  setIsOpenInspirationDialog,
+  clearScoreCompoundMap,
+  setInspirationFragmentList,
+  removeFromInspirationList,
+  removeFromInspirationFragmentList
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -23,104 +34,20 @@ import {
   generateMoleculeObject
 } from '../../nglView/generatingObjects';
 import { VIEWS } from '../../../constants/constants';
-import { MOL_ATTRIBUTES } from '../../preview/molecule/redux/constants';
-
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
+import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
+import { COUNT_OF_VISIBLE_SCORES } from './constants';
 
-export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
-  console.log('initializing testing datasets');
-  const state = getState();
-  const customDatasets = state.datasetsReducers.datasets;
-  const testingMoleculeList = moleculeList.slice(0, 6);
-  // TODO temporarily, just adding testing data
-  customDatasets.forEach(dataset => {
-    dispatch(
-      addMoleculeList(
-        dataset.id,
-        (testingMoleculeList => {
-          const newList = [];
-          testingMoleculeList.forEach(molecule => {
-            // molecule.protein_code is used as prefix for element names in display controls
-            newList.push(Object.assign({}, molecule, { protein_code: dataset.id + '_' + molecule.id }));
-          });
-          return newList;
-        })(testingMoleculeList)
-      )
-    );
-  });
+export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
+  const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
+  const initFilterProperties = getInitialDatasetFilterProperties(getState(), datasetID);
+
+  dispatch(setFilterSettings(datasetID, initFilterSettings));
+  dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
 
-export const getListedMolecules = (object_selection, cached_mol_lists) => {
-  let molecules = [];
-  if ((object_selection || []).length) {
-    for (let molgroupId of object_selection) {
-      // Selected molecule groups
-      const molGroup = cached_mol_lists[molgroupId];
-      if (molGroup) {
-        molecules = molecules.concat(molGroup);
-      } else {
-        console.log(`Molecule group ${molgroupId} not found in cached list`);
-      }
-    }
-  }
-
-  return molecules;
-};
-
-export const initializeFilter = (object_selection, cached_mol_lists) => (dispatch, getState) => {
-  const state = getState();
-  if (!object_selection || !cached_mol_lists) {
-    object_selection = (() => {
-      let tmp = [];
-      state.datasetsReducers.datasets.forEach(dataset => {
-        tmp.push(dataset.id);
-      });
-      return tmp;
-    })(state.datasetsReducers.datasets);
-    cached_mol_lists = state.datasetsReducers.moleculeLists;
-  }
-
-  let initObject = state.selectionReducers.filter;
-
-  if (initObject === undefined) {
-    initObject = {
-      active: false,
-      predefined: 'none',
-      filter: {},
-      priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
-    };
-  } else {
-    initObject = Object.assign({}, initObject);
-    console.log('using saved filter');
-  }
-
-  for (let attr of MOL_ATTRIBUTES) {
-    const lowAttr = attr.key.toLowerCase();
-    let minValue = -999999;
-    let maxValue = 0;
-    for (let molecule of getListedMolecules(object_selection, cached_mol_lists)) {
-      const attrValue = molecule[lowAttr];
-      if (attrValue > maxValue) maxValue = attrValue;
-      if (minValue === -999999) minValue = maxValue;
-      if (attrValue < minValue) minValue = attrValue;
-    }
-
-    initObject.filter[attr.key] = {
-      priority: 0,
-      order: 1,
-      minValue: minValue,
-      maxValue: maxValue,
-      isFloat: attr.isFloat
-    };
-  }
-  dispatch(setFilter(initObject));
-  return initObject;
-};
-
-/* ----------------------------------------------- */
-
-export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -135,7 +62,7 @@ export const addProtein = (stage, data, colourToggle, datasetID) => dispatch => 
   dispatch(appendProteinList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeProtein = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
@@ -145,7 +72,7 @@ export const removeProtein = (stage, data, colourToggle, datasetID) => dispatch 
   dispatch(removeFromProteinList(datasetID, generateMoleculeId(data)));
 };
 
-export const addComplex = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
@@ -160,7 +87,7 @@ export const addComplex = (stage, data, colourToggle, datasetID) => dispatch => 
   dispatch(appendComplexList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeComplex = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
@@ -170,7 +97,7 @@ export const removeComplex = (stage, data, colourToggle, datasetID) => dispatch 
   dispatch(removeFromComplexList(datasetID, generateMoleculeId(data)));
 };
 
-export const addSurface = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
@@ -185,7 +112,7 @@ export const addSurface = (stage, data, colourToggle, datasetID) => dispatch => 
   dispatch(appendSurfaceList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeSurface = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
@@ -195,7 +122,7 @@ export const removeSurface = (stage, data, colourToggle, datasetID) => dispatch 
   dispatch(removeFromSurfaceList(datasetID, generateMoleculeId(data)));
 };
 
-export const addLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
@@ -210,28 +137,138 @@ export const addLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(appendLigandList(datasetID, generateMoleculeId(data)));
 };
 
-export const removeLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
 };
 
 export const loadDataSets = () => dispatch =>
   api({ url: `${base_url}/api/compound-sets/` }).then(response => {
-    dispatch(setDataset(response.data.results.map(ds => ({ id: ds.id, title: ds.name }))));
+    dispatch(
+      setDataset(
+        response.data.results.map(ds => ({
+          id: ds.id,
+          title: ds.name,
+          url: ds.method_url,
+          version: ds.spec_version,
+          submitted_sdf: ds.submitted_sdf
+        }))
+      )
+    );
   });
 
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
     dispatch(addMoleculeList(dataSetID, response.data.results));
-    dispatch(initializeFilter());
   });
 
 export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
     dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: (response.data.results || []).slice(0, COUNT_OF_VISIBLE_SCORES)
+      })
+    );
+    return Promise.all(
+      response &&
+        response.data &&
+        response.data.results.map(score => dispatch(loadNumericalScoreListByScoreID(score.id)))
+    );
   });
 
 export const loadCompoundScoreList = (compoundID, onCancel) => dispatch =>
   api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}`, cancel: onCancel }).then(response => {
     dispatch(appendToScoreCompoundMap(compoundID, response.data.results));
   });
+
+export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>
+  api({ url: `${base_url}/api/numerical-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
+    dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
+  });
+
+export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispatch, getState) => {
+  const state = getState();
+  const filteredScorePropertiesOfDataset = state.datasetsReducers.filteredScoreProperties[datasetID];
+  const scoreDatasetMap = state.datasetsReducers.scoreDatasetMap[datasetID];
+
+  if (isChecked === true) {
+    if (filteredScorePropertiesOfDataset.length === COUNT_OF_VISIBLE_SCORES) {
+      // 1. unselect first
+      filteredScorePropertiesOfDataset.shift();
+    }
+    // 2. select new property
+    const selectedProperty = scoreDatasetMap.find(item => item.id === scoreID);
+    filteredScorePropertiesOfDataset.push(selectedProperty);
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filteredScorePropertiesOfDataset
+      })
+    );
+  } else {
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filteredScorePropertiesOfDataset.filter(item => item.id !== scoreID)
+      })
+    );
+  }
+};
+
+export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispatch, getState) => {
+  if (inspirationList && inspirationList.length > 0) {
+    dispatch(setIsLoadingInspirationListOfMolecules(true));
+    const arrayOfInspirationListSet = [...new Set(inspirationList)];
+    dispatch(setInspirationMoleculeDataList([]));
+
+    return Promise.all(
+      arrayOfInspirationListSet.map(moleculeID =>
+        api({ url: `${base_url}/api/molecules/${moleculeID}/` }).then(response => {
+          dispatch(appendToInspirationMoleculeDataList(response.data));
+        })
+      )
+    ).finally(() => {
+      dispatch(setIsLoadingInspirationListOfMolecules(false));
+    });
+  }
+  return Promise.resolve();
+};
+
+export const clearInspirationsOfDataset = datasetID => dispatch => {
+  // clear inspirations
+  dispatch(setInspirationList(datasetID, []));
+  dispatch(setInspirationMoleculeDataList([]));
+  dispatch(setIsOpenInspirationDialog(false));
+};
+
+export const clearDatasetSettings = datasetID => dispatch => {
+  if (datasetID) {
+    dispatch(clearScoreCompoundMap());
+
+    // clear inspirations
+    dispatch(clearInspirationsOfDataset(datasetID));
+  }
+};
+
+export const clickOnInspirations = (datasetID, currentID, inspiration_frags) => (dispatch, getState) => {
+  const inspirationLists = getState().datasetsReducers.inspirationLists[datasetID];
+  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
+
+  if (isInspirationOn === false) {
+    dispatch(setInspirationList(datasetID, [currentID]));
+    if (inspiration_frags) {
+      dispatch(setInspirationFragmentList(inspiration_frags));
+    }
+    dispatch(setIsOpenInspirationDialog(true));
+  } else {
+    dispatch(removeFromInspirationList(datasetID, currentID));
+    if (inspiration_frags) {
+      inspiration_frags.forEach(item => {
+        dispatch(removeFromInspirationFragmentList(item));
+      });
+    }
+    dispatch(setIsOpenInspirationDialog(false));
+  }
+};

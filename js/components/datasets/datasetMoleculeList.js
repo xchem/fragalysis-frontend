@@ -1,34 +1,45 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import { Grid, Chip, Tooltip, makeStyles, CircularProgress, Divider, Typography } from '@material-ui/core';
+import {
+  Grid,
+  Chip,
+  Tooltip,
+  makeStyles,
+  CircularProgress,
+  Divider,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton
+} from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import DatasetMoleculeView, { colourList } from './datasetMoleculeView';
-import {
-  MoleculeListSortFilterDialog,
-  filterMolecules,
-  getAttrDefinition
-} from '../preview/molecule/moleculeListSortFilterDialog';
+import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
-import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
-  addLigand,
-  removeLigand,
-  addProtein,
-  removeProtein,
-  addComplex,
-  removeComplex,
-  addSurface,
-  removeSurface
+  addDatasetLigand,
+  removeDatasetLigand,
+  addDatasetHitProtein,
+  removeDatasetHitProtein,
+  addDatasetComplex,
+  removeDatasetComplex,
+  addDatasetSurface,
+  removeDatasetSurface
 } from './redux/dispatchActions';
+import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
+import { DatasetFilter } from './datasetFilter';
+import { FilterList, Search, Link } from '@material-ui/icons';
+import { getFilteredDatasetMoleculeList } from './redux/selectors';
+import { debounce } from 'lodash';
+import { InspirationDialog } from './inspirationDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -80,7 +91,7 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
-    marginLeft: 19,
+    marginLeft: 3,
     width: 'inherit'
   },
   rightBorder: {
@@ -106,10 +117,12 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 8,
-    paddingTop: theme.spacing(1) / 8,
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
     borderRadius: 0,
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
@@ -137,23 +150,27 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.light,
       color: theme.palette.black
     }
+  },
+  propertyChip: {
+    fontWeight: 'bolder'
+  },
+  search: {
+    margin: theme.spacing(1),
+    width: 140,
+    '& .MuiInputBase-root': {
+      color: 'white'
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: 'white'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'white'
+    }
   }
 }));
 
 export const DatasetMoleculeList = memo(
-  ({
-    height,
-    setFilterItemsHeight,
-    filterItemsHeight,
-    object_selection,
-    moleculeGroupList,
-    filter,
-    setFilter,
-    title,
-    actions,
-    sortDialogAnchorEl,
-    datasetID
-  }) => {
+  ({ height, setFilterItemsHeight, filterItemsHeight, moleculeGroupList, title, datasetID, url }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -162,11 +179,20 @@ export const DatasetMoleculeList = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
+    const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+
+    const searchString = useSelector(state => state.datasetsReducers.searchString);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
-    const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
+    const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
+    const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap);
+    const filterSettings = filterMap && datasetID && filterMap[datasetID];
+    const filterPropertiesMap = useSelector(state => state.datasetsReducers.filterPropertiesDatasetMap);
+    const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
+    const filteredDatasetMolecules = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
-    const isActiveFilter = !!(filter || {}).active;
+    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
+    const isActiveFilter = !!(filterSettings || {}).active;
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -183,10 +209,15 @@ export const DatasetMoleculeList = memo(
     }, [object_selection]);*/
 
     if (isActiveFilter) {
-      joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
+      joinedMoleculeLists = filteredDatasetMolecules;
     } else {
       // default sort is by site
       joinedMoleculeLists.sort((a, b) => a.site - b.site);
+    }
+    if (searchString !== null) {
+      joinedMoleculeLists = joinedMoleculeLists.filter(molecule =>
+        molecule.name.toLowerCase().includes(searchString.toLowerCase())
+      );
     }
 
     const loadNextMolecules = () => {
@@ -214,17 +245,17 @@ export const DatasetMoleculeList = memo(
     const isComplexOn = (complexList && complexList.length > 0) || false;
 
     const addType = {
-      ligand: addLigand,
-      protein: addProtein,
-      complex: addComplex,
-      surface: addSurface
+      ligand: addDatasetLigand,
+      protein: addDatasetHitProtein,
+      complex: addDatasetComplex,
+      surface: addDatasetSurface
     };
 
     const removeType = {
-      ligand: removeLigand,
-      protein: removeProtein,
-      complex: removeComplex,
-      surface: removeSurface
+      ligand: removeDatasetLigand,
+      protein: removeDatasetHitProtein,
+      complex: removeDatasetComplex,
+      surface: removeDatasetSurface
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -265,6 +296,57 @@ export const DatasetMoleculeList = memo(
       }
     };
 
+    let debouncedFn;
+
+    const handleSearch = event => {
+      /* signal to React not to nullify the event object */
+      event.persist();
+      if (!debouncedFn) {
+        debouncedFn = debounce(() => {
+          dispatch(setSearchStringOfCompoundSet(event.target.value !== '' ? event.target.value : null));
+        }, 350);
+      }
+      debouncedFn();
+    };
+    const actions = [
+      <TextField
+        className={classes.search}
+        id="input-with-icon-textfield"
+        placeholder="Search"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search color="inherit" />
+            </InputAdornment>
+          )
+        }}
+        onChange={handleSearch}
+        disabled={isLoadingMoleculeList}
+      />,
+      <IconButton color={'inherit'} onClick={() => window.open(url, '_blank')}>
+        <Tooltip title="Link to dataset">
+          <Link />
+        </Tooltip>
+      </IconButton>,
+      <IconButton
+        onClick={event => {
+          if (sortDialogOpen === false) {
+            setSortDialogAnchorEl(filterRef.current);
+            dispatch(setFilterDialogOpen(true));
+          } else {
+            setSortDialogAnchorEl(null);
+            dispatch(setFilterDialogOpen(false));
+          }
+        }}
+        color={'inherit'}
+        disabled={isLoadingMoleculeList}
+      >
+        <Tooltip title="Filter/Sort">
+          <FilterList />
+        </Tooltip>
+      </IconButton>
+    ];
+
     return (
       <ComputeSize
         componentRef={filterRef.current}
@@ -272,19 +354,21 @@ export const DatasetMoleculeList = memo(
         height={filterItemsHeight}
         forceCompute={isActiveFilter}
       >
-        <Panel hasHeader title={title} headerActions={actions} isLoading={isLoadingMoleculeList}>
+        <Panel hasHeader title={title} withTooltip headerActions={actions} isLoading={isLoadingMoleculeList}>
           {sortDialogOpen && (
-            <MoleculeListSortFilterDialog
+            <DatasetFilter
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
-              molGroupSelection={object_selection}
               moleculeGroupList={moleculeGroupList}
-              filter={filter}
-              setFilter={setFilter}
-              parentID="datasets"
-              placement="left-start"
+              datasetID={datasetID}
+              filterProperties={filterProperties}
+              active={filterSettings && filterSettings.active}
+              predefined={filterSettings && filterSettings.predefined}
+              priorityOrder={filterSettings && filterSettings.priorityOrder}
             />
           )}
+          {isOpenInspirationDialog && <InspirationDialog open anchorEl={filterRef.current} datasetID={datasetID} />}
+
           <div ref={filterRef}>
             {isActiveFilter && (
               <>
@@ -297,19 +381,15 @@ export const DatasetMoleculeList = memo(
                     </Grid>
                     <Grid item xs={11}>
                       <Grid container direction="row" justify="flex-start" spacing={1}>
-                        {filter.priorityOrder.map(attr => (
+                        {filterSettings.priorityOrder.map(attr => (
                           <Grid item key={`Mol-Tooltip-${attr}`}>
                             <Tooltip
-                              title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                                filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                              title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
+                                filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
                               }`}
                               placement="top"
                             >
-                              <Chip
-                                size="small"
-                                label={attr}
-                                style={{ backgroundColor: getAttrDefinition(attr).color }}
-                              />
+                              <Chip size="small" label={attr} className={classes.propertyChip} />
                             </Tooltip>
                           </Grid>
                         ))}
@@ -333,15 +413,10 @@ export const DatasetMoleculeList = memo(
               {isLoadingMoleculeList === false && (
                 <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                   <Grid item container justify="flex-start" direction="row">
-                    {/*{Object.keys(moleculeProperty).map(key => (*/}
-                    {/*  <Grid item key={key} className={classes.rightBorder}>*/}
-                    {/*    {moleculeProperty[key]}*/}
-                    {/*  </Grid>*/}
-                    {/*))}*/}
                     {datasetID &&
-                      scoreDatasetMap &&
-                      scoreDatasetMap[datasetID] &&
-                      scoreDatasetMap[datasetID].slice(0, 7).map(score => (
+                      filteredScoreProperties &&
+                      filteredScoreProperties[datasetID] &&
+                      filteredScoreProperties[datasetID].map(score => (
                         <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
                           <Grid item className={classes.rightBorder}>
                             {score.name.substring(0, 4)}
@@ -368,7 +443,7 @@ export const DatasetMoleculeList = memo(
                                 onClick={() => onButtonToggle('ligand')}
                                 disabled={disableUserInteraction}
                               >
-                                <Typography variant="subtitle2">L</Typography>
+                                L
                               </Button>
                             </Grid>
                           </Tooltip>
@@ -382,7 +457,7 @@ export const DatasetMoleculeList = memo(
                                 onClick={() => onButtonToggle('protein')}
                                 disabled={disableUserInteraction}
                               >
-                                <Typography variant="subtitle2">P</Typography>
+                                P
                               </Button>
                             </Grid>
                           </Tooltip>
@@ -397,7 +472,7 @@ export const DatasetMoleculeList = memo(
                                 onClick={() => onButtonToggle('complex')}
                                 disabled={disableUserInteraction}
                               >
-                                <Typography variant="subtitle2">C</Typography>
+                                C
                               </Button>
                             </Grid>
                           </Tooltip>
@@ -408,7 +483,7 @@ export const DatasetMoleculeList = memo(
                 </Grid>
               )}
             </Grid>
-            {currentMolecules.length > 0 && (
+            {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList}>
                 <InfiniteScroll
                   pageStart={0}
@@ -430,9 +505,9 @@ export const DatasetMoleculeList = memo(
                   useWindow={false}
                 >
                   {datasetID &&
-                    currentMolecules.map(data => (
+                    currentMolecules.map((data, index) => (
                       <DatasetMoleculeView
-                        key={data.id}
+                        key={index}
                         imageHeight={imgHeight}
                         imageWidth={imgWidth}
                         data={data}

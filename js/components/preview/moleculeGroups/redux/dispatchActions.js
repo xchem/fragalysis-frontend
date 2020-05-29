@@ -1,12 +1,16 @@
-import { generateComplex, generateMolecule, generateSphere } from '../../molecule/molecules_helpers';
+import {
+  complexObjectTypes,
+  generateComplex,
+  generateMolecule,
+  generateSphere
+} from '../../molecule/molecules_helpers';
 import { VIEWS } from '../../../../constants/constants';
 import {
   decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
   deleteObject,
-  loadObject,
-  reloadNglViewFromSnapshot
+  loadObject
 } from '../../../../reducers/ngl/dispatchActions';
-import { getJoinedMoleculeList } from '../../molecule/redux/selectors';
+import { selectJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   removeFromComplexList,
   removeFromProteinList,
@@ -28,7 +32,6 @@ import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { hideAllSelectedMolecules } from '../../molecule/redux/dispatchActions';
 import { reloadSession } from '../../../snapshot/redux/dispatchActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup, majorViewStage }) => (
@@ -42,23 +45,24 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
   const vector_list = state.selectionReducers.vector_list;
 
   // loop through all molecules
-  getJoinedMoleculeList(state).forEach(mol => {
+  selectJoinedMoleculeList(state).forEach(mol => {
     site = mol.site;
+
     // remove Ligand
     dispatch(
       deleteObject(
-        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.id.toString(), mol.sdf_info)),
+        Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMolecule(mol.protein_code, mol.sdf_info)),
         majorViewStage
       )
     );
 
     // remove Complex, Protein, Surface
-    ['contacts', 'protein', 'surface'].forEach(type => {
+    Object.keys(complexObjectTypes).forEach(type => {
       dispatch(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateComplex(mol.id.toString(), mol.protein_code, mol.sdf_info, mol.molecule_protein, type)
+            generateComplex(mol.protein_code, mol.sdf_info, mol.molecule_protein, type)
           ),
           majorViewStage
         )

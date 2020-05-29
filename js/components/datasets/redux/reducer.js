@@ -8,14 +8,26 @@ export const INITIAL_STATE = {
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
   // filter
-  filter: undefined,
+  filterDatasetMap: {}, // map of $datasetID and its $filterSettings
+  filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
   filterDialogOpen: false,
+  filteredScoreProperties: {}, // map of $datasetID and its $scoreList
 
   // control buttons
   ligandLists: {}, // map of $datasetID and its $list
   proteinLists: {}, // map of $datasetID and its $list
   complexLists: {}, // map of $datasetID and its $list
-  surfaceLists: {} // map of $datasetID and its $list
+  surfaceLists: {}, // map of $datasetID and its $list
+  inspirationLists: {}, // map of $datasetID and its $list
+
+  // search
+  searchString: null,
+
+  // inspirations
+  isOpenInspirationDialog: false,
+  inspirationFragmentList: [],
+  isLoadingInspirationListOfMolecules: false,
+  inspirationMoleculeDataList: []
 };
 
 /**
@@ -46,6 +58,7 @@ const setList = (state, listsName, datasetId, list) => {
  */
 const appendToList = (state, listsName, datasetId, itemId) => {
   const newState = Object.assign({}, state);
+
   newState[listsName][datasetId] = [...new Set([...newState[listsName][datasetId], itemId])];
 
   return newState;
@@ -79,6 +92,7 @@ const initializeContainerLists = (state, datasetID) => {
   state.proteinLists[datasetID] = [];
   state.complexLists[datasetID] = [];
   state.surfaceLists[datasetID] = [];
+  state.inspirationLists[datasetID] = [];
 };
 
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
@@ -112,8 +126,18 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
-    case constants.SET_FILTER:
-      return Object.assign({}, state, { filter: action.payload });
+    case constants.SET_FILTER_SETTINGS:
+      const { datasetID, filter } = action.payload;
+      return { ...state, filterDatasetMap: { ...state.filterDatasetMap, [datasetID]: filter } };
+
+    case constants.SET_FILTER_PROPERTIES:
+      return {
+        ...state,
+        filterPropertiesDatasetMap: {
+          ...state.filterPropertiesDatasetMap,
+          [action.payload.datasetID]: action.payload.properties
+        }
+      };
 
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });
@@ -154,6 +178,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.REMOVE_FROM_SURFACE_LIST:
       return removeFromList(state, 'surfaceLists', action.payload.datasetID, action.payload.item.id);
 
+    case constants.SET_INSPIRATION_LIST:
+      return setList(state, 'inspirationLists', action.payload.datasetID, action.payload.inspirationList);
+
+    case constants.APPEND_INSPIRATION_LIST:
+      return appendToList(state, 'inspirationLists', action.payload.datasetID, action.payload.itemID);
+
+    case constants.REMOVE_FROM_INSPIRATION_LIST:
+      return removeFromList(state, 'inspirationLists', action.payload.datasetID, action.payload.itemID);
+
     case constants.APPEND_TO_SCORE_DATASET_MAP:
       const currentScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));
       currentScoreDatasetMap[action.payload.key] = action.payload.value;
@@ -164,6 +197,19 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       delete diminishedScoreDatasetMap[action.payload];
       return Object.assign({}, state, { scoreDatasetMap: diminishedScoreDatasetMap });
 
+    case constants.APPEND_TO_SCORE_COMPOUND_MAP_BY_SCORE_CATEGORY:
+      const extendedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
+      action.payload.forEach(score => {
+        let array = [];
+        if (extendedScoreCompoundMap && extendedScoreCompoundMap[score.compound]) {
+          array = extendedScoreCompoundMap[score.compound];
+        }
+        array.push(score);
+        extendedScoreCompoundMap[score.compound] = array;
+      });
+
+      return Object.assign({}, state, { scoreCompoundMap: extendedScoreCompoundMap });
+
     case constants.APPEND_TO_SCORE_COMPOUND_MAP:
       const currentScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
       currentScoreCompoundMap[action.payload.key] = action.payload.value;
@@ -173,6 +219,71 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       const diminishedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
       delete diminishedScoreCompoundMap[action.payload];
       return Object.assign({}, state, { scoreCompoundMap: diminishedScoreCompoundMap });
+
+    case constants.CLEAR_SCORE_COMPOUND_MAP:
+      return Object.assign({}, state, { scoreCompoundMap: {} });
+
+    case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
+      return {
+        ...state,
+        filteredScoreProperties: {
+          ...state.filteredScoreProperties,
+          [action.payload.datasetID]: action.payload.scoreList
+        }
+      };
+
+    case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
+      const diminishedFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
+      delete diminishedFilterShowedScoreProperties[action.payload];
+      return Object.assign({}, state, { filteredScoreProperties: diminishedFilterShowedScoreProperties });
+
+    case constants.SET_SEARCH_STRING:
+      return Object.assign({}, state, { searchString: action.payload });
+
+    case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
+      return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
+
+    case constants.SET_IS_LOADING_INSPIRATION_LIST_OF_MOLECULES:
+      return Object.assign({}, state, { isLoadingInspirationListOfMolecules: action.payload });
+
+    case constants.SET_INSPIRATION_MOLECULE_DATA_LIST:
+      return Object.assign({}, state, { inspirationMoleculeDataList: action.payload });
+
+    case constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST:
+      const extendedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
+      extendedInspirationMoleculeDataList.add(action.payload);
+      return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
+
+    case constants.REMOVE_FROM_INSPIRATION_MOLECULE_DATA_LIST:
+      const diminishedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
+
+      let foundedItem;
+      diminishedInspirationMoleculeDataList.forEach(item => {
+        if (item && item.id === action.payload) {
+          foundedItem = item;
+        }
+      });
+      if (foundedItem) {
+        diminishedInspirationMoleculeDataList.delete(foundedItem);
+      }
+      return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
+
+    case constants.SET_INSPIRATION_FRAGMENT_LIST:
+      return Object.assign({}, state, { inspirationFragmentList: action.payload });
+
+    case constants.REMOVE_FROM_INSPIRATION_FRAGMENT_LIST:
+      const diminishedInspirationFragmentList = new Set(state.inspirationFragmentList);
+
+      let foundtem;
+      diminishedInspirationFragmentList.forEach(item => {
+        if (item === action.payload) {
+          foundtem = item;
+        }
+      });
+      if (foundtem) {
+        diminishedInspirationFragmentList.delete(foundtem);
+      }
+      return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
 
     default:
       return state;

@@ -1,34 +1,23 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React, { useState, useEffect, memo, useContext } from 'react';
-import { Button } from '../common/Inputs/Button';
-import { FilterList } from '@material-ui/icons';
-import { connect, useDispatch } from 'react-redux';
-import * as apiActions from '../../reducers/api/actions';
-import { setFilterDialogOpen, setMoleculeListIsLoading } from './redux/actions';
-import { loadCompoundScoresListOfDataSet, loadMoleculesOfDataSet } from './redux/dispatchActions';
-import { setFilter } from './redux/actions';
+import React, { useEffect, memo } from 'react';
+import { useDispatch } from 'react-redux';
+import { setMoleculeListIsLoading } from './redux/actions';
+import {
+  clearDatasetSettings,
+  initializeDatasetFilter,
+  loadCompoundScoresListOfDataSet,
+  loadMoleculesOfDataSet
+} from './redux/dispatchActions';
 import { DatasetMoleculeList } from './datasetMoleculeList';
 
-const CustomDatasetList = memo(
-  ({
-    dataset,
-    object_selection,
-    height,
-    setFilterItemsHeight,
-    filterItemsHeight,
-    filter,
-    sortDialogOpen,
-    setFilterDialogOpen,
-    hideProjects
-  }) => {
+export const CustomDatasetList = memo(
+  ({ dataset, height, setFilterItemsHeight, filterItemsHeight, hideProjects, isActive }) => {
     const dispatch = useDispatch();
 
-    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
-
     useEffect(() => {
-      if (dataset && dataset.id) {
+      if (dataset && dataset.id && isActive) {
         dispatch(setMoleculeListIsLoading(true));
         Promise.all([
           dispatch(loadMoleculesOfDataSet(dataset.id)),
@@ -39,60 +28,31 @@ const CustomDatasetList = memo(
           })
           .finally(() => {
             dispatch(setMoleculeListIsLoading(false));
+            dispatch(initializeDatasetFilter(dataset && dataset.id));
           });
+      } else if (dataset && dataset.id && !isActive) {
+        dispatch(clearDatasetSettings(dataset.id));
       }
-    }, [dataset, dispatch]);
 
-    const actions = [
-      <Button
-        onClick={event => {
-          if (sortDialogOpen === false) {
-            setSortDialogAnchorEl(event.currentTarget);
-            setFilterDialogOpen(true);
-          } else {
-            setSortDialogAnchorEl(null);
-            setFilterDialogOpen(false);
-          }
-        }}
-        color={'inherit'}
-        disabled={!(object_selection || []).length}
-        variant="text"
-        startIcon={<FilterList />}
-        size="small"
-      >
-        sort/filter
-      </Button>
-    ];
+      return () => {
+        if (dataset && dataset.id) {
+          dispatch(clearDatasetSettings(dataset.id));
+        }
+      };
+    }, [dataset, dispatch, isActive]);
+
+    const title = dataset && `${dataset.title} v.${dataset.version}`;
 
     return (
       <DatasetMoleculeList
-        title={dataset && dataset.title}
+        title={title}
+        url={dataset && dataset.url}
         height={height}
         setFilterItemsHeight={setFilterItemsHeight}
         filterItemsHeight={filterItemsHeight}
         hideProjects={hideProjects}
-        object_selection={object_selection}
-        filter={filter}
-        setFilter={setFilter}
-        actions={actions}
-        sortDialogAnchorEl={sortDialogAnchorEl}
         datasetID={dataset && dataset.id}
       />
     );
   }
 );
-function mapStateToProps(state) {
-  return {
-    group_type: state.apiReducers.group_type,
-    object_selection: state.selectionReducers.mol_group_selection,
-    object_list: state.apiReducers.molecule_list,
-    filter: state.datasetsReducers.filter,
-    sortDialogOpen: state.datasetsReducers.filterDialogOpen
-  };
-}
-const mapDispatchToProps = {
-  setMoleculeList: apiActions.setMoleculeList,
-  setFilterDialogOpen
-};
-CustomDatasetList.displayName = 'CustomDatasetList';
-export default connect(mapStateToProps, mapDispatchToProps)(CustomDatasetList);

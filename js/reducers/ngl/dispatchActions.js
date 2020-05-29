@@ -46,13 +46,14 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
 export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
   const comps = stage.getComponentsByName(target.name);
   comps.list.forEach(component => stage.removeComponent(component));
+
   if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
     const objectId = { id: target.moleculeId };
     switch (target.selectionType) {
       case SELECTION_TYPE.LIGAND:
         dispatch(removeFromFragmentDisplayList(objectId));
         break;
-      case SELECTION_TYPE.PROTEIN:
+      case SELECTION_TYPE.HIT_PROTEIN:
         dispatch(removeFromProteinList(objectId));
         break;
       case SELECTION_TYPE.COMPLEX:
