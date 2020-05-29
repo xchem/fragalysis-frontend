@@ -352,7 +352,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
    */
   const getValueMatchingClass = item => {
     let cssClass = '';
-    if (filter.predefined !== 'none') {
+    if (filter && filter.predefined !== 'none') {
       cssClass = isMatchingValue(item) ? classes.matchingValue : classes.unmatchingValue;
     }
     return cssClass;
