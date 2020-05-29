@@ -53,7 +53,6 @@ import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { getUrl, loadFromServer } from '../../../utils/genericList';
-import { initializeDatasetMoleculeLists } from '../../datasets/redux/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
@@ -308,7 +307,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
           console.log('initializing molecules');
           firstLoadRef.current = false;
           dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
-          dispatch(initializeDatasetMoleculeLists(cached_mol_lists[mol_group_on]));
         }
       })
       .catch(error => {

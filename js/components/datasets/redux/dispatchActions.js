@@ -21,7 +21,6 @@ import {
   setInspirationList,
   setIsOpenInspirationDialog,
   clearScoreCompoundMap,
-  appendInspirationList,
   setInspirationFragmentList,
   removeFromInspirationList,
   removeFromInspirationFragmentList
@@ -39,29 +38,6 @@ import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
-
-export const initializeDatasetMoleculeLists = moleculeList => (dispatch, getState) => {
-  console.log('initializing testing datasets');
-  const state = getState();
-  const customDatasets = state.datasetsReducers.datasets;
-  const testingMoleculeList = moleculeList.slice(0, 6);
-  // TODO temporarily, just adding testing data
-  customDatasets.forEach(dataset => {
-    dispatch(
-      addMoleculeList(
-        dataset.id,
-        (testingMoleculeList => {
-          const newList = [];
-          testingMoleculeList.forEach(molecule => {
-            // molecule.protein_code is used as prefix for element names in display controls
-            newList.push(Object.assign({}, molecule, { protein_code: dataset.id + '_' + molecule.id }));
-          });
-          return newList;
-        })(testingMoleculeList)
-      )
-    );
-  });
-};
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
