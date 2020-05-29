@@ -512,17 +512,21 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
             {filteredScoreProperties &&
               datasetID &&
               filteredScoreProperties[datasetID] &&
-              filteredScoreProperties[datasetID].map(score => {
+              filteredScoreProperties[datasetID].map((score, index) => {
                 const item = scoreCompoundMap && scoreCompoundMap.find(o => o.score.id === score.id);
-                if (item) {
-                  return (
-                    <Tooltip title={`${item.score.name} - ${item.score.description}`} key={item.id}>
+                return (
+                  <Tooltip title={`${score.name} - ${score.description}`} key={index}>
+                    {(item && (
                       <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                         {item.value && Math.round(item.value)}
                       </Grid>
-                    </Tooltip>
-                  );
-                }
+                    )) || (
+                      <Grid item className={classNames(classes.rightBorder)}>
+                        -
+                      </Grid>
+                    )}
+                  </Tooltip>
+                );
               })}
           </Grid>
         </Grid>
