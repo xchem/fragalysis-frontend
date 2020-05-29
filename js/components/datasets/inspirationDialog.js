@@ -85,14 +85,18 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(2)
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 2
+    marginTop: theme.spacing(1) / 2,
+    marginBottom: theme.spacing(1) / 2,
+    marginLeft: theme.spacing(2)
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 8,
-    paddingTop: theme.spacing(1) / 8,
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
     borderRadius: 0,
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
@@ -309,7 +313,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) =>
                             onClick={() => onButtonToggle('ligand')}
                             disabled={disableUserInteraction}
                           >
-                            <Typography variant="subtitle2">L</Typography>
+                            L
                           </Button>
                         </Grid>
                       </Tooltip>
@@ -324,7 +328,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) =>
                             onClick={() => onButtonToggle('protein')}
                             disabled={disableUserInteraction}
                           >
-                            <Typography variant="subtitle2">P</Typography>
+                            P
                           </Button>
                         </Grid>
                       </Tooltip>
@@ -340,7 +344,7 @@ export const InspirationDialog = memo(({ open = false, anchorEl, datasetID }) =>
                             onClick={() => onButtonToggle('complex')}
                             disabled={disableUserInteraction}
                           >
-                            <Typography variant="subtitle2">C</Typography>
+                            C
                           </Button>
                         </Grid>
                       </Tooltip>

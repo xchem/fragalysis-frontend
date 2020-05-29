@@ -40,10 +40,12 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 8,
-    paddingTop: theme.spacing(1) / 8,
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
     borderRadius: 0,
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
@@ -427,14 +429,14 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
       </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item xs={6}>
+        <Grid item xs={8}>
           <Tooltip title={moleculeTitle} placement="bottom-start">
             <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
           </Tooltip>
         </Grid>
 
         {/* Control Buttons A, L, C, V */}
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Grid
             container
             direction="row"
@@ -466,7 +468,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   }}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">A</Typography>
+                  A
                 </Button>
               </Grid>
             </Tooltip>
@@ -480,7 +482,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onClick={() => onLigand()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">L</Typography>
+                  L
                 </Button>
               </Grid>
             </Tooltip>
@@ -494,7 +496,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onClick={() => onProtein()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">P</Typography>
+                  P
                 </Button>
               </Grid>
             </Tooltip>
@@ -509,7 +511,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onClick={() => onComplex()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">C</Typography>
+                  C
                 </Button>
               </Grid>
             </Tooltip>
@@ -523,7 +525,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onClick={() => onSurface()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">S</Typography>
+                  S
                 </Button>
               </Grid>
             </Tooltip>
@@ -538,7 +540,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onClick={() => onDensity()}
                   disabled={true || disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">D</Typography>
+                  D
                 </Button>
               </Grid>
             </Tooltip>
@@ -552,7 +554,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
                   onClick={() => onVector()}
                   disabled={disableUserInteraction}
                 >
-                  <Typography variant="subtitle2">V</Typography>
+                  V
                 </Button>
               </Grid>
             </Tooltip>
