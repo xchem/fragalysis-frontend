@@ -352,50 +352,21 @@ export const DatasetMoleculeList = memo(
     const inspirationDialogRef = useRef();
     const scrollBarRef = useRef();
 
-    const handleIntersect = (changes, observer) => {
-      //useCallback(
-      let previousY = 0;
-      let previousRatio = 0;
-      console.log(changes, observer);
+    const onScrollCompounds = () => {
+      const currentBoundingClientRect =
+        (inspirationDialogRef.current && inspirationDialogRef.current.getBoundingClientRect()) || null;
+      const scrollBarBoundingClientRect =
+        (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
 
-      changes.forEach(entry => {
-        const currentY = entry.boundingClientRect.y;
-        const currentRatio = entry.intersectionRatio;
-        const isIntersecting = entry.isIntersecting;
-
-        // Scrolling down/up
-        if (currentY < previousY) {
-          if (currentRatio > previousRatio && isIntersecting) {
-            console.log('Scrolling down enter');
-          } else {
-            console.log('Scrolling down leave');
-          }
-        } else if (currentY > previousY && isIntersecting) {
-          if (currentRatio < previousRatio) {
-            console.log('Scrolling up leave');
-          } else {
-            console.log('Scrolling up enter');
-          }
+      if (currentBoundingClientRect !== null && scrollBarBoundingClientRect !== null) {
+        if (
+          currentBoundingClientRect.top < scrollBarBoundingClientRect.top ||
+          scrollBarBoundingClientRect.bottom - currentBoundingClientRect.top < 42
+        ) {
+          setSelectedInspirationMoleculeRef(scrollBarRef.current);
         }
-
-        previousY = currentY;
-        previousRatio = currentRatio;
-      });
-    }; //, []);
-
-    //  useEffect(() => {
-    const observer = new IntersectionObserver(handleIntersect, {
-      // root: scrollBarRef && scrollBarRef.current,
-      rootMargin: '100px'
-      //threshold: [0.98, 0.99, 1]
-    });
-    // if (inspirationDialogRef.current) {
-    console.log('has observed');
-    if (inspirationDialogRef && inspirationDialogRef.current) {
-      observer.observe(inspirationDialogRef.current);
-    }
-    // }
-    // }, [handleIntersect]);
+      }
+    };
 
     return (
       <ComputeSize
@@ -543,6 +514,7 @@ export const DatasetMoleculeList = memo(
             {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList} ref={scrollBarRef}>
                 <InfiniteScroll
+                  getScrollParent={onScrollCompounds}
                   pageStart={0}
                   loadMore={loadNextMolecules}
                   hasMore={canLoadMore}

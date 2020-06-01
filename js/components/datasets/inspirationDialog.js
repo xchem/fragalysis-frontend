@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useContext, useEffect, useRef, useState } from 'react';
 import {
   CircularProgress,
   Grid,
@@ -38,7 +38,7 @@ import { VIEWS } from '../../constants/constants';
 const useStyles = makeStyles(theme => ({
   paper: {
     width: 472,
-    height: 500,
+    height: 294,
     overflowY: 'hidden',
     padding: theme.spacing(1)
   },
@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     overflowY: 'auto',
-    height: 422
+    height: 214
   },
   title: {
     paddingBottom: theme.spacing(1),
