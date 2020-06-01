@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const prefix = 'PROJECTS_';
 
 export const constants = {

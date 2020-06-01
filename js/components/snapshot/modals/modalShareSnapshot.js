@@ -37,7 +37,7 @@ export const ModalShareSnapshot = memo(({}) => {
           Open in new tab
         </Button>
         <Button onClick={closeModal} color="secondary">
-          Cancel
+          Close
         </Button>
       </DialogActions>
     </Modal>
