@@ -27,6 +27,9 @@ import { VIEWS } from '../../constants/constants';
 export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => (dispatch, getState) => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
+
+    console.log(target.OBJECT_TYPE, nglObjectDictionary);
+
     return nglObjectDictionary[target.OBJECT_TYPE](
       stage,
       target,
