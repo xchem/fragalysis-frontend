@@ -276,8 +276,8 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
 
   dispatch(setDisableRedirect(true));
 
-  // anonymous view of target
-  if (targetId && target) {
+  // anonymous user shares target or project
+  if (!loggedInUserID && ((targetId && target) || projectID !== null)) {
     const data = {
       title: ProjectCreationType.READ_ONLY,
       description: ProjectCreationType.READ_ONLY,

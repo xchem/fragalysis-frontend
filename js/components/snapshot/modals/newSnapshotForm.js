@@ -9,7 +9,6 @@ import { TextField } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';
-import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
