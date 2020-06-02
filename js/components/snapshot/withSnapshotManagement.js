@@ -37,8 +37,8 @@ export const withSnapshotManagement = WrappedComponent => {
       target !== undefined;
 
     const disableShareButton =
-      (projectId !== undefined && currentProject.projectID === null && currentSnapshotID === null) ||
-      target !== undefined;
+      (projectId !== undefined && currentProject.projectID === null && currentSnapshotID === null && !target) ||
+      (!target && !projectId);
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
