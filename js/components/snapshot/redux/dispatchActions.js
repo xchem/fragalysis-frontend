@@ -270,14 +270,11 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
 export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
-  const projectID = state.projectReducers.currentProject.projectID;
-  const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
 
   dispatch(setDisableRedirect(true));
 
-  // anonymous user shares target or project
-  if (!loggedInUserID && ((targetId && target) || projectID !== null)) {
+  if (targetId) {
     const data = {
       title: ProjectCreationType.READ_ONLY,
       description: ProjectCreationType.READ_ONLY,
@@ -302,20 +299,6 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
         throw new Error(error);
       });
   }
-  // In case when I'm not an owner of the project
-  else if (loggedInUserID && projectID !== null && currentSnapshotAuthor === null) {
-    dispatch(setForceCreateProject(true));
-    dispatch(setOpenSnapshotSavingDialog(true));
-  }
-  // In case when I'm an owner of the project
-  else if (
-    projectID !== null &&
-    loggedInUserID &&
-    currentSnapshotAuthor &&
-    currentSnapshotAuthor.id === loggedInUserID
-  ) {
-    dispatch(setOpenSnapshotSavingDialog(true));
-  } else {
-    throw new Error('Unhandled case of sharing');
-  }
+
+  // TODO after close dont reload the page!!!!
 };
