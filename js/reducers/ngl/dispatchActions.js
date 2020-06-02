@@ -28,7 +28,7 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
 
-    console.log(target.OBJECT_TYPE, nglObjectDictionary);
+    console.log(target.OBJECT_TYPE, target);
 
     return nglObjectDictionary[target.OBJECT_TYPE](
       stage,
