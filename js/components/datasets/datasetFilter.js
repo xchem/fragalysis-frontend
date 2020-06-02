@@ -178,23 +178,26 @@ export const DatasetFilter = memo(
 
             {priorityOrder.map(attr => {
               let attrDef = getAttributeName(attr);
+              const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
               return (
-                <DatasetMoleculeListSortFilter
-                  key={attr}
-                  datasetID={datasetID}
-                  scoreName={attrDef.name}
-                  scoreDescription={attrDef.description}
-                  scoreID={attrDef.id}
-                  order={filterProperties[attr].order}
-                  minValue={filterProperties[attr].minValue}
-                  maxValue={filterProperties[attr].maxValue}
-                  min={defaultFilterProperties[attr].minValue}
-                  max={defaultFilterProperties[attr].maxValue}
-                  isFloat={defaultFilterProperties[attr].isFloat}
-                  disabled={predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled}
-                  onChange={handleItemChange(attr)}
-                  onChangePrio={handlePrioChange(attr)}
-                />
+                !disabled && (
+                  <DatasetMoleculeListSortFilter
+                    key={attr}
+                    datasetID={datasetID}
+                    scoreName={attrDef.name}
+                    scoreDescription={attrDef.description}
+                    scoreID={attrDef.id}
+                    order={filterProperties[attr].order}
+                    minValue={filterProperties[attr].minValue}
+                    maxValue={filterProperties[attr].maxValue}
+                    min={defaultFilterProperties[attr].minValue}
+                    max={defaultFilterProperties[attr].maxValue}
+                    isFloat={defaultFilterProperties[attr].isFloat}
+                    disabled={disabled}
+                    onChange={handleItemChange(attr)}
+                    onChangePrio={handlePrioChange(attr)}
+                  />
+                )
               );
             })}
           </Grid>
