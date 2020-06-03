@@ -150,6 +150,19 @@ export const setUuid = function(uuid) {
 };
 
 export const reloadApiState = function(apiReducers) {
+  const cachedMolList = apiReducers.cached_mol_lists;
+  let fixedCachedMolList = {};
+  if (cachedMolList) {
+    Object.keys(cachedMolList).forEach(moleculeID => {
+      const currentCachedMolecule = cachedMolList[moleculeID];
+      if (currentCachedMolecule && Array.isArray(currentCachedMolecule)) {
+        fixedCachedMolList[moleculeID] = currentCachedMolecule;
+      } else if (currentCachedMolecule?.results && Array.isArray(currentCachedMolecule.results)) {
+        fixedCachedMolList[moleculeID] = currentCachedMolecule.results;
+      }
+    });
+  }
+
   return {
     type: constants.RELOAD_API_STATE,
     target_on_name: apiReducers.target_on_name,
