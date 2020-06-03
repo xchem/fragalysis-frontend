@@ -33,8 +33,6 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
       versionFixedTarget.OBJECT_TYPE = OBJECT_TYPE.HIT_PROTEIN;
     }
 
-    console.log(versionFixedTarget.OBJECT_TYPE, versionFixedTarget);
-
     return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE](
       stage,
       versionFixedTarget,
