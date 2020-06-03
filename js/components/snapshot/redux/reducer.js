@@ -3,7 +3,8 @@ import { constants } from './constants';
 export const initSharedSnapshot = {
   url: null,
   title: null,
-  description: null
+  description: null,
+  disableRedirect: false
 };
 
 export const INITIAL_STATE = {
@@ -70,7 +71,7 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
       });
     case constants.SET_SHARED_SNAPSHOT:
       return Object.assign({}, state, {
-        sharedSnapshot: action.payload
+        sharedSnapshot: { ...initSharedSnapshot, ...action.payload }
       });
 
     case constants.SET_IS_OPEN_MODAL_BEFORE_EXIT:
