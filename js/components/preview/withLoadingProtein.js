@@ -1,87 +1,44 @@
 /**
  * Created by abradley on 13/03/2018.
  */
-import React, { memo, useCallback, useContext, useEffect } from 'react';
-import { connect } from 'react-redux';
-import * as nglActions from '../../reducers/ngl/nglActions';
-import * as apiActions from '../../reducers/api/apiActions';
-import { VIEWS, SUFFIX } from '../../constants/constants';
+import React, { memo, useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../nglView/nglProvider';
-import { generateProteinObject } from '../nglView/generatingObjects';
-import { setProteinsHasLoaded } from '../../reducers/ngl/nglActions';
+import { shouldLoadProtein } from './redux/dispatchActions';
+import { useRouteMatch } from 'react-router-dom';
 
 // is responsible for loading molecules list
 export const withLoadingProtein = WrappedComponent => {
-  const ProteinLoader = memo(
-    ({
-      targetIdList,
-      targetOnName,
-      loadObject,
-      target_on,
-      group_type,
-      setObjectList,
-      setProteinsHasLoaded,
-      isStateLoaded,
-      ...rest
-    }) => {
-      const { nglViewList } = useContext(NglContext);
+  return memo(({ isStateLoaded, ...rest }) => {
+    const { nglViewList } = useContext(NglContext);
+    let match = useRouteMatch();
+    const dispatch = useDispatch();
+    const routeProjectID = match && match.params && match.params.projectId;
+    const routeSnapshotID = match && match.params && match.params.snapshotId;
+    const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
+    const isLoadingCurrentSnapshot = useSelector(state => state.projectReducers.isLoadingCurrentSnapshot);
 
-      const loadProtein = useCallback(
-        nglView => {
-          if (target_on !== undefined && targetIdList && nglView && nglView.id && nglView.stage) {
-            let targetData = null;
-            targetIdList.forEach(thisTarget => {
-              if (thisTarget.id === target_on && targetData === null) {
-                targetData = thisTarget;
-              }
-            });
-            const targObject = generateProteinObject(targetData);
-            if (targObject) {
-              let newParams = { display_div: nglView.id };
-              if (nglView.id === VIEWS.MAJOR_VIEW) {
-                newParams.name = targObject.name + SUFFIX.MAIN;
-              }
-              return loadObject(Object.assign({}, targObject, newParams), nglView.stage);
-            }
-          }
-          return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);
-        },
-        [loadObject, targetIdList, target_on]
+    useEffect(() => {
+      dispatch(
+        shouldLoadProtein({
+          nglViewList,
+          isStateLoaded,
+          routeProjectID,
+          routeSnapshotID,
+          currentSnapshotID,
+          isLoadingCurrentSnapshot
+        })
       );
+    }, [
+      dispatch,
+      isStateLoaded,
+      nglViewList,
+      routeProjectID,
+      routeSnapshotID,
+      currentSnapshotID,
+      isLoadingCurrentSnapshot
+    ]);
 
-      useEffect(() => {
-        if (targetIdList && targetIdList.length > 0 && nglViewList && nglViewList.length > 0) {
-          //  1. Generate new protein or skip this action and everything will be loaded from session
-          if (!isStateLoaded) {
-            setProteinsHasLoaded(false);
-            Promise.all(nglViewList.map(nglView => loadProtein(nglView)))
-              .then(() => setProteinsHasLoaded(true))
-              .catch(() => setProteinsHasLoaded(false));
-          } else {
-            setProteinsHasLoaded(true);
-          }
-          if (targetOnName !== undefined) {
-            document.title = targetOnName + ': Fragalysis';
-          }
-        }
-      }, [nglViewList, loadProtein, targetIdList, targetOnName, setProteinsHasLoaded, isStateLoaded]);
-
-      return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
-    }
-  );
-
-  function mapStateToProps(state) {
-    return {
-      group_type: state.apiReducers.present.group_type,
-      target_on: state.apiReducers.present.target_on,
-      targetIdList: state.apiReducers.present.target_id_list,
-      targetOnName: state.apiReducers.present.target_on_name
-    };
-  }
-  const mapDispatchToProps = {
-    loadObject: nglActions.loadObject,
-    setObjectList: apiActions.setMolGroupList,
-    setProteinsHasLoaded: setProteinsHasLoaded
-  };
-  return connect(mapStateToProps, mapDispatchToProps)(ProteinLoader);
+    return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;
+  });
 };

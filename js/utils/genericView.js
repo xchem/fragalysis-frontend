@@ -11,7 +11,9 @@ export const loadFromServer = ({ width, height, key, old_url, setImg_data, setOl
       return api({ url, cancel })
         .then(response => setImg_data(response.data))
         .finally(() => {
-          setOld_url(url.toString());
+          if (setOld_url) {
+            setOld_url(url.toString());
+          }
         });
     }
   } else {
@@ -23,10 +25,14 @@ export const loadFromServer = ({ width, height, key, old_url, setImg_data, setOl
           }
         })
         .finally(() => {
-          setOld_url(url.toString());
+          if (setOld_url) {
+            setOld_url(url.toString());
+          }
         });
     }
   }
-  setOld_url(url.toString());
+  if (setOld_url) {
+    setOld_url(url.toString());
+  }
   return Promise.resolve();
 };

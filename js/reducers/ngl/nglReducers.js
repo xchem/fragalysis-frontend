@@ -1,12 +1,12 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
-import { CONSTANTS, SCENES } from './nglConstants';
+import { CONSTANTS } from './constants';
+import NglView from '../../components/nglView/nglView';
+import { VIEWS } from '../../constants/constants';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   // NGL Scene properties
   objectsInView: {},
   nglOrientations: {},
-  orientationToSet: {},
-  loadingState: true,
   viewParams: {
     /*
     [NGL_PARAMS.impostor]: true,
@@ -25,18 +25,21 @@ const INITIAL_STATE = {
     [NGL_PARAMS.ambientIntensity]: 0.2,
     [NGL_PARAMS.hoverTimeout]: 0, */
     [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
-    [NGL_PARAMS.clipNear]: 0,
+    [NGL_PARAMS.clipNear]: 42,
     [NGL_PARAMS.clipFar]: 100,
     [NGL_PARAMS.clipDist]: 10,
     [NGL_PARAMS.fogNear]: 50,
-    [NGL_PARAMS.fogFar]: 100
+    [NGL_PARAMS.fogFar]: 62
   },
-  [SCENES.defaultScene]: {},
-  [SCENES.sessionScene]: {},
+
   // Helper variables for marking that protein and molecule groups are successful loaded
   countOfRemainingMoleculeGroups: null,
   proteinsHasLoaded: null,
-  countOfPendingNglObjects: 0
+  countOfPendingNglObjects: {
+    [VIEWS.MAJOR_VIEW]: 0,
+    [VIEWS.SUMMARY_VIEW]: 0
+  },
+  moleculeOrientations: {}
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -47,8 +50,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       // Append the input to objectsToLoad list
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       newObjectsInView[action.target.name] = { ...action.target, representations: action.representations };
-
-      //   console.log(' LOAD_OBJECT ', newObjectsInView);
 
       return Object.assign({}, state, {
         objectsInView: newObjectsInView
@@ -99,7 +100,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
       delete objectsInViewTemp[action.target.name];
 
-      console.log(' DELETE_OBJECT');
       return Object.assign({}, state, {
         objectsInView: objectsInViewTemp
       });
@@ -110,29 +110,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
       toSetDiv[div_id] = orientation;
 
-      console.log(' SET_ORIENTATION');
       return Object.assign({}, state, {
         nglOrientations: toSetDiv
       });
 
-    case CONSTANTS.SET_NGL_ORIENTATION:
-      const set_div_id = action.div_id;
-      const set_orientation = action.orientation;
-      const toSetDivTemp = JSON.parse(JSON.stringify(state.orientationToSet));
-      toSetDivTemp[set_div_id] = set_orientation;
-      console.log(' SET_NGL_ORIENTATION');
-      return Object.assign({}, state, {
-        orientationToSet: toSetDivTemp
-      });
-
-    case CONSTANTS.SET_LOADING_STATE:
-      console.log(' SET_LOADING_STATE');
-      return Object.assign({}, state, {
-        loadingState: action.loadingState
-      });
-
     case CONSTANTS.SET_NGL_VIEW_PARAMS:
-      //   console.log(' SET_NGL_VIEW_PARAMS');
       const newViewParams = JSON.parse(JSON.stringify(state.viewParams));
       newViewParams[action.key] = action.value;
 
@@ -140,68 +122,57 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         viewParams: newViewParams
       });
 
-    case CONSTANTS.RESET_NGL_VIEW_TO_DEFAULT_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_DEFAULT_SCENE ');
-      const newStateWithoutScene = JSON.parse(JSON.stringify(state.defaultScene));
-      return Object.assign({}, state, newStateWithoutScene);
-
-    case CONSTANTS.RESET_NGL_VIEW_TO_SESSION_SCENE:
-      console.log(' RESET_NGL_VIEW_TO_SESSION_SCENE');
-      // load state from default scene and replace current state by these data
-      return Object.assign({}, state, action.payload);
-
-    case CONSTANTS.SAVE_NGL_STATE_AS_DEFAULT_SCENE:
-      // load state from default scene and replace current state by these data
-      const stateWithoutScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutScene[SCENES.defaultScene];
-      delete stateWithoutScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutScene['proteinsHasLoaded'];
-      delete stateWithoutScene['countOfPendingNglObjects'];
-
-      console.log(' SAVE_NGL_STATE_AS_DEFAULT_SCENE');
-
-      return Object.assign({}, state, {
-        [SCENES.defaultScene]: stateWithoutScene
-      });
-
-    case CONSTANTS.SAVE_NGL_STATE_AS_SESSION_SCENE:
-      // load state from default scene and replace current state by these data
-      const stateWithoutSessionScene = JSON.parse(JSON.stringify(state));
-      delete stateWithoutSessionScene[SCENES.sessionScene];
-      delete stateWithoutSessionScene['countOfRemainingMoleculeGroups'];
-      delete stateWithoutSessionScene['proteinsHasLoaded'];
-      delete stateWithoutSessionScene['countOfPendingNglObjects'];
-
-      console.log(' SAVE_NGL_STATE_AS_SESSION_SCENE');
-
-      return Object.assign({}, state, {
-        [SCENES.sessionScene]: stateWithoutSessionScene
-      });
+    case CONSTANTS.SET_NGL_STATE_FROM_CURRENT_SNAPSHOT:
+      const snapshot = action.payload;
+      delete snapshot.countOfPendingNglObjects;
+      delete snapshot.countOfRemainingMoleculeGroups;
+      delete snapshot.proteinsHasLoaded;
+      return Object.assign({}, state, snapshot);
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
-      console.log(' REMOVE_ALL_NGL_COMPONENTS');
-      action.stage.removeAllComponents();
+      if (action.stage) {
+        action.stage.removeAllComponents();
+      }
       // clear all arrays of object
-      return Object.assign({}, state, INITIAL_STATE);
+      return Object.assign({}, INITIAL_STATE);
 
     // Helper actions for marking that protein and molecule groups are successful loaded
     case CONSTANTS.SET_PROTEINS_HAS_LOADED:
-      //   console.log('SET_PROTEIN_HAS_LOAD ', action.payload);
       return Object.assign({}, state, { proteinsHasLoaded: action.payload });
 
     case CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      //    console.log('SET_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS:
-      //    console.log('DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS');
       return Object.assign({}, state, { countOfRemainingMoleculeGroups: action.payload });
 
     case CONSTANTS.DECREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
-      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects - 1 });
+      const newCounts = JSON.parse(JSON.stringify(state.countOfPendingNglObjects));
+      newCounts[action.payload] = state.countOfPendingNglObjects[action.payload] - 1;
+      return Object.assign({}, state, { countOfPendingNglObjects: newCounts });
 
     case CONSTANTS.INCREMENT_COUNT_OF_PENDING_NGL_OBJECTS:
-      return Object.assign({}, state, { countOfPendingNglObjects: state.countOfPendingNglObjects + 1 });
+      const newPendingCounts = JSON.parse(JSON.stringify(state.countOfPendingNglObjects));
+      newPendingCounts[action.payload] = state.countOfPendingNglObjects[action.payload] + 1;
+      return Object.assign({}, state, { countOfPendingNglObjects: newPendingCounts });
+
+    case CONSTANTS.SET_MOLECULE_ORIENTATIONS:
+      return Object.assign({}, state, { moleculeOrientations: action.payload });
+
+    case CONSTANTS.APPEND_MOLECULE_ORIENTATION:
+      const newMoleculeOrientations = Object.assign({}, state.moleculeOrientations);
+
+      if (newMoleculeOrientations[action.payload.moleculeGroupID] === undefined) {
+        newMoleculeOrientations[action.payload.moleculeGroupID] = action.payload.orientation;
+      }
+      return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
+
+    case CONSTANTS.REMOVE_MOLECULE_ORIENTATION:
+      const diminishedMoleculeOrientations = Object.assign({}, state.moleculeOrientations);
+      if (diminishedMoleculeOrientations[action.payload] !== undefined) {
+        delete diminishedMoleculeOrientations[action.payload];
+      }
+      return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
 
     default:
       return state;

@@ -1,5 +1,13 @@
 import React, { forwardRef, memo, useEffect, useState } from 'react';
-import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography } from '@material-ui/core';
+import {
+  Paper as MaterialPaper,
+  makeStyles,
+  Grid,
+  IconButton,
+  Typography,
+  CircularProgress,
+  Tooltip
+} from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 
@@ -44,6 +52,9 @@ const useStyles = makeStyles(theme => ({
   hidden: {
     height: 0,
     display: 'none'
+  },
+  loading: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -54,12 +65,14 @@ export const Panel = memo(
         hasHeader,
         secondaryBackground,
         title,
+        withTooltip,
         headerActions,
         hasExpansion,
         defaultExpanded = false,
         onExpandChange,
         children,
         bodyOverflow,
+        isLoading,
         ...rest
       },
       ref
@@ -97,13 +110,33 @@ export const Panel = memo(
                 alignItems="center"
                 className={classes.headerGrid}
               >
-                <Grid item xs={hasExpansion || headerActions ? 6 : 12} className={classes.headerTitle}>
-                  <Typography variant="h6" color="inherit">
-                    {title}
-                  </Typography>
-                </Grid>
+                {title && (
+                  <Grid
+                    item
+                    xs={hasExpansion || headerActions ? (headerActions && headerActions.length > 2 ? 4 : 6) : 12}
+                    className={classes.headerTitle}
+                  >
+                    {withTooltip ? (
+                      <Tooltip title={title}>
+                        <Typography variant="h6" color="inherit" noWrap>
+                          {title}
+                        </Typography>
+                      </Tooltip>
+                    ) : (
+                      <Typography variant="h6" color="inherit" noWrap>
+                        {title}
+                      </Typography>
+                    )}
+                  </Grid>
+                )}
                 {(headerActions || hasExpansion) && (
-                  <Grid item container justify="flex-end" xs={6}>
+                  <Grid
+                    item
+                    container
+                    direction="row"
+                    justify="flex-end"
+                    xs={title ? (headerActions && headerActions.length > 2 ? 8 : 6) : 12}
+                  >
                     {headerActions &&
                       headerActions.map((action, index) => (
                         <Grid item key={index}>
@@ -119,6 +152,13 @@ export const Panel = memo(
                 )}
               </Grid>
             </div>
+          )}
+          {isLoading && (
+            <Grid container alignItems="center" justify="center" className={classes.loading}>
+              <Grid item>
+                <CircularProgress />
+              </Grid>
+            </Grid>
           )}
           {hasExpansion && <div className={expanded === true ? bodyClass : classes.hidden}>{children}</div>}
           {!hasExpansion && <div className={bodyClass}>{children}</div>}

@@ -2,11 +2,11 @@
  * Created by abradley on 17/04/2018.
  */
 
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import * as apiActions from '../reducers/api/apiActions';
-import * as listType from '../components/listTypes';
-import * as nglLoadActions from '../reducers/ngl/nglActions';
+import * as apiActions from '../reducers/api/actions';
+import * as listType from '../constants/listTypes';
+import { deleteObject, loadObject } from '../reducers/ngl/dispatchActions';
 import { VIEWS } from '../constants/constants';
 import { getUrl, loadFromServer } from '../utils/genericList';
 import { OBJECT_TYPE } from '../components/nglView/constants';
@@ -83,16 +83,16 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
 
   function mapStateToProps(state) {
     return {
-      group_type: state.apiReducers.present.group_type,
-      target_on: state.apiReducers.present.target_on,
-      object_list: state.apiReducers.present.pandda_site_list
+      group_type: state.apiReducers.group_type,
+      target_on: state.apiReducers.target_on,
+      object_list: state.apiReducers.pandda_site_list
     };
   }
 
   const mapDispatchToProps = {
     setObjectList: apiActions.setPanddaSiteList,
-    deleteObject: nglLoadActions.deleteObject,
-    loadObject: nglLoadActions.loadObject
+    deleteObject,
+    loadObject
   };
   return connect(mapStateToProps, mapDispatchToProps)(PanddaSiteList);
 };

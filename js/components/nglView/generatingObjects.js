@@ -1,5 +1,5 @@
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
-import * as listTypes from '../listTypes';
+import * as listTypes from '../../constants/listTypes';
 
 export const defaultFocus = 0;
 export const createRepresentationStructure = (type, params, lastKnownID = undefined) => ({ type, params, lastKnownID });
@@ -36,9 +36,17 @@ export const generateProteinObject = data => {
   return undefined;
 };
 
+// after Shift + click on compound
+export const generateCompoundMolObject = (sdf_info, identifier) => ({
+  name: 'CONFLOAD_' + identifier,
+  OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
+  colour: 'cyan',
+  sdf_info: sdf_info
+});
+
 // Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
-  name: OBJECT_TYPE.MOLECULE + '_' + data.id.toString(),
+  name: `${data.protein_code || data.name}_LIGAND`,
   OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
   colour: colourToggle,
   sdf_info: data.sdf_info,
@@ -48,7 +56,7 @@ export const generateMoleculeObject = (data, colourToggle) => ({
 
 // Vector
 export const generateArrowObject = (data, start, end, name, colour) => ({
-  name: listTypes.VECTOR + '_' + name,
+  name: `${listTypes.VECTOR}_${name}`,
   OBJECT_TYPE: OBJECT_TYPE.ARROW,
   start: start,
   end: end,
@@ -60,7 +68,7 @@ export const generateArrowObject = (data, start, end, name, colour) => ({
 
 // Vector
 export const generateCylinderObject = (data, start, end, name, colour) => ({
-  name: listTypes.VECTOR + '_' + name,
+  name: `${listTypes.VECTOR}_${name}`,
   OBJECT_TYPE: OBJECT_TYPE.CYLINDER,
   start: start,
   end: end,
@@ -70,17 +78,137 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
   selectionType: SELECTION_TYPE.VECTOR
 });
 
+// Hit Protein
+export const generateHitProteinObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+
+  return {
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}`,
+    OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.HIT_PROTEIN
+  };
+};
+
 // Complex
-export const generateComplexObject = (data, colourToggle, base_url) => ({
-  name: data.protein_code + '_COMP',
-  OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-  sdf_info: data.sdf_info,
-  colour: colourToggle,
-  prot_url: base_url + data.molecule_protein,
-  moleculeId: data.id,
-  selectionType: SELECTION_TYPE.COMPLEX
-});
+export const generateComplexObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+
+  return {
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.COMPLEX}`,
+    OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.COMPLEX
+  };
+};
+
+// Surface
+export const generateSurfaceObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+  return {
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.SURFACE}`,
+    OBJECT_TYPE: OBJECT_TYPE.SURFACE,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.SURFACE
+  };
+};
+
+// Density TODO not implemented
+export const generateDensityObject = (data, colourToggle, base_url) => {
+  let prot_url;
+
+  if (data && data.molecule_protein) {
+    prot_url = base_url + data.molecule_protein;
+  } else if (data.pdb_info) {
+    if (location.protocol === 'https:') {
+      prot_url = data.pdb_info.replace('http://', 'https://');
+    } else {
+      prot_url = data.pdb_info;
+    }
+  }
+
+  return {
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.DENSITY}`,
+    OBJECT_TYPE: OBJECT_TYPE.DENSITY,
+    sdf_info: data.sdf_info,
+    colour: colourToggle,
+    prot_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.DENSITY
+  };
+};
 
 export const generateMoleculeId = data => ({
   id: data.id
 });
+
+export const getVectorWithColorByCountOfCompounds = (item, currentVectorCompounds) => {
+  var thisSmi = item.name.split(`${listTypes.VECTOR}_`)[1];
+
+  var counter = 0;
+  if (currentVectorCompounds) {
+    Object.keys(currentVectorCompounds).forEach(compoundKey => {
+      var smi = compoundKey.split('_')[0];
+      if (smi === thisSmi) {
+        counter += currentVectorCompounds[compoundKey]['addition'].length;
+      }
+    });
+  }
+
+  var colour = [1, 0, 0];
+
+  if (counter > 50) {
+    colour = [0, 1, 0];
+    return { ...item, colour: colour, radius: 0.5 };
+  }
+
+  if (counter > 10) {
+    colour = [0.5, 1, 0];
+    return { ...item, colour: colour, radius: 0.4 };
+  }
+
+  if (counter > 0) {
+    colour = [1, 1, 0];
+    return { ...item, colour: colour, radius: 0.35 };
+  }
+  return { ...item, colour: colour, radius: 0.3 };
+};
