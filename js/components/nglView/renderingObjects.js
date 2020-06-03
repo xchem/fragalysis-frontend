@@ -5,7 +5,7 @@ import {
   createRepresentationStructure,
   defaultFocus
 } from './generatingObjects';
-import { concatStructures, Selection, Shape } from 'ngl';
+import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 
 const showSphere = (stage, input_dict, object_name, representations, orientationMatrix) => {
   let colour = input_dict.colour;
@@ -33,8 +33,11 @@ const showMol = (stage, input_dict, object_name, representations, orientationMat
         })
       ]);
 
-    if (orientationMatrix) {
-      stage.viewerControls.orient(orientationMatrix);
+    if (orientationMatrix && orientationMatrix.elements) {
+      const matrix = new Matrix4();
+      matrix.fromArray(orientationMatrix.elements);
+
+      stage.viewerControls.orient(matrix);
     } else if (orientationMatrix === undefined) {
       comp.autoView('ligand');
     }
