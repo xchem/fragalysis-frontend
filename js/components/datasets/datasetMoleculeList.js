@@ -34,7 +34,7 @@ import {
   addDatasetSurface,
   removeDatasetSurface
 } from './redux/dispatchActions';
-import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
+import { setFilterDialogOpen, setIsOpenInspirationDialog, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
@@ -363,7 +363,7 @@ export const DatasetMoleculeList = memo(
           currentBoundingClientRect.top < scrollBarBoundingClientRect.top ||
           scrollBarBoundingClientRect.bottom - currentBoundingClientRect.top < 42
         ) {
-          setSelectedInspirationMoleculeRef(scrollBarRef.current);
+          dispatch(setIsOpenInspirationDialog(false));
         }
       }
     };
