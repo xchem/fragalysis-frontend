@@ -173,7 +173,7 @@ export const reloadApiState = function(apiReducers) {
     target_on: apiReducers.target_on,
     target_id: apiReducers.target_id,
     molecule_list: apiReducers.molecule_list,
-    cached_mol_lists: apiReducers.cached_mol_lists,
+    cached_mol_lists: fixedCachedMolList,
     mol_group_list: apiReducers.mol_group_list,
     mol_group_on: apiReducers.mol_group_on,
     hotspot_list: apiReducers.hotspot_list,
