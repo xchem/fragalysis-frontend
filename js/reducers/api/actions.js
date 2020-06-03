@@ -157,7 +157,11 @@ export const reloadApiState = function(apiReducers) {
       const currentCachedMolecule = cachedMolList[moleculeID];
       if (currentCachedMolecule && Array.isArray(currentCachedMolecule)) {
         fixedCachedMolList[moleculeID] = currentCachedMolecule;
-      } else if (currentCachedMolecule?.results && Array.isArray(currentCachedMolecule.results)) {
+      } else if (
+        currentCachedMolecule &&
+        currentCachedMolecule.results &&
+        Array.isArray(currentCachedMolecule.results)
+      ) {
         fixedCachedMolList[moleculeID] = currentCachedMolecule.results;
       }
     });
