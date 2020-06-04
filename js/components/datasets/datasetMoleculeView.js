@@ -167,10 +167,12 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
   const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists[datasetID]);
-  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id], isEqual);
+  const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[currentID], isEqual);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
-  const isAnyInspirationOn = useSelector(state => isAnyInspirationTurnedOn(state, data && data.id));
+  const isAnyInspirationOn = useSelector(state =>
+    isAnyInspirationTurnedOn(state, (data && data.inspiration_frags) || [])
+  );
 
   const [image, setImage] = useState(img_data_init);
 
@@ -189,7 +191,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const disableUserInteraction = useDisableUserInteraction();
 
   const refOnCancelImage = useRef();
-  const getRandomColor = () => colourList[data.id % colourList.length];
+  const getRandomColor = () => colourList[currentID % colourList.length];
   const colourToggle = getRandomColor();
 
   // componentDidMount
@@ -216,7 +218,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
         refOnCancelImage.current();
       }
     };
-  }, [complexList, data.id, data.smiles, ligandList, imageHeight, imageWidth]);
+  }, [complexList, currentID, data.smiles, ligandList, imageHeight, imageWidth]);
 
   const svg_image = (
     <SVGInline
@@ -497,11 +499,10 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
                       clickOnInspirations({
                         datasetID,
                         currentID,
-                        inspiration_frags: data && data.inspiration_frags,
-                        ref,
-                        setRef
+                        inspiration_frags: data && data.inspiration_frags
                       })
                     );
+                    setRef(ref.current);
                   }}
                   disabled={disableUserInteraction}
                 >

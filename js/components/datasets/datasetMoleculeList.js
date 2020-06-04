@@ -361,7 +361,7 @@ export const DatasetMoleculeList = memo(
       if (currentBoundingClientRect !== null && scrollBarBoundingClientRect !== null) {
         if (
           currentBoundingClientRect.top < scrollBarBoundingClientRect.top ||
-          scrollBarBoundingClientRect.bottom - currentBoundingClientRect.top < 42
+          Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRect.top) < 42
         ) {
           dispatch(setIsOpenInspirationDialog(false));
         }

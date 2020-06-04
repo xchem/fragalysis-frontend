@@ -141,21 +141,27 @@ export const getFilteredDatasetMoleculeList = createSelector(
 );
 
 export const isAnyInspirationTurnedOn = createSelector(
-  (_, moleculeID) => moleculeID,
+  (_, inspiration_frags = []) => inspiration_frags,
   fragmentDisplayList,
   proteinList,
   complexList,
   surfaceList,
   densityList,
   vectorOnList,
-  (moleculeID, ligands, proteins, complexis, surfaces, densities, vectors) => {
+  (inspirations, ligands, proteins, complexis, surfaces, densities, vectors) => {
     const allLists = new Set(ligands);
     proteins.forEach(p => allLists.add(p));
     complexis.forEach(p => allLists.add(p));
     surfaces.forEach(p => allLists.add(p));
     densities.forEach(p => allLists.add(p));
     vectors.forEach(p => allLists.add(p));
-
-    return moleculeID && allLists.has(moleculeID);
+    let hasInspiration = false;
+    inspirations.forEach(moleculeID => {
+      if (allLists.has(moleculeID)) {
+        hasInspiration = true;
+        return hasInspiration;
+      }
+    });
+    return hasInspiration;
   }
 );

@@ -21,9 +21,7 @@ import {
   setInspirationList,
   setIsOpenInspirationDialog,
   clearScoreCompoundMap,
-  setInspirationFragmentList,
-  removeFromInspirationList,
-  removeFromInspirationFragmentList
+  setInspirationFragmentList
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -252,28 +250,8 @@ export const clearDatasetSettings = datasetID => dispatch => {
   }
 };
 
-export const clickOnInspirations = ({ datasetID, currentID, inspiration_frags, ref, setRef }) => (
-  dispatch,
-  getState
-) => {
-  const inspirationLists = getState().datasetsReducers.inspirationLists[datasetID];
-  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
-
-  if (isInspirationOn === false) {
-    setRef((ref && ref.current) || null);
-    dispatch(setInspirationList(datasetID, [currentID]));
-    if (inspiration_frags) {
-      dispatch(setInspirationFragmentList(inspiration_frags));
-    }
-    dispatch(setIsOpenInspirationDialog(true));
-  } else {
-    setRef(null);
-    dispatch(removeFromInspirationList(datasetID, currentID));
-    if (inspiration_frags) {
-      inspiration_frags.forEach(item => {
-        dispatch(removeFromInspirationFragmentList(item));
-      });
-    }
-    dispatch(setIsOpenInspirationDialog(false));
-  }
+export const clickOnInspirations = ({ datasetID, currentID, inspiration_frags = [] }) => dispatch => {
+  dispatch(setInspirationList(datasetID, [currentID]));
+  dispatch(setInspirationFragmentList(inspiration_frags));
+  dispatch(setIsOpenInspirationDialog(true));
 };
