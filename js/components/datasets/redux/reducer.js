@@ -12,6 +12,7 @@ export const INITIAL_STATE = {
   filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
   filterDialogOpen: false,
   filteredScoreProperties: {}, // map of $datasetID and its $scoreList
+  filterWithInspirations: false,
 
   // control buttons
   ligandLists: {}, // map of $datasetID and its $list
@@ -122,6 +123,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         delete decreasedMolecules[action.payload];
       }
       return Object.assign({}, state, { moleculeLists: decreasedMolecules });
+
+    case constants.SET_FILTER_WITH_INSPIRATIONS:
+      return Object.assign({}, state, { filterWithInspirations: action.payload });
 
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });

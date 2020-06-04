@@ -1,19 +1,10 @@
 import React, { memo, useState } from 'react';
-import {
-  Typography,
-  Popper,
-  Button,
-  Grid,
-  FormControlLabel,
-  Checkbox,
-  IconButton,
-  Drawer as MaterialDrawer
-} from '@material-ui/core';
+import { Typography, Popper, Grid, FormControlLabel, Checkbox, IconButton } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
-import { Close, Delete } from '@material-ui/icons';
-import { setFilterProperties, setFilterSettings } from './redux/actions';
+import { Delete } from '@material-ui/icons';
+import { setFilterProperties, setFilterSettings, setFitlerWithInspirations } from './redux/actions';
 import {
   getFilteredDatasetMoleculeList,
   getInitialDatasetFilterProperties,
@@ -90,6 +81,7 @@ export const DatasetFilter = memo(
     const defaultFilterProperties = useSelector(state => getInitialDatasetFilterProperties(state, datasetID));
     const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
     const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
+    const filterWithInspirations = useSelector(state => state.datasetsReducers.filterWithInspirations);
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
@@ -162,7 +154,17 @@ export const DatasetFilter = memo(
           headerActions={[
             <FormControlLabel
               value="end"
-              control={<Checkbox color="default" className={classes.checkboxHeader} />}
+              control={
+                <Checkbox
+                  color="default"
+                  className={classes.checkboxHeader}
+                  checked={filterWithInspirations}
+                  onChange={() => {
+                    dispatch(setFitlerWithInspirations(!filterWithInspirations));
+                    handleItemChange()();
+                  }}
+                />
+              }
               label="With inspirations"
               labelPlacement="end"
               className={classes.withInspirations}

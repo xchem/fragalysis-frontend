@@ -257,3 +257,8 @@ export const setIsOpenInspirationDialog = isOpen => ({
   type: constants.SET_IS_OPEN_INSPIRATION_DIALOG,
   payload: isOpen
 });
+
+export const setFitlerWithInspirations = isChecked => ({
+  type: constants.SET_FILTER_WITH_INSPIRATIONS,
+  payload: isChecked
+});

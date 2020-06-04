@@ -5,6 +5,7 @@ const scoreCompoundMap = state => state.datasetsReducers.scoreCompoundMap;
 const scoreDatasetMap = state => state.datasetsReducers.scoreDatasetMap;
 const filterDatasetMap = state => state.datasetsReducers.filterDatasetMap;
 const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropertiesDatasetMap;
+const filterWithInspirations = state => state.datasetsReducers.filterWithInspirations;
 
 const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
 const proteinList = state => state.selectionReducers.proteinList;
@@ -88,58 +89,6 @@ export const getInitialDatasetFilterProperties = createSelector(
   }
 );
 
-export const getFilteredDatasetMoleculeList = createSelector(
-  (_, datasetID) => datasetID,
-  filterDatasetMap,
-  filterPropertiesDatasetMap,
-  scoreCompoundMap,
-  moleculeLists,
-  scoreDatasetMap,
-  (datasetID, filterDatasetMap, filterPropertiesDatasetMap, scoreCompoundMap, moleculeLists, scoreDatasetMap) => {
-    const filterSettings = filterDatasetMap && datasetID && filterDatasetMap[datasetID];
-    const filterProperties = filterPropertiesDatasetMap && datasetID && filterPropertiesDatasetMap[datasetID];
-    let datasetMoleculeList = moleculeLists[datasetID] || [];
-    const scoreDatasetList = scoreDatasetMap[datasetID];
-    const isActiveFilter = !!(filterSettings || {}).active;
-    if (isActiveFilter) {
-      // 1. Filter
-      let filteredMolecules = [];
-      Object.keys(scoreCompoundMap).forEach(moleculeID => {
-        let add = true; // By default molecule passes filter
-        for (let attr of scoreDatasetList) {
-          const foundedMolecule = scoreCompoundMap[moleculeID].find(item => item.score.name === attr.name);
-          if (
-            foundedMolecule &&
-            (foundedMolecule.value < filterProperties[attr.name].minValue ||
-              foundedMolecule.value > filterProperties[attr.name].maxValue)
-          ) {
-            add = false;
-            break; // Do not loop over other attributes
-          }
-        }
-        if (add) {
-          filteredMolecules.push(datasetMoleculeList.find(molecule => `${molecule.id}` === moleculeID));
-        }
-      });
-
-      // 2. Sort
-      let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
-
-      return filteredMolecules.sort((a, b) => {
-        for (let prioAttr of sortedAttributes) {
-          const order = filterProperties[prioAttr].order;
-          const attrLo = prioAttr.toLowerCase();
-          let diff = order * (a[attrLo] - b[attrLo]);
-          if (diff !== 0) {
-            return diff;
-          }
-        }
-      });
-    }
-    return datasetMoleculeList;
-  }
-);
-
 export const isAnyInspirationTurnedOn = createSelector(
   (_, inspiration_frags = []) => inspiration_frags,
   fragmentDisplayList,
@@ -163,5 +112,71 @@ export const isAnyInspirationTurnedOn = createSelector(
       }
     });
     return hasInspiration;
+  }
+);
+
+export const getFilteredDatasetMoleculeList = createSelector(
+  (_, datasetID) => datasetID,
+  filterDatasetMap,
+  filterPropertiesDatasetMap,
+  scoreCompoundMap,
+  moleculeLists,
+  scoreDatasetMap,
+  filterWithInspirations,
+  state => state,
+  (
+    datasetID,
+    filterDatasetMap,
+    filterPropertiesDatasetMap,
+    scoreCompoundMap,
+    moleculeLists,
+    scoreDatasetMap,
+    withInspirations,
+    state
+  ) => {
+    const filterSettings = filterDatasetMap && datasetID && filterDatasetMap[datasetID];
+    const filterProperties = filterPropertiesDatasetMap && datasetID && filterPropertiesDatasetMap[datasetID];
+    let datasetMoleculeList = moleculeLists[datasetID] || [];
+    const scoreDatasetList = scoreDatasetMap[datasetID];
+    const isActiveFilter = !!(filterSettings || {}).active;
+    if (isActiveFilter) {
+      // 1. Filter
+      let filteredMolecules = [];
+      Object.keys(scoreCompoundMap).forEach(moleculeID => {
+        const foundedMolecule = datasetMoleculeList.find(molecule => `${molecule.id}` === moleculeID);
+        let add = true; // By default molecule passes filter
+        for (let attr of scoreDatasetList) {
+          const foundedMoleculeScore = scoreCompoundMap[moleculeID].find(item => item.score.name === attr.name);
+          if (
+            foundedMoleculeScore &&
+            (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
+              foundedMoleculeScore.value > filterProperties[attr.name].maxValue ||
+              (withInspirations === true &&
+                isAnyInspirationTurnedOn(state, foundedMolecule.inspiration_frags) === false))
+          ) {
+            add = false;
+            break; // Do not loop over other attributes
+          }
+        }
+        if (add) {
+          filteredMolecules.push(foundedMolecule);
+        }
+      });
+
+      // 2. Sort
+      let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
+
+      return filteredMolecules.sort((a, b) => {
+        for (let prioAttr of sortedAttributes) {
+          const order = filterProperties[prioAttr].order;
+          const attrLo = prioAttr.toLowerCase();
+          let diff = order * (a[attrLo] - b[attrLo]);
+          if (diff !== 0) {
+            return diff;
+          }
+        }
+      });
+    }
+    return datasetMoleculeList;
   }
 );
