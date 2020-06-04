@@ -140,30 +140,31 @@ export const getFilteredDatasetMoleculeList = createSelector(
     const scoreDatasetList = scoreDatasetMap[datasetID];
     const isActiveFilter = !!(filterSettings || {}).active;
     if (isActiveFilter) {
-      // 1. Filter
+      // 1. Filter by scores
       let filteredMolecules = [];
-      Object.keys(scoreCompoundMap).forEach(moleculeID => {
-        const foundedMolecule = datasetMoleculeList.find(molecule => `${molecule.id}` === moleculeID);
+      datasetMoleculeList.forEach(molecule => {
         let add = true; // By default molecule passes filter
         for (let attr of scoreDatasetList) {
-          const foundedMoleculeScore = scoreCompoundMap[moleculeID].find(item => item.score.name === attr.name);
+          const foundedMoleculeScore = scoreCompoundMap[molecule.id].find(item => item.score.name === attr.name);
           if (
-            foundedMoleculeScore &&
-            (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
-              foundedMoleculeScore.value > filterProperties[attr.name].maxValue ||
-              (withInspirations === true &&
-                isAnyInspirationTurnedOn(state, foundedMolecule.inspiration_frags) === false))
+            (foundedMoleculeScore &&
+              (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
+                foundedMoleculeScore.value > filterProperties[attr.name].maxValue)) ||
+            (withInspirations === true && isAnyInspirationTurnedOn(state, molecule.inspiration_frags) === false) ||
+            (!foundedMoleculeScore &&
+              withInspirations === true &&
+              isAnyInspirationTurnedOn(state, molecule.inspiration_frags) === false)
           ) {
             add = false;
             break; // Do not loop over other attributes
           }
         }
         if (add) {
-          filteredMolecules.push(foundedMolecule);
+          filteredMolecules.push(molecule);
         }
       });
 
-      // 2. Sort
+      // 3. Sort
       let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
 
       return filteredMolecules.sort((a, b) => {
