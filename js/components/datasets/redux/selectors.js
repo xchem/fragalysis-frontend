@@ -145,7 +145,10 @@ export const getFilteredDatasetMoleculeList = createSelector(
       datasetMoleculeList.forEach(molecule => {
         let add = true; // By default molecule passes filter
         for (let attr of scoreDatasetList) {
-          const foundedMoleculeScore = scoreCompoundMap[molecule.id].find(item => item.score.name === attr.name);
+          const foundedMoleculeScore =
+            scoreCompoundMap &&
+            scoreCompoundMap[molecule.id] &&
+            scoreCompoundMap[molecule.id].find(item => item.score.name === attr.name);
           if (
             (foundedMoleculeScore &&
               (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
