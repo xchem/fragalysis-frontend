@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -166,7 +166,6 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
-  const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists[datasetID]);
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[currentID], isEqual);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
@@ -183,7 +182,6 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
   const isComplexOn = (currentID && complexList.includes(currentID)) || false;
   const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
-  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
 
   const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
   const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);

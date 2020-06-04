@@ -1,9 +1,18 @@
 import React, { memo, useState } from 'react';
-import { Paper, Popper, Button, Grid } from '@material-ui/core';
+import {
+  Typography,
+  Popper,
+  Button,
+  Grid,
+  FormControlLabel,
+  Checkbox,
+  IconButton,
+  Drawer as MaterialDrawer
+} from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
-import { Delete } from '@material-ui/icons';
+import { Close, Delete } from '@material-ui/icons';
 import { setFilterProperties, setFilterSettings } from './redux/actions';
 import {
   getFilteredDatasetMoleculeList,
@@ -12,6 +21,7 @@ import {
 } from './redux/selectors';
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 import { createFilterSettingsObject } from './redux/constants';
+import { Panel } from '../common/Surfaces/Panel';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -47,8 +57,20 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     width: 700,
-    overflow: 'none',
-    padding: theme.spacing(1)
+    overflow: 'none'
+  },
+  withInspirations: {
+    paddingTop: theme.spacing(1) / 4
+  },
+  checkboxHeader: {
+    color: theme.palette.white,
+    '&$checked': {
+      color: theme.palette.white
+    }
+  },
+  checked: {},
+  removeButton: {
+    paddingTop: 10
   }
 }));
 
@@ -131,22 +153,37 @@ export const DatasetFilter = memo(
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start">
-        <Paper className={classes.paper} elevation={21}>
+        <Panel
+          hasHeader
+          bodyOverflow
+          secondaryBackground
+          title={`# of hits matching selection: ${(filteredDatasetMoleculeList || []).length}`}
+          className={classes.paper}
+          headerActions={[
+            <FormControlLabel
+              value="end"
+              control={<Checkbox color="default" className={classes.checkboxHeader} />}
+              label="With inspirations"
+              labelPlacement="end"
+              className={classes.withInspirations}
+            />,
+            <IconButton onClick={handleClear} color="inherit" className={classes.removeButton}>
+              <Delete />
+            </IconButton>
+          ]}
+        >
           <Grid container justify="space-between" direction="row" alignItems="center">
             <Grid item>
               <div className={classes.numberOfHits}>
-                # of hits matching selection: <b>{(filteredDatasetMoleculeList || []).length}</b>
                 {prioWarning && (
                   <div>
-                    <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
+                    <Typography variant="body2">
+                      <WarningIcon className={classes.warningIcon} />
+                      Multiple attributes with same sorting priority
+                    </Typography>
                   </div>
                 )}
               </div>
-            </Grid>
-            <Grid item>
-              <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
-                Clear
-              </Button>
             </Grid>
           </Grid>
           <Grid container>
@@ -201,7 +238,7 @@ export const DatasetFilter = memo(
               );
             })}
           </Grid>
-        </Paper>
+        </Panel>
       </Popper>
     );
   }
