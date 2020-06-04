@@ -194,9 +194,15 @@ export const InspirationDialog = memo(
       return false;
     };
 
-    const isLigandOn = changeButtonClassname(ligandList);
-    const isProteinOn = changeButtonClassname(proteinList);
-    const isComplexOn = changeButtonClassname(complexList);
+    const isLigandOn = changeButtonClassname(
+      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined)
+    );
+    const isProteinOn = changeButtonClassname(
+      proteinList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined)
+    );
+    const isComplexOn = changeButtonClassname(
+      complexList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined)
+    );
 
     const addType = {
       ligand: addLigand,
