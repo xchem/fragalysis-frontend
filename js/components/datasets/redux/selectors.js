@@ -6,6 +6,13 @@ const scoreDatasetMap = state => state.datasetsReducers.scoreDatasetMap;
 const filterDatasetMap = state => state.datasetsReducers.filterDatasetMap;
 const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropertiesDatasetMap;
 
+const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
+const proteinList = state => state.selectionReducers.proteinList;
+const complexList = state => state.selectionReducers.complexList;
+const surfaceList = state => state.selectionReducers.surfaceList;
+const densityList = state => state.selectionReducers.densityList;
+const vectorOnList = state => state.selectionReducers.vectorOnList;
+
 export const scoreListOfMolecules = createSelector(
   (_, datasetID) => datasetID,
   moleculeLists,
@@ -130,5 +137,25 @@ export const getFilteredDatasetMoleculeList = createSelector(
       });
     }
     return datasetMoleculeList;
+  }
+);
+
+export const isAnyInspirationTurnedOn = createSelector(
+  (_, moleculeID) => moleculeID,
+  fragmentDisplayList,
+  proteinList,
+  complexList,
+  surfaceList,
+  densityList,
+  vectorOnList,
+  (moleculeID, ligands, proteins, complexis, surfaces, densities, vectors) => {
+    const allLists = new Set(ligands);
+    proteins.forEach(p => allLists.add(p));
+    complexis.forEach(p => allLists.add(p));
+    surfaces.forEach(p => allLists.add(p));
+    densities.forEach(p => allLists.add(p));
+    vectors.forEach(p => allLists.add(p));
+
+    return moleculeID && allLists.has(moleculeID);
   }
 );

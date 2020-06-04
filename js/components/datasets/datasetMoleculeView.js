@@ -24,6 +24,7 @@ import {
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isEqual } from 'lodash';
+import { isAnyInspirationTurnedOn } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -169,6 +170,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[data.id], isEqual);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
+  const isAnyInspirationOn = useSelector(state => isAnyInspirationTurnedOn(state, data && data.id));
 
   const [image, setImage] = useState(img_data_init);
 
@@ -488,7 +490,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
                 <Button
                   variant="outlined"
                   className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: isInspirationOn
+                    [classes.contColButtonSelected]: isAnyInspirationOn
                   })}
                   onClick={() => {
                     dispatch(
