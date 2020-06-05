@@ -1,10 +1,15 @@
 import React, { memo, useState } from 'react';
-import { Typography, Popper, Grid, FormControlLabel, Checkbox, IconButton } from '@material-ui/core';
+import { Typography, Popper, Grid, FormControlLabel, Checkbox, IconButton, Tooltip } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
-import { Delete } from '@material-ui/icons';
-import { setFilterProperties, setFilterSettings, setFitlerWithInspirations } from './redux/actions';
+import { Delete, Close } from '@material-ui/icons';
+import {
+  setFilterDialogOpen,
+  setFilterProperties,
+  setFilterSettings,
+  setFitlerWithInspirations
+} from './redux/actions';
 import {
   getFilteredDatasetMoleculeList,
   getInitialDatasetFilterProperties,
@@ -60,7 +65,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   checked: {},
-  removeButton: {
+  headerButton: {
     paddingTop: 10
   }
 }));
@@ -73,7 +78,7 @@ const widthMin = 30;
 const widthSlider = 170;
 
 export const DatasetFilter = memo(
-  ({ open, anchorEl, datasetID, active, predefined, priorityOrder, filterProperties }) => {
+  ({ open, anchorEl, datasetID, active, predefined, priorityOrder, filterProperties, setSortDialogAnchorEl }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
     const id = open ? 'simple-popover-datasets' : undefined;
@@ -149,7 +154,7 @@ export const DatasetFilter = memo(
           hasHeader
           bodyOverflow
           secondaryBackground
-          title={`# of hits matching selection: ${(filteredDatasetMoleculeList || []).length}`}
+          title={`Right filter: ${(filteredDatasetMoleculeList || []).length} matches`}
           className={classes.paper}
           headerActions={[
             <FormControlLabel
@@ -169,9 +174,23 @@ export const DatasetFilter = memo(
               labelPlacement="end"
               className={classes.withInspirations}
             />,
-            <IconButton onClick={handleClear} color="inherit" className={classes.removeButton}>
-              <Delete />
-            </IconButton>
+            <Tooltip title="Clear filter">
+              <IconButton onClick={handleClear} color="inherit" className={classes.headerButton}>
+                <Delete />
+              </IconButton>
+            </Tooltip>,
+            <Tooltip title="Close filter">
+              <IconButton
+                onClick={() => {
+                  setSortDialogAnchorEl(null);
+                  dispatch(setFilterDialogOpen(false));
+                }}
+                color="inherit"
+                className={classes.headerButton}
+              >
+                <Close />
+              </IconButton>
+            </Tooltip>
           ]}
         >
           <Grid container justify="space-between" direction="row" alignItems="center">

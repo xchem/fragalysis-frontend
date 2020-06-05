@@ -511,6 +511,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             molGroupSelection={object_selection}
             cachedMolList={cached_mol_lists}
             filter={filter}
+            setSortDialogAnchorEl={setSortDialogAnchorEl}
           />
         )}
         <div ref={filterRef}>

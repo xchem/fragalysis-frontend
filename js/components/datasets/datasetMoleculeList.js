@@ -158,13 +158,13 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1),
     width: 140,
     '& .MuiInputBase-root': {
-      color: 'white'
+      color: theme.palette.white
     },
     '& .MuiInput-underline:before': {
-      borderBottomColor: 'white'
+      borderBottomColor: theme.palette.white
     },
     '& .MuiInput-underline:after': {
-      borderBottomColor: 'white'
+      borderBottomColor: theme.palette.white
     }
   }
 }));
@@ -391,6 +391,7 @@ export const DatasetMoleculeList = memo(
               active={filterSettings && filterSettings.active}
               predefined={filterSettings && filterSettings.predefined}
               priorityOrder={filterSettings && filterSettings.priorityOrder}
+              setSortDialogAnchorEl={setSortDialogAnchorEl}
             />
           )}
           {isOpenInspirationDialog && (

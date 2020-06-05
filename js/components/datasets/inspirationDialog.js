@@ -34,13 +34,13 @@ import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
+import { Panel } from '../common/Surfaces/Panel';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     width: 472,
     height: 294,
-    overflowY: 'hidden',
-    padding: theme.spacing(1)
+    overflowY: 'hidden'
   },
   molHeader: {
     marginLeft: 19,
@@ -62,24 +62,25 @@ const useStyles = makeStyles(theme => ({
       width: 32
     }
   },
-  closeButton: {
-    paddingTop: 0,
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1)
+  headerButton: {
+    paddingTop: 10
   },
   content: {
     overflowY: 'auto',
     height: 214
   },
-  title: {
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1)
-  },
   search: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1)
+    margin: theme.spacing(1),
+    width: 140,
+    '& .MuiInputBase-root': {
+      color: theme.palette.white
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: theme.palette.white
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: theme.palette.white
+    }
   },
   notFound: {
     paddingTop: theme.spacing(2)
@@ -255,44 +256,38 @@ export const InspirationDialog = memo(
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
-        <Paper className={classes.paper} elevation={21}>
-          <Grid container justify="space-between" direction="row">
-            <Grid item>
-              <Typography variant="h6" className={classes.title}>
-                Inspirations
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Grid container justify="space-between" direction="row">
-                <Grid item>
-                  <TextField
-                    className={classes.search}
-                    id="search-inspiration-dialog"
-                    placeholder="Search"
-                    size="small"
-                    // color="primary"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search color="inherit" />
-                        </InputAdornment>
-                      )
-                    }}
-                    onChange={handleSearch}
-                    disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
-                  />
-                </Grid>
-                <Grid item>
-                  <IconButton
-                    className={classes.closeButton}
-                    onClick={() => dispatch(setIsOpenInspirationDialog(false))}
-                  >
-                    <Close />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+        <Panel
+          hasHeader
+          secondaryBackground
+          title="Inspirations"
+          className={classes.paper}
+          headerActions={[
+            <TextField
+              className={classes.search}
+              id="search-inspiration-dialog"
+              placeholder="Search"
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search color="inherit" />
+                  </InputAdornment>
+                )
+              }}
+              onChange={handleSearch}
+              disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
+            />,
+            <Tooltip title="Close inspirations">
+              <IconButton
+                color="inherit"
+                className={classes.headerButton}
+                onClick={() => dispatch(setIsOpenInspirationDialog(false))}
+              >
+                <Close />
+              </IconButton>
+            </Tooltip>
+          ]}
+        >
           {isLoadingInspirationListOfMolecules === false && moleculeList && (
             <>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
@@ -385,7 +380,7 @@ export const InspirationDialog = memo(
               </Grid>
             </Grid>
           )}
-        </Paper>
+        </Panel>
       </Popper>
     );
   })
