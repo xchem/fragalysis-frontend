@@ -358,7 +358,12 @@ export const DatasetMoleculeList = memo(
       const scrollBarBoundingClientRect =
         (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
 
-      if (currentBoundingClientRect !== null && scrollBarBoundingClientRect !== null) {
+      if (
+        currentBoundingClientRect !== null &&
+        scrollBarBoundingClientRect !== null &&
+        currentBoundingClientRect.x !== 0 &&
+        currentBoundingClientRect.y !== 0
+      ) {
         if (
           currentBoundingClientRect.top < scrollBarBoundingClientRect.top ||
           Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRect.top) < 42
