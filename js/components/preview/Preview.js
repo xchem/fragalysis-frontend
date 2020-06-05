@@ -28,6 +28,7 @@ import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
 //import HotspotList from '../hotspot/hotspotList';
 import { TabsHeader, Tab, TabPanel, a11yTabProps } from '../common/Tabs';
 import { loadDataSets } from '../datasets/redux/dispatchActions';
+import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 
 const hitNavigatorWidth = 504;
 
@@ -177,8 +178,9 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               aria-label="right side tabs"
             >
               <Tab label="Vector selector" disabled={isFilterDialogOpen} {...a11yTabProps(0)} />
+              <Tab label="Selected compounds" disabled={isFilterDialogOpen} {...a11yTabProps(1)} />
               {customDatasets.map((dataset, index) => (
-                <Tab key={index + 1} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 1)} />
+                <Tab key={index + 2} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 2)} />
               ))}
             </TabsHeader>
             <TabPanel value={tabValue} index={0}>
@@ -192,9 +194,12 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                 </Grid>
               </Grid>
             </TabPanel>
-            {/* Custom data set (TODO sets in future) */}
+            <TabPanel value={tabValue} index={1}>
+              <SelectedCompoundList height={customMoleculeListHeight} />
+            </TabPanel>
+
             {customDatasets.map((dataset, index) => (
-              <TabPanel key={index + 1} value={tabValue} index={index + 1}>
+              <TabPanel key={index + 2} value={tabValue} index={index + 2}>
                 <Grid item>
                   <CustomDatasetList
                     dataset={dataset}
