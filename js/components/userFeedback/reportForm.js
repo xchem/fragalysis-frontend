@@ -9,15 +9,15 @@ import { ReportProblem, EmojiObjects, Delete } from '@material-ui/icons';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
 import { HeaderContext } from '../header/headerContext';
-import { Formik, Form, FastField } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { Formik, Form } from 'formik';
 import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
-import { resetForm, setName, setEmail, setTitle, setDescription, setImageSource } from './redux/actions';
+import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { snackbarColors } from '../header/constants';
 import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
+import { TextField } from 'formik-material-ui';
 
 /* Min resolution is 960 x 540 */
 const FORM_MIN_WIDTH = 960;
@@ -90,17 +90,6 @@ export const ReportForm = memo(({ formType }) => {
   const formState = useSelector(state => state.issueReducers);
   const { setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
 
-  /* Specific form type functions */
-  const isValidType = () => {
-    let valid = false;
-    for (let [key, value] of Object.entries(FORM_TYPE)) {
-      if (value === formType) {
-        valid = true;
-        break;
-      }
-    }
-    return valid;
-  };
   const getTitle = () => {
     switch (formType) {
       case FORM_TYPE.ISSUE:
@@ -349,7 +338,7 @@ export const ReportForm = memo(({ formType }) => {
                 }
                 return errors;
               }}
-              onSubmit={async values => {
+              onSubmit={values => {
                 // dispatch(setImageSource(getCanvasDrawDataUrl(canvasDraw))); // does not update in time
                 // set new image from drawing before creating issue
                 dispatch(setName(values.name));
@@ -358,8 +347,17 @@ export const ReportForm = memo(({ formType }) => {
                 dispatch(setDescription(values.description));
                 setDisablePictureModification(true);
                 const imageSource = getCanvasDrawDataUrl(canvasDraw);
-                await dispatch(
-                  createIssue(formState, imageSource, formType.toLowerCase(), getLabels(), afterCreateIssueCallback)
+                dispatch(
+                  createIssue({
+                    imageSource,
+                    formType: formType.toLowerCase(),
+                    labels: getLabels(),
+                    afterCreateIssueCallback,
+                    name: values.name,
+                    email: values.email,
+                    title: values.title,
+                    description: values.description
+                  })
                 );
               }}
             >

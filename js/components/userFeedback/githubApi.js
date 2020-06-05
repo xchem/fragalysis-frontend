@@ -49,11 +49,10 @@ const uploadFile = (imageSource, formType) => async dispatch => {
       headers: getHeaders(),
       data: JSON.stringify(payload)
     }).catch(error => {
-      console.log(error);
+      console.error(error);
       dispatch(setResponse('Error occured: ' + error.message));
       // TODO sentry?
     });
-    console.log(result);
     screenshotUrl = result.data.content.html_url + '?raw=true';
   }
 
@@ -63,11 +62,21 @@ const uploadFile = (imageSource, formType) => async dispatch => {
 /**
  * Create issue in GitHub (thunk actions are used to stored in dispatchActions.js)
  */
-export const createIssue = (formState, imageSource, formType, labels, afterCreateIssueCallback) => async dispatch => {
+export const createIssue = ({
+  imageSource,
+  formType,
+  labels,
+  afterCreateIssueCallback,
+  name,
+  email,
+  title,
+  description
+}) => async dispatch => {
   dispatch(setResponse(''));
 
+  //  const state => state.issueReducers;
   const screenshotUrl = await dispatch(uploadFile(imageSource, formType));
-  let body = ['- Version: ' + version, '- Name: ' + formState.name, '- Description: ' + formState.description];
+  let body = ['- Version: ' + version, '- Name: ' + name, '- Email: ' + email, '- Description: ' + description];
 
   if (screenshotUrl.length > 0) {
     body.push('', '![screenshot](' + screenshotUrl + ')');
@@ -76,7 +85,7 @@ export const createIssue = (formState, imageSource, formType, labels, afterCreat
 
   // https://developer.github.com/v3/issues/#create-an-issue
   var issue = {
-    title: formState.title,
+    title: title,
     body: body,
     labels: labels
   };
@@ -88,11 +97,10 @@ export const createIssue = (formState, imageSource, formType, labels, afterCreat
     data: JSON.stringify(issue)
   })
     .then(result => {
-      console.log(result);
       afterCreateIssueCallback(result.data.html_url);
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
       dispatch(setResponse('Error occured: ' + error.message));
       // TODO sentry?
     });
