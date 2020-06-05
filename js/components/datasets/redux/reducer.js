@@ -1,4 +1,5 @@
 import { constants } from './constants';
+import set from '@babel/runtime/helpers/esm/set';
 
 export const INITIAL_STATE = {
   datasets: [], // list of dataset objects
@@ -28,9 +29,10 @@ export const INITIAL_STATE = {
   isOpenInspirationDialog: false,
   inspirationFragmentList: [],
   isLoadingInspirationListOfMolecules: false,
-  inspirationMoleculeDataList: []
+  inspirationMoleculeDataList: [],
 
   // shopping cart
+  compoundsToBuyDatasetMap: {} // map of $datasetID and its list of moleculeID
 };
 
 /**
@@ -290,6 +292,28 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         diminishedInspirationFragmentList.delete(foundtem);
       }
       return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
+
+    case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
+      const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
+      setOfMolecules.add(action.payload.moleculeID);
+      return {
+        ...state,
+        compoundsToBuyDatasetMap: {
+          ...state.compoundsToBuyDatasetMap,
+          [action.payload.datasetID]: [...setOfMolecules]
+        }
+      };
+
+    case constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET:
+      const listOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
+      listOfMolecules.delete(action.payload.moleculeID);
+      return {
+        ...state,
+        compoundsToBuyDatasetMap: {
+          ...state.compoundsToBuyDatasetMap,
+          [action.payload.datasetID]: [...listOfMolecules]
+        }
+      };
 
     default:
       return state;

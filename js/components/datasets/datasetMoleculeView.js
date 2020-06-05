@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, Typography, Checkbox } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -25,6 +25,7 @@ import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isEqual } from 'lodash';
 import { isAnyInspirationTurnedOn } from './redux/selectors';
+import { appendMoleculeToCompoundsOfDatasetToBuy, removeMoleculeFromCompoundsOfDatasetToBuy } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -127,9 +128,15 @@ const useStyles = makeStyles(theme => ({
     textOverflow: 'ellipsis',
     paddingLeft: theme.spacing(1) / 4
   },
+  selectedMolecule: {
+    color: theme.palette.primary.main
+  },
   loadingProgress: {
     height: 2,
     width: '100%'
+  },
+  checkbox: {
+    padding: 0
   }
 }));
 
@@ -162,6 +169,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const ref = useRef(null);
 
   const dispatch = useDispatch();
+  const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
   const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
@@ -182,6 +190,8 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
   const isComplexOn = (currentID && complexList.includes(currentID)) || false;
   const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
+
+  const isCheckedToBuy = (currentID && compoundsToBuyList && compoundsToBuyList.includes(currentID)) || false;
 
   const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
   const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
@@ -368,16 +378,31 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
       {/*Site number*/}
-      {/*<Grid item container justify="center" direction="column" className={classes.site}>*/}
-      {/*  <Grid item>*/}
-      {/*    <Typography variant="subtitle2">{data.site}</Typography>*/}
-      {/*  </Grid>*/}
-      {/*</Grid>*/}
+      <Grid item container justify="center" direction="column" className={classes.site}>
+        <Grid item>
+          <Checkbox
+            checked={isCheckedToBuy}
+            className={classes.checkbox}
+            size="small"
+            color="primary"
+            onChange={e => {
+              const result = e.target.checked;
+              if (result) {
+                dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID));
+              } else {
+                dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID));
+              }
+            }}
+          />
+        </Grid>
+      </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
         <Grid item xs={7} ref={ref}>
           <Tooltip title={moleculeTitle} placement="bottom-start">
-            <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
+            <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
+              {moleculeTitle}
+            </div>
           </Tooltip>
         </Grid>
         {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)

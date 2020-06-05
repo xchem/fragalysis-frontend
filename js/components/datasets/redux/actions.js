@@ -262,3 +262,13 @@ export const setFitlerWithInspirations = isChecked => ({
   type: constants.SET_FILTER_WITH_INSPIRATIONS,
   payload: isChecked
 });
+
+export const appendMoleculeToCompoundsOfDatasetToBuy = (datasetID, moleculeID) => ({
+  type: constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET,
+  payload: { datasetID, moleculeID }
+});
+
+export const removeMoleculeFromCompoundsOfDatasetToBuy = (datasetID, moleculeID) => ({
+  type: constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET,
+  payload: { datasetID, moleculeID }
+});
