@@ -166,6 +166,9 @@ const useStyles = makeStyles(theme => ({
     '& .MuiInput-underline:after': {
       borderBottomColor: theme.palette.white
     }
+  },
+  loading: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -380,7 +383,7 @@ export const DatasetMoleculeList = memo(
         height={filterItemsHeight}
         forceCompute={isActiveFilter}
       >
-        <Panel hasHeader title={title} withTooltip headerActions={actions} isLoading={isLoadingMoleculeList}>
+        <Panel hasHeader title={title} withTooltip headerActions={actions}>
           {sortDialogOpen && (
             <DatasetFilter
               open={sortDialogOpen}
@@ -402,7 +405,6 @@ export const DatasetMoleculeList = memo(
               ref={inspirationDialogRef}
             />
           )}
-
           <div ref={filterRef}>
             {isActiveFilter && (
               <>
@@ -517,6 +519,13 @@ export const DatasetMoleculeList = memo(
                 </Grid>
               )}
             </Grid>
+            {isLoadingMoleculeList && (
+              <Grid item container alignItems="center" justify="center" className={classes.loading}>
+                <Grid item>
+                  <CircularProgress />
+                </Grid>
+              </Grid>
+            )}
             {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
               <Grid item className={classes.gridItemList} ref={scrollBarRef}>
                 <InfiniteScroll

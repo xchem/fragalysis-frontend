@@ -29,6 +29,8 @@ export const INITIAL_STATE = {
   inspirationFragmentList: [],
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: []
+
+  // shopping cart
 };
 
 /**
