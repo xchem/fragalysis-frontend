@@ -178,7 +178,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
   const filter = useSelector(state => state.selectionReducers.filter);
   const isAnyInspirationOn = useSelector(state =>
-    isAnyInspirationTurnedOn(state, (data && data.inspiration_frags) || [])
+    isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
   );
 
   const [image, setImage] = useState(img_data_init);
@@ -376,7 +376,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
   const moleculeTitle = data && data.name;
 
   return (
-    <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
+    <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
       {/*Site number*/}
       <Grid item container justify="center" direction="column" className={classes.site}>
         <Grid item>
@@ -398,7 +398,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
       </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item xs={7} ref={ref}>
+        <Grid item xs={7}>
           <Tooltip title={moleculeTitle} placement="bottom-start">
             <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
               {moleculeTitle}
@@ -522,7 +522,7 @@ export const DatasetMoleculeView = memo(({ imageHeight, imageWidth, data, datase
                       clickOnInspirations({
                         datasetID,
                         currentID,
-                        inspiration_frags: data && data.inspiration_frags
+                        computed_inspirations: data && data.computed_inspirations
                       })
                     );
                     setRef(ref.current);

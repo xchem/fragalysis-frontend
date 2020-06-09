@@ -250,8 +250,8 @@ export const clearDatasetSettings = datasetID => dispatch => {
   }
 };
 
-export const clickOnInspirations = ({ datasetID, currentID, inspiration_frags = [] }) => dispatch => {
+export const clickOnInspirations = ({ datasetID, currentID, computed_inspirations = [] }) => dispatch => {
   dispatch(setInspirationList(datasetID, [currentID]));
-  dispatch(setInspirationFragmentList(inspiration_frags));
+  dispatch(setInspirationFragmentList(computed_inspirations));
   dispatch(setIsOpenInspirationDialog(true));
 };

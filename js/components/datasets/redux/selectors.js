@@ -91,7 +91,7 @@ export const getInitialDatasetFilterProperties = createSelector(
 );
 
 export const isAnyInspirationTurnedOn = createSelector(
-  (_, inspiration_frags = []) => inspiration_frags,
+  (_, computed_inspirations = []) => computed_inspirations,
   fragmentDisplayList,
   proteinList,
   complexList,
@@ -154,10 +154,10 @@ export const getFilteredDatasetMoleculeList = createSelector(
             (foundedMoleculeScore &&
               (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
                 foundedMoleculeScore.value > filterProperties[attr.name].maxValue)) ||
-            (withInspirations === true && isAnyInspirationTurnedOn(state, molecule.inspiration_frags) === false) ||
+            (withInspirations === true && isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false) ||
             (!foundedMoleculeScore &&
               withInspirations === true &&
-              isAnyInspirationTurnedOn(state, molecule.inspiration_frags) === false)
+              isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false)
           ) {
             add = false;
             break; // Do not loop over other attributes
