@@ -6,6 +6,7 @@ const scoreDatasetMap = state => state.datasetsReducers.scoreDatasetMap;
 const filterDatasetMap = state => state.datasetsReducers.filterDatasetMap;
 const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropertiesDatasetMap;
 const filterWithInspirations = state => state.datasetsReducers.filterWithInspirations;
+const compoundsToBuyDatasetMap = state => state.datasetsReducers.compoundsToBuyDatasetMap;
 
 const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
 const proteinList = state => state.selectionReducers.proteinList;
@@ -182,5 +183,25 @@ export const getFilteredDatasetMoleculeList = createSelector(
       });
     }
     return datasetMoleculeList;
+  }
+);
+
+export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
+  compoundsToBuyDatasetMap,
+  moleculeLists,
+  (compoundsToBuyDatasetMap, moleculeLists) => {
+    let moleculeList = [];
+    Object.keys(compoundsToBuyDatasetMap).forEach(datasetID => {
+      compoundsToBuyDatasetMap[datasetID] &&
+        compoundsToBuyDatasetMap[datasetID].forEach(moleculeID => {
+          if (moleculeLists[datasetID]) {
+            const foundedMolecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
+            if (foundedMolecule) {
+              moleculeList.push({ molecule: foundedMolecule, datasetID });
+            }
+          }
+        });
+    });
+    return moleculeList;
   }
 );
