@@ -11,6 +11,13 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     width: 'inherit',
     color: theme.palette.black
+  },
+  paddingProgress: {
+    padding: theme.spacing(1)
+  },
+  gridItemList: {
+    overflow: 'auto',
+    height: `calc(100% - ${theme.spacing(6)}px)`
   }
 }));
 
