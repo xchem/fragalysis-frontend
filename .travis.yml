@@ -21,10 +21,10 @@
 
 stages:
 - name: test
-  if: branch = im-travis
+  if: branch = master
 - name: trigger downstream
   if: |
-    branch = im-travis \
+    branch = master \
     AND env(TRIGGER_DOWNSTREAM) = yes
 
 # Global variables
@@ -57,7 +57,7 @@ jobs:
     node_js: 8
     script:
     - yarn install && yarn test --passWithNoTests
-    - if [ "$TRAVIS_BRANCH" == "im-travis" ]; then
+    - if [ "$TRAVIS_BRANCH" == "master" ]; then
       yarn run build;
       fi
 
