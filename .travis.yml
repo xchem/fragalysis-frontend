@@ -56,7 +56,7 @@ jobs:
     language: node_js
     node_js: 10
     script:
-    - yarn install && yarn test --passWithNoTests
+    - yarn install
     - if [ "$TRAVIS_BRANCH" == "master" ]; then
       yarn run build;
       fi
