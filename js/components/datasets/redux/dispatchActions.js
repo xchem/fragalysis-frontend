@@ -39,6 +39,7 @@ import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
+import { colourList } from '../../preview/molecule/moleculeView';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
@@ -271,3 +272,79 @@ export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (disp
     dispatch(setIsLoadingCrossReferenceScores(false))
   );
 };
+
+const addAllLigandsFromList = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetLigand(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+const removeAllLigandsFromList = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetLigand(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+export const handleAllLigandsOfCrossReferenceDialog = (areAllSelected, moleculeList = [], stage) => dispatch => {
+  if (areAllSelected) {
+    dispatch(removeAllLigandsFromList(moleculeList, stage));
+  } else {
+    dispatch(addAllLigandsFromList(moleculeList, stage));
+  }
+};
+
+//
+// export const addAllHitProteins = (moleculeList = [], stage) => dispatch => {
+//   moleculeList.forEach(molecule => {
+//     dispatch(addDatasetHitProtein(stage, molecule, colourList[molecule.id % colourList.length]));
+//   });
+// };
+// export const removeAllHitProteins = (moleculeList = [], stage) => dispatch => {
+//   moleculeList.forEach(molecule => {
+//     dispatch(removeDatasetHitProtein(stage, molecule, colourList[molecule.id % colourList.length]));
+//   });
+// };
+//
+// export const removeOrAddAllHitProteinsOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
+//   if (areAllSelected) {
+//     dispatch(removeAllHitProteins(moleculeList, stage));
+//   } else {
+//     dispatch(addAllHitProteins(moleculeList, stage));
+//   }
+// };
+
+/*
+export const addAllComplexes = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(addComplex(stage, molecule, colourList[molecule.id % colourList.length]));
+  });
+};
+export const removeAllComplexes = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(removeComplex(stage, molecule, colourList[molecule.id % colourList.length]));
+  });
+};
+
+export const removeOrAddAllComplexesOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
+  if (areAllSelected) {
+    dispatch(removeAllComplexes(moleculeList, stage));
+  } else {
+    dispatch(addAllComplexes(moleculeList, stage));
+  }
+};
+
+ */

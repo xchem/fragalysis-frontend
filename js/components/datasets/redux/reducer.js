@@ -1,5 +1,4 @@
 import { constants } from './constants';
-import set from '@babel/runtime/helpers/esm/set';
 
 export const INITIAL_STATE = {
   datasets: [], // list of dataset objects

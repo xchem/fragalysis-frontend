@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
-import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMoleculesObjectIDListOfCompoundsToBuy } from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -22,6 +22,9 @@ const useStyles = makeStyles(theme => ({
   gridItemList: {
     overflow: 'auto',
     height: `calc(100% - ${theme.spacing(6)}px)`
+  },
+  notFound: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -61,7 +64,7 @@ export const SelectedCompoundList = memo(({ height }) => {
         <InspirationDialog
           open
           anchorEl={selectedMoleculeRef}
-          //    datasetID={datasetID}
+          //     datasetID={datasetID}
           ref={inspirationDialogRef}
         />
       )}
@@ -102,6 +105,13 @@ export const SelectedCompoundList = memo(({ height }) => {
                 />
               ))}
             </InfiniteScroll>
+          </Grid>
+        )}
+        {!(currentMolecules.length > 0) && (
+          <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
+            <Grid item>
+              <Typography variant="body2">No molecules found!</Typography>
+            </Grid>
           </Grid>
         )}
       </Grid>

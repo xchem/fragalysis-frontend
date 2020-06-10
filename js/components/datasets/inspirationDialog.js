@@ -2,7 +2,6 @@ import React, { forwardRef, memo, useContext, useEffect, useRef, useState } from
 import {
   CircularProgress,
   Grid,
-  Paper,
   Popper,
   IconButton,
   Typography,
@@ -35,6 +34,7 @@ import { colourList } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
+import { changeButtonClassname } from './helpers';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -186,23 +186,17 @@ export const InspirationDialog = memo(
       moleculeList = inspirationMoleculeDataList;
     }
     // TODO refactor from this line (duplicity in datasetMoleculeList.js)
-    const changeButtonClassname = (givenList = []) => {
-      if (moleculeList.length === givenList.length) {
-        return true;
-      } else if (givenList.length > 0) {
-        return null;
-      }
-      return false;
-    };
-
     const isLigandOn = changeButtonClassname(
-      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined)
+      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
+      moleculeList
     );
     const isProteinOn = changeButtonClassname(
-      proteinList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined)
+      proteinList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
+      moleculeList
     );
     const isComplexOn = changeButtonClassname(
-      complexList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined)
+      complexList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
+      moleculeList
     );
 
     const addType = {

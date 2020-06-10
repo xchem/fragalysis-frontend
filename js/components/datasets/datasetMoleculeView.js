@@ -166,7 +166,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
   </circle>  '</svg>`;
 
 export const DatasetMoleculeView = memo(
-  ({ imageHeight, imageWidth, data, datasetID, setRef, showCrossReferenceModal }) => {
+  ({ imageHeight, imageWidth, data, datasetID, setRef, showCrossReferenceModal, hideFButton }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
@@ -516,29 +516,33 @@ export const DatasetMoleculeView = memo(
                   </Button>
                 </Grid>
               </Tooltip>
-              <Tooltip title="computed inspirations">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isAnyInspirationOn
-                    })}
-                    onClick={() => {
-                      dispatch(
-                        clickOnInspirations({
-                          datasetID,
-                          currentID,
-                          computed_inspirations: data && data.computed_inspirations
-                        })
-                      );
-                      setRef(ref.current);
-                    }}
-                    disabled={disableUserInteraction}
-                  >
-                    F
-                  </Button>
-                </Grid>
-              </Tooltip>
+              {!hideFButton && (
+                <Tooltip title="computed inspirations">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isAnyInspirationOn
+                      })}
+                      onClick={() => {
+                        dispatch(
+                          clickOnInspirations({
+                            datasetID,
+                            currentID,
+                            computed_inspirations: data && data.computed_inspirations
+                          })
+                        );
+                        if (setRef) {
+                          setRef(ref.current);
+                        }
+                      }}
+                      disabled={disableUserInteraction}
+                    >
+                      F
+                    </Button>
+                  </Grid>
+                </Tooltip>
+              )}
               {showCrossReferenceModal && (
                 <Tooltip title="cross reference">
                   <Grid item>
@@ -550,7 +554,9 @@ export const DatasetMoleculeView = memo(
                       onClick={() => {
                         dispatch(setCrossReferenceCompoundName(moleculeTitle));
                         dispatch(setIsOpenCrossReferenceDialog(true));
-                        setRef(ref.current);
+                        if (setRef) {
+                          setRef(ref.current);
+                        }
                       }}
                       disabled={disableUserInteraction}
                     >

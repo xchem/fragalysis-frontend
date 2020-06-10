@@ -1,45 +1,22 @@
-import React, { forwardRef, memo, useContext, useEffect, useRef, useState } from 'react';
-import {
-  CircularProgress,
-  Grid,
-  Paper,
-  Popper,
-  IconButton,
-  Typography,
-  InputAdornment,
-  TextField,
-  Tooltip
-} from '@material-ui/core';
-import { Close, Search } from '@material-ui/icons';
+import React, { forwardRef, memo, useContext, useEffect, useState } from 'react';
+import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  addComplex,
-  addLigand,
-  addHitProtein,
-  addSurface,
-  removeComplex,
-  removeLigand,
-  removeHitProtein,
-  removeSurface
-} from '../preview/molecule/redux/dispatchActions';
-import {
   loadScoresOfCrossReferenceCompounds,
-  loadInspirationMoleculesDataList,
+  handleAllLigandsOfCrossReferenceDialog,
   resetCrossReferenceDialog
 } from './redux/dispatchActions';
-import MoleculeView from '../preview/molecule/moleculeView';
-import { moleculeProperty } from '../preview/molecule/helperConstants';
-import { debounce } from 'lodash';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { colourList } from './datasetMoleculeView';
+import { DatasetMoleculeView } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { getCrossReferenceCompoundListByCompoundName } from './redux/selectors';
-import { setCrossReferenceCompoundsDataList, setIsLoadingCrossReferenceScores } from './redux/actions';
+import { changeButtonClassname, onButtonToggle } from './helpers';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -140,33 +117,46 @@ export const CrossReferenceDialog = memo(
     const imgHeight = 34;
     const imgWidth = 150;
     const classes = useStyles();
-    const [searchString, setSearchString] = useState(null);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
     const disableUserInteraction = useDisableUserInteraction();
 
-    const inspirationMoleculeDataList = useSelector(state => getCrossReferenceCompoundListByCompoundName(state));
+    const moleculeList = useSelector(state => getCrossReferenceCompoundListByCompoundName(state));
     const isLoadingCrossReferenceScores = useSelector(state => state.datasetsReducers.isLoadingCrossReferenceScores);
 
-    // TODO load scores in case when inspirationMoleculeDataList is not empty
+    const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const complexList = useSelector(state => state.selectionReducers.complexList);
+
     useEffect(() => {
-      if (
-        inspirationMoleculeDataList &&
-        Array.isArray(inspirationMoleculeDataList) &&
-        inspirationMoleculeDataList.length > 0
-      ) {
+      if (moleculeList && Array.isArray(moleculeList) && moleculeList.length > 0) {
         // moleculeList has following structure:
         // [
         // {molecule: {any data...}, datasetID: 1},
         // ...]
-        dispatch(
-          loadScoresOfCrossReferenceCompounds([...new Set(inspirationMoleculeDataList.map(item => item.datasetID))])
-        );
+        dispatch(loadScoresOfCrossReferenceCompounds([...new Set(moleculeList.map(item => item.datasetID))]));
       }
-    }, [dispatch, inspirationMoleculeDataList]);
+    }, [dispatch, moleculeList]);
 
-    let moleculeList = inspirationMoleculeDataList.map(item => item.molecule);
+    const isLigandOn = changeButtonClassname(
+      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined),
+      moleculeList
+    );
+    const isProteinOn = changeButtonClassname(
+      proteinList.filter(
+        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+      ),
+      moleculeList
+    );
+    const isComplexOn = changeButtonClassname(
+      complexList.filter(
+        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+      ),
+      moleculeList
+    );
+
+    console.log('isLigandOn ', isLigandOn, ' isProteinOn ', isProteinOn, ' isComplexOn ', isComplexOn);
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -190,77 +180,99 @@ export const CrossReferenceDialog = memo(
           {isLoadingCrossReferenceScores === false && moleculeList && (
             <>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                {/*<Grid item container justify="flex-start" direction="row">*/}
-                {/*{Object.keys(moleculeProperty).map(key => (*/}
-                {/*  <Grid item key={key} className={classes.rightBorder}>*/}
-                {/*    {moleculeProperty[key]}*/}
-                {/*  </Grid>*/}
-                {/*))}*/}
-                {/*{moleculeList.length > 0 && (*/}
-                {/*  <Grid item>*/}
-                {/*    <Grid*/}
-                {/*      container*/}
-                {/*      direction="row"*/}
-                {/*      justify="flex-start"*/}
-                {/*      alignItems="center"*/}
-                {/*      wrap="nowrap"*/}
-                {/*      className={classes.contButtonsMargin}*/}
-                {/*    >*/}
-                {/*      <Tooltip title="all ligands">*/}
-                {/*        <Grid item>*/}
-                {/*          <Button*/}
-                {/*            variant="outlined"*/}
-                {/*            className={classNames(classes.contColButton, {*/}
-                {/*              [classes.contColButtonSelected]: isLigandOn,*/}
-                {/*              [classes.contColButtonHalfSelected]: isLigandOn === null*/}
-                {/*            })}*/}
-                {/*            onClick={() => onButtonToggle('ligand')}*/}
-                {/*            disabled={disableUserInteraction}*/}
-                {/*          >*/}
-                {/*            L*/}
-                {/*          </Button>*/}
-                {/*        </Grid>*/}
-                {/*      </Tooltip>*/}
-                {/*      <Tooltip title="all sidechains">*/}
-                {/*        <Grid item>*/}
-                {/*          <Button*/}
-                {/*            variant="outlined"*/}
-                {/*            className={classNames(classes.contColButton, {*/}
-                {/*              [classes.contColButtonSelected]: isProteinOn,*/}
-                {/*              [classes.contColButtonHalfSelected]: isProteinOn === null*/}
-                {/*            })}*/}
-                {/*            onClick={() => onButtonToggle('protein')}*/}
-                {/*            disabled={disableUserInteraction}*/}
-                {/*          >*/}
-                {/*            P*/}
-                {/*          </Button>*/}
-                {/*        </Grid>*/}
-                {/*      </Tooltip>*/}
-                {/*      <Tooltip title="all interactions">*/}
-                {/*        <Grid item>*/}
-                {/*          /!* C stands for contacts now *!/*/}
-                {/*          <Button*/}
-                {/*            variant="outlined"*/}
-                {/*            className={classNames(classes.contColButton, {*/}
-                {/*              [classes.contColButtonSelected]: isComplexOn,*/}
-                {/*              [classes.contColButtonHalfSelected]: isComplexOn === null*/}
-                {/*            })}*/}
-                {/*            onClick={() => onButtonToggle('complex')}*/}
-                {/*            disabled={disableUserInteraction}*/}
-                {/*          >*/}
-                {/*            C*/}
-                {/*          </Button>*/}
-                {/*        </Grid>*/}
-                {/*      </Tooltip>*/}
-                {/*    </Grid>*/}
-                {/*  </Grid>*/}
-                {/*)}*/}
-                {/*</Grid>*/}
+                <Grid item container justify="flex-start" direction="row">
+                  {moleculeList.length > 0 && (
+                    <Grid item>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="flex-start"
+                        alignItems="center"
+                        wrap="nowrap"
+                        className={classes.contButtonsMargin}
+                      >
+                        <Tooltip title="all ligands">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isLigandOn,
+                                [classes.contColButtonHalfSelected]: isLigandOn === null
+                              })}
+                              onClick={() => {
+                                dispatch(handleAllLigandsOfCrossReferenceDialog(isLigandOn, moleculeList, stage));
+                              }}
+                              disabled={disableUserInteraction}
+                            >
+                              L
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all sidechains">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isProteinOn,
+                                [classes.contColButtonHalfSelected]: isProteinOn === null
+                              })}
+                              onClick={
+                                () => {}
+                                // dispatch(
+                                //   removeOrAddAllHitProteinsOfList(
+                                //     isProteinOn,
+                                //     moleculeList.map(item => item.molecule),
+                                //     stage
+                                //   )
+                                // )
+                              }
+                              disabled={disableUserInteraction}
+                            >
+                              P
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all interactions">
+                          <Grid item>
+                            {/* C stands for contacts now */}
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isComplexOn,
+                                [classes.contColButtonHalfSelected]: isComplexOn === null
+                              })}
+                              onClick={
+                                () => {}
+                                // dispatch(
+                                //   removeOrAddAllComplexesOfList(
+                                //     isComplexOn,
+                                //     moleculeList.map(item => item.molecule),
+                                //     stage
+                                //   )
+                                // )
+                              }
+                              disabled={disableUserInteraction}
+                            >
+                              C
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                      </Grid>
+                    </Grid>
+                  )}
+                </Grid>
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((molecule, index) => (
-                    <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
+                  moleculeList.map((data, index) => (
+                    <DatasetMoleculeView
+                      key={index}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data.molecule}
+                      datasetID={data.datasetID}
+                      hideFButton
+                    />
                   ))}
                 {!(moleculeList.length > 0) && (
                   <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
