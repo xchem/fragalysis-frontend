@@ -130,7 +130,7 @@ const useStyles = makeStyles(theme => ({
 
 export const InspirationDialog = memo(
   forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
-    const id = open ? 'simple-popover-compound-cross-reference' : undefined;
+    const id = open ? 'simple-popover-compound-inspirations' : undefined;
     const imgHeight = 34;
     const imgWidth = 150;
     const classes = useStyles();

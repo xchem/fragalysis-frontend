@@ -31,6 +31,12 @@ export const INITIAL_STATE = {
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: [],
 
+  // cross reference
+  isOpenCrossReferenceDialog: false,
+  crossReferenceCompoundName: null,
+  isLoadingCrossReferenceScores: false,
+  crossReferenceCompoundsDataList: [],
+
   // shopping cart
   compoundsToBuyDatasetMap: {} // map of $datasetID and its list of moleculeID
 };
@@ -250,6 +256,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
       return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
+
+    case constants.SET_IS_OPEN_CROSS_REFERENCE_DIALOG:
+      return Object.assign({}, state, { isOpenCrossReferenceDialog: action.payload });
+
+    case constants.SET_CROSS_REFERENCE_COMPOUND_NAME:
+      return Object.assign({}, state, { crossReferenceCompoundName: action.payload });
+
+    case constants.SET_IS_LOADING_CROSS_REFERENCE_SCORES:
+      return Object.assign({}, state, { isLoadingCrossReferenceScores: action.payload });
 
     case constants.SET_IS_LOADING_INSPIRATION_LIST_OF_MOLECULES:
       return Object.assign({}, state, { isLoadingInspirationListOfMolecules: action.payload });

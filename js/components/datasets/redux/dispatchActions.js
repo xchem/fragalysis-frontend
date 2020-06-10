@@ -21,7 +21,10 @@ import {
   setInspirationList,
   setIsOpenInspirationDialog,
   clearScoreCompoundMap,
-  setInspirationFragmentList
+  setInspirationFragmentList,
+  setIsOpenCrossReferenceDialog,
+  setCrossReferenceCompoundName,
+  setIsLoadingCrossReferenceScores
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -254,4 +257,17 @@ export const clickOnInspirations = ({ datasetID, currentID, computed_inspiration
   dispatch(setInspirationList(datasetID, [currentID]));
   dispatch(setInspirationFragmentList(computed_inspirations));
   dispatch(setIsOpenInspirationDialog(true));
+};
+
+export const resetCrossReferenceDialog = () => dispatch => {
+  dispatch(setIsOpenCrossReferenceDialog(false));
+  dispatch(setCrossReferenceCompoundName(null));
+  dispatch(setIsLoadingCrossReferenceScores(false));
+};
+
+export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (dispatch, getState) => {
+  dispatch(setIsLoadingCrossReferenceScores(true));
+  Promise.all(datasetIDList.map(datasetID => dispatch(loadCompoundScoresListOfDataSet(datasetID)))).finally(() =>
+    dispatch(setIsLoadingCrossReferenceScores(false))
+  );
 };

@@ -7,6 +7,8 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { DatasetMoleculeView } from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
+import { CrossReferenceDialog } from './crossReferenceDialog';
+import { resetCrossReferenceDialog } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -33,8 +35,10 @@ export const SelectedCompoundList = memo(({ height }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);
   const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
-  const [selectedInspirationMoleculeRef, setSelectedInspirationMoleculeRef] = useState(null);
+  const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
+  const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
   const inspirationDialogRef = useRef();
+  const crossReferenceDialogRef = useRef();
 
   const loadNextMolecules = () => {
     setCurrentPage(currentPage + 1);
@@ -47,6 +51,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   useEffect(() => {
     return () => {
       dispatch(setIsOpenInspirationDialog(false));
+      dispatch(resetCrossReferenceDialog());
     };
   }, [dispatch]);
 
@@ -55,10 +60,13 @@ export const SelectedCompoundList = memo(({ height }) => {
       {isOpenInspirationDialog && (
         <InspirationDialog
           open
-          anchorEl={selectedInspirationMoleculeRef}
+          anchorEl={selectedMoleculeRef}
           //    datasetID={datasetID}
           ref={inspirationDialogRef}
         />
+      )}
+      {isOpenCrossReferenceDialog && (
+        <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
       <Grid container direction="column" justify="flex-start" className={classes.container} style={{ height: height }}>
         {currentMolecules.length > 0 && (
@@ -89,7 +97,8 @@ export const SelectedCompoundList = memo(({ height }) => {
                   imageWidth={imgWidth}
                   data={data.molecule}
                   datasetID={data.datasetID}
-                  setRef={setSelectedInspirationMoleculeRef}
+                  setRef={setSelectedMoleculeRef}
+                  showCrossReferenceModal
                 />
               ))}
             </InfiniteScroll>

@@ -7,6 +7,7 @@ const filterDatasetMap = state => state.datasetsReducers.filterDatasetMap;
 const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropertiesDatasetMap;
 const filterWithInspirations = state => state.datasetsReducers.filterWithInspirations;
 const compoundsToBuyDatasetMap = state => state.datasetsReducers.compoundsToBuyDatasetMap;
+const crossReferenceCompoundName = state => state.datasetsReducers.crossReferenceCompoundName;
 
 const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
 const proteinList = state => state.selectionReducers.proteinList;
@@ -203,5 +204,20 @@ export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
         });
     });
     return moleculeList;
+  }
+);
+
+export const getCrossReferenceCompoundListByCompoundName = createSelector(
+  crossReferenceCompoundName,
+  moleculeLists,
+  (compoundName, moleculesDatasetMap) => {
+    let results = [];
+    Object.keys(moleculesDatasetMap).forEach(datasetID => {
+      const currentList = moleculesDatasetMap[datasetID];
+      if (currentList && Array.isArray(currentList)) {
+        results.push({ molecule: currentList.find(item => item.name === compoundName), datasetID });
+      }
+    });
+    return results;
   }
 );

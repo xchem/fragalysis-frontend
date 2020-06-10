@@ -258,6 +258,21 @@ export const setIsOpenInspirationDialog = isOpen => ({
   payload: isOpen
 });
 
+export const setIsOpenCrossReferenceDialog = isOpen => ({
+  type: constants.SET_IS_OPEN_CROSS_REFERENCE_DIALOG,
+  payload: isOpen
+});
+
+export const setCrossReferenceCompoundName = name => ({
+  type: constants.SET_CROSS_REFERENCE_COMPOUND_NAME,
+  payload: name
+});
+
+export const setIsLoadingCrossReferenceScores = isLoading => ({
+  type: constants.SET_IS_LOADING_CROSS_REFERENCE_SCORES,
+  payload: isLoading
+});
+
 export const setFitlerWithInspirations = isChecked => ({
   type: constants.SET_FILTER_WITH_INSPIRATIONS,
   payload: isChecked
