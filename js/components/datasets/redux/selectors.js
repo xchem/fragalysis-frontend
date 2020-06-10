@@ -8,6 +8,7 @@ const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropert
 const filterWithInspirations = state => state.datasetsReducers.filterWithInspirations;
 const compoundsToBuyDatasetMap = state => state.datasetsReducers.compoundsToBuyDatasetMap;
 const crossReferenceCompoundName = state => state.datasetsReducers.crossReferenceCompoundName;
+const datasetLigandLists = state => state.datasetsReducers.ligandLists;
 
 const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
 const proteinList = state => state.selectionReducers.proteinList;
@@ -221,3 +222,42 @@ export const getCrossReferenceCompoundListByCompoundName = createSelector(
     return results;
   }
 );
+
+export const getListOfSelectedLigandOfAllDatasets = state => {
+  let resultSet = new Set();
+  const ligandsDatasetMap = state.datasetsReducers.ligandLists;
+  Object.keys(ligandsDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = ligandsDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};
+
+export const getListOfSelectedProteinOfAllDatasets = state => {
+  let resultSet = new Set();
+  const proteinsDatasetMap = state.datasetsReducers.proteinLists;
+  Object.keys(proteinsDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = proteinsDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};
+
+export const getListOfSelectedComplexOfAllDatasets = state => {
+  let resultSet = new Set();
+  const complexesDatasetMap = state.datasetsReducers.complexLists;
+  Object.keys(complexesDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = complexesDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};

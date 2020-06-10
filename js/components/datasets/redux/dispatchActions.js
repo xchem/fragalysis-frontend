@@ -307,35 +307,62 @@ export const handleAllLigandsOfCrossReferenceDialog = (areAllSelected, moleculeL
   }
 };
 
-//
-// export const addAllHitProteins = (moleculeList = [], stage) => dispatch => {
-//   moleculeList.forEach(molecule => {
-//     dispatch(addDatasetHitProtein(stage, molecule, colourList[molecule.id % colourList.length]));
-//   });
-// };
-// export const removeAllHitProteins = (moleculeList = [], stage) => dispatch => {
-//   moleculeList.forEach(molecule => {
-//     dispatch(removeDatasetHitProtein(stage, molecule, colourList[molecule.id % colourList.length]));
-//   });
-// };
-//
-// export const removeOrAddAllHitProteinsOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
-//   if (areAllSelected) {
-//     dispatch(removeAllHitProteins(moleculeList, stage));
-//   } else {
-//     dispatch(addAllHitProteins(moleculeList, stage));
-//   }
-// };
-
-/*
-export const addAllComplexes = (moleculeList = [], stage) => dispatch => {
+const addAllHitProteins = (moleculeList = [], stage) => dispatch => {
   moleculeList.forEach(molecule => {
-    dispatch(addComplex(stage, molecule, colourList[molecule.id % colourList.length]));
+    dispatch(
+      addDatasetHitProtein(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
   });
 };
-export const removeAllComplexes = (moleculeList = [], stage) => dispatch => {
+const removeAllHitProteins = (moleculeList = [], stage) => dispatch => {
   moleculeList.forEach(molecule => {
-    dispatch(removeComplex(stage, molecule, colourList[molecule.id % colourList.length]));
+    dispatch(
+      removeDatasetHitProtein(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+export const removeOrAddAllHitProteinsOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
+  if (areAllSelected) {
+    dispatch(removeAllHitProteins(moleculeList, stage));
+  } else {
+    dispatch(addAllHitProteins(moleculeList, stage));
+  }
+};
+
+const addAllComplexes = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetComplex(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+const removeAllComplexes = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      removeDatasetComplex(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
   });
 };
 
@@ -346,5 +373,3 @@ export const removeOrAddAllComplexesOfList = (areAllSelected, moleculeList = [],
     dispatch(addAllComplexes(moleculeList, stage));
   }
 };
-
- */

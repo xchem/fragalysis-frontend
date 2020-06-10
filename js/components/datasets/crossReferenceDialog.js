@@ -6,7 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   loadScoresOfCrossReferenceCompounds,
   handleAllLigandsOfCrossReferenceDialog,
-  resetCrossReferenceDialog
+  resetCrossReferenceDialog,
+  removeOrAddAllHitProteinsOfList,
+  removeOrAddAllComplexesOfList
 } from './redux/dispatchActions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
@@ -15,7 +17,12 @@ import { DatasetMoleculeView } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
-import { getCrossReferenceCompoundListByCompoundName } from './redux/selectors';
+import {
+  getCrossReferenceCompoundListByCompoundName,
+  getListOfSelectedComplexOfAllDatasets,
+  getListOfSelectedLigandOfAllDatasets,
+  getListOfSelectedProteinOfAllDatasets
+} from './redux/selectors';
 import { changeButtonClassname, onButtonToggle } from './helpers';
 
 const useStyles = makeStyles(theme => ({
@@ -125,9 +132,9 @@ export const CrossReferenceDialog = memo(
     const moleculeList = useSelector(state => getCrossReferenceCompoundListByCompoundName(state));
     const isLoadingCrossReferenceScores = useSelector(state => state.datasetsReducers.isLoadingCrossReferenceScores);
 
-    const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
+    const ligandList = useSelector(state => getListOfSelectedLigandOfAllDatasets(state));
+    const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
+    const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
 
     useEffect(() => {
       if (moleculeList && Array.isArray(moleculeList) && moleculeList.length > 0) {
@@ -155,8 +162,6 @@ export const CrossReferenceDialog = memo(
       ),
       moleculeList
     );
-
-    console.log('isLigandOn ', isLigandOn, ' isProteinOn ', isProteinOn, ' isComplexOn ', isComplexOn);
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -199,9 +204,9 @@ export const CrossReferenceDialog = memo(
                                 [classes.contColButtonSelected]: isLigandOn,
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
-                              onClick={() => {
-                                dispatch(handleAllLigandsOfCrossReferenceDialog(isLigandOn, moleculeList, stage));
-                              }}
+                              onClick={() =>
+                                dispatch(handleAllLigandsOfCrossReferenceDialog(isLigandOn, moleculeList, stage))
+                              }
                               disabled={disableUserInteraction}
                             >
                               L
@@ -216,15 +221,8 @@ export const CrossReferenceDialog = memo(
                                 [classes.contColButtonSelected]: isProteinOn,
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
-                              onClick={
-                                () => {}
-                                // dispatch(
-                                //   removeOrAddAllHitProteinsOfList(
-                                //     isProteinOn,
-                                //     moleculeList.map(item => item.molecule),
-                                //     stage
-                                //   )
-                                // )
+                              onClick={() =>
+                                dispatch(removeOrAddAllHitProteinsOfList(isProteinOn, moleculeList, stage))
                               }
                               disabled={disableUserInteraction}
                             >
@@ -241,16 +239,7 @@ export const CrossReferenceDialog = memo(
                                 [classes.contColButtonSelected]: isComplexOn,
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
-                              onClick={
-                                () => {}
-                                // dispatch(
-                                //   removeOrAddAllComplexesOfList(
-                                //     isComplexOn,
-                                //     moleculeList.map(item => item.molecule),
-                                //     stage
-                                //   )
-                                // )
-                              }
+                              onClick={() => dispatch(removeOrAddAllComplexesOfList(isComplexOn, moleculeList, stage))}
                               disabled={disableUserInteraction}
                             >
                               C
