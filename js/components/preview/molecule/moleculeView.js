@@ -417,7 +417,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
     return cssClass;
   };
 
-  const moleculeTitle = target_on_name && data.protein_code && data.protein_code.replace(`${target_on_name}-`, '');
+  let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
 
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">

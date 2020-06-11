@@ -1,5 +1,3 @@
-import { colourList } from './datasetMoleculeView';
-
 export const changeButtonClassname = (givenList = [], moleculeList = []) => {
   if (moleculeList.length === givenList.length) {
     return true;

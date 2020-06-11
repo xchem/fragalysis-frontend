@@ -40,6 +40,7 @@ import { FilterList, Search, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
 import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
+import { CrossReferenceDialog } from './crossReferenceDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -184,6 +185,8 @@ export const DatasetMoleculeList = memo(
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
     const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+    const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
+    const crossReferenceDialogRef = useRef();
 
     const searchString = useSelector(state => state.datasetsReducers.searchString);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
@@ -201,7 +204,7 @@ export const DatasetMoleculeList = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const [selectedInspirationMoleculeRef, setSelectedInspirationMoleculeRef] = useState(null);
+    const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
     const filterRef = useRef();
 
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
@@ -398,12 +401,10 @@ export const DatasetMoleculeList = memo(
             />
           )}
           {isOpenInspirationDialog && (
-            <InspirationDialog
-              open
-              anchorEl={selectedInspirationMoleculeRef}
-              datasetID={datasetID}
-              ref={inspirationDialogRef}
-            />
+            <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
+          )}
+          {isOpenCrossReferenceDialog && (
+            <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
           )}
           <div ref={filterRef}>
             {isActiveFilter && (
@@ -556,7 +557,8 @@ export const DatasetMoleculeList = memo(
                         imageWidth={imgWidth}
                         data={data}
                         datasetID={datasetID}
-                        setRef={setSelectedInspirationMoleculeRef}
+                        setRef={setSelectedMoleculeRef}
+                        showCrossReferenceModal
                       />
                     ))}
                 </InfiniteScroll>
