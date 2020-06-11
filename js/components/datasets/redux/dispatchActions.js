@@ -24,7 +24,8 @@ import {
   setInspirationFragmentList,
   setIsOpenCrossReferenceDialog,
   setCrossReferenceCompoundName,
-  setIsLoadingCrossReferenceScores
+  setIsLoadingCrossReferenceScores,
+  setSearchStringOfCompoundSet
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -248,10 +249,11 @@ export const clearInspirationsOfDataset = datasetID => dispatch => {
 export const clearDatasetSettings = datasetID => dispatch => {
   if (datasetID) {
     dispatch(clearScoreCompoundMap());
-
     // clear inspirations
     dispatch(clearInspirationsOfDataset(datasetID));
   }
+  // clear search
+  dispatch(setSearchStringOfCompoundSet(null));
 };
 
 export const clickOnInspirations = ({ datasetID, currentID, computed_inspirations = [] }) => dispatch => {
