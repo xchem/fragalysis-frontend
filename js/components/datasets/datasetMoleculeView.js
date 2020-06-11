@@ -133,6 +133,15 @@ const useStyles = makeStyles(theme => ({
     textOverflow: 'ellipsis',
     paddingLeft: theme.spacing(1) / 4
   },
+  datasetTitleLabel: {
+    ...theme.typography.caption,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    marginTop: -theme.spacing(1)
+  },
   selectedMolecule: {
     color: theme.palette.primary.main
   },
@@ -142,6 +151,9 @@ const useStyles = makeStyles(theme => ({
   },
   checkbox: {
     padding: 0
+  },
+  inheritWidth: {
+    width: 'inherit'
   }
 }));
 
@@ -166,7 +178,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
   </circle>  '</svg>`;
 
 export const DatasetMoleculeView = memo(
-  ({ imageHeight, imageWidth, data, datasetID, setRef, showCrossReferenceModal, hideFButton }) => {
+  ({ imageHeight, imageWidth, data, datasetID, setRef, showCrossReferenceModal, hideFButton, showDatasetName }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
@@ -180,6 +192,7 @@ export const DatasetMoleculeView = memo(
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+    const datasets = useSelector(state => state.datasetsReducers.datasets);
     const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[currentID], isEqual);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filter = useSelector(state => state.selectionReducers.filter);
@@ -380,6 +393,7 @@ export const DatasetMoleculeView = memo(
     };
 
     const moleculeTitle = data && data.name;
+    const datasetTitle = datasets?.find(item => `${item.id}` === `${datasetID}`)?.title;
 
     return (
       <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
@@ -404,12 +418,21 @@ export const DatasetMoleculeView = memo(
         </Grid>
         <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
           {/* Title label */}
-          <Grid item xs={7}>
-            <Tooltip title={moleculeTitle} placement="bottom-start">
-              <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
-                {moleculeTitle}
-              </div>
-            </Tooltip>
+          <Grid item xs={!showCrossReferenceModal && hideFButton ? 9 : 7} container direction="column">
+            <Grid item className={classes.inheritWidth}>
+              <Tooltip title={moleculeTitle} placement="bottom-start">
+                <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
+                  {moleculeTitle}
+                </div>
+              </Tooltip>
+            </Grid>
+            {showDatasetName && (
+              <Grid item className={classes.inheritWidth}>
+                <Tooltip title={datasetTitle} placement="bottom-start">
+                  <div className={classes.datasetTitleLabel}>{datasetTitle}</div>
+                </Tooltip>
+              </Grid>
+            )}
           </Grid>
           {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
         <Grid item>
