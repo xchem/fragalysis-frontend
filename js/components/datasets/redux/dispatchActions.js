@@ -373,3 +373,48 @@ export const removeOrAddAllComplexesOfList = (areAllSelected, moleculeList = [],
     dispatch(addAllComplexes(moleculeList, stage));
   }
 };
+
+export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef }) => (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+  const isOpenInspirationDialog = state.datasetsReducers.isOpenInspirationDialog;
+  const isOpenCrossReferenceDialog = state.datasetsReducers.isOpenCrossReferenceDialog;
+
+  const currentBoundingClientRectInspiration =
+    (inspirationDialogRef.current && inspirationDialogRef.current.getBoundingClientRect()) || null;
+
+  const currentBoundingClientRectCrossReference =
+    (crossReferenceDialogRef.current && crossReferenceDialogRef.current.getBoundingClientRect()) || null;
+  const scrollBarBoundingClientRect = (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
+
+  if (
+    isOpenInspirationDialog &&
+    currentBoundingClientRectInspiration !== null &&
+    scrollBarBoundingClientRect !== null &&
+    currentBoundingClientRectInspiration.x !== 0 &&
+    currentBoundingClientRectInspiration.y !== 0
+  ) {
+    if (
+      currentBoundingClientRectInspiration.top < scrollBarBoundingClientRect.top ||
+      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectInspiration.top) < 42
+    ) {
+      dispatch(setIsOpenInspirationDialog(false));
+    }
+  }
+  if (
+    isOpenCrossReferenceDialog &&
+    currentBoundingClientRectCrossReference !== null &&
+    scrollBarBoundingClientRect !== null &&
+    currentBoundingClientRectCrossReference.x !== 0 &&
+    currentBoundingClientRectCrossReference.y !== 0
+  ) {
+    if (
+      currentBoundingClientRectCrossReference.top < scrollBarBoundingClientRect.top ||
+      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectCrossReference.top) < 42
+    ) {
+      dispatch(resetCrossReferenceDialog());
+    }
+  }
+};

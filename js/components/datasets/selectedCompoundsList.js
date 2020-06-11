@@ -8,7 +8,7 @@ import { DatasetMoleculeView } from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
-import { resetCrossReferenceDialog } from './redux/dispatchActions';
+import { autoHideDatasetDialogsOnScroll, resetCrossReferenceDialog } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -42,6 +42,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
   const inspirationDialogRef = useRef();
   const crossReferenceDialogRef = useRef();
+  const scrollBarRef = useRef();
 
   const loadNextMolecules = () => {
     setCurrentPage(currentPage + 1);
@@ -73,8 +74,13 @@ export const SelectedCompoundList = memo(({ height }) => {
       )}
       <Grid container direction="column" justify="flex-start" className={classes.container} style={{ height: height }}>
         {currentMolecules.length > 0 && (
-          <Grid item className={classes.gridItemList}>
+          <Grid item className={classes.gridItemList} ref={scrollBarRef}>
             <InfiniteScroll
+              getScrollParent={() => {
+                dispatch(
+                  autoHideDatasetDialogsOnScroll({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef })
+                );
+              }}
               pageStart={0}
               loadMore={loadNextMolecules}
               hasMore={canLoadMore}
