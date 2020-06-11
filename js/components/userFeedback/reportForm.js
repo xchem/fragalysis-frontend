@@ -226,7 +226,7 @@ export const ReportForm = memo(({ formType }) => {
    * @return string - toDataURL|''
    */
   const getCanvasDrawDataUrl = canvasDraw => {
-    if (canvasDraw && canvasDraw.current.canvasContainer.children.length > 0) {
+    if (canvasDraw && canvasDraw.current?.canvasContainer.children.length > 0) {
       // cursor, drawing, interface, backgroundImage
       let rootCanvas = canvasDraw.current.canvasContainer.children[3];
       let rootCanvasContex = rootCanvas.getContext('2d');
@@ -279,7 +279,6 @@ export const ReportForm = memo(({ formType }) => {
     return isFirefox() ? rows - 1 : rows;
   };
 
-  console.log(formState);
   return (
     <div>
       <Button
