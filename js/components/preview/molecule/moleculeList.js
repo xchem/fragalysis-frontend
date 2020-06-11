@@ -275,9 +275,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
-  useEffect(() => {
-    // TODO this reloads too much..
+  const wereMoleculesInitialized = useRef(false);
 
+  useEffect(() => {
     loadFromServer({
       url: getUrl({ list_type, target_on, mol_group_on }),
       setOldUrl: url => setOldUrl(url),
@@ -293,12 +293,17 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       cached_mol_lists
     })
       .then(() => {
-        console.log('initializing filter');
         dispatch(initializeFilter());
-        // initialize molecules on first target load
-        if (stage && cached_mol_lists && cached_mol_lists[mol_group_on] && hideProjects && target !== undefined) {
-          console.log('initializing molecules');
+        if (
+          stage &&
+          cached_mol_lists &&
+          cached_mol_lists[mol_group_on] &&
+          hideProjects &&
+          target !== undefined &&
+          wereMoleculesInitialized.current === false
+        ) {
           dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+          wereMoleculesInitialized.current = true;
         }
       })
       .catch(error => {
