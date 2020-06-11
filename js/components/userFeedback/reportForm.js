@@ -9,7 +9,7 @@ import { ReportProblem, EmojiObjects, Delete } from '@material-ui/icons';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
 import { HeaderContext } from '../header/headerContext';
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
 import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
@@ -158,7 +158,8 @@ export const ReportForm = memo(({ formType }) => {
   };
 
   /* Modal handlers */
-  const [openForm, setOpenForm] = useState(false);
+  //  const [openForm, setOpenForm] = useState(false);
+  const isOpenForm = useSelector(state => state.issueReducers.isOpenForm);
   const [openDialog, setOpenDialog] = useState(false);
   const [disablePictureModification, setDisablePictureModification] = useState(false);
   const [modalWidth, setModalWidth] = useState(0);
@@ -237,16 +238,14 @@ export const ReportForm = memo(({ formType }) => {
   };
 
   const isResponse = () => {
-    return openForm && formState.response.length > 0;
+    return isOpenForm && formState.response.length > 0;
   };
 
-  const handleOpenForm = async () => {
-    await dispatch(captureScreen());
-    setOpenForm(true);
+  const handleOpenForm = () => {
+    dispatch(captureScreen());
   };
 
   const handleCloseForm = () => {
-    setOpenForm(false);
     dispatch(resetForm());
   };
 
@@ -254,7 +253,7 @@ export const ReportForm = memo(({ formType }) => {
     if (canCaptureScreen()) {
       setOpenDialog(true);
     } else {
-      handleOpenForm(true);
+      handleOpenForm();
     }
   };
 
@@ -280,6 +279,7 @@ export const ReportForm = memo(({ formType }) => {
     return isFirefox() ? rows - 1 : rows;
   };
 
+  console.log(formState);
   return (
     <div>
       <Button
@@ -312,7 +312,7 @@ export const ReportForm = memo(({ formType }) => {
           </Grid>
         </Grid>
       </Modal>
-      <Modal open={openForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
+      <Modal open={isOpenForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
         <Grid container direction="row" className={classes.body} spacing={1}>
           <Grid item xs={4}>
             <Formik
@@ -368,13 +368,26 @@ export const ReportForm = memo(({ formType }) => {
                   <Grid container direction="column">
                     <Grid item xs={12}>
                       <Typography variant="h3">{getTitle()}</Typography>
-                      <TextField name="name" label="Name" disabled={isSubmitting} className={classes.input} />
+                      <Field
+                        component={TextField}
+                        name="name"
+                        label="Name"
+                        disabled={isSubmitting}
+                        className={classes.input}
+                      />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField name="email" label="Email" disabled={isSubmitting} className={classes.input} />
+                      <Field
+                        component={TextField}
+                        name="email"
+                        label="Email"
+                        disabled={isSubmitting}
+                        className={classes.input}
+                      />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField
+                      <Field
+                        component={TextField}
                         required
                         name="title"
                         label="Subject"
@@ -385,7 +398,8 @@ export const ReportForm = memo(({ formType }) => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField
+                      <Field
+                        component={TextField}
                         required
                         name="description"
                         label="Description"
