@@ -11,3 +11,8 @@ export const constants = {
   SET_RESPONSE: prefix + 'SET_RESPONSE',
   SET_IMAGE_SOURCE: prefix + 'SET_IMAGE_SOURCE'
 };
+
+export const EXTENSION = {
+  PNG: '.png',
+  JSON: '.json'
+};
