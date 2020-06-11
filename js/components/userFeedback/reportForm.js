@@ -427,139 +427,141 @@ export const ReportForm = memo(({ formType }) => {
               )}
             </Formik>
           </Grid>
-          <Grid item xs={8} container direction="column">
-            {/* Canvas options */}
-            <Grid
-              item
-              xs
-              container
-              justify="center"
-              alignItems="center"
-              direction="row"
-              spacing={2}
-              className={classes.canvasDrawOptions}
-            >
+          <Grid item xs={8}>
+            <Grid container direction="column">
+              {/* Canvas options */}
               <Grid
                 item
-                xs={2}
-                align="center"
+                xs
                 container
-                direction="row"
-                justify="space-between"
+                justify="center"
                 alignItems="center"
-                spacing={1}
-              >
-                <Grid item xs={5}>
-                  <Typography>Color</Typography>
-                </Grid>
-                <Grid item xs={5}>
-                  <Tooltip title="Select color">
-                    <Box
-                      ref={colorPicker}
-                      border="1px solid black"
-                      bgcolor={brushColor}
-                      width={24}
-                      height={24}
-                      spacing={1}
-                      onClick={() => setOpenBrushColor(true)}
-                    />
-                  </Tooltip>
-                  <Popover
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left'
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right'
-                    }}
-                    anchorEl={colorPicker.current}
-                    open={openBrushColor}
-                    onClose={() => setOpenBrushColor(false)}
-                  >
-                    <SketchPicker color={brushColor} disableAlpha={true} onChangeComplete={handleColorChange} />
-                  </Popover>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                xs={7}
-                align="center"
-                container
                 direction="row"
-                justify="space-between"
-                alignItems="center"
-                spacing={1}
+                spacing={2}
+                className={classes.canvasDrawOptions}
               >
-                <Grid item xs={2}>
-                  <Typography>Radius</Typography>
-                </Grid>
-                <Grid item xs={10}>
-                  <Tooltip title="Select brush radius">
-                    <Slider
-                      value={brushRadius}
-                      step={1}
-                      marks
-                      min={1}
-                      max={6}
-                      valueLabelDisplay="auto"
-                      onChange={(event, newValue) => setBrushRadius(newValue)}
-                      disabled={disablePictureModification}
-                    />
-                  </Tooltip>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                xs={3}
-                align="center"
-                container
-                direction="row"
-                justify="flex-end"
-                alignItems="center"
-                spacing={1}
-              >
-                <Grid item xs>
-                  <Tooltip title="Clear drawing">
-                    <Button
-                      startIcon={<Delete />}
-                      variant="text"
-                      size="small"
-                      onClick={handleClearDrawing}
-                      disabled={disablePictureModification}
-                    >
-                      Clear
-                    </Button>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-            </Grid>
-            {/* Canvas */}
-            <Grid ref={canvasWrapperGridItem} item xs align="center">
-              {formState.imageSource ? (
-                <div
-                  ref={canvasWrapper}
-                  // TODO remove width and height!
-                  width={wrapperWidth}
-                  height={wrapperHeight}
-                  className={classes.canvasDrawWrapper}
+                <Grid
+                  item
+                  xs={2}
+                  align="center"
+                  container
+                  direction="row"
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={1}
                 >
-                  {/* lazyRadius - how far is cursor from drawing point */}
-                  <CanvasDraw
-                    ref={canvasDraw}
-                    imgSrc={formState.imageSource.toDataURL()}
-                    canvasWidth={formState.imageSource.width}
-                    canvasHeight={formState.imageSource.height}
-                    hideGrid={true}
-                    lazyRadius={0}
-                    brushRadius={brushRadius}
-                    brushColor={brushColor}
-                    disabled={disablePictureModification}
-                  />
-                </div>
-              ) : (
-                <Typography className={classes.canvasNoImage}>No image source.</Typography>
-              )}
+                  <Grid item xs={5}>
+                    <Typography>Color</Typography>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <Tooltip title="Select color">
+                      <Box
+                        ref={colorPicker}
+                        border="1px solid black"
+                        bgcolor={brushColor}
+                        width={24}
+                        height={24}
+                        spacing={1}
+                        onClick={() => setOpenBrushColor(true)}
+                      />
+                    </Tooltip>
+                    <Popover
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left'
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right'
+                      }}
+                      anchorEl={colorPicker.current}
+                      open={openBrushColor}
+                      onClose={() => setOpenBrushColor(false)}
+                    >
+                      <SketchPicker color={brushColor} disableAlpha={true} onChangeComplete={handleColorChange} />
+                    </Popover>
+                  </Grid>
+                </Grid>
+                <Grid
+                  item
+                  xs={7}
+                  align="center"
+                  container
+                  direction="row"
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid item xs={2}>
+                    <Typography>Radius</Typography>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Tooltip title="Select brush radius">
+                      <Slider
+                        value={brushRadius}
+                        step={1}
+                        marks
+                        min={1}
+                        max={6}
+                        valueLabelDisplay="auto"
+                        onChange={(event, newValue) => setBrushRadius(newValue)}
+                        disabled={disablePictureModification}
+                      />
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  align="center"
+                  container
+                  direction="row"
+                  justify="flex-end"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid item xs>
+                    <Tooltip title="Clear drawing">
+                      <Button
+                        startIcon={<Delete />}
+                        variant="text"
+                        size="small"
+                        onClick={handleClearDrawing}
+                        disabled={disablePictureModification}
+                      >
+                        Clear
+                      </Button>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </Grid>
+              {/* Canvas */}
+              <Grid ref={canvasWrapperGridItem} item xs align="center">
+                {formState.imageSource ? (
+                  <div
+                    ref={canvasWrapper}
+                    // TODO remove width and height!
+                    width={wrapperWidth}
+                    height={wrapperHeight}
+                    className={classes.canvasDrawWrapper}
+                  >
+                    {/* lazyRadius - how far is cursor from drawing point */}
+                    <CanvasDraw
+                      ref={canvasDraw}
+                      imgSrc={formState.imageSource.toDataURL()}
+                      canvasWidth={formState.imageSource.width}
+                      canvasHeight={formState.imageSource.height}
+                      hideGrid={true}
+                      lazyRadius={0}
+                      brushRadius={brushRadius}
+                      brushColor={brushColor}
+                      disabled={disablePictureModification}
+                    />
+                  </div>
+                ) : (
+                  <Typography className={classes.canvasNoImage}>No image source.</Typography>
+                )}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
