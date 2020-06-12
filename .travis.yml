@@ -78,3 +78,5 @@ jobs:
     - echo "STACK_BRANCH=${STACK_BRANCH}"
     - echo "STACK_VARS=${STACK_VARS}"
     - ./trigger-travis.py --pro ${STACK_NAMESPACE} fragalysis-stack ${TRAVIS_ACCESS_TOKEN} --branch ${STACK_BRANCH} --vars ${STACK_VARS}
+notifications:
+  slack: fragalysis:a6ADA8gLyx8tpHQfyzucMB8B
