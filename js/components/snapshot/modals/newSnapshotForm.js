@@ -2,7 +2,7 @@ import React, { memo, useState } from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { Form, Formik } from 'formik';
+import { Form, Formik, Field } from 'formik';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
 import { Description, Title } from '@material-ui/icons';
 import { TextField } from 'formik-material-ui';
@@ -77,19 +77,20 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
           });
         }}
       >
-        {({ submitForm }) => (
+        {({ submitForm, isSubmitting }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Title />}
                   field={
-                    <TextField
+                    <Field
+                      component={TextField}
                       className={classes.input}
                       name="title"
                       label="Title"
                       required
-                      disabled={isLoadingSnapshotDialog}
+                      disabled={isLoadingSnapshotDialog || isSubmitting}
                     />
                   }
                 />
@@ -98,12 +99,13 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                 <InputFieldAvatar
                   icon={<Description />}
                   field={
-                    <TextField
+                    <Field
+                      component={TextField}
                       className={classes.input}
                       name="description"
                       label="Description"
                       required
-                      disabled={isLoadingSnapshotDialog}
+                      disabled={isLoadingSnapshotDialog || isSubmitting}
                     />
                   }
                 />
@@ -111,12 +113,12 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isLoadingSnapshotDialog} onClick={handleCloseModal}>
+                <Button color="secondary" disabled={isLoadingSnapshotDialog || isSubmitting} onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} loading={isLoadingSnapshotDialog}>
+                <Button color="primary" onClick={submitForm} loading={isLoadingSnapshotDialog || isSubmitting}>
                   Save
                 </Button>
               </Grid>
