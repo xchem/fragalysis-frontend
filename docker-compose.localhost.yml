@@ -1,17 +1,17 @@
 version: '3'
 
 services:
-  mysql:
-    image: mysql:5.7
+  database:
+    image: postgres:12.2
     volumes:
-       - ../data/mysql_data:/var/lib/mysql
+      - ../data/postgre/data:/var/lib/postgresql/data
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: django_db
-      MYSQL_PASSWORD: django_password
-      MYSQL_USER: django
+      POSTGRES_PASSWORD: fragalysis
+      POSTGRES_USER: fragalysis
+      POSTGRES_DB: frag
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "3306:3306"
+      - "5432:5432"
   graph:
     container_name: neo4j
     image: neo4j:3.5
@@ -40,6 +40,12 @@ services:
       - ../fragalysis-backend:/code/
     ports:
       - "8080:80"
+    environment:
+      POSTGRESQL_DATABASE: frag
+      POSTGRESQL_USER: fragalysis
+      POSTGRESQL_PASSWORD: fragalysis
+      POSTGRESQL_HOST: database
+      POSTGRESQL_PORT: 5432
     depends_on:
       - mysql
       - graph
@@ -61,10 +67,11 @@ services:
       - ../fragalysis-loader/tests:/code/tests
       - ../fragalysis-loader/loader:/code/loader
     environment:
-        MYSQL_ROOT_PASSWORD: password
-        MYSQL_DATABASE: django_db
-        MYSQL_PASSWORD: django_password
-        MYSQL_USER: django
-        DATA_ORIGIN: EXAMPLE
+      POSTGRESQL_DATABASE: frag
+      POSTGRESQL_USER: fragalysis
+      POSTGRESQL_PASSWORD: fragalysis
+      POSTGRESQL_HOST: database
+      POSTGRESQL_PORT: 5432
+      DATA_ORIGIN: EXAMPLE
     depends_on:
       - mysql
