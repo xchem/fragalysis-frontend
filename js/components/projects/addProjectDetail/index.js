@@ -137,7 +137,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                     />
                   }
                 />
-                } />
               </Grid>
             </Grid>
             <Grid container justify="flex-end" direction="row">

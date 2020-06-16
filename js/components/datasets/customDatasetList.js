@@ -16,6 +16,8 @@ export const CustomDatasetList = memo(
   ({ dataset, height, setFilterItemsHeight, filterItemsHeight, hideProjects, isActive }) => {
     const dispatch = useDispatch();
 
+    console.log(dataset, isActive);
+
     useEffect(() => {
       if (dataset && dataset.id && isActive) {
         dispatch(setMoleculeListIsLoading(true));

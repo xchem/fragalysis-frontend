@@ -198,20 +198,23 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               <SelectedCompoundList height={customMoleculeListHeight} />
             </TabPanel>
 
-            {customDatasets.map((dataset, index) => (
-              <TabPanel key={index + 2} value={tabValue} index={index + 2}>
-                <Grid item>
-                  <CustomDatasetList
-                    dataset={dataset}
-                    height={customMoleculeListHeight}
-                    setFilterItemsHeight={setFilterItemsHeight}
-                    filterItemsHeight={filterItemsHeight}
-                    hideProjects={hideProjects}
-                    isActive={tabValue === index + 2}
-                  />
-                </Grid>
-              </TabPanel>
-            ))}
+            {customDatasets.map((dataset, index) => {
+              console.log('Preview = ', index);
+              return (
+                <TabPanel key={index + 2} value={tabValue} index={index + 2}>
+                  <Grid item>
+                    <CustomDatasetList
+                      dataset={dataset}
+                      height={customMoleculeListHeight}
+                      setFilterItemsHeight={setFilterItemsHeight}
+                      filterItemsHeight={filterItemsHeight}
+                      hideProjects={hideProjects}
+                      isActive={tabValue === index + 2}
+                    />
+                  </Grid>
+                </TabPanel>
+              );
+            })}
           </Grid>
           {!hideProjects && (
             <Grid item>
