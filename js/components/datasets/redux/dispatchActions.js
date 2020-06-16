@@ -150,7 +150,7 @@ export const loadDataSets = () => dispatch =>
     dispatch(
       setDataset(
         response.data.results.map(ds => ({
-          id: ds.id,
+          id: ds.name,
           title: ds.name,
           url: ds.method_url,
           version: ds.spec_version,
