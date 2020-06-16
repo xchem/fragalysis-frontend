@@ -199,7 +199,6 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
             </TabPanel>
 
             {customDatasets.map((dataset, index) => {
-              console.log('Preview = ', index);
               return (
                 <TabPanel key={index + 2} value={tabValue} index={index + 2}>
                   <Grid item>

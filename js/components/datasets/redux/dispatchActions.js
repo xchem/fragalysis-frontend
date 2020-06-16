@@ -149,8 +149,8 @@ export const loadDataSets = () => dispatch =>
   api({ url: `${base_url}/api/compound-sets/` }).then(response => {
     dispatch(
       setDataset(
-        response.data.results.map(ds => ({
-          id: ds.id,
+        response.data.results.map((ds, index) => ({
+          id: ds.id || index,
           title: ds.name,
           url: ds.method_url,
           version: ds.spec_version,
