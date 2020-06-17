@@ -39,7 +39,7 @@ export const generateProteinObject = data => {
 // after Shift + click on compound
 export const generateCompoundMolObject = (sdf_info, identifier) => ({
   name: 'CONFLOAD_' + identifier,
-  OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
+  OBJECT_TYPE: OBJECT_TYPE.LIGAND,
   colour: 'cyan',
   sdf_info: sdf_info
 });
@@ -47,7 +47,7 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 // Ligand
 export const generateMoleculeObject = (data, colourToggle) => ({
   name: `${data.protein_code || data.name}_${OBJECT_TYPE.LIGAND}`,
-  OBJECT_TYPE: OBJECT_TYPE.MOLECULE,
+  OBJECT_TYPE: OBJECT_TYPE.LIGAND,
   colour: colourToggle,
   sdf_info: data.sdf_info,
   moleculeId: data.id,

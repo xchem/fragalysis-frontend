@@ -102,9 +102,9 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => d
   if (molGroupList) {
     dispatch(setCountOfRemainingMoleculeGroups(molGroupList.length));
     molGroupList.map(data =>
-      dispatch(loadObject(Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(data)), stage)).then(() =>
-        dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState(projectId, stage))
-      )
+      dispatch(
+        loadObject({ target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(data)), stage })
+      ).then(() => dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState(projectId, stage)))
     );
   }
 };
@@ -128,10 +128,10 @@ export const selectMoleculeGroup = (moleculeGroup, summaryViewStage) => (dispatc
     )
   );
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(moleculeGroup, true)),
-      summaryViewStage
-    )
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(moleculeGroup, true)),
+      stage: summaryViewStage
+    })
   );
 };
 
@@ -245,10 +245,10 @@ export const onDeselectMoleculeGroup = ({ moleculeGroup, stageSummaryView, major
     )
   );
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
-      stageSummaryView
-    )
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
+      stage: stageSummaryView
+    })
   );
   dispatch(setMolGroupSelection(selectionCopy));
   if (selectionCopy.length > 0) {

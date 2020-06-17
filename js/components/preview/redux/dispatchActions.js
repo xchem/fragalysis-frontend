@@ -28,7 +28,7 @@ const loadProtein = nglView => (dispatch, getState) => {
       if (nglView.id === VIEWS.MAJOR_VIEW) {
         newParams.name = targObject.name + SUFFIX.MAIN;
       }
-      return dispatch(loadObject(Object.assign({}, targObject, newParams), nglView.stage));
+      return dispatch(loadObject({ target: Object.assign({}, targObject, newParams), stage: nglView.stage }));
     }
   }
   return Promise.reject('Cannot load Protein to NGL View ID ', nglView.id);

@@ -52,12 +52,11 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
 
 export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -77,12 +76,11 @@ export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) =>
 
 export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -102,12 +100,11 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => di
 
 export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -127,12 +124,11 @@ export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => di
 
 export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
-      undefined,
-      undefined
-    )
+      markAsRightSideLigand: true
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));

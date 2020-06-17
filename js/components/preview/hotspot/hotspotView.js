@@ -59,7 +59,7 @@ class HotspotView extends React.PureComponent {
 
   handleHotspot(hotspotObject, loadState) {
     if (loadState === 'load') {
-      this.props.loadObject(hotspotObject);
+      this.props.loadObject({ target: hotspotObject });
     } else if (loadState === 'unload') {
       this.props.deleteObject(hotspotObject);
     }
