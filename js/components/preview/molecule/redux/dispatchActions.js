@@ -282,15 +282,20 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
   const state = getState();
   const storedOrientation = state.nglReducers.moleculeOrientations[data.site];
-  const currentOrientation = stage && stage.viewerControls.getOrientation();
-  let orientationMatrix = undefined;
-  if (storedOrientation && currentOrientation) {
-    if (isEqual(storedOrientation, currentOrientation)) {
-      orientationMatrix = null;
-    } else {
-      orientationMatrix = storedOrientation;
-    }
+  console.log(storedOrientation);
+  let orientationMatrix = null;
+  if (!storedOrientation) {
+    orientationMatrix = undefined;
   }
+  // const currentOrientation = stage && stage.viewerControls.getOrientation();
+  // let orientationMatrix = undefined;
+  // if (storedOrientation && currentOrientation) {
+  //   if (isEqual(storedOrientation, currentOrientation)) {
+  //     orientationMatrix = null;
+  //   } else {
+  //     orientationMatrix = storedOrientation;
+  //   }
+  // }
   dispatch(
     loadObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
