@@ -94,7 +94,7 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
-    marginLeft: 3,
+    marginLeft: 22,
     width: 'inherit'
   },
   rightBorder: {
