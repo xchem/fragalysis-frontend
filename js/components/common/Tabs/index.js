@@ -13,9 +13,11 @@ export const TabsHeader = withStyles(theme => ({
     backgroundColor: theme.palette.primary.contrastText
   },
   scrollButtons: {
-    width: 27
+    width: 27,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText
   }
-}))(Tabs);
+}))(props => <Tabs {...props} />);
 
 /**
  * Tab button inside header container
@@ -23,7 +25,7 @@ export const TabsHeader = withStyles(theme => ({
 export const Tab = withStyles(theme => ({
   root: {
     minWidth: 86,
-    maxWidth: 86,
+    //   maxWidth: 86,
     maxHeight: 40,
     textTransform: 'none',
     backgroundColor: theme.palette.primary.main,
