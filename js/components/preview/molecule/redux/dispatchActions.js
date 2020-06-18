@@ -280,7 +280,6 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
   const state = getState();
   const storedOrientation = state.nglReducers.moleculeOrientations[data.site];
-  console.log(storedOrientation);
   let orientationMatrix = null;
   if (!storedOrientation) {
     orientationMatrix = undefined;
@@ -382,3 +381,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   dispatch(resetBondColorMapOfVectors());
   dispatch(setCompoundImage(noCompoundImage));
 };
+
+export const searchMoleculeGroupByMoleculeID = moleculeID =>
+  api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` });
