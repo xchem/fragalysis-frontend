@@ -94,8 +94,17 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
-    marginLeft: 22,
     width: 'inherit'
+  },
+  rank: {
+    width: theme.spacing(3),
+    marginLeft: -theme.spacing(1) / 4,
+    fontStyle: 'italic',
+    fontSize: 8,
+    overflow: 'hidden',
+    textAlign: 'center',
+    borderRight: '1px solid',
+    borderRightColor: theme.palette.background.divider
   },
   rightBorder: {
     borderRight: '1px solid',
@@ -424,6 +433,11 @@ export const DatasetMoleculeList = memo(
               {isLoadingMoleculeList === false && (
                 <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                   <Grid item container justify="flex-start" direction="row">
+                    <Tooltip title="Total count of compounds">
+                      <Grid item className={classes.rank}>
+                        {`Total ${joinedMoleculeLists?.length}`}
+                      </Grid>
+                    </Tooltip>
                     {datasetID &&
                       filteredScoreProperties &&
                       filteredScoreProperties[datasetID] &&
@@ -531,6 +545,7 @@ export const DatasetMoleculeList = memo(
                     currentMolecules.map((data, index) => (
                       <DatasetMoleculeView
                         key={index}
+                        index={index}
                         imageHeight={imgHeight}
                         imageWidth={imgWidth}
                         data={data}
