@@ -382,5 +382,18 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   dispatch(setCompoundImage(noCompoundImage));
 };
 
-export const searchMoleculeGroupByMoleculeID = moleculeID =>
-  api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` });
+export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>
+  api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` }).then(response => {
+    let resultMolGroupID = null;
+    const molGroupID = response?.data?.results[0]?.id;
+    const mol_group_list = getState().apiReducers.mol_group_list;
+
+    if (mol_group_list && Array.isArray(mol_group_list) && molGroupID) {
+      mol_group_list.forEach((item, index) => {
+        if (item.id === molGroupID) {
+          resultMolGroupID = index + 1;
+        }
+      });
+    }
+    return Promise.resolve(resultMolGroupID);
+  });

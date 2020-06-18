@@ -249,15 +249,15 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup 
 
   useEffect(() => {
     if (searchMoleculeGroup) {
-      searchMoleculeGroupByMoleculeID(currentID)
-        .then(response => {
-          setMoleculeGroupID(response?.data?.results[0]?.id);
+      dispatch(searchMoleculeGroupByMoleculeID(currentID))
+        .then(molGroupID => {
+          setMoleculeGroupID(molGroupID);
         })
         .catch(error => {
           throw new Error(error);
         });
     }
-  }, [currentID, searchMoleculeGroup]);
+  }, [currentID, dispatch, searchMoleculeGroup]);
 
   const svg_image = (
     <SVGInline
