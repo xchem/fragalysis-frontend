@@ -313,13 +313,13 @@ export const removeLigand = (stage, data) => dispatch => {
 export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   if (moleculeList && majorView) {
     const firstMolecule = moleculeList[0];
-    // TODO remove this dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-    moleculeList.reverse().forEach((item, index) =>
+    dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+    moleculeList.reverse().forEach(item =>
       setTimeout(() => {
         // it should be first selected site
         item.site = 1;
-        dispatch(addLigand(majorView, item, colourList[item.id % colourList.length], index < 10));
-      }, 3000)
+        dispatch(addLigand(majorView, item, colourList[item.id % colourList.length], true));
+      }, 250)
     );
   }
 };
