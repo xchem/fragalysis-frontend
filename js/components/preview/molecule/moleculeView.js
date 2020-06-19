@@ -4,7 +4,8 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
+import { MyLocation } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../../constants/constants';
@@ -28,6 +29,7 @@ import {
 } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
+import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -133,6 +135,10 @@ const useStyles = makeStyles(theme => ({
   rank: {
     fontStyle: 'italic',
     fontSize: 7
+  },
+  myLocation: {
+    width: 10.328,
+    height: 15
   }
 }));
 
@@ -466,6 +472,20 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup,
             wrap="nowrap"
             className={classes.contButtonsMargin}
           >
+            <Tooltip title="centre on">
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classes.contColButton}
+                  onClick={() => {
+                    dispatch(centerOnLigandByMoleculeID(stage, data?.id));
+                  }}
+                  disabled={disableUserInteraction || !isLigandOn}
+                >
+                  <MyLocation className={classes.myLocation} />
+                </Button>
+              </Grid>
+            </Tooltip>
             <Tooltip title="all">
               <Grid item>
                 <Button

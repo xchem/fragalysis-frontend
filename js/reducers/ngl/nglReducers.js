@@ -162,8 +162,8 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     case CONSTANTS.APPEND_MOLECULE_ORIENTATION:
       const newMoleculeOrientations = Object.assign({}, state.moleculeOrientations);
 
-      if (newMoleculeOrientations[action.payload.moleculeGroupID] === undefined) {
-        newMoleculeOrientations[action.payload.moleculeGroupID] = action.payload.orientation;
+      if (newMoleculeOrientations[action.payload.moleculeID] === undefined) {
+        newMoleculeOrientations[action.payload.moleculeID] = action.payload.orientation;
       }
       return Object.assign({}, state, { moleculeOrientations: newMoleculeOrientations });
 
