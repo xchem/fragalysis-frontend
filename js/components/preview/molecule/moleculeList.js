@@ -59,6 +59,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setCachedMolLists, setMoleculeList } from '../../../reducers/api/actions';
 import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
+import { AlertModal } from '../../common/Modal/AlertModal';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -509,6 +510,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     </IconButton>
   ];
 
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
+
   return (
     <ComputeSize
       componentRef={filterRef.current}
@@ -517,6 +520,18 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       forceCompute={isActiveFilter}
     >
       <Panel hasHeader title="Hit navigator" headerActions={actions}>
+        <AlertModal
+          title="Are you sure?"
+          description="This operation may take a long time"
+          open={isOpenAlert}
+          handleOnOk={() => {
+            setNextXMolecules(joinedMoleculeLists?.length || 0);
+            setIsOpenAlert(false);
+          }}
+          handleOnCancel={() => {
+            setIsOpenAlert(false);
+          }}
+        />
         {sortDialogOpen && (
           <MoleculeListSortFilterDialog
             open={sortDialogOpen}
@@ -702,7 +717,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       </Button>
                       <Button
                         onClick={() => {
-                          setNextXMolecules(joinedMoleculeLists?.length || 0);
+                          if (joinedMoleculeLists?.length > 100) {
+                            setIsOpenAlert(true);
+                          } else {
+                            setNextXMolecules(joinedMoleculeLists?.length || 0);
+                          }
                         }}
                       >
                         Load full list

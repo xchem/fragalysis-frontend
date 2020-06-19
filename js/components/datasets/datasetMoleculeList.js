@@ -44,6 +44,7 @@ import { getFilteredDatasetMoleculeList } from './redux/selectors';
 import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
+import { AlertModal } from '../common/Modal/AlertModal';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -370,6 +371,8 @@ export const DatasetMoleculeList = memo(
     const inspirationDialogRef = useRef();
     const scrollBarRef = useRef();
 
+    const [isOpenAlert, setIsOpenAlert] = useState(false);
+
     return (
       <ComputeSize
         componentRef={filterRef.current}
@@ -378,6 +381,18 @@ export const DatasetMoleculeList = memo(
         forceCompute={isActiveFilter}
       >
         <Panel hasHeader title={title} withTooltip headerActions={actions}>
+          <AlertModal
+            title="Are you sure?"
+            description="This operation may take a long time"
+            open={isOpenAlert}
+            handleOnOk={() => {
+              setNextXMolecules(joinedMoleculeLists?.length || 0);
+              setIsOpenAlert(false);
+            }}
+            handleOnCancel={() => {
+              setIsOpenAlert(false);
+            }}
+          />
           {sortDialogOpen && (
             <DatasetFilter
               open={sortDialogOpen}
@@ -597,7 +612,11 @@ export const DatasetMoleculeList = memo(
                         </Button>
                         <Button
                           onClick={() => {
-                            setNextXMolecules(joinedMoleculeLists?.length || 0);
+                            if (joinedMoleculeLists?.length > 100) {
+                              setIsOpenAlert(true);
+                            } else {
+                              setNextXMolecules(joinedMoleculeLists?.length || 0);
+                            }
                           }}
                         >
                           Load full list
