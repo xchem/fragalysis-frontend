@@ -244,6 +244,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
   const cached_mol_lists = useSelector(state => state.apiReducers.cached_mol_lists);
 
+  const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
+
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
   const isActiveFilter = !!(filter || {}).active;
@@ -287,38 +289,51 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const wereMoleculesInitialized = useRef(false);
 
   useEffect(() => {
-    loadFromServer({
-      url: getUrl({ list_type, target_on, mol_group_on }),
-      setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl.current,
-      list_type,
-      setObjectList: list => {
-        dispatch(setMoleculeList(list));
-      },
-      setCachedMolLists: list => {
-        dispatch(setCachedMolLists(list));
-      },
-      mol_group_on,
-      cached_mol_lists
-    })
-      .then(() => {
-        dispatch(initializeFilter());
-        if (
-          stage &&
-          cached_mol_lists &&
-          cached_mol_lists[mol_group_on] &&
-          hideProjects &&
-          target !== undefined &&
-          wereMoleculesInitialized.current === false
-        ) {
-          dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
-          wereMoleculesInitialized.current = true;
-        }
+    if (proteinsHasLoaded === true || proteinsHasLoaded === null) {
+      loadFromServer({
+        url: getUrl({ list_type, target_on, mol_group_on }),
+        setOldUrl: url => setOldUrl(url),
+        old_url: oldUrl.current,
+        list_type,
+        setObjectList: list => {
+          dispatch(setMoleculeList(list));
+        },
+        setCachedMolLists: list => {
+          dispatch(setCachedMolLists(list));
+        },
+        mol_group_on,
+        cached_mol_lists
       })
-      .catch(error => {
-        throw new Error(error);
-      });
-  }, [list_type, mol_group_on, stage, firstLoad, target_on, cached_mol_lists, dispatch, hideProjects, target]);
+        .then(() => {
+          dispatch(initializeFilter());
+          if (
+            stage &&
+            cached_mol_lists &&
+            cached_mol_lists[mol_group_on] &&
+            hideProjects &&
+            target !== undefined &&
+            wereMoleculesInitialized.current === false
+          ) {
+            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+            wereMoleculesInitialized.current = true;
+          }
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
+    }
+  }, [
+    list_type,
+    mol_group_on,
+    stage,
+    firstLoad,
+    target_on,
+    cached_mol_lists,
+    dispatch,
+    hideProjects,
+    target,
+    proteinsHasLoaded
+  ]);
 
   useEffect(() => {
     if (isActiveFilter === false) {
