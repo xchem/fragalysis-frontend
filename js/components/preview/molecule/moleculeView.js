@@ -456,14 +456,14 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup,
       </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
         {/* Title label */}
-        <Grid item xs={8}>
+        <Grid item xs={7}>
           <Tooltip title={moleculeTitle} placement="bottom-start">
             <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
           </Tooltip>
         </Grid>
 
         {/* Control Buttons A, L, C, V */}
-        <Grid item xs={4}>
+        <Grid item xs={5}>
           <Grid
             container
             direction="row"
