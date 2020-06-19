@@ -58,6 +58,7 @@ import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setCachedMolLists, setMoleculeList } from '../../../reducers/api/actions';
+import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -203,6 +204,11 @@ const useStyles = makeStyles(theme => ({
     '& .MuiInput-underline:after': {
       borderBottomColor: 'inherit'
     }
+  },
+  total: {
+    ...theme.typography.button,
+    color: theme.palette.primary.main,
+    fontStyle: 'italic'
   }
 }));
 
@@ -657,13 +663,22 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                   }
                   useWindow={false}
                 >
-                  {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
+                  {currentMolecules.map((data, index) => (
+                    <MoleculeView
+                      key={data.id}
+                      index={index}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data}
+                    />
                   ))}
                 </InfiniteScroll>
               </Grid>
               <Grid item>
-                <Grid container justify="flex-end" direction="row">
+                <Grid container justify="space-between" alignItems="center" direction="row">
+                  <Grid item>
+                    <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                  </Grid>
                   <Grid item>
                     <ButtonGroup
                       variant="text"
