@@ -41,6 +41,7 @@ import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
 import { colourList } from '../../preview/molecule/moleculeView';
+import { appendMoleculeOrientation } from '../../../reducers/ngl/actions';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
@@ -132,6 +133,8 @@ export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispat
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+
+    dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), currentOrientation));
   });
   dispatch(appendLigandList(datasetID, generateMoleculeId(data)));
 };
@@ -416,3 +419,5 @@ export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossRefe
     }
   }
 };
+
+export const getDatasetMoleculeID = (datasetID, moleculeID) => `datasetID-${datasetID}_moleculeID-${moleculeID}`;

@@ -19,7 +19,8 @@ import {
   removeDatasetComplex,
   addDatasetSurface,
   removeDatasetSurface,
-  clickOnInspirations
+  clickOnInspirations,
+  getDatasetMoleculeID
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
@@ -31,6 +32,8 @@ import {
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog
 } from './redux/actions';
+import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
+import { MyLocation } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -159,6 +162,10 @@ const useStyles = makeStyles(theme => ({
   rank: {
     fontStyle: 'italic',
     fontSize: 7
+  },
+  myLocation: {
+    width: 10.328,
+    height: 15
   }
 }));
 
@@ -480,6 +487,20 @@ export const DatasetMoleculeView = memo(
               wrap="nowrap"
               className={classes.contButtonsMargin}
             >
+              <Tooltip title="centre on">
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    className={classes.contColButton}
+                    onClick={() => {
+                      dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
+                    }}
+                    disabled={disableUserInteraction || !isLigandOn}
+                  >
+                    <MyLocation className={classes.myLocation} />
+                  </Button>
+                </Grid>
+              </Tooltip>
               <Tooltip title="all">
                 <Grid item>
                   <Button
