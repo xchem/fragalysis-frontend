@@ -124,6 +124,7 @@ export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => di
 };
 
 export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+  const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
@@ -131,10 +132,13 @@ export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispat
       markAsRightSideLigand: true
     })
   ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+    const ligandOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
 
-    dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), currentOrientation));
+    dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
+
+    // keep current orientation of NGL View
+    stage.viewerControls.orient(currentOrientation);
   });
   dispatch(appendLigandList(datasetID, generateMoleculeId(data)));
 };
