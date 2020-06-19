@@ -111,7 +111,8 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
-    borderColor: theme.palette.background.divider
+    borderColor: theme.palette.background.divider,
+    paddingBottom: theme.spacing(1) / 2
   },
   qualityLabel: {
     paddingLeft: theme.spacing(1) / 4,
@@ -128,6 +129,10 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
+  },
+  rank: {
+    fontStyle: 'italic',
+    fontSize: 7
   }
 }));
 
@@ -151,7 +156,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup }) => {
+const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup, index }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
@@ -435,9 +440,12 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup 
   return (
     <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
       {/* Site number */}
-      <Grid item container justify="center" direction="column" className={classes.site}>
+      <Grid item container justify="space-between" direction="column" className={classes.site}>
         <Grid item>
           <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
+        </Grid>
+        <Grid item className={classes.rank}>
+          {index + 1}.
         </Grid>
       </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">

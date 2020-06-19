@@ -182,6 +182,11 @@ const useStyles = makeStyles(theme => ({
   },
   loading: {
     paddingTop: theme.spacing(2)
+  },
+  total: {
+    ...theme.typography.button,
+    color: theme.palette.primary.main,
+    fontStyle: 'italic'
   }
 }));
 
@@ -565,7 +570,10 @@ export const DatasetMoleculeList = memo(
                   </InfiniteScroll>
                 </Grid>
                 <Grid item>
-                  <Grid container justify="flex-end" direction="row">
+                  <Grid container justify="space-between" alignItems="center" direction="row">
+                    <Grid item>
+                      <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                    </Grid>
                     <Grid item>
                       <ButtonGroup
                         variant="text"
