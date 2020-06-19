@@ -139,6 +139,23 @@ const useStyles = makeStyles(theme => ({
   myLocation: {
     width: 10.328,
     height: 15
+  },
+  myLocationButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderStyle: 'none',
+    borderColor: theme.palette.white,
+    '&:disabled': {
+      borderRadius: 0,
+      borderStyle: 'none',
+      borderColor: theme.palette.white
+    }
   }
 }));
 
@@ -476,7 +493,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup,
               <Grid item>
                 <Button
                   variant="outlined"
-                  className={classes.contColButton}
+                  className={classes.myLocationButton}
                   onClick={() => {
                     dispatch(centerOnLigandByMoleculeID(stage, data?.id));
                   }}
