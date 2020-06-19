@@ -32,7 +32,7 @@ const showLigand = ({ stage, input_dict, object_name, representations, orientati
             colorScheme: 'element',
             colorValue: input_dict.colour,
             multipleBond: true,
-            radiusScale: markAsRightSideLigand ? 0.11 : undefined
+            radiusSize: markAsRightSideLigand ? 0.11 : undefined
           }
         )
       ]);
