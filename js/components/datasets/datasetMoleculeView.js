@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, Typography, Checkbox, IconButton } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, Checkbox, IconButton } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -450,6 +450,35 @@ export const DatasetMoleculeView = memo(
       return cssClass;
     };
 
+    const moveSelectedMoleculeSettings = newItemData => {
+      if (newItemData) {
+        if (isLigandOn) {
+          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetID));
+          removeSelectedLigand();
+        }
+        if (isProteinOn) {
+          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetID));
+          removeSelectedProtein();
+        }
+        if (isComplexOn) {
+          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetID));
+          removeSelectedComplex();
+        }
+        if (isSurfaceOn) {
+          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetID));
+          removeSelectedSurface();
+        }
+      }
+    };
+
+    const handleClickOnDownArrow = () => {
+      moveSelectedMoleculeSettings(nextItemData);
+    };
+
+    const handleClickOnUpArrow = () => {
+      moveSelectedMoleculeSettings(previousItemData);
+    };
+
     const moleculeTitle = data && data.name;
     const datasetTitle = datasets?.find(item => `${item.id}` === `${datasetID}`)?.title;
 
@@ -702,14 +731,22 @@ export const DatasetMoleculeView = memo(
         <Grid item>
           <Grid container direction="column" justify="space-between" className={classes.arrows}>
             <Grid item>
-              <Tooltip title="secondary">
-                <IconButton color="primary" size="small" disabled={disableUserInteraction || !previousItemData}>
-                  <ArrowUpward className={classes.arrow} />
-                </IconButton>
-              </Tooltip>
+              <IconButton
+                color="primary"
+                size="small"
+                disabled={disableUserInteraction || !previousItemData}
+                onClick={handleClickOnUpArrow}
+              >
+                <ArrowUpward className={classes.arrow} />
+              </IconButton>
             </Grid>
             <Grid item>
-              <IconButton color="primary" size="small" disabled={disableUserInteraction || !nextItemData}>
+              <IconButton
+                color="primary"
+                size="small"
+                disabled={disableUserInteraction || !nextItemData}
+                onClick={handleClickOnDownArrow}
+              >
                 <ArrowDownward className={classes.arrow} />
               </IconButton>
             </Grid>

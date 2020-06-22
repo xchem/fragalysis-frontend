@@ -469,30 +469,30 @@ const MoleculeView = memo(
       return cssClass;
     };
 
-    const handleClickOnDownArrow = () => {
-      if (nextItemData) {
+    const moveSelectedMolSettings = newItemDataset => {
+      if (newItemDataset) {
         if (isLigandOn) {
-          dispatch(addLigand(stage, nextItemData, colourToggle));
+          dispatch(addLigand(stage, newItemDataset, colourToggle));
           removeSelectedLigand();
         }
         if (isProteinOn) {
-          dispatch(addHitProtein(stage, nextItemData, colourToggle));
+          dispatch(addHitProtein(stage, newItemDataset, colourToggle));
           removeSelectedProtein();
         }
         if (isComplexOn) {
-          dispatch(addComplex(stage, nextItemData, colourToggle));
+          dispatch(addComplex(stage, newItemDataset, colourToggle));
           removeSelectedComplex();
         }
         if (isSurfaceOn) {
-          dispatch(addSurface(stage, nextItemData, colourToggle));
+          dispatch(addSurface(stage, newItemDataset, colourToggle));
           removeSelectedSurface();
         }
         if (isDensityOn) {
-          dispatch(addDensity(stage, nextItemData, colourToggle));
+          dispatch(addDensity(stage, newItemDataset, colourToggle));
           removeSelectedDensity();
         }
         if (isVectorOn) {
-          dispatch(addVector(stage, nextItemData)).catch(error => {
+          dispatch(addVector(stage, newItemDataset)).catch(error => {
             throw new Error(error);
           });
           removeSelectedVector();
@@ -500,35 +500,12 @@ const MoleculeView = memo(
       }
     };
 
+    const handleClickOnDownArrow = () => {
+      moveSelectedMolSettings(nextItemData);
+    };
+
     const handleClickOnUpArrow = () => {
-      if (previousItemData) {
-        if (isLigandOn) {
-          dispatch(addLigand(stage, previousItemData, colourToggle));
-          removeSelectedLigand();
-        }
-        if (isProteinOn) {
-          dispatch(addHitProtein(stage, previousItemData, colourToggle));
-          removeSelectedProtein();
-        }
-        if (isComplexOn) {
-          dispatch(addComplex(stage, previousItemData, colourToggle));
-          removeSelectedComplex();
-        }
-        if (isSurfaceOn) {
-          dispatch(addSurface(stage, previousItemData, colourToggle));
-          removeSelectedSurface();
-        }
-        if (isDensityOn) {
-          dispatch(addDensity(stage, previousItemData, colourToggle));
-          removeSelectedDensity();
-        }
-        if (isVectorOn) {
-          dispatch(addVector(stage, previousItemData)).catch(error => {
-            throw new Error(error);
-          });
-          removeSelectedVector();
-        }
-      }
+      moveSelectedMolSettings(previousItemData);
     };
 
     let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
@@ -721,16 +698,14 @@ const MoleculeView = memo(
         <Grid item>
           <Grid container direction="column" justify="space-between" className={classes.arrows}>
             <Grid item>
-              <Tooltip title="secondary">
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={disableUserInteraction || !previousItemData}
-                  onClick={handleClickOnUpArrow}
-                >
-                  <ArrowUpward className={classes.arrow} />
-                </IconButton>
-              </Tooltip>
+              <IconButton
+                color="primary"
+                size="small"
+                disabled={disableUserInteraction || !previousItemData}
+                onClick={handleClickOnUpArrow}
+              >
+                <ArrowUpward className={classes.arrow} />
+              </IconButton>
             </Grid>
             <Grid item>
               <IconButton
