@@ -383,7 +383,7 @@ export const DatasetMoleculeList = memo(
         <Panel hasHeader title={title} withTooltip headerActions={actions}>
           <AlertModal
             title="Are you sure?"
-            description="This operation may take a long time"
+            description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
             open={isOpenAlert}
             handleOnOk={() => {
               setNextXMolecules(joinedMoleculeLists?.length || 0);
@@ -612,7 +612,7 @@ export const DatasetMoleculeList = memo(
                         </Button>
                         <Button
                           onClick={() => {
-                            if (joinedMoleculeLists?.length > 100) {
+                            if (joinedMoleculeLists?.length > 300) {
                               setIsOpenAlert(true);
                             } else {
                               setNextXMolecules(joinedMoleculeLists?.length || 0);
