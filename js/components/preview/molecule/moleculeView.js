@@ -5,7 +5,7 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../../constants/constants';
@@ -156,6 +156,13 @@ const useStyles = makeStyles(theme => ({
       borderStyle: 'none',
       borderColor: theme.palette.white
     }
+  },
+  arrows: {
+    height: '100%'
+  },
+  arrow: {
+    width: 12,
+    height: 15
   }
 }));
 
@@ -478,7 +485,6 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup,
             <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
           </Tooltip>
         </Grid>
-
         {/* Control Buttons A, L, C, V */}
         <Grid item xs={5}>
           <Grid
@@ -642,6 +648,23 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup,
                 </Grid>
               </Tooltip>
             ))}
+          </Grid>
+        </Grid>
+      </Grid>
+      {/* Up/Down arrows */}
+      <Grid item>
+        <Grid container direction="column" justify="space-between" className={classes.arrows}>
+          <Grid item>
+            <Tooltip title="secondary">
+              <IconButton color="primary" size="small" disabled={disableUserInteraction}>
+                <ArrowUpward className={classes.arrow} />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+          <Grid item>
+            <IconButton color="primary" size="small" disabled={disableUserInteraction}>
+              <ArrowDownward className={classes.arrow} />
+            </IconButton>
           </Grid>
         </Grid>
       </Grid>
