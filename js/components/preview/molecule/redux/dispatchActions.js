@@ -100,12 +100,14 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   // loading vector objects
   objList.map(item =>
     dispatch(
-      loadObject(
-        { display_div: VIEWS.MAJOR_VIEW, ...getVectorWithColorByCountOfCompounds(item, currentVectorCompounds) },
+      loadObject({
+        target: {
+          display_div: VIEWS.MAJOR_VIEW,
+          ...getVectorWithColorByCountOfCompounds(item, currentVectorCompounds)
+        },
         stage,
-        undefined,
-        null
-      )
+        orientationMatrix: null
+      })
     )
   );
   var vectorBondColorMap = generateBondColorMap(json['indices']);
@@ -177,12 +179,11 @@ export const removeVector = (stage, data) => async (dispatch, getState) => {
 
 export const addHitProtein = (stage, data, colourToggle) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -202,12 +203,11 @@ export const removeHitProtein = (stage, data, colourToggle) => dispatch => {
 
 export const addComplex = (stage, data, colourToggle) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -227,12 +227,11 @@ export const removeComplex = (stage, data, colourToggle) => dispatch => {
 
 export const addSurface = (stage, data, colourToggle) => dispatch => {
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -254,12 +253,11 @@ export const addDensity = (stage, data, colourToggle) => dispatch => {
   console.log('TODO');
   return;
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
       stage,
-      undefined,
-      null
-    )
+      orientationMatrix: null
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -282,22 +280,26 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
 export const addLigand = (stage, data, colourToggle) => (dispatch, getState) => {
   const state = getState();
   const storedOrientation = state.nglReducers.moleculeOrientations[data.site];
-  const currentOrientation = stage && stage.viewerControls.getOrientation();
-  let orientationMatrix = undefined;
-  if (storedOrientation && currentOrientation) {
-    if (isEqual(storedOrientation, currentOrientation)) {
-      orientationMatrix = null;
-    } else {
-      orientationMatrix = storedOrientation;
-    }
+  console.log(storedOrientation);
+  let orientationMatrix = null;
+  if (!storedOrientation) {
+    orientationMatrix = undefined;
   }
+  // const currentOrientation = stage && stage.viewerControls.getOrientation();
+  // let orientationMatrix = undefined;
+  // if (storedOrientation && currentOrientation) {
+  //   if (isEqual(storedOrientation, currentOrientation)) {
+  //     orientationMatrix = null;
+  //   } else {
+  //     orientationMatrix = storedOrientation;
+  //   }
+  // }
   dispatch(
-    loadObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
-      undefined,
       orientationMatrix
-    )
+    })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));

@@ -139,6 +139,7 @@ export const getFilteredDatasetMoleculeList = createSelector(
   ) => {
     const filterSettings = filterDatasetMap && datasetID && filterDatasetMap[datasetID];
     const filterProperties = filterPropertiesDatasetMap && datasetID && filterPropertiesDatasetMap[datasetID];
+
     let datasetMoleculeList = moleculeLists[datasetID] || [];
     const scoreDatasetList = scoreDatasetMap[datasetID];
     const isActiveFilter = !!(filterSettings || {}).active;
@@ -171,13 +172,19 @@ export const getFilteredDatasetMoleculeList = createSelector(
       });
 
       // 3. Sort
-      let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
+      const defaultFilterProperties = getInitialDatasetFilterProperties(state, datasetID);
+
+      let sortedAttributes = filterSettings.priorityOrder
+        .filter(attr => defaultFilterProperties[attr]?.disabled === false || false)
+        .map(attr => attr);
 
       return filteredMolecules.sort((a, b) => {
         for (let prioAttr of sortedAttributes) {
           const order = filterProperties[prioAttr].order;
-          const attrLo = prioAttr.toLowerCase();
-          let diff = order * (a[attrLo] - b[attrLo]);
+          const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
+          const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
+
+          let diff = order * (scoreValueOfA - scoreValueOfB);
           if (diff !== 0) {
             return diff;
           }

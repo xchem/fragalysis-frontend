@@ -30,10 +30,10 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       )
     );
     dispatch(
-      loadObject(
-        Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
-        summaryViewStage
-      )
+      loadObject({
+        target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, true)),
+        stage: summaryViewStage
+      })
     ).catch(error => {
       throw new Error(error);
     });
@@ -50,10 +50,10 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       )
     );
     dispatch(
-      loadObject(
-        Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
-        summaryViewStage
-      )
+      loadObject({
+        target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(currentMolGroup, false)),
+        stage: summaryViewStage
+      })
     ).catch(error => {
       throw new Error(error);
     });
@@ -108,7 +108,7 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
         name: input_dict['interaction'] + SUFFIX.INTERACTION,
         OBJECT_TYPE: OBJECT_TYPE.ARROW
       };
-      dispatch(loadObject(objToLoad, stage)).catch(error => {
+      dispatch(loadObject({ target: objToLoad, stage })).catch(error => {
         throw new Error(error);
       });
     } else if (pickingProxy.component && pickingProxy.component.object && pickingProxy.component.object.name) {

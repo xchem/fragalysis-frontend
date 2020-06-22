@@ -35,7 +35,9 @@ const EventSlider = memo(({ object_list, object_on, setObjectOn, deleteObject, l
       for (let index in object_list) {
         if (object_list[index].id === new_value) {
           // Build the map
-          loadObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateEventMapObject(object_list[index])));
+          loadObject({
+            target: Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateEventMapObject(object_list[index]))
+          });
         } else if (object_list[index].id === object_on) {
           deleteObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateEventMapObject(object_list[index])));
         }

@@ -51,7 +51,9 @@ export const withLoadingPanddaSiteList = WrappedComponent => {
     const afterPush = useCallback(
       objects => {
         if (objects) {
-          objects.map(data => loadObject(Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateObject(data))));
+          objects.map(data =>
+            loadObject({ target: Object.assign({ display_div: VIEWS.PANDDA_MAJOR }, generateObject(data)) })
+          );
         }
       },
       [generateObject, loadObject]

@@ -54,7 +54,7 @@ describe("testing ngl reducer's async actions", () => {
 
     // eslint-disable-next-line jest/no-test-return-statement
     return store
-      .dispatch(loadObject(target, stage))
+      .dispatch(loadObject({ target, stage }))
       .then(async result => {
         expect(result.type).toBe(await getActionType(loadNglObject));
         expect(result.target).toStrictEqual(target);

@@ -7,7 +7,7 @@ import {
 } from './generatingObjects';
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 
-const showSphere = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
   let radius = input_dict.radius;
   let coords = input_dict.coords;
@@ -20,17 +20,21 @@ const showSphere = (stage, input_dict, object_name, representations, orientation
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showMol = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showLigand = ({ stage, input_dict, object_name, representations, orientationMatrix, markAsRightSideLigand }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
     const reprArray =
       representations ||
       createRepresentationsArray([
-        createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
-          colorScheme: 'element',
-          colorValue: input_dict.colour,
-          multipleBond: true
-        })
+        createRepresentationStructure(
+          markAsRightSideLigand ? MOL_REPRESENTATION.licorice : MOL_REPRESENTATION.ballPlusStick,
+          {
+            colorScheme: 'element',
+            colorValue: input_dict.colour,
+            multipleBond: true,
+            radiusSize: markAsRightSideLigand ? 0.11 : undefined
+          }
+        )
       ]);
 
     if (orientationMatrix && orientationMatrix.elements) {
@@ -76,7 +80,7 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const showHitProtein = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showHitProtein = ({ stage, input_dict, object_name, representations, orientationMatrix }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return Promise.all([
     stage.loadFile(input_dict.prot_url, { ext: 'pdb', defaultAssembly: 'BU1' }),
@@ -141,7 +145,7 @@ const renderComplex = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const showComplex = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showComplex = ({ stage, input_dict, object_name, representations, orientationMatrix }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   return Promise.all([
     stage.loadFile(input_dict.prot_url, { ext: 'pdb', defaultAssembly: 'BU1' }),
@@ -153,7 +157,7 @@ const showComplex = (stage, input_dict, object_name, representations, orientatio
   ]).then(ol => renderComplex(ol, representations, orientationMatrix));
 };
 
-const showSurface = (stage, input_dict, object_name, representations, orientationMatrix) =>
+const showSurface = ({ stage, input_dict, object_name, representations, orientationMatrix }) =>
   stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
     const reprArray =
       representations ||
@@ -178,7 +182,7 @@ const showSurface = (stage, input_dict, object_name, representations, orientatio
   });
 
 // ligand
-const showEvent = (stage, input_dict, object_name, representations, orientationMatrix) =>
+const showEvent = ({ stage, input_dict, object_name, representations, orientationMatrix }) =>
   Promise.all(
     [
       stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
@@ -244,7 +248,7 @@ const showEvent = (stage, input_dict, object_name, representations, orientationM
   );
 
 // vector
-const showCylinder = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showCylinder = ({ stage, input_dict, object_name, representations, orientationMatrix }) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.4 : input_dict.radius;
   // Handle undefined start and finish
@@ -267,7 +271,7 @@ const showCylinder = (stage, input_dict, object_name, representations, orientati
 };
 
 // vector
-const showArrow = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showArrow = ({ stage, input_dict, object_name, representations, orientationMatrix }) => {
   let colour = input_dict.colour === undefined ? [1, 0, 0] : input_dict.colour;
   let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
   // Handle undefined start and finish
@@ -290,7 +294,7 @@ const showArrow = (stage, input_dict, object_name, representations, orientationM
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showProtein = (stage, input_dict, object_name, representations, orientationMatrix) =>
+const showProtein = ({ stage, input_dict, object_name, representations, orientationMatrix }) =>
   stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
     const reprArray =
       representations || createRepresentationsArray([createRepresentationStructure(input_dict.nglProtStyle, {})]);
@@ -303,7 +307,7 @@ const showProtein = (stage, input_dict, object_name, representations, orientatio
     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });
 
-const showHotspot = (stage, input_dict, object_name, representations, orientationMatrix) => {
+const showHotspot = ({ stage, input_dict, object_name, representations }) => {
   if (input_dict.map_type === 'AP') {
     return stage.loadFile(input_dict.hotUrl, { name: object_name, ext: 'dx' }).then(comp => {
       const reprArray =
@@ -364,7 +368,7 @@ const showHotspot = (stage, input_dict, object_name, representations, orientatio
 // Refactor this out into a utils directory
 export const nglObjectDictionary = {
   [OBJECT_TYPE.SPHERE]: showSphere,
-  [OBJECT_TYPE.MOLECULE]: showMol,
+  [OBJECT_TYPE.LIGAND]: showLigand,
   [OBJECT_TYPE.HIT_PROTEIN]: showHitProtein,
   [OBJECT_TYPE.COMPLEX]: showComplex,
   [OBJECT_TYPE.SURFACE]: showSurface,

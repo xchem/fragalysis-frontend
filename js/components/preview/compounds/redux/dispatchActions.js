@@ -118,10 +118,10 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
         const newConf = response.data[0];
         dispatch(setConfiguration(index, newConf));
         return dispatch(
-          loadObject(
-            Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(newConf, data.smiles)),
-            majorViewStage
-          )
+          loadObject({
+            target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateCompoundMolObject(newConf, data.smiles)),
+            stage: majorViewStage
+          })
         );
       })
       .catch(error => {

@@ -24,7 +24,13 @@ import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 import { VIEWS } from '../../constants/constants';
 
-export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => (dispatch, getState) => {
+export const loadObject = ({
+  target,
+  stage,
+  previousRepresentations,
+  orientationMatrix,
+  markAsRightSideLigand
+}) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
 
@@ -33,13 +39,14 @@ export const loadObject = (target, stage, previousRepresentations, orientationMa
       versionFixedTarget.OBJECT_TYPE = OBJECT_TYPE.HIT_PROTEIN;
     }
 
-    return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE](
+    return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
       stage,
-      versionFixedTarget,
-      versionFixedTarget.name,
-      previousRepresentations,
-      orientationMatrix
-    )
+      input_dict: versionFixedTarget,
+      object_name: versionFixedTarget.name,
+      representations: previousRepresentations,
+      orientationMatrix,
+      markAsRightSideLigand
+    })
       .then(representations => dispatch(loadNglObject(versionFixedTarget, representations)))
       .catch(error => {
         console.error(error);
@@ -125,7 +132,11 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
       if (snapshot.objectsInView[objInView].display_div === display_div) {
         let representations = snapshot.objectsInView[objInView].representations;
         return dispatch(
-          loadObject(snapshot.objectsInView[objInView], stage, createRepresentationsArray(representations))
+          loadObject({
+            target: snapshot.objectsInView[objInView],
+            stage,
+            previousRepresentations: createRepresentationsArray(representations)
+          })
         );
       } else {
         return Promise.resolve();
