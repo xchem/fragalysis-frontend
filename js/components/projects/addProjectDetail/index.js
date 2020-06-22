@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { Form, Formik } from 'formik';
+import { Form, Formik, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { InputFieldAvatar } from '../projectModal/inputFieldAvatar';
 import { Description, Label, Title } from '@material-ui/icons';
@@ -72,19 +72,20 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
           });
         }}
       >
-        {({ submitForm }) => (
+        {({ submitForm, isSubmitting }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Title />}
                   field={
-                    <TextField
+                    <Field
+                      component={TextField}
                       className={classes.input}
                       name="title"
                       label="Title"
                       required
-                      disabled={isProjectModalLoading}
+                      disabled={isProjectModalLoading || isSubmitting}
                     />
                   }
                 />
@@ -93,12 +94,13 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                 <InputFieldAvatar
                   icon={<Description />}
                   field={
-                    <TextField
+                    <Field
+                      component={TextField}
                       className={classes.input}
                       name="description"
                       label="Description"
                       required
-                      disabled={isProjectModalLoading}
+                      disabled={isProjectModalLoading || isSubmitting}
                     />
                   }
                 />
@@ -118,7 +120,8 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       }}
                       disabled={isProjectModalLoading}
                       renderInput={params => (
-                        <TextField
+                        <Field
+                          component={TextField}
                           {...params}
                           className={classes.input}
                           label="Tags"

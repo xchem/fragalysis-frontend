@@ -28,6 +28,7 @@ import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
 //import HotspotList from '../hotspot/hotspotList';
 import { TabsHeader, Tab, TabPanel, a11yTabProps } from '../common/Tabs';
 import { loadDataSets } from '../datasets/redux/dispatchActions';
+import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 
 const hitNavigatorWidth = 504;
 
@@ -62,7 +63,7 @@ const useStyles = makeStyles(theme => ({
       width: `calc(100vw - ${hitNavigatorWidth}px - ${theme.spacing(4)}px)`
     }
   },
-  rightsideColumn: {
+  rightSideColumn: {
     minWidth: hitNavigatorWidth,
     [theme.breakpoints.up('lg')]: {
       width: hitNavigatorWidth
@@ -100,9 +101,11 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   }px - ${theme.spacing(8)}px)`;
 
   /* Custom dataset list height */
-  const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${molGroupsHeight}px - ${
-    filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
-  }px - ${theme.spacing(8)}px - ${TABS_HEADER_HEIGHT}px)`;
+  const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(hideProjects ? 1 : 2)}px - ${
+    hideProjects ? 0 : molGroupsHeight
+  }px - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0}px - ${theme.spacing(
+    8
+  )}px - ${TABS_HEADER_HEIGHT}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
 
@@ -113,8 +116,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const [projectHistoryHeight, setProjectHistoryHeight] = useState(0);
 
   const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
-    2
-  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - 72px - ${TABS_HEADER_HEIGHT}px )`;
+    hideProjects ? 10 : 11
+  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - ${TABS_HEADER_HEIGHT}px )`;
   const [showHistory, setShowHistory] = useState(false);
 
   const [tabValue, setTabValue] = useState(0);
@@ -167,18 +170,13 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item container direction="column" spacing={1} className={classes.rightsideColumn}>
+        <Grid item container direction="column" spacing={1} className={classes.rightSideColumn}>
           <Grid item className={classes.tabHeader}>
-            <TabsHeader
-              value={tabValue}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              aria-label="right side tabs"
-            >
+            <TabsHeader value={tabValue} onChange={handleTabChange} variant="standard" aria-label="right side tabs">
               <Tab label="Vector selector" disabled={isFilterDialogOpen} {...a11yTabProps(0)} />
+              <Tab label="Selected compounds" disabled={isFilterDialogOpen} {...a11yTabProps(1)} />
               {customDatasets.map((dataset, index) => (
-                <Tab key={index + 1} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 1)} />
+                <Tab key={index + 2} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 2)} />
               ))}
             </TabsHeader>
             <TabPanel value={tabValue} index={0}>
@@ -192,21 +190,26 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                 </Grid>
               </Grid>
             </TabPanel>
-            {/* Custom data set (TODO sets in future) */}
-            {customDatasets.map((dataset, index) => (
-              <TabPanel key={index + 1} value={tabValue} index={index + 1}>
-                <Grid item>
-                  <CustomDatasetList
-                    dataset={dataset}
-                    height={customMoleculeListHeight}
-                    setFilterItemsHeight={setFilterItemsHeight}
-                    filterItemsHeight={filterItemsHeight}
-                    hideProjects={hideProjects}
-                    isActive={tabValue === index + 1}
-                  />
-                </Grid>
-              </TabPanel>
-            ))}
+            <TabPanel value={tabValue} index={1}>
+              <SelectedCompoundList height={customMoleculeListHeight} />
+            </TabPanel>
+
+            {customDatasets.map((dataset, index) => {
+              return (
+                <TabPanel key={index + 2} value={tabValue} index={index + 2}>
+                  <Grid item>
+                    <CustomDatasetList
+                      dataset={dataset}
+                      height={customMoleculeListHeight}
+                      setFilterItemsHeight={setFilterItemsHeight}
+                      filterItemsHeight={filterItemsHeight}
+                      hideProjects={hideProjects}
+                      isActive={tabValue === index + 2}
+                    />
+                  </Grid>
+                </TabPanel>
+              );
+            })}
           </Grid>
           {!hideProjects && (
             <Grid item>

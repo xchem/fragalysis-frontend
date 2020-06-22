@@ -7,7 +7,8 @@ export const INITIAL_STATE = {
   title: '',
   description: '',
   response: '',
-  imageSource: undefined // <canvas>
+  imageSource: undefined, // <canvas>
+  isOpenForm: false
 };
 
 export const issueReducers = (state = INITIAL_STATE, action = {}) => {
@@ -36,6 +37,9 @@ export const issueReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         imageSource: action.payload
       });
+
+    case constants.SET_IS_OPEN_FORM:
+      return Object.assign({}, state, { isOpenForm: action.payload });
 
     case constants.RESET_FORM:
       return Object.assign({}, state, INITIAL_STATE);

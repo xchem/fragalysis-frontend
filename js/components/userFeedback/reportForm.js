@@ -9,15 +9,15 @@ import { ReportProblem, EmojiObjects, Delete } from '@material-ui/icons';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
 import { HeaderContext } from '../header/headerContext';
-import { Formik, Form, FastField } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { Formik, Form, Field } from 'formik';
 import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
-import { resetForm, setName, setEmail, setTitle, setDescription, setImageSource } from './redux/actions';
+import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { snackbarColors } from '../header/constants';
 import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
+import { TextField } from 'formik-material-ui';
 
 /* Min resolution is 960 x 540 */
 const FORM_MIN_WIDTH = 960;
@@ -90,17 +90,6 @@ export const ReportForm = memo(({ formType }) => {
   const formState = useSelector(state => state.issueReducers);
   const { setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
 
-  /* Specific form type functions */
-  const isValidType = () => {
-    let valid = false;
-    for (let [key, value] of Object.entries(FORM_TYPE)) {
-      if (value === formType) {
-        valid = true;
-        break;
-      }
-    }
-    return valid;
-  };
   const getTitle = () => {
     switch (formType) {
       case FORM_TYPE.ISSUE:
@@ -169,7 +158,8 @@ export const ReportForm = memo(({ formType }) => {
   };
 
   /* Modal handlers */
-  const [openForm, setOpenForm] = useState(false);
+  //  const [openForm, setOpenForm] = useState(false);
+  const isOpenForm = useSelector(state => state.issueReducers.isOpenForm);
   const [openDialog, setOpenDialog] = useState(false);
   const [disablePictureModification, setDisablePictureModification] = useState(false);
   const [modalWidth, setModalWidth] = useState(0);
@@ -236,7 +226,7 @@ export const ReportForm = memo(({ formType }) => {
    * @return string - toDataURL|''
    */
   const getCanvasDrawDataUrl = canvasDraw => {
-    if (canvasDraw && canvasDraw.current.canvasContainer.children.length > 0) {
+    if (canvasDraw && canvasDraw.current?.canvasContainer.children.length > 0) {
       // cursor, drawing, interface, backgroundImage
       let rootCanvas = canvasDraw.current.canvasContainer.children[3];
       let rootCanvasContex = rootCanvas.getContext('2d');
@@ -248,16 +238,14 @@ export const ReportForm = memo(({ formType }) => {
   };
 
   const isResponse = () => {
-    return openForm && formState.response.length > 0;
+    return isOpenForm && formState.response.length > 0;
   };
 
-  const handleOpenForm = async () => {
-    await dispatch(captureScreen());
-    setOpenForm(true);
+  const handleOpenForm = () => {
+    dispatch(captureScreen());
   };
 
   const handleCloseForm = () => {
-    setOpenForm(false);
     dispatch(resetForm());
   };
 
@@ -265,7 +253,7 @@ export const ReportForm = memo(({ formType }) => {
     if (canCaptureScreen()) {
       setOpenDialog(true);
     } else {
-      handleOpenForm(true);
+      handleOpenForm();
     }
   };
 
@@ -323,7 +311,7 @@ export const ReportForm = memo(({ formType }) => {
           </Grid>
         </Grid>
       </Modal>
-      <Modal open={openForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
+      <Modal open={isOpenForm} otherClasses={[classes.formModal]} resizable={true} onResize={modalOnResize}>
         <Grid container direction="row" className={classes.body} spacing={1}>
           <Grid item xs={4}>
             <Formik
@@ -349,7 +337,7 @@ export const ReportForm = memo(({ formType }) => {
                 }
                 return errors;
               }}
-              onSubmit={async values => {
+              onSubmit={values => {
                 // dispatch(setImageSource(getCanvasDrawDataUrl(canvasDraw))); // does not update in time
                 // set new image from drawing before creating issue
                 dispatch(setName(values.name));
@@ -358,8 +346,17 @@ export const ReportForm = memo(({ formType }) => {
                 dispatch(setDescription(values.description));
                 setDisablePictureModification(true);
                 const imageSource = getCanvasDrawDataUrl(canvasDraw);
-                await dispatch(
-                  createIssue(formState, imageSource, formType.toLowerCase(), getLabels(), afterCreateIssueCallback)
+                dispatch(
+                  createIssue({
+                    imageSource,
+                    formType: formType.toLowerCase(),
+                    labels: getLabels(),
+                    afterCreateIssueCallback,
+                    name: values.name,
+                    email: values.email,
+                    title: values.title,
+                    description: values.description
+                  })
                 );
               }}
             >
@@ -370,13 +367,26 @@ export const ReportForm = memo(({ formType }) => {
                   <Grid container direction="column">
                     <Grid item xs={12}>
                       <Typography variant="h3">{getTitle()}</Typography>
-                      <TextField name="name" label="Name" disabled={isSubmitting} className={classes.input} />
+                      <Field
+                        component={TextField}
+                        name="name"
+                        label="Name"
+                        disabled={isSubmitting}
+                        className={classes.input}
+                      />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField name="email" label="Email" disabled={isSubmitting} className={classes.input} />
+                      <Field
+                        component={TextField}
+                        name="email"
+                        label="Email"
+                        disabled={isSubmitting}
+                        className={classes.input}
+                      />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField
+                      <Field
+                        component={TextField}
                         required
                         name="title"
                         label="Subject"
@@ -387,7 +397,8 @@ export const ReportForm = memo(({ formType }) => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField
+                      <Field
+                        component={TextField}
                         required
                         name="description"
                         label="Description"
@@ -416,139 +427,141 @@ export const ReportForm = memo(({ formType }) => {
               )}
             </Formik>
           </Grid>
-          <Grid item xs={8} container direction="column">
-            {/* Canvas options */}
-            <Grid
-              item
-              xs
-              container
-              justify="center"
-              alignItems="center"
-              direction="row"
-              spacing={2}
-              className={classes.canvasDrawOptions}
-            >
+          <Grid item xs={8}>
+            <Grid container direction="column">
+              {/* Canvas options */}
               <Grid
                 item
-                xs={2}
-                align="center"
+                xs
                 container
-                direction="row"
-                justify="space-between"
+                justify="center"
                 alignItems="center"
-                spacing={1}
-              >
-                <Grid item xs={5}>
-                  <Typography>Color</Typography>
-                </Grid>
-                <Grid item xs={5}>
-                  <Tooltip title="Select color">
-                    <Box
-                      ref={colorPicker}
-                      border="1px solid black"
-                      bgcolor={brushColor}
-                      width={24}
-                      height={24}
-                      spacing={1}
-                      onClick={() => setOpenBrushColor(true)}
-                    />
-                  </Tooltip>
-                  <Popover
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left'
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right'
-                    }}
-                    anchorEl={colorPicker.current}
-                    open={openBrushColor}
-                    onClose={() => setOpenBrushColor(false)}
-                  >
-                    <SketchPicker color={brushColor} disableAlpha={true} onChangeComplete={handleColorChange} />
-                  </Popover>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                xs={7}
-                align="center"
-                container
                 direction="row"
-                justify="space-between"
-                alignItems="center"
-                spacing={1}
+                spacing={2}
+                className={classes.canvasDrawOptions}
               >
-                <Grid item xs={2}>
-                  <Typography>Radius</Typography>
-                </Grid>
-                <Grid item xs={10}>
-                  <Tooltip title="Select brush radius">
-                    <Slider
-                      value={brushRadius}
-                      step={1}
-                      marks
-                      min={1}
-                      max={6}
-                      valueLabelDisplay="auto"
-                      onChange={(event, newValue) => setBrushRadius(newValue)}
-                      disabled={disablePictureModification}
-                    />
-                  </Tooltip>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                xs={3}
-                align="center"
-                container
-                direction="row"
-                justify="flex-end"
-                alignItems="center"
-                spacing={1}
-              >
-                <Grid item xs>
-                  <Tooltip title="Clear drawing">
-                    <Button
-                      startIcon={<Delete />}
-                      variant="text"
-                      size="small"
-                      onClick={handleClearDrawing}
-                      disabled={disablePictureModification}
-                    >
-                      Clear
-                    </Button>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-            </Grid>
-            {/* Canvas */}
-            <Grid ref={canvasWrapperGridItem} item xs align="center">
-              {formState.imageSource ? (
-                <div
-                  ref={canvasWrapper}
-                  // TODO remove width and height!
-                  width={wrapperWidth}
-                  height={wrapperHeight}
-                  className={classes.canvasDrawWrapper}
+                <Grid
+                  item
+                  xs={2}
+                  align="center"
+                  container
+                  direction="row"
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={1}
                 >
-                  {/* lazyRadius - how far is cursor from drawing point */}
-                  <CanvasDraw
-                    ref={canvasDraw}
-                    imgSrc={formState.imageSource.toDataURL()}
-                    canvasWidth={formState.imageSource.width}
-                    canvasHeight={formState.imageSource.height}
-                    hideGrid={true}
-                    lazyRadius={0}
-                    brushRadius={brushRadius}
-                    brushColor={brushColor}
-                    disabled={disablePictureModification}
-                  />
-                </div>
-              ) : (
-                <Typography className={classes.canvasNoImage}>No image source.</Typography>
-              )}
+                  <Grid item xs={5}>
+                    <Typography>Color</Typography>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <Tooltip title="Select color">
+                      <Box
+                        ref={colorPicker}
+                        border="1px solid black"
+                        bgcolor={brushColor}
+                        width={24}
+                        height={24}
+                        spacing={1}
+                        onClick={() => setOpenBrushColor(true)}
+                      />
+                    </Tooltip>
+                    <Popover
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left'
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right'
+                      }}
+                      anchorEl={colorPicker.current}
+                      open={openBrushColor}
+                      onClose={() => setOpenBrushColor(false)}
+                    >
+                      <SketchPicker color={brushColor} disableAlpha={true} onChangeComplete={handleColorChange} />
+                    </Popover>
+                  </Grid>
+                </Grid>
+                <Grid
+                  item
+                  xs={7}
+                  align="center"
+                  container
+                  direction="row"
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid item xs={2}>
+                    <Typography>Radius</Typography>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Tooltip title="Select brush radius">
+                      <Slider
+                        value={brushRadius}
+                        step={1}
+                        marks
+                        min={1}
+                        max={6}
+                        valueLabelDisplay="auto"
+                        onChange={(event, newValue) => setBrushRadius(newValue)}
+                        disabled={disablePictureModification}
+                      />
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  align="center"
+                  container
+                  direction="row"
+                  justify="flex-end"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid item xs>
+                    <Tooltip title="Clear drawing">
+                      <Button
+                        startIcon={<Delete />}
+                        variant="text"
+                        size="small"
+                        onClick={handleClearDrawing}
+                        disabled={disablePictureModification}
+                      >
+                        Clear
+                      </Button>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </Grid>
+              {/* Canvas */}
+              <Grid ref={canvasWrapperGridItem} item xs align="center">
+                {formState.imageSource ? (
+                  <div
+                    ref={canvasWrapper}
+                    // TODO remove width and height!
+                    width={wrapperWidth}
+                    height={wrapperHeight}
+                    className={classes.canvasDrawWrapper}
+                  >
+                    {/* lazyRadius - how far is cursor from drawing point */}
+                    <CanvasDraw
+                      ref={canvasDraw}
+                      imgSrc={formState.imageSource.toDataURL()}
+                      canvasWidth={formState.imageSource.width}
+                      canvasHeight={formState.imageSource.height}
+                      hideGrid={true}
+                      lazyRadius={0}
+                      brushRadius={brushRadius}
+                      brushColor={brushColor}
+                      disabled={disablePictureModification}
+                    />
+                  </div>
+                ) : (
+                  <Typography className={classes.canvasNoImage}>No image source.</Typography>
+                )}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

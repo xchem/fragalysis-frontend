@@ -1,4 +1,4 @@
-import { setImageSource } from './redux/actions';
+import { setImageSource, setIsOpenForm } from './redux/actions';
 
 /* Getting image from screen capture or  */
 
@@ -79,6 +79,5 @@ export const captureScreen = () => async dispatch => {
   }
 
   dispatch(setImageSource(image));
-
-  return image;
+  dispatch(setIsOpenForm(true));
 };

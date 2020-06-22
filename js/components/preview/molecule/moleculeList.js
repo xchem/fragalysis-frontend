@@ -275,38 +275,35 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
-  // prevent loading molecules multiple times
-  const firstLoadRef = useRef(!firstLoad);
+  const wereMoleculesInitialized = useRef(false);
 
   useEffect(() => {
-    // TODO this reloads too much..
     loadFromServer({
       url: getUrl({ list_type, target_on, mol_group_on }),
       setOldUrl: url => setOldUrl(url),
       old_url: oldUrl.current,
       list_type,
-      setObjectList: list => dispatch(setMoleculeList(list)),
-      setCachedMolLists: list => dispatch(setCachedMolLists(list)),
+      setObjectList: list => {
+        dispatch(setMoleculeList(list));
+      },
+      setCachedMolLists: list => {
+        dispatch(setCachedMolLists(list));
+      },
       mol_group_on,
       cached_mol_lists
     })
       .then(() => {
-        console.log('initializing filter');
-        // setPredefinedFilter(dispatch(initializeFilter()).predefined);
         dispatch(initializeFilter());
-        // initialize molecules on first target load
         if (
           stage &&
           cached_mol_lists &&
           cached_mol_lists[mol_group_on] &&
-          firstLoadRef &&
-          firstLoadRef.current &&
           hideProjects &&
-          target !== undefined
+          target !== undefined &&
+          wereMoleculesInitialized.current === false
         ) {
-          console.log('initializing molecules');
-          firstLoadRef.current = false;
           dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+          wereMoleculesInitialized.current = true;
         }
       })
       .catch(error => {
@@ -519,6 +516,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             molGroupSelection={object_selection}
             cachedMolList={cached_mol_lists}
             filter={filter}
+            setSortDialogAnchorEl={setSortDialogAnchorEl}
           />
         )}
         <div ref={filterRef}>

@@ -1,8 +1,7 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import { Popper, Paper } from '@material-ui/core';
-import { Delete } from '@material-ui/icons';
+import { Popper, Tooltip, IconButton } from '@material-ui/core';
+import { Close, Delete } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
@@ -10,6 +9,8 @@ import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
+import { Panel } from '../../common/Surfaces/Panel';
+import { setSortDialogOpen } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -45,8 +46,7 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     width: 570,
-    overflow: 'none',
-    padding: theme.spacing(1)
+    overflow: 'none'
   }
 }));
 
@@ -115,7 +115,16 @@ export const filterMolecules = (molecules, filter) => {
 };
 
 export const MoleculeListSortFilterDialog = memo(
-  ({ molGroupSelection, cachedMolList, filter, anchorEl, open, parentID = 'default', placement = 'right-start' }) => {
+  ({
+    molGroupSelection,
+    cachedMolList,
+    filter,
+    anchorEl,
+    open,
+    parentID = 'default',
+    placement = 'right-start',
+    setSortDialogAnchorEl
+  }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
     const moleculeGroupList = useSelector(state => state.apiReducers.mol_group_list);
@@ -229,24 +238,37 @@ export const MoleculeListSortFilterDialog = memo(
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement={placement}>
-        <Paper className={classes.paper} elevation={21}>
-          <Grid container justify="space-between" direction="row" alignItems="center">
-            <Grid item>
-              <div className={classes.numberOfHits}>
-                # of hits matching selection: <b>{filteredCount}</b>
-                {prioWarning && (
-                  <div>
-                    <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
-                  </div>
-                )}
-              </div>
-            </Grid>
-            <Grid item>
-              <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
-                Clear
-              </Button>
-            </Grid>
-          </Grid>
+        <Panel
+          hasHeader
+          bodyOverflow
+          secondaryBackground
+          title={`Left filter: ${filteredCount} matches`}
+          className={classes.paper}
+          headerActions={[
+            <Tooltip title="Clear filter">
+              <IconButton onClick={handleClear} color="inherit" className={classes.headerButton}>
+                <Delete />
+              </IconButton>
+            </Tooltip>,
+            <Tooltip title="Close filter">
+              <IconButton
+                onClick={() => {
+                  setSortDialogAnchorEl(null);
+                  dispatch(setSortDialogOpen(false));
+                }}
+                color="inherit"
+                className={classes.headerButton}
+              >
+                <Close />
+              </IconButton>
+            </Tooltip>
+          ]}
+        >
+          {prioWarning && (
+            <div>
+              <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
+            </div>
+          )}
           <Grid container>
             <Grid container item className={classes.gridItemHeader}>
               <Grid item className={classes.centered} style={{ width: widthPrio }}>
@@ -293,7 +315,7 @@ export const MoleculeListSortFilterDialog = memo(
               );
             })}
           </Grid>
-        </Paper>
+        </Panel>
       </Popper>
     );
   }

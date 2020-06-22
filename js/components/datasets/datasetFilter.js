@@ -1,10 +1,15 @@
 import React, { memo, useState } from 'react';
-import { Paper, Popper, Button, Grid } from '@material-ui/core';
+import { Typography, Popper, Grid, FormControlLabel, Checkbox, IconButton, Tooltip } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
-import { Delete } from '@material-ui/icons';
-import { setFilterProperties, setFilterSettings } from './redux/actions';
+import { Delete, Close } from '@material-ui/icons';
+import {
+  setFilterDialogOpen,
+  setFilterProperties,
+  setFilterSettings,
+  setFitlerWithInspirations
+} from './redux/actions';
 import {
   getFilteredDatasetMoleculeList,
   getInitialDatasetFilterProperties,
@@ -12,6 +17,7 @@ import {
 } from './redux/selectors';
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 import { createFilterSettingsObject } from './redux/constants';
+import { Panel } from '../common/Surfaces/Panel';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -47,8 +53,20 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     width: 700,
-    overflow: 'none',
-    padding: theme.spacing(1)
+    overflow: 'none'
+  },
+  withInspirations: {
+    paddingTop: theme.spacing(1) / 4
+  },
+  checkboxHeader: {
+    color: theme.palette.white,
+    '&$checked': {
+      color: theme.palette.white
+    }
+  },
+  checked: {},
+  headerButton: {
+    paddingTop: 10
   }
 }));
 
@@ -60,7 +78,7 @@ const widthMin = 30;
 const widthSlider = 170;
 
 export const DatasetFilter = memo(
-  ({ open, anchorEl, datasetID, active, predefined, priorityOrder, filterProperties }) => {
+  ({ open, anchorEl, datasetID, active, predefined, priorityOrder, filterProperties, setSortDialogAnchorEl }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
     const id = open ? 'simple-popover-datasets' : undefined;
@@ -68,6 +86,7 @@ export const DatasetFilter = memo(
     const defaultFilterProperties = useSelector(state => getInitialDatasetFilterProperties(state, datasetID));
     const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
     const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
+    const filterWithInspirations = useSelector(state => state.datasetsReducers.filterWithInspirations);
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
@@ -131,22 +150,61 @@ export const DatasetFilter = memo(
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start">
-        <Paper className={classes.paper} elevation={21}>
+        <Panel
+          hasHeader
+          bodyOverflow
+          secondaryBackground
+          title={`Right filter: ${(filteredDatasetMoleculeList || []).length} matches`}
+          className={classes.paper}
+          headerActions={[
+            <FormControlLabel
+              value="end"
+              control={
+                <Checkbox
+                  color="default"
+                  className={classes.checkboxHeader}
+                  checked={filterWithInspirations}
+                  onChange={() => {
+                    dispatch(setFitlerWithInspirations(!filterWithInspirations));
+                    handleItemChange()();
+                  }}
+                />
+              }
+              label="With inspirations"
+              labelPlacement="end"
+              className={classes.withInspirations}
+            />,
+            <Tooltip title="Clear filter">
+              <IconButton onClick={handleClear} color="inherit" className={classes.headerButton}>
+                <Delete />
+              </IconButton>
+            </Tooltip>,
+            <Tooltip title="Close filter">
+              <IconButton
+                onClick={() => {
+                  setSortDialogAnchorEl(null);
+                  dispatch(setFilterDialogOpen(false));
+                }}
+                color="inherit"
+                className={classes.headerButton}
+              >
+                <Close />
+              </IconButton>
+            </Tooltip>
+          ]}
+        >
           <Grid container justify="space-between" direction="row" alignItems="center">
             <Grid item>
               <div className={classes.numberOfHits}>
-                # of hits matching selection: <b>{(filteredDatasetMoleculeList || []).length}</b>
                 {prioWarning && (
                   <div>
-                    <WarningIcon className={classes.warningIcon} /> multiple attributes with same sorting priority
+                    <Typography variant="body2">
+                      <WarningIcon className={classes.warningIcon} />
+                      Multiple attributes with same sorting priority
+                    </Typography>
                   </div>
                 )}
               </div>
-            </Grid>
-            <Grid item>
-              <Button onClick={handleClear} color="secondary" variant="contained" startIcon={<Delete />}>
-                Clear
-              </Button>
             </Grid>
           </Grid>
           <Grid container>
@@ -178,27 +236,30 @@ export const DatasetFilter = memo(
 
             {priorityOrder.map(attr => {
               let attrDef = getAttributeName(attr);
+              const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
               return (
-                <DatasetMoleculeListSortFilter
-                  key={attr}
-                  datasetID={datasetID}
-                  scoreName={attrDef.name}
-                  scoreDescription={attrDef.description}
-                  scoreID={attrDef.id}
-                  order={filterProperties[attr].order}
-                  minValue={filterProperties[attr].minValue}
-                  maxValue={filterProperties[attr].maxValue}
-                  min={defaultFilterProperties[attr].minValue}
-                  max={defaultFilterProperties[attr].maxValue}
-                  isFloat={defaultFilterProperties[attr].isFloat}
-                  disabled={predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled}
-                  onChange={handleItemChange(attr)}
-                  onChangePrio={handlePrioChange(attr)}
-                />
+                !disabled && (
+                  <DatasetMoleculeListSortFilter
+                    key={attr}
+                    datasetID={datasetID}
+                    scoreName={attrDef.name}
+                    scoreDescription={attrDef.description}
+                    scoreID={attrDef.id}
+                    order={filterProperties[attr].order}
+                    minValue={filterProperties[attr].minValue}
+                    maxValue={filterProperties[attr].maxValue}
+                    min={defaultFilterProperties[attr].minValue}
+                    max={defaultFilterProperties[attr].maxValue}
+                    isFloat={defaultFilterProperties[attr].isFloat}
+                    disabled={disabled}
+                    onChange={handleItemChange(attr)}
+                    onChangePrio={handlePrioChange(attr)}
+                  />
+                )
               );
             })}
           </Grid>
-        </Paper>
+        </Panel>
       </Popper>
     );
   }

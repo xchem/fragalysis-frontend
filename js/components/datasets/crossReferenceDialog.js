@@ -1,40 +1,29 @@
-import React, { forwardRef, memo, useContext, useEffect, useRef, useState } from 'react';
-import {
-  CircularProgress,
-  Grid,
-  Popper,
-  IconButton,
-  Typography,
-  InputAdornment,
-  TextField,
-  Tooltip
-} from '@material-ui/core';
-import { Close, Search } from '@material-ui/icons';
+import React, { forwardRef, memo, useContext, useEffect, useState } from 'react';
+import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  addComplex,
-  addLigand,
-  addHitProtein,
-  addSurface,
-  removeComplex,
-  removeLigand,
-  removeHitProtein,
-  removeSurface
-} from '../preview/molecule/redux/dispatchActions';
-import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
-import MoleculeView from '../preview/molecule/moleculeView';
-import { moleculeProperty } from '../preview/molecule/helperConstants';
-import { debounce } from 'lodash';
-import { setInspirationMoleculeDataList, setIsOpenInspirationDialog } from './redux/actions';
+  loadScoresOfCrossReferenceCompounds,
+  handleAllLigandsOfCrossReferenceDialog,
+  resetCrossReferenceDialog,
+  removeOrAddAllHitProteinsOfList,
+  removeOrAddAllComplexesOfList
+} from './redux/dispatchActions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { colourList } from './datasetMoleculeView';
+import { DatasetMoleculeView } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
-import { changeButtonClassname } from './helpers';
+import {
+  getCrossReferenceCompoundListByCompoundName,
+  getListOfSelectedComplexOfAllDatasets,
+  getListOfSelectedLigandOfAllDatasets,
+  getListOfSelectedProteinOfAllDatasets
+} from './redux/selectors';
+import { changeButtonClassname, onButtonToggle } from './helpers';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -128,169 +117,75 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const InspirationDialog = memo(
+export const CrossReferenceDialog = memo(
   forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
-    const id = open ? 'simple-popover-compound-inspirations' : undefined;
+    const dispatch = useDispatch();
+    const id = open ? 'simple-popover-compound-cross-reference' : undefined;
     const imgHeight = 34;
     const imgWidth = 150;
     const classes = useStyles();
-    const [searchString, setSearchString] = useState(null);
-    const selectedAll = useRef(false);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-
-    const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
-
-    const isLoadingInspirationListOfMolecules = useSelector(
-      state => state.datasetsReducers.isLoadingInspirationListOfMolecules
-    );
-    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
-
-    const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
-
-    const dispatch = useDispatch();
     const disableUserInteraction = useDisableUserInteraction();
 
+    const moleculeList = useSelector(state => getCrossReferenceCompoundListByCompoundName(state));
+    const isLoadingCrossReferenceScores = useSelector(state => state.datasetsReducers.isLoadingCrossReferenceScores);
+
+    const ligandList = useSelector(state => getListOfSelectedLigandOfAllDatasets(state));
+    const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
+    const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
+
     useEffect(() => {
-      if (inspirationFragmentList && inspirationFragmentList.length > 0) {
-        dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
-          throw new Error(error);
-        });
-      } else {
-        dispatch(setInspirationMoleculeDataList([]));
+      if (moleculeList && Array.isArray(moleculeList) && moleculeList.length > 0) {
+        // moleculeList has following structure:
+        // [
+        // {molecule: {any data...}, datasetID: 1},
+        // ...]
+        dispatch(loadScoresOfCrossReferenceCompounds([...new Set(moleculeList.map(item => item.datasetID))]));
       }
-    }, [dispatch, inspirationFragmentList]);
+    }, [dispatch, moleculeList]);
 
-    let debouncedFn;
-
-    const handleSearch = event => {
-      /* signal to React not to nullify the event object */
-      event.persist();
-      if (!debouncedFn) {
-        debouncedFn = debounce(() => {
-          setSearchString(event.target.value !== '' ? event.target.value : null);
-        }, 350);
-      }
-      debouncedFn();
-    };
-
-    let moleculeList = [];
-    if (searchString !== null) {
-      moleculeList = inspirationMoleculeDataList.filter(molecule =>
-        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
-      );
-    } else {
-      moleculeList = inspirationMoleculeDataList;
-    }
-    // TODO refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOn = changeButtonClassname(
-      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
+      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined),
       moleculeList
     );
     const isProteinOn = changeButtonClassname(
-      proteinList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
+      proteinList.filter(
+        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+      ),
       moleculeList
     );
     const isComplexOn = changeButtonClassname(
-      complexList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
+      complexList.filter(
+        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+      ),
       moleculeList
     );
-
-    const addType = {
-      ligand: addLigand,
-      protein: addHitProtein,
-      complex: addComplex,
-      surface: addSurface
-    };
-
-    const removeType = {
-      ligand: removeLigand,
-      protein: removeHitProtein,
-      complex: removeComplex,
-      surface: removeSurface
-    };
-
-    const removeSelectedType = type => {
-      moleculeList.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
-      });
-      selectedAll.current = false;
-    };
-
-    const addNewType = type => {
-      moleculeList.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
-      });
-    };
-
-    const ucfirst = string => {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    };
-
-    const onButtonToggle = (type, calledFromSelectAll = false) => {
-      if (calledFromSelectAll === true && selectedAll.current === true) {
-        // REDO
-        if (eval('is' + ucfirst(type) + 'On') === false) {
-          addNewType(type);
-        }
-      } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedType(type);
-      } else if (!calledFromSelectAll) {
-        if (eval('is' + ucfirst(type) + 'On') === false) {
-          addNewType(type);
-        } else {
-          removeSelectedType(type);
-        }
-      }
-    };
-    //  TODO refactor to this line
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
         <Panel
           hasHeader
           secondaryBackground
-          title="Inspirations"
+          title="Cross Reference"
           className={classes.paper}
           headerActions={[
-            <TextField
-              className={classes.search}
-              id="search-inspiration-dialog"
-              placeholder="Search"
-              size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search color="inherit" />
-                  </InputAdornment>
-                )
-              }}
-              onChange={handleSearch}
-              disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
-            />,
-            <Tooltip title="Close inspirations">
+            <Tooltip title="Close cross reference dialog">
               <IconButton
                 color="inherit"
                 className={classes.headerButton}
-                onClick={() => dispatch(setIsOpenInspirationDialog(false))}
+                onClick={() => dispatch(resetCrossReferenceDialog())}
               >
                 <Close />
               </IconButton>
             </Tooltip>
           ]}
         >
-          {isLoadingInspirationListOfMolecules === false && moleculeList && (
+          {isLoadingCrossReferenceScores === false && moleculeList && (
             <>
               <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justify="flex-start" direction="row">
-                  {Object.keys(moleculeProperty).map(key => (
-                    <Grid item key={key} className={classes.rightBorder}>
-                      {moleculeProperty[key]}
-                    </Grid>
-                  ))}
                   {moleculeList.length > 0 && (
                     <Grid item>
                       <Grid
@@ -309,7 +204,9 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonSelected]: isLigandOn,
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
-                              onClick={() => onButtonToggle('ligand')}
+                              onClick={() =>
+                                dispatch(handleAllLigandsOfCrossReferenceDialog(isLigandOn, moleculeList, stage))
+                              }
                               disabled={disableUserInteraction}
                             >
                               L
@@ -324,7 +221,9 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonSelected]: isProteinOn,
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
-                              onClick={() => onButtonToggle('protein')}
+                              onClick={() =>
+                                dispatch(removeOrAddAllHitProteinsOfList(isProteinOn, moleculeList, stage))
+                              }
                               disabled={disableUserInteraction}
                             >
                               P
@@ -340,7 +239,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonSelected]: isComplexOn,
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
-                              onClick={() => onButtonToggle('complex')}
+                              onClick={() => dispatch(removeOrAddAllComplexesOfList(isComplexOn, moleculeList, stage))}
                               disabled={disableUserInteraction}
                             >
                               C
@@ -354,8 +253,16 @@ export const InspirationDialog = memo(
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((molecule, index) => (
-                    <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
+                  moleculeList.map((data, index) => (
+                    <DatasetMoleculeView
+                      key={index}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data.molecule}
+                      datasetID={data.datasetID}
+                      hideFButton
+                      showDatasetName
+                    />
                   ))}
                 {!(moleculeList.length > 0) && (
                   <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
@@ -367,7 +274,7 @@ export const InspirationDialog = memo(
               </div>
             </>
           )}
-          {isLoadingInspirationListOfMolecules === true && (
+          {isLoadingCrossReferenceScores === true && (
             <Grid container alignItems="center" justify="center">
               <Grid item>
                 <CircularProgress />

@@ -2,6 +2,7 @@ import { api, METHOD } from '../../utils/api';
 import { setResponse } from './redux/actions';
 import { version } from '../../../package.json';
 import { Base64 } from 'js-base64';
+import { EXTENSION } from './redux/constants';
 
 /* API handlers */
 const apiLink = 'https://api.github.com';
@@ -27,20 +28,17 @@ const getHeaders = () => {
 /**
  * Upload an image from form state
  */
-const uploadFile = (imageSource, formType) => async dispatch => {
-  console.log('uploading new file');
-
-  let screenshotUrl = '';
-  if (imageSource.length > 0) {
+const uploadFile = ({ data64Based, formType, name, extension, raw = false }) => async dispatch => {
+  let fileUrl = '';
+  if (data64Based.length > 0) {
     // https://gist.github.com/maxisam/5c6ec10cc4146adce05d62f553c5062f
-    const imgBase64 = imageSource.split(',')[1];
     const uid = new Date().getTime() + parseInt(Math.random() * 1e6).toString();
-    const fileName = 'screenshot-' + uid + '.png';
+    const fileName = `${name}-${uid}${extension}`;
 
     const payload = {
       message: 'auto upload from ' + formType + ' form',
       branch: 'master',
-      content: imgBase64
+      content: data64Based
     };
 
     const result = await api({
@@ -49,34 +47,64 @@ const uploadFile = (imageSource, formType) => async dispatch => {
       headers: getHeaders(),
       data: JSON.stringify(payload)
     }).catch(error => {
-      console.log(error);
+      console.error(error);
       dispatch(setResponse('Error occured: ' + error.message));
       // TODO sentry?
     });
-    console.log(result);
-    screenshotUrl = result.data.content.html_url + '?raw=true';
+    fileUrl = `${result.data.content.html_url}?raw=${raw}`;
   }
 
-  return screenshotUrl;
+  return fileUrl;
 };
 
 /**
  * Create issue in GitHub (thunk actions are used to stored in dispatchActions.js)
  */
-export const createIssue = (formState, imageSource, formType, labels, afterCreateIssueCallback) => async dispatch => {
+export const createIssue = ({
+  imageSource,
+  formType,
+  labels,
+  afterCreateIssueCallback,
+  name,
+  email,
+  title,
+  description
+}) => async (dispatch, getState) => {
   dispatch(setResponse(''));
+  const rootReducer = getState();
 
-  const screenshotUrl = await dispatch(uploadFile(imageSource, formType));
-  let body = ['- Version: ' + version, '- Name: ' + formState.name, '- Description: ' + formState.description];
+  //  const state => state.issueReducers;
+  const screenshotUrl = await dispatch(
+    uploadFile({
+      data64Based: imageSource.split(',')[1],
+      formType,
+      name: 'Screenshot',
+      extension: EXTENSION.PNG,
+      raw: true
+    })
+  );
+  const reducerUrl = await dispatch(
+    uploadFile({
+      data64Based: Base64.encode(JSON.stringify(rootReducer)),
+      formType,
+      name: 'Reducers',
+      extension: EXTENSION.JSON
+    })
+  );
+  let body = ['- Version: ' + version, '- Name: ' + name, '- Email: ' + email, '- Description: ' + description];
+  if (reducerUrl.length > 0) {
+    body.push('- Reducers: ' + reducerUrl);
+  }
 
   if (screenshotUrl.length > 0) {
     body.push('', '![screenshot](' + screenshotUrl + ')');
   }
+
   body = body.join('\n');
 
   // https://developer.github.com/v3/issues/#create-an-issue
   var issue = {
-    title: formState.title,
+    title: title,
     body: body,
     labels: labels
   };
@@ -88,11 +116,10 @@ export const createIssue = (formState, imageSource, formType, labels, afterCreat
     data: JSON.stringify(issue)
   })
     .then(result => {
-      console.log(result);
       afterCreateIssueCallback(result.data.html_url);
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
       dispatch(setResponse('Error occured: ' + error.message));
       // TODO sentry?
     });

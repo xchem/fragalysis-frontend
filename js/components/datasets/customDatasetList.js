@@ -35,9 +35,7 @@ export const CustomDatasetList = memo(
       }
 
       return () => {
-        if (dataset && dataset.id) {
-          dispatch(clearDatasetSettings(dataset.id));
-        }
+        dispatch(clearDatasetSettings(dataset?.id));
       };
     }, [dataset, dispatch, isActive]);
 

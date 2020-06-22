@@ -12,6 +12,7 @@ export const INITIAL_STATE = {
   filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
   filterDialogOpen: false,
   filteredScoreProperties: {}, // map of $datasetID and its $scoreList
+  filterWithInspirations: false,
 
   // control buttons
   ligandLists: {}, // map of $datasetID and its $list
@@ -27,7 +28,16 @@ export const INITIAL_STATE = {
   isOpenInspirationDialog: false,
   inspirationFragmentList: [],
   isLoadingInspirationListOfMolecules: false,
-  inspirationMoleculeDataList: []
+  inspirationMoleculeDataList: [],
+
+  // cross reference
+  isOpenCrossReferenceDialog: false,
+  crossReferenceCompoundName: null,
+  isLoadingCrossReferenceScores: false,
+  crossReferenceCompoundsDataList: [],
+
+  // shopping cart
+  compoundsToBuyDatasetMap: {} // map of $datasetID and its list of moleculeID
 };
 
 /**
@@ -122,6 +132,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         delete decreasedMolecules[action.payload];
       }
       return Object.assign({}, state, { moleculeLists: decreasedMolecules });
+
+    case constants.SET_FILTER_WITH_INSPIRATIONS:
+      return Object.assign({}, state, { filterWithInspirations: action.payload });
 
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
@@ -243,6 +256,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
       return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
 
+    case constants.SET_IS_OPEN_CROSS_REFERENCE_DIALOG:
+      return Object.assign({}, state, { isOpenCrossReferenceDialog: action.payload });
+
+    case constants.SET_CROSS_REFERENCE_COMPOUND_NAME:
+      return Object.assign({}, state, { crossReferenceCompoundName: action.payload });
+
+    case constants.SET_IS_LOADING_CROSS_REFERENCE_SCORES:
+      return Object.assign({}, state, { isLoadingCrossReferenceScores: action.payload });
+
     case constants.SET_IS_LOADING_INSPIRATION_LIST_OF_MOLECULES:
       return Object.assign({}, state, { isLoadingInspirationListOfMolecules: action.payload });
 
@@ -284,6 +306,28 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         diminishedInspirationFragmentList.delete(foundtem);
       }
       return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
+
+    case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
+      const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
+      setOfMolecules.add(action.payload.moleculeID);
+      return {
+        ...state,
+        compoundsToBuyDatasetMap: {
+          ...state.compoundsToBuyDatasetMap,
+          [action.payload.datasetID]: [...setOfMolecules]
+        }
+      };
+
+    case constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET:
+      const listOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
+      listOfMolecules.delete(action.payload.moleculeID);
+      return {
+        ...state,
+        compoundsToBuyDatasetMap: {
+          ...state.compoundsToBuyDatasetMap,
+          [action.payload.datasetID]: [...listOfMolecules]
+        }
+      };
 
     default:
       return state;

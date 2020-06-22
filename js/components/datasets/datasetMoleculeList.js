@@ -13,7 +13,7 @@ import {
   InputAdornment,
   IconButton
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -32,14 +32,17 @@ import {
   addDatasetComplex,
   removeDatasetComplex,
   addDatasetSurface,
-  removeDatasetSurface
+  removeDatasetSurface,
+  resetCrossReferenceDialog,
+  autoHideDatasetDialogsOnScroll
 } from './redux/dispatchActions';
-import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
+import { setFilterDialogOpen, setIsOpenInspirationDialog, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
 import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
+import { CrossReferenceDialog } from './crossReferenceDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -158,14 +161,17 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1),
     width: 140,
     '& .MuiInputBase-root': {
-      color: 'white'
+      color: theme.palette.white
     },
     '& .MuiInput-underline:before': {
-      borderBottomColor: 'white'
+      borderBottomColor: theme.palette.white
     },
     '& .MuiInput-underline:after': {
-      borderBottomColor: 'white'
+      borderBottomColor: theme.palette.white
     }
+  },
+  loading: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -176,12 +182,14 @@ export const DatasetMoleculeList = memo(
 
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
+
     const imgHeight = 34;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
     const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
-
+    const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
     const searchString = useSelector(state => state.datasetsReducers.searchString);
+
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
@@ -190,23 +198,20 @@ export const DatasetMoleculeList = memo(
     const filterPropertiesMap = useSelector(state => state.datasetsReducers.filterPropertiesDatasetMap);
     const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
     const filteredDatasetMolecules = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
-
     const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
-    const isActiveFilter = !!(filterSettings || {}).active;
 
+    const isActiveFilter = !!(filterSettings || {}).active;
     const { getNglView } = useContext(NglContext);
+
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
     const filterRef = useRef();
-
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
     const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
-    /*useEffect(() => {
-      // setCurrentPage(0);
-    }, [object_selection]);*/
 
     if (isActiveFilter) {
       joinedMoleculeLists = filteredDatasetMolecules;
@@ -219,16 +224,14 @@ export const DatasetMoleculeList = memo(
         molecule.name.toLowerCase().includes(searchString.toLowerCase())
       );
     }
-
     const loadNextMolecules = () => {
       setCurrentPage(currentPage + 1);
     };
-
     const listItemOffset = (currentPage + 1) * moleculesPerPage;
+
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     // setCurrentMolecules(currentMolecules);
     const canLoadMore = listItemOffset < joinedMoleculeLists.length;
-
     useEffect(() => {
       if (isActiveFilter === false) {
         setFilterItemsHeight(0);
@@ -236,14 +239,14 @@ export const DatasetMoleculeList = memo(
     }, [isActiveFilter, setFilterItemsHeight]);
 
     const selectedAll = useRef(false);
+
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-
     const isLigandOn = (ligandList && ligandList.length > 0) || false;
+
     const isProteinOn = (proteinList && proteinList.length > 0) || false;
     const isComplexOn = (complexList && complexList.length > 0) || false;
-
     const addType = {
       ligand: addDatasetLigand,
       protein: addDatasetHitProtein,
@@ -268,17 +271,14 @@ export const DatasetMoleculeList = memo(
       });
       selectedAll.current = false;
     };
-
     const addNewType = type => {
       joinedMoleculeLists.forEach(molecule => {
         dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
       });
     };
-
     const ucfirst = string => {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
-
     const onButtonToggle = (type, calledFromSelectAll = false) => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         // REDO
@@ -295,7 +295,6 @@ export const DatasetMoleculeList = memo(
         }
       }
     };
-
     let debouncedFn;
 
     const handleSearch = event => {
@@ -346,6 +345,13 @@ export const DatasetMoleculeList = memo(
         </Tooltip>
       </IconButton>
     ];
+    /*useEffect(() => {
+      // setCurrentPage(0);
+    }, [object_selection]);*/
+
+    const crossReferenceDialogRef = useRef();
+    const inspirationDialogRef = useRef();
+    const scrollBarRef = useRef();
 
     return (
       <ComputeSize
@@ -354,7 +360,7 @@ export const DatasetMoleculeList = memo(
         height={filterItemsHeight}
         forceCompute={isActiveFilter}
       >
-        <Panel hasHeader title={title} withTooltip headerActions={actions} isLoading={isLoadingMoleculeList}>
+        <Panel hasHeader title={title} withTooltip headerActions={actions}>
           {sortDialogOpen && (
             <DatasetFilter
               open={sortDialogOpen}
@@ -365,10 +371,15 @@ export const DatasetMoleculeList = memo(
               active={filterSettings && filterSettings.active}
               predefined={filterSettings && filterSettings.predefined}
               priorityOrder={filterSettings && filterSettings.priorityOrder}
+              setSortDialogAnchorEl={setSortDialogAnchorEl}
             />
           )}
-          {isOpenInspirationDialog && <InspirationDialog open anchorEl={filterRef.current} datasetID={datasetID} />}
-
+          {isOpenInspirationDialog && (
+            <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
+          )}
+          {isOpenCrossReferenceDialog && (
+            <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+          )}
           <div ref={filterRef}>
             {isActiveFilter && (
               <>
@@ -483,9 +494,21 @@ export const DatasetMoleculeList = memo(
                 </Grid>
               )}
             </Grid>
+            {isLoadingMoleculeList && (
+              <Grid item container alignItems="center" justify="center" className={classes.loading}>
+                <Grid item>
+                  <CircularProgress />
+                </Grid>
+              </Grid>
+            )}
             {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
-              <Grid item className={classes.gridItemList}>
+              <Grid item className={classes.gridItemList} ref={scrollBarRef}>
                 <InfiniteScroll
+                  getScrollParent={() =>
+                    dispatch(
+                      autoHideDatasetDialogsOnScroll({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef })
+                    )
+                  }
                   pageStart={0}
                   loadMore={loadNextMolecules}
                   hasMore={canLoadMore}
@@ -512,6 +535,8 @@ export const DatasetMoleculeList = memo(
                         imageWidth={imgWidth}
                         data={data}
                         datasetID={datasetID}
+                        setRef={setSelectedMoleculeRef}
+                        showCrossReferenceModal
                       />
                     ))}
                 </InfiniteScroll>

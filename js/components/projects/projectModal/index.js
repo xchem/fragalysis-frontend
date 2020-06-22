@@ -21,7 +21,7 @@ import { useHistory } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { InputFieldAvatar } from './inputFieldAvatar';
 import { ProjectCreationType, SnapshotProjectType } from '../redux/constants';
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import { TextField, Select, RadioGroup } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
 import { getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
@@ -170,7 +170,7 @@ export const ProjectModal = memo(({}) => {
                   required
                   disabled={isProjectModalLoading}
                 >
-                  <RadioGroup name="type" row>
+                  <Form component={RadioGroup} name="type" row>
                     <FormControlLabel
                       value={ProjectCreationType.NEW}
                       control={<Radio disabled={isProjectModalLoading} />}
@@ -183,7 +183,7 @@ export const ProjectModal = memo(({}) => {
                       label="From Snapshot"
                       disabled={isProjectModalLoading}
                     />
-                  </RadioGroup>
+                  </Form>
                   {errors.type && <FormHelperText disabled={isProjectModalLoading}>{errors.type}</FormHelperText>}
                 </FormControl>
               </Grid>
@@ -191,7 +191,8 @@ export const ProjectModal = memo(({}) => {
                 <InputFieldAvatar
                   icon={<Title />}
                   field={
-                    <TextField
+                    <Field
+                      component={TextField}
                       className={classes.input}
                       name="title"
                       label="Title"
@@ -205,7 +206,8 @@ export const ProjectModal = memo(({}) => {
                 <InputFieldAvatar
                   icon={<Description />}
                   field={
-                    <TextField
+                    <Field
+                      component={TextField}
                       className={classes.input}
                       name="description"
                       label="Description"
@@ -228,7 +230,8 @@ export const ProjectModal = memo(({}) => {
                         <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
                           Target
                         </InputLabel>
-                        <Select
+                        <Field
+                          component={Select}
                           disabled={isProjectModalLoading}
                           name="targetId"
                           inputProps={{
@@ -240,7 +243,7 @@ export const ProjectModal = memo(({}) => {
                               {data.title}
                             </MenuItem>
                           ))}
-                        </Select>
+                        </Field>
                         <FormHelperText disabled={isProjectModalLoading}>{errors.targetId}</FormHelperText>
                       </FormControl>
                     }
@@ -260,7 +263,8 @@ export const ProjectModal = memo(({}) => {
                         <InputLabel htmlFor="selected-parent-snapshot-id" required disabled={isLoadingListOfSnapshots}>
                           From Snapshot
                         </InputLabel>
-                        <Select
+                        <Form
+                          component={Select}
                           disabled={isLoadingListOfSnapshots}
                           name="parentSnapshotId"
                           inputProps={{
@@ -279,7 +283,7 @@ export const ProjectModal = memo(({}) => {
                               </MenuItem>
                             ))
                           )}
-                        </Select>
+                        </Form>
                         <FormHelperText disabled={isLoadingListOfSnapshots}>{errors.parentSnapshotId}</FormHelperText>
                       </FormControl>
                     }
@@ -301,7 +305,8 @@ export const ProjectModal = memo(({}) => {
                       }}
                       disabled={isProjectModalLoading}
                       renderInput={params => (
-                        <TextField
+                        <Field
+                          component={TextField}
                           {...params}
                           className={classes.input}
                           label="Tags"

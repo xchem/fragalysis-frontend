@@ -114,12 +114,13 @@ popd || exit
 Note: The data/input/django_data directory will need to be populated with EXAMPLE data before you can launch the application.
 
 ```
-mkdir -p data/input/django_data
-mkdir -p data/mysql/data
+mkdir -p data/input/django_data/EXAMPLE
 mkdir -p data/neo4j/data
 mkdir -p data/neo4j/logs
 mkdir -p data/stack/media
 mkdir -p data/stack/logs
+mkdir -p data/media/compound_sets
+mkdir -p data/postgre/data
 ```
 
 ### Modify `fragalysis-frontend/docker-compose.dev.yml` file to look at right loader

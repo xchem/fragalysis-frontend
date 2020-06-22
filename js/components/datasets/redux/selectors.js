@@ -5,6 +5,17 @@ const scoreCompoundMap = state => state.datasetsReducers.scoreCompoundMap;
 const scoreDatasetMap = state => state.datasetsReducers.scoreDatasetMap;
 const filterDatasetMap = state => state.datasetsReducers.filterDatasetMap;
 const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropertiesDatasetMap;
+const filterWithInspirations = state => state.datasetsReducers.filterWithInspirations;
+const compoundsToBuyDatasetMap = state => state.datasetsReducers.compoundsToBuyDatasetMap;
+const crossReferenceCompoundName = state => state.datasetsReducers.crossReferenceCompoundName;
+const datasetLigandLists = state => state.datasetsReducers.ligandLists;
+
+const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
+const proteinList = state => state.selectionReducers.proteinList;
+const complexList = state => state.selectionReducers.complexList;
+const surfaceList = state => state.selectionReducers.surfaceList;
+const densityList = state => state.selectionReducers.densityList;
+const vectorOnList = state => state.selectionReducers.vectorOnList;
 
 export const scoreListOfMolecules = createSelector(
   (_, datasetID) => datasetID,
@@ -81,6 +92,32 @@ export const getInitialDatasetFilterProperties = createSelector(
   }
 );
 
+export const isAnyInspirationTurnedOn = createSelector(
+  (_, computed_inspirations = []) => computed_inspirations,
+  fragmentDisplayList,
+  proteinList,
+  complexList,
+  surfaceList,
+  densityList,
+  vectorOnList,
+  (inspirations, ligands, proteins, complexis, surfaces, densities, vectors) => {
+    const allLists = new Set(ligands);
+    proteins.forEach(p => allLists.add(p));
+    complexis.forEach(p => allLists.add(p));
+    surfaces.forEach(p => allLists.add(p));
+    densities.forEach(p => allLists.add(p));
+    vectors.forEach(p => allLists.add(p));
+    let hasInspiration = false;
+    inspirations.forEach(moleculeID => {
+      if (allLists.has(moleculeID)) {
+        hasInspiration = true;
+        return hasInspiration;
+      }
+    });
+    return hasInspiration;
+  }
+);
+
 export const getFilteredDatasetMoleculeList = createSelector(
   (_, datasetID) => datasetID,
   filterDatasetMap,
@@ -88,34 +125,52 @@ export const getFilteredDatasetMoleculeList = createSelector(
   scoreCompoundMap,
   moleculeLists,
   scoreDatasetMap,
-  (datasetID, filterDatasetMap, filterPropertiesDatasetMap, scoreCompoundMap, moleculeLists, scoreDatasetMap) => {
+  filterWithInspirations,
+  state => state,
+  (
+    datasetID,
+    filterDatasetMap,
+    filterPropertiesDatasetMap,
+    scoreCompoundMap,
+    moleculeLists,
+    scoreDatasetMap,
+    withInspirations,
+    state
+  ) => {
     const filterSettings = filterDatasetMap && datasetID && filterDatasetMap[datasetID];
     const filterProperties = filterPropertiesDatasetMap && datasetID && filterPropertiesDatasetMap[datasetID];
     let datasetMoleculeList = moleculeLists[datasetID] || [];
     const scoreDatasetList = scoreDatasetMap[datasetID];
     const isActiveFilter = !!(filterSettings || {}).active;
     if (isActiveFilter) {
-      // 1. Filter
+      // 1. Filter by scores
       let filteredMolecules = [];
-      Object.keys(scoreCompoundMap).forEach(moleculeID => {
+      datasetMoleculeList.forEach(molecule => {
         let add = true; // By default molecule passes filter
         for (let attr of scoreDatasetList) {
-          const foundedMolecule = scoreCompoundMap[moleculeID].find(item => item.score.name === attr.name);
+          const foundedMoleculeScore =
+            scoreCompoundMap &&
+            scoreCompoundMap[molecule.id] &&
+            scoreCompoundMap[molecule.id].find(item => item.score.name === attr.name);
           if (
-            foundedMolecule &&
-            (foundedMolecule.value < filterProperties[attr.name].minValue ||
-              foundedMolecule.value > filterProperties[attr.name].maxValue)
+            (foundedMoleculeScore &&
+              (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
+                foundedMoleculeScore.value > filterProperties[attr.name].maxValue)) ||
+            (withInspirations === true && isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false) ||
+            (!foundedMoleculeScore &&
+              withInspirations === true &&
+              isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false)
           ) {
             add = false;
             break; // Do not loop over other attributes
           }
         }
         if (add) {
-          filteredMolecules.push(datasetMoleculeList.find(molecule => `${molecule.id}` === moleculeID));
+          filteredMolecules.push(molecule);
         }
       });
 
-      // 2. Sort
+      // 3. Sort
       let sortedAttributes = filterSettings.priorityOrder.map(attr => attr);
 
       return filteredMolecules.sort((a, b) => {
@@ -132,3 +187,77 @@ export const getFilteredDatasetMoleculeList = createSelector(
     return datasetMoleculeList;
   }
 );
+
+export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
+  compoundsToBuyDatasetMap,
+  moleculeLists,
+  (compoundsToBuyDatasetMap, moleculeLists) => {
+    let moleculeList = [];
+    Object.keys(compoundsToBuyDatasetMap).forEach(datasetID => {
+      compoundsToBuyDatasetMap[datasetID] &&
+        compoundsToBuyDatasetMap[datasetID].forEach(moleculeID => {
+          if (moleculeLists[datasetID]) {
+            const foundedMolecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
+            if (foundedMolecule) {
+              moleculeList.push({ molecule: foundedMolecule, datasetID });
+            }
+          }
+        });
+    });
+    return moleculeList;
+  }
+);
+
+export const getCrossReferenceCompoundListByCompoundName = createSelector(
+  crossReferenceCompoundName,
+  moleculeLists,
+  (compoundName, moleculesDatasetMap) => {
+    let results = [];
+    Object.keys(moleculesDatasetMap).forEach(datasetID => {
+      const currentList = moleculesDatasetMap[datasetID];
+      if (currentList && Array.isArray(currentList)) {
+        results.push({ molecule: currentList.find(item => item.name === compoundName), datasetID });
+      }
+    });
+    return results;
+  }
+);
+
+export const getListOfSelectedLigandOfAllDatasets = state => {
+  let resultSet = new Set();
+  const ligandsDatasetMap = state.datasetsReducers.ligandLists;
+  Object.keys(ligandsDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = ligandsDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};
+
+export const getListOfSelectedProteinOfAllDatasets = state => {
+  let resultSet = new Set();
+  const proteinsDatasetMap = state.datasetsReducers.proteinLists;
+  Object.keys(proteinsDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = proteinsDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};
+
+export const getListOfSelectedComplexOfAllDatasets = state => {
+  let resultSet = new Set();
+  const complexesDatasetMap = state.datasetsReducers.complexLists;
+  Object.keys(complexesDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = complexesDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};

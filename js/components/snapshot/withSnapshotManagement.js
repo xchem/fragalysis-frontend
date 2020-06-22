@@ -7,7 +7,7 @@ import { HeaderContext } from '../header/headerContext';
 import { useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { activateSnapshotDialog } from './redux/dispatchActions';
+import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { restoreFromCurrentSnapshot } from '../preview/moleculeGroups/redux/dispatchActions';
 
@@ -36,8 +36,9 @@ export const withSnapshotManagement = WrappedComponent => {
       (projectId && currentProject.projectID !== null && currentProject.authorID !== null && DJANGO_CONTEXT['pk']) ||
       target !== undefined;
 
-    const enableShareButton =
-      (projectId && currentProject.projectID !== null && currentSnapshotID !== null) || target !== undefined;
+    const disableShareButton =
+      (projectId !== undefined && currentProject.projectID === null && currentSnapshotID === null && !target) ||
+      (!target && !projectId);
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
@@ -60,7 +61,7 @@ export const withSnapshotManagement = WrappedComponent => {
             color="primary"
             onClick={() => dispatch(restoreFromCurrentSnapshot({ nglViewList }))}
             startIcon={<Restore />}
-            disabled={!enableShareButton || disableUserInteraction}
+            disabled={disableShareButton || disableUserInteraction}
           >
             Restore
           </Button>
@@ -70,9 +71,9 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           size="small"
           startIcon={<Share />}
-          disabled={!enableShareButton || disableUserInteraction}
+          disabled={disableShareButton || disableUserInteraction}
           onClick={() => {
-            dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk'], true));
+            dispatch(saveAndShareSnapshot(target));
           }}
         >
           Share
@@ -99,7 +100,7 @@ export const withSnapshotManagement = WrappedComponent => {
       disableUserInteraction,
       currentSnapshotID,
       currentProject,
-      enableShareButton,
+      disableShareButton,
       target,
       nglViewList
     ]);

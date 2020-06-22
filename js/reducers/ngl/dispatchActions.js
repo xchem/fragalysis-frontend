@@ -11,7 +11,7 @@ import {
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
-import { SELECTION_TYPE } from '../../components/nglView/constants';
+import { OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
@@ -27,18 +27,24 @@ import { VIEWS } from '../../constants/constants';
 export const loadObject = (target, stage, previousRepresentations, orientationMatrix) => (dispatch, getState) => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
-    return nglObjectDictionary[target.OBJECT_TYPE](
+
+    const versionFixedTarget = JSON.parse(JSON.stringify(target));
+    if (target && target.OBJECT_TYPE === undefined && target.name && target.name.includes('_PROTEIN')) {
+      versionFixedTarget.OBJECT_TYPE = OBJECT_TYPE.HIT_PROTEIN;
+    }
+
+    return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE](
       stage,
-      target,
-      target.name,
+      versionFixedTarget,
+      versionFixedTarget.name,
       previousRepresentations,
       orientationMatrix
     )
-      .then(representations => dispatch(loadNglObject(target, representations)))
+      .then(representations => dispatch(loadNglObject(versionFixedTarget, representations)))
       .catch(error => {
         console.error(error);
       })
-      .finally(() => dispatch(decrementCountOfPendingNglObjects(target.display_div)));
+      .finally(() => dispatch(decrementCountOfPendingNglObjects(versionFixedTarget.display_div)));
   }
   return Promise.reject('Instance of NGL View is missing');
 };

@@ -22,8 +22,10 @@ import {
   setIsOpenInspirationDialog,
   clearScoreCompoundMap,
   setInspirationFragmentList,
-  removeFromInspirationList,
-  removeFromInspirationFragmentList
+  setIsOpenCrossReferenceDialog,
+  setCrossReferenceCompoundName,
+  setIsLoadingCrossReferenceScores,
+  setSearchStringOfCompoundSet
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -38,6 +40,7 @@ import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
+import { colourList } from '../../preview/molecule/moleculeView';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
@@ -147,8 +150,8 @@ export const loadDataSets = () => dispatch =>
     dispatch(
       setDataset(
         response.data.results.map(ds => ({
-          id: ds.id,
-          title: ds.name,
+          id: ds.name,
+          title: ds.unique_name,
           url: ds.method_url,
           version: ds.spec_version,
           submitted_sdf: ds.submitted_sdf
@@ -246,29 +249,174 @@ export const clearInspirationsOfDataset = datasetID => dispatch => {
 export const clearDatasetSettings = datasetID => dispatch => {
   if (datasetID) {
     dispatch(clearScoreCompoundMap());
-
     // clear inspirations
     dispatch(clearInspirationsOfDataset(datasetID));
   }
+  // clear search
+  dispatch(setSearchStringOfCompoundSet(null));
 };
 
-export const clickOnInspirations = (datasetID, currentID, inspiration_frags) => (dispatch, getState) => {
-  const inspirationLists = getState().datasetsReducers.inspirationLists[datasetID];
-  const isInspirationOn = (currentID && inspirationLists.includes(currentID)) || false;
+export const clickOnInspirations = ({ datasetID, currentID, computed_inspirations = [] }) => dispatch => {
+  dispatch(setInspirationList(datasetID, [currentID]));
+  dispatch(setInspirationFragmentList(computed_inspirations));
+  dispatch(setIsOpenInspirationDialog(true));
+};
 
-  if (isInspirationOn === false) {
-    dispatch(setInspirationList(datasetID, [currentID]));
-    if (inspiration_frags) {
-      dispatch(setInspirationFragmentList(inspiration_frags));
-    }
-    dispatch(setIsOpenInspirationDialog(true));
+export const resetCrossReferenceDialog = () => dispatch => {
+  dispatch(setIsOpenCrossReferenceDialog(false));
+  dispatch(setCrossReferenceCompoundName(null));
+  dispatch(setIsLoadingCrossReferenceScores(false));
+};
+
+export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (dispatch, getState) => {
+  dispatch(setIsLoadingCrossReferenceScores(true));
+  Promise.all(datasetIDList.map(datasetID => dispatch(loadCompoundScoresListOfDataSet(datasetID)))).finally(() =>
+    dispatch(setIsLoadingCrossReferenceScores(false))
+  );
+};
+
+const addAllLigandsFromList = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetLigand(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+const removeAllLigandsFromList = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetLigand(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+export const handleAllLigandsOfCrossReferenceDialog = (areAllSelected, moleculeList = [], stage) => dispatch => {
+  if (areAllSelected) {
+    dispatch(removeAllLigandsFromList(moleculeList, stage));
   } else {
-    dispatch(removeFromInspirationList(datasetID, currentID));
-    if (inspiration_frags) {
-      inspiration_frags.forEach(item => {
-        dispatch(removeFromInspirationFragmentList(item));
-      });
+    dispatch(addAllLigandsFromList(moleculeList, stage));
+  }
+};
+
+const addAllHitProteins = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetHitProtein(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+const removeAllHitProteins = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      removeDatasetHitProtein(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+export const removeOrAddAllHitProteinsOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
+  if (areAllSelected) {
+    dispatch(removeAllHitProteins(moleculeList, stage));
+  } else {
+    dispatch(addAllHitProteins(moleculeList, stage));
+  }
+};
+
+const addAllComplexes = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      addDatasetComplex(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+const removeAllComplexes = (moleculeList = [], stage) => dispatch => {
+  moleculeList.forEach(molecule => {
+    dispatch(
+      removeDatasetComplex(
+        stage,
+        molecule.molecule,
+        colourList[molecule.molecule.id % colourList.length],
+        molecule.datasetID
+      )
+    );
+  });
+};
+
+export const removeOrAddAllComplexesOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
+  if (areAllSelected) {
+    dispatch(removeAllComplexes(moleculeList, stage));
+  } else {
+    dispatch(addAllComplexes(moleculeList, stage));
+  }
+};
+
+export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef }) => (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+  const isOpenInspirationDialog = state.datasetsReducers.isOpenInspirationDialog;
+  const isOpenCrossReferenceDialog = state.datasetsReducers.isOpenCrossReferenceDialog;
+
+  const currentBoundingClientRectInspiration =
+    (inspirationDialogRef.current && inspirationDialogRef.current.getBoundingClientRect()) || null;
+
+  const currentBoundingClientRectCrossReference =
+    (crossReferenceDialogRef.current && crossReferenceDialogRef.current.getBoundingClientRect()) || null;
+  const scrollBarBoundingClientRect = (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
+
+  if (
+    isOpenInspirationDialog &&
+    currentBoundingClientRectInspiration !== null &&
+    scrollBarBoundingClientRect !== null &&
+    currentBoundingClientRectInspiration.x !== 0 &&
+    currentBoundingClientRectInspiration.y !== 0
+  ) {
+    if (
+      currentBoundingClientRectInspiration.top < scrollBarBoundingClientRect.top ||
+      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectInspiration.top) < 42
+    ) {
+      dispatch(setIsOpenInspirationDialog(false));
     }
-    dispatch(setIsOpenInspirationDialog(false));
+  }
+  if (
+    isOpenCrossReferenceDialog &&
+    currentBoundingClientRectCrossReference !== null &&
+    scrollBarBoundingClientRect !== null &&
+    currentBoundingClientRectCrossReference.x !== 0 &&
+    currentBoundingClientRectCrossReference.y !== 0
+  ) {
+    if (
+      currentBoundingClientRectCrossReference.top < scrollBarBoundingClientRect.top ||
+      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectCrossReference.top) < 42
+    ) {
+      dispatch(resetCrossReferenceDialog());
+    }
   }
 };

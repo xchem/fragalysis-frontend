@@ -153,15 +153,31 @@ export const Panel = memo(
               </Grid>
             </div>
           )}
-          {isLoading && (
-            <Grid container alignItems="center" justify="center" className={classes.loading}>
-              <Grid item>
-                <CircularProgress />
-              </Grid>
-            </Grid>
+
+          {hasExpansion && (
+            <div className={expanded === true ? bodyClass : classes.hidden}>
+              {isLoading && (
+                <Grid container alignItems="center" justify="center" className={classes.loading}>
+                  <Grid item>
+                    <CircularProgress />
+                  </Grid>
+                </Grid>
+              )}
+              {children}
+            </div>
           )}
-          {hasExpansion && <div className={expanded === true ? bodyClass : classes.hidden}>{children}</div>}
-          {!hasExpansion && <div className={bodyClass}>{children}</div>}
+          {!hasExpansion && (
+            <div className={bodyClass}>
+              {isLoading && (
+                <Grid container alignItems="center" justify="center" className={classes.loading}>
+                  <Grid item>
+                    <CircularProgress />
+                  </Grid>
+                </Grid>
+              )}
+              {children}
+            </div>
+          )}
         </MaterialPaper>
       );
     }

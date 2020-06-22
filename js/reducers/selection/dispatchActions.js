@@ -68,5 +68,4 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
     };
   }
   dispatch(setFilter(initObject));
-  return initObject;
 };

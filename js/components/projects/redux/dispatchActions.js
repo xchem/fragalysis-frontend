@@ -384,3 +384,9 @@ export const createProjectFromScratch = ({ title, description, target, author, t
       dispatch(setProjectModalIsLoading(false));
     });
 };
+
+export const createProjectWithoutStateModification = data => dispatch => {
+  return api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data }).then(response => {
+    return response.data.id;
+  });
+};

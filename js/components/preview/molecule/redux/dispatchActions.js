@@ -331,15 +331,6 @@ export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   }
 };
 
-export const selectFirstMolecule = (majorView, moleculeList) => dispatch => {
-  if (moleculeList) {
-    const firstMolecule = moleculeList[0];
-    dispatch(addLigand(majorView, firstMolecule, colourList[0]));
-    dispatch(addComplex(majorView, firstMolecule, colourList[0]));
-    dispatch(addVector(majorView, firstMolecule));
-  }
-};
-
 export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, getState) => {
   const state = getState();
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
