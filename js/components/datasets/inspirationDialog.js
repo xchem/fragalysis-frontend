@@ -355,7 +355,13 @@ export const InspirationDialog = memo(
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
                   moleculeList.map((molecule, index) => (
-                    <MoleculeView key={index} imageHeight={imgHeight} imageWidth={imgWidth} data={molecule} />
+                    <MoleculeView
+                      key={index}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={molecule}
+                      searchMoleculeGroup
+                    />
                   ))}
                 {!(moleculeList.length > 0) && (
                   <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>

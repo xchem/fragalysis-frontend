@@ -114,7 +114,8 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
-    borderColor: theme.palette.background.divider
+    borderColor: theme.palette.background.divider,
+    paddingBottom: theme.spacing(1) / 2
   },
   qualityLabel: {
     paddingLeft: theme.spacing(1) / 4,
@@ -154,6 +155,10 @@ const useStyles = makeStyles(theme => ({
   },
   inheritWidth: {
     width: 'inherit'
+  },
+  rank: {
+    fontStyle: 'italic',
+    fontSize: 7
   }
 }));
 
@@ -178,7 +183,17 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
   </circle>  '</svg>`;
 
 export const DatasetMoleculeView = memo(
-  ({ imageHeight, imageWidth, data, datasetID, setRef, showCrossReferenceModal, hideFButton, showDatasetName }) => {
+  ({
+    imageHeight,
+    imageWidth,
+    data,
+    datasetID,
+    setRef,
+    showCrossReferenceModal,
+    hideFButton,
+    showDatasetName,
+    index
+  }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
@@ -398,7 +413,7 @@ export const DatasetMoleculeView = memo(
     return (
       <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
         {/*Site number*/}
-        <Grid item container justify="center" direction="column" className={classes.site}>
+        <Grid item container justify="space-between" direction="column" className={classes.site}>
           <Grid item>
             <Checkbox
               checked={isCheckedToBuy}
@@ -414,6 +429,9 @@ export const DatasetMoleculeView = memo(
                 }
               }}
             />
+          </Grid>
+          <Grid item className={classes.rank}>
+            {index + 1}.
           </Grid>
         </Grid>
         <Grid item container className={classes.detailsCol} justify="space-between" direction="row">

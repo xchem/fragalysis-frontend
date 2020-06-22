@@ -14,7 +14,8 @@ import {
   MenuItem,
   TextField,
   InputAdornment,
-  IconButton
+  IconButton,
+  ButtonGroup
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -78,7 +79,7 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px)`
+    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
   },
   centered: {
     display: 'flex',
@@ -211,6 +212,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   let match = useRouteMatch();
   const target = match && match.params && match.params.target;
 
+  const [nextXMolecules, setNextXMolecules] = useState(0);
   const moleculesPerPage = 5;
   const [currentPage, setCurrentPage] = useState(0);
   const [searchString, setSearchString] = useState(null);
@@ -271,7 +273,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     setCurrentPage(currentPage + 1);
   };
 
-  const listItemOffset = (currentPage + 1) * moleculesPerPage;
+  const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
   const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
@@ -634,31 +636,67 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             </Grid>
           </Grid>
           {currentMolecules.length > 0 && (
-            <Grid item className={classes.gridItemList}>
-              <InfiniteScroll
-                pageStart={0}
-                loadMore={loadNextMolecules}
-                hasMore={canLoadMore}
-                loader={
-                  <div className="loader" key={0}>
-                    <Grid
-                      container
-                      direction="row"
-                      justify="center"
-                      alignItems="center"
-                      className={classes.paddingProgress}
+            <>
+              <Grid item className={classes.gridItemList}>
+                <InfiniteScroll
+                  pageStart={0}
+                  loadMore={loadNextMolecules}
+                  hasMore={canLoadMore}
+                  loader={
+                    <div className="loader" key={0}>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="center"
+                        className={classes.paddingProgress}
+                      >
+                        <CircularProgress />
+                      </Grid>
+                    </div>
+                  }
+                  useWindow={false}
+                >
+                  {currentMolecules.map(data => (
+                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
+                  ))}
+                </InfiniteScroll>
+              </Grid>
+              <Grid item>
+                <Grid container justify="flex-end" direction="row">
+                  <Grid item>
+                    <ButtonGroup
+                      variant="text"
+                      size="medium"
+                      color="primary"
+                      aria-label="contained primary button group"
                     >
-                      <CircularProgress />
-                    </Grid>
-                  </div>
-                }
-                useWindow={false}
-              >
-                {currentMolecules.map(data => (
-                  <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
-                ))}
-              </InfiniteScroll>
-            </Grid>
+                      <Button
+                        onClick={() => {
+                          setNextXMolecules(30);
+                        }}
+                      >
+                        Load next 30
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setNextXMolecules(100);
+                        }}
+                      >
+                        Load next 100
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setNextXMolecules(joinedMoleculeLists?.length || 0);
+                        }}
+                      >
+                        Load full list
+                      </Button>
+                    </ButtonGroup>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </>
           )}
         </Grid>
       </Panel>

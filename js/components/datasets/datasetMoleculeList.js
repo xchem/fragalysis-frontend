@@ -11,7 +11,8 @@ import {
   Typography,
   TextField,
   InputAdornment,
-  IconButton
+  IconButton,
+  ButtonGroup
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -64,7 +65,7 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px)`
+    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
   },
   centered: {
     display: 'flex',
@@ -94,8 +95,17 @@ const useStyles = makeStyles(theme => ({
     transform: 'rotate(-90deg)'
   },
   molHeader: {
-    marginLeft: 22,
     width: 'inherit'
+  },
+  rank: {
+    width: theme.spacing(3),
+    marginLeft: -theme.spacing(1) / 4,
+    fontStyle: 'italic',
+    fontSize: 8,
+    overflow: 'hidden',
+    textAlign: 'center',
+    borderRight: '1px solid',
+    borderRightColor: theme.palette.background.divider
   },
   rightBorder: {
     borderRight: '1px solid',
@@ -180,6 +190,7 @@ export const DatasetMoleculeList = memo(
     const classes = useStyles();
     const dispatch = useDispatch();
 
+    const [nextXMolecules, setNextXMolecules] = useState(0);
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
 
@@ -224,10 +235,11 @@ export const DatasetMoleculeList = memo(
         molecule.name.toLowerCase().includes(searchString.toLowerCase())
       );
     }
-    const loadNextMolecules = () => {
+    const loadNextMolecules = async () => {
+      await setNextXMolecules(0);
       setCurrentPage(currentPage + 1);
     };
-    const listItemOffset = (currentPage + 1) * moleculesPerPage;
+    const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
 
     const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     // setCurrentMolecules(currentMolecules);
@@ -424,6 +436,11 @@ export const DatasetMoleculeList = memo(
               {isLoadingMoleculeList === false && (
                 <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                   <Grid item container justify="flex-start" direction="row">
+                    <Tooltip title="Total count of compounds">
+                      <Grid item className={classes.rank}>
+                        {`Total ${joinedMoleculeLists?.length}`}
+                      </Grid>
+                    </Tooltip>
                     {datasetID &&
                       filteredScoreProperties &&
                       filteredScoreProperties[datasetID] &&
@@ -502,45 +519,86 @@ export const DatasetMoleculeList = memo(
               </Grid>
             )}
             {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
-              <Grid item className={classes.gridItemList} ref={scrollBarRef}>
-                <InfiniteScroll
-                  getScrollParent={() =>
-                    dispatch(
-                      autoHideDatasetDialogsOnScroll({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef })
-                    )
-                  }
-                  pageStart={0}
-                  loadMore={loadNextMolecules}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
+              <>
+                <Grid item className={classes.gridItemList} ref={scrollBarRef}>
+                  <InfiniteScroll
+                    getScrollParent={() =>
+                      dispatch(
+                        autoHideDatasetDialogsOnScroll({
+                          inspirationDialogRef,
+                          crossReferenceDialogRef,
+                          scrollBarRef
+                        })
+                      )
+                    }
+                    pageStart={0}
+                    loadMore={loadNextMolecules}
+                    hasMore={canLoadMore}
+                    loader={
+                      <div className="loader" key={0}>
+                        <Grid
+                          container
+                          direction="row"
+                          justify="center"
+                          alignItems="center"
+                          className={classes.paddingProgress}
+                        >
+                          <CircularProgress />
+                        </Grid>
+                      </div>
+                    }
+                    useWindow={false}
+                  >
+                    {datasetID &&
+                      currentMolecules.map((data, index) => (
+                        <DatasetMoleculeView
+                          key={index}
+                          index={index}
+                          imageHeight={imgHeight}
+                          imageWidth={imgWidth}
+                          data={data}
+                          datasetID={datasetID}
+                          setRef={setSelectedMoleculeRef}
+                          showCrossReferenceModal
+                        />
+                      ))}
+                  </InfiniteScroll>
+                </Grid>
+                <Grid item>
+                  <Grid container justify="flex-end" direction="row">
+                    <Grid item>
+                      <ButtonGroup
+                        variant="text"
+                        size="medium"
+                        color="primary"
+                        aria-label="contained primary button group"
                       >
-                        <CircularProgress />
-                      </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  {datasetID &&
-                    currentMolecules.map((data, index) => (
-                      <DatasetMoleculeView
-                        key={index}
-                        imageHeight={imgHeight}
-                        imageWidth={imgWidth}
-                        data={data}
-                        datasetID={datasetID}
-                        setRef={setSelectedMoleculeRef}
-                        showCrossReferenceModal
-                      />
-                    ))}
-                </InfiniteScroll>
-              </Grid>
+                        <Button
+                          onClick={() => {
+                            setNextXMolecules(30);
+                          }}
+                        >
+                          Load next 30
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setNextXMolecules(100);
+                          }}
+                        >
+                          Load next 100
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setNextXMolecules(joinedMoleculeLists?.length || 0);
+                          }}
+                        >
+                          Load full list
+                        </Button>
+                      </ButtonGroup>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </>
             )}
           </Grid>
         </Panel>

@@ -6,7 +6,6 @@ import React, { memo, useEffect, useState, useRef, useContext, useCallback } fro
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
-import MoleculeStatusView, { molStatusTypes } from './moleculeStatusView';
 import classNames from 'classnames';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
@@ -24,7 +23,8 @@ import {
   addDensity,
   removeDensity,
   addLigand,
-  removeLigand
+  removeLigand,
+  searchMoleculeGroupByMoleculeID
 } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
@@ -151,13 +151,14 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
+const MoleculeView = memo(({ imageHeight, imageWidth, data, searchMoleculeGroup }) => {
   // const [countOfVectors, setCountOfVectors] = useState('-');
   // const [cmpds, setCmpds] = useState('-');
   const selectedAll = useRef(false);
   const currentID = (data && data.id) || undefined;
   const classes = useStyles();
   const key = 'mol_image';
+  const [moleculeGroupID, setMoleculeGroupID] = useState();
 
   const dispatch = useDispatch();
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -245,6 +246,18 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
       }
     };
   }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, url, vectorOnList, imageWidth]);
+
+  useEffect(() => {
+    if (searchMoleculeGroup) {
+      dispatch(searchMoleculeGroupByMoleculeID(currentID))
+        .then(molGroupID => {
+          setMoleculeGroupID(molGroupID);
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
+    }
+  }, [currentID, dispatch, searchMoleculeGroup]);
 
   const svg_image = (
     <SVGInline
@@ -424,7 +437,7 @@ const MoleculeView = memo(({ imageHeight, imageWidth, data }) => {
       {/* Site number */}
       <Grid item container justify="center" direction="column" className={classes.site}>
         <Grid item>
-          <Typography variant="subtitle2">{data.site}</Typography>
+          <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
         </Grid>
       </Grid>
       <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
