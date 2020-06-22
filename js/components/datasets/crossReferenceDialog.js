@@ -262,6 +262,8 @@ export const CrossReferenceDialog = memo(
                       datasetID={data.datasetID}
                       hideFButton
                       showDatasetName
+                      previousItemData={index > 0 && array[index - 1]?.molecule}
+                      nextItemData={index < array?.length && array[index + 1]?.molecule}
                     />
                   ))}
                 {!(moleculeList.length > 0) && (

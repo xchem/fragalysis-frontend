@@ -570,7 +570,7 @@ export const DatasetMoleculeList = memo(
                     useWindow={false}
                   >
                     {datasetID &&
-                      currentMolecules.map((data, index) => (
+                      currentMolecules.map((data, index, array) => (
                         <DatasetMoleculeView
                           key={index}
                           index={index}
@@ -580,6 +580,8 @@ export const DatasetMoleculeList = memo(
                           datasetID={datasetID}
                           setRef={setSelectedMoleculeRef}
                           showCrossReferenceModal
+                          previousItemData={index > 0 && array[index - 1]}
+                          nextItemData={index < array?.length && array[index + 1]}
                         />
                       ))}
                   </InfiniteScroll>

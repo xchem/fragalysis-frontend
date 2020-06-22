@@ -693,13 +693,15 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                   }
                   useWindow={false}
                 >
-                  {currentMolecules.map((data, index) => (
+                  {currentMolecules.map((data, index, array) => (
                     <MoleculeView
                       key={data.id}
                       index={index}
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
                       data={data}
+                      previousItemData={index > 0 && array[index - 1]}
+                      nextItemData={index < array?.length && array[index + 1]}
                     />
                   ))}
                 </InfiniteScroll>

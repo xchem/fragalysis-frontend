@@ -354,13 +354,15 @@ export const InspirationDialog = memo(
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((molecule, index) => (
+                  moleculeList.map((molecule, index, array) => (
                     <MoleculeView
                       key={index}
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
                       data={molecule}
                       searchMoleculeGroup
+                      previousItemData={index > 0 && array[index - 1]}
+                      nextItemData={index < array?.length && array[index + 1]}
                     />
                   ))}
                 {!(moleculeList.length > 0) && (

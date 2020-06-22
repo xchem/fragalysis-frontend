@@ -9,6 +9,7 @@ import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { autoHideDatasetDialogsOnScroll, resetCrossReferenceDialog } from './redux/dispatchActions';
+import MoleculeView from '../preview/molecule/moleculeView';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -99,7 +100,7 @@ export const SelectedCompoundList = memo(({ height }) => {
               }
               useWindow={false}
             >
-              {currentMolecules.map((data, index) => (
+              {currentMolecules.map((data, index, array) => (
                 <DatasetMoleculeView
                   key={index}
                   imageHeight={imgHeight}
@@ -108,6 +109,8 @@ export const SelectedCompoundList = memo(({ height }) => {
                   datasetID={data.datasetID}
                   setRef={setSelectedMoleculeRef}
                   showCrossReferenceModal
+                  previousItemData={index > 0 && array[index - 1]?.molecule}
+                  nextItemData={index < array?.length && array[index + 1]?.molecule}
                 />
               ))}
             </InfiniteScroll>

@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, Typography, Checkbox } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, Typography, Checkbox, IconButton } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -33,7 +33,7 @@ import {
   setIsOpenCrossReferenceDialog
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
-import { MyLocation } from '@material-ui/icons';
+import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -183,6 +183,16 @@ const useStyles = makeStyles(theme => ({
       borderStyle: 'none',
       borderColor: theme.palette.white
     }
+  },
+  arrows: {
+    height: '100%',
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
+    borderStyle: 'solid solid solid solid'
+  },
+  arrow: {
+    width: 12,
+    height: 15
   }
 }));
 
@@ -216,7 +226,9 @@ export const DatasetMoleculeView = memo(
     showCrossReferenceModal,
     hideFButton,
     showDatasetName,
-    index
+    index,
+    previousItemData,
+    nextItemData
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -683,6 +695,23 @@ export const DatasetMoleculeView = memo(
                     </Tooltip>
                   );
                 })}
+            </Grid>
+          </Grid>
+        </Grid>
+        {/* Up/Down arrows */}
+        <Grid item>
+          <Grid container direction="column" justify="space-between" className={classes.arrows}>
+            <Grid item>
+              <Tooltip title="secondary">
+                <IconButton color="primary" size="small" disabled={disableUserInteraction || !previousItemData}>
+                  <ArrowUpward className={classes.arrow} />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item>
+              <IconButton color="primary" size="small" disabled={disableUserInteraction || !nextItemData}>
+                <ArrowDownward className={classes.arrow} />
+              </IconButton>
             </Grid>
           </Grid>
         </Grid>
