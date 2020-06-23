@@ -46,6 +46,7 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
   const initFilterProperties = getInitialDatasetFilterProperties(getState(), datasetID);
 
+  console.log(initFilterSettings, initFilterProperties);
   dispatch(setFilterSettings(datasetID, initFilterSettings));
   dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
@@ -156,36 +157,76 @@ export const loadDataSets = () => dispatch =>
     );
   });
 
-export const loadMoleculesOfDataSet = dataSetID => dispatch =>
-  api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {
-    dispatch(addMoleculeList(dataSetID, response.data.results));
-  });
-
-export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
-  api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
-    dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
-    dispatch(
-      updateFilterShowedScoreProperties({
-        datasetID,
-        scoreList: (response.data.results || []).slice(0, COUNT_OF_VISIBLE_SCORES)
+export const loadMoleculesOfDataSet = datasetID => dispatch =>
+  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` }).then(response => {
+    dispatch(addMoleculeList(datasetID, response.data.results));
+    return Promise.all(
+      response?.data?.results?.map(compoundMolecule => {
+        return Promise.all([
+          dispatch(loadCompoundNumericalScoreList(compoundMolecule?.compound, datasetID)),
+          dispatch(loadCompoundTextScoreList(compoundMolecule?.compound, datasetID))
+        ]);
       })
     );
-    return Promise.all(
-      response &&
-        response.data &&
-        response.data.results.map(score => dispatch(loadNumericalScoreListByScoreID(score.id)))
-    );
   });
 
-export const loadCompoundScoreList = (compoundID, onCancel) => dispatch =>
-  api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}`, cancel: onCancel }).then(response => {
-    dispatch(appendToScoreCompoundMap(compoundID, response.data.results));
-  });
+// TODO remove this method loadCompoundScoresListOfDataSet
+// export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
+//   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
+//     debugger;
+//     dispatch(appendToScoreDatasetMap(datasetID, response.data.results));
+//     dispatch(
+//       updateFilterShowedScoreProperties({
+//         datasetID,
+//         scoreList: (response.data.results || []).slice(0, COUNT_OF_VISIBLE_SCORES)
+//       })
+//     );
+//     return Promise.all([
+//       ...response?.data?.results?.map(score => dispatch(loadNumericalScoreListByScoreID(score.id))),
+//       ...response?.data?.results?.map(score => dispatch(loadTextScoreListByScoreID(score.id)))
+//     ]);
+//   });
 
-export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>
-  api({ url: `${base_url}/api/numerical-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
-    dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
+export const loadCompoundNumericalScoreList = (compoundID, datasetID) => (dispatch, getState) =>
+  api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}` }).then(response => {
+    const scores = response?.data?.results;
+    dispatch(appendToScoreCompoundMapByScoreCategory(scores));
+    let scoreSet = new Set(...getState().datasetsReducers.filteredScoreProperties);
+    scores.map(item => {
+      dispatch(appendToScoreDatasetMap(datasetID, item.score));
+      scoreSet.add(item.score?.name);
+    });
+
+    updateFilterShowedScoreProperties({
+      datasetID,
+      scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
+    });
   });
+export const loadCompoundTextScoreList = (compoundID, datasetID) => dispatch =>
+  api({ url: `${base_url}/api/text-scores/?compound=${compoundID}` }).then(response => {
+    const scores = response?.data?.results;
+    dispatch(appendToScoreCompoundMapByScoreCategory(scores));
+    let scoreSet = new Set(...getState().datasetsReducers.filteredScoreProperties);
+    scores.map(item => {
+      dispatch(appendToScoreDatasetMap(datasetID, item.score));
+      scoreSet.add(item.score?.name);
+    });
+
+    updateFilterShowedScoreProperties({
+      datasetID,
+      scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
+    });
+  });
+//
+// export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>
+//   api({ url: `${base_url}/api/numerical-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
+//     dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
+//   });
+//
+// export const loadTextScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>
+//   api({ url: `${base_url}/api/text-scores/?score=${scoreID}`, cancel: onCancel }).then(response => {
+//     dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
+//   });
 
 export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispatch, getState) => {
   const state = getState();
@@ -265,10 +306,11 @@ export const resetCrossReferenceDialog = () => dispatch => {
 };
 
 export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (dispatch, getState) => {
-  dispatch(setIsLoadingCrossReferenceScores(true));
-  Promise.all(datasetIDList.map(datasetID => dispatch(loadCompoundScoresListOfDataSet(datasetID)))).finally(() =>
-    dispatch(setIsLoadingCrossReferenceScores(false))
-  );
+  // dispatch(setIsLoadingCrossReferenceScores(true));
+  // // TODO load score values like in loadMoleculesOfDataSet function
+  // Promise.all(datasetIDList.map(datasetID => dispatch(loadCompoundScoresListOfDataSet(datasetID)))).finally(() =>
+  //   dispatch(setIsLoadingCrossReferenceScores(false))
+  // );
 };
 
 const addAllLigandsFromList = (moleculeList = [], stage) => dispatch => {

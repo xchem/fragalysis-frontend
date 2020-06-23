@@ -191,9 +191,9 @@ export const removeFromInspirationFragmentList = item => ({
   payload: item
 });
 
-export const appendToScoreDatasetMap = (datasetID, scoreList) => ({
+export const appendToScoreDatasetMap = (datasetID, score) => ({
   type: constants.APPEND_TO_SCORE_DATASET_MAP,
-  payload: { key: datasetID, value: scoreList }
+  payload: { datasetID, score }
 });
 
 export const removeFromScoreDatasetMap = datasetID => ({

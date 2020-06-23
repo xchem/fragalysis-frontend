@@ -629,10 +629,15 @@ export const DatasetMoleculeView = memo(
               {filteredScoreProperties &&
                 datasetID &&
                 filteredScoreProperties[datasetID] &&
-                filteredScoreProperties[datasetID].map((score, index) => {
-                  const item = scoreCompoundMap && scoreCompoundMap.find(o => o.score.id === score.id);
+                Object(filteredScoreProperties[datasetID]).keys(scoreKey => {
+                  const item =
+                    scoreCompoundMap &&
+                    scoreCompoundMap.find(o => o.score.id === filteredScoreProperties[datasetID][scoreKey].id);
                   return (
-                    <Tooltip title={`${score.name} - ${score.description}`} key={index}>
+                    <Tooltip
+                      title={`${filteredScoreProperties[datasetID][scoreKey].name} - ${filteredScoreProperties[datasetID][scoreKey].description}`}
+                      key={scoreKey}
+                    >
                       {(item && (
                         <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                           {item.value && Math.round(item.value)}

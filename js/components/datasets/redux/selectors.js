@@ -40,7 +40,7 @@ export const getInitialDatasetFilterSettings = createSelector(
       initObject = {
         active: false,
         predefined: 'none',
-        priorityOrder: scoreDatasetMapList.map(score => score.name)
+        priorityOrder: scoreDatasetMapList && Object.keys(scoreDatasetMapList)
       };
     }
     return initObject;
@@ -56,38 +56,45 @@ export const getInitialDatasetFilterProperties = createSelector(
 
     let initObject = {};
 
-    for (let attr of scoreDatasetMapList) {
-      let minValue = 999999;
-      let maxValue = -999999;
-      let disableFilter = true;
-      for (let molecule of scoreListOfMolecules) {
-        if (molecule) {
-          const foundedMolecule = molecule.find(item => item.score.name === attr.name);
-          if (disableFilter && foundedMolecule) {
-            disableFilter = false;
-          }
-          const attrValue = (foundedMolecule || {}).value;
-          if (attrValue > maxValue) {
-            maxValue = attrValue;
-          }
-          if (minValue === -999999) {
-            minValue = maxValue;
-          }
-          if (attrValue < minValue) {
-            minValue = attrValue;
+    scoreDatasetMapList &&
+      Object.keys(scoreDatasetMapList).forEach(attrName => {
+        //    })
+        //    for (let attr of scoreDatasetMapList) {
+        let minValue = 999999;
+        let maxValue = -999999;
+        let disableFilter = true;
+        for (let molecule of scoreListOfMolecules) {
+          if (molecule) {
+            const foundedMolecule = molecule.find(
+              item => item.score.name === attrName // attr.name
+            );
+            if (disableFilter && foundedMolecule) {
+              disableFilter = false;
+            }
+            const attrValue = (foundedMolecule || {}).value;
+            if (attrValue > maxValue) {
+              maxValue = attrValue;
+            }
+            if (minValue === -999999) {
+              minValue = maxValue;
+            }
+            if (attrValue < minValue) {
+              minValue = attrValue;
+            }
           }
         }
-      }
 
-      initObject[attr.name] = {
-        priority: 0,
-        order: 1,
-        minValue: minValue,
-        maxValue: maxValue,
-        isFloat: attr.isFloat,
-        disabled: disableFilter
-      };
-    }
+        initObject[
+          attrName // attr.name
+        ] = {
+          priority: 0,
+          order: 1,
+          minValue: minValue,
+          maxValue: maxValue,
+          // isFloat: attr.isFloat,
+          disabled: disableFilter
+        };
+      });
     return initObject;
   }
 );
