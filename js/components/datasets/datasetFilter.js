@@ -92,13 +92,13 @@ export const DatasetFilter = memo(
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
 
     const getAttributeName = attr => {
-      return scoreDatasetList.find(item => item.name === attr);
+      return Object.keys(scoreDatasetList).find(attrName => attrName === attr);
     };
 
     const handleFilterChange = (newFilterProperties, newFilterSettings) => {
-      scoreDatasetList.forEach(attr => {
-        if (newFilterProperties[attr.name].priority === undefined || newFilterProperties[attr.name].priority === '') {
-          newFilterProperties[attr.name].priority = 0;
+      Object.keys(scoreDatasetList).forEach(attrKey => {
+        if (newFilterProperties[attrKey].priority === undefined || newFilterProperties[attrKey].priority === '') {
+          newFilterProperties[attrKey].priority = 0;
         }
       });
       dispatch(setFilterProperties(datasetID, newFilterProperties));

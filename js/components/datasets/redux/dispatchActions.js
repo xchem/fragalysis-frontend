@@ -11,7 +11,6 @@ import {
   removeFromSurfaceList,
   setDataset,
   appendToScoreDatasetMap,
-  appendToScoreCompoundMap,
   appendToScoreCompoundMapByScoreCategory,
   updateFilterShowedScoreProperties,
   setFilterProperties,
@@ -46,7 +45,6 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
   const initFilterProperties = getInitialDatasetFilterProperties(getState(), datasetID);
 
-  console.log(initFilterSettings, initFilterProperties);
   dispatch(setFilterSettings(datasetID, initFilterSettings));
   dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
@@ -158,7 +156,8 @@ export const loadDataSets = () => dispatch =>
   });
 
 export const loadMoleculesOfDataSet = datasetID => dispatch =>
-  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` }).then(response => {
+  // TODO remove limit
+  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}&limit=20` }).then(response => {
     dispatch(addMoleculeList(datasetID, response.data.results));
     return Promise.all(
       response?.data?.results?.map(compoundMolecule => {
@@ -191,31 +190,43 @@ export const loadCompoundNumericalScoreList = (compoundID, datasetID) => (dispat
   api({ url: `${base_url}/api/numerical-scores/?compound=${compoundID}` }).then(response => {
     const scores = response?.data?.results;
     dispatch(appendToScoreCompoundMapByScoreCategory(scores));
-    let scoreSet = new Set(...getState().datasetsReducers.filteredScoreProperties);
+    const filteredScoreProperties = getState().datasetsReducers.filteredScoreProperties;
+    let scoreSet = new Set();
+    if (filteredScoreProperties && Array.isArray(filteredScoreProperties)) {
+      filteredScoreProperties.forEach(item => scoreSet.add(item));
+    }
     scores.map(item => {
       dispatch(appendToScoreDatasetMap(datasetID, item.score));
-      scoreSet.add(item.score?.name);
+      scoreSet.add(item.score);
     });
 
-    updateFilterShowedScoreProperties({
-      datasetID,
-      scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
-    });
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
+      })
+    );
   });
-export const loadCompoundTextScoreList = (compoundID, datasetID) => dispatch =>
+export const loadCompoundTextScoreList = (compoundID, datasetID) => (dispatch, getState) =>
   api({ url: `${base_url}/api/text-scores/?compound=${compoundID}` }).then(response => {
     const scores = response?.data?.results;
     dispatch(appendToScoreCompoundMapByScoreCategory(scores));
-    let scoreSet = new Set(...getState().datasetsReducers.filteredScoreProperties);
+    const filteredScoreProperties = getState().datasetsReducers.filteredScoreProperties;
+    let scoreSet = new Set();
+    if (filteredScoreProperties && Array.isArray(filteredScoreProperties)) {
+      filteredScoreProperties.forEach(item => scoreSet.add(item));
+    }
     scores.map(item => {
       dispatch(appendToScoreDatasetMap(datasetID, item.score));
-      scoreSet.add(item.score?.name);
+      scoreSet.add(item.score);
     });
 
-    updateFilterShowedScoreProperties({
-      datasetID,
-      scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
-    });
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
+      })
+    );
   });
 //
 // export const loadNumericalScoreListByScoreID = (scoreID, onCancel) => (dispatch, getState) =>

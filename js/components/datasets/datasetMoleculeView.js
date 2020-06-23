@@ -208,7 +208,7 @@ export const DatasetMoleculeView = memo(
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
     const datasets = useSelector(state => state.datasetsReducers.datasets);
-    const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[currentID], isEqual);
+    const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filter = useSelector(state => state.selectionReducers.filter);
     const isAnyInspirationOn = useSelector(state =>
@@ -629,15 +629,11 @@ export const DatasetMoleculeView = memo(
               {filteredScoreProperties &&
                 datasetID &&
                 filteredScoreProperties[datasetID] &&
-                Object(filteredScoreProperties[datasetID]).keys(scoreKey => {
-                  const item =
-                    scoreCompoundMap &&
-                    scoreCompoundMap.find(o => o.score.id === filteredScoreProperties[datasetID][scoreKey].id);
+                filteredScoreProperties[datasetID].map(score => {
+                  const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
+
                   return (
-                    <Tooltip
-                      title={`${filteredScoreProperties[datasetID][scoreKey].name} - ${filteredScoreProperties[datasetID][scoreKey].description}`}
-                      key={scoreKey}
-                    >
+                    <Tooltip title={`${score.name} - ${score.description}`} key={score.id}>
                       {(item && (
                         <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                           {item.value && Math.round(item.value)}
