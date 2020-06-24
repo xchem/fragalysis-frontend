@@ -4,7 +4,8 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, Typography, Checkbox } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, Checkbox } from '@material-ui/core';
+import { ClearOutlined, CheckOutlined } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -23,7 +24,6 @@ import {
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
-import { isEqual } from 'lodash';
 import { isAnyInspirationTurnedOn } from './redux/selectors';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
@@ -159,6 +159,16 @@ const useStyles = makeStyles(theme => ({
   rank: {
     fontStyle: 'italic',
     fontSize: 7
+  },
+  cancelIcon: {
+    color: theme.palette.text.disabled,
+    width: theme.spacing(2),
+    height: theme.spacing(2)
+  },
+  checkIcon: {
+    color: theme.palette.primary.main,
+    width: theme.spacing(2),
+    height: theme.spacing(2)
   }
 }));
 
@@ -633,10 +643,15 @@ export const DatasetMoleculeView = memo(
                   const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
 
                   return (
-                    <Tooltip title={`${score.name} - ${score.description}`} key={score.id}>
+                    <Tooltip title={`${score.name} - ${score.description}:  ${item?.value}`} key={score.id}>
                       {(item && (
                         <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                          {item.value && Math.round(item.value)}
+                          {/*{item.value && Math.round(item.value)}*/}
+                          {(item.value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
+                            (item.value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
+                            (Number.parseFloat(item.value) && Math.round(item.value)) ||
+                            item.value?.slice(0, 4) ||
+                            null}
                         </Grid>
                       )) || (
                         <Grid item className={classNames(classes.rightBorder)}>
