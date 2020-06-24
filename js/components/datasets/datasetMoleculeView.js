@@ -240,9 +240,16 @@ export const DatasetMoleculeView = memo(
     useEffect(() => {
       if (refOnCancelImage.current === undefined) {
         let onCancel = () => {};
+        let url = new URL(`${base_url}/viewer/img_from_smiles/`);
+        const params = {
+          width: imageHeight,
+          height: imageWidth,
+          smiles: data.smiles
+        };
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
         api({
-          url: `${base_url}/viewer/img_from_smiles/?width=${imageHeight}&height=${imageWidth}&smiles=${data.smiles}`,
+          url,
           cancel: onCancel
         })
           .then(response => {
