@@ -4,12 +4,7 @@
 import React, { useEffect, memo } from 'react';
 import { useDispatch } from 'react-redux';
 import { setMoleculeListIsLoading } from './redux/actions';
-import {
-  clearDatasetSettings,
-  initializeDatasetFilter,
-  loadCompoundScoresListOfDataSet,
-  loadMoleculesOfDataSet
-} from './redux/dispatchActions';
+import { clearDatasetSettings, initializeDatasetFilter, loadDatasetCompoundsWithScores } from './redux/dispatchActions';
 import { DatasetMoleculeList } from './datasetMoleculeList';
 
 export const CustomDatasetList = memo(
@@ -20,7 +15,7 @@ export const CustomDatasetList = memo(
       if (dataset && dataset.id && isActive) {
         dispatch(setMoleculeListIsLoading(true));
         // Promise.all([
-        dispatch(loadMoleculesOfDataSet(dataset.id))
+        dispatch(loadDatasetCompoundsWithScores(dataset.id))
           //  dispatch(loadCompoundScoresListOfDataSet(dataset.id))
           //  ])
           .catch(error => {

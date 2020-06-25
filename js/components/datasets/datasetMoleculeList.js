@@ -447,7 +447,7 @@ export const DatasetMoleculeList = memo(
                       filteredScoreProperties[datasetID].map(score => (
                         <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
                           <Grid item className={classes.rightBorder}>
-                            {score.name.substring(0, 4)}
+                            {score?.name?.substring(0, 4)}
                           </Grid>
                         </Tooltip>
                       ))}

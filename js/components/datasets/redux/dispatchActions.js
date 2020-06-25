@@ -155,9 +155,24 @@ export const loadDataSets = () => dispatch =>
     );
   });
 
+export const loadDatasetCompoundsWithScores = datasetName => dispatch =>
+  // Hint for develop purposes add param &limit=20
+  api({ url: `${base_url}/api/compound-mols-scores/?compound_set=${datasetName}` }).then(response => {
+    dispatch(addMoleculeList(datasetName, response.data.results));
+
+    return api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetName}` }).then(res => {
+      dispatch(
+        updateFilterShowedScoreProperties({
+          datasetID: datasetName,
+          scoreList: res?.data?.results?.slice(0, COUNT_OF_VISIBLE_SCORES)
+        })
+      );
+    });
+  });
+
 export const loadMoleculesOfDataSet = datasetID => dispatch =>
   // TODO remove limit
-  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}&limit=20` }).then(response => {
+  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` }).then(response => {
     dispatch(addMoleculeList(datasetID, response.data.results));
     return Promise.all(
       response?.data?.results?.map(compoundMolecule => {

@@ -234,7 +234,7 @@ export const DatasetFilter = memo(
               </Grid>
             </Grid>
 
-            {priorityOrder.map(attr => {
+            {priorityOrder?.map(attr => {
               let attrDef = getAttributeName(attr);
               const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
               return (

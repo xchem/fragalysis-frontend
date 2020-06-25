@@ -427,6 +427,7 @@ export const DatasetMoleculeView = memo(
     const moleculeTitle = data && data.name;
     const datasetTitle = datasets?.find(item => `${item.id}` === `${datasetID}`)?.title;
 
+    const allScores = { ...data?.numerical_scores, ...data?.text_scores };
     return (
       <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
         {/*Site number*/}
@@ -639,28 +640,36 @@ export const DatasetMoleculeView = memo(
               {filteredScoreProperties &&
                 datasetID &&
                 filteredScoreProperties[datasetID] &&
-                filteredScoreProperties[datasetID].map(score => {
-                  const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
-
-                  return (
-                    <Tooltip title={`${score.name} - ${score.description}:  ${item?.value}`} key={score.id}>
-                      {(item && (
-                        <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                          {/*{item.value && Math.round(item.value)}*/}
-                          {(item.value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
-                            (item.value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
-                            (Number.parseFloat(item.value) && Math.round(item.value)) ||
-                            item.value?.slice(0, 4) ||
-                            null}
-                        </Grid>
-                      )) || (
-                        <Grid item className={classNames(classes.rightBorder)}>
-                          -
-                        </Grid>
-                      )}
-                    </Tooltip>
-                  );
-                })}
+                filteredScoreProperties[datasetID]
+                  //   Object.keys(allScores)
+                  .map(score => {
+                    //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
+                    const value = allScores[score.name];
+                    return (
+                      <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
+                        {(value && (
+                          <Grid
+                            item
+                            className={classNames(
+                              classes.rightBorder
+                              // getValueMatchingClass(item)
+                            )}
+                          >
+                            {/*{item.value && Math.round(item.value)}*/}
+                            {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
+                              (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
+                              (Number.parseFloat(value) && Math.round(value)) ||
+                              value?.slice(0, 4) ||
+                              null}
+                          </Grid>
+                        )) || (
+                          <Grid item className={classes.rightBorder}>
+                            -
+                          </Grid>
+                        )}
+                      </Tooltip>
+                    );
+                  })}
             </Grid>
           </Grid>
         </Grid>
