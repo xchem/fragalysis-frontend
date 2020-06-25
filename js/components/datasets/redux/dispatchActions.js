@@ -161,12 +161,16 @@ export const loadDatasetCompoundsWithScores = datasetName => dispatch =>
     dispatch(addMoleculeList(datasetName, response.data.results));
 
     return api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetName}` }).then(res => {
+      const scores = res?.data?.results;
       dispatch(
         updateFilterShowedScoreProperties({
           datasetID: datasetName,
-          scoreList: res?.data?.results?.slice(0, COUNT_OF_VISIBLE_SCORES)
+          scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
         })
       );
+      scores?.map(item => {
+        dispatch(appendToScoreDatasetMap(datasetName, item));
+      });
     });
   });
 
