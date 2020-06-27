@@ -261,8 +261,9 @@ export const DatasetMoleculeList = memo(
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const isLigandOn = (ligandList && ligandList.length > 0) || false;
+    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
+    const isLigandOn = (ligandList && ligandList.length > 0) || false;
     const isProteinOn = (proteinList && proteinList.length > 0) || false;
     const isComplexOn = (complexList && complexList.length > 0) || false;
     const addType = {
@@ -277,6 +278,33 @@ export const DatasetMoleculeList = memo(
       protein: removeDatasetHitProtein,
       complex: removeDatasetComplex,
       surface: removeDatasetSurface
+    };
+
+    const removeOfAllSelectedTypes = () => {
+      ligandList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
+      proteinList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
+      complexList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
+      surfaceList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -582,6 +610,7 @@ export const DatasetMoleculeList = memo(
                           showCrossReferenceModal
                           previousItemData={index > 0 && array[index - 1]}
                           nextItemData={index < array?.length && array[index + 1]}
+                          removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                         />
                       ))}
                   </InfiniteScroll>

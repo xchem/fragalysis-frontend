@@ -228,10 +228,9 @@ export const DatasetMoleculeView = memo(
     showDatasetName,
     index,
     previousItemData,
-    nextItemData
+    nextItemData,
+    removeOfAllSelectedTypes
   }) => {
-    // const [countOfVectors, setCountOfVectors] = useState('-');
-    // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
@@ -450,33 +449,38 @@ export const DatasetMoleculeView = memo(
       return cssClass;
     };
 
-    const moveSelectedMoleculeSettings = newItemData => {
+    const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
       if (newItemData) {
         if (isLigandOn) {
-          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetID));
-          removeSelectedLigand();
+          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule));
         }
         if (isProteinOn) {
-          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetID));
-          removeSelectedProtein();
+          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule));
         }
         if (isComplexOn) {
-          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetID));
-          removeSelectedComplex();
+          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule));
         }
         if (isSurfaceOn) {
-          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetID));
-          removeSelectedSurface();
+          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule));
         }
       }
     };
 
     const handleClickOnDownArrow = () => {
-      moveSelectedMoleculeSettings(nextItemData);
+      removeOfAllSelectedTypes();
+      const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
+      const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
     };
 
     const handleClickOnUpArrow = () => {
-      moveSelectedMoleculeSettings(previousItemData);
+      removeOfAllSelectedTypes();
+      const previousItem =
+        (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
+      const previousDatasetID =
+        (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
+
+      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
     };
 
     const moleculeTitle = data && data.name;

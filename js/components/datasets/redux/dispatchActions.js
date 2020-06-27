@@ -54,7 +54,10 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
 export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateHitProteinObject(data, colourToggle, base_url, datasetID)
+      ),
       stage,
       orientationMatrix: null
     })
@@ -68,7 +71,10 @@ export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => di
 export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateHitProteinObject(data, colourToggle, base_url, datasetID)
+      ),
       stage
     )
   );
@@ -78,7 +84,10 @@ export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) =>
 export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateComplexObject(data, colourToggle, base_url, datasetID)
+      ),
       stage,
       orientationMatrix: null
     })
@@ -92,7 +101,7 @@ export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispa
 export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url, datasetID)),
       stage
     )
   );
@@ -102,7 +111,10 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => di
 export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateSurfaceObject(data, colourToggle, base_url, datasetID)
+      ),
       stage,
       orientationMatrix: null
     })
@@ -116,7 +128,7 @@ export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispa
 export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url, datasetID)),
       stage
     )
   );
@@ -127,7 +139,7 @@ export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispat
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle, datasetID)),
       stage,
       markAsRightSideLigand: true
     })
@@ -144,7 +156,12 @@ export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispat
 };
 
 export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, undefined, datasetID)),
+      stage
+    )
+  );
   dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
 };
 
@@ -162,6 +179,17 @@ export const loadDataSets = () => dispatch =>
       )
     );
   });
+
+export const loadMoleculesOfAllDataSets = () => (dispatch, getState) => {
+  const datasets = getState().datasetsReducers.datasets;
+  return Promise.all(
+    datasets.map(dataset =>
+      api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataset.id}` }).then(response => {
+        dispatch(addMoleculeList(dataset.id, response.data.results));
+      })
+    )
+  );
+};
 
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataSetID}` }).then(response => {

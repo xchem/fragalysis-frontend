@@ -190,7 +190,16 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
   </circle>  '</svg>`;
 
 const MoleculeView = memo(
-  ({ imageHeight, imageWidth, data, searchMoleculeGroup, index, previousItemData, nextItemData }) => {
+  ({
+    imageHeight,
+    imageWidth,
+    data,
+    searchMoleculeGroup,
+    index,
+    previousItemData,
+    nextItemData,
+    removeOfAllSelectedTypes
+  }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
@@ -473,38 +482,34 @@ const MoleculeView = memo(
       if (newItemDataset) {
         if (isLigandOn) {
           dispatch(addLigand(stage, newItemDataset, colourToggle));
-          removeSelectedLigand();
         }
         if (isProteinOn) {
           dispatch(addHitProtein(stage, newItemDataset, colourToggle));
-          removeSelectedProtein();
         }
         if (isComplexOn) {
           dispatch(addComplex(stage, newItemDataset, colourToggle));
-          removeSelectedComplex();
         }
         if (isSurfaceOn) {
           dispatch(addSurface(stage, newItemDataset, colourToggle));
-          removeSelectedSurface();
         }
         if (isDensityOn) {
           dispatch(addDensity(stage, newItemDataset, colourToggle));
-          removeSelectedDensity();
         }
         if (isVectorOn) {
           dispatch(addVector(stage, newItemDataset)).catch(error => {
             throw new Error(error);
           });
-          removeSelectedVector();
         }
       }
     };
 
     const handleClickOnDownArrow = () => {
+      removeOfAllSelectedTypes();
       moveSelectedMolSettings(nextItemData);
     };
 
     const handleClickOnUpArrow = () => {
+      removeOfAllSelectedTypes();
       moveSelectedMolSettings(previousItemData);
     };
 

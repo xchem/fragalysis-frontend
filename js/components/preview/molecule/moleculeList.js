@@ -235,10 +235,15 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const filter = useSelector(state => state.selectionReducers.filter);
   const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
   const selectedAll = useRef(false);
+
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
-  const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+  const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+  const densityList = useSelector(state => state.selectionReducers.densityList);
+  const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+
+  const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
@@ -419,6 +424,33 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
     });
     selectedAll.current = false;
+  };
+
+  const removeOfAllSelectedTypes = () => {
+    proteinList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    complexList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    fragmentDisplayList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    surfaceList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    densityList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    vectorOnList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
   };
 
   const addNewType = type => {
@@ -702,6 +734,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       data={data}
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
+                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                     />
                   ))}
                 </InfiniteScroll>

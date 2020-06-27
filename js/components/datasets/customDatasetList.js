@@ -8,7 +8,7 @@ import {
   clearDatasetSettings,
   initializeDatasetFilter,
   loadCompoundScoresListOfDataSet,
-  loadMoleculesOfDataSet
+  loadMoleculesOfAllDataSets
 } from './redux/dispatchActions';
 import { DatasetMoleculeList } from './datasetMoleculeList';
 
@@ -19,10 +19,7 @@ export const CustomDatasetList = memo(
     useEffect(() => {
       if (dataset && dataset.id && isActive) {
         dispatch(setMoleculeListIsLoading(true));
-        Promise.all([
-          dispatch(loadMoleculesOfDataSet(dataset.id)),
-          dispatch(loadCompoundScoresListOfDataSet(dataset.id))
-        ])
+        Promise.all([dispatch(loadMoleculesOfAllDataSets()), dispatch(loadCompoundScoresListOfDataSet(dataset.id))])
           .catch(error => {
             throw new Error(error);
           })
