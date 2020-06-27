@@ -154,6 +154,7 @@ export const loadDataSets = () => dispatch =>
         }))
       )
     );
+    return response?.data?.results;
   });
 
 export const loadMoleculesOfDataSet = dataSetID => dispatch =>
