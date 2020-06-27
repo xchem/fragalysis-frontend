@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
-import { Grid, makeStyles, useTheme } from '@material-ui/core';
+import { Grid, makeStyles, useTheme, ButtonGroup, Button } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
 import { CustomDatasetList } from '../datasets/customDatasetList';
@@ -26,9 +26,11 @@ import { NglContext } from '../nglView/nglProvider';
 import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExit';
 import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
 //import HotspotList from '../hotspot/hotspotList';
-import { TabsHeader, Tab, TabPanel, a11yTabProps } from '../common/Tabs';
+import { TabPanel } from '../common/Tabs';
 import { loadDataSets } from '../datasets/redux/dispatchActions';
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
+import { DatasetSelectorMenuButton } from '../datasets/datasetSelectorMenuButton';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const hitNavigatorWidth = 504;
 
@@ -71,6 +73,10 @@ const useStyles = makeStyles(theme => ({
   },
   tabHeader: {
     maxWidth: hitNavigatorWidth - theme.spacing(1)
+  },
+  tabButtonGroup: {
+    maxWidth: hitNavigatorWidth - theme.spacing(2),
+    height: 48
   }
 }));
 
@@ -82,13 +88,18 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const { nglViewList } = useContext(NglContext);
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
-  const isFilterDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
+  const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
+  const currentDataset = customDatasets[selectedDatasetIndex];
 
   useEffect(() => {
     if (customDatasets.length === 0) {
-      dispatch(loadDataSets());
+      dispatch(loadDataSets()).then(results => {
+        if (Array.isArray(results) && results.length > 0) {
+          setSelectedDatasetIndex(0);
+        }
+      });
     }
   }, [customDatasets.length, dispatch]);
 
@@ -121,8 +132,11 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const [showHistory, setShowHistory] = useState(false);
 
   const [tabValue, setTabValue] = useState(0);
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
+  const getTabValue = () => {
+    if (tabValue === 2) {
+      return tabValue + selectedDatasetIndex;
+    }
+    return tabValue;
   };
 
   useEffect(() => {
@@ -131,6 +145,9 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       dispatch(unmountPreviewComponent(nglViewList));
     };
   }, [dispatch, nglViewList]);
+
+  const anchorRefDatasetDropdown = useRef(null);
+  const [openDatasetDropdown, setOpenDatasetDropdown] = useState(false);
 
   return (
     <>
@@ -172,14 +189,43 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         </Grid>
         <Grid item container direction="column" spacing={1} className={classes.rightSideColumn}>
           <Grid item className={classes.tabHeader}>
-            <TabsHeader value={tabValue} onChange={handleTabChange} variant="standard" aria-label="right side tabs">
-              <Tab label="Vector selector" disabled={isFilterDialogOpen} {...a11yTabProps(0)} />
-              <Tab label="Selected compounds" disabled={isFilterDialogOpen} {...a11yTabProps(1)} />
-              {customDatasets.map((dataset, index) => (
-                <Tab key={index + 2} label={dataset.title} disabled={isFilterDialogOpen} {...a11yTabProps(index + 2)} />
-              ))}
-            </TabsHeader>
-            <TabPanel value={tabValue} index={0}>
+            <ButtonGroup
+              color="primary"
+              variant="contained"
+              aria-label="outlined primary button group"
+              className={classes.tabButtonGroup}
+            >
+              <Button size="small" variant={getTabValue() === 0 ? 'contained' : 'text'} onClick={() => setTabValue(0)}>
+                Vector selector
+              </Button>
+              <Button size="small" variant={getTabValue() === 1 ? 'contained' : 'text'} onClick={() => setTabValue(1)}>
+                Selected compounds
+              </Button>
+              <Button size="small" variant={getTabValue() >= 2 ? 'contained' : 'text'} onClick={() => setTabValue(2)}>
+                {currentDataset?.title}
+              </Button>
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => {
+                  setOpenDatasetDropdown(prevOpen => !prevOpen);
+                }}
+                ref={anchorRefDatasetDropdown}
+                className={classes.dropDown}
+              >
+                <ArrowDropDownIcon />
+              </Button>
+              />
+            </ButtonGroup>
+            <DatasetSelectorMenuButton
+              anchorRef={anchorRefDatasetDropdown}
+              open={openDatasetDropdown}
+              setOpen={setOpenDatasetDropdown}
+              customDatasets={customDatasets}
+              selectedDatasetIndex={selectedDatasetIndex}
+              setSelectedDatasetIndex={setSelectedDatasetIndex}
+            />
+            <TabPanel value={getTabValue()} index={0}>
               {/* Vector selector */}
               <Grid container direction="column" spacing={1}>
                 <Grid item>
@@ -190,13 +236,12 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                 </Grid>
               </Grid>
             </TabPanel>
-            <TabPanel value={tabValue} index={1}>
+            <TabPanel value={getTabValue()} index={1}>
               <SelectedCompoundList height={customMoleculeListHeight} />
             </TabPanel>
-
             {customDatasets.map((dataset, index) => {
               return (
-                <TabPanel key={index + 2} value={tabValue} index={index + 2}>
+                <TabPanel key={index + 2} value={getTabValue()} index={index + 2}>
                   <Grid item>
                     <CustomDatasetList
                       dataset={dataset}
@@ -204,7 +249,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                       setFilterItemsHeight={setFilterItemsHeight}
                       filterItemsHeight={filterItemsHeight}
                       hideProjects={hideProjects}
-                      isActive={tabValue === index + 2}
+                      isActive={index === selectedDatasetIndex}
                     />
                   </Grid>
                 </TabPanel>

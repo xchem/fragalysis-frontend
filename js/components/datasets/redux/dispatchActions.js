@@ -177,6 +177,7 @@ export const loadDataSets = () => dispatch =>
         }))
       )
     );
+    return response?.data?.results;
   });
 
 export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
