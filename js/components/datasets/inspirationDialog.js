@@ -20,7 +20,9 @@ import {
   removeComplex,
   removeLigand,
   removeHitProtein,
-  removeSurface
+  removeSurface,
+  removeDensity,
+  removeVector
 } from '../preview/molecule/redux/dispatchActions';
 import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
@@ -150,6 +152,9 @@ export const InspirationDialog = memo(
     const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
     const complexList = useSelector(state => state.selectionReducers.complexList);
+    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+    const densityList = useSelector(state => state.selectionReducers.densityList);
+    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
     const dispatch = useDispatch();
     const disableUserInteraction = useDisableUserInteraction();
@@ -211,6 +216,33 @@ export const InspirationDialog = memo(
       protein: removeHitProtein,
       complex: removeComplex,
       surface: removeSurface
+    };
+
+    const removeOfAllSelectedTypes = () => {
+      proteinList?.forEach(moleculeID => {
+        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      });
+      complexList?.forEach(moleculeID => {
+        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      });
+      ligandList?.forEach(moleculeID => {
+        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      });
+      surfaceList?.forEach(moleculeID => {
+        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      });
+      densityList?.forEach(moleculeID => {
+        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      });
+      vectorOnList?.forEach(moleculeID => {
+        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      });
     };
 
     const removeSelectedType = type => {
@@ -354,13 +386,17 @@ export const InspirationDialog = memo(
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((molecule, index) => (
+                  moleculeList.map((molecule, index, array) => (
                     <MoleculeView
                       key={index}
+                      index={index}
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
                       data={molecule}
                       searchMoleculeGroup
+                      previousItemData={index > 0 && array[index - 1]}
+                      nextItemData={index < array?.length && array[index + 1]}
+                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                     />
                   ))}
                 {!(moleculeList.length > 0) && (

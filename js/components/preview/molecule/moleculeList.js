@@ -58,6 +58,8 @@ import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setCachedMolLists, setMoleculeList } from '../../../reducers/api/actions';
+import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
+import { AlertModal } from '../../common/Modal/AlertModal';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -203,6 +205,11 @@ const useStyles = makeStyles(theme => ({
     '& .MuiInput-underline:after': {
       borderBottomColor: 'inherit'
     }
+  },
+  total: {
+    ...theme.typography.button,
+    color: theme.palette.primary.main,
+    fontStyle: 'italic'
   }
 }));
 
@@ -228,14 +235,21 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const filter = useSelector(state => state.selectionReducers.filter);
   const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
   const selectedAll = useRef(false);
+
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
-  const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+  const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+  const densityList = useSelector(state => state.selectionReducers.densityList);
+  const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+
+  const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
   const cached_mol_lists = useSelector(state => state.apiReducers.cached_mol_lists);
+
+  const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -280,38 +294,51 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const wereMoleculesInitialized = useRef(false);
 
   useEffect(() => {
-    loadFromServer({
-      url: getUrl({ list_type, target_on, mol_group_on }),
-      setOldUrl: url => setOldUrl(url),
-      old_url: oldUrl.current,
-      list_type,
-      setObjectList: list => {
-        dispatch(setMoleculeList(list));
-      },
-      setCachedMolLists: list => {
-        dispatch(setCachedMolLists(list));
-      },
-      mol_group_on,
-      cached_mol_lists
-    })
-      .then(() => {
-        dispatch(initializeFilter());
-        if (
-          stage &&
-          cached_mol_lists &&
-          cached_mol_lists[mol_group_on] &&
-          hideProjects &&
-          target !== undefined &&
-          wereMoleculesInitialized.current === false
-        ) {
-          dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
-          wereMoleculesInitialized.current = true;
-        }
+    if (proteinsHasLoaded === true || proteinsHasLoaded === null) {
+      loadFromServer({
+        url: getUrl({ list_type, target_on, mol_group_on }),
+        setOldUrl: url => setOldUrl(url),
+        old_url: oldUrl.current,
+        list_type,
+        setObjectList: list => {
+          dispatch(setMoleculeList(list));
+        },
+        setCachedMolLists: list => {
+          dispatch(setCachedMolLists(list));
+        },
+        mol_group_on,
+        cached_mol_lists
       })
-      .catch(error => {
-        throw new Error(error);
-      });
-  }, [list_type, mol_group_on, stage, firstLoad, target_on, cached_mol_lists, dispatch, hideProjects, target]);
+        .then(() => {
+          dispatch(initializeFilter());
+          if (
+            stage &&
+            cached_mol_lists &&
+            cached_mol_lists[mol_group_on] &&
+            hideProjects &&
+            target !== undefined &&
+            wereMoleculesInitialized.current === false
+          ) {
+            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+            wereMoleculesInitialized.current = true;
+          }
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
+    }
+  }, [
+    list_type,
+    mol_group_on,
+    stage,
+    firstLoad,
+    target_on,
+    cached_mol_lists,
+    dispatch,
+    hideProjects,
+    target,
+    proteinsHasLoaded
+  ]);
 
   useEffect(() => {
     if (isActiveFilter === false) {
@@ -397,6 +424,33 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
     });
     selectedAll.current = false;
+  };
+
+  const removeOfAllSelectedTypes = () => {
+    proteinList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    complexList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    fragmentDisplayList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    surfaceList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    densityList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
+    vectorOnList?.forEach(moleculeID => {
+      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+    });
   };
 
   const addNewType = type => {
@@ -503,6 +557,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     </IconButton>
   ];
 
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
+
   return (
     <ComputeSize
       componentRef={filterRef.current}
@@ -511,6 +567,18 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       forceCompute={isActiveFilter}
     >
       <Panel hasHeader title="Hit navigator" headerActions={actions}>
+        <AlertModal
+          title="Are you sure?"
+          description="This operation may take a long time"
+          open={isOpenAlert}
+          handleOnOk={() => {
+            setNextXMolecules(joinedMoleculeLists?.length || 0);
+            setIsOpenAlert(false);
+          }}
+          handleOnCancel={() => {
+            setIsOpenAlert(false);
+          }}
+        />
         {sortDialogOpen && (
           <MoleculeListSortFilterDialog
             open={sortDialogOpen}
@@ -657,13 +725,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                   }
                   useWindow={false}
                 >
-                  {currentMolecules.map(data => (
-                    <MoleculeView key={data.id} imageHeight={imgHeight} imageWidth={imgWidth} data={data} />
+                  {currentMolecules.map((data, index, array) => (
+                    <MoleculeView
+                      key={data.id}
+                      index={index}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data}
+                      previousItemData={index > 0 && array[index - 1]}
+                      nextItemData={index < array?.length && array[index + 1]}
+                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                    />
                   ))}
                 </InfiniteScroll>
               </Grid>
               <Grid item>
-                <Grid container justify="flex-end" direction="row">
+                <Grid container justify="space-between" alignItems="center" direction="row">
+                  <Grid item>
+                    <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                  </Grid>
                   <Grid item>
                     <ButtonGroup
                       variant="text"
@@ -687,7 +767,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       </Button>
                       <Button
                         onClick={() => {
-                          setNextXMolecules(joinedMoleculeLists?.length || 0);
+                          if (joinedMoleculeLists?.length > 100) {
+                            setIsOpenAlert(true);
+                          } else {
+                            setNextXMolecules(joinedMoleculeLists?.length || 0);
+                          }
                         }}
                       >
                         Load full list

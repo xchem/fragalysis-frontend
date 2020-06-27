@@ -44,6 +44,7 @@ import { getFilteredDatasetMoleculeList } from './redux/selectors';
 import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
+import { AlertModal } from '../common/Modal/AlertModal';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -182,6 +183,11 @@ const useStyles = makeStyles(theme => ({
   },
   loading: {
     paddingTop: theme.spacing(2)
+  },
+  total: {
+    ...theme.typography.button,
+    color: theme.palette.primary.main,
+    fontStyle: 'italic'
   }
 }));
 
@@ -255,8 +261,9 @@ export const DatasetMoleculeList = memo(
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const isLigandOn = (ligandList && ligandList.length > 0) || false;
+    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
+    const isLigandOn = (ligandList && ligandList.length > 0) || false;
     const isProteinOn = (proteinList && proteinList.length > 0) || false;
     const isComplexOn = (complexList && complexList.length > 0) || false;
     const addType = {
@@ -271,6 +278,33 @@ export const DatasetMoleculeList = memo(
       protein: removeDatasetHitProtein,
       complex: removeDatasetComplex,
       surface: removeDatasetSurface
+    };
+
+    const removeOfAllSelectedTypes = () => {
+      ligandList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
+      proteinList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
+      complexList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
+      surfaceList?.forEach(moleculeID => {
+        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+        dispatch(
+          removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+        );
+      });
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -365,6 +399,8 @@ export const DatasetMoleculeList = memo(
     const inspirationDialogRef = useRef();
     const scrollBarRef = useRef();
 
+    const [isOpenAlert, setIsOpenAlert] = useState(false);
+
     return (
       <ComputeSize
         componentRef={filterRef.current}
@@ -373,6 +409,18 @@ export const DatasetMoleculeList = memo(
         forceCompute={isActiveFilter}
       >
         <Panel hasHeader title={title} withTooltip headerActions={actions}>
+          <AlertModal
+            title="Are you sure?"
+            description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
+            open={isOpenAlert}
+            handleOnOk={() => {
+              setNextXMolecules(joinedMoleculeLists?.length || 0);
+              setIsOpenAlert(false);
+            }}
+            handleOnCancel={() => {
+              setIsOpenAlert(false);
+            }}
+          />
           {sortDialogOpen && (
             <DatasetFilter
               open={sortDialogOpen}
@@ -550,7 +598,7 @@ export const DatasetMoleculeList = memo(
                     useWindow={false}
                   >
                     {datasetID &&
-                      currentMolecules.map((data, index) => (
+                      currentMolecules.map((data, index, array) => (
                         <DatasetMoleculeView
                           key={index}
                           index={index}
@@ -560,12 +608,18 @@ export const DatasetMoleculeList = memo(
                           datasetID={datasetID}
                           setRef={setSelectedMoleculeRef}
                           showCrossReferenceModal
+                          previousItemData={index > 0 && array[index - 1]}
+                          nextItemData={index < array?.length && array[index + 1]}
+                          removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                         />
                       ))}
                   </InfiniteScroll>
                 </Grid>
                 <Grid item>
-                  <Grid container justify="flex-end" direction="row">
+                  <Grid container justify="space-between" alignItems="center" direction="row">
+                    <Grid item>
+                      <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                    </Grid>
                     <Grid item>
                       <ButtonGroup
                         variant="text"
@@ -589,7 +643,11 @@ export const DatasetMoleculeList = memo(
                         </Button>
                         <Button
                           onClick={() => {
-                            setNextXMolecules(joinedMoleculeLists?.length || 0);
+                            if (joinedMoleculeLists?.length > 300) {
+                              setIsOpenAlert(true);
+                            } else {
+                              setNextXMolecules(joinedMoleculeLists?.length || 0);
+                            }
                           }}
                         >
                           Load full list

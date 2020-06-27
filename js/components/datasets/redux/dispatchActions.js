@@ -40,6 +40,7 @@ import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
 import { colourList } from '../../preview/molecule/moleculeView';
+import { appendMoleculeOrientation } from '../../../reducers/ngl/actions';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
@@ -52,7 +53,10 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
 export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateHitProteinObject(data, colourToggle, base_url, datasetID)
+      ),
       stage,
       orientationMatrix: null
     })
@@ -66,7 +70,10 @@ export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => di
 export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateHitProteinObject(data, colourToggle, base_url, datasetID)
+      ),
       stage
     )
   );
@@ -76,7 +83,10 @@ export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) =>
 export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateComplexObject(data, colourToggle, base_url, datasetID)
+      ),
       stage,
       orientationMatrix: null
     })
@@ -90,7 +100,7 @@ export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispa
 export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url, datasetID)),
       stage
     )
   );
@@ -100,7 +110,10 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => di
 export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateSurfaceObject(data, colourToggle, base_url, datasetID)
+      ),
       stage,
       orientationMatrix: null
     })
@@ -114,7 +127,7 @@ export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispa
 export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
   dispatch(
     deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url, datasetID)),
       stage
     )
   );
@@ -122,21 +135,32 @@ export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => di
 };
 
 export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+  const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle, datasetID)),
       stage,
       markAsRightSideLigand: true
     })
   ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+    const ligandOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
+
+    dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
+
+    // keep current orientation of NGL View
+    stage.viewerControls.orient(currentOrientation);
   });
   dispatch(appendLigandList(datasetID, generateMoleculeId(data)));
 };
 
 export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, undefined, datasetID)),
+      stage
+    )
+  );
   dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
 };
 
@@ -155,24 +179,30 @@ export const loadDataSets = () => dispatch =>
     );
   });
 
-export const loadDatasetCompoundsWithScores = datasetName => dispatch =>
-  // Hint for develop purposes add param &limit=20
-  api({ url: `${base_url}/api/compound-mols-scores/?compound_set=${datasetName}` }).then(response => {
-    dispatch(addMoleculeList(datasetName, response.data.results));
+export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
+  const datasets = getState().datasetsReducers.datasets;
+  return Promise.all(
+    datasets.map(dataset =>
+      // Hint for develop purposes add param &limit=20
+      api({ url: `${base_url}/api/compound-mols-scores/?compound_set=${dataset.id}` }).then(response => {
+        dispatch(addMoleculeList(dataset.id, response.data.results));
 
-    return api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetName}` }).then(res => {
-      const scores = res?.data?.results;
-      dispatch(
-        updateFilterShowedScoreProperties({
-          datasetID: datasetName,
-          scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
-        })
-      );
-      scores?.map(item => {
-        dispatch(appendToScoreDatasetMap(datasetName, item));
-      });
-    });
-  });
+        return api({ url: `${base_url}/api/compound-scores/?compound_set=${dataset.id}` }).then(res => {
+          const scores = res?.data?.results;
+          dispatch(
+            updateFilterShowedScoreProperties({
+              datasetID: dataset.id,
+              scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
+            })
+          );
+          scores?.map(item => {
+            dispatch(appendToScoreDatasetMap(dataset.id, item));
+          });
+        });
+      })
+    )
+  );
+};
 
 export const loadMoleculesOfDataSet = datasetID => dispatch =>
   // TODO remove limit
@@ -336,8 +366,8 @@ export const resetCrossReferenceDialog = () => dispatch => {
 };
 
 export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (dispatch, getState) => {
+  // TODO fix
   // dispatch(setIsLoadingCrossReferenceScores(true));
-  // // TODO load score values like in loadMoleculesOfDataSet function
   // Promise.all(datasetIDList.map(datasetID => dispatch(loadCompoundScoresListOfDataSet(datasetID)))).finally(() =>
   //   dispatch(setIsLoadingCrossReferenceScores(false))
   // );
@@ -488,3 +518,5 @@ export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossRefe
     }
   }
 };
+
+export const getDatasetMoleculeID = (datasetID, moleculeID) => `datasetID-${datasetID}_moleculeID-${moleculeID}`;
