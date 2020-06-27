@@ -42,7 +42,6 @@ import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { throttle, debounce } from 'lodash';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -313,14 +312,10 @@ export const removeLigand = (stage, data) => dispatch => {
 export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   if (moleculeList && majorView) {
     const firstMolecule = moleculeList[0];
-    dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-    moleculeList.reverse().forEach(item =>
-      setTimeout(() => {
-        // it should be first selected site
-        item.site = 1;
-        dispatch(addLigand(majorView, item, colourList[item.id % colourList.length], true));
-      }, 250)
-    );
+    if (firstMolecule) {
+      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+    }
   }
 };
 
