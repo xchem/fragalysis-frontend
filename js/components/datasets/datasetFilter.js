@@ -8,7 +8,7 @@ import {
   setFilterDialogOpen,
   setFilterProperties,
   setFilterSettings,
-  setFitlerWithInspirations
+  setFilterWithInspirations
 } from './redux/actions';
 import {
   getFilteredDatasetMoleculeList,
@@ -165,7 +165,7 @@ export const DatasetFilter = memo(
                   className={classes.checkboxHeader}
                   checked={filterWithInspirations}
                   onChange={() => {
-                    dispatch(setFitlerWithInspirations(!filterWithInspirations));
+                    dispatch(setFilterWithInspirations(!filterWithInspirations));
                     handleItemChange()();
                   }}
                 />
@@ -236,27 +236,29 @@ export const DatasetFilter = memo(
 
             {priorityOrder?.map(attr => {
               let scoreDefinition = getScoreDefinitionObject(attr);
-              const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
-              debugger;
+              const disabled = predefinedFilter !== 'none';
+
               return (
-                //   !disabled && (
-                <DatasetMoleculeListSortFilter
-                  key={attr}
-                  datasetID={datasetID}
-                  scoreName={scoreDefinition.name}
-                  scoreDescription={scoreDefinition.description}
-                  scoreID={scoreDefinition.id}
-                  order={filterProperties[attr].order}
-                  minValue={filterProperties[attr].minValue}
-                  maxValue={filterProperties[attr].maxValue}
-                  min={defaultFilterProperties[attr].minValue}
-                  max={defaultFilterProperties[attr].maxValue}
-                  isFloat={defaultFilterProperties[attr].isFloat}
-                  disabled={disabled}
-                  onChange={handleItemChange(attr)}
-                  onChangePrio={handlePrioChange(attr)}
-                />
-                //   )
+                !disabled && (
+                  <DatasetMoleculeListSortFilter
+                    key={attr}
+                    datasetID={datasetID}
+                    scoreName={scoreDefinition.name}
+                    scoreDescription={scoreDefinition.description}
+                    scoreID={scoreDefinition.id}
+                    order={filterProperties[attr].order}
+                    minValue={filterProperties[attr].minValue}
+                    maxValue={filterProperties[attr].maxValue}
+                    min={defaultFilterProperties[attr].minValue}
+                    max={defaultFilterProperties[attr].maxValue}
+                    isFloat={defaultFilterProperties[attr].isFloat}
+                    isBoolean={defaultFilterProperties[attr].isBoolean}
+                    isChecked={defaultFilterProperties[attr].isChecked}
+                    isString={defaultFilterProperties[attr].isString}
+                    onChange={handleItemChange(attr)}
+                    onChangePrio={handlePrioChange(attr)}
+                  />
+                )
               );
             })}
           </Grid>

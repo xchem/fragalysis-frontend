@@ -84,7 +84,9 @@ export const DatasetMoleculeListSortFilter = memo(
     max,
     onChange,
     isFloat,
-    disabled,
+    isBoolean,
+    isChecked,
+    isString,
     onChangePrio,
     order,
     minValue,
@@ -106,12 +108,23 @@ export const DatasetMoleculeListSortFilter = memo(
     let classes = useStyles();
     const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
     const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
-
+    const [isCheckedBoolean, setIsCheckedBoolean] = useState(isChecked === true);
     let setting = {
       order,
       minValue,
       maxValue,
-      disabled
+      isFloat,
+      isBoolean,
+      isChecked,
+      isString
+    };
+
+    const handleCheckboxChange = e => {
+      const isChecked = e.target.checked;
+
+      setting.isChecked = isChecked;
+      onChange(setting);
+      setIsCheckedBoolean(isChecked);
     };
 
     const handleChangeOrder = e => {
@@ -166,7 +179,6 @@ export const DatasetMoleculeListSortFilter = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonGreen)}
                 onClick={onChangePrio(-1)}
-                disabled={disabled}
               >
                 <KeyboardArrowUp />
               </Button>
@@ -176,7 +188,6 @@ export const DatasetMoleculeListSortFilter = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonRed)}
                 onClick={onChangePrio(1)}
-                disabled={disabled}
               >
                 <KeyboardArrowDown />
               </Button>
@@ -191,7 +202,6 @@ export const DatasetMoleculeListSortFilter = memo(
             onChange={handleChangeOrder}
             value={1}
             name="radio-button-demo"
-            disabled={disabled}
           />
           <Radio
             classes={{ root: classes.radioOrder }}
@@ -200,7 +210,6 @@ export const DatasetMoleculeListSortFilter = memo(
             onChange={handleChangeOrder}
             value={-1}
             name="radio-button-demo"
-            disabled={disabled}
           />
         </Grid>
         <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
@@ -208,27 +217,35 @@ export const DatasetMoleculeListSortFilter = memo(
             <Chip size="small" className={classes.propertyChip} label={scoreName} />
           </Tooltip>
         </Grid>
-        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-          {!disabled ? Math.round(min) : <span>-&#8734;</span>}
-        </Grid>
-        <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
-          <Slider
-            value={sliderValue}
-            onChange={handleChangeSlider}
-            onChangeCommitted={handleCommitChangeSlider}
-            valueLabelDisplay="auto"
-            aria-labelledby="range-slider"
-            max={normMax}
-            min={normMin}
-            valueLabelFormat={value => {
-              return isFloat ? value / MULT : value;
-            }}
-            disabled={disabled}
-          />
-        </Grid>
-        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-          {!disabled ? Math.round(max) : <span>&#8734;</span>}
-        </Grid>
+        {isFloat !== null && (
+          <>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {Math.round(min)}
+            </Grid>
+            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+              <Slider
+                value={sliderValue}
+                onChange={handleChangeSlider}
+                onChangeCommitted={handleCommitChangeSlider}
+                valueLabelDisplay="auto"
+                aria-labelledby="range-slider"
+                max={normMax}
+                min={normMin}
+                valueLabelFormat={value => {
+                  return isFloat ? value / MULT : value;
+                }}
+              />
+            </Grid>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {Math.round(max)}
+            </Grid>
+          </>
+        )}
+        {isBoolean && (
+          <Grid item>
+            <Checkbox color="primary" checked={isCheckedBoolean} onChange={handleCheckboxChange} />
+          </Grid>
+        )}
       </Grid>
     );
   }

@@ -273,7 +273,7 @@ export const setIsLoadingCrossReferenceScores = isLoading => ({
   payload: isLoading
 });
 
-export const setFitlerWithInspirations = isChecked => ({
+export const setFilterWithInspirations = isChecked => ({
   type: constants.SET_FILTER_WITH_INSPIRATIONS,
   payload: isChecked
 });
