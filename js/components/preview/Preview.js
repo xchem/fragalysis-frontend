@@ -27,10 +27,11 @@ import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExi
 import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
 //import HotspotList from '../hotspot/hotspotList';
 import { TabPanel } from '../common/Tabs';
-import { loadDataSets } from '../datasets/redux/dispatchActions';
+import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/dispatchActions';
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 import { DatasetSelectorMenuButton } from '../datasets/datasetSelectorMenuButton';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { setMoleculeListIsLoading } from '../datasets/redux/actions';
 
 const hitNavigatorWidth = 504;
 
@@ -93,13 +94,25 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
   const currentDataset = customDatasets[selectedDatasetIndex];
 
+  /*
+     Loading datasets
+   */
   useEffect(() => {
     if (customDatasets.length === 0) {
-      dispatch(loadDataSets()).then(results => {
-        if (Array.isArray(results) && results.length > 0) {
-          setSelectedDatasetIndex(0);
-        }
-      });
+      dispatch(setMoleculeListIsLoading(true));
+      dispatch(loadDataSets())
+        .then(results => {
+          if (Array.isArray(results) && results.length > 0) {
+            setSelectedDatasetIndex(0);
+          }
+          return dispatch(loadDatasetCompoundsWithScores());
+        })
+        .catch(error => {
+          throw new Error(error);
+        })
+        .finally(() => {
+          dispatch(setMoleculeListIsLoading(false));
+        });
     }
   }, [customDatasets.length, dispatch]);
 

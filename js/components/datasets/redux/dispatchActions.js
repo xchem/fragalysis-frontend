@@ -185,10 +185,10 @@ export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
   return Promise.all(
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
-      api({ url: `${base_url}/api/compound-mols-scores/?compound_set=${dataset.id}` }).then(response => {
+      api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` }).then(response => {
         dispatch(addMoleculeList(dataset.id, response.data.results));
 
-        return api({ url: `${base_url}/api/compound-scores/?compound_set=${dataset.id}` }).then(res => {
+        return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
           const scores = res?.data?.results;
           dispatch(
             updateFilterShowedScoreProperties({
@@ -289,7 +289,7 @@ export const loadCompoundTextScoreList = (compoundID, datasetID) => (dispatch, g
 //     dispatch(appendToScoreCompoundMapByScoreCategory(response.data.results));
 //   });
 
-export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispatch, getState) => {
+export const selectScoreProperty = ({ isChecked, datasetID, scoreName }) => (dispatch, getState) => {
   const state = getState();
   const filteredScorePropertiesOfDataset = state.datasetsReducers.filteredScoreProperties[datasetID];
   const scoreDatasetMap = state.datasetsReducers.scoreDatasetMap[datasetID];
@@ -300,7 +300,7 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
       filteredScorePropertiesOfDataset.shift();
     }
     // 2. select new property
-    const selectedProperty = scoreDatasetMap.find(item => item.id === scoreID);
+    const selectedProperty = scoreDatasetMap[scoreName];
     filteredScorePropertiesOfDataset.push(selectedProperty);
     dispatch(
       updateFilterShowedScoreProperties({
@@ -312,7 +312,7 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreID }) => (dispa
     dispatch(
       updateFilterShowedScoreProperties({
         datasetID,
-        scoreList: filteredScorePropertiesOfDataset.filter(item => item.id !== scoreID)
+        scoreList: filteredScorePropertiesOfDataset.filter(item => item.name !== scoreName)
       })
     );
   }

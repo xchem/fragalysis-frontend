@@ -2,34 +2,27 @@
  * Created by abradley on 14/03/2018.
  */
 import React, { useEffect, memo } from 'react';
-import { useDispatch } from 'react-redux';
-import { setMoleculeListIsLoading } from './redux/actions';
-import { clearDatasetSettings, initializeDatasetFilter, loadDatasetCompoundsWithScores } from './redux/dispatchActions';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearDatasetSettings, initializeDatasetFilter } from './redux/dispatchActions';
 import { DatasetMoleculeList } from './datasetMoleculeList';
 
 export const CustomDatasetList = memo(
   ({ dataset, height, setFilterItemsHeight, filterItemsHeight, hideProjects, isActive }) => {
     const dispatch = useDispatch();
+    const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
 
     useEffect(() => {
-      if (dataset && dataset.id && isActive) {
-        dispatch(setMoleculeListIsLoading(true));
-        dispatch(loadDatasetCompoundsWithScores(dataset.id))
-          .catch(error => {
-            throw new Error(error);
-          })
-          .finally(() => {
-            dispatch(setMoleculeListIsLoading(false));
-            dispatch(initializeDatasetFilter(dataset && dataset.id));
-          });
-      } else if (dataset && dataset.id && !isActive) {
-        dispatch(clearDatasetSettings(dataset.id));
+      if (isLoadingMoleculeList === false) {
+        if (dataset && dataset.id && isActive) {
+          dispatch(initializeDatasetFilter(dataset && dataset.id));
+        } else if (dataset && dataset.id && !isActive) {
+          dispatch(clearDatasetSettings(dataset.id));
+        }
       }
-
       return () => {
         dispatch(clearDatasetSettings(dataset?.id));
       };
-    }, [dataset, dispatch, isActive]);
+    }, [dataset, dispatch, isActive, isLoadingMoleculeList]);
 
     const title = dataset && `${dataset.title} v.${dataset.version}`;
 

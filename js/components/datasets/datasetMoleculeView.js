@@ -34,6 +34,7 @@ import {
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
+import { isNumber, isString } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -283,7 +284,7 @@ export const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (refOnCancelImage.current === undefined) {
+      if (refOnCancelImage.current === undefined && data && data.smiles) {
         let onCancel = () => {};
         let url = new URL(`${base_url}/viewer/img_from_smiles/`);
         const params = {
@@ -312,7 +313,7 @@ export const DatasetMoleculeView = memo(
           refOnCancelImage.current();
         }
       };
-    }, [complexList, currentID, data.smiles, ligandList, imageHeight, imageWidth]);
+    }, [complexList, currentID, data, ligandList, imageHeight, imageWidth]);
 
     const svg_image = (
       <SVGInline
@@ -497,6 +498,7 @@ export const DatasetMoleculeView = memo(
     const datasetTitle = datasets?.find(item => `${item.id}` === `${datasetID}`)?.title;
 
     const allScores = { ...data?.numerical_scores, ...data?.text_scores };
+
     return (
       <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
         {/*Site number*/}
@@ -723,36 +725,34 @@ export const DatasetMoleculeView = memo(
               {filteredScoreProperties &&
                 datasetID &&
                 filteredScoreProperties[datasetID] &&
-                filteredScoreProperties[datasetID]
-                  //   Object.keys(allScores)
-                  .map(score => {
-                    //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
-                    const value = allScores[score.name];
-                    return (
-                      <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
-                        {(value && (
-                          <Grid
-                            item
-                            className={classNames(
-                              classes.rightBorder
-                              // getValueMatchingClass(item)
-                            )}
-                          >
-                            {/*{item.value && Math.round(item.value)}*/}
-                            {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
-                              (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
-                              (Number.parseFloat(value) && Math.round(value)) ||
-                              value?.slice(0, 4) ||
-                              null}
-                          </Grid>
-                        )) || (
-                          <Grid item className={classes.rightBorder}>
-                            -
-                          </Grid>
-                        )}
-                      </Tooltip>
-                    );
-                  })}
+                filteredScoreProperties[datasetID].map(score => {
+                  //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
+                  const value = allScores[score.name];
+                  return (
+                    <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
+                      {(value && (
+                        <Grid
+                          item
+                          className={classNames(
+                            classes.rightBorder
+                            // getValueMatchingClass(item)
+                          )}
+                        >
+                          {/*{item.value && Math.round(item.value)}*/}
+                          {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
+                            (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
+                            (isString(value) && value?.slice(0, 4)) ||
+                            (!isNaN(value) && `${value}`?.slice(0, 4)) ||
+                            null}
+                        </Grid>
+                      )) || (
+                        <Grid item className={classes.rightBorder}>
+                          -
+                        </Grid>
+                      )}
+                    </Tooltip>
+                  );
+                })}
             </Grid>
           </Grid>
         </Grid>

@@ -153,7 +153,7 @@ export const DatasetMoleculeListSortFilter = memo(
                   !!filteredScorePropertiesOfDataset[datasetID].find(item => item.id === scoreID)
                 }
                 onChange={event =>
-                  dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreID: scoreID }))
+                  dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreName: scoreName }))
                 }
               />
             </Grid>

@@ -103,6 +103,7 @@ const initializeContainerLists = (state, datasetID) => {
   state.complexLists[datasetID] = [];
   state.surfaceLists[datasetID] = [];
   state.inspirationLists[datasetID] = [];
+  return state;
 };
 
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
@@ -117,14 +118,11 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { datasets: action.payload });
 
     case constants.ADD_MOLECULELIST:
-      const increasedMolecules = Object.assign({}, state.moleculeLists);
-
-      if (increasedMolecules[action.payload.datasetID] === undefined) {
-        increasedMolecules[action.payload.datasetID] = action.payload.moleculeList;
-        // initialize also control containers
-        initializeContainerLists(state, action.payload.datasetID);
-      }
-      return Object.assign({}, state, { moleculeLists: increasedMolecules });
+      // initialize also control containers
+      const initializedState = initializeContainerLists(state, action.payload.datasetID);
+      return Object.assign({}, initializedState, {
+        moleculeLists: { ...initializedState.moleculeLists, [action.payload.datasetID]: action.payload.moleculeList }
+      });
 
     case constants.REMOVE_MOLECULELIST:
       const decreasedMolecules = Object.assign({}, state.moleculeLists);

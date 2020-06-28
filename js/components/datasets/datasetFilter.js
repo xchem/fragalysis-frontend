@@ -237,7 +237,7 @@ export const DatasetFilter = memo(
             {priorityOrder?.map(attr => {
               let scoreDefinition = getScoreDefinitionObject(attr);
               const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
-
+              debugger;
               return (
                 //   !disabled && (
                 <DatasetMoleculeListSortFilter
