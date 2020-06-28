@@ -91,8 +91,8 @@ export const DatasetFilter = memo(
 
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
 
-    const getAttributeName = attr => {
-      return Object.keys(scoreDatasetList).find(attrName => attrName === attr);
+    const getScoreDefinitionObject = attr => {
+      return scoreDatasetList[Object.keys(scoreDatasetList).find(attrName => attrName === attr)];
     };
 
     const handleFilterChange = (newFilterProperties, newFilterSettings) => {
@@ -235,16 +235,17 @@ export const DatasetFilter = memo(
             </Grid>
 
             {priorityOrder?.map(attr => {
-              let attrDef = getAttributeName(attr);
+              let scoreDefinition = getScoreDefinitionObject(attr);
               const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
+
               return (
                 //   !disabled && (
                 <DatasetMoleculeListSortFilter
                   key={attr}
                   datasetID={datasetID}
-                  scoreName={attrDef.name}
-                  scoreDescription={attrDef.description}
-                  scoreID={attrDef.id}
+                  scoreName={scoreDefinition.name}
+                  scoreDescription={scoreDefinition.description}
+                  scoreID={scoreDefinition.id}
                   order={filterProperties[attr].order}
                   minValue={filterProperties[attr].minValue}
                   maxValue={filterProperties[attr].maxValue}

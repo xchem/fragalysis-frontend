@@ -14,10 +14,7 @@ export const CustomDatasetList = memo(
     useEffect(() => {
       if (dataset && dataset.id && isActive) {
         dispatch(setMoleculeListIsLoading(true));
-        // Promise.all([
         dispatch(loadDatasetCompoundsWithScores(dataset.id))
-          //  dispatch(loadCompoundScoresListOfDataSet(dataset.id))
-          //  ])
           .catch(error => {
             throw new Error(error);
           })

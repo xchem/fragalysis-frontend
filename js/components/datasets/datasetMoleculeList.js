@@ -192,7 +192,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const DatasetMoleculeList = memo(
-  ({ height, setFilterItemsHeight, filterItemsHeight, moleculeGroupList, title, datasetID, url }) => {
+  ({ height, setFilterItemsHeight, filterItemsHeight, title, datasetID, url }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -425,7 +425,6 @@ export const DatasetMoleculeList = memo(
             <DatasetFilter
               open={sortDialogOpen}
               anchorEl={sortDialogAnchorEl}
-              moleculeGroupList={moleculeGroupList}
               datasetID={datasetID}
               filterProperties={filterProperties}
               active={filterSettings && filterSettings.active}
