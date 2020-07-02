@@ -254,7 +254,7 @@ export const InspirationDialog = memo(
 
     const addNewType = type => {
       moleculeList.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
       });
     };
 

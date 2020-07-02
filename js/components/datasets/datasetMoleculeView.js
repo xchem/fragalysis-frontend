@@ -195,6 +195,11 @@ const useStyles = makeStyles(theme => ({
     width: 12,
     height: 15
   },
+  invisArrow: {
+    width: 12,
+    height: 15,
+    visibility: 'hidden'
+  },
   cancelIcon: {
     color: theme.palette.text.disabled,
     width: theme.spacing(2),
@@ -276,6 +281,8 @@ export const DatasetMoleculeView = memo(
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
+    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
+
     const disableUserInteraction = useDisableUserInteraction();
 
     const refOnCancelImage = useRef();
@@ -285,7 +292,7 @@ export const DatasetMoleculeView = memo(
     // componentDidMount
     useEffect(() => {
       if (refOnCancelImage.current === undefined && data && data.smiles) {
-        let onCancel = () => {};
+        let onCancel = () => { };
         let url = new URL(`${base_url}/viewer/img_from_smiles/`);
         const params = {
           width: imageHeight,
@@ -746,10 +753,10 @@ export const DatasetMoleculeView = memo(
                             null}
                         </Grid>
                       )) || (
-                        <Grid item className={classes.rightBorder}>
-                          -
-                        </Grid>
-                      )}
+                          <Grid item className={classes.rightBorder}>
+                            -
+                          </Grid>
+                        )}
                     </Tooltip>
                   );
                 })}
@@ -763,20 +770,20 @@ export const DatasetMoleculeView = memo(
               <IconButton
                 color="primary"
                 size="small"
-                disabled={disableUserInteraction || !previousItemData}
+                disabled={(disableUserInteraction || !previousItemData) || !areArrowsVisible}
                 onClick={handleClickOnUpArrow}
               >
-                <ArrowUpward className={classes.arrow} />
+                <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
               </IconButton>
             </Grid>
             <Grid item>
               <IconButton
                 color="primary"
                 size="small"
-                disabled={disableUserInteraction || !nextItemData}
+                disabled={(disableUserInteraction || !nextItemData) || !areArrowsVisible}
                 onClick={handleClickOnDownArrow}
               >
-                <ArrowDownward className={classes.arrow} />
+                <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
               </IconButton>
             </Grid>
           </Grid>

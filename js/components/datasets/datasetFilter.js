@@ -56,7 +56,8 @@ const useStyles = makeStyles(theme => ({
     overflow: 'none'
   },
   withInspirations: {
-    paddingTop: theme.spacing(1) / 4
+    paddingTop: theme.spacing(1) / 4,
+    visibility: 'hidden'
   },
   checkboxHeader: {
     color: theme.palette.white,
@@ -112,7 +113,7 @@ export const DatasetFilter = memo(
     };
 
     const handlePrioChange = key => inc => () => {
-      const maxPrio = scoreDatasetList.length - 1;
+      const maxPrio = Object.keys(scoreDatasetList).length - 1;
       const minPrio = 0;
       let localPriorityOrder = JSON.parse(JSON.stringify(priorityOrder));
       const index = localPriorityOrder.indexOf(key);
@@ -210,7 +211,7 @@ export const DatasetFilter = memo(
           <Grid container>
             <Grid container item className={classes.gridItemHeader}>
               <Grid item className={classes.centered} style={{ width: widthCheckbox }}>
-                Is showed
+                Is shown
               </Grid>
               <Grid item className={classes.centered} style={{ width: widthPrio }}>
                 priority
@@ -219,7 +220,7 @@ export const DatasetFilter = memo(
                 <div style={{ textAlign: 'center' }}>
                   order
                   <br />
-                  <span style={{ fontSize: 'smaller' }}>(up/down)</span>
+                  <span style={{ fontSize: 'smaller' }}>(up/down/ignore)</span>
                 </div>
               </Grid>
               <Grid item className={classes.centered} style={{ width: widthProperty }}>

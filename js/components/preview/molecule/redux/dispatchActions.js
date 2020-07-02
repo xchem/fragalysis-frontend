@@ -314,7 +314,7 @@ export const initializeMolecules = (majorView, moleculeList) => dispatch => {
     const firstMolecule = moleculeList[0];
     if (firstMolecule) {
       dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true));
     }
   }
 };

@@ -16,6 +16,7 @@ const complexList = state => state.selectionReducers.complexList;
 const surfaceList = state => state.selectionReducers.surfaceList;
 const densityList = state => state.selectionReducers.densityList;
 const vectorOnList = state => state.selectionReducers.vectorOnList;
+const filteredScoreProperties = state => state.datasetsReducers.filteredScoreProperties;
 
 export const getInitialDatasetFilterSettings = createSelector(
   (_, datasetID) => datasetID,
@@ -231,24 +232,24 @@ export const getFilteredDatasetMoleculeList = createSelector(
         });
 
       // 3. Sort
-      // const defaultFilterProperties = getInitialDatasetFilterProperties(state, datasetID);
-      //
-      // let sortedAttributes = filterSettings.priorityOrder
-      //   .filter(attr => defaultFilterProperties[attr]?.disabled === false || false)
-      //   .map(attr => attr);
-      //
-      // return filteredMolecules.sort((a, b) => {
-      //   for (let prioAttr of sortedAttributes) {
-      //     const order = filterProperties[prioAttr].order;
-      //     const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
-      //     const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
-      //
-      //     let diff = order * (scoreValueOfA - scoreValueOfB);
-      //     if (diff !== 0) {
-      //       return diff;
-      //     }
-      //   }
-      // });
+      const defaultFilterProperties = getInitialDatasetFilterProperties(state, datasetID);
+
+      let sortedAttributes = filterSettings.priorityOrder
+        .filter(attr => defaultFilterProperties[attr]?.order != 0 || false)
+        .map(attr => attr);
+
+      return filteredMolecules.sort((a, b) => {
+        for (let prioAttr of sortedAttributes) {
+          const order = filterProperties[prioAttr].order;
+          const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
+          const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
+
+          let diff = order * (scoreValueOfA - scoreValueOfB);
+          if (diff !== 0) {
+            return diff;
+          }
+        }
+      });
       return filteredMolecules;
     }
     return datasetMoleculeList;

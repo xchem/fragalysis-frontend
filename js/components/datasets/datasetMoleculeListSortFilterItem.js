@@ -106,7 +106,8 @@ export const DatasetMoleculeListSortFilter = memo(
     let normMaxValue = isFloat ? maxValue * MULT : maxValue;
 
     let classes = useStyles();
-    const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
+    //const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
+    const [sliderValue, setSliderValue] = useState([normMinValue, normMaxValue]); // Internal state of slider
     const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
     const [isCheckedBoolean, setIsCheckedBoolean] = useState(isChecked === true);
     let setting = {
@@ -209,6 +210,14 @@ export const DatasetMoleculeListSortFilter = memo(
             checked={setting.order === -1}
             onChange={handleChangeOrder}
             value={-1}
+            name="radio-button-demo"
+          />
+          <Radio
+            classes={{ root: classes.radioOrder }}
+            style={{ right: 4 }}
+            checked={setting.order === 0}
+            onChange={handleChangeOrder}
+            value={0}
             name="radio-button-demo"
           />
         </Grid>

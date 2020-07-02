@@ -166,6 +166,11 @@ const useStyles = makeStyles(theme => ({
   arrow: {
     width: 12,
     height: 15
+  },
+  invisArrow: {
+    width: 12,
+    height: 15,
+    visibility: 'hidden'
   }
 }));
 
@@ -217,7 +222,6 @@ const MoleculeView = memo(
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
     const filter = useSelector(state => state.selectionReducers.filter);
-
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
 
@@ -233,6 +237,8 @@ const MoleculeView = memo(
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
+
+    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
 
     const disableUserInteraction = useDisableUserInteraction();
 
@@ -264,7 +270,7 @@ const MoleculeView = memo(
     // componentDidMount
     useEffect(() => {
       if (refOnCancel.current === undefined) {
-        let onCancel = () => {};
+        let onCancel = () => { };
         Promise.all([
           loadFromServer({
             width: imageHeight,
@@ -706,20 +712,20 @@ const MoleculeView = memo(
               <IconButton
                 color="primary"
                 size="small"
-                disabled={disableUserInteraction || !previousItemData}
+                disabled={(disableUserInteraction || !previousItemData) || !areArrowsVisible}
                 onClick={handleClickOnUpArrow}
               >
-                <ArrowUpward className={classes.arrow} />
+                <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
               </IconButton>
             </Grid>
             <Grid item>
               <IconButton
                 color="primary"
                 size="small"
-                disabled={disableUserInteraction || !nextItemData}
+                disabled={(disableUserInteraction || !nextItemData) || !areArrowsVisible}
                 onClick={handleClickOnDownArrow}
               >
-                <ArrowDownward className={classes.arrow} />
+                <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
               </IconButton>
             </Grid>
           </Grid>
