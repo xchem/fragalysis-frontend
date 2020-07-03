@@ -108,6 +108,8 @@ export const getInitialDatasetFilterProperties = createSelector(
               const isTrue = foundedValueOfScore === 'Y';
               const isFalse = foundedValueOfScore === 'N';
               const resultBoolean = isTrue && !isFalse;
+              minValue = 1;
+              maxValue = 50;
               if (isChecked === undefined) {
                 isChecked = resultBoolean;
               } else if (isChecked !== resultBoolean) {
@@ -208,16 +210,26 @@ export const getFilteredDatasetMoleculeList = createSelector(
             // String or boolean
             const foundedTextScore = molecule?.text_scores[scoreKey];
             // It is String or Boolean type
-            if (foundedTextScore && isNaN(foundedTextScore) && filterProperties[scoreKey].isChecked !== null) {
+            if (foundedTextScore && isNaN(foundedTextScore)) {
               // Boolean type
               if (foundedTextScore === 'Y' || foundedTextScore === 'N') {
                 const isTrue = foundedTextScore === 'Y';
                 const isFalse = foundedTextScore === 'N';
                 const resultBoolean = isTrue && !isFalse;
 
-                if (resultBoolean !== filterProperties[scoreKey].isChecked) {
-                  add = false;
+                if (filterProperties[scoreKey].maxValue === 1) {
+                  if (resultBoolean) {
+                    add = false;
+                  }
+                } else if (filterProperties[scoreKey].maxValue === 100) {
+                  if (!resultBoolean) {
+                    add = false;
+                  }
                 }
+
+                // if (resultBoolean !== filterProperties[scoreKey].isChecked) {
+                //   add = false;
+                // }
               }
               // String type
               else {
@@ -241,8 +253,26 @@ export const getFilteredDatasetMoleculeList = createSelector(
       return filteredMolecules.sort((a, b) => {
         for (let prioAttr of sortedAttributes) {
           const order = filterProperties[prioAttr].order;
-          const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
-          const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
+
+          const scoreValueOfA = Object.keys(a.numerical_scores).find(key => key === prioAttr) && a.numerical_scores[prioAttr];
+          scoreValueOfA = scoreValueOfA || (Object.keys(a.text_scores).find(key => key === prioAttr) && a.text_scores[prioAttr]);
+          const scoreValueOfB = Object.keys(b.numerical_scores).find(key => key === prioAttr) && b.numerical_scores[prioAttr];
+          scoreValueOfB = scoreValueOfB || (Object.keys(b.text_scores).find(key => key === prioAttr) && b.text_scores[prioAttr]);
+
+          if (scoreValueOfA === "Y") {
+            scoreValueOfA = 1;
+          } else if (scoreValueOfA === "N") {
+            scoreValueOfA = 0;
+          }
+
+          if (scoreValueOfB === "Y") {
+            scoreValueOfB = 1;
+          } else if (scoreValueOfB === "N") {
+            scoreValueOfB = 0;
+          }
+
+          // const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
+          // const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
 
           let diff = order * (scoreValueOfA - scoreValueOfB);
           if (diff !== 0) {

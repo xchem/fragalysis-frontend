@@ -456,7 +456,7 @@ export const DatasetMoleculeList = memo(
                             <Tooltip
                               title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
                                 filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                              }`}
+                                }`}
                               placement="top"
                             >
                               <Chip size="small" label={attr} className={classes.propertyChip} />

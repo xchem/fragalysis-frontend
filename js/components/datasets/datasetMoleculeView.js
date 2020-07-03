@@ -201,7 +201,7 @@ const useStyles = makeStyles(theme => ({
     visibility: 'hidden'
   },
   cancelIcon: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.primary.main,
     width: theme.spacing(2),
     height: theme.spacing(2)
   },

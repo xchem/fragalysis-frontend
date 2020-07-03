@@ -99,11 +99,11 @@ export const DatasetMoleculeListSortFilter = memo(
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
 
-    let normMin = isFloat ? min * MULT : min;
-    let normMax = isFloat ? max * MULT : max;
+    let normMin = isBoolean ? min : (isFloat ? min * MULT : min);
+    let normMax = isBoolean ? max : (isFloat ? max * MULT : max);
 
-    let normMinValue = isFloat ? minValue * MULT : minValue;
-    let normMaxValue = isFloat ? maxValue * MULT : maxValue;
+    let normMinValue = isBoolean ? minValue : (isFloat ? minValue * MULT : minValue);
+    let normMaxValue = isBoolean ? maxValue : (isFloat ? maxValue * MULT : maxValue);
 
     let classes = useStyles();
     //const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
@@ -142,8 +142,14 @@ export const DatasetMoleculeListSortFilter = memo(
     };
 
     const handleCommitChangeSlider = (event, newValue) => {
-      setting.minValue = isFloat ? newValue[0] / MULT : newValue[0];
+      setting.minValue = isBoolean ? 1 : (isFloat ? newValue[0] / MULT : newValue[0]);
       setting.maxValue = isFloat ? newValue[1] / MULT : newValue[1];
+      if (newValue === 1) {
+        setting.isChecked = false;
+      } else if (newValue === 50) {
+      } else if (newValue === 100) {
+        setting.isChecked = true;
+      }
       setSliderCommittedValue(newValue);
       onChange(setting);
     };
@@ -251,9 +257,57 @@ export const DatasetMoleculeListSortFilter = memo(
           </>
         )}
         {isBoolean && (
-          <Grid item>
-            <Checkbox color="primary" checked={isCheckedBoolean} onChange={handleCheckboxChange} />
-          </Grid>
+          <>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {"False"}
+            </Grid>
+            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+              <Slider
+                value={sliderValue}
+                onChange={handleChangeSlider}
+                onChangeCommitted={handleCommitChangeSlider}
+                valueLabelDisplay="auto"
+                step={null}
+                marks={[{ value: 1, label: "", }, { value: 50, label: "Ignore", }, { value: 100, label: "", },]}
+                getAriaValueText={
+                  value => {
+                    if (value === 0) {
+                      return "";
+                    } else if (value === 100) {
+                      return "";
+                    } else {
+                      return "Ignore";
+                    }
+                  }
+                }
+                getAriaLabel={
+                  index => {
+                    if (index === 0) {
+                      return "False";
+                    } else if (index === 1) {
+                      return "Ignore";
+                    } else {
+                      return "True";
+                    }
+                  }
+                }
+                valueLabelFormat={
+                  value => {
+                    if (value === 1) {
+                      return "False";
+                    } else if (value === 50) {
+                      return "Ignore";
+                    } else {
+                      return "True";
+                    }
+                  }
+                }
+              />
+            </Grid>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {"True"}
+            </Grid>
+          </>
         )}
       </Grid>
     );
