@@ -270,7 +270,7 @@ const MoleculeView = memo(
     // componentDidMount
     useEffect(() => {
       if (refOnCancel.current === undefined) {
-        let onCancel = () => { };
+        let onCancel = () => {};
         Promise.all([
           loadFromServer({
             width: imageHeight,
@@ -693,7 +693,7 @@ const MoleculeView = memo(
                 <Tooltip title={item.name} key={item.name}>
                   <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                     {item.name === moleculeProperty.mw && Math.round(item.value)}
-                    {item.name === moleculeProperty.logP && Math.round(item.value).toPrecision(1)}
+                    {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
                     {item.name === moleculeProperty.tpsa && Math.round(item.value)}
                     {item.name !== moleculeProperty.mw &&
                       item.name !== moleculeProperty.logP &&
@@ -712,7 +712,7 @@ const MoleculeView = memo(
               <IconButton
                 color="primary"
                 size="small"
-                disabled={(disableUserInteraction || !previousItemData) || !areArrowsVisible}
+                disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
                 onClick={handleClickOnUpArrow}
               >
                 <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
@@ -722,7 +722,7 @@ const MoleculeView = memo(
               <IconButton
                 color="primary"
                 size="small"
-                disabled={(disableUserInteraction || !nextItemData) || !areArrowsVisible}
+                disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
                 onClick={handleClickOnDownArrow}
               >
                 <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />

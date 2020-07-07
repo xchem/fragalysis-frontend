@@ -25,7 +25,7 @@ import {
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
-import { isAnyInspirationTurnedOn } from './redux/selectors';
+import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
@@ -259,12 +259,12 @@ export const DatasetMoleculeView = memo(
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
     const datasets = useSelector(state => state.datasetsReducers.datasets);
-    const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filter = useSelector(state => state.selectionReducers.filter);
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
+    const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
     const [image, setImage] = useState(img_data_init);
 
@@ -291,8 +291,8 @@ export const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (refOnCancelImage.current === undefined && data && data.smiles) {
-        let onCancel = () => { };
+      if (/*refOnCancelImage.current === undefined && */ data && data.smiles) {
+        let onCancel = () => {};
         let url = new URL(`${base_url}/viewer/img_from_smiles/`);
         const params = {
           width: imageHeight,
@@ -320,7 +320,17 @@ export const DatasetMoleculeView = memo(
           refOnCancelImage.current();
         }
       };
-    }, [complexList, currentID, data, ligandList, imageHeight, imageWidth]);
+    }, [
+      complexList,
+      currentID,
+      data,
+      ligandList,
+      imageHeight,
+      imageWidth,
+      data.smiles,
+      data.id,
+      filteredDatasetMoleculeList
+    ]);
 
     const svg_image = (
       <SVGInline
@@ -753,10 +763,10 @@ export const DatasetMoleculeView = memo(
                             null}
                         </Grid>
                       )) || (
-                          <Grid item className={classes.rightBorder}>
-                            -
-                          </Grid>
-                        )}
+                        <Grid item className={classes.rightBorder}>
+                          -
+                        </Grid>
+                      )}
                     </Tooltip>
                   );
                 })}
@@ -770,7 +780,7 @@ export const DatasetMoleculeView = memo(
               <IconButton
                 color="primary"
                 size="small"
-                disabled={(disableUserInteraction || !previousItemData) || !areArrowsVisible}
+                disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
                 onClick={handleClickOnUpArrow}
               >
                 <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
@@ -780,7 +790,7 @@ export const DatasetMoleculeView = memo(
               <IconButton
                 color="primary"
                 size="small"
-                disabled={(disableUserInteraction || !nextItemData) || !areArrowsVisible}
+                disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
                 onClick={handleClickOnDownArrow}
               >
                 <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
