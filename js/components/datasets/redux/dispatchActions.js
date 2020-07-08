@@ -186,10 +186,17 @@ export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
       api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` }).then(response => {
-        dispatch(addMoleculeList(dataset.id, response.data.results));
+        dispatch(
+          addMoleculeList(
+            dataset.id,
+            response.data.results.sort((a, b) => a.id - b.id)
+          )
+        );
 
         return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
           const scores = res?.data?.results;
+          let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
+          scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
           dispatch(
             updateFilterShowedScoreProperties({
               datasetID: dataset.id,
