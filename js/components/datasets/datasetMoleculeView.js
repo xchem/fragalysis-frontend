@@ -4,7 +4,8 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, Typography, Checkbox } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, Checkbox, IconButton } from '@material-ui/core';
+import { ClearOutlined, CheckOutlined } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
@@ -19,18 +20,21 @@ import {
   removeDatasetComplex,
   addDatasetSurface,
   removeDatasetSurface,
-  clickOnInspirations
+  clickOnInspirations,
+  getDatasetMoleculeID
 } from './redux/dispatchActions';
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
-import { isEqual } from 'lodash';
-import { isAnyInspirationTurnedOn } from './redux/selectors';
+import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog
 } from './redux/actions';
+import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
+import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
+import { isNumber, isString } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -159,6 +163,52 @@ const useStyles = makeStyles(theme => ({
   rank: {
     fontStyle: 'italic',
     fontSize: 7
+  },
+  myLocation: {
+    width: 10.328,
+    height: 15
+  },
+  myLocationButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderStyle: 'none',
+    borderColor: theme.palette.white,
+    '&:disabled': {
+      borderRadius: 0,
+      borderStyle: 'none',
+      borderColor: theme.palette.white
+    }
+  },
+  arrows: {
+    height: '100%',
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
+    borderStyle: 'solid solid solid solid'
+  },
+  arrow: {
+    width: 12,
+    height: 15
+  },
+  invisArrow: {
+    width: 12,
+    height: 15,
+    visibility: 'hidden'
+  },
+  cancelIcon: {
+    color: theme.palette.primary.main,
+    width: theme.spacing(2),
+    height: theme.spacing(2)
+  },
+  checkIcon: {
+    color: theme.palette.primary.main,
+    width: theme.spacing(2),
+    height: theme.spacing(2)
   }
 }));
 
@@ -192,10 +242,11 @@ export const DatasetMoleculeView = memo(
     showCrossReferenceModal,
     hideFButton,
     showDatasetName,
-    index
+    index,
+    previousItemData,
+    nextItemData,
+    removeOfAllSelectedTypes
   }) => {
-    // const [countOfVectors, setCountOfVectors] = useState('-');
-    // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
@@ -208,12 +259,12 @@ export const DatasetMoleculeView = memo(
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
     const datasets = useSelector(state => state.datasetsReducers.datasets);
-    const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[currentID], isEqual);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filter = useSelector(state => state.selectionReducers.filter);
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
+    const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
 
     const [image, setImage] = useState(img_data_init);
 
@@ -230,6 +281,8 @@ export const DatasetMoleculeView = memo(
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
+    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
+
     const disableUserInteraction = useDisableUserInteraction();
 
     const refOnCancelImage = useRef();
@@ -238,11 +291,18 @@ export const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (refOnCancelImage.current === undefined) {
+      if (/*refOnCancelImage.current === undefined && */ data && data.smiles) {
         let onCancel = () => {};
+        let url = new URL(`${base_url}/viewer/img_from_smiles/`);
+        const params = {
+          width: imageHeight,
+          height: imageWidth,
+          smiles: data.smiles
+        };
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
         api({
-          url: `${base_url}/viewer/img_from_smiles/?width=${imageHeight}&height=${imageWidth}&smiles=${data.smiles}`,
+          url,
           cancel: onCancel
         })
           .then(response => {
@@ -260,7 +320,17 @@ export const DatasetMoleculeView = memo(
           refOnCancelImage.current();
         }
       };
-    }, [complexList, currentID, data.smiles, ligandList, imageHeight, imageWidth]);
+    }, [
+      complexList,
+      currentID,
+      data,
+      ligandList,
+      imageHeight,
+      imageWidth,
+      data.smiles,
+      data.id,
+      filteredDatasetMoleculeList
+    ]);
 
     const svg_image = (
       <SVGInline
@@ -407,8 +477,44 @@ export const DatasetMoleculeView = memo(
       return cssClass;
     };
 
+    const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
+      if (newItemData) {
+        if (isLigandOn) {
+          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule));
+        }
+        if (isProteinOn) {
+          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule));
+        }
+        if (isComplexOn) {
+          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule));
+        }
+        if (isSurfaceOn) {
+          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule));
+        }
+      }
+    };
+
+    const handleClickOnDownArrow = () => {
+      removeOfAllSelectedTypes();
+      const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
+      const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
+    };
+
+    const handleClickOnUpArrow = () => {
+      removeOfAllSelectedTypes();
+      const previousItem =
+        (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
+      const previousDatasetID =
+        (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
+
+      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
+    };
+
     const moleculeTitle = data && data.name;
     const datasetTitle = datasets?.find(item => `${item.id}` === `${datasetID}`)?.title;
+
+    const allScores = { ...data?.numerical_scores, ...data?.text_scores };
 
     return (
       <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
@@ -436,7 +542,7 @@ export const DatasetMoleculeView = memo(
         </Grid>
         <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
           {/* Title label */}
-          <Grid item xs={!showCrossReferenceModal && hideFButton ? 9 : 7} container direction="column">
+          <Grid item xs={!showCrossReferenceModal && hideFButton ? 8 : 7} container direction="column">
             <Grid item className={classes.inheritWidth}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
@@ -473,6 +579,20 @@ export const DatasetMoleculeView = memo(
               wrap="nowrap"
               className={classes.contButtonsMargin}
             >
+              <Tooltip title="centre on">
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    className={classes.myLocationButton}
+                    onClick={() => {
+                      dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
+                    }}
+                    disabled={disableUserInteraction || !isLigandOn}
+                  >
+                    <MyLocation className={classes.myLocation} />
+                  </Button>
+                </Grid>
+              </Tooltip>
               <Tooltip title="all">
                 <Grid item>
                   <Button
@@ -622,22 +742,59 @@ export const DatasetMoleculeView = memo(
               {filteredScoreProperties &&
                 datasetID &&
                 filteredScoreProperties[datasetID] &&
-                filteredScoreProperties[datasetID].map((score, index) => {
-                  const item = scoreCompoundMap && scoreCompoundMap.find(o => o.score.id === score.id);
+                filteredScoreProperties[datasetID].map(score => {
+                  //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
+                  const value = allScores[score.name];
                   return (
-                    <Tooltip title={`${score.name} - ${score.description}`} key={index}>
-                      {(item && (
-                        <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                          {item.value && Math.round(item.value)}
+                    <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
+                      {(value && (
+                        <Grid
+                          item
+                          className={classNames(
+                            classes.rightBorder
+                            // getValueMatchingClass(item)
+                          )}
+                        >
+                          {/*{item.value && Math.round(item.value)}*/}
+                          {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
+                            (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
+                            (isString(value) && value?.slice(0, 4)) ||
+                            (!isNaN(value) && `${value}`?.slice(0, 4)) ||
+                            null}
                         </Grid>
                       )) || (
-                        <Grid item className={classNames(classes.rightBorder)}>
+                        <Grid item className={classes.rightBorder}>
                           -
                         </Grid>
                       )}
                     </Tooltip>
                   );
                 })}
+            </Grid>
+          </Grid>
+        </Grid>
+        {/* Up/Down arrows */}
+        <Grid item>
+          <Grid container direction="column" justify="space-between" className={classes.arrows}>
+            <Grid item>
+              <IconButton
+                color="primary"
+                size="small"
+                disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
+                onClick={handleClickOnUpArrow}
+              >
+                <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton
+                color="primary"
+                size="small"
+                disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
+                onClick={handleClickOnDownArrow}
+              >
+                <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+              </IconButton>
             </Grid>
           </Grid>
         </Grid>

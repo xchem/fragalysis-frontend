@@ -191,9 +191,9 @@ export const removeFromInspirationFragmentList = item => ({
   payload: item
 });
 
-export const appendToScoreDatasetMap = (datasetID, scoreList) => ({
+export const appendToScoreDatasetMap = (datasetID, score) => ({
   type: constants.APPEND_TO_SCORE_DATASET_MAP,
-  payload: { key: datasetID, value: scoreList }
+  payload: { datasetID, score }
 });
 
 export const removeFromScoreDatasetMap = datasetID => ({
@@ -273,7 +273,7 @@ export const setIsLoadingCrossReferenceScores = isLoading => ({
   payload: isLoading
 });
 
-export const setFitlerWithInspirations = isChecked => ({
+export const setFilterWithInspirations = isChecked => ({
   type: constants.SET_FILTER_WITH_INSPIRATIONS,
   payload: isChecked
 });

@@ -45,7 +45,6 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
     };
   } else {
     initObject = Object.assign({}, initObject);
-    console.log('using saved filter');
   }
 
   for (let attr of MOL_ATTRIBUTES) {

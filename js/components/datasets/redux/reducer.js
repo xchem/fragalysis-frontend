@@ -103,6 +103,7 @@ const initializeContainerLists = (state, datasetID) => {
   state.complexLists[datasetID] = [];
   state.surfaceLists[datasetID] = [];
   state.inspirationLists[datasetID] = [];
+  return state;
 };
 
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
@@ -117,14 +118,12 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { datasets: action.payload });
 
     case constants.ADD_MOLECULELIST:
-      const increasedMolecules = Object.assign({}, state.moleculeLists);
-
-      if (increasedMolecules[action.payload.datasetID] === undefined) {
-        increasedMolecules[action.payload.datasetID] = action.payload.moleculeList;
-        // initialize also control containers
-        initializeContainerLists(state, action.payload.datasetID);
-      }
-      return Object.assign({}, state, { moleculeLists: increasedMolecules });
+      // initialize also control containers
+      const initializedState = initializeContainerLists(state, action.payload.datasetID);
+      action.payload.moleculeList.forEach(mol => (mol.numerical_scores['_id'] = mol.id));
+      return Object.assign({}, initializedState, {
+        moleculeLists: { ...initializedState.moleculeLists, [action.payload.datasetID]: action.payload.moleculeList }
+      });
 
     case constants.REMOVE_MOLECULELIST:
       const decreasedMolecules = Object.assign({}, state.moleculeLists);
@@ -201,9 +200,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return removeFromList(state, 'inspirationLists', action.payload.datasetID, action.payload.itemID);
 
     case constants.APPEND_TO_SCORE_DATASET_MAP:
-      const currentScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));
-      currentScoreDatasetMap[action.payload.key] = action.payload.value;
-      return Object.assign({}, state, { scoreDatasetMap: currentScoreDatasetMap });
+      return Object.assign({}, state, {
+        scoreDatasetMap: {
+          ...state.scoreDatasetMap,
+          [action.payload.datasetID]: {
+            ...state.scoreDatasetMap[action.payload.datasetID],
+            [action.payload.score.name]: action.payload.score
+          }
+        }
+      });
 
     case constants.REMOVE_FROM_SCORE_DATASET_MAP:
       const diminishedScoreDatasetMap = JSON.parse(JSON.stringify(state.scoreDatasetMap));
@@ -212,6 +217,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.APPEND_TO_SCORE_COMPOUND_MAP_BY_SCORE_CATEGORY:
       const extendedScoreCompoundMap = JSON.parse(JSON.stringify(state.scoreCompoundMap));
+
       action.payload.forEach(score => {
         let array = [];
         if (extendedScoreCompoundMap && extendedScoreCompoundMap[score.compound]) {

@@ -16,11 +16,19 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
 
   const handlePdbDownload = async () => {
     setDownloading(true);
-    var protPdbUrl =
+    var dataUrl = window.location.protocol + '//' + window.location.host + '/api/targets/?title=' + targetOnName;
+    /*var protPdbUrl =
       window.location.protocol + '//' + window.location.host + '/api/protpdbbound/?target_id=' + targetOn.toString();
     var proteinsUrl =
       window.location.protocol + '//' + window.location.host + '/api/proteins/?target_id=' + targetOn.toString();
-    const protResponse = await api({ url: proteinsUrl }).catch(error => {
+    */
+    var dataResponse = await api({ url: dataUrl }).catch(error => {
+      throw error;
+    });
+    //console.log(dataResponse);
+    const data = await dataResponse.data;
+    //console.log(data);
+    /*const protResponse = await api({ url: proteinsUrl }).catch(error => {
       throw error;
     });
     const protJson = await protResponse.data;
@@ -50,8 +58,14 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
     if (readmeRequired === true) {
       totFolder.file('README', readmeText);
     }
-    const content = await zip.generateAsync({ type: 'blob' });
-    FileSaver.saveAs(content, fName + '.zip');
+    const content = await zip.generateAsync({ type: 'blob' });*/
+    //ileSaver.saveAs(content, fName + '.zip');
+    var anchor = document.createElement('a');
+    anchor.href = data.results[0].zip_archive;
+    anchor.target = '_blank';
+    //anchor.download = data.fileName;
+    anchor.click();
+
     setDownloading(false);
   };
 

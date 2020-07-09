@@ -1,14 +1,24 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
 import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMoleculesObjectIDListOfCompoundsToBuy } from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { DatasetMoleculeView } from './datasetMoleculeView';
+import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
-import { autoHideDatasetDialogsOnScroll, resetCrossReferenceDialog } from './redux/dispatchActions';
+import {
+  autoHideDatasetDialogsOnScroll,
+  removeDatasetComplex,
+  removeDatasetHitProtein,
+  removeDatasetLigand,
+  removeDatasetSurface,
+  resetCrossReferenceDialog
+} from './redux/dispatchActions';
+import MoleculeView from '../preview/molecule/moleculeView';
+import { NglContext } from '../nglView/nglProvider';
+import { VIEWS } from '../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -44,6 +54,9 @@ export const SelectedCompoundList = memo(({ height }) => {
   const crossReferenceDialogRef = useRef();
   const scrollBarRef = useRef();
 
+  const { getNglView } = useContext(NglContext);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+
   const loadNextMolecules = () => {
     setCurrentPage(currentPage + 1);
   };
@@ -51,6 +64,66 @@ export const SelectedCompoundList = memo(({ height }) => {
   const listItemOffset = (currentPage + 1) * moleculesPerPage;
   const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
+
+  const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
+  const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
+  const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
+  const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
+
+  const removeOfAllSelectedTypes = () => {
+    Object.keys(ligandListAllDatasets).forEach(datasetKey => {
+      ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetLigand(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+    Object.keys(proteinListAllDatasets).forEach(datasetKey => {
+      proteinListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetHitProtein(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+    Object.keys(complexListAllDatasets).forEach(datasetKey => {
+      complexListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetComplex(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+    Object.keys(surfaceListAllDatasets).forEach(datasetKey => {
+      surfaceListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetSurface(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+  };
 
   useEffect(() => {
     return () => {
@@ -99,15 +172,19 @@ export const SelectedCompoundList = memo(({ height }) => {
               }
               useWindow={false}
             >
-              {currentMolecules.map((data, index) => (
+              {currentMolecules.map((data, index, array) => (
                 <DatasetMoleculeView
                   key={index}
+                  index={index}
                   imageHeight={imgHeight}
                   imageWidth={imgWidth}
                   data={data.molecule}
                   datasetID={data.datasetID}
                   setRef={setSelectedMoleculeRef}
                   showCrossReferenceModal
+                  previousItemData={index > 0 && array[index - 1]}
+                  nextItemData={index < array?.length && array[index + 1]}
+                  removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                 />
               ))}
             </InfiniteScroll>
