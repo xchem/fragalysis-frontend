@@ -198,3 +198,22 @@ To create .env with token right away:
 ```
 echo "GITHUB_API_TOKEN=myGitHubToken" > .env
 ```
+
+# When backend and/or loader are updated
+Update backend repo from xchem/fragalysis-backend master branch
+
+Get rid of old docker images. You may prune all (BEWARE) images from docker by using command.
+
+```
+docker system prune -a
+```
+
+Rebuild loader image:
+
+```
+pushd dls-fragalysis-stack-openshift/images/loader || exit
+docker build . -f Dockerfile-local -t loader:latest
+popd || exit
+```
+
+And then run docker-compose as usual.

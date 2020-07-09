@@ -93,6 +93,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
   const currentDataset = customDatasets[selectedDatasetIndex];
+  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
 
   /*
      Loading datasets
@@ -100,7 +101,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   useEffect(() => {
     if (customDatasets.length === 0) {
       dispatch(setMoleculeListIsLoading(true));
-      dispatch(loadDataSets())
+      dispatch(loadDataSets(target_on_name))
         .then(results => {
           if (Array.isArray(results) && results.length > 0) {
             setSelectedDatasetIndex(0);
@@ -122,14 +123,14 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   /* Hit navigator list height */
   const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${molGroupsHeight}px - ${
     filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
-    }px - ${theme.spacing(8)}px)`;
+  }px - ${theme.spacing(8)}px)`;
 
   /* Custom dataset list height */
   const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(hideProjects ? 1 : 2)}px - ${
     hideProjects ? 0 : molGroupsHeight
-    }px - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0}px - ${theme.spacing(
-      8
-    )}px - ${TABS_HEADER_HEIGHT}px)`;
+  }px - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0}px - ${theme.spacing(
+    8
+  )}px - ${TABS_HEADER_HEIGHT}px)`;
 
   const [viewControlsHeight, setViewControlsHeight] = useState(0);
 
