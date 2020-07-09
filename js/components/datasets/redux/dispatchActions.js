@@ -164,8 +164,8 @@ export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dis
   dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
 };
 
-export const loadDataSets = targetName => dispatch =>
-  api({ url: `${base_url}/api/compound-sets/?title=${targetName}` }).then(response => {
+export const loadDataSets = targetId => dispatch =>
+  api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
     dispatch(
       setDataset(
         response.data.results.map(ds => ({

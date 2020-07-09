@@ -93,7 +93,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
   const currentDataset = customDatasets[selectedDatasetIndex];
-  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
+  const target_on = useSelector(state => state.apiReducers.target_on);
 
   /*
      Loading datasets
@@ -101,7 +101,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   useEffect(() => {
     if (customDatasets.length === 0) {
       dispatch(setMoleculeListIsLoading(true));
-      dispatch(loadDataSets(target_on_name))
+      dispatch(loadDataSets(target_on))
         .then(results => {
           if (Array.isArray(results) && results.length > 0) {
             setSelectedDatasetIndex(0);
