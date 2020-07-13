@@ -26,7 +26,7 @@ import {
   setVectorList,
   setVectorOnList
 } from '../../../../reducers/selection/actions';
-import { removeMoleculeOrientation, setCountOfRemainingMoleculeGroups } from '../../../../reducers/ngl/actions';
+import { setCountOfRemainingMoleculeGroups, setMoleculeOrientations } from '../../../../reducers/ngl/actions';
 import { setMolGroupList, setMolGroupOn } from '../../../../reducers/api/actions';
 import { getUrl, loadFromServer } from '../../../../utils/genericList';
 import { OBJECT_TYPE } from '../../../nglView/constants';
@@ -79,8 +79,8 @@ export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup
 
   dispatch(setObjectSelection(undefined));
 
-  // remove molecule orientation for given site
-  dispatch(removeMoleculeOrientation(site));
+  // remove all molecule orientations
+  dispatch(setMoleculeOrientations({}));
 
   // remove all selected ALCV of given site
   currentMolGroup.mol_id.forEach(moleculeID => {

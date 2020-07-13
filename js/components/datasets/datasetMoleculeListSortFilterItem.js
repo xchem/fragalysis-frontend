@@ -84,7 +84,9 @@ export const DatasetMoleculeListSortFilter = memo(
     max,
     onChange,
     isFloat,
-    disabled,
+    isBoolean,
+    isChecked,
+    isString,
     onChangePrio,
     order,
     minValue,
@@ -97,21 +99,33 @@ export const DatasetMoleculeListSortFilter = memo(
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
 
-    let normMin = isFloat ? min * MULT : min;
-    let normMax = isFloat ? max * MULT : max;
+    let normMin = isBoolean ? min : (isFloat ? min * MULT : min);
+    let normMax = isBoolean ? max : (isFloat ? max * MULT : max);
 
-    let normMinValue = isFloat ? minValue * MULT : minValue;
-    let normMaxValue = isFloat ? maxValue * MULT : maxValue;
+    let normMinValue = isBoolean ? minValue : (isFloat ? minValue * MULT : minValue);
+    let normMaxValue = isBoolean ? maxValue : (isFloat ? maxValue * MULT : maxValue);
 
     let classes = useStyles();
-    const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
+    //const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
+    const [sliderValue, setSliderValue] = useState([normMinValue, normMaxValue]); // Internal state of slider
     const [sliderCommittedValue, setSliderCommittedValue] = useState([normMinValue, normMaxValue]); // Internal state of committed slider value
-
+    const [isCheckedBoolean, setIsCheckedBoolean] = useState(isChecked === true);
     let setting = {
       order,
       minValue,
       maxValue,
-      disabled
+      isFloat,
+      isBoolean,
+      isChecked,
+      isString
+    };
+
+    const handleCheckboxChange = e => {
+      const isChecked = e.target.checked;
+
+      setting.isChecked = isChecked;
+      onChange(setting);
+      setIsCheckedBoolean(isChecked);
     };
 
     const handleChangeOrder = e => {
@@ -128,8 +142,14 @@ export const DatasetMoleculeListSortFilter = memo(
     };
 
     const handleCommitChangeSlider = (event, newValue) => {
-      setting.minValue = isFloat ? newValue[0] / MULT : newValue[0];
+      setting.minValue = isBoolean ? 1 : (isFloat ? newValue[0] / MULT : newValue[0]);
       setting.maxValue = isFloat ? newValue[1] / MULT : newValue[1];
+      if (newValue === 1) {
+        setting.isChecked = false;
+      } else if (newValue === 50) {
+      } else if (newValue === 100) {
+        setting.isChecked = true;
+      }
       setSliderCommittedValue(newValue);
       onChange(setting);
     };
@@ -153,7 +173,7 @@ export const DatasetMoleculeListSortFilter = memo(
                   !!filteredScorePropertiesOfDataset[datasetID].find(item => item.id === scoreID)
                 }
                 onChange={event =>
-                  dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreID: scoreID }))
+                  dispatch(selectScoreProperty({ isChecked: event.target.checked, datasetID, scoreName: scoreName }))
                 }
               />
             </Grid>
@@ -166,7 +186,6 @@ export const DatasetMoleculeListSortFilter = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonGreen)}
                 onClick={onChangePrio(-1)}
-                disabled={disabled}
               >
                 <KeyboardArrowUp />
               </Button>
@@ -176,7 +195,6 @@ export const DatasetMoleculeListSortFilter = memo(
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonRed)}
                 onClick={onChangePrio(1)}
-                disabled={disabled}
               >
                 <KeyboardArrowDown />
               </Button>
@@ -191,7 +209,6 @@ export const DatasetMoleculeListSortFilter = memo(
             onChange={handleChangeOrder}
             value={1}
             name="radio-button-demo"
-            disabled={disabled}
           />
           <Radio
             classes={{ root: classes.radioOrder }}
@@ -200,7 +217,14 @@ export const DatasetMoleculeListSortFilter = memo(
             onChange={handleChangeOrder}
             value={-1}
             name="radio-button-demo"
-            disabled={disabled}
+          />
+          <Radio
+            classes={{ root: classes.radioOrder }}
+            style={{ right: 4 }}
+            checked={setting.order === 0}
+            onChange={handleChangeOrder}
+            value={0}
+            name="radio-button-demo"
           />
         </Grid>
         <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
@@ -208,27 +232,83 @@ export const DatasetMoleculeListSortFilter = memo(
             <Chip size="small" className={classes.propertyChip} label={scoreName} />
           </Tooltip>
         </Grid>
-        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-          {!disabled ? Math.round(min) : <span>-&#8734;</span>}
-        </Grid>
-        <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
-          <Slider
-            value={sliderValue}
-            onChange={handleChangeSlider}
-            onChangeCommitted={handleCommitChangeSlider}
-            valueLabelDisplay="auto"
-            aria-labelledby="range-slider"
-            max={normMax}
-            min={normMin}
-            valueLabelFormat={value => {
-              return isFloat ? value / MULT : value;
-            }}
-            disabled={disabled}
-          />
-        </Grid>
-        <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-          {!disabled ? Math.round(max) : <span>&#8734;</span>}
-        </Grid>
+        {isFloat !== null && (
+          <>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {Math.round(min)}
+            </Grid>
+            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+              <Slider
+                value={sliderValue}
+                onChange={handleChangeSlider}
+                onChangeCommitted={handleCommitChangeSlider}
+                valueLabelDisplay="auto"
+                aria-labelledby="range-slider"
+                max={normMax}
+                min={normMin}
+                valueLabelFormat={value => {
+                  return isFloat ? value / MULT : value;
+                }}
+              />
+            </Grid>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {Math.round(max)}
+            </Grid>
+          </>
+        )}
+        {isBoolean && (
+          <>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {"False"}
+            </Grid>
+            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
+              <Slider
+                value={sliderValue}
+                onChange={handleChangeSlider}
+                onChangeCommitted={handleCommitChangeSlider}
+                valueLabelDisplay="auto"
+                step={null}
+                marks={[{ value: 1, label: "", }, { value: 50, label: "Ignore", }, { value: 100, label: "", },]}
+                getAriaValueText={
+                  value => {
+                    if (value === 0) {
+                      return "";
+                    } else if (value === 100) {
+                      return "";
+                    } else {
+                      return "Ignore";
+                    }
+                  }
+                }
+                getAriaLabel={
+                  index => {
+                    if (index === 0) {
+                      return "False";
+                    } else if (index === 1) {
+                      return "Ignore";
+                    } else {
+                      return "True";
+                    }
+                  }
+                }
+                valueLabelFormat={
+                  value => {
+                    if (value === 1) {
+                      return "False";
+                    } else if (value === 50) {
+                      return "Ignore";
+                    } else {
+                      return "True";
+                    }
+                  }
+                }
+              />
+            </Grid>
+            <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
+              {"True"}
+            </Grid>
+          </>
+        )}
       </Grid>
     );
   }

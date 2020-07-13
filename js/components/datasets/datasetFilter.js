@@ -8,7 +8,7 @@ import {
   setFilterDialogOpen,
   setFilterProperties,
   setFilterSettings,
-  setFitlerWithInspirations
+  setFilterWithInspirations
 } from './redux/actions';
 import {
   getFilteredDatasetMoleculeList,
@@ -56,7 +56,8 @@ const useStyles = makeStyles(theme => ({
     overflow: 'none'
   },
   withInspirations: {
-    paddingTop: theme.spacing(1) / 4
+    paddingTop: theme.spacing(1) / 4,
+    visibility: 'hidden'
   },
   checkboxHeader: {
     color: theme.palette.white,
@@ -91,14 +92,14 @@ export const DatasetFilter = memo(
 
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
 
-    const getAttributeName = attr => {
-      return scoreDatasetList.find(item => item.name === attr);
+    const getScoreDefinitionObject = attr => {
+      return scoreDatasetList[Object.keys(scoreDatasetList).find(attrName => attrName === attr)];
     };
 
     const handleFilterChange = (newFilterProperties, newFilterSettings) => {
-      scoreDatasetList.forEach(attr => {
-        if (newFilterProperties[attr.name].priority === undefined || newFilterProperties[attr.name].priority === '') {
-          newFilterProperties[attr.name].priority = 0;
+      Object.keys(scoreDatasetList).forEach(attrKey => {
+        if (newFilterProperties[attrKey].priority === undefined || newFilterProperties[attrKey].priority === '') {
+          newFilterProperties[attrKey].priority = 0;
         }
       });
       dispatch(setFilterProperties(datasetID, newFilterProperties));
@@ -112,7 +113,7 @@ export const DatasetFilter = memo(
     };
 
     const handlePrioChange = key => inc => () => {
-      const maxPrio = scoreDatasetList.length - 1;
+      const maxPrio = Object.keys(scoreDatasetList).length - 1;
       const minPrio = 0;
       let localPriorityOrder = JSON.parse(JSON.stringify(priorityOrder));
       const index = localPriorityOrder.indexOf(key);
@@ -165,7 +166,7 @@ export const DatasetFilter = memo(
                   className={classes.checkboxHeader}
                   checked={filterWithInspirations}
                   onChange={() => {
-                    dispatch(setFitlerWithInspirations(!filterWithInspirations));
+                    dispatch(setFilterWithInspirations(!filterWithInspirations));
                     handleItemChange()();
                   }}
                 />
@@ -210,7 +211,7 @@ export const DatasetFilter = memo(
           <Grid container>
             <Grid container item className={classes.gridItemHeader}>
               <Grid item className={classes.centered} style={{ width: widthCheckbox }}>
-                Is showed
+                Is shown
               </Grid>
               <Grid item className={classes.centered} style={{ width: widthPrio }}>
                 priority
@@ -219,7 +220,7 @@ export const DatasetFilter = memo(
                 <div style={{ textAlign: 'center' }}>
                   order
                   <br />
-                  <span style={{ fontSize: 'smaller' }}>(up/down)</span>
+                  <span style={{ fontSize: 'smaller' }}>(up/down/ignore)</span>
                 </div>
               </Grid>
               <Grid item className={classes.centered} style={{ width: widthProperty }}>
@@ -234,24 +235,27 @@ export const DatasetFilter = memo(
               </Grid>
             </Grid>
 
-            {priorityOrder.map(attr => {
-              let attrDef = getAttributeName(attr);
-              const disabled = predefinedFilter !== 'none' || defaultFilterProperties[attr].disabled;
+            {priorityOrder?.map(attr => {
+              let scoreDefinition = getScoreDefinitionObject(attr);
+              const disabled = predefinedFilter !== 'none';
+
               return (
                 !disabled && (
                   <DatasetMoleculeListSortFilter
                     key={attr}
                     datasetID={datasetID}
-                    scoreName={attrDef.name}
-                    scoreDescription={attrDef.description}
-                    scoreID={attrDef.id}
+                    scoreName={scoreDefinition.name}
+                    scoreDescription={scoreDefinition.description}
+                    scoreID={scoreDefinition.id}
                     order={filterProperties[attr].order}
                     minValue={filterProperties[attr].minValue}
                     maxValue={filterProperties[attr].maxValue}
                     min={defaultFilterProperties[attr].minValue}
                     max={defaultFilterProperties[attr].maxValue}
                     isFloat={defaultFilterProperties[attr].isFloat}
-                    disabled={disabled}
+                    isBoolean={defaultFilterProperties[attr].isBoolean}
+                    isChecked={defaultFilterProperties[attr].isChecked}
+                    isString={defaultFilterProperties[attr].isString}
                     onChange={handleItemChange(attr)}
                     onChangePrio={handlePrioChange(attr)}
                   />

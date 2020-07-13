@@ -11,6 +11,7 @@ import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
 import { Panel } from '../../common/Surfaces/Panel';
 import { setSortDialogOpen } from './redux/actions';
+import { moleculeProperty } from './helperConstants';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -106,7 +107,19 @@ export const filterMolecules = (molecules, filter) => {
       const order = filter.filter[prioAttr].order;
 
       const attrLo = prioAttr.toLowerCase();
-      let diff = order * (a[attrLo] - b[attrLo]);
+      let aVal;
+      let bVal;
+      if (prioAttr === moleculeProperty.mw || prioAttr === moleculeProperty.tpsa) {
+        aVal = Math.round(a[attrLo]);
+        bVal = Math.round(b[attrLo]);
+      } else if (prioAttr === moleculeProperty.logP) {
+        aVal = Math.round(a[attrLo]) /*.toPrecision(1)*/;
+        bVal = Math.round(b[attrLo]) /*.toPrecision(1)*/;
+      } else {
+        aVal = a[attrLo];
+        bVal = b[attrLo];
+      }
+      let diff = order * (aVal - bVal);
       if (diff !== 0) {
         return diff;
       }

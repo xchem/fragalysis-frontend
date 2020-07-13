@@ -113,6 +113,14 @@ export const setOrientation = (div_id, orientation) => (dispatch, getState) => {
   }
 };
 
+export const centerOnLigandByMoleculeID = (stage, moleculeID) => (dispatch, getState) => {
+  if (moleculeID && stage) {
+    const state = getState();
+    const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
+    stage.viewerControls.orient(storedOrientation);
+  }
+};
+
 /**
  *
  * @param stage - instance of NGL view

@@ -8,12 +8,16 @@ import {
   handleAllLigandsOfCrossReferenceDialog,
   resetCrossReferenceDialog,
   removeOrAddAllHitProteinsOfList,
-  removeOrAddAllComplexesOfList
+  removeOrAddAllComplexesOfList,
+  removeDatasetLigand,
+  removeDatasetHitProtein,
+  removeDatasetComplex,
+  removeDatasetSurface
 } from './redux/dispatchActions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { DatasetMoleculeView } from './datasetMoleculeView';
+import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
@@ -136,6 +140,66 @@ export const CrossReferenceDialog = memo(
     const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
     const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
 
+    const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
+    const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
+    const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
+    const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
+
+    const removeOfAllSelectedTypes = () => {
+      Object.keys(ligandListAllDatasets).forEach(datasetKey => {
+        ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
+          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
+          dispatch(
+            removeDatasetLigand(
+              stage,
+              foundedMolecule?.molecule,
+              colourList[foundedMolecule?.molecule?.id % colourList.length],
+              datasetKey
+            )
+          );
+        });
+      });
+      Object.keys(proteinListAllDatasets).forEach(datasetKey => {
+        proteinListAllDatasets[datasetKey]?.forEach(moleculeID => {
+          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
+          dispatch(
+            removeDatasetHitProtein(
+              stage,
+              foundedMolecule?.molecule,
+              colourList[foundedMolecule?.molecule?.id % colourList.length],
+              datasetKey
+            )
+          );
+        });
+      });
+      Object.keys(complexListAllDatasets).forEach(datasetKey => {
+        complexListAllDatasets[datasetKey]?.forEach(moleculeID => {
+          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
+          dispatch(
+            removeDatasetComplex(
+              stage,
+              foundedMolecule?.molecule,
+              colourList[foundedMolecule?.molecule?.id % colourList.length],
+              datasetKey
+            )
+          );
+        });
+      });
+      Object.keys(surfaceListAllDatasets).forEach(datasetKey => {
+        surfaceListAllDatasets[datasetKey]?.forEach(moleculeID => {
+          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
+          dispatch(
+            removeDatasetSurface(
+              stage,
+              foundedMolecule?.molecule,
+              colourList[foundedMolecule?.molecule?.id % colourList.length],
+              datasetKey
+            )
+          );
+        });
+      });
+    };
+
     useEffect(() => {
       if (moleculeList && Array.isArray(moleculeList) && moleculeList.length > 0) {
         // moleculeList has following structure:
@@ -253,15 +317,19 @@ export const CrossReferenceDialog = memo(
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((data, index) => (
+                  moleculeList.map((data, index, array) => (
                     <DatasetMoleculeView
                       key={index}
+                      index={index}
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
                       data={data.molecule}
                       datasetID={data.datasetID}
                       hideFButton
                       showDatasetName
+                      previousItemData={index > 0 && array[index - 1]}
+                      nextItemData={index < array?.length && array[index + 1]}
+                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                     />
                   ))}
                 {!(moleculeList.length > 0) && (

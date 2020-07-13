@@ -56,7 +56,7 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
     ol[1].structure.getView(new Selection(''))
   );
   let stage = ol[2];
-  let focus_let_temp = ol[3];
+  //let focus_let_temp = ol[3];
   let colour = ol[5];
   // Set the object name
   let comp = stage.addComponentFromObject(cs);
@@ -69,13 +69,13 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   });
 
   const reprArray = representations || createRepresentationsArray([repr3]);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else if (orientationMatrix === undefined) {
-    comp.autoView('ligand');
-    //TODO setFocus should be in condition
-    comp.stage.setFocus(focus_let_temp);
-  }
+  // if (orientationMatrix) {
+  //   stage.viewerControls.orient(orientationMatrix);
+  // } else if (orientationMatrix === undefined) {
+  //   comp.autoView('ligand');
+  // TODO setFocus should be in condition
+  //  comp.stage.setFocus(focus_let_temp);
+  // }
 
   return assignRepresentationArrayToComp(reprArray, comp);
 };
@@ -91,27 +91,6 @@ const showHitProtein = ({ stage, input_dict, object_name, representations, orien
     input_dict.colour
   ]).then(ol => renderHitProtein(ol, representations, orientationMatrix));
 };
-
-// const showHitProteinn = (stage, input_dict, object_name, representations, orientationMatrix) =>
-//   stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
-//     const reprArray =
-//       representations ||
-//       createRepresentationsArray([
-//         createRepresentationStructure(MOL_REPRESENTATION.line, {
-//           colorScheme: 'element',
-//           colorValue: input_dict.colour,
-//           sele: '/0',
-//           linewidth: 4
-//         })
-//       ]);
-//
-//     if (orientationMatrix) {
-//       stage.viewerControls.orient(orientationMatrix);
-//     } else if (orientationMatrix === undefined) {
-//       comp.autoView();
-//     }
-//     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
-//   });
 
 const renderComplex = (ol, representations, orientationMatrix) => {
   let cs = concatStructures(
@@ -134,13 +113,13 @@ const renderComplex = (ol, representations, orientationMatrix) => {
   });
 
   const reprArray = representations || createRepresentationsArray([repr2]);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else if (orientationMatrix === undefined) {
-    comp.autoView('ligand');
-    //TODO setFocus should be in condition
-    comp.stage.setFocus(focus_let_temp);
-  }
+  // if (orientationMatrix) {
+  //   stage.viewerControls.orient(orientationMatrix);
+  // } else if (orientationMatrix === undefined) {
+  //   comp.autoView('ligand');
+  //   //TODO setFocus should be in condition
+  //   comp.stage.setFocus(focus_let_temp);
+  // }
 
   return assignRepresentationArrayToComp(reprArray, comp);
 };
@@ -173,11 +152,11 @@ const showSurface = ({ stage, input_dict, object_name, representations, orientat
         })
       ]);
 
-    if (orientationMatrix) {
-      stage.viewerControls.orient(orientationMatrix);
-    } else if (orientationMatrix === undefined) {
-      comp.autoView();
-    }
+    // if (orientationMatrix) {
+    //   stage.viewerControls.orient(orientationMatrix);
+    // } else if (orientationMatrix === undefined) {
+    //   comp.autoView();
+    // }
     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });
 
@@ -210,11 +189,11 @@ const showEvent = ({ stage, input_dict, object_name, representations, orientatio
           sele: 'LIG'
         });
 
-        if (orientationMatrix) {
-          stage.viewerControls.orient(orientationMatrix);
-        } else if (orientationMatrix === undefined) {
-          comp.autoView('LIG');
-        }
+        // if (orientationMatrix) {
+        //   stage.viewerControls.orient(orientationMatrix);
+        // } else if (orientationMatrix === undefined) {
+        //   comp.autoView('LIG');
+        // }
 
         const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3, repr4]);
         return assignRepresentationArrayToComp(reprArray, comp);
@@ -259,11 +238,11 @@ const showCylinder = ({ stage, input_dict, object_name, representations, orienta
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addCylinder(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else if (orientationMatrix === undefined) {
-    comp.autoView();
-  }
+  // if (orientationMatrix) {
+  //   stage.viewerControls.orient(orientationMatrix);
+  // } else if (orientationMatrix === undefined) {
+  //   comp.autoView();
+  // }
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);
 
@@ -282,11 +261,11 @@ const showArrow = ({ stage, input_dict, object_name, representations, orientatio
   let shape = new Shape(object_name, { disableImpostor: true });
   shape.addArrow(input_dict.start, input_dict.end, colour, radius);
   let comp = stage.addComponentFromObject(shape);
-  if (orientationMatrix) {
-    stage.viewerControls.orient(orientationMatrix);
-  } else if (orientationMatrix === undefined) {
-    comp.autoView();
-  }
+  // if (orientationMatrix) {
+  //   stage.viewerControls.orient(orientationMatrix);
+  // } else if (orientationMatrix === undefined) {
+  //   comp.autoView();
+  // }
 
   const reprArray =
     representations || createRepresentationsArray([createRepresentationStructure(MOL_REPRESENTATION_BUFFER, {})]);

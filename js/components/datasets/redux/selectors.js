@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { isString, isInteger } from 'lodash';
 
 const moleculeLists = state => state.datasetsReducers.moleculeLists;
 const scoreCompoundMap = state => state.datasetsReducers.scoreCompoundMap;
@@ -8,7 +9,6 @@ const filterPropertiesDatasetMap = state => state.datasetsReducers.filterPropert
 const filterWithInspirations = state => state.datasetsReducers.filterWithInspirations;
 const compoundsToBuyDatasetMap = state => state.datasetsReducers.compoundsToBuyDatasetMap;
 const crossReferenceCompoundName = state => state.datasetsReducers.crossReferenceCompoundName;
-const datasetLigandLists = state => state.datasetsReducers.ligandLists;
 
 const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
 const proteinList = state => state.selectionReducers.proteinList;
@@ -16,23 +16,13 @@ const complexList = state => state.selectionReducers.complexList;
 const surfaceList = state => state.selectionReducers.surfaceList;
 const densityList = state => state.selectionReducers.densityList;
 const vectorOnList = state => state.selectionReducers.vectorOnList;
-
-export const scoreListOfMolecules = createSelector(
-  (_, datasetID) => datasetID,
-  moleculeLists,
-  scoreCompoundMap,
-  (datasetID, moleculeLists, scoreCompoundMap) => {
-    const moleculeListOfDataset = moleculeLists[datasetID];
-    return (moleculeListOfDataset && moleculeListOfDataset.map(molecule => scoreCompoundMap[molecule.id])) || [];
-  }
-);
+const filteredScoreProperties = state => state.datasetsReducers.filteredScoreProperties;
 
 export const getInitialDatasetFilterSettings = createSelector(
   (_, datasetID) => datasetID,
-  scoreListOfMolecules,
   scoreDatasetMap,
   filterDatasetMap,
-  (datasetID, scoreListOfMolecules, scoreDatasetMap, filterDatasetMap) => {
+  (datasetID, scoreDatasetMap, filterDatasetMap) => {
     const scoreDatasetMapList = scoreDatasetMap[datasetID];
     let initObject = filterDatasetMap[datasetID];
 
@@ -40,7 +30,7 @@ export const getInitialDatasetFilterSettings = createSelector(
       initObject = {
         active: false,
         predefined: 'none',
-        priorityOrder: scoreDatasetMapList.map(score => score.name)
+        priorityOrder: scoreDatasetMapList && Object.keys(scoreDatasetMapList)
       };
     }
     return initObject;
@@ -49,45 +39,97 @@ export const getInitialDatasetFilterSettings = createSelector(
 
 export const getInitialDatasetFilterProperties = createSelector(
   (_, datasetID) => datasetID,
-  scoreListOfMolecules,
+  moleculeLists,
   scoreDatasetMap,
-  (datasetID, scoreListOfMolecules, scoreDatasetMap) => {
+  (datasetID, moleculeLists, scoreDatasetMap) => {
     const scoreDatasetMapList = scoreDatasetMap[datasetID];
 
     let initObject = {};
 
-    for (let attr of scoreDatasetMapList) {
-      let minValue = 999999;
-      let maxValue = -999999;
-      let disableFilter = true;
-      for (let molecule of scoreListOfMolecules) {
-        if (molecule) {
-          const foundedMolecule = molecule.find(item => item.score.name === attr.name);
-          if (disableFilter && foundedMolecule) {
-            disableFilter = false;
-          }
-          const attrValue = (foundedMolecule || {}).value;
-          if (attrValue > maxValue) {
-            maxValue = attrValue;
-          }
-          if (minValue === -999999) {
-            minValue = maxValue;
-          }
-          if (attrValue < minValue) {
-            minValue = attrValue;
+    const moleculeListOfDataset = moleculeLists[datasetID];
+
+    scoreDatasetMapList &&
+      Object.keys(scoreDatasetMapList).forEach(scoreName => {
+        //    })
+        //    for (let attr of scoreDatasetMapList) {
+        let minValue = 999999;
+        let maxValue = -999999;
+        let isChecked = undefined;
+        let isBoolean = null;
+        let isFloat = null;
+        let isString = null;
+
+        for (let molecule of moleculeListOfDataset) {
+          if (molecule) {
+            let foundedValueOfScore;
+            if (molecule?.numerical_scores[scoreName] !== undefined) {
+              foundedValueOfScore = molecule?.numerical_scores[scoreName];
+            }
+            if (molecule?.text_scores[scoreName] !== undefined) {
+              foundedValueOfScore = molecule?.text_scores[scoreName];
+            }
+            // It is Number type
+            if (foundedValueOfScore && !isNaN(foundedValueOfScore)) {
+              if (isInteger(foundedValueOfScore)) {
+                if (isFloat === true) {
+                  isFloat = true;
+                }
+                if (isFloat === null) {
+                  isFloat = false;
+                }
+              } else {
+                isFloat = true;
+              }
+            }
+            // It is String or Boolean type
+            else if (foundedValueOfScore && isNaN(foundedValueOfScore)) {
+              // Boolean type
+              if (foundedValueOfScore === 'Y' || foundedValueOfScore === 'N') {
+                isBoolean = true;
+              }
+              // String type
+              else {
+                isString = true;
+              }
+            }
+            const attrValue = foundedValueOfScore;
+            if (isFloat !== null) {
+              if (attrValue > maxValue) {
+                maxValue = attrValue;
+              }
+              if (minValue === -999999) {
+                minValue = maxValue;
+              }
+              if (attrValue < minValue) {
+                minValue = attrValue;
+              }
+            }
+            if (isBoolean) {
+              const isTrue = foundedValueOfScore === 'Y';
+              const isFalse = foundedValueOfScore === 'N';
+              const resultBoolean = isTrue && !isFalse;
+              minValue = 1;
+              maxValue = 50;
+              if (isChecked === undefined) {
+                isChecked = resultBoolean;
+              } else if (isChecked !== resultBoolean) {
+                isChecked = null;
+              }
+            }
           }
         }
-      }
 
-      initObject[attr.name] = {
-        priority: 0,
-        order: 1,
-        minValue: minValue,
-        maxValue: maxValue,
-        isFloat: attr.isFloat,
-        disabled: disableFilter
-      };
-    }
+        initObject[scoreName] = {
+          priority: 0,
+          order: 1,
+          minValue,
+          maxValue,
+          isFloat,
+          isBoolean,
+          isChecked,
+          isString
+        };
+      });
     return initObject;
   }
 );
@@ -143,46 +185,94 @@ export const getFilteredDatasetMoleculeList = createSelector(
     let datasetMoleculeList = moleculeLists[datasetID] || [];
     const scoreDatasetList = scoreDatasetMap[datasetID];
     const isActiveFilter = !!(filterSettings || {}).active;
+
     if (isActiveFilter) {
       // 1. Filter by scores
       let filteredMolecules = [];
-      datasetMoleculeList.forEach(molecule => {
-        let add = true; // By default molecule passes filter
-        for (let attr of scoreDatasetList) {
-          const foundedMoleculeScore =
-            scoreCompoundMap &&
-            scoreCompoundMap[molecule.id] &&
-            scoreCompoundMap[molecule.id].find(item => item.score.name === attr.name);
-          if (
-            (foundedMoleculeScore &&
-              (foundedMoleculeScore.value < filterProperties[attr.name].minValue ||
-                foundedMoleculeScore.value > filterProperties[attr.name].maxValue)) ||
-            (withInspirations === true && isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false) ||
-            (!foundedMoleculeScore &&
-              withInspirations === true &&
-              isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false)
-          ) {
-            add = false;
-            break; // Do not loop over other attributes
+      datasetMoleculeList &&
+        Array.isArray(datasetMoleculeList) &&
+        datasetMoleculeList.forEach(molecule => {
+          let add = true; // By default molecule passes filter
+          Object.keys(scoreDatasetList || {}).forEach(scoreKey => {
+            if (add === true) {
+              const foundedNumericalScore = molecule?.numerical_scores[scoreKey];
+
+              if (
+                (foundedNumericalScore &&
+                  (foundedNumericalScore < filterProperties[scoreKey].minValue ||
+                    foundedNumericalScore > filterProperties[scoreKey].maxValue)) ||
+                (withInspirations === true && isAnyInspirationTurnedOn(state, molecule.computed_inspirations) === false)
+              ) {
+                add = false; //break; Do not loop over other attributes
+              }
+            }
+
+            // String or boolean
+            const foundedTextScore = molecule?.text_scores[scoreKey];
+            // It is String or Boolean type
+            if (foundedTextScore && isNaN(foundedTextScore)) {
+              // Boolean type
+              if (foundedTextScore === 'Y' || foundedTextScore === 'N') {
+                const isTrue = foundedTextScore === 'Y';
+                const isFalse = foundedTextScore === 'N';
+                const resultBoolean = isTrue && !isFalse;
+
+                if (filterProperties[scoreKey].maxValue === 1) {
+                  if (resultBoolean) {
+                    add = false;
+                  }
+                } else if (filterProperties[scoreKey].maxValue === 100) {
+                  if (!resultBoolean) {
+                    add = false;
+                  }
+                }
+
+                // if (resultBoolean !== filterProperties[scoreKey].isChecked) {
+                //   add = false;
+                // }
+              }
+              // String type
+              else {
+                // TODO maybe in the future wi will filter string scores
+              }
+            }
+          });
+
+          if (add) {
+            filteredMolecules.push(molecule);
           }
-        }
-        if (add) {
-          filteredMolecules.push(molecule);
-        }
-      });
+        });
 
       // 3. Sort
       const defaultFilterProperties = getInitialDatasetFilterProperties(state, datasetID);
 
       let sortedAttributes = filterSettings.priorityOrder
-        .filter(attr => defaultFilterProperties[attr]?.disabled === false || false)
+        .filter(attr => defaultFilterProperties[attr]?.order != 0 || false)
         .map(attr => attr);
 
       return filteredMolecules.sort((a, b) => {
         for (let prioAttr of sortedAttributes) {
           const order = filterProperties[prioAttr].order;
-          const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
-          const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
+
+          const scoreValueOfA = Object.keys(a.numerical_scores).find(key => key === prioAttr) && a.numerical_scores[prioAttr];
+          scoreValueOfA = scoreValueOfA || (Object.keys(a.text_scores).find(key => key === prioAttr) && a.text_scores[prioAttr]);
+          const scoreValueOfB = Object.keys(b.numerical_scores).find(key => key === prioAttr) && b.numerical_scores[prioAttr];
+          scoreValueOfB = scoreValueOfB || (Object.keys(b.text_scores).find(key => key === prioAttr) && b.text_scores[prioAttr]);
+
+          if (scoreValueOfA === "Y") {
+            scoreValueOfA = 1;
+          } else if (scoreValueOfA === "N") {
+            scoreValueOfA = 0;
+          }
+
+          if (scoreValueOfB === "Y") {
+            scoreValueOfB = 1;
+          } else if (scoreValueOfB === "N") {
+            scoreValueOfB = 0;
+          }
+
+          // const scoreValueOfA = scoreCompoundMap[a.id]?.find(item => item.score.name === prioAttr)?.value;
+          // const scoreValueOfB = scoreCompoundMap[b.id]?.find(item => item.score.name === prioAttr)?.value;
 
           let diff = order * (scoreValueOfA - scoreValueOfB);
           if (diff !== 0) {
@@ -190,6 +280,7 @@ export const getFilteredDatasetMoleculeList = createSelector(
           }
         }
       });
+      return filteredMolecules;
     }
     return datasetMoleculeList;
   }

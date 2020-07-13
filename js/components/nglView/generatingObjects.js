@@ -45,8 +45,8 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 });
 
 // Ligand
-export const generateMoleculeObject = (data, colourToggle) => ({
-  name: `${data.protein_code || data.name}_${OBJECT_TYPE.LIGAND}`,
+export const generateMoleculeObject = (data, colourToggle, datasetID) => ({
+  name: `${data.protein_code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
   OBJECT_TYPE: OBJECT_TYPE.LIGAND,
   colour: colourToggle,
   sdf_info: data.sdf_info,
@@ -79,7 +79,7 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
 });
 
 // Hit Protein
-export const generateHitProteinObject = (data, colourToggle, base_url) => {
+export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => {
   let prot_url;
 
   if (data && data.molecule_protein) {
@@ -93,7 +93,7 @@ export const generateHitProteinObject = (data, colourToggle, base_url) => {
   }
 
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}`,
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
     sdf_info: data.sdf_info,
     colour: colourToggle,
@@ -104,7 +104,7 @@ export const generateHitProteinObject = (data, colourToggle, base_url) => {
 };
 
 // Complex
-export const generateComplexObject = (data, colourToggle, base_url) => {
+export const generateComplexObject = (data, colourToggle, base_url, datasetID) => {
   let prot_url;
 
   if (data && data.molecule_protein) {
@@ -118,7 +118,7 @@ export const generateComplexObject = (data, colourToggle, base_url) => {
   }
 
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.COMPLEX}`,
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
     sdf_info: data.sdf_info,
     colour: colourToggle,
@@ -129,7 +129,7 @@ export const generateComplexObject = (data, colourToggle, base_url) => {
 };
 
 // Surface
-export const generateSurfaceObject = (data, colourToggle, base_url) => {
+export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) => {
   let prot_url;
 
   if (data && data.molecule_protein) {
@@ -142,7 +142,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url) => {
     }
   }
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.SURFACE}`,
+    name: `${data.protein_code || data.name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
     sdf_info: data.sdf_info,
     colour: colourToggle,
