@@ -287,3 +287,16 @@ export const removeMoleculeFromCompoundsOfDatasetToBuy = (datasetID, moleculeID)
   type: constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET,
   payload: { datasetID, moleculeID }
 });
+
+export const reloadDatasetsReducer = savedDatasetsReducers => {
+  return {
+    type: constants.RELOAD_DATASETS_REDUCER,
+    payload: savedDatasetsReducers
+  };
+};
+
+export const resetDatasetsState = () => {
+  return {
+    type: constants.RESET_DATASETS_STATE
+  };
+};

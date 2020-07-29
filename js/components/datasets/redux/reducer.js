@@ -91,6 +91,19 @@ const removeFromList = (state, listsName, datasetId, itemId) => {
   return newState;
 };
 
+const reloadLists = (state, listsName) => {
+  const lists = {};
+  for (const datasetID in state[listsName]) {
+    const list = [];
+    for (const itemId of state[listsName][datasetID]) {
+      list.push(itemId);
+    }
+
+    lists[datasetID] = list;
+  }
+  return lists;
+};
+
 /**
  * Initialize all control containers for given dataset
  *
@@ -98,11 +111,12 @@ const removeFromList = (state, listsName, datasetId, itemId) => {
  * @param {Number} datasetID
  */
 const initializeContainerLists = (state, datasetID) => {
-  state.ligandLists[datasetID] = [];
-  state.proteinLists[datasetID] = [];
-  state.complexLists[datasetID] = [];
-  state.surfaceLists[datasetID] = [];
-  state.inspirationLists[datasetID] = [];
+  //The lists might be already initialized (loading state)
+  state.ligandLists[datasetID] = state.ligandLists[datasetID] || [];
+  state.proteinLists[datasetID] = state.proteinLists[datasetID] || [];
+  state.complexLists[datasetID] = state.complexLists[datasetID] || [];
+  state.surfaceLists[datasetID] = state.surfaceLists[datasetID] || [];
+  state.inspirationLists[datasetID] = state.inspirationLists[datasetID] || [];
   return state;
 };
 
@@ -334,6 +348,20 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
           [action.payload.datasetID]: [...listOfMolecules]
         }
       };
+
+    case constants.RELOAD_DATASETS_REDUCER:
+      const lists = {
+        ligandLists: reloadLists(action.payload, 'ligandLists'),
+        proteinLists: reloadLists(action.payload, 'proteinLists'),
+        complexLists: reloadLists(action.payload, 'complexLists'),
+        surfaceLists: reloadLists(action.payload, 'surfaceLists'),
+        inspirationLists: reloadLists(action.payload, 'inspirationLists')
+      };
+
+      return Object.assign({}, state, lists);
+
+    case constants.RESET_DATASETS_STATE:
+      return INITIAL_STATE;
 
     default:
       return state;
