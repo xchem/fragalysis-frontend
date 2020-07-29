@@ -35,6 +35,7 @@ import {
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
+import { SvgTooltip } from '../common';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -289,6 +290,15 @@ export const DatasetMoleculeView = memo(
     const getRandomColor = () => colourList[currentID % colourList.length];
     const colourToggle = getRandomColor();
 
+    const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
+    const moleculeImgRef = useRef(null);
+    const openMoleculeTooltip = () => {
+      setMoleculeTooltipOpen(true);
+    };
+    const closeMoleculeTooltip = () => {
+      setMoleculeTooltipOpen(false);
+    };
+
     // componentDidMount
     useEffect(() => {
       if (/*refOnCancelImage.current === undefined && */ data && data.smiles) {
@@ -517,48 +527,49 @@ export const DatasetMoleculeView = memo(
     const allScores = { ...data?.numerical_scores, ...data?.text_scores };
 
     return (
-      <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
-        {/*Site number*/}
-        <Grid item container justify="space-between" direction="column" className={classes.site}>
-          <Grid item>
-            <Checkbox
-              checked={isCheckedToBuy}
-              className={classes.checkbox}
-              size="small"
-              color="primary"
-              onChange={e => {
-                const result = e.target.checked;
-                if (result) {
-                  dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID));
-                } else {
-                  dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID));
-                }
-              }}
-            />
-          </Grid>
-          <Grid item className={classes.rank}>
-            {index + 1}.
-          </Grid>
-        </Grid>
-        <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
-          {/* Title label */}
-          <Grid item xs={!showCrossReferenceModal && hideFButton ? 8 : 7} container direction="column">
-            <Grid item className={classes.inheritWidth}>
-              <Tooltip title={moleculeTitle} placement="bottom-start">
-                <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
-                  {moleculeTitle}
-                </div>
-              </Tooltip>
+      <>
+        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
+          {/*Site number*/}
+          <Grid item container justify="space-between" direction="column" className={classes.site}>
+            <Grid item>
+              <Checkbox
+                checked={isCheckedToBuy}
+                className={classes.checkbox}
+                size="small"
+                color="primary"
+                onChange={e => {
+                  const result = e.target.checked;
+                  if (result) {
+                    dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID));
+                  } else {
+                    dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID));
+                  }
+                }}
+              />
             </Grid>
-            {showDatasetName && (
+            <Grid item className={classes.rank}>
+              {index + 1}.
+            </Grid>
+          </Grid>
+          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+            {/* Title label */}
+            <Grid item xs={!showCrossReferenceModal && hideFButton ? 8 : 7} container direction="column">
               <Grid item className={classes.inheritWidth}>
-                <Tooltip title={datasetTitle} placement="bottom-start">
-                  <div className={classes.datasetTitleLabel}>{datasetTitle}</div>
+                <Tooltip title={moleculeTitle} placement="bottom-start">
+                  <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>
+                    {moleculeTitle}
+                  </div>
                 </Tooltip>
               </Grid>
-            )}
-          </Grid>
-          {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
+              {showDatasetName && (
+                <Grid item className={classes.inheritWidth}>
+                  <Tooltip title={datasetTitle} placement="bottom-start">
+                    <div className={classes.datasetTitleLabel}>{datasetTitle}</div>
+                  </Tooltip>
+                </Grid>
+              )}
+            </Grid>
+            {/* Status code - #208 Remove the status labels (for now - until they are in the back-end/loader properly)
         <Grid item>
           <Grid container direction="row" justify="space-between" alignItems="center">
             {Object.values(molStatusTypes).map(type => (
@@ -569,249 +580,260 @@ export const DatasetMoleculeView = memo(
           </Grid>
         </Grid>*/}
 
-          {/* Control Buttons A, L, C, V */}
-          <Grid item>
-            <Grid
-              container
-              direction="row"
-              justify="flex-start"
-              alignItems="center"
-              wrap="nowrap"
-              className={classes.contButtonsMargin}
-            >
-              <Tooltip title="centre on">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classes.myLocationButton}
-                    onClick={() => {
-                      dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
-                    }}
-                    disabled={disableUserInteraction || !isLigandOn}
-                  >
-                    <MyLocation className={classes.myLocation} />
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="all">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(
-                      classes.contColButton,
-                      {
-                        [classes.contColButtonSelected]: hasAllValuesOn
-                      },
-                      {
-                        [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                      }
-                    )}
-                    onClick={() => {
-                      // always deselect all if are selected only some of options
-                      selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
-
-                      onLigand(true);
-                      onProtein(true);
-                      onComplex(true);
-                    }}
-                    disabled={disableUserInteraction}
-                  >
-                    A
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="ligand">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isLigandOn
-                    })}
-                    onClick={() => onLigand()}
-                    disabled={disableUserInteraction}
-                  >
-                    L
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="sidechains">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isProteinOn
-                    })}
-                    onClick={() => onProtein()}
-                    disabled={disableUserInteraction}
-                  >
-                    P
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="interactions">
-                <Grid item>
-                  {/* C stands for contacts now */}
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isComplexOn
-                    })}
-                    onClick={() => onComplex()}
-                    disabled={disableUserInteraction}
-                  >
-                    C
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="surface">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isSurfaceOn
-                    })}
-                    onClick={() => onSurface()}
-                    disabled={disableUserInteraction}
-                  >
-                    S
-                  </Button>
-                </Grid>
-              </Tooltip>
-              {!hideFButton && (
-                <Tooltip title="computed inspirations">
+            {/* Control Buttons A, L, C, V */}
+            <Grid item>
+              <Grid
+                container
+                direction="row"
+                justify="flex-start"
+                alignItems="center"
+                wrap="nowrap"
+                className={classes.contButtonsMargin}
+              >
+                <Tooltip title="centre on">
                   <Grid item>
                     <Button
                       variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isAnyInspirationOn
-                      })}
+                      className={classes.myLocationButton}
                       onClick={() => {
-                        dispatch(
-                          clickOnInspirations({
-                            datasetID,
-                            currentID,
-                            computed_inspirations: data && data.computed_inspirations
-                          })
-                        );
-                        if (setRef) {
-                          setRef(ref.current);
-                        }
+                        dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
                       }}
-                      disabled={disableUserInteraction}
+                      disabled={disableUserInteraction || !isLigandOn}
                     >
-                      F
+                      <MyLocation className={classes.myLocation} />
                     </Button>
                   </Grid>
                 </Tooltip>
-              )}
-              {showCrossReferenceModal && (
-                <Tooltip title="cross reference">
+                <Tooltip title="all">
                   <Grid item>
                     <Button
                       variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        // [classes.contColButtonSelected]: isAnyInspirationOn
-                      })}
-                      onClick={() => {
-                        dispatch(setCrossReferenceCompoundName(moleculeTitle));
-                        dispatch(setIsOpenCrossReferenceDialog(true));
-                        if (setRef) {
-                          setRef(ref.current);
+                      className={classNames(
+                        classes.contColButton,
+                        {
+                          [classes.contColButtonSelected]: hasAllValuesOn
+                        },
+                        {
+                          [classes.contColButtonHalfSelected]: hasSomeValuesOn
                         }
-                      }}
-                      disabled={disableUserInteraction}
-                    >
-                      X
-                    </Button>
-                  </Grid>
-                </Tooltip>
-              )}
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            {/* Molecule properties */}
-            <Grid
-              item
-              container
-              justify="flex-start"
-              alignItems="flex-end"
-              direction="row"
-              wrap="nowrap"
-              className={classes.fullHeight}
-            >
-              {filteredScoreProperties &&
-                datasetID &&
-                filteredScoreProperties[datasetID] &&
-                filteredScoreProperties[datasetID].map(score => {
-                  //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
-                  const value = allScores[score.name];
-                  return (
-                    <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
-                      {(value && (
-                        <Grid
-                          item
-                          className={classNames(
-                            classes.rightBorder
-                            // getValueMatchingClass(item)
-                          )}
-                        >
-                          {/*{item.value && Math.round(item.value)}*/}
-                          {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
-                            (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
-                            (isString(value) && value?.slice(0, 4)) ||
-                            (!isNaN(value) && `${value}`?.slice(0, 4)) ||
-                            null}
-                        </Grid>
-                      )) || (
-                        <Grid item className={classes.rightBorder}>
-                          -
-                        </Grid>
                       )}
-                    </Tooltip>
-                  );
-                })}
+                      onClick={() => {
+                        // always deselect all if are selected only some of options
+                        selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+
+                        onLigand(true);
+                        onProtein(true);
+                        onComplex(true);
+                      }}
+                      disabled={disableUserInteraction}
+                    >
+                      A
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="ligand">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isLigandOn
+                      })}
+                      onClick={() => onLigand()}
+                      disabled={disableUserInteraction}
+                    >
+                      L
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="sidechains">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isProteinOn
+                      })}
+                      onClick={() => onProtein()}
+                      disabled={disableUserInteraction}
+                    >
+                      P
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="interactions">
+                  <Grid item>
+                    {/* C stands for contacts now */}
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isComplexOn
+                      })}
+                      onClick={() => onComplex()}
+                      disabled={disableUserInteraction}
+                    >
+                      C
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="surface">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isSurfaceOn
+                      })}
+                      onClick={() => onSurface()}
+                      disabled={disableUserInteraction}
+                    >
+                      S
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                {!hideFButton && (
+                  <Tooltip title="computed inspirations">
+                    <Grid item>
+                      <Button
+                        variant="outlined"
+                        className={classNames(classes.contColButton, {
+                          [classes.contColButtonSelected]: isAnyInspirationOn
+                        })}
+                        onClick={() => {
+                          dispatch(
+                            clickOnInspirations({
+                              datasetID,
+                              currentID,
+                              computed_inspirations: data && data.computed_inspirations
+                            })
+                          );
+                          if (setRef) {
+                            setRef(ref.current);
+                          }
+                        }}
+                        disabled={disableUserInteraction}
+                      >
+                        F
+                      </Button>
+                    </Grid>
+                  </Tooltip>
+                )}
+                {showCrossReferenceModal && (
+                  <Tooltip title="cross reference">
+                    <Grid item>
+                      <Button
+                        variant="outlined"
+                        className={classNames(classes.contColButton, {
+                          // [classes.contColButtonSelected]: isAnyInspirationOn
+                        })}
+                        onClick={() => {
+                          dispatch(setCrossReferenceCompoundName(moleculeTitle));
+                          dispatch(setIsOpenCrossReferenceDialog(true));
+                          if (setRef) {
+                            setRef(ref.current);
+                          }
+                        }}
+                        disabled={disableUserInteraction}
+                      >
+                        X
+                      </Button>
+                    </Grid>
+                  </Tooltip>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              {/* Molecule properties */}
+              <Grid
+                item
+                container
+                justify="flex-start"
+                alignItems="flex-end"
+                direction="row"
+                wrap="nowrap"
+                className={classes.fullHeight}
+              >
+                {filteredScoreProperties &&
+                  datasetID &&
+                  filteredScoreProperties[datasetID] &&
+                  filteredScoreProperties[datasetID].map(score => {
+                    //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
+                    const value = allScores[score.name];
+                    return (
+                      <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
+                        {(value && (
+                          <Grid
+                            item
+                            className={classNames(
+                              classes.rightBorder
+                              // getValueMatchingClass(item)
+                            )}
+                          >
+                            {/*{item.value && Math.round(item.value)}*/}
+                            {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
+                              (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
+                              (isString(value) && value?.slice(0, 4)) ||
+                              (!isNaN(value) && `${value}`?.slice(0, 4)) ||
+                              null}
+                          </Grid>
+                        )) || (
+                          <Grid item className={classes.rightBorder}>
+                            -
+                          </Grid>
+                        )}
+                      </Tooltip>
+                    );
+                  })}
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-        {/* Up/Down arrows */}
-        <Grid item>
-          <Grid container direction="column" justify="space-between" className={classes.arrows}>
-            <Grid item>
-              <IconButton
-                color="primary"
-                size="small"
-                disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
-                onClick={handleClickOnUpArrow}
-              >
-                <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton
-                color="primary"
-                size="small"
-                disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
-                onClick={handleClickOnDownArrow}
-              >
-                <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-              </IconButton>
+          {/* Up/Down arrows */}
+          <Grid item>
+            <Grid container direction="column" justify="space-between" className={classes.arrows}>
+              <Grid item>
+                <IconButton
+                  color="primary"
+                  size="small"
+                  disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
+                  onClick={handleClickOnUpArrow}
+                >
+                  <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  color="primary"
+                  size="small"
+                  disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
+                  onClick={handleClickOnDownArrow}
+                >
+                  <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+                </IconButton>
+              </Grid>
             </Grid>
           </Grid>
+          {/* Image */}
+          <Grid
+            item
+            style={{
+              ...current_style,
+              width: imageWidth
+            }}
+            container
+            justify="center"
+            className={classes.image}
+            onMouseEnter={openMoleculeTooltip}
+            onMouseLeave={closeMoleculeTooltip}
+            ref={moleculeImgRef}
+          >
+            <Grid item>{svg_image}</Grid>
+          </Grid>
         </Grid>
-        {/* Image */}
-        <Grid
-          item
-          style={{
-            ...current_style,
-            width: imageWidth
-          }}
-          container
-          justify="center"
-          className={classes.image}
-        >
-          <Grid item>{svg_image}</Grid>
-        </Grid>
-      </Grid>
+        <SvgTooltip
+          open={moleculeTooltipOpen}
+          anchorEl={moleculeImgRef.current}
+          imgData={image}
+          width={imageWidth}
+          height={imageHeight}
+        />
+      </>
     );
   }
 );

@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, IconButton, Popper, Paper } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
 import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
@@ -30,6 +30,7 @@ import {
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
+import { SvgTooltip } from '../../common';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -267,36 +268,14 @@ const MoleculeView = memo(
       [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
     );
 
-    const [popperAnchorEl, setPopperAnchorEl] = useState(null);
-    const popperOpen = Boolean(popperAnchorEl);
-    const openPopper = event => {
-      setPopperAnchorEl(event.currentTarget);
+    const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
+    const moleculeImgRef = useRef(null);
+    const openMoleculeTooltip = () => {
+      setMoleculeTooltipOpen(true);
     };
-    const closePopper = () => {
-      setPopperAnchorEl(null);
+    const closeMoleculeTooltip = () => {
+      setMoleculeTooltipOpen(false);
     };
-    const imagePopper = (
-      <Popper open={popperOpen} anchorEl={popperAnchorEl} placement="bottom-end">
-        <Paper
-          square
-          style={{
-            height: `${imageHeight * 3}px`,
-            width: `${imageWidth * 3}px`
-          }}
-        >
-          <SVGInline
-            component="div"
-            svg={img_data}
-            style={{
-              height: `${imageHeight}px`,
-              width: `${imageWidth}px`,
-              transform: 'scale(3)',
-              transformOrigin: 'top left'
-            }}
-          />
-        </Paper>
-      </Popper>
-    );
 
     // componentDidMount
     useEffect(() => {
@@ -772,13 +751,20 @@ const MoleculeView = memo(
             container
             justify="center"
             className={classes.image}
-            onMouseEnter={openPopper}
-            onMouseLeave={closePopper}
+            onMouseEnter={openMoleculeTooltip}
+            onMouseLeave={closeMoleculeTooltip}
+            ref={moleculeImgRef}
           >
             <Grid item>{svg_image}</Grid>
           </Grid>
         </Grid>
-        {imagePopper}
+        <SvgTooltip
+          open={moleculeTooltipOpen}
+          anchorEl={moleculeImgRef.current}
+          imgData={img_data}
+          width={imageWidth}
+          height={imageHeight}
+        />
       </>
     );
   }
