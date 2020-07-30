@@ -355,7 +355,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         proteinLists: reloadLists(action.payload, 'proteinLists'),
         complexLists: reloadLists(action.payload, 'complexLists'),
         surfaceLists: reloadLists(action.payload, 'surfaceLists'),
-        inspirationLists: reloadLists(action.payload, 'inspirationLists')
+        inspirationLists: reloadLists(action.payload, 'inspirationLists'),
+
+        compoundsToBuyDatasetMap: reloadLists(action.payload, 'compoundsToBuyDatasetMap')
       };
 
       return Object.assign({}, state, lists);
