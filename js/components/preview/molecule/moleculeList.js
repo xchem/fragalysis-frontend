@@ -280,7 +280,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
   } else {
     // default sort is by site
-    joinedMoleculeLists.sort((a, b) => a.site - b.site);
+    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
   }
 
   const loadNextMolecules = () => {
