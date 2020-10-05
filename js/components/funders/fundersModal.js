@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     maxHeight: '100%'
   },
   customModal: {
-    width: '90%'
+    width: '80%'
   }
 }));
 
