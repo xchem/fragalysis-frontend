@@ -307,7 +307,6 @@ export const removeLigand = (stage, data) => dispatch => {
 
 /**
  * Turn on the complex of the first ligand of the site
- * Turn on every ligand of the site
  */
 export const initializeMolecules = (majorView, moleculeList) => dispatch => {
   if (moleculeList && majorView) {

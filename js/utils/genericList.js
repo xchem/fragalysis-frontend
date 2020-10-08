@@ -148,4 +148,12 @@ export const loadFromServer = ({
   return Promise.resolve();
 };
 
+export const loadAllMolsFromAllMolGroups = ({ url, mol_group, origList }) => {
+  return api({ url }).then(response => {
+    console.log(response);
+    origList[mol_group] = response.data.results;
+    return origList;
+  });
+};
+
 // END of functions from GenericList

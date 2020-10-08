@@ -79,6 +79,13 @@ export const setCachedMolLists = function(cached_mol_lists) {
   };
 };
 
+export const setAllMolLists = all_mol_lists => {
+  return {
+    type: constants.SET_ALL_MOL_LISTS,
+    all_mol_lists: all_mol_lists
+  };
+};
+
 export const setSavingState = function(savingState) {
   return {
     type: constants.SET_SAVING_STATE,

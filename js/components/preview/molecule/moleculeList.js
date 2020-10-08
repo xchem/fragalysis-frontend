@@ -17,7 +17,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
@@ -53,11 +53,11 @@ import { debounce } from 'lodash';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
-import { getUrl, loadFromServer } from '../../../utils/genericList';
+import { getUrl, loadFromServer, loadAllMolsFromAllMolGroups } from '../../../utils/genericList';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
-import { setCachedMolLists, setMoleculeList } from '../../../reducers/api/actions';
+import { setCachedMolLists, setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
 import { AlertModal } from '../../common/Modal/AlertModal';
 
@@ -248,6 +248,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
   const cached_mol_lists = useSelector(state => state.apiReducers.cached_mol_lists);
+  const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
+  const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
@@ -293,51 +295,62 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const wereMoleculesInitialized = useRef(false);
 
+  const loadAllMolecules = useCallback(() => {
+    if (
+      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
+      target_on &&
+      mol_group_list &&
+      mol_group_list.length > 0 &&
+      Object.keys(all_mol_lists).length <= 0
+    ) {
+      let newMolList = {};
+      mol_group_list.forEach(molGroup => {
+        let id = molGroup.id;
+        let url = getUrl({ list_type, target_on, mol_group_on: id });
+        loadAllMolsFromAllMolGroups({
+          url,
+          mol_group: id,
+          origList: newMolList
+        }).then(list => dispatch(setAllMolLists(list)));
+      });
+    }
+  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists]);
+
   useEffect(() => {
-    if (proteinsHasLoaded === true || proteinsHasLoaded === null) {
-      loadFromServer({
-        url: getUrl({ list_type, target_on, mol_group_on }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl.current,
-        list_type,
-        setObjectList: list => {
-          dispatch(setMoleculeList(list));
-        },
-        setCachedMolLists: list => {
-          dispatch(setCachedMolLists(list));
-        },
-        mol_group_on,
-        cached_mol_lists
-      })
-        .then(() => {
-          dispatch(initializeFilter());
-          if (
-            stage &&
-            cached_mol_lists &&
-            cached_mol_lists[mol_group_on] &&
-            hideProjects &&
-            target !== undefined &&
-            wereMoleculesInitialized.current === false
-          ) {
-            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
-            wereMoleculesInitialized.current = true;
-          }
-        })
-        .catch(error => {
-          throw new Error(error);
-        });
+    loadAllMolecules();
+  }, [proteinsHasLoaded, target_on, mol_group_list, loadAllMolecules]);
+
+  useEffect(() => {
+    if (
+      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
+      Object.keys(all_mol_lists).length > 0 &&
+      cached_mol_lists[mol_group_on] === undefined
+    ) {
+      dispatch(setMoleculeList({ ...all_mol_lists[mol_group_on] }));
+      dispatch(setCachedMolLists({ ...cached_mol_lists, [mol_group_on]: all_mol_lists[mol_group_on] }));
+      dispatch(initializeFilter());
+      if (
+        stage &&
+        cached_mol_lists &&
+        cached_mol_lists[mol_group_on] &&
+        hideProjects &&
+        target !== undefined &&
+        wereMoleculesInitialized.current === false
+      ) {
+        dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+        wereMoleculesInitialized.current = true;
+      }
     }
   }, [
-    list_type,
     mol_group_on,
     stage,
-    firstLoad,
     target_on,
     cached_mol_lists,
     dispatch,
     hideProjects,
     target,
-    proteinsHasLoaded
+    proteinsHasLoaded,
+    all_mol_lists
   ]);
 
   useEffect(() => {

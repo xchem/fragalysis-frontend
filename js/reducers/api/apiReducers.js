@@ -11,6 +11,7 @@ export const INITIAL_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
+  all_mol_lists: {},
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -41,6 +42,7 @@ export const RESET_TARGET_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
+  all_mol_lists: {},
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -106,10 +108,14 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         cached_mol_lists: action.cached_mol_lists
       });
 
+    case constants.SET_ALL_MOL_LISTS:
+      return { ...state, all_mol_lists: action.all_mol_lists };
+
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {
         pandda_event_list: action.pandda_event_list
       });
+
     case constants.SET_PANNDA_SITE_LIST:
       return Object.assign({}, state, {
         pandda_site_list: action.pandda_site_list

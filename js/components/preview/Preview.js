@@ -115,7 +115,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           dispatch(setMoleculeListIsLoading(false));
         });
     }
-  }, [customDatasets.length, dispatch]);
+  }, [customDatasets.length, dispatch, target_on]);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
