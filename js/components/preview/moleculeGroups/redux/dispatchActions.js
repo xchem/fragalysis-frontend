@@ -159,6 +159,7 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
       afterPush: data_list => dispatch(saveMoleculeGroupsToNglView(data_list, summaryView, projectId)),
       list_type,
       setObjectList: mol_group_list => {
+        mol_group_list.sort((a, b) => a.id - b.id);
         dispatch(setMolGroupList(mol_group_list));
       },
       cancel: onCancel

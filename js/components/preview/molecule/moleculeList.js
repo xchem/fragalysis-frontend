@@ -319,7 +319,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             target !== undefined &&
             wereMoleculesInitialized.current === false
           ) {
-            dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+            let moleculeList = cached_mol_lists[mol_group_on];
+            let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
+            dispatch(initializeMolecules(stage, moleculeList, firstId));
             wereMoleculesInitialized.current = true;
           }
         })
@@ -337,7 +339,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     dispatch,
     hideProjects,
     target,
-    proteinsHasLoaded
+    proteinsHasLoaded,
+    joinedMoleculeLists
   ]);
 
   useEffect(() => {
