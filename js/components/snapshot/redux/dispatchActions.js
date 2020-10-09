@@ -24,6 +24,7 @@ import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions
 import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
+import { reloadDatasetsReducer } from '../../datasets/redux/actions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -53,6 +54,7 @@ export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState)
 
   if (nglViewList.length > 0) {
     dispatch(reloadSelectionReducer(snapshotData.selectionReducers));
+    dispatch(reloadDatasetsReducer(snapshotData.datasetsReducers));
 
     nglViewList.forEach(nglView => {
       dispatch(reloadNglViewFromSnapshot(nglView.stage, nglView.id, snapshotData.nglReducers));
@@ -108,8 +110,8 @@ export const saveCurrentSnapshot = ({
 };
 
 export const createInitialSnapshot = (projectID, summaryView) => async (dispatch, getState) => {
-  const { apiReducers, nglReducers, selectionReducers, previewReducers } = getState();
-  const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
+  const { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers } = getState();
+  const data = { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers };
   const type = SnapshotType.INIT;
   const title = 'Initial Snapshot';
   const author = DJANGO_CONTEXT.pk || null;
@@ -179,8 +181,8 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   getState
 ) => {
   const state = getState();
-  const { apiReducers, nglReducers, selectionReducers, previewReducers } = state;
-  const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
+  const { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers } = state;
+  const data = { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers };
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
   const disableRedirect = state.snapshotReducers.disableRedirect;
 
@@ -282,8 +284,8 @@ export const createNewSnapshotWithoutStateModification = ({
   session_project
 }) => (dispatch, getState) => {
   const state = getState();
-  const { apiReducers, nglReducers, selectionReducers, previewReducers } = state;
-  const data = { apiReducers, nglReducers, selectionReducers, previewReducers };
+  const { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers } = state;
+  const data = { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers };
 
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
