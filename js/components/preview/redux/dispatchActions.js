@@ -8,6 +8,7 @@ import { createInitialSnapshot, reloadSession } from '../../snapshot/redux/dispa
 import { resetLoadedSnapshots, resetProjectsReducer } from '../../projects/redux/actions';
 import { resetSelectionState } from '../../../reducers/selection/actions';
 import { URLS } from '../../routes/constants';
+import { resetDatasetsState } from '../../datasets/redux/actions';
 // import { reloadMoleculeReducer } from '../molecule/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
@@ -108,6 +109,7 @@ export const unmountPreviewComponent = (stages = []) => dispatch => {
   dispatch(resetProjectsReducer());
 
   dispatch(resetSelectionState());
+  dispatch(resetDatasetsState());
 };
 
 export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
@@ -119,6 +121,7 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
 
   dispatch(resetLoadedSnapshots());
   dispatch(resetSelectionState());
+  dispatch(resetDatasetsState());
 };
 
 export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, history }) => (dispatch, getState) => {
