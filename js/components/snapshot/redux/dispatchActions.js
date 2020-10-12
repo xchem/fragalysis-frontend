@@ -26,16 +26,21 @@ import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from 
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
-  dispatch(setIsLoadingListOfSnapshots(true));
-  return api({ url: `${base_url}/api/snapshots/?session_project__isnull=False&author=${DJANGO_CONTEXT['pk']}` })
-    .then(response => {
-      if (response && response.data && response.data.results) {
-        dispatch(setListOfSnapshots(response.data.results));
-      }
-    })
-    .finally(() => {
-      dispatch(setIsLoadingListOfSnapshots(false));
-    });
+  const userID = DJANGO_CONTEXT['pk'] || null;
+  if (userID !== null) {
+    dispatch(setIsLoadingListOfSnapshots(true));
+    return api({ url: `${base_url}/api/snapshots/?session_project__isnull=False&author=${userID}` })
+      .then(response => {
+        if (response && response.data && response.data.results) {
+          dispatch(setListOfSnapshots(response.data.results));
+        }
+      })
+      .finally(() => {
+        dispatch(setIsLoadingListOfSnapshots(false));
+      });
+  } else {
+    return Promise.resolve();
+  }
 };
 
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
