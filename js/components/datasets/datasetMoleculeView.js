@@ -37,6 +37,7 @@ import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
 import { SvgTooltip } from '../common';
 
+
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -579,7 +580,6 @@ export const DatasetMoleculeView = memo(
             ))}
           </Grid>
         </Grid>*/}
-
             {/* Control Buttons A, L, C, V */}
             <Grid item>
               <Grid
