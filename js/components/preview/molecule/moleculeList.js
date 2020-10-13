@@ -337,56 +337,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         target !== undefined &&
         wereMoleculesInitialized.current === false
       ) {
-        dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
+        let moleculeList = cached_mol_lists[mol_group_on];
+        let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
+        dispatch(initializeMolecules(stage, moleculeList, firstId));
         wereMoleculesInitialized.current = true;
       }
-    if (proteinsHasLoaded === true || proteinsHasLoaded === null) {
-      loadFromServer({
-        url: getUrl({ list_type, target_on, mol_group_on }),
-        setOldUrl: url => setOldUrl(url),
-        old_url: oldUrl.current,
-        list_type,
-        setObjectList: list => {
-          dispatch(setMoleculeList(list));
-        },
-        setCachedMolLists: list => {
-          dispatch(setCachedMolLists(list));
-        },
-        mol_group_on,
-        cached_mol_lists
-      })
-        .then(() => {
-          dispatch(initializeFilter());
-          if (
-            stage &&
-            cached_mol_lists &&
-            cached_mol_lists[mol_group_on] &&
-            hideProjects &&
-            target !== undefined &&
-            wereMoleculesInitialized.current === false
-          ) {
-            let moleculeList = cached_mol_lists[mol_group_on];
-            let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
-            dispatch(initializeMolecules(stage, moleculeList, firstId));
-            wereMoleculesInitialized.current = true;
-          }
-        })
-        .catch(error => {
-          throw new Error(error);
-        });
     }
   }, [
+    list_type,
     mol_group_on,
     stage,
+    firstLoad,
     target_on,
     cached_mol_lists,
     dispatch,
     hideProjects,
     target,
     proteinsHasLoaded,
+    joinedMoleculeLists,
     all_mol_lists
-    proteinsHasLoaded,
-    joinedMoleculeLists
   ]);
 
   useEffect(() => {
