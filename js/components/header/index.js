@@ -115,6 +115,11 @@ export default memo(
       window.open('https://www.janssen.com/', '_blank');
     };
 
+    const openCovidMoonshot = () => {
+      // window.location.href = 'https://covid.postera.ai/covid';
+      window.open('https://covid.postera.ai/covid', '_blank');
+    };
+
     let authListItem;
 
     let username = null;
@@ -242,6 +247,14 @@ export default memo(
                     height="20"
                     className={classes.clickableImage}
                     onClick={openJanssen}
+                  />
+                </Grid>
+                <Grid item>
+                  <img
+                    src={require('../../img/covidMoonshotLogo.png')}
+                    height="20"
+                    className={classes.clickableImage}
+                    onClick={openCovidMoonshot}
                   />
                 </Grid>
                 <Grid item>

@@ -30,6 +30,8 @@ import {
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
+import { SvgTooltip } from '../../common';
+
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -266,6 +268,15 @@ const MoleculeView = memo(
       ],
       [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
     );
+
+    const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
+    const moleculeImgRef = useRef(null);
+    const openMoleculeTooltip = () => {
+      setMoleculeTooltipOpen(true);
+    };
+    const closeMoleculeTooltip = () => {
+      setMoleculeTooltipOpen(false);
+    };
 
     // componentDidMount
     useEffect(() => {
@@ -522,228 +533,240 @@ const MoleculeView = memo(
     let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
 
     return (
-      <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
-        {/* Site number */}
-        <Grid item container justify="space-between" direction="column" className={classes.site}>
-          <Grid item>
-            <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
-          </Grid>
-          <Grid item className={classes.rank}>
-            {index + 1}.
-          </Grid>
-        </Grid>
-        <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
-          {/* Title label */}
-          <Grid item xs={7}>
-            <Tooltip title={moleculeTitle} placement="bottom-start">
-              <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
-            </Tooltip>
-          </Grid>
-          {/* Control Buttons A, L, C, V */}
-          <Grid item xs={5}>
-            <Grid
-              container
-              direction="row"
-              justify="flex-start"
-              alignItems="center"
-              wrap="nowrap"
-              className={classes.contButtonsMargin}
-            >
-              <Tooltip title="centre on">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classes.myLocationButton}
-                    onClick={() => {
-                      dispatch(centerOnLigandByMoleculeID(stage, data?.id));
-                    }}
-                    disabled={disableUserInteraction || !isLigandOn}
-                  >
-                    <MyLocation className={classes.myLocation} />
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="all">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(
-                      classes.contColButton,
-                      {
-                        [classes.contColButtonSelected]: hasAllValuesOn
-                      },
-                      {
-                        [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                      }
-                    )}
-                    onClick={() => {
-                      // always deselect all if are selected only some of options
-                      selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
-
-                      onLigand(true);
-                      onProtein(true);
-                      onComplex(true);
-                    }}
-                    disabled={disableUserInteraction}
-                  >
-                    A
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="ligand">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isLigandOn
-                    })}
-                    onClick={() => onLigand()}
-                    disabled={disableUserInteraction}
-                  >
-                    L
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="sidechains">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isProteinOn
-                    })}
-                    onClick={() => onProtein()}
-                    disabled={disableUserInteraction}
-                  >
-                    P
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="interactions">
-                <Grid item>
-                  {/* C stands for contacts now */}
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isComplexOn
-                    })}
-                    onClick={() => onComplex()}
-                    disabled={disableUserInteraction}
-                  >
-                    C
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="surface">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isSurfaceOn
-                    })}
-                    onClick={() => onSurface()}
-                    disabled={disableUserInteraction}
-                  >
-                    S
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="electron density">
-                <Grid item>
-                  {/* TODO waiting for backend data */}
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isDensityOn
-                    })}
-                    onClick={() => onDensity()}
-                    disabled={true || disableUserInteraction}
-                  >
-                    D
-                  </Button>
-                </Grid>
-              </Tooltip>
-              <Tooltip title="vectors">
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isVectorOn
-                    })}
-                    onClick={() => onVector()}
-                    disabled={disableUserInteraction}
-                  >
-                    V
-                  </Button>
-                </Grid>
-              </Tooltip>
+      <>
+        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
+          {/* Site number */}
+          <Grid item container justify="space-between" direction="column" className={classes.site}>
+            <Grid item>
+              <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
+            </Grid>
+            <Grid item className={classes.rank}>
+              {index + 1}.
             </Grid>
           </Grid>
-          <Grid item xs={12}>
-            {/* Molecule properties */}
-            <Grid
-              item
-              container
-              justify="flex-start"
-              alignItems="flex-end"
-              direction="row"
-              wrap="nowrap"
-              className={classes.fullHeight}
-            >
-              {getCalculatedProps().map(item => (
-                <Tooltip title={item.name} key={item.name}>
-                  <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                    {item.name === moleculeProperty.mw && Math.round(item.value)}
-                    {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
-                    {item.name === moleculeProperty.tpsa && Math.round(item.value)}
-                    {item.name !== moleculeProperty.mw &&
-                      item.name !== moleculeProperty.logP &&
-                      item.name !== moleculeProperty.tpsa &&
-                      item.value}
+          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+            {/* Title label */}
+            <Grid item xs={7}>
+              <Tooltip title={moleculeTitle} placement="bottom-start">
+                <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
+              </Tooltip>
+            </Grid>
+            {/* Control Buttons A, L, C, V */}
+            <Grid item xs={5}>
+              <Grid
+                container
+                direction="row"
+                justify="flex-start"
+                alignItems="center"
+                wrap="nowrap"
+                className={classes.contButtonsMargin}
+              >
+                <Tooltip title="centre on">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classes.myLocationButton}
+                      onClick={() => {
+                        dispatch(centerOnLigandByMoleculeID(stage, data?.id));
+                      }}
+                      disabled={disableUserInteraction || !isLigandOn}
+                    >
+                      <MyLocation className={classes.myLocation} />
+                    </Button>
                   </Grid>
                 </Tooltip>
-              ))}
+                <Tooltip title="all">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(
+                        classes.contColButton,
+                        {
+                          [classes.contColButtonSelected]: hasAllValuesOn
+                        },
+                        {
+                          [classes.contColButtonHalfSelected]: hasSomeValuesOn
+                        }
+                      )}
+                      onClick={() => {
+                        // always deselect all if are selected only some of options
+                        selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+
+                        onLigand(true);
+                        onProtein(true);
+                        onComplex(true);
+                      }}
+                      disabled={disableUserInteraction}
+                    >
+                      A
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="ligand">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isLigandOn
+                      })}
+                      onClick={() => onLigand()}
+                      disabled={disableUserInteraction}
+                    >
+                      L
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="sidechains">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isProteinOn
+                      })}
+                      onClick={() => onProtein()}
+                      disabled={disableUserInteraction}
+                    >
+                      P
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="interactions">
+                  <Grid item>
+                    {/* C stands for contacts now */}
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isComplexOn
+                      })}
+                      onClick={() => onComplex()}
+                      disabled={disableUserInteraction}
+                    >
+                      C
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="surface">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isSurfaceOn
+                      })}
+                      onClick={() => onSurface()}
+                      disabled={disableUserInteraction}
+                    >
+                      S
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="electron density">
+                  <Grid item>
+                    {/* TODO waiting for backend data */}
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isDensityOn
+                      })}
+                      onClick={() => onDensity()}
+                      disabled={true || disableUserInteraction}
+                    >
+                      D
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="vectors">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isVectorOn
+                      })}
+                      onClick={() => onVector()}
+                      disabled={disableUserInteraction}
+                    >
+                      V
+                    </Button>
+                  </Grid>
+                </Tooltip>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              {/* Molecule properties */}
+              <Grid
+                item
+                container
+                justify="flex-start"
+                alignItems="flex-end"
+                direction="row"
+                wrap="nowrap"
+                className={classes.fullHeight}
+              >
+                {getCalculatedProps().map(item => (
+                  <Tooltip title={item.name} key={item.name}>
+                    <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                      {item.name === moleculeProperty.mw && Math.round(item.value)}
+                      {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
+                      {item.name === moleculeProperty.tpsa && Math.round(item.value)}
+                      {item.name !== moleculeProperty.mw &&
+                        item.name !== moleculeProperty.logP &&
+                        item.name !== moleculeProperty.tpsa &&
+                        item.value}
+                    </Grid>
+                  </Tooltip>
+                ))}
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-        {/* Up/Down arrows */}
-        <Grid item>
-          <Grid container direction="column" justify="space-between" className={classes.arrows}>
-            <Grid item>
-              <IconButton
-                color="primary"
-                size="small"
-                disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
-                onClick={handleClickOnUpArrow}
-              >
-                <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton
-                color="primary"
-                size="small"
-                disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
-                onClick={handleClickOnDownArrow}
-              >
-                <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-              </IconButton>
+          {/* Up/Down arrows */}
+          <Grid item>
+            <Grid container direction="column" justify="space-between" className={classes.arrows}>
+              <Grid item>
+                <IconButton
+                  color="primary"
+                  size="small"
+                  disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
+                  onClick={handleClickOnUpArrow}
+                >
+                  <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  color="primary"
+                  size="small"
+                  disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
+                  onClick={handleClickOnDownArrow}
+                >
+                  <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+                </IconButton>
+              </Grid>
             </Grid>
           </Grid>
+          {/* Image */}
+          <Grid
+            item
+            style={{
+              ...current_style,
+              width: imageWidth
+            }}
+            container
+            justify="center"
+            className={classes.image}
+            onMouseEnter={openMoleculeTooltip}
+            onMouseLeave={closeMoleculeTooltip}
+            ref={moleculeImgRef}
+          >
+            <Grid item>{svg_image}</Grid>
+          </Grid>
         </Grid>
-        {/* Image */}
-        <Grid
-          item
-          style={{
-            ...current_style,
-            width: imageWidth
-          }}
-          container
-          justify="center"
-          className={classes.image}
-        >
-          <Grid item>{svg_image}</Grid>
-        </Grid>
-      </Grid>
+        <SvgTooltip
+          open={moleculeTooltipOpen}
+          anchorEl={moleculeImgRef.current}
+          imgData={img_data}
+          width={imageWidth}
+          height={imageHeight}
+        />
+      </>
     );
   }
 );
