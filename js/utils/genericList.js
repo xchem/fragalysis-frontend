@@ -2,6 +2,7 @@ import * as listTypes from '../constants/listTypes';
 import { api } from './api';
 import { DJANGO_CONTEXT } from './djangoContext';
 import { OBJECT_TYPE } from '../components/nglView/constants';
+import { CONSTANTS } from '../constants/constants';
 
 // START of functions from GenericList
 export const getUrl = ({
@@ -126,8 +127,16 @@ export const loadFromServer = ({
         // if we are handling molecule list and molecule data for mol_group are fetched
         if (list_type === listTypes.MOLECULE && mol_group_on && setCachedMolLists) {
           // update cached mol lists
+          let moleculeLists = [];
+          let data = response.data.results;
+          let cachedDataArray = (data && data) || [];
+          cachedDataArray.forEach(r => {
+            let result = getNumberFromCode(r.protein_code);
+            moleculeLists.push(Object.assign({ number: result.number }, r));
+          });
+
           const newMolLists = Object.assign({}, cached_mol_lists, {
-            [mol_group_on]: response.data.results
+            [mol_group_on]: moleculeLists
           });
           setCachedMolLists(newMolLists);
         }
@@ -155,5 +164,38 @@ export const loadAllMolsFromAllMolGroups = ({ url, mol_group, origList }) => {
     return origList;
   });
 };
+
+export function getNumberFromCode(inputCode) {
+  let number = 0;
+  let subNumber = 0;
+
+  let code = inputCode.toLowerCase();
+  let codeAfterIdentifier = code.split(CONSTANTS.MAIN_IDENTIFIER)[1];
+
+  if (codeAfterIdentifier != null) {
+    let startingNumber = (codeAfterIdentifier.match(/\d+/) || [0])
+      .map(function(v) {
+        return +v;
+      })
+      .shift();
+
+    number = startingNumber;
+
+    if (codeAfterIdentifier.includes(CONSTANTS.SUB_IDENTIFIER)) {
+      let codeAfterSubIdentifier = codeAfterIdentifier.split(CONSTANTS.sub_identifier)[1];
+      if (codeAfterSubIdentifier != null) {
+        let startingSubNumber = (codeAfterSubIdentifier.match(/\d+/) || [0])
+          .map(function(v) {
+            return +v;
+          })
+          .shift();
+        subNumber = startingSubNumber;
+      }
+    }
+  }
+
+  let numberWithSub = +(number + '.' + subNumber);
+  return { number: numberWithSub };
+}
 
 // END of functions from GenericList

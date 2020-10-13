@@ -282,7 +282,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
   } else {
     // default sort is by site
-    joinedMoleculeLists.sort((a, b) => a.site - b.site);
+    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
   }
 
   const loadNextMolecules = () => {
@@ -340,6 +340,40 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         dispatch(initializeMolecules(stage, cached_mol_lists[mol_group_on]));
         wereMoleculesInitialized.current = true;
       }
+    if (proteinsHasLoaded === true || proteinsHasLoaded === null) {
+      loadFromServer({
+        url: getUrl({ list_type, target_on, mol_group_on }),
+        setOldUrl: url => setOldUrl(url),
+        old_url: oldUrl.current,
+        list_type,
+        setObjectList: list => {
+          dispatch(setMoleculeList(list));
+        },
+        setCachedMolLists: list => {
+          dispatch(setCachedMolLists(list));
+        },
+        mol_group_on,
+        cached_mol_lists
+      })
+        .then(() => {
+          dispatch(initializeFilter());
+          if (
+            stage &&
+            cached_mol_lists &&
+            cached_mol_lists[mol_group_on] &&
+            hideProjects &&
+            target !== undefined &&
+            wereMoleculesInitialized.current === false
+          ) {
+            let moleculeList = cached_mol_lists[mol_group_on];
+            let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
+            dispatch(initializeMolecules(stage, moleculeList, firstId));
+            wereMoleculesInitialized.current = true;
+          }
+        })
+        .catch(error => {
+          throw new Error(error);
+        });
     }
   }, [
     mol_group_on,
@@ -351,6 +385,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     target,
     proteinsHasLoaded,
     all_mol_lists
+    proteinsHasLoaded,
+    joinedMoleculeLists
   ]);
 
   useEffect(() => {
