@@ -321,23 +321,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   }, [proteinsHasLoaded, target_on, mol_group_list, loadAllMolecules]);
 
   useEffect(() => {
+    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
     if (
       (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-      Object.keys(all_mol_lists).length > 0 &&
+      allMolsGroupsCount > 0 &&
       cached_mol_lists[mol_group_on] === undefined
     ) {
-      dispatch(setMoleculeList({ ...all_mol_lists[mol_group_on] }));
-      dispatch(setCachedMolLists({ ...cached_mol_lists, [mol_group_on]: all_mol_lists[mol_group_on] }));
+      // loadAllMolecules();
+      dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
+      dispatch(setCachedMolLists({ ...(cached_mol_lists || {}), [mol_group_on]: all_mol_lists[mol_group_on] }));
       dispatch(initializeFilter());
       if (
         stage &&
-        cached_mol_lists &&
-        cached_mol_lists[mol_group_on] &&
+        all_mol_lists &&
+        all_mol_lists[mol_group_on] &&
         hideProjects &&
         target !== undefined &&
         wereMoleculesInitialized.current === false
       ) {
-        let moleculeList = cached_mol_lists[mol_group_on];
+        let moleculeList = all_mol_lists[mol_group_on];
         let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
         dispatch(initializeMolecules(stage, moleculeList, firstId));
         wereMoleculesInitialized.current = true;
@@ -355,7 +357,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     target,
     proteinsHasLoaded,
     joinedMoleculeLists,
-    all_mol_lists
+    all_mol_lists,
+    loadAllMolecules
   ]);
 
   useEffect(() => {

@@ -160,7 +160,11 @@ export const loadFromServer = ({
 export const loadAllMolsFromAllMolGroups = ({ url, mol_group, origList }) => {
   return api({ url }).then(response => {
     console.log(response);
-    origList[mol_group] = response.data.results;
+    origList[mol_group] = [];
+    response.data.results.forEach(r => {
+      let result = getNumberFromCode(r.protein_code);
+      origList[mol_group].push({...r, number: result.number });
+    });
     return origList;
   });
 };
