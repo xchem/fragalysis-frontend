@@ -2,7 +2,6 @@ const prefix = 'PREVIEW_MOLECULE_';
 
 export const constants = {
   SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
-
   RELOAD_REDUCER: prefix + 'RELOAD_REDUCER'
 };
 
@@ -14,10 +13,17 @@ export const MOL_ATTR = {
     color: '#72e5be',
     filter: false
   },
-  HID: {
+  /*  HID: {
     key: 'id',
     name: 'Hit ID (HID)',
     isFloat: false,
+    color: '#daa520',
+    filter: false
+  }, */
+  HID: {
+    key: 'number',
+    name: 'Hit ID (HID)',
+    isFloat: true,
     color: '#daa520',
     filter: false
   },

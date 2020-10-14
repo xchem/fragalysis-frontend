@@ -18,11 +18,15 @@ const useStyles = makeStyles(theme => ({
     display: 'block',
     maxWidth: '72%',
     maxHeight: '100%'
+  },
+  customModal: {
+    width: '80%'
   }
 }));
 
 export const FundersModal = memo(({ openModal, onModalClose }) => {
   const classes = useStyles();
+  const columnLayout = 3;
 
   if (openModal === undefined) {
     console.log('undefined openModal');
@@ -87,71 +91,81 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
   const openMolsoft = () => {
     openLink('https://www.molsoft.com/');
   };
+  const openCovidMoonshot = () => {
+    openLink('https://covid.postera.ai/covid');
+  };
 
   return (
-    <Modal open={openModal} onClose={() => onModalClose()}>
+    <Modal otherClasses={classes.customModal} open={openModal} onClose={() => onModalClose()}>
       <Typography variant="h5">Funded by:</Typography>
-      <Grid container justify="center" alignItems="center">
-        <Grid item xs={4} md={4} className={classes.image}>
+      <Grid container justify="flex-start" alignItems="center">
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/xchemLogo.png')} className={classes.img} onClick={() => openXchem()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/dlsLogo.png')} className={classes.img} onClick={() => openDls()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/sgcLogo.png')} className={classes.img} onClick={() => openSgc()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/mrcLogo.png')} className={classes.img} onClick={() => openMrc()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/wtLogo.png')} className={classes.img} onClick={() => openWt()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/inextLogo.png')} className={classes.img} onClick={() => openInext()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/jffLogo.jpg')} className={classes.img} onClick={() => openJff()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/ultraddLogo.png')} className={classes.img} onClick={() => openUltradd()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/nfLogo.png')} className={classes.img} onClick={() => openNf()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/imiLogo.png')} className={classes.img} onClick={() => openImi()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/horizon2020Logo.jpg')} className={classes.img} onClick={() => openHorizon()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/janssenLogo.png')} className={classes.img} onClick={() => openJanssen()} />
         </Grid>
       </Grid>
       <Typography variant="h5">Contributors and collaborators:</Typography>
-      <Grid container justify="center" alignItems="center">
-        <Grid item xs={4} md={4} className={classes.image}>
+      <Grid container justify="flex-start" alignItems="center">
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/m2msLogo.png')} className={classes.img} onClick={() => openM2ms()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img
             src={require('../../img/informaticsLogo.png')}
             className={classes.img}
             onClick={() => openInformatics()}
           />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/acelleraLogo.png')} className={classes.img} onClick={() => openAcellera()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/oxrseLogo.png')} className={classes.img} onClick={() => openOxrse()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/molsoftLogo.png')} className={classes.img} onClick={() => openMolsoft()} />
         </Grid>
-        <Grid item xs={4} md={4} className={classes.image}>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/janssenLogo.png')} className={classes.img} onClick={() => openJanssen()} />
+        </Grid>
+        <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
+          <img
+            src={require('../../img/covidMoonshotLogo.png')}
+            className={classes.img}
+            onClick={() => openCovidMoonshot()}
+          />
         </Grid>
       </Grid>
     </Modal>
