@@ -45,6 +45,8 @@ import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
+import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
+import { selectJoinedMoleculeList } from '../preview/molecule/redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -226,6 +228,9 @@ export const DatasetMoleculeList = memo(
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
+    const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
+    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
+
     const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
@@ -278,6 +283,11 @@ export const DatasetMoleculeList = memo(
       protein: removeDatasetHitProtein,
       complex: removeDatasetComplex,
       surface: removeDatasetSurface
+    };
+
+    const removeOfAllSelectedTypesOfInspirations = () => {
+      var molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
+      dispatch(hideAllSelectedMolecules(stage, molecules));
     };
 
     const removeOfAllSelectedTypes = () => {
@@ -456,7 +466,7 @@ export const DatasetMoleculeList = memo(
                             <Tooltip
                               title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
                                 filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                                }`}
+                              }`}
                               placement="top"
                             >
                               <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -610,6 +620,7 @@ export const DatasetMoleculeList = memo(
                           previousItemData={index > 0 && array[index - 1]}
                           nextItemData={index < array?.length && array[index + 1]}
                           removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                          removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
                         />
                       ))}
                   </InfiniteScroll>

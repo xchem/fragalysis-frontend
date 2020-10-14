@@ -26,6 +26,7 @@ export const selectJoinedMoleculeList = createSelector(
         cachedDataArray.forEach(r => joinedMoleculeLists.push(Object.assign({ site: site }, r)));
       });
     }
+
     return joinedMoleculeLists;
   }
 );
