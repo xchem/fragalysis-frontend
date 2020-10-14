@@ -49,7 +49,8 @@ import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
 import { SvgTooltip } from '../common';
 import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
-
+import { OBJECT_TYPE } from '../nglView/constants';
+import { getRepresentationsByType } from '../nglView/generatingObjects';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -289,6 +290,7 @@ export const DatasetMoleculeView = memo(
     const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
 
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
 
     const [image, setImage] = useState(img_data_init);
 
@@ -541,19 +543,24 @@ export const DatasetMoleculeView = memo(
           molecules.forEach(molecule => {
             if (molecule) {
               if (isAnyInspirationLigandOn) {
-                dispatch(addLigand(stage, molecule, colourToggle));
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
+                dispatch(addLigand(stage, molecule, colourToggle, false, representations));
               }
               if (isAnyInspirationProteinOn) {
-                dispatch(addHitProtein(stage, molecule, colourToggle));
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
+                dispatch(addHitProtein(stage, molecule, colourToggle, representations));
               }
               if (isAnyInspirationComplexOn) {
-                dispatch(addComplex(stage, molecule, colourToggle));
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
+                dispatch(addComplex(stage, molecule, colourToggle, representations));
               }
               if (isAnyInspirationSurfaceOn) {
-                dispatch(addSurface(stage, molecule, colourToggle));
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
+                dispatch(addSurface(stage, molecule, colourToggle, representations));
               }
               if (isAnyInspirationDensityOn) {
-                dispatch(addDensity(stage, molecule, colourToggle));
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
+                dispatch(addDensity(stage, molecule, colourToggle, representations));
               }
               if (isAnyInspirationVectorOn) {
                 dispatch(addVector(stage, molecule, colourToggle));
@@ -567,16 +574,20 @@ export const DatasetMoleculeView = memo(
     const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
       if (newItemData) {
         if (isLigandOn) {
-          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND, datasetID);
+          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isProteinOn) {
-          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.PROTEIN, datasetID);
+          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isComplexOn) {
-          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX, datasetID);
+          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isSurfaceOn) {
-          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE, datasetID);
+          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
       }
     };
@@ -587,9 +598,9 @@ export const DatasetMoleculeView = memo(
 
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
-      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
 
       dispatch(loadInspirationMoleculesDataList(nextItem.computed_inspirations)).then(() => {
+        moveSelectedMoleculeSettings(nextItem, nextDatasetID);
         dispatch(
           moveSelectedMoleculeInspirationsSettings(
             nextItem,
@@ -612,9 +623,9 @@ export const DatasetMoleculeView = memo(
         (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
       const previousDatasetID =
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
-      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
 
       dispatch(loadInspirationMoleculesDataList(previousItem.computed_inspirations)).then(() => {
+        moveSelectedMoleculeSettings(previousItem, previousDatasetID);
         dispatch(
           moveSelectedMoleculeInspirationsSettings(
             previousItem,

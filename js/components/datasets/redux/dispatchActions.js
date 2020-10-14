@@ -50,7 +50,7 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
 
-export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetHitProtein = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign(
@@ -58,6 +58,7 @@ export const addDatasetHitProtein = (stage, data, colourToggle, datasetID) => di
         generateHitProteinObject(data, colourToggle, base_url, datasetID)
       ),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -80,7 +81,7 @@ export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) =>
   dispatch(removeFromProteinList(datasetID, generateMoleculeId(data)));
 };
 
-export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetComplex = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign(
@@ -88,6 +89,7 @@ export const addDatasetComplex = (stage, data, colourToggle, datasetID) => dispa
         generateComplexObject(data, colourToggle, base_url, datasetID)
       ),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -107,7 +109,7 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => di
   dispatch(removeFromComplexList(datasetID, generateMoleculeId(data)));
 };
 
-export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetSurface = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign(
@@ -115,6 +117,7 @@ export const addDatasetSurface = (stage, data, colourToggle, datasetID) => dispa
         generateSurfaceObject(data, colourToggle, base_url, datasetID)
       ),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -134,12 +137,13 @@ export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => di
   dispatch(removeFromSurfaceList(datasetID, generateMoleculeId(data)));
 };
 
-export const addDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
+export const addDatasetLigand = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle, datasetID)),
       stage,
+      previousRepresentations: representations,
       markAsRightSideLigand: true
     })
   ).finally(() => {

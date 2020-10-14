@@ -286,7 +286,7 @@ export const DatasetMoleculeList = memo(
     };
 
     const removeOfAllSelectedTypesOfInspirations = () => {
-      var molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
+      var molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList]; // TODO
       dispatch(hideAllSelectedMolecules(stage, molecules));
     };
 
