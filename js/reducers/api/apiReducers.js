@@ -35,7 +35,8 @@ export const INITIAL_STATE = {
   sessionId: undefined,
   sessionIdList: [],
   sessionTitle: undefined,
-  user_id: undefined
+  user_id: undefined,
+  direct_access: {}
 };
 
 export const RESET_TARGET_STATE = {
@@ -66,7 +67,8 @@ export const RESET_TARGET_STATE = {
   sessionId: undefined,
   sessionIdList: [],
   sessionTitle: undefined,
-  user_id: undefined
+  user_id: undefined,
+  direct_access: {}
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -166,6 +168,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         sessionId: action.sessionId
       });
 
+    case constants.SET_DIRECT_ACCESS:
+      return {...state, direct_access: action.direct_access};
+
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];
       for (var key in action.sessionIdList) {
@@ -231,7 +236,8 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         pandda_site_on: action.pandda_site_on,
         pandda_event_list: action.pandda_event_list,
         pandda_site_list: action.pandda_site_list,
-        latestSession: action.latestSession
+        latestSession: action.latestSession,
+        direct_access: action.direct_access
       });
 
     case constants.RESET_TARGET_STATE:

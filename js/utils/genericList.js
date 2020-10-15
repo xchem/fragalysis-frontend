@@ -108,7 +108,6 @@ export const loadFromServer = ({
   setOldUrl,
   old_url,
   mol_group_on,
-  cached_mol_lists,
   setObjectList,
   setCachedMolLists,
   list_type,
@@ -134,11 +133,6 @@ export const loadFromServer = ({
             let result = getNumberFromCode(r.protein_code);
             moleculeLists.push(Object.assign({ number: result.number }, r));
           });
-
-          const newMolLists = Object.assign({}, cached_mol_lists, {
-            [mol_group_on]: moleculeLists
-          });
-          setCachedMolLists(newMolLists);
         }
 
         // TODO: Do we need to fetch all or wait for click on molecule group?
@@ -157,17 +151,42 @@ export const loadFromServer = ({
   return Promise.resolve();
 };
 
-export const loadAllMolsFromAllMolGroups = ({ url, mol_group, origList }) => {
+// export const loadAllMolsFromMolGroup = ({ url, mol_group, origList }) => {
+//   return api({ url }).then(response => {
+//     origList[mol_group] = [];
+//     response.data.results.forEach(r => {
+//       let result = getNumberFromCode(r.protein_code);
+//       origList[mol_group].push({...r, number: result.number });
+//     });
+//     return origList;
+//   });
+// };
+
+export const loadAllMolsFromMolGroup = ({ url, mol_group }) => {
   return api({ url }).then(response => {
-    console.log(response);
-    origList[mol_group] = [];
+    let list = [];
     response.data.results.forEach(r => {
       let result = getNumberFromCode(r.protein_code);
-      origList[mol_group].push({...r, number: result.number });
+      list.push({...r, number: result.number });
     });
-    return origList;
+    return {mol_group: mol_group, molecules: list};
   });
 };
+
+// export const loadAllMolsForAllMolGroups = (list_type, mol_group_list, target_on) => {
+//   let allMols = {};
+//   for (let i = 0; i < mol_group_list.length; i++) {
+//     let molGroup = mol_group_list[i];
+//     let url = getUrl({ list_type, target_on, mol_group_on: molGroup.id });
+//     api({ url }).then(response => {
+//       allMols[molGroup.id] = [];
+//       response.data.results.forEach(r => {
+//         let result = getNumberFromCode(r.protein_code);
+//         allMols[molGroup.id].push({...r, number: result.number });
+//       });
+//     });
+//   }
+// };  
 
 export function getNumberFromCode(inputCode) {
   let number = 0;

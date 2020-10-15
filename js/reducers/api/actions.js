@@ -156,6 +156,13 @@ export const setUuid = function(uuid) {
   };
 };
 
+export const setDirectAccess = (directAccessParams) => {
+  return {
+    type: constants.SET_DIRECT_ACCESS,
+    direct_access: directAccessParams
+  };
+};
+
 export const reloadApiState = function(apiReducers) {
   const cachedMolList = apiReducers.cached_mol_lists;
   let fixedCachedMolList = {};

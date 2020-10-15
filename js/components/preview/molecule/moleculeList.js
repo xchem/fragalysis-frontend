@@ -18,7 +18,7 @@ import {
   ButtonGroup
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -44,7 +44,8 @@ import {
   addLigand,
   removeLigand,
   hideAllSelectedMolecules,
-  initializeMolecules
+  initializeMolecules,
+  applyDirectSelection
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
@@ -53,13 +54,14 @@ import { debounce } from 'lodash';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
-import { getUrl, loadFromServer, loadAllMolsFromAllMolGroups } from '../../../utils/genericList';
+import { getUrl, loadAllMolsFromMolGroup } from '../../../utils/genericList';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
-import { setCachedMolLists, setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
+import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
 import { AlertModal } from '../../common/Modal/AlertModal';
+import {selectMoleculeGroup} from '../moleculeGroups/redux/dispatchActions'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -217,7 +219,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
-  const target = match && match.params && match.params.target;
+  let target = match && match.params && match.params.target;
 
   const [nextXMolecules, setNextXMolecules] = useState(0);
   const moleculesPerPage = 5;
@@ -247,10 +249,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
-  const cached_mol_lists = useSelector(state => state.apiReducers.cached_mol_lists);
   const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
-
+  const directDisplay = useSelector(state => state.apiReducers.direct_access);
+  const mol_group_selection = useSelector(state => state.selectionReducers.mol_group_selection);
+  const molecule_list = useSelector(state => state.apiReducers.molecule_list);
+  
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
@@ -263,6 +267,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const filterRef = useRef();
 
   const disableUserInteraction = useDisableUserInteraction();
+
+  if (directDisplay.target) {
+    target = directDisplay.target;
+  }
 
   // TODO Reset Infinity scroll
   /*useEffect(() => {
@@ -295,6 +303,28 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const wereMoleculesInitialized = useRef(false);
 
+  // const loadAllMolecules = useCallback(() => {
+  //   if (
+  //     (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
+  //     target_on &&
+  //     mol_group_list &&
+  //     mol_group_list.length > 0 &&
+  //     Object.keys(all_mol_lists).length <= 0
+  //   ) {
+  //     let newMolList = {};
+  //     mol_group_list.forEach(molGroup => {
+  //       let id = molGroup.id;
+  //       let url = getUrl({ list_type, target_on, mol_group_on: id });
+  //       loadAllMolsFromMolGroup({
+  //         url,
+  //         mol_group: id,
+  //         origList: newMolList
+  //       }).then(list => dispatch(setAllMolLists(list)))
+  //       // .then(dispatch(applyDirectSelection(stage, getMolGroupNameToId)));
+  //     });//.then(dispatch(setAllMolLists(newMolList)));
+  //   }
+  // }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists]);
+
   const loadAllMolecules = useCallback(() => {
     if (
       (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
@@ -303,16 +333,24 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       mol_group_list.length > 0 &&
       Object.keys(all_mol_lists).length <= 0
     ) {
-      let newMolList = {};
+      // let newMolList = {};
+      let promises = [];
       mol_group_list.forEach(molGroup => {
         let id = molGroup.id;
         let url = getUrl({ list_type, target_on, mol_group_on: id });
-        loadAllMolsFromAllMolGroups({
+        promises.push(loadAllMolsFromMolGroup({
           url,
-          mol_group: id,
-          origList: newMolList
-        }).then(list => dispatch(setAllMolLists(list)));
+          mol_group: id/*,
+          origList: newMolList*/
+        }))
       });
+      Promise.all(promises).then((results) => {
+        let listToSet = {};
+        results.forEach(molResult => {
+          listToSet[molResult.mol_group] = molResult.molecules;
+        });
+        dispatch(setAllMolLists(listToSet))
+      }).catch((err) => console.log(err));
     }
   }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists]);
 
@@ -320,17 +358,30 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     loadAllMolecules();
   }, [proteinsHasLoaded, target_on, mol_group_list, loadAllMolecules]);
 
+  const getMolGroupNameToId = useCallback(() => {
+    const molGroupMap = {};
+    if (mol_group_list && mol_group_list.length > 0) {
+      mol_group_list.forEach(mg => {
+        molGroupMap[mg.description] = mg.id;
+      });
+    return molGroupMap;
+    }
+  }, [mol_group_list]);
+
   useEffect(() => {
     const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
     if (
       (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-      allMolsGroupsCount > 0 &&
-      cached_mol_lists[mol_group_on] === undefined
+      allMolsGroupsCount > 0
     ) {
       // loadAllMolecules();
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
-      dispatch(setCachedMolLists({ ...(cached_mol_lists || {}), [mol_group_on]: all_mol_lists[mol_group_on] }));
       dispatch(initializeFilter());
+      if (directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
+        dispatch(applyDirectSelection(stage/*, getMolGroupNameToId*/));
+        wereMoleculesInitialized.current = true;
+      }
+      // dispatch(applyDirectSelection(stage, getMolGroupNameToId));
       if (
         stage &&
         all_mol_lists &&
@@ -351,14 +402,15 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     stage,
     firstLoad,
     target_on,
-    cached_mol_lists,
     dispatch,
     hideProjects,
     target,
     proteinsHasLoaded,
     joinedMoleculeLists,
     all_mol_lists,
-    loadAllMolecules
+    loadAllMolecules,
+    getMolGroupNameToId,
+    directDisplay
   ]);
 
   useEffect(() => {
@@ -605,7 +657,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             open={sortDialogOpen}
             anchorEl={sortDialogAnchorEl}
             molGroupSelection={object_selection}
-            cachedMolList={cached_mol_lists}
+            cachedMolList={all_mol_lists}
             filter={filter}
             setSortDialogAnchorEl={setSortDialogAnchorEl}
           />
