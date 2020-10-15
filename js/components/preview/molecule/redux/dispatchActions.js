@@ -410,7 +410,7 @@ export const applyDirectSelection = (stage/*, getMolGroupNameToId*/) => (dispatc
           let mol = molList[molIndex];
           if (mol.protein_code.includes(m.name) || mol.protein_code.includes(m.name.toLowerCase())) {
             let molGroupId = groupId;
-            if (!mol_group_selection.includes(molGroupId)) {
+            if (!mol_group_selection.includes(parseInt(molGroupId))) {
               let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));
               dispatch(selectMoleculeGroup(molGroup, stage));
             }
