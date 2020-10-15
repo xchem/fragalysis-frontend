@@ -58,7 +58,6 @@ import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setCachedMolLists, setMoleculeList } from '../../../reducers/api/actions';
-import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
 import { AlertModal } from '../../common/Modal/AlertModal';
 
 const useStyles = makeStyles(theme => ({
@@ -292,6 +291,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
   const wereMoleculesInitialized = useRef(false);
+  const firstInitializationMolecule = useRef(null);
+
+  let first = joinedMoleculeLists && joinedMoleculeLists[0];
+  if (wereMoleculesInitialized.current === false && first) {
+    firstInitializationMolecule.current = first;
+  }
 
   useEffect(() => {
     if (proteinsHasLoaded === true || proteinsHasLoaded === null) {
@@ -320,8 +325,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             wereMoleculesInitialized.current === false
           ) {
             let moleculeList = cached_mol_lists[mol_group_on];
-            let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
-            dispatch(initializeMolecules(stage, moleculeList, firstId));
+            dispatch(initializeMolecules(stage, moleculeList, firstInitializationMolecule.current));
             wereMoleculesInitialized.current = true;
           }
         })
@@ -339,8 +343,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     dispatch,
     hideProjects,
     target,
-    proteinsHasLoaded,
-    joinedMoleculeLists
+    proteinsHasLoaded
   ]);
 
   useEffect(() => {

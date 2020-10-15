@@ -309,9 +309,9 @@ export const removeLigand = (stage, data) => dispatch => {
  * Turn on the complex of the first ligand of the site
  * Turn on every ligand of the site
  */
-export const initializeMolecules = (majorView, moleculeList, firstId) => dispatch => {
+export const initializeMolecules = (majorView, moleculeList, first) => dispatch => {
   if (moleculeList && majorView) {
-    const firstMolecule = moleculeList.find(m => m.id === firstId) || moleculeList[0];
+    const firstMolecule = first || moleculeList[0];
     if (firstMolecule) {
       dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
       dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true));
