@@ -48,7 +48,7 @@ import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
 import { SvgTooltip } from '../common';
-import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
+import { loadInspirationMoleculesDataList, clearAllInspirationsOfDataset } from './redux/dispatchActions';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { getRepresentationsByType } from '../nglView/generatingObjects';
 
@@ -599,6 +599,7 @@ export const DatasetMoleculeView = memo(
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
 
+      dispatch(clearAllInspirationsOfDataset());
       dispatch(loadInspirationMoleculesDataList(nextItem.computed_inspirations)).then(() => {
         moveSelectedMoleculeSettings(nextItem, nextDatasetID);
         dispatch(
@@ -624,6 +625,7 @@ export const DatasetMoleculeView = memo(
       const previousDatasetID =
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
 
+      dispatch(clearAllInspirationsOfDataset());
       dispatch(loadInspirationMoleculesDataList(previousItem.computed_inspirations)).then(() => {
         moveSelectedMoleculeSettings(previousItem, previousDatasetID);
         dispatch(

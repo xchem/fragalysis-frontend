@@ -33,3 +33,24 @@ export const selectJoinedMoleculeList = createSelector(
     return joinedMoleculeLists;
   }
 );
+
+export const getMoleculeList = createSelector(
+  getCachedMoleculeLists,
+  getMoleculeGroupLists,
+  (cached_mol_lists, mol_group_list) => {
+    let cachedDataArray = [];
+    if (mol_group_list) {
+      mol_group_list.forEach(obj => {
+        const cachedData = cached_mol_lists[obj.id];
+
+        if (cachedData && Array.isArray(cachedData)) {
+          cachedDataArray.push(...cachedData);
+        } else if (cachedData && cachedData.results && Array.isArray(cachedData.results)) {
+          cachedDataArray.push(...cachedData.results);
+        }
+      });
+    }
+
+    return cachedDataArray;
+  }
+);

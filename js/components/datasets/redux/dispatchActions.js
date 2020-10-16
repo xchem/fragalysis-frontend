@@ -16,7 +16,9 @@ import {
   setFilterProperties,
   setIsLoadingInspirationListOfMolecules,
   appendToInspirationMoleculeDataList,
+  appendToAllInspirationMoleculeDataList,
   setInspirationMoleculeDataList,
+  setAllInspirationMoleculeDataList,
   setInspirationList,
   setIsOpenInspirationDialog,
   clearScoreCompoundMap,
@@ -339,6 +341,7 @@ export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispa
       arrayOfInspirationListSet.map(moleculeID =>
         api({ url: `${base_url}/api/molecules/${moleculeID}/` }).then(response => {
           dispatch(appendToInspirationMoleculeDataList(response.data));
+          dispatch(appendToAllInspirationMoleculeDataList(response.data));
         })
       )
     ).finally(() => {
@@ -346,6 +349,11 @@ export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispa
     });
   }
   return Promise.resolve();
+};
+
+export const clearAllInspirationsOfDataset = () => dispatch => {
+  // clear inspirations
+  dispatch(setAllInspirationMoleculeDataList([]));
 };
 
 export const clearInspirationsOfDataset = datasetID => dispatch => {

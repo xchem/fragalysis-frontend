@@ -243,8 +243,18 @@ export const setInspirationMoleculeDataList = (moleculeList = []) => ({
   payload: moleculeList
 });
 
+export const setAllInspirationMoleculeDataList = (moleculeList = []) => ({
+  type: constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: moleculeList
+});
+
 export const appendToInspirationMoleculeDataList = molecule => ({
   type: constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: molecule
+});
+
+export const appendToAllInspirationMoleculeDataList = molecule => ({
+  type: constants.APPEND_TO_ALL_INSPIRATION_MOLECULE_DATA_LIST,
   payload: molecule
 });
 

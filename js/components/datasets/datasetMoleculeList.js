@@ -46,7 +46,7 @@ import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
 import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
-import { selectJoinedMoleculeList } from '../preview/molecule/redux/selectors';
+import { selectJoinedMoleculeList, getMoleculeList } from '../preview/molecule/redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -228,8 +228,8 @@ export const DatasetMoleculeList = memo(
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
-    const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
-    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
+    const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
+    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
 
     const disableUserInteraction = useDisableUserInteraction();
 
@@ -286,8 +286,8 @@ export const DatasetMoleculeList = memo(
     };
 
     const removeOfAllSelectedTypesOfInspirations = () => {
-      var molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList]; // TODO
-      dispatch(hideAllSelectedMolecules(stage, molecules));
+      let molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
+      dispatch(hideAllSelectedMolecules(stage, [...molecules]));
     };
 
     const removeOfAllSelectedTypes = () => {
