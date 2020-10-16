@@ -23,21 +23,10 @@ import {
   clickOnInspirations,
   getDatasetMoleculeID
 } from './redux/dispatchActions';
-import {
-  addVector,
-  addHitProtein,
-  addComplex,
-  addSurface,
-  addLigand,
-  addDensity
-} from '../preview/molecule/redux/dispatchActions';
+
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
-import {
-  isAnyInspirationTurnedOn,
-  isAnyInspirationTurnedOnByType,
-  getFilteredDatasetMoleculeList
-} from './redux/selectors';
+import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
@@ -262,7 +251,8 @@ export const DatasetMoleculeView = memo(
     previousItemData,
     nextItemData,
     removeOfAllSelectedTypes,
-    removeOfAllSelectedTypesOfInspirations
+    removeOfAllSelectedTypesOfInspirations,
+    moveSelectedMoleculeInspirationsSettings
   }) => {
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
@@ -281,13 +271,6 @@ export const DatasetMoleculeView = memo(
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
-
-    const proteinListMolecule = useSelector(state => state.selectionReducers.proteinList);
-    const complexListMolecule = useSelector(state => state.selectionReducers.complexList);
-    const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
-    const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
-    const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
 
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
     const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
@@ -512,65 +495,6 @@ export const DatasetMoleculeView = memo(
       return cssClass;
     };
 
-    const moveSelectedMoleculeInspirationsSettings = (
-      newItemData,
-      ligands,
-      proteins,
-      complexis,
-      surfaces,
-      densities,
-      vectors
-    ) => (dispatch, getState) => {
-      const state = getState();
-      const molecules = state.datasetsReducers.inspirationMoleculeDataList;
-      if (newItemData && molecules) {
-        let computed_inspirations = (data && data.computed_inspirations) || [];
-        let isAnyInspirationLigandOn = isAnyInspirationTurnedOnByType(computed_inspirations, ligands);
-        let isAnyInspirationProteinOn = isAnyInspirationTurnedOnByType(computed_inspirations, proteins);
-        let isAnyInspirationComplexOn = isAnyInspirationTurnedOnByType(computed_inspirations, complexis);
-        let isAnyInspirationSurfaceOn = isAnyInspirationTurnedOnByType(computed_inspirations, surfaces);
-        let isAnyInspirationDensityOn = isAnyInspirationTurnedOnByType(computed_inspirations, densities);
-        let isAnyInspirationVectorOn = isAnyInspirationTurnedOnByType(computed_inspirations, vectors);
-
-        if (
-          isAnyInspirationLigandOn ||
-          isAnyInspirationProteinOn ||
-          isAnyInspirationComplexOn ||
-          isAnyInspirationSurfaceOn ||
-          isAnyInspirationDensityOn ||
-          isAnyInspirationVectorOn
-        ) {
-          molecules.forEach(molecule => {
-            if (molecule) {
-              if (isAnyInspirationLigandOn) {
-                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
-                dispatch(addLigand(stage, molecule, colourToggle, false, representations));
-              }
-              if (isAnyInspirationProteinOn) {
-                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
-                dispatch(addHitProtein(stage, molecule, colourToggle, representations));
-              }
-              if (isAnyInspirationComplexOn) {
-                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
-                dispatch(addComplex(stage, molecule, colourToggle, representations));
-              }
-              if (isAnyInspirationSurfaceOn) {
-                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
-                dispatch(addSurface(stage, molecule, colourToggle, representations));
-              }
-              if (isAnyInspirationDensityOn) {
-                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
-                dispatch(addDensity(stage, molecule, colourToggle, representations));
-              }
-              if (isAnyInspirationVectorOn) {
-                dispatch(addVector(stage, molecule, colourToggle));
-              }
-            }
-          });
-        }
-      }
-    };
-
     const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
       if (newItemData) {
         if (isLigandOn) {
@@ -602,17 +526,7 @@ export const DatasetMoleculeView = memo(
       dispatch(clearAllInspirationsOfDataset());
       dispatch(loadInspirationMoleculesDataList(nextItem.computed_inspirations)).then(() => {
         moveSelectedMoleculeSettings(nextItem, nextDatasetID);
-        dispatch(
-          moveSelectedMoleculeInspirationsSettings(
-            nextItem,
-            fragmentDisplayListMolecule,
-            proteinListMolecule,
-            complexListMolecule,
-            surfaceListMolecule,
-            densityListMolecule,
-            vectorOnListMolecule
-          )
-        );
+        dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, currentID));
       });
     };
 
@@ -628,17 +542,7 @@ export const DatasetMoleculeView = memo(
       dispatch(clearAllInspirationsOfDataset());
       dispatch(loadInspirationMoleculesDataList(previousItem.computed_inspirations)).then(() => {
         moveSelectedMoleculeSettings(previousItem, previousDatasetID);
-        dispatch(
-          moveSelectedMoleculeInspirationsSettings(
-            previousItem,
-            fragmentDisplayListMolecule,
-            proteinListMolecule,
-            complexListMolecule,
-            surfaceListMolecule,
-            densityListMolecule,
-            vectorOnListMolecule
-          )
-        );
+        dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, currentID));
       });
     };
 

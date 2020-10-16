@@ -14,7 +14,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -34,19 +34,28 @@ import {
   removeDatasetComplex,
   addDatasetSurface,
   removeDatasetSurface,
-  resetCrossReferenceDialog,
   autoHideDatasetDialogsOnScroll
 } from './redux/dispatchActions';
-import { setFilterDialogOpen, setIsOpenInspirationDialog, setSearchStringOfCompoundSet } from './redux/actions';
+import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search, Link } from '@material-ui/icons';
-import { getFilteredDatasetMoleculeList } from './redux/selectors';
+import { getFilteredDatasetMoleculeList, isAnyInspirationTurnedOnByType } from './redux/selectors';
 import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
 import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
-import { selectJoinedMoleculeList, getMoleculeList } from '../preview/molecule/redux/selectors';
+import { getMoleculeList } from '../preview/molecule/redux/selectors';
+import {
+  addVector,
+  addHitProtein,
+  addComplex,
+  addSurface,
+  addLigand,
+  addDensity
+} from '../preview/molecule/redux/dispatchActions';
+import { OBJECT_TYPE } from '../nglView/constants';
+import { getRepresentationsByType } from '../nglView/generatingObjects';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -263,6 +272,15 @@ export const DatasetMoleculeList = memo(
 
     const selectedAll = useRef(false);
 
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
+
+    const proteinListMolecule = useSelector(state => state.selectionReducers.proteinList);
+    const complexListMolecule = useSelector(state => state.selectionReducers.complexList);
+    const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
+    const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
+    const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
+
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
@@ -315,6 +333,60 @@ export const DatasetMoleculeList = memo(
           removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
         );
       });
+    };
+
+    const moveSelectedMoleculeInspirationsSettings = (data, newItemData, currentID) => (dispatch, getState) => {
+      const state = getState();
+      const molecules = state.datasetsReducers.inspirationMoleculeDataList;
+      if (newItemData && molecules) {
+        let computed_inspirations = (data && data.computed_inspirations) || [];
+        let isAnyInspirationLigandOn = isAnyInspirationTurnedOnByType(
+          computed_inspirations,
+          fragmentDisplayListMolecule
+        );
+        let isAnyInspirationProteinOn = isAnyInspirationTurnedOnByType(computed_inspirations, proteinListMolecule);
+        let isAnyInspirationComplexOn = isAnyInspirationTurnedOnByType(computed_inspirations, complexListMolecule);
+        let isAnyInspirationSurfaceOn = isAnyInspirationTurnedOnByType(computed_inspirations, surfaceListMolecule);
+        let isAnyInspirationDensityOn = isAnyInspirationTurnedOnByType(computed_inspirations, densityListMolecule);
+        let isAnyInspirationVectorOn = isAnyInspirationTurnedOnByType(computed_inspirations, vectorOnListMolecule);
+
+        if (
+          isAnyInspirationLigandOn ||
+          isAnyInspirationProteinOn ||
+          isAnyInspirationComplexOn ||
+          isAnyInspirationSurfaceOn ||
+          isAnyInspirationDensityOn ||
+          isAnyInspirationVectorOn
+        ) {
+          molecules.forEach(molecule => {
+            if (molecule) {
+              if (isAnyInspirationLigandOn) {
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
+                dispatch(addLigand(stage, molecule, colourList[currentID % colourList.length], false, representations));
+              }
+              if (isAnyInspirationProteinOn) {
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
+                dispatch(addHitProtein(stage, molecule, colourList[currentID % colourList.length], representations));
+              }
+              if (isAnyInspirationComplexOn) {
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
+                dispatch(addComplex(stage, molecule, colourList[currentID % colourList.length], representations));
+              }
+              if (isAnyInspirationSurfaceOn) {
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
+                dispatch(addSurface(stage, molecule, colourList[currentID % colourList.length], representations));
+              }
+              if (isAnyInspirationDensityOn) {
+                let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
+                dispatch(addDensity(stage, molecule, colourList[currentID % colourList.length], representations));
+              }
+              if (isAnyInspirationVectorOn) {
+                dispatch(addVector(stage, molecule, colourList[currentID % colourList.length]));
+              }
+            }
+          });
+        }
+      }
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -621,6 +693,7 @@ export const DatasetMoleculeList = memo(
                           nextItemData={index < array?.length && array[index + 1]}
                           removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                           removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
+                          moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
                         />
                       ))}
                   </InfiniteScroll>
