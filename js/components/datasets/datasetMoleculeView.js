@@ -523,11 +523,8 @@ export const DatasetMoleculeView = memo(
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
 
-      dispatch(clearAllInspirationsOfDataset());
-      dispatch(loadInspirationMoleculesDataList(nextItem.computed_inspirations)).then(() => {
-        moveSelectedMoleculeSettings(nextItem, nextDatasetID);
-        dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, currentID));
-      });
+      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
     };
 
     const handleClickOnUpArrow = () => {
@@ -539,11 +536,8 @@ export const DatasetMoleculeView = memo(
       const previousDatasetID =
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
 
-      dispatch(clearAllInspirationsOfDataset());
-      dispatch(loadInspirationMoleculesDataList(previousItem.computed_inspirations)).then(() => {
-        moveSelectedMoleculeSettings(previousItem, previousDatasetID);
-        dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, currentID));
-      });
+      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
     };
 
     const moleculeTitle = data && data.name;
