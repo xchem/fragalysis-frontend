@@ -528,7 +528,7 @@ export const DatasetMoleculeView = memo(
       dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
       dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
-      if (setRef) {
+      if (setRef && ref.current) {
         setRef(ref.current.nextSibling);
       }
     };
@@ -547,7 +547,7 @@ export const DatasetMoleculeView = memo(
       dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
       dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
-      if (setRef) {
+      if (setRef && ref.current) {
         setRef(ref.current.previousSibling);
       }
     };
