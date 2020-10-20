@@ -256,6 +256,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const [selectedMoleculeViewRef, setSelectedMoleculeViewRef] = useState(null);
 
   const filterRef = useRef();
 
@@ -351,6 +352,16 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       setFilterItemsHeight(0);
     }
   }, [isActiveFilter, setFilterItemsHeight]);
+
+  useEffect(() => {
+    if (selectedMoleculeViewRef) {
+      selectedMoleculeViewRef.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  }, [selectedMoleculeViewRef]);
 
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
@@ -741,6 +752,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      setRef={setSelectedMoleculeViewRef}
                     />
                   ))}
                 </InfiniteScroll>

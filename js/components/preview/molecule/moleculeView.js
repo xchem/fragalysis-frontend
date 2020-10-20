@@ -206,11 +206,13 @@ const MoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes
+    removeOfAllSelectedTypes,
+    setRef
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
+    const ref = useRef(null);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
@@ -529,11 +531,17 @@ const MoleculeView = memo(
     };
 
     const handleClickOnDownArrow = () => {
+      if (setRef && ref.current) {
+        setRef(ref.current.nextSibling);
+      }
       removeOfAllSelectedTypes();
       moveSelectedMolSettings(nextItemData);
     };
 
     const handleClickOnUpArrow = () => {
+      if (setRef && ref.current) {
+        setRef(ref.current.previousSibling);
+      }
       removeOfAllSelectedTypes();
       moveSelectedMolSettings(previousItemData);
     };
@@ -542,7 +550,7 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
+        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>

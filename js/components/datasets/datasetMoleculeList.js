@@ -244,6 +244,16 @@ export const DatasetMoleculeList = memo(
 
     const disableUserInteraction = useDisableUserInteraction();
 
+    useEffect(() => {
+      if (selectedMoleculeRef) {
+        selectedMoleculeRef.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+    }, [selectedMoleculeRef]);
+
     // TODO Reset Infinity scroll
 
     if (isActiveFilter) {
