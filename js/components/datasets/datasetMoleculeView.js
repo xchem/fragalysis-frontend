@@ -31,13 +31,13 @@ import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
-  setIsOpenCrossReferenceDialog
+  setIsOpenCrossReferenceDialog,
+  setInspirationFragmentList
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
 import { SvgTooltip } from '../common';
-import { loadInspirationMoleculesDataList, clearAllInspirationsOfDataset } from './redux/dispatchActions';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { getRepresentationsByType } from '../nglView/generatingObjects';
 
@@ -522,9 +522,15 @@ export const DatasetMoleculeView = memo(
 
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+      const moleculeTitleNext = nextItem && nextItem.name;
 
       moveSelectedMoleculeSettings(nextItem, nextDatasetID);
       dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
+      dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
+      dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+      if (setRef) {
+        setRef(ref.current.nextSibling);
+      }
     };
 
     const handleClickOnUpArrow = () => {
@@ -535,9 +541,15 @@ export const DatasetMoleculeView = memo(
         (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
       const previousDatasetID =
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
+      const moleculeTitlePrev = previousItem && previousItem.name;
 
       moveSelectedMoleculeSettings(previousItem, previousDatasetID);
       dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
+      dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
+      dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+      if (setRef) {
+        setRef(ref.current.previousSibling);
+      }
     };
 
     const moleculeTitle = data && data.name;
