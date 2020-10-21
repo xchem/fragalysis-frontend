@@ -206,8 +206,7 @@ const MoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes,
-    setRef
+    removeOfAllSelectedTypes
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -530,18 +529,26 @@ const MoleculeView = memo(
       }
     };
 
+    const scrollToElement = element => {
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    };
+
     const handleClickOnDownArrow = () => {
-      if (setRef && ref.current) {
-        setRef(ref.current.nextSibling);
-      }
+      const refNext = ref.current.nextSibling;
+      scrollToElement(refNext);
+
       removeOfAllSelectedTypes();
       moveSelectedMolSettings(nextItemData);
     };
 
     const handleClickOnUpArrow = () => {
-      if (setRef && ref.current) {
-        setRef(ref.current.previousSibling);
-      }
+      const refPrevious = ref.current.previousSibling;
+      scrollToElement(refPrevious);
+
       removeOfAllSelectedTypes();
       moveSelectedMolSettings(previousItemData);
     };

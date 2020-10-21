@@ -516,7 +516,18 @@ export const DatasetMoleculeView = memo(
       }
     };
 
+    const scrollToElement = element => {
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    };
+
     const handleClickOnDownArrow = () => {
+      const refNext = ref.current.nextSibling;
+      scrollToElement(refNext);
+
       removeOfAllSelectedTypes();
       removeOfAllSelectedTypesOfInspirations();
 
@@ -529,11 +540,14 @@ export const DatasetMoleculeView = memo(
       dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
-        setRef(ref.current.nextSibling);
+        setRef(refNext);
       }
     };
 
     const handleClickOnUpArrow = () => {
+      const refPrevious = ref.current.previousSibling;
+      scrollToElement(refPrevious);
+
       removeOfAllSelectedTypes();
       removeOfAllSelectedTypesOfInspirations();
 
@@ -548,7 +562,7 @@ export const DatasetMoleculeView = memo(
       dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
-        setRef(ref.current.previousSibling);
+        setRef(refPrevious);
       }
     };
 

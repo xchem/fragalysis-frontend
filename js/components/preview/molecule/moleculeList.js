@@ -248,6 +248,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
   const cached_mol_lists = useSelector(state => state.apiReducers.cached_mol_lists);
 
+  const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
+
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
@@ -256,7 +258,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-  const [selectedMoleculeViewRef, setSelectedMoleculeViewRef] = useState(null);
 
   const filterRef = useRef();
 
@@ -353,16 +354,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
   }, [isActiveFilter, setFilterItemsHeight]);
 
-  useEffect(() => {
-    if (selectedMoleculeViewRef) {
-      selectedMoleculeViewRef.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest'
-      });
-    }
-  }, [selectedMoleculeViewRef]);
-
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
     for (let attr of MOL_ATTRIBUTES) {
@@ -444,28 +435,30 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const removeOfAllSelectedTypes = () => {
+    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
+
     proteinList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     complexList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     fragmentDisplayList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     surfaceList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     densityList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     vectorOnList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
   };
@@ -752,7 +745,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                      setRef={setSelectedMoleculeViewRef}
                     />
                   ))}
                 </InfiniteScroll>
