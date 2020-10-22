@@ -47,7 +47,9 @@ export const loadObject = ({
       orientationMatrix,
       markAsRightSideLigand
     })
-      .then(representations => dispatch(loadNglObject(versionFixedTarget, representations)))
+      .then(representations => {
+         dispatch(loadNglObject(versionFixedTarget, representations))
+        })
       .catch(error => {
         console.error(error);
       })

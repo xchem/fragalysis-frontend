@@ -251,8 +251,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
-  const mol_group_selection = useSelector(state => state.selectionReducers.mol_group_selection);
-  const molecule_list = useSelector(state => state.apiReducers.molecule_list);
   
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
@@ -316,15 +314,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       mol_group_list.length > 0 &&
       Object.keys(all_mol_lists).length <= 0
     ) {
-      // let newMolList = {};
       let promises = [];
       mol_group_list.forEach(molGroup => {
         let id = molGroup.id;
         let url = getUrl({ list_type, target_on, mol_group_on: id });
         promises.push(loadAllMolsFromMolGroup({
           url,
-          mol_group: id/*,
-          origList: newMolList*/
+          mol_group: id
         }))
       });
       Promise.all(promises).then((results) => {
@@ -357,14 +353,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
       allMolsGroupsCount > 0
     ) {
-      // loadAllMolecules();
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
       dispatch(initializeFilter());
       if (directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(stage/*, getMolGroupNameToId*/));
         wereMoleculesInitialized.current = true;
       }
-      // dispatch(applyDirectSelection(stage, getMolGroupNameToId));
       if (
         stage &&
         all_mol_lists &&
@@ -374,8 +368,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         wereMoleculesInitialized.current === false
       ) {
         let moleculeList = all_mol_lists[mol_group_on];
-        let firstId = joinedMoleculeLists && joinedMoleculeLists[0] && joinedMoleculeLists[0].id;
-        dispatch(initializeMolecules(stage, moleculeList, firstId));
+        dispatch(initializeMolecules(stage, moleculeList, firstInitializationMolecule.current));
         wereMoleculesInitialized.current = true;
       }
     }
