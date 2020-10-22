@@ -59,7 +59,6 @@ import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
-import { DatasetMoleculeView } from '../../datasets/datasetMoleculeView';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import {selectMoleculeGroup} from '../moleculeGroups/redux/dispatchActions'
 
@@ -302,28 +301,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
   const wereMoleculesInitialized = useRef(false);
+  const firstInitializationMolecule = useRef(null);
 
-  // const loadAllMolecules = useCallback(() => {
-  //   if (
-  //     (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-  //     target_on &&
-  //     mol_group_list &&
-  //     mol_group_list.length > 0 &&
-  //     Object.keys(all_mol_lists).length <= 0
-  //   ) {
-  //     let newMolList = {};
-  //     mol_group_list.forEach(molGroup => {
-  //       let id = molGroup.id;
-  //       let url = getUrl({ list_type, target_on, mol_group_on: id });
-  //       loadAllMolsFromMolGroup({
-  //         url,
-  //         mol_group: id,
-  //         origList: newMolList
-  //       }).then(list => dispatch(setAllMolLists(list)))
-  //       // .then(dispatch(applyDirectSelection(stage, getMolGroupNameToId)));
-  //     });//.then(dispatch(setAllMolLists(newMolList)));
-  //   }
-  // }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists]);
+  let first = joinedMoleculeLists && joinedMoleculeLists[0];
+  if (wereMoleculesInitialized.current === false && first) {
+    firstInitializationMolecule.current = first;
+  }
 
   const loadAllMolecules = useCallback(() => {
     if (

@@ -119,6 +119,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
+  const [filterItemsHeightDataset, setFilterItemsHeightDataset] = useState(0);
 
   /* Hit navigator list height */
   const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${molGroupsHeight}px - ${
@@ -128,7 +129,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   /* Custom dataset list height */
   const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(hideProjects ? 1 : 2)}px - ${
     hideProjects ? 0 : molGroupsHeight
-  }px - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0}px - ${theme.spacing(
+  }px - ${filterItemsHeightDataset > 0 ? filterItemsHeightDataset + theme.spacing(1) / 2 : 0}px - ${theme.spacing(
     8
   )}px - ${TABS_HEADER_HEIGHT}px)`;
 
@@ -260,8 +261,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                     <CustomDatasetList
                       dataset={dataset}
                       height={customMoleculeListHeight}
-                      setFilterItemsHeight={setFilterItemsHeight}
-                      filterItemsHeight={filterItemsHeight}
+                      setFilterItemsHeight={setFilterItemsHeightDataset}
+                      filterItemsHeight={filterItemsHeightDataset}
                       hideProjects={hideProjects}
                       isActive={index === selectedDatasetIndex}
                     />
