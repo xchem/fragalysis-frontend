@@ -35,29 +35,19 @@ import {
   addDatasetSurface,
   removeDatasetSurface,
   autoHideDatasetDialogsOnScroll,
-  loadInspirationMoleculesDataList,
-  clearAllInspirationsOfDataset
+  moveMoleculeInspirationsSettings,
+  removeAllSelectedDatasetMolecules
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search, Link } from '@material-ui/icons';
-import { getFilteredDatasetMoleculeList, isAnyInspirationTurnedOnByType } from './redux/selectors';
+import { getFilteredDatasetMoleculeList } from './redux/selectors';
 import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
 import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
 import { getMoleculeList } from '../preview/molecule/redux/selectors';
-import {
-  addVector,
-  addHitProtein,
-  addComplex,
-  addSurface,
-  addLigand,
-  addDensity
-} from '../preview/molecule/redux/dispatchActions';
-import { OBJECT_TYPE } from '../nglView/constants';
-import { getRepresentationsByType } from '../nglView/generatingObjects';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -286,7 +276,6 @@ export const DatasetMoleculeList = memo(
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
     const isLigandOn = (ligandList && ligandList.length > 0) || false;
     const isProteinOn = (proteinList && proteinList.length > 0) || false;
@@ -311,109 +300,24 @@ export const DatasetMoleculeList = memo(
     };
 
     const removeOfAllSelectedTypes = () => {
-      ligandList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      proteinList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      complexList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      surfaceList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-    };
-
-    const moveInspirations = (
-      isAnyInspirationLigandOn,
-      isAnyInspirationProteinOn,
-      isAnyInspirationComplexOn,
-      isAnyInspirationSurfaceOn,
-      isAnyInspirationDensityOn,
-      isAnyInspirationVectorOn
-    ) => (dispatch, getState) => {
-      const state = getState();
-      const molecules = state.datasetsReducers.inspirationMoleculeDataList;
-      if (molecules) {
-        molecules.forEach(molecule => {
-          if (molecule) {
-            if (isAnyInspirationLigandOn) {
-              let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
-              dispatch(addLigand(stage, molecule, colourList[molecule.id % colourList.length], false, representations));
-            }
-            if (isAnyInspirationProteinOn) {
-              let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
-              dispatch(addHitProtein(stage, molecule, colourList[molecule.id % colourList.length], representations));
-            }
-            if (isAnyInspirationComplexOn) {
-              let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
-              dispatch(addComplex(stage, molecule, colourList[molecule.id % colourList.length], representations));
-            }
-            if (isAnyInspirationSurfaceOn) {
-              let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
-              dispatch(addSurface(stage, molecule, colourList[molecule.id % colourList.length], representations));
-            }
-            if (isAnyInspirationDensityOn) {
-              let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
-              dispatch(addDensity(stage, molecule, colourList[molecule.id % colourList.length], representations));
-            }
-            if (isAnyInspirationVectorOn) {
-              dispatch(addVector(stage, molecule, colourList[molecule.id % colourList.length]));
-            }
-          }
-        });
-      }
+      dispatch(removeAllSelectedDatasetMolecules(stage));
     };
 
     const moveSelectedMoleculeInspirationsSettings = (data, newItemData) => (dispatch, getState) => {
-      dispatch(clearAllInspirationsOfDataset());
-      if (newItemData) {
-        let computed_inspirations = (data && data.computed_inspirations) || [];
-        let isAnyInspirationLigandOn = isAnyInspirationTurnedOnByType(
-          computed_inspirations,
-          fragmentDisplayListMolecule
-        );
-        let isAnyInspirationProteinOn = isAnyInspirationTurnedOnByType(computed_inspirations, proteinListMolecule);
-        let isAnyInspirationComplexOn = isAnyInspirationTurnedOnByType(computed_inspirations, complexListMolecule);
-        let isAnyInspirationSurfaceOn = isAnyInspirationTurnedOnByType(computed_inspirations, surfaceListMolecule);
-        let isAnyInspirationDensityOn = isAnyInspirationTurnedOnByType(computed_inspirations, densityListMolecule);
-        let isAnyInspirationVectorOn = isAnyInspirationTurnedOnByType(computed_inspirations, vectorOnListMolecule);
-
-        if (
-          isAnyInspirationLigandOn ||
-          isAnyInspirationProteinOn ||
-          isAnyInspirationComplexOn ||
-          isAnyInspirationSurfaceOn ||
-          isAnyInspirationDensityOn ||
-          isAnyInspirationVectorOn
-        ) {
-          dispatch(loadInspirationMoleculesDataList(newItemData.computed_inspirations)).then(() => {
-            dispatch(
-              moveInspirations(
-                isAnyInspirationLigandOn,
-                isAnyInspirationProteinOn,
-                isAnyInspirationComplexOn,
-                isAnyInspirationSurfaceOn,
-                isAnyInspirationDensityOn,
-                isAnyInspirationVectorOn
-              )
-            );
-          });
-        }
-      }
+      dispatch(
+        moveMoleculeInspirationsSettings(
+          data,
+          newItemData,
+          stage,
+          objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          densityListMolecule,
+          vectorOnListMolecule
+        )
+      );
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
