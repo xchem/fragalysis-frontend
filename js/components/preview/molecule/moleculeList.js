@@ -59,7 +59,6 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setCachedMolLists, setMoleculeList } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import { removeAllSelectedDatasetMolecules } from '../../datasets/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -462,8 +461,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
-
-    dispatch(removeAllSelectedDatasetMolecules(stage));
   };
 
   const addNewType = type => {
