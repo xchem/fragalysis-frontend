@@ -163,6 +163,13 @@ export const setDirectAccess = (directAccessParams) => {
   };
 };
 
+export const setDirectAccessProcessed = (directAccessProcessedParams) => {
+  return {
+    type: constants.SET_DIRECT_ACCESS_PROCESSED,
+    direct_access_processed: directAccessProcessedParams
+  };
+};
+
 export const reloadApiState = function(apiReducers) {
   const cachedMolList = apiReducers.cached_mol_lists;
   let fixedCachedMolList = {};

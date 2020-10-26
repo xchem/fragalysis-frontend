@@ -3,7 +3,7 @@ import { useRouteMatch } from 'react-router-dom';
 import Preview from '../preview/Preview';
 import {URL_TOKENS} from './constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { setDirectAccess, setTargetOn } from '../../reducers/api/actions';
+import { setDirectAccess, setTargetOn, setDirectAccessProcessed } from '../../reducers/api/actions';
 import { loadTargetList } from '../target/redux/dispatchActions';
 
 export const DirectDisplay = memo(props => {
@@ -11,6 +11,7 @@ export const DirectDisplay = memo(props => {
   const dispatch = useDispatch();
   const targetIdList = useSelector(state => state.apiReducers.target_id_list);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
+  const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
 
   useEffect(() => {
     let onCancel = () => {};
@@ -24,7 +25,7 @@ export const DirectDisplay = memo(props => {
 
   useEffect(() => {
     const param = match.params[0];
-    if (param && param.startsWith(URL_TOKENS.target)) {
+    if (!directAccessProcessed && param && param.startsWith(URL_TOKENS.target)) {
       let withoutKeyword = param.split(URL_TOKENS.target);
       if (withoutKeyword && withoutKeyword.length === 2) {
         const splitParams = withoutKeyword[1].split('/');

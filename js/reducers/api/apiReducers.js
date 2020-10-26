@@ -36,7 +36,8 @@ export const INITIAL_STATE = {
   sessionIdList: [],
   sessionTitle: undefined,
   user_id: undefined,
-  direct_access: {}
+  direct_access: {},
+  direct_access_processed: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -69,6 +70,7 @@ export const RESET_TARGET_STATE = {
   sessionTitle: undefined,
   user_id: undefined,
   direct_access: {}
+  // direct_access_processed: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -170,6 +172,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_DIRECT_ACCESS:
       return {...state, direct_access: action.direct_access};
+    
+    case constants.SET_DIRECT_ACCESS_PROCESSED:
+      return {...state, direct_access_processed: action.direct_access_processed};
 
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];
@@ -238,6 +243,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         pandda_site_list: action.pandda_site_list,
         latestSession: action.latestSession,
         direct_access: action.direct_access
+        // direct_access_processed: action.direct_access_processed
       });
 
     case constants.RESET_TARGET_STATE:
