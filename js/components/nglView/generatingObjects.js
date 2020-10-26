@@ -178,7 +178,15 @@ export const generateDensityObject = (data, colourToggle, base_url) => {
 };
 
 export const generateMoleculeId = data => ({
-  id: data.id
+  id: data.id,
+  name: data.protein_code,
+  isInspiration: data.isInspiration
+});
+
+export const generateMoleculeCompoundId = data => ({
+  id: data.id,
+  name: data.number,
+  isCrossReference: data.isCrossReference
 });
 
 export const getVectorWithColorByCountOfCompounds = (item, currentVectorCompounds) => {
