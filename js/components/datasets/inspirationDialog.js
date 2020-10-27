@@ -37,6 +37,7 @@ import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
+import { getMoleculeList } from '../preview/molecule/redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -148,6 +149,8 @@ export const InspirationDialog = memo(
       state => state.datasetsReducers.isLoadingInspirationListOfMolecules
     );
     const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
+    const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
+    const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
 
     const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -219,28 +222,30 @@ export const InspirationDialog = memo(
     };
 
     const removeOfAllSelectedTypes = () => {
+      let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
+
       proteinList?.forEach(moleculeID => {
-        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       complexList?.forEach(moleculeID => {
-        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       ligandList?.forEach(moleculeID => {
-        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       surfaceList?.forEach(moleculeID => {
-        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       densityList?.forEach(moleculeID => {
-        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       vectorOnList?.forEach(moleculeID => {
-        const foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
     };

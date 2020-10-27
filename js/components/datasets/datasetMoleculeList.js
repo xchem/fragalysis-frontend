@@ -14,7 +14,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -34,10 +34,11 @@ import {
   removeDatasetComplex,
   addDatasetSurface,
   removeDatasetSurface,
-  resetCrossReferenceDialog,
-  autoHideDatasetDialogsOnScroll
+  autoHideDatasetDialogsOnScroll,
+  moveMoleculeInspirationsSettings,
+  removeAllSelectedDatasetMolecules
 } from './redux/dispatchActions';
-import { setFilterDialogOpen, setIsOpenInspirationDialog, setSearchStringOfCompoundSet } from './redux/actions';
+import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Search, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
@@ -45,6 +46,8 @@ import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
+import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
+import { getMoleculeList } from '../preview/molecule/redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -226,6 +229,9 @@ export const DatasetMoleculeList = memo(
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
+    const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
+    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
+
     const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
@@ -258,10 +264,18 @@ export const DatasetMoleculeList = memo(
 
     const selectedAll = useRef(false);
 
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
+
+    const proteinListMolecule = useSelector(state => state.selectionReducers.proteinList);
+    const complexListMolecule = useSelector(state => state.selectionReducers.complexList);
+    const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
+    const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
+    const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
+
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
     const isLigandOn = (ligandList && ligandList.length > 0) || false;
     const isProteinOn = (proteinList && proteinList.length > 0) || false;
@@ -280,31 +294,30 @@ export const DatasetMoleculeList = memo(
       surface: removeDatasetSurface
     };
 
+    const removeOfAllSelectedTypesOfInspirations = () => {
+      let molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
+      dispatch(hideAllSelectedMolecules(stage, [...molecules]));
+    };
+
     const removeOfAllSelectedTypes = () => {
-      ligandList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      proteinList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      complexList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      surfaceList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
+      dispatch(removeAllSelectedDatasetMolecules(stage));
+    };
+
+    const moveSelectedMoleculeInspirationsSettings = (data, newItemData) => (dispatch, getState) => {
+      dispatch(
+        moveMoleculeInspirationsSettings(
+          data,
+          newItemData,
+          stage,
+          objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          densityListMolecule,
+          vectorOnListMolecule
+        )
+      );
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -456,7 +469,7 @@ export const DatasetMoleculeList = memo(
                             <Tooltip
                               title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
                                 filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                                }`}
+                              }`}
                               placement="top"
                             >
                               <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -610,6 +623,8 @@ export const DatasetMoleculeList = memo(
                           previousItemData={index > 0 && array[index - 1]}
                           nextItemData={index < array?.length && array[index + 1]}
                           removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                          removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
+                          moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
                         />
                       ))}
                   </InfiniteScroll>

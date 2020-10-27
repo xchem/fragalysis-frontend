@@ -160,6 +160,18 @@ export const isAnyInspirationTurnedOn = createSelector(
   }
 );
 
+export const isAnyInspirationTurnedOnByType = (inspirations, data) => {
+  let typeLists = new Set(data);
+  let hasInspirationType = false;
+  inspirations.forEach(moleculeID => {
+    if (typeLists.has(moleculeID)) {
+      hasInspirationType = true;
+      return hasInspirationType;
+    }
+  });
+  return hasInspirationType;
+};
+
 export const getFilteredDatasetMoleculeList = createSelector(
   (_, datasetID) => datasetID,
   filterDatasetMap,
@@ -254,20 +266,24 @@ export const getFilteredDatasetMoleculeList = createSelector(
         for (let prioAttr of sortedAttributes) {
           const order = filterProperties[prioAttr].order;
 
-          const scoreValueOfA = Object.keys(a.numerical_scores).find(key => key === prioAttr) && a.numerical_scores[prioAttr];
-          scoreValueOfA = scoreValueOfA || (Object.keys(a.text_scores).find(key => key === prioAttr) && a.text_scores[prioAttr]);
-          const scoreValueOfB = Object.keys(b.numerical_scores).find(key => key === prioAttr) && b.numerical_scores[prioAttr];
-          scoreValueOfB = scoreValueOfB || (Object.keys(b.text_scores).find(key => key === prioAttr) && b.text_scores[prioAttr]);
+          const scoreValueOfA =
+            Object.keys(a.numerical_scores).find(key => key === prioAttr) && a.numerical_scores[prioAttr];
+          scoreValueOfA =
+            scoreValueOfA || (Object.keys(a.text_scores).find(key => key === prioAttr) && a.text_scores[prioAttr]);
+          const scoreValueOfB =
+            Object.keys(b.numerical_scores).find(key => key === prioAttr) && b.numerical_scores[prioAttr];
+          scoreValueOfB =
+            scoreValueOfB || (Object.keys(b.text_scores).find(key => key === prioAttr) && b.text_scores[prioAttr]);
 
-          if (scoreValueOfA === "Y") {
+          if (scoreValueOfA === 'Y') {
             scoreValueOfA = 1;
-          } else if (scoreValueOfA === "N") {
+          } else if (scoreValueOfA === 'N') {
             scoreValueOfA = 0;
           }
 
-          if (scoreValueOfB === "Y") {
+          if (scoreValueOfB === 'Y') {
             scoreValueOfB = 1;
-          } else if (scoreValueOfB === "N") {
+          } else if (scoreValueOfB === 'N') {
             scoreValueOfB = 0;
           }
 
