@@ -83,7 +83,7 @@ export const DirectDisplay = memo(props => {
         }
       }
     }
-  }, [match, dispatch]);
+  }, [match, dispatch, directAccessProcessed]);
 
   useEffect(() => {
     if (targetIdList.length && directDisplay) {

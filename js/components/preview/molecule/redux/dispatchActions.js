@@ -386,7 +386,7 @@ export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState
     return Promise.resolve(resultMolGroupID);
   });
 
-export const applyDirectSelection = (stage/*, getMolGroupNameToId*/) => (dispatch, getState) => {
+export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getState) => {
   const state = getState();
 
   const directDisplay = state.apiReducers.direct_access;
@@ -397,8 +397,9 @@ export const applyDirectSelection = (stage/*, getMolGroupNameToId*/) => (dispatc
   const surfaceList = state.selectionReducers.surfaceList;
   const vectorOnList = state.selectionReducers.vectorOnList;
   const mol_group_list = state.apiReducers.mol_group_list;
+  const directAccessProcessed = state.apiReducers.direct_access_processed;
 
-  if (directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
+  if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
     const allMols = state.apiReducers.all_mol_lists;
     //const molGroupMap = getMolGroupNameToId();
     directDisplay.molecules.forEach(m => {
@@ -413,10 +414,10 @@ export const applyDirectSelection = (stage/*, getMolGroupNameToId*/) => (dispatc
             let molGroupId = groupId;
             if (!mol_group_selection.includes(parseInt(molGroupId))) {
               let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));
-              dispatch(selectMoleculeGroup(molGroup, stage));
+              dispatch(selectMoleculeGroup(molGroup, stageSummaryView));
             }
             if (m.L && !fragmentDisplayList.includes(mol.id)) {
-              dispatch(addLigand(stage, mol, colourList[mol.id % colourList.length]));
+              dispatch(addLigand(stage, mol, colourList[mol.id % colourList.length], true));
             }
             if (m.P && !proteinList.includes(mol.id)) {
               dispatch(addHitProtein(stage, mol, colourList[mol.id % colourList.length]));
@@ -434,7 +435,7 @@ export const applyDirectSelection = (stage/*, getMolGroupNameToId*/) => (dispatc
         }
       }
     });
-    dispatch(setDirectAccess({}));
+    // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
   }
 

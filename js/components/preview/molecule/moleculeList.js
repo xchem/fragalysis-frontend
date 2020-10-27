@@ -251,6 +251,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
+  const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
   
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
@@ -260,12 +261,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const filterRef = useRef();
 
   const disableUserInteraction = useDisableUserInteraction();
 
-  if (directDisplay.target) {
+  if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
   }
 
@@ -355,8 +357,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     ) {
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
       dispatch(initializeFilter());
-      if (directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
-        dispatch(applyDirectSelection(stage/*, getMolGroupNameToId*/));
+      if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
+        dispatch(applyDirectSelection(stage, stageSummaryView));
         wereMoleculesInitialized.current = true;
       }
       if (
@@ -386,7 +388,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     all_mol_lists,
     loadAllMolecules,
     getMolGroupNameToId,
-    directDisplay
+    directDisplay,
+    directAccessProcessed,
+    stageSummaryView
   ]);
 
   useEffect(() => {
