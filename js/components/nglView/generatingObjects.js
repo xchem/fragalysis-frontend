@@ -185,7 +185,7 @@ export const generateMoleculeId = data => ({
 
 export const generateMoleculeCompoundId = data => ({
   id: data.id,
-  name: data.number,
+  name: data.name,
   isCrossReference: data.isCrossReference
 });
 
