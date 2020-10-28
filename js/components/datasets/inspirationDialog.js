@@ -31,7 +31,7 @@ import { debounce } from 'lodash';
 import { setInspirationMoleculeDataList, setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -160,7 +160,7 @@ export const InspirationDialog = memo(
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
     const dispatch = useDispatch();
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     useEffect(() => {
       if (inspirationFragmentList && inspirationFragmentList.length > 0) {
@@ -347,7 +347,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               L
                             </Button>
@@ -362,7 +362,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               P
                             </Button>
@@ -378,7 +378,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               C
                             </Button>

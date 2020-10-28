@@ -10,7 +10,7 @@ import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
   addDatasetLigand,
   removeDatasetLigand,
@@ -292,7 +292,7 @@ export const DatasetMoleculeView = memo(
 
     const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
 
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     const refOnCancelImage = useRef();
     const getRandomColor = () => colourList[currentID % colourList.length];
@@ -642,7 +642,7 @@ export const DatasetMoleculeView = memo(
                       onClick={() => {
                         dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
                       }}
-                      disabled={disableUserInteraction || !isLigandOn}
+                      disabled={false || !isLigandOn}
                     >
                       <MyLocation className={classes.myLocation} />
                     </Button>
@@ -669,7 +669,7 @@ export const DatasetMoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       A
                     </Button>
@@ -683,7 +683,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       L
                     </Button>
@@ -697,7 +697,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       P
                     </Button>
@@ -712,7 +712,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       C
                     </Button>
@@ -726,7 +726,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       S
                     </Button>
@@ -752,7 +752,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={disableUserInteraction}
+                        disabled={false}
                       >
                         F
                       </Button>
@@ -774,7 +774,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={true || disableUserInteraction}
+                        disabled={true || false}
                       >
                         X
                       </Button>
@@ -835,7 +835,7 @@ export const DatasetMoleculeView = memo(
                 <IconButton
                   color="primary"
                   size="small"
-                  disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
+                  disabled={false || !previousItemData || !areArrowsVisible}
                   onClick={handleClickOnUpArrow}
                 >
                   <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
@@ -845,7 +845,7 @@ export const DatasetMoleculeView = memo(
                 <IconButton
                   color="primary"
                   size="small"
-                  disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
+                  disabled={false || !nextItemData || !areArrowsVisible}
                   onClick={handleClickOnDownArrow}
                 >
                   <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />

@@ -23,7 +23,7 @@ import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addDatasetLigand,
@@ -232,7 +232,7 @@ export const DatasetMoleculeList = memo(
     const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
     const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
 
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
 
@@ -529,7 +529,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isLigandOn
                                 })}
                                 onClick={() => onButtonToggle('ligand')}
-                                disabled={disableUserInteraction}
+                                disabled={false}
                               >
                                 L
                               </Button>
@@ -543,7 +543,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isProteinOn
                                 })}
                                 onClick={() => onButtonToggle('protein')}
-                                disabled={disableUserInteraction}
+                                disabled={false}
                               >
                                 P
                               </Button>
@@ -558,7 +558,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isComplexOn
                                 })}
                                 onClick={() => onButtonToggle('complex')}
-                                disabled={disableUserInteraction}
+                                disabled={false}
                               >
                                 C
                               </Button>

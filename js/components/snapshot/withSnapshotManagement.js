@@ -1,12 +1,12 @@
 import React, { memo, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
-import { Save, Restore, Share } from '@material-ui/icons';
+import { Save, Restore, Share, FormatListNumberedOutlined } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
 import { useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { restoreFromCurrentSnapshot } from '../preview/moleculeGroups/redux/dispatchActions';
@@ -30,7 +30,7 @@ export const withSnapshotManagement = WrappedComponent => {
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const projectId = match && match.params && match.params.projectId;
     const target = match && match.params && match.params.target;
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     const enableSaveButton =
       (projectId && currentProject.projectID !== null && currentProject.authorID !== null && DJANGO_CONTEXT['pk']) ||
@@ -51,7 +51,7 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
           startIcon={<Save />}
-          disabled={!enableSaveButton || disableUserInteraction}
+          disabled={!enableSaveButton || false}
         >
           Save
         </Button>,
@@ -61,7 +61,7 @@ export const withSnapshotManagement = WrappedComponent => {
             color="primary"
             onClick={() => dispatch(restoreFromCurrentSnapshot({ nglViewList }))}
             startIcon={<Restore />}
-            disabled={disableShareButton || disableUserInteraction}
+            disabled={disableShareButton || false}
           >
             Restore
           </Button>
@@ -71,7 +71,7 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           size="small"
           startIcon={<Share />}
-          disabled={disableShareButton || disableUserInteraction}
+          disabled={disableShareButton || false}
           onClick={() => {
             dispatch(saveAndShareSnapshot(target));
           }}
@@ -97,7 +97,6 @@ export const withSnapshotManagement = WrappedComponent => {
       targetName,
       setSnackBarColor,
       projectId,
-      disableUserInteraction,
       currentSnapshotID,
       currentProject,
       disableShareButton,

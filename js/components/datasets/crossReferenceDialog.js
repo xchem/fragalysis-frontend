@@ -16,7 +16,7 @@ import {
 } from './redux/dispatchActions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -131,7 +131,7 @@ export const CrossReferenceDialog = memo(
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     const moleculeList = useSelector(state => getCrossReferenceCompoundListByCompoundName(state));
     const isLoadingCrossReferenceScores = useSelector(state => state.datasetsReducers.isLoadingCrossReferenceScores);
@@ -271,7 +271,7 @@ export const CrossReferenceDialog = memo(
                               onClick={() =>
                                 dispatch(handleAllLigandsOfCrossReferenceDialog(isLigandOn, moleculeList, stage))
                               }
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               L
                             </Button>
@@ -288,7 +288,7 @@ export const CrossReferenceDialog = memo(
                               onClick={() =>
                                 dispatch(removeOrAddAllHitProteinsOfList(isProteinOn, moleculeList, stage))
                               }
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               P
                             </Button>
@@ -304,7 +304,7 @@ export const CrossReferenceDialog = memo(
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => dispatch(removeOrAddAllComplexesOfList(isComplexOn, moleculeList, stage))}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               C
                             </Button>

@@ -34,7 +34,7 @@ import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { IdeaReport } from '../userFeedback/ideaReport';
@@ -90,7 +90,7 @@ export default memo(
     let history = useHistory();
     const classes = useStyles();
     const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
@@ -270,7 +270,8 @@ export default memo(
               </Grid>
             </Grid>
           </Grid>
-          {(isLoading === true || disableUserInteraction === true) && (
+          {//TODO this needs to be reworked if the optimizations help
+          (isLoading === true || false === true) && (
             <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
           )}
         </AppBar>

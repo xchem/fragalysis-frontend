@@ -5,13 +5,13 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward, FormatListBulletedTwoTone, FormatListBulletedSharp, FormatListNumbered } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../../constants/constants';
 import { loadFromServer } from '../../../utils/genericView';
 import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import {
   addVector,
   removeVector,
@@ -206,7 +206,8 @@ const MoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes
+    removeOfAllSelectedTypes,
+    L, P, C, S, V
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -218,12 +219,6 @@ const MoleculeView = memo(
     const [moleculeGroupID, setMoleculeGroupID] = useState();
 
     const dispatch = useDispatch();
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
-    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
-    const densityList = useSelector(state => state.selectionReducers.densityList);
-    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
     const filter = useSelector(state => state.selectionReducers.filter);
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
@@ -234,19 +229,19 @@ const MoleculeView = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const isLigandOn = (currentID && fragmentDisplayList.includes(currentID)) || false;
-    const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
-    const isComplexOn = (currentID && complexList.includes(currentID)) || false;
-    const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
-    const isDensityOn = (currentID && densityList.includes(currentID)) || false;
-    const isVectorOn = (currentID && vectorOnList.includes(currentID)) || false;
+    const isLigandOn = L;
+    const isProteinOn = P;
+    const isComplexOn = C;
+    const isSurfaceOn = S;
+    // const isDensityOn = false;
+    const isVectorOn = V;
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
-    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
+    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn;
 
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -314,7 +309,7 @@ const MoleculeView = memo(
           refOnCancel.current();
         }
       };
-    }, [complexList, data.id, data.smiles, fragmentDisplayList, imageHeight, url, vectorOnList, imageWidth]);
+    }, [data.id, data.smiles, imageHeight, url, imageWidth]);
 
     useEffect(() => {
       if (searchMoleculeGroup) {
@@ -447,13 +442,13 @@ const MoleculeView = memo(
       dispatch(addDensity(stage, data, colourToggle));
     };
 
-    const onDensity = () => {
-      if (isDensityOn === false) {
-        addNewDensity();
-      } else {
-        removeSelectedDensity();
-      }
-    };
+    // const onDensity = () => {
+    //   if (isDensityOn === false) {
+    //     addNewDensity();
+    //   } else {
+    //     removeSelectedDensity();
+    //   }
+    // };
 
     const removeSelectedVector = () => {
       dispatch(removeVector(stage, data));
@@ -517,10 +512,10 @@ const MoleculeView = memo(
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE);
           dispatch(addSurface(stage, newItemDataset, colourToggle, representations));
         }
-        if (isDensityOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.DENSITY);
-          dispatch(addDensity(stage, newItemDataset, colourToggle, representations));
-        }
+        // if (isDensityOn) {
+        //   let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.DENSITY);
+        //   dispatch(addDensity(stage, newItemDataset, colourToggle, representations));
+        // }
         if (isVectorOn) {
           dispatch(addVector(stage, newItemDataset)).catch(error => {
             throw new Error(error);
@@ -592,7 +587,7 @@ const MoleculeView = memo(
                       onClick={() => {
                         dispatch(centerOnLigandByMoleculeID(stage, data?.id));
                       }}
-                      disabled={disableUserInteraction || !isLigandOn}
+                      disabled={false || !isLigandOn}
                     >
                       <MyLocation className={classes.myLocation} />
                     </Button>
@@ -619,7 +614,7 @@ const MoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       A
                     </Button>
@@ -633,7 +628,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       L
                     </Button>
@@ -647,7 +642,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       P
                     </Button>
@@ -662,7 +657,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       C
                     </Button>
@@ -676,7 +671,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       S
                     </Button>
@@ -688,10 +683,10 @@ const MoleculeView = memo(
                     <Button
                       variant="outlined"
                       className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isDensityOn
+                        [classes.contColButtonSelected]: false
                       })}
-                      onClick={() => onDensity()}
-                      disabled={true || disableUserInteraction}
+                      // onClick={() => onDensity()}
+                      disabled={true || false}
                     >
                       D
                     </Button>
@@ -705,7 +700,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isVectorOn
                       })}
                       onClick={() => onVector()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       V
                     </Button>
@@ -747,7 +742,7 @@ const MoleculeView = memo(
                 <IconButton
                   color="primary"
                   size="small"
-                  disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
+                  disabled={false || !previousItemData || !areArrowsVisible}
                   onClick={handleClickOnUpArrow}
                 >
                   <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
@@ -757,7 +752,7 @@ const MoleculeView = memo(
                 <IconButton
                   color="primary"
                   size="small"
-                  disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
+                  disabled={false || !nextItemData || !areArrowsVisible}
                   onClick={handleClickOnDownArrow}
                 >
                   <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />

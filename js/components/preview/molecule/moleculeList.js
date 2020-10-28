@@ -28,7 +28,7 @@ import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addVector,
@@ -261,7 +261,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const filterRef = useRef();
 
-  const disableUserInteraction = useDisableUserInteraction();
+  // const disableUserInteraction = useDisableUserInteraction();
 
   // TODO Reset Infinity scroll
   /*useEffect(() => {
@@ -536,7 +536,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         )
       }}
       onChange={handleSearch}
-      disabled={disableUserInteraction || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
+      disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
     />,
 
     <IconButton
@@ -670,7 +670,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
                             onClick={() => onButtonToggle('ligand')}
-                            disabled={disableUserInteraction}
+                            disabled={false}
                           >
                             L
                           </Button>
@@ -685,7 +685,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonHalfSelected]: isProteinOn === null
                             })}
                             onClick={() => onButtonToggle('protein')}
-                            disabled={disableUserInteraction}
+                            disabled={false}
                           >
                             P
                           </Button>
@@ -701,7 +701,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonHalfSelected]: isComplexOn === null
                             })}
                             onClick={() => onButtonToggle('complex')}
-                            disabled={disableUserInteraction}
+                            disabled={false}
                           >
                             C
                           </Button>
@@ -745,6 +745,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      L={fragmentDisplayList.includes(data.id)}
+                      P={proteinList.includes(data.id)}
+                      C={complexList.includes(data.id)}
+                      S={surfaceList.includes(data.id)}
+                      V={vectorOnList.includes(data.id)}
                     />
                   ))}
                 </InfiniteScroll>
