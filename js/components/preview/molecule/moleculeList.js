@@ -356,7 +356,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       allMolsGroupsCount > 0
     ) {
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
-      dispatch(initializeFilter());
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(stage, stageSummaryView));
         wereMoleculesInitialized.current = true;
@@ -369,6 +368,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         target !== undefined &&
         wereMoleculesInitialized.current === false
       ) {
+        dispatch(initializeFilter(object_selection, joinedMoleculeLists));
         let moleculeList = all_mol_lists[mol_group_on];
         dispatch(initializeMolecules(stage, moleculeList, firstInitializationMolecule.current));
         wereMoleculesInitialized.current = true;
@@ -390,7 +390,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     getMolGroupNameToId,
     directDisplay,
     directAccessProcessed,
-    stageSummaryView
+    stageSummaryView,
+    object_selection
   ]);
 
   useEffect(() => {
@@ -430,7 +431,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       dispatch(setSortDialogOpen(false));
       // reset filter
       dispatch(setFilter(undefined));
-      newFilter = dispatch(initializeFilter());
+      newFilter = dispatch(initializeFilter(object_selection, joinedMoleculeLists));
     }
     // currently do not filter molecules by excluding them
     /*setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));

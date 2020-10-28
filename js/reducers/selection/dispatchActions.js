@@ -31,7 +31,7 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
   const state = getState();
   if (!object_selection || !cached_mol_lists) {
     object_selection = state.selectionReducers.mol_group_selection;
-    cached_mol_lists = state.apiReducers.cached_mol_lists;
+    cached_mol_lists = state.apiReducers.all_mol_lists;
   }
 
   let initObject = state.selectionReducers.filter;
@@ -51,7 +51,7 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
     const lowAttr = attr.key.toLowerCase();
     let minValue = -999999;
     let maxValue = 0;
-    for (let molecule of getListedMolecules(object_selection, cached_mol_lists)) {
+    for (let molecule of cached_mol_lists) {
       const attrValue = molecule[lowAttr];
       if (attrValue > maxValue) maxValue = attrValue;
       if (minValue === -999999) minValue = maxValue;
