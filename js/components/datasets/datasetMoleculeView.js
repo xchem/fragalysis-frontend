@@ -23,6 +23,7 @@ import {
   clickOnInspirations,
   getDatasetMoleculeID
 } from './redux/dispatchActions';
+
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
@@ -30,13 +31,15 @@ import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
-  setIsOpenCrossReferenceDialog
+  setIsOpenCrossReferenceDialog,
+  setInspirationFragmentList
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
 import { SvgTooltip } from '../common';
-
+import { OBJECT_TYPE } from '../nglView/constants';
+import { getRepresentationsByType } from '../nglView/generatingObjects';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -247,15 +250,17 @@ export const DatasetMoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes
+    removeOfAllSelectedTypes,
+    removeOfAllSelectedTypesOfInspirations,
+    moveSelectedMoleculeInspirationsSettings
   }) => {
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const ref = useRef(null);
-
     const dispatch = useDispatch();
     const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
+
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
@@ -266,7 +271,9 @@ export const DatasetMoleculeView = memo(
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
+
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
 
     const [image, setImage] = useState(img_data_init);
 
@@ -491,35 +498,72 @@ export const DatasetMoleculeView = memo(
     const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
       if (newItemData) {
         if (isLigandOn) {
-          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND, datasetID);
+          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isProteinOn) {
-          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.PROTEIN, datasetID);
+          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isComplexOn) {
-          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX, datasetID);
+          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isSurfaceOn) {
-          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE, datasetID);
+          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
       }
     };
 
+    const scrollToElement = element => {
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    };
+
     const handleClickOnDownArrow = () => {
+      const refNext = ref.current.nextSibling;
+      scrollToElement(refNext);
+
       removeOfAllSelectedTypes();
+      removeOfAllSelectedTypesOfInspirations();
+
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+      const moleculeTitleNext = nextItem && nextItem.name;
+
       moveSelectedMoleculeSettings(nextItem, nextDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
+      dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
+      dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+      if (setRef && ref.current) {
+        setRef(refNext);
+      }
     };
 
     const handleClickOnUpArrow = () => {
+      const refPrevious = ref.current.previousSibling;
+      scrollToElement(refPrevious);
+
       removeOfAllSelectedTypes();
+      removeOfAllSelectedTypesOfInspirations();
+
       const previousItem =
         (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
       const previousDatasetID =
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
+      const moleculeTitlePrev = previousItem && previousItem.name;
 
       moveSelectedMoleculeSettings(previousItem, previousDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
+      dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
+      dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+      if (setRef && ref.current) {
+        setRef(refPrevious);
+      }
     };
 
     const moleculeTitle = data && data.name;
@@ -730,7 +774,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={disableUserInteraction}
+                        disabled={true || disableUserInteraction}
                       >
                         X
                       </Button>

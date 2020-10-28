@@ -481,28 +481,30 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const removeOfAllSelectedTypes = () => {
+    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
+
     proteinList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     complexList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     fragmentDisplayList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     surfaceList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     densityList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     vectorOnList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
       dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
   };

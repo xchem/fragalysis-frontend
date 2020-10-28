@@ -31,7 +31,8 @@ import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
-
+import { OBJECT_TYPE } from '../../nglView/constants';
+import { getRepresentationsByType } from '../../nglView/generatingObjects';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -210,6 +211,7 @@ const MoleculeView = memo(
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
+    const ref = useRef(null);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
@@ -226,6 +228,8 @@ const MoleculeView = memo(
     const filter = useSelector(state => state.selectionReducers.filter);
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
+
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -498,19 +502,24 @@ const MoleculeView = memo(
     const moveSelectedMolSettings = newItemDataset => {
       if (newItemDataset) {
         if (isLigandOn) {
-          dispatch(addLigand(stage, newItemDataset, colourToggle));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND);
+          dispatch(addLigand(stage, newItemDataset, colourToggle, false, representations));
         }
         if (isProteinOn) {
-          dispatch(addHitProtein(stage, newItemDataset, colourToggle));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.HIT_PROTEIN);
+          dispatch(addHitProtein(stage, newItemDataset, colourToggle, representations));
         }
         if (isComplexOn) {
-          dispatch(addComplex(stage, newItemDataset, colourToggle));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX);
+          dispatch(addComplex(stage, newItemDataset, colourToggle, representations));
         }
         if (isSurfaceOn) {
-          dispatch(addSurface(stage, newItemDataset, colourToggle));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE);
+          dispatch(addSurface(stage, newItemDataset, colourToggle, representations));
         }
         if (isDensityOn) {
-          dispatch(addDensity(stage, newItemDataset, colourToggle));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.DENSITY);
+          dispatch(addDensity(stage, newItemDataset, colourToggle, representations));
         }
         if (isVectorOn) {
           dispatch(addVector(stage, newItemDataset)).catch(error => {
@@ -520,12 +529,26 @@ const MoleculeView = memo(
       }
     };
 
+    const scrollToElement = element => {
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    };
+
     const handleClickOnDownArrow = () => {
+      const refNext = ref.current.nextSibling;
+      scrollToElement(refNext);
+
       removeOfAllSelectedTypes();
       moveSelectedMolSettings(nextItemData);
     };
 
     const handleClickOnUpArrow = () => {
+      const refPrevious = ref.current.previousSibling;
+      scrollToElement(refPrevious);
+
       removeOfAllSelectedTypes();
       moveSelectedMolSettings(previousItemData);
     };
@@ -534,7 +557,7 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap">
+        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
