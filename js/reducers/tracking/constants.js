@@ -2,7 +2,8 @@ const prefix = 'REDUCERS_SELECTION_';
 
 export const constants = {
   SET_ACTIONS_LIST: prefix + 'SET_ACTIONS_LIST',
-  APPEND_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST'
+  APPEND_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST',
+  SET_TRACKING_MODAL_OPEN: prefix + 'SET_TRACKING_MODAL_OPEN'
 };
 
 export const actionType = {
@@ -25,7 +26,22 @@ export const actionType = {
   MOLECULE_REMOVED_FROM_SHOPPING_CART: 'MOLECULE_REMOVED_FROM_SHOPPING_CART',
   COMPOUND_SELECTED: 'COMPOUND_SELECTED',
   COMPOUND_DESELECTED: 'COMPOUND_DESELECTED',
-  REPRESENTATION_CHANGED: 'REPRESENTATION_CHANGED'
+  REPRESENTATION_CHANGED: 'REPRESENTATION_CHANGED',
+  REPRESENTATION_ADDED: 'REPRESENTATION_ADDED',
+  REPRESENTATION_REMOVED: 'REPRESENTATION_REMOVED'
+};
+
+export const actionDescription = {
+  LOADED: 'was loaded',
+  TURNED_ON: 'was turned on',
+  TURNED_OFF: 'was turned off',
+  SELECTED: 'was selected',
+  DESELECTED: 'was deselected',
+  ADDED: 'was added',
+  REMOVED: 'was removed',
+  CHANGED: 'was changed',
+  TO_SHOPPING_CART: 'to shopping cart',
+  FROM_SHOPPING_CART: 'from shopping cart'
 };
 
 export const objectType = {

@@ -13,3 +13,8 @@ export const appendToActionList = function(truck_action) {
     truck_action: truck_action
   };
 };
+
+// export const setTrackingModalOpen = isOpen => ({
+//   type: constants.SET_TRACKING_MODAL_OPEN,
+//   payload: isOpen
+// });

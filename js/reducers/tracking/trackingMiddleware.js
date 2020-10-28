@@ -3,7 +3,7 @@ import { constants } from './constants';
 import { findTruckAction } from './trackingActions';
 
 const trackingMiddleware = ({ dispatch, getState }) => next => action => {
-  console.log(`Redux Log:`, action);
+  //console.log(`Redux Log:`, action);
 
   const state = getState();
   if (!action.type.includes(constants.APPEND_ACTIONS_LIST)) {
