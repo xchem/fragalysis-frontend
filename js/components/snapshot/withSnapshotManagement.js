@@ -29,8 +29,13 @@ export const withSnapshotManagement = WrappedComponent => {
     const targetName = useSelector(state => state.apiReducers.target_on_name);
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const projectId = match && match.params && match.params.projectId;
-    const target = match && match.params && match.params.target;
+    const directDisplay = useSelector(state => state.apiReducers.direct_access);
+    let target = match && match.params && match.params.target;
     const disableUserInteraction = useDisableUserInteraction();
+
+    if (directDisplay && directDisplay.target) {
+      target = directDisplay.target;
+    }
 
     const enableSaveButton =
       (projectId && currentProject.projectID !== null && currentProject.authorID !== null && DJANGO_CONTEXT['pk']) ||

@@ -1,7 +1,7 @@
 import React, { memo, useContext } from 'react';
 import { Box, IconButton, makeStyles, Snackbar, useTheme } from '@material-ui/core';
 import Header from '../header';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { Management } from '../management/management';
 import Tindspect from '../tindspect/Tindspect';
 import Landing from '../landing/Landing';
@@ -16,6 +16,7 @@ import { Close } from '@material-ui/icons';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 import { SessionRedirect } from '../snapshot/sessionRedirect';
+import { DirectDisplay } from '../direct/directDisplay';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -45,8 +46,8 @@ const Routes = memo(() => {
         <Switch>
           <Route exact path={URLS.projects} component={Projects} />
           <Route exact path={`${URLS.projects}:projectId/history`} component={ProjectDetailSessionList} />
-          <Route exact path={`${URLS.projects}:projectId`} component={ProjectPreview} />} />
-          <Route exact path={`${URLS.projects}:projectId/:snapshotId`} component={ProjectPreview} />} />
+          <Route exact path={`${URLS.projects}:projectId`} component={ProjectPreview} />
+          <Route exact path={`${URLS.projects}:projectId/:snapshotId`} component={ProjectPreview} />
           <Route exact path={URLS.management} component={Management} />
           <Route exact path="/viewer/react/fraginpect" component={Tindspect} />
           <Route exact path={URLS.landing} component={Landing} />
@@ -57,6 +58,7 @@ const Routes = memo(() => {
             render={routeProps => <Preview hideProjects resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
+          <Route path={`${URLS.direct}*`} component={DirectDisplay} />
         </Switch>
       </Box>
       <BrowserCheck />

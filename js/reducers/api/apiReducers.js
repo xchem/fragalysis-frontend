@@ -11,6 +11,7 @@ export const INITIAL_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
+  all_mol_lists: {},
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -34,13 +35,16 @@ export const INITIAL_STATE = {
   sessionId: undefined,
   sessionIdList: [],
   sessionTitle: undefined,
-  user_id: undefined
+  user_id: undefined,
+  direct_access: {},
+  direct_access_processed: false
 };
 
 export const RESET_TARGET_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
+  all_mol_lists: {},
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -64,7 +68,9 @@ export const RESET_TARGET_STATE = {
   sessionId: undefined,
   sessionIdList: [],
   sessionTitle: undefined,
-  user_id: undefined
+  user_id: undefined,
+  direct_access: {}
+  // direct_access_processed: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -106,10 +112,14 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         cached_mol_lists: action.cached_mol_lists
       });
 
+    case constants.SET_ALL_MOL_LISTS:
+      return { ...state, all_mol_lists: action.all_mol_lists };
+
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {
         pandda_event_list: action.pandda_event_list
       });
+
     case constants.SET_PANNDA_SITE_LIST:
       return Object.assign({}, state, {
         pandda_site_list: action.pandda_site_list
@@ -159,6 +169,12 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         sessionId: action.sessionId
       });
+
+    case constants.SET_DIRECT_ACCESS:
+      return {...state, direct_access: action.direct_access};
+    
+    case constants.SET_DIRECT_ACCESS_PROCESSED:
+      return {...state, direct_access_processed: action.direct_access_processed};
 
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];
@@ -225,7 +241,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         pandda_site_on: action.pandda_site_on,
         pandda_event_list: action.pandda_event_list,
         pandda_site_list: action.pandda_site_list,
-        latestSession: action.latestSession
+        latestSession: action.latestSession,
+        direct_access: action.direct_access
+        // direct_access_processed: action.direct_access_processed
       });
 
     case constants.RESET_TARGET_STATE:

@@ -10,7 +10,9 @@ export const URLS = {
   target: '/viewer/react/preview/target/',
 
   // Projects feature
-  projects: '/viewer/react/projects/'
+  projects: '/viewer/react/projects/',
+  // Direct feature
+  direct: '/viewer/react/preview/direct/'
 };
 
 export const base_url = window.location.protocol + '//' + window.location.host;
