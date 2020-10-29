@@ -40,7 +40,7 @@ import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { IdeaReport } from '../userFeedback/ideaReport';
 import { FundersModal } from '../funders/fundersModal';
-import { TrackingModal } from '../../reducers/tracking/trackingModal/trackingModal';
+import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
 

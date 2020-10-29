@@ -1,4 +1,4 @@
-import { actionType, objectType, actionDescription } from './constants';
+import { actionType, actionObjectType, actionDescription } from './constants';
 import { constants as apiConstants } from '../api/constants';
 import { CONSTANTS as nglConstants } from '../ngl/constants';
 import { constants as selectionConstants } from '../selection/constants';
@@ -15,10 +15,10 @@ export const findTruckAction = (action, state) => {
         type: actionType.TARGET_LOADED,
         timestamp: Date.now(),
         username: username,
-        object_type: objectType.TARGET,
+        object_type: actionObjectType.TARGET,
         object_name: targetName,
         object_id: action.target_on,
-        text: `${objectType.TARGET.toLowerCase()} ${targetName} ${actionDescription.LOADED}`
+        text: `${actionDescription.TARGET} ${targetName} ${actionDescription.LOADED}`
       };
     }
   } else if (action.type.includes(apiConstants.SET_MOL_GROUP_ON)) {
@@ -31,10 +31,10 @@ export const findTruckAction = (action, state) => {
           type: actionType.SITE_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          object_type: objectType.SITE,
+          object_type: actionObjectType.SITE,
           object_name: molGroupName,
           object_id: action.mol_group_on,
-          text: `${objectType.SITE.toLowerCase()} ${molGroupName} ${actionDescription.TURNED_ON}`
+          text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_ON}`
         };
       }
     }
@@ -46,361 +46,415 @@ export const findTruckAction = (action, state) => {
         type: actionType.SITE_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: objectType.SITE,
+        object_type: actionObjectType.SITE,
         object_name: molGroupName,
         object_id: objectId,
-        text: `${objectType.SITE.toLowerCase()} ${molGroupName} ${actionDescription.TURNED_OFF}`
+        text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.LIGAND_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Ligand ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST)) {
     if (action.item) {
-      let objectType = action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE;
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.LIGAND_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
         object_type: objectType,
-        object_name: action.item.name,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Ligand ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_PROTEIN_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.SIDECHAINS_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Protein ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_PROTEIN_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.SIDECHAINS_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Protein ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_COMPLEX_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.INTERACTIONS_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Complex ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_COMPLEX_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.INTERACTIONS_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Complex ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_SURFACE_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.SURFACE_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Surface ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_SURFACE_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.SURFACE_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Surface ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_VECTOR_ON_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.VECTORS_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Vector ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.VECTOR} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_VECTOR_ON_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.VECTORS_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.item.isInspiration === true ? objectType.INSPIRATION : objectType.MOLECULE,
-        object_name: action.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.item.id,
-        text: `Vector ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${action.object_name}`
+        text: `${actionDescription.VECTOR} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_TO_BUY_LIST)) {
     if (action.item) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
         timestamp: Date.now(),
         username: username,
-        object_type: objectType.MOLECULE,
-        object_name: action.item.name,
-        object_id: action.item.id
+        object_type: actionObjectType.MOLECULE,
+        object_name: objectName,
+        object_id: action.item.id,
+        text: `${objectType} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
       };
-      truckAction.text = `${truckAction.object_type.toLowerCase()} ${truckAction.object_name} ${
-        actionDescription.ADDED
-      } ${actionDescription.TO_SHOPPING_CART}`;
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_TO_BUY_LIST)) {
     if (action.item) {
+      let objectType = actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
       truckAction = {
         type: actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART,
         timestamp: Date.now(),
         username: username,
-        object_type: objectType.MOLECULE,
-        object_name: action.item.name,
-        object_id: action.item.id
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.item.id,
+        text: `${objectType} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
       };
-      truckAction.text = `${truckAction.object_type.toLowerCase()} ${truckAction.object_name}     ${
-        actionDescription.REMOVED
-      } ${actionDescription.FROM_SHOPPING_CART}`;
     }
   } else if (action.type.includes(selectionConstants.SET_CURRENT_VECTOR)) {
-    truckAction = {
-      type: actionType.VECTOR_SELECTED,
-      timestamp: Date.now(),
-      username: username,
-      object_type: objectType.MOLECULE,
-      object_name: action.payload,
-      object_id: action.payload,
-      text: `Vector ${actionDescription.SELECTED} for ${action.object_type.toLowerCase()} ${action.object_name}`
-    };
+    if (action.payload) {
+      let objectType = actionObjectType.MOLECULE;
+      let objectName = action.payload;
+
+      truckAction = {
+        type: actionType.VECTOR_SELECTED,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.payload,
+        text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.SELECTED}`
+      };
+    }
   } else if (action.type.includes(customDatasetConstants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET)) {
     if (action.payload) {
+      let objectType = actionObjectType.COMPOUND;
+      let objectName = action.payload.moleculeTitle;
+
       truckAction = {
         type: actionType.COMPOUND_SELECTED,
         timestamp: Date.now(),
         username: username,
-        object_type: objectType.COMPOUND,
-        object_name: action.payload.moleculeTitle,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.moleculeID,
         dataset_id: action.payload.datasetID,
-        text: `${action.object_type.toLowerCase()} ${action.object_name} ${actionDescription.SELECTED} of dataset: ${
-          action.payload.datasetID
-        }`
+        text: `${objectType} ${objectName} ${actionDescription.SELECTED} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET)) {
     if (action.payload) {
+      let objectType = actionObjectType.COMPOUND;
+      let objectName = action.payload.moleculeTitle;
+
       truckAction = {
         type: actionType.COMPOUND_DESELECTED,
         timestamp: Date.now(),
         username: username,
-        object_type: objectType.COMPOUND,
-        object_name: action.payload.moleculeTitle,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.moleculeID,
         dataset_id: action.payload.datasetID,
-        text: `${action.object_type.toLowerCase()} ${action.object_name} ${actionDescription.DESELECTED} of dataset: ${
-          action.payload.datasetID
-        }`
+        text: `${objectType} ${objectName} ${actionDescription.DESELECTED} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.APPEND_LIGAND_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.LIGAND_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Ligand ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_LIGAND_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.LIGAND_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Ligand ${actionDescription.TURNED_OF} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.APPEND_PROTEIN_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.SIDECHAINS_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Protein ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_PROTEIN_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.SIDECHAINS_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Protein ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.APPEND_COMPLEX_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.INTERACTIONS_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Complex ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_COMPLEX_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.INTERACTIONS_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Complex ${actionDescription.TURNED_OF} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.APPEND_SURFACE_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.SURFACE_TURNED_ON,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Surface ${actionDescription.TURNED_ON} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_SURFACE_LIST)) {
     if (action.payload && action.payload.item) {
+      let objectType =
+        action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+      let objectName = action.payload.item.name;
+
       truckAction = {
         type: actionType.SURFACE_TURNED_OFF,
         timestamp: Date.now(),
         username: username,
-        object_type: action.payload.item.isCrossReference === true ? objectType.CROSS_REFERENCE : objectType.COMPOUND,
-        object_name: action.payload.item.name,
+        object_type: objectType,
+        object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `Surface ${actionDescription.TURNED_OFF} for ${action.object_type.toLowerCase()} ${
-          action.object_name
-        } of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(nglConstants.UPDATE_COMPONENT_REPRESENTATION)) {
+    let objectType = actionObjectType.REPRESENTATION;
+
     truckAction = {
       type: actionType.REPRESENTATION_CHANGED,
       timestamp: Date.now(),
       username: username,
-      object_type: objectType.REPRESENTATION,
+      object_type: actionObjectType.REPRESENTATION,
       object_name: action.objectInViewID,
       object_id: action.objectInViewID,
       representation_id: action.representationID,
-      new_representation: action.newRepresentation
+      new_representation: action.newRepresentation,
+      text: `${objectType} of ${action.objectInViewID} ${actionDescription.CHANGED}`
     };
-    truckAction.text = `${truckAction.object_type.toLowerCase()} of ${truckAction.object_name} ${
-      actionDescription.CHANGED
-    }`;
   } else if (action.type.includes(nglConstants.ADD_COMPONENT_REPRESENTATION)) {
+    let objectType = actionObjectType.REPRESENTATION;
+
     truckAction = {
       type: actionType.REPRESENTATION_ADDED,
       timestamp: Date.now(),
       username: username,
-      object_type: objectType.REPRESENTATION,
+      object_type: actionObjectType.REPRESENTATION,
       object_name: action.objectInViewID,
       object_id: action.objectInViewID,
-      new_representation: action.newRepresentation
+      new_representation: action.newRepresentation,
+      text: `${objectType} of ${action.objectInViewID} ${actionDescription.ADDED}`
     };
-    truckAction.text = `${truckAction.object_type.toLowerCase()} of ${truckAction.object_name} ${
-      actionDescription.ADDED
-    }`;
   } else if (action.type.includes(nglConstants.REMOVE_COMPONENT_REPRESENTATION)) {
+    let objectType = actionObjectType.REPRESENTATION;
+
     truckAction = {
       type: actionType.REPRESENTATION_REMOVED,
       timestamp: Date.now(),
       username: username,
-      object_type: objectType.REPRESENTATION,
+      object_type: objectType,
       object_name: action.objectInViewID,
       object_id: action.objectInViewID,
-      representation_id: action.representationID
+      representation_id: action.representationID,
+      text: `${objectType} of ${action.objectInViewID} ${actionDescription.REMOVED}`
     };
-    truckAction.text = `${truckAction.object_type.toLowerCase()} of ${truckAction.object_name} ${
-      actionDescription.REMOVED
-    }`;
   }
 
   return truckAction;
@@ -418,4 +472,11 @@ const getTargetName = (targetId, state) => {
   let target = targetList.find(target => target.id === targetId);
   let targetName = (target && target.title) || '';
   return targetName;
+};
+
+const getMoleculeName = (moleculeId, state) => {
+  let moleculeList = state.apiReducers.molecule_list;
+  let molecule = moleculeList.find(molecule => molecule.id === moleculeId);
+  let moleculeName = (molecule && molecule.protein_code) || '';
+  return moleculeName;
 };

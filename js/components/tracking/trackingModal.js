@@ -1,16 +1,20 @@
 import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
-import Modal from '../../../components/common/Modal';
+import Modal from '../common/Modal';
 import { makeStyles, Typography } from '@material-ui/core';
 import { Timeline, TimelineEvent } from 'react-event-timeline';
 import { Check } from '@material-ui/icons';
+import palette from '../../theme/palette';
 
 const useStyles = makeStyles(theme => ({
   customModal: {
-    width: '90%',
+    width: '70%',
     height: '90%',
-    backgroundColor: '#ffffff',
-    overflow: scroll
+    overflow: 'scroll'
+  },
+  timelineEvent: {
+    borderBottom: '1px dashed ' + palette.divider,
+    paddingBottom: '10px'
   }
 }));
 
@@ -33,6 +37,8 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
             title={data.text}
             createdAt={new Date(data.timestamp).toLocaleString()}
             icon={<Check />}
+            iconColor={palette.primary.main}
+            className={classes.timelineEvent}
           ></TimelineEvent>
         ))}
       </Timeline>

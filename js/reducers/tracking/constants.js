@@ -2,8 +2,7 @@ const prefix = 'REDUCERS_SELECTION_';
 
 export const constants = {
   SET_ACTIONS_LIST: prefix + 'SET_ACTIONS_LIST',
-  APPEND_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST',
-  SET_TRACKING_MODAL_OPEN: prefix + 'SET_TRACKING_MODAL_OPEN'
+  APPEND_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST'
 };
 
 export const actionType = {
@@ -41,10 +40,17 @@ export const actionDescription = {
   REMOVED: 'was removed',
   CHANGED: 'was changed',
   TO_SHOPPING_CART: 'to shopping cart',
-  FROM_SHOPPING_CART: 'from shopping cart'
+  FROM_SHOPPING_CART: 'from shopping cart',
+  LIGAND: 'Ligand',
+  SIDECHAINS: 'Sidechain',
+  INTERACTIONS: 'Interaction',
+  VECTOR: 'Vector',
+  SURFACE: 'Surface',
+  SITE: 'Site',
+  TARGET: 'Target'
 };
 
-export const objectType = {
+export const actionObjectType = {
   TARGET: 'TARGET',
   SITE: 'SITE',
   MOLECULE: 'MOLECULE',
