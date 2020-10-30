@@ -8,7 +8,7 @@ const trackingMiddleware = ({ dispatch, getState }) => next => action => {
   const state = getState();
   if (!action.type.includes(constants.APPEND_ACTIONS_LIST)) {
     let truckAction = findTruckAction(action, state);
-    if (truckAction != null) {
+    if (truckAction && truckAction != null) {
       dispatch(appendToActionList(truckAction));
     }
   }
