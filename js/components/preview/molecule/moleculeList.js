@@ -17,7 +17,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, useCallback, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
@@ -49,7 +49,7 @@ import {
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
-import { selectJoinedMoleculeList } from './redux/selectors';
+import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
 import { debounce } from 'lodash';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
@@ -235,6 +235,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
   const filter = useSelector(state => state.selectionReducers.filter);
   const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
+  const getAllMoleculeList = useSelector(state => selectAllMoleculeList(state));
   const selectedAll = useRef(false);
 
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -278,7 +279,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   let joinedMoleculeLists = [];
   if (searchString !== null) {
-    joinedMoleculeLists = getJoinedMoleculeList.filter(molecule =>
+    joinedMoleculeLists = getAllMoleculeList.filter(molecule =>
       molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
     );
   } else {
