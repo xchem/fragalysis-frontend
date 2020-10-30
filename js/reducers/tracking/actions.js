@@ -13,3 +13,10 @@ export const appendToActionList = function(truck_action) {
     truck_action: truck_action
   };
 };
+
+export const setCurrentActionsList = function(current_actions_list) {
+  return {
+    type: constants.SET_CURRENT_ACTIONS_LIST,
+    current_actions_list: current_actions_list
+  };
+};
