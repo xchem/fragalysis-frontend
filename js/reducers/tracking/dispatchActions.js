@@ -1,5 +1,6 @@
 import { setCurrentActionsList } from './actions';
 import { actionType } from './constants';
+import { VIEWS } from '../../../js/constants/constants';
 
 export const selectCurrentActionsList = () => (dispatch, getState) => {
   const state = getState();
@@ -19,9 +20,9 @@ export const selectCurrentActionsList = () => (dispatch, getState) => {
   const currentDatasetProteins = state.datasetsReducers.proteinList;
   const currentDatasetComplexes = state.datasetsReducers.complexLists;
   const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
-  const currentDatasets = state.datasetsReducers.datasets;
 
   const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
+  const currentobjectsInView = state.nglReducers.objectsInView;
 
   const orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
   const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
@@ -29,14 +30,29 @@ export const selectCurrentActionsList = () => (dispatch, getState) => {
 
   let currentActions = [];
 
-  getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, currentTargets, currentActions);
-  getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, currentSites, currentActions);
-  getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, currentLigands, currentActions);
-  getCurrentActionList(orderedActionList, actionType.SIDECHAINS_TURNED_ON, currentProteins, currentActions);
-  getCurrentActionList(orderedActionList, actionType.INTERACTIONS_TURNED_ON, currentComplexes, currentActions);
-  getCurrentActionList(orderedActionList, actionType.SURFACE_TURNED_ON, currentSurfaces, currentActions);
-  getCurrentActionList(orderedActionList, actionType.VECTORS_TURNED_ON, currentVectors, currentActions);
-  getCurrentActionList(orderedActionList, actionType.VECTOR_SELECTED, currentVectorSmiles, currentActions);
+  getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
+  getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
+  getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
+  getCurrentActionList(
+    orderedActionList,
+    actionType.SIDECHAINS_TURNED_ON,
+    getCollection(currentProteins),
+    currentActions
+  );
+  getCurrentActionList(
+    orderedActionList,
+    actionType.INTERACTIONS_TURNED_ON,
+    getCollection(currentComplexes),
+    currentActions
+  );
+  getCurrentActionList(orderedActionList, actionType.SURFACE_TURNED_ON, getCollection(currentSurfaces), currentActions);
+  getCurrentActionList(orderedActionList, actionType.VECTORS_TURNED_ON, getCollection(currentVectors), currentActions);
+  getCurrentActionList(
+    orderedActionList,
+    actionType.VECTOR_SELECTED,
+    getCollection(currentVectorSmiles),
+    currentActions
+  );
 
   getCurrentActionList(
     orderedActionList,
@@ -48,44 +64,59 @@ export const selectCurrentActionsList = () => (dispatch, getState) => {
   getCurrentActionList(
     orderedActionList,
     actionType.LIGAND_TURNED_ON,
-    getCollectionOfDataset(currentDatasets, currentDatasetLigands),
+    getCollectionOfDataset(currentDatasetLigands),
     currentActions
   );
   getCurrentActionList(
     orderedActionList,
     actionType.SIDECHAINS_TURNED_ON,
-    getCollectionOfDataset(currentDatasets, currentDatasetProteins),
+    getCollectionOfDataset(currentDatasetProteins),
     currentActions
   );
   getCurrentActionList(
     orderedActionList,
     actionType.INTERACTIONS_TURNED_ON,
-    getCollectionOfDataset(currentDatasets, currentDatasetComplexes),
+    getCollectionOfDataset(currentDatasetComplexes),
 
     currentActions
   );
   getCurrentActionList(
     orderedActionList,
     actionType.SURFACE_TURNED_ON,
-    getCollectionOfDataset(currentDatasets, currentDatasetSurfaces),
+    getCollectionOfDataset(currentDatasetSurfaces),
     currentActions
   );
 
   getCurrentActionList(
     orderedActionList,
     actionType.COMPOUND_SELECTED,
-    getCollectionOfDataset(currentDatasets, currentDatasetBuyList),
+    getCollectionOfDataset(currentDatasetBuyList),
+    currentActions
+  );
+
+  getCurrentActionList(
+    orderedActionList,
+    actionType.REPRESENTATION_CHANGED,
+    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
     currentActions
   );
 
   dispatch(setCurrentActionsList(currentActions));
 };
 
-const getCurrentActionList = (orderedActionList, actionType, collection, currentActions) => {
-  let actionList = orderedActionList.filter(action => action.type === actionType);
+const getCurrentActionList = (orderedActionList, type, collection, currentActions) => {
+  let actionList =
+    type !== actionType.REPRESENTATION_CHANGED
+      ? orderedActionList.filter(action => action.type === type)
+      : orderedActionList.filter(
+          action =>
+            action.type === actionType.REPRESENTATION_ADDED ||
+            action.type === actionType.REPRESENTATION_REMOVED ||
+            action.type === actionType.REPRESENTATION_CHANGED
+        );
   if (collection) {
     collection.forEach(data => {
-      let action = actionList.find(action => action.object_id === data);
+      let action = actionList.find(action => action.object_id === data.id && action.dataset_id === data.datasetId);
 
       if (action) {
         currentActions.push(Object.assign(mapCurrentAction(action)));
@@ -103,17 +134,26 @@ const mapCurrentAction = action => {
   });
 };
 
-const getCollectionOfDataset = (currentDatasets, dataList) => {
+const getCollection = dataList => {
   let list = [];
-  if (currentDatasets && dataList) {
-    currentDatasets.forEach(data => {
-      let dataValues = dataList[data.id];
-      if (dataValues) {
-        list.push(...dataValues);
-      }
-    });
+  if (dataList) {
+    var result = dataList.map(value => ({ id: value }));
+    list.push(...result);
   }
+  return list;
+};
 
+const getCollectionOfDataset = dataList => {
+  let list = [];
+  if (dataList) {
+    for (const datasetId in dataList) {
+      let values = dataList[datasetId];
+      if (values) {
+        var result = values.map(value => ({ id: value, datasetId: datasetId }));
+        list.push(...result);
+      }
+    }
+  }
   return list;
 };
 
@@ -121,12 +161,25 @@ const getCollectionOfShoppingCart = dataList => {
   let list = [];
   if (dataList) {
     dataList.forEach(data => {
-      let dataValue = data.vector;
-      if (dataValue) {
-        list.push(dataValue);
+      let value = data.vector;
+      if (value) {
+        list.push({ id: value });
       }
     });
   }
+  return list;
+};
 
+const getCollectionOfDatasetOfRepresentation = dataList => {
+  let list = [];
+  for (const view in dataList) {
+    let objectView = dataList[view];
+    if (objectView && objectView !== null && objectView.display_div === VIEWS.MAJOR_VIEW) {
+      let value = dataList[view].name;
+      if (value) {
+        list.push({ id: value });
+      }
+    }
+  }
   return list;
 };
