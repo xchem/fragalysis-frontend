@@ -1,9 +1,9 @@
-const prefix = 'REDUCERS_SELECTION_';
+const prefix = 'REDUCERS_TRACKING_';
 
 export const constants = {
   SET_ACTIONS_LIST: prefix + 'SET_ACTIONS_LIST',
   APPEND_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST',
-  SET_CURRENT_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST'
+  SET_CURRENT_ACTIONS_LIST: prefix + 'SET_CURRENT_ACTIONS_LIST'
 };
 
 export const actionType = {

@@ -204,8 +204,8 @@ export const findTruckAction = (action, state) => {
     }
   } else if (action.type.includes(selectionConstants.APPEND_TO_BUY_LIST)) {
     if (action.item) {
-      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
-      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+      let objectType = actionObjectType.MOLECULE;
+      let objectName = action.vector;
 
       truckAction = {
         type: actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
@@ -213,14 +213,14 @@ export const findTruckAction = (action, state) => {
         username: username,
         object_type: actionObjectType.MOLECULE,
         object_name: objectName,
-        object_id: action.item.id,
+        object_id: objectName,
         text: `${objectType} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_TO_BUY_LIST)) {
     if (action.item) {
       let objectType = actionObjectType.MOLECULE;
-      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+      let objectName = action.vector;
 
       truckAction = {
         type: actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART,
@@ -228,7 +228,7 @@ export const findTruckAction = (action, state) => {
         username: username,
         object_type: objectType,
         object_name: objectName,
-        object_id: action.item.id,
+        object_id: objectName,
         text: `${objectType} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
       };
     }

@@ -30,13 +30,20 @@ export const selectCurrentActionsList = () => (dispatch, getState) => {
   let currentActions = [];
 
   getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, currentTargets, currentActions);
-
   getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, currentSites, currentActions);
   getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, currentLigands, currentActions);
   getCurrentActionList(orderedActionList, actionType.SIDECHAINS_TURNED_ON, currentProteins, currentActions);
   getCurrentActionList(orderedActionList, actionType.INTERACTIONS_TURNED_ON, currentComplexes, currentActions);
   getCurrentActionList(orderedActionList, actionType.SURFACE_TURNED_ON, currentSurfaces, currentActions);
   getCurrentActionList(orderedActionList, actionType.VECTORS_TURNED_ON, currentVectors, currentActions);
+  getCurrentActionList(orderedActionList, actionType.VECTOR_SELECTED, currentVectorSmiles, currentActions);
+
+  getCurrentActionList(
+    orderedActionList,
+    actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+    getCollectionOfShoppingCart(currentBuyList),
+    currentActions
+  );
 
   getCurrentActionList(
     orderedActionList,
@@ -61,6 +68,13 @@ export const selectCurrentActionsList = () => (dispatch, getState) => {
     orderedActionList,
     actionType.SURFACE_TURNED_ON,
     getCollectionOfDataset(currentDatasets, currentDatasetSurfaces),
+    currentActions
+  );
+
+  getCurrentActionList(
+    orderedActionList,
+    actionType.COMPOUND_SELECTED,
+    getCollectionOfDataset(currentDatasets, currentDatasetBuyList),
     currentActions
   );
 
@@ -92,7 +106,26 @@ const mapCurrentAction = action => {
 const getCollectionOfDataset = (currentDatasets, dataList) => {
   let list = [];
   if (currentDatasets && dataList) {
-    currentDatasets.forEach(data => list.push(dataList[data.id]));
+    currentDatasets.forEach(data => {
+      let dataValues = dataList[data.id];
+      if (dataValues) {
+        list.push(...dataValues);
+      }
+    });
+  }
+
+  return list;
+};
+
+const getCollectionOfShoppingCart = dataList => {
+  let list = [];
+  if (dataList) {
+    dataList.forEach(data => {
+      let dataValue = data.vector;
+      if (dataValue) {
+        list.push(dataValue);
+      }
+    });
   }
 
   return list;
