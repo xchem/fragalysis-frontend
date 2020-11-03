@@ -154,7 +154,7 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_SURFACE_LIST)) {
@@ -378,7 +378,7 @@ export const findTruckAction = (action, state) => {
         object_name: objectName,
         object_id: action.payload.item.id,
         dataset_id: action.payload.datasetID,
-        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
       };
     }
   } else if (action.type.includes(customDatasetConstants.APPEND_SURFACE_LIST)) {
@@ -427,33 +427,35 @@ export const findTruckAction = (action, state) => {
       object_id: action.objectInViewID,
       representation_id: action.representationID,
       new_representation: action.newRepresentation,
-      text: `${objectType} of ${action.objectInViewID} ${actionDescription.CHANGED}`
+      text: `${objectType} parameter of ${action.objectInViewID} ${actionDescription.CHANGED}`
     };
   } else if (action.type.includes(nglConstants.ADD_COMPONENT_REPRESENTATION)) {
     let objectType = actionObjectType.REPRESENTATION;
+    let representationName = action.newRepresentation && action.newRepresentation.type;
 
     truckAction = {
       type: actionType.REPRESENTATION_ADDED,
       timestamp: Date.now(),
       username: username,
       object_type: actionObjectType.REPRESENTATION,
-      object_name: action.objectInViewID,
+      object_name: representationName,
       object_id: action.objectInViewID,
       new_representation: action.newRepresentation,
-      text: `${objectType} of ${action.objectInViewID} ${actionDescription.ADDED}`
+      text: `${objectType} ${representationName} of ${action.objectInViewID} ${actionDescription.ADDED}`
     };
   } else if (action.type.includes(nglConstants.REMOVE_COMPONENT_REPRESENTATION)) {
     let objectType = actionObjectType.REPRESENTATION;
+    let representationName = action.representation && action.representation.type;
 
     truckAction = {
       type: actionType.REPRESENTATION_REMOVED,
       timestamp: Date.now(),
       username: username,
       object_type: objectType,
-      object_name: action.objectInViewID,
+      object_name: representationName,
       object_id: action.objectInViewID,
       representation_id: action.representationID,
-      text: `${objectType} of ${action.objectInViewID} ${actionDescription.REMOVED}`
+      text: `${objectType} ${representationName} of ${action.objectInViewID} ${actionDescription.REMOVED}`
     };
   }
 
