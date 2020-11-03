@@ -35,6 +35,7 @@ const useStyles = makeStyles(theme => ({
 export const TrackingModal = memo(({ openModal, onModalClose }) => {
   const classes = useStyles();
   const actionList = useSelector(state => state.trackingReducers.truck_actions_list);
+  const orderedActionList = actionList.sort((a, b) => a.timestamp - b.timestamp);
 
   if (openModal === undefined) {
     console.log('undefined openModal');
@@ -53,16 +54,25 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
           <div className={classes.divContainer}>
             <div className={classes.divScrollable}>
               <Timeline>
-                {actionList.map((data, index) => (
-                  <TimelineEvent
-                    key={index}
-                    title={data.text}
-                    createdAt={new Date(data.timestamp).toLocaleString()}
-                    icon={data.type.includes('OFF') === true ? <Clear /> : <Check />}
-                    iconColor={palette.primary.main}
-                    className={classes.timelineEvent}
-                  ></TimelineEvent>
-                ))}
+                {orderedActionList &&
+                  orderedActionList.map((data, index) => (
+                    <TimelineEvent
+                      key={index}
+                      title={data.text}
+                      createdAt={new Date(data.timestamp).toLocaleString()}
+                      icon={
+                        data.type.includes('OFF') === true ||
+                        data.type.includes('DESELECTED') === true ||
+                        data.type.includes('REMOVED') === true ? (
+                          <Clear />
+                        ) : (
+                          <Check />
+                        )
+                      }
+                      iconColor={palette.primary.main}
+                      className={classes.timelineEvent}
+                    ></TimelineEvent>
+                  ))}
               </Timeline>
             </div>
           </div>
