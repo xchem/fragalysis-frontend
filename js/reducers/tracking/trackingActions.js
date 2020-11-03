@@ -477,8 +477,19 @@ const getTargetName = (targetId, state) => {
 };
 
 const getMoleculeName = (moleculeId, state) => {
-  let moleculeList = state.apiReducers.molecule_list;
-  let molecule = moleculeList.find(molecule => molecule.id === moleculeId);
-  let moleculeName = (molecule && molecule.protein_code) || '';
+  let moleculeList = state.apiReducers.all_mol_lists;
+  let moleculeName = '';
+
+  if (moleculeList) {
+    for (const group in moleculeList) {
+      let molecules = moleculeList[group];
+
+      let molecule = molecules.find(molecule => molecule.id === moleculeId);
+      if (molecule && molecule != null) {
+        moleculeName = molecule.protein_code;
+        break;
+      }
+    }
+  }
   return moleculeName;
 };
