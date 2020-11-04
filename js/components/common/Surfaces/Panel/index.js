@@ -13,7 +13,8 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
+    height: '100%'
   },
   body: {
     padding: theme.spacing(1)
