@@ -259,7 +259,7 @@ export const onDeselectMoleculeGroup = ({ moleculeGroup, stageSummaryView, major
   }
 };
 
-export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, event }) => (
+export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup }) => (
   dispatch,
   getState
 ) => {
@@ -270,9 +270,9 @@ export const onSelectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorVi
   const objIdx = mol_group_selection.indexOf(moleculeGroup.id);
   const currentMolGroup = mol_group_list.find(o => o.id === moleculeGroup.id);
 
-  if (event.target.checked && objIdx === -1) {
+  if (selectGroup && objIdx === -1) {
     dispatch(selectMoleculeGroup(currentMolGroup, stageSummaryView));
-  } else if (!event.target.checked && objIdx > -1) {
+  } else if (!selectGroup && objIdx > -1) {
     dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
   }
 };
