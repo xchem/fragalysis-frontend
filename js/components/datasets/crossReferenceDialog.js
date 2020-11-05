@@ -330,6 +330,11 @@ export const CrossReferenceDialog = memo(
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      L={ligandList.includes(data.id)}
+                      P={proteinList.includes(data.id)}
+                      C={complexList.includes(data.id)}
+                      S={false}
+                      V={false}
                     />
                   ))}
                 {!(moleculeList.length > 0) && (

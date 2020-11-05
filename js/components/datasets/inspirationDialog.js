@@ -402,6 +402,11 @@ export const InspirationDialog = memo(
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      L={ligandList.includes(molecule.id)}
+                      P={proteinList.includes(molecule.id)}
+                      C={complexList.includes(molecule.id)}
+                      S={surfaceList.includes(molecule.id)}
+                      V={vectorOnList.includes(molecule.id)}
                     />
                   ))}
                 {!(moleculeList.length > 0) && (

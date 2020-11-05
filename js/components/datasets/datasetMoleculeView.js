@@ -252,7 +252,8 @@ export const DatasetMoleculeView = memo(
     nextItemData,
     removeOfAllSelectedTypes,
     removeOfAllSelectedTypesOfInspirations,
-    moveSelectedMoleculeInspirationsSettings
+    moveSelectedMoleculeInspirationsSettings,
+    L, P, C, S, V
   }) => {
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
@@ -261,10 +262,6 @@ export const DatasetMoleculeView = memo(
     const dispatch = useDispatch();
     const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
 
-    const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
-    const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
-    const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
     const datasets = useSelector(state => state.datasetsReducers.datasets);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filter = useSelector(state => state.selectionReducers.filter);
@@ -280,10 +277,10 @@ export const DatasetMoleculeView = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const isLigandOn = (currentID && ligandList.includes(currentID)) || false;
-    const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
-    const isComplexOn = (currentID && complexList.includes(currentID)) || false;
-    const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
+    const isLigandOn = L;
+    const isProteinOn = P;
+    const isComplexOn = C;
+    const isSurfaceOn = S;
 
     const isCheckedToBuy = (currentID && compoundsToBuyList && compoundsToBuyList.includes(currentID)) || false;
 
@@ -339,10 +336,10 @@ export const DatasetMoleculeView = memo(
         }
       };
     }, [
-      complexList,
+      C,
       currentID,
       data,
-      ligandList,
+      L,
       imageHeight,
       imageWidth,
       data.smiles,
