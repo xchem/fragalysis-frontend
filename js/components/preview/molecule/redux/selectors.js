@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
+export const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
 const getMoleculeGroupSelection = state => state.selectionReducers.mol_group_selection;
 const getObjectSelection = state => state.selectionReducers.object_selection;
 const getAllMolecules = state => state.apiReducers.all_mol_lists;
@@ -39,17 +39,16 @@ export const selectAllMoleculeList = createSelector(
   (all_mol_lists, mol_group_list) => {
     const groupList = mol_group_list || [];
     const allMoleculesList = [];
-    groupList.forEach(site => {
-      const siteId = site.id;
-      const siteMolecules = (all_mol_lists || {})[siteId];
+    groupList.forEach((site, index) => {
+      const siteMolecules = (all_mol_lists || {})[site.id];
 
       if (siteMolecules) {
         siteMolecules.forEach(r => {
-          allMoleculesList.push({ site: siteId, ...r })
+          allMoleculesList.push({ site: index + 1, ...r })
         });
       }
     });
 
     return allMoleculesList;
   }
-)
+);

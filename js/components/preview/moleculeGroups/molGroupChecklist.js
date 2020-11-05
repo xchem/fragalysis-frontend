@@ -73,9 +73,7 @@ const molGroupChecklist = memo(({}) => {
                       <Checkbox
                         color="primary"
                         checked={checked}
-                        onChange={event =>
-                          dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, event }))
-                        }
+                        onChange={event => dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: event.target.checked }))}
                         disabled={disableUserInteraction}
                       />
                     </Grid>
