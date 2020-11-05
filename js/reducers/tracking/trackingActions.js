@@ -7,6 +7,8 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 export const findTruckAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
+  const target_on_name = state.apiReducers.target_on_name;
+
   let truckAction = null;
   if (action.type.includes(apiConstants.SET_TARGET_ON)) {
     if (action.target_on) {
@@ -64,7 +66,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
+        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST)) {
@@ -79,7 +84,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
+        text: `${actionDescription.LIGAND} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_PROTEIN_LIST)) {
@@ -94,7 +102,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
+        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_PROTEIN_LIST)) {
@@ -109,7 +120,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
+        text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_COMPLEX_LIST)) {
@@ -124,7 +138,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_COMPLEX_LIST)) {
@@ -139,7 +156,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
+        text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_SURFACE_LIST)) {
@@ -154,7 +174,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_SURFACE_LIST)) {
@@ -169,7 +192,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
+        text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_VECTOR_ON_LIST)) {
@@ -184,7 +210,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.VECTOR} ${actionDescription.TURNED_ON} ${objectType} ${objectName}`
+        text: `${actionDescription.VECTOR} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.REMOVE_FROM_VECTOR_ON_LIST)) {
@@ -199,7 +228,10 @@ export const findTruckAction = (action, state) => {
         object_type: objectType,
         object_name: objectName,
         object_id: action.item.id,
-        text: `${actionDescription.VECTOR} ${actionDescription.TURNED_OFF} ${objectType} ${objectName}`
+        text: `${actionDescription.VECTOR} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
       };
     }
   } else if (action.type.includes(selectionConstants.APPEND_TO_BUY_LIST)) {
@@ -460,6 +492,11 @@ export const findTruckAction = (action, state) => {
   }
 
   return truckAction;
+};
+
+const getMoleculeTitle = (objectName, targetName) => {
+  let title = objectName.replace(`${targetName}-`, '');
+  return title;
 };
 
 const getMolGroupName = (molGroupId, state) => {

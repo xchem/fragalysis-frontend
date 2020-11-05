@@ -109,6 +109,14 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => d
   }
 };
 
+export const saveMoleculeGroupsToNglViewWithoutProject = (molGroupList, stage) => dispatch => {
+  if (molGroupList) {
+    molGroupList.map(data =>
+      dispatch(loadObject({ target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(data)), stage }))
+    );
+  }
+};
+
 export const selectMoleculeGroup = (moleculeGroup, summaryViewStage) => (dispatch, getState) => {
   const state = getState();
   const moleculeGroupSelection = state.selectionReducers.mol_group_selection.slice();
@@ -163,6 +171,32 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
         dispatch(setMolGroupList(mol_group_list));
       },
       cancel: onCancel
+    });
+  } else if (target_on && isStateLoaded) {
+    // to enable user interaction with application
+    dispatch(setCountOfRemainingMoleculeGroups(0));
+  }
+  return Promise.resolve();
+};
+
+export const loadMoleculeGroupsOfTarget = ({ summaryView, setOldUrl, isStateLoaded, target_on }) => (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+  const group_type = state.apiReducers.group_type;
+  const list_type = OBJECT_TYPE.MOLECULE_GROUP;
+
+  if (target_on && !isStateLoaded) {
+    return loadFromServer({
+      url: getUrl({ list_type, target_on, group_type }),
+      afterPush: data_list => dispatch(saveMoleculeGroupsToNglViewWithoutProject(data_list, summaryView)),
+      list_type,
+      setOldUrl,
+      setObjectList: mol_group_list => {
+        mol_group_list.sort((a, b) => a.id - b.id);
+        dispatch(setMolGroupList(mol_group_list));
+      }
     });
   } else if (target_on && isStateLoaded) {
     // to enable user interaction with application
