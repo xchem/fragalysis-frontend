@@ -60,6 +60,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
+import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -260,7 +261,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const isActiveFilter = !!(filter || {}).active;
 
   const { getNglView } = useContext(NglContext);
-  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const filterRef = useRef();
@@ -357,11 +358,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     ) {
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
-        dispatch(applyDirectSelection(stage, stageSummaryView));
+        dispatch(applyDirectSelection(majorViewStage, stageSummaryView));
         wereMoleculesInitialized.current = true;
       }
       if (
-        stage &&
+        majorViewStage &&
         all_mol_lists &&
         all_mol_lists[mol_group_on] &&
         hideProjects &&
@@ -370,14 +371,14 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       ) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
         let moleculeList = all_mol_lists[mol_group_on];
-        dispatch(initializeMolecules(stage, moleculeList, firstInitializationMolecule.current));
+        dispatch(initializeMolecules(majorViewStage, moleculeList, firstInitializationMolecule.current));
         wereMoleculesInitialized.current = true;
       }
     }
   }, [
     list_type,
     mol_group_on,
-    stage,
+    majorViewStage,
     firstLoad,
     target_on,
     dispatch,
@@ -475,7 +476,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const removeSelectedType = type => {
     joinedMoleculeLists.forEach(molecule => {
-      dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+      dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length]));
     });
     selectedAll.current = false;
   };
@@ -483,33 +484,39 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const removeOfAllSelectedTypes = () => {
     proteinList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      dispatch(removeHitProtein(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     complexList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      dispatch(removeComplex(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     fragmentDisplayList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      dispatch(removeLigand(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     surfaceList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      dispatch(removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     densityList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      dispatch(removeDensity(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
     vectorOnList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+      dispatch(removeVector(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
     });
   };
 
+  const selectMoleculeSite = (moleculeGroupSite) => {
+    const moleculeGroup = mol_group_list[moleculeGroupSite - 1];
+    dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: true }));
+  }
+
   const addNewType = type => {
     joinedMoleculeLists.forEach(molecule => {
-      dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
+      selectMoleculeSite(molecule.site);
+      dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length]));
     });
   };
 
@@ -586,7 +593,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     <IconButton
       color={'inherit'}
       disabled={!(object_selection || []).length}
-      onClick={() => dispatch(hideAllSelectedMolecules(stage, joinedMoleculeLists))}
+      onClick={() => dispatch(hideAllSelectedMolecules(majorViewStage, joinedMoleculeLists))}
     >
       <Tooltip title="Hide all">
         <DeleteSweep />
@@ -789,6 +796,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      selectMoleculeSite={selectMoleculeSite}
                     />
                   ))}
                 </InfiniteScroll>
