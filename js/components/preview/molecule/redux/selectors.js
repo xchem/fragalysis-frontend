@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-export const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
+const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
 const getMoleculeGroupSelection = state => state.selectionReducers.mol_group_selection;
 const getObjectSelection = state => state.selectionReducers.object_selection;
 const getAllMolecules = state => state.apiReducers.all_mol_lists;

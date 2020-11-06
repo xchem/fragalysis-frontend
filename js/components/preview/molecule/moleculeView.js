@@ -31,8 +31,6 @@ import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
-import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
-import { getMoleculeGroupLists } from './redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -206,7 +204,8 @@ const MoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes
+    removeOfAllSelectedTypes,
+    selectMoleculeSite
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -215,8 +214,6 @@ const MoleculeView = memo(
     const classes = useStyles();
     const key = 'mol_image';
     const [moleculeGroupID, setMoleculeGroupID] = useState();
-
-    const moleculeGroups = useSelector(state => getMoleculeGroupLists(state));
 
     const dispatch = useDispatch();
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -231,8 +228,7 @@ const MoleculeView = memo(
     const [img_data, setImg_data] = useState(img_data_init);
 
     const { getNglView } = useContext(NglContext);
-    const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-    const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const isLigandOn = (currentID && fragmentDisplayList.includes(currentID)) || false;
     const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
@@ -328,8 +324,6 @@ const MoleculeView = memo(
       }
     }, [currentID, dispatch, searchMoleculeGroup]);
 
-    const moleculeGroup = moleculeGroups[data.site - 1];
-
     const svg_image = (
       <SVGInline
         component="div"
@@ -350,17 +344,13 @@ const MoleculeView = memo(
     const current_style =
       isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
-    const selectMoleculeSite = () => {
-      dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: true }));
-    }
-
     const addNewLigand = () => {
-      selectMoleculeSite();
-      dispatch(addLigand(majorViewStage, data, colourToggle));
+      selectMoleculeSite(data.site);
+      dispatch(addLigand(stage, data, colourToggle));
     };
 
     const removeSelectedLigand = () => {
-      dispatch(removeLigand(majorViewStage, data));
+      dispatch(removeLigand(stage, data));
       selectedAll.current = false;
     };
 
@@ -381,13 +371,13 @@ const MoleculeView = memo(
     };
 
     const removeSelectedProtein = () => {
-      dispatch(removeHitProtein(majorViewStage, data, colourToggle));
+      dispatch(removeHitProtein(stage, data, colourToggle));
       selectedAll.current = false;
     };
 
     const addNewProtein = () => {
-      selectMoleculeSite();
-      dispatch(addHitProtein(majorViewStage, data, colourToggle));
+      selectMoleculeSite(data.site);
+      dispatch(addHitProtein(stage, data, colourToggle));
     };
 
     const onProtein = calledFromSelectAll => {
@@ -407,13 +397,13 @@ const MoleculeView = memo(
     };
 
     const removeSelectedComplex = () => {
-      dispatch(removeComplex(majorViewStage, data, colourToggle));
+      dispatch(removeComplex(stage, data, colourToggle));
       selectedAll.current = false;
     };
 
     const addNewComplex = () => {
-      selectMoleculeSite();
-      dispatch(addComplex(majorViewStage, data, colourToggle));
+      selectMoleculeSite(data.site);
+      dispatch(addComplex(stage, data, colourToggle));
     };
 
     const onComplex = calledFromSelectAll => {
@@ -433,12 +423,12 @@ const MoleculeView = memo(
     };
 
     const removeSelectedSurface = () => {
-      dispatch(removeSurface(majorViewStage, data, colourToggle));
+      dispatch(removeSurface(stage, data, colourToggle));
     };
 
     const addNewSurface = () => {
-      selectMoleculeSite();
-      dispatch(addSurface(majorViewStage, data, colourToggle));
+      selectMoleculeSite(data.site);
+      dispatch(addSurface(stage, data, colourToggle));
     };
 
     const onSurface = () => {
@@ -450,12 +440,12 @@ const MoleculeView = memo(
     };
 
     const removeSelectedDensity = () => {
-      dispatch(removeDensity(majorViewStage, data, colourToggle));
+      dispatch(removeDensity(stage, data, colourToggle));
     };
 
     const addNewDensity = () => {
-      selectMoleculeSite();
-      dispatch(addDensity(majorViewStage, data, colourToggle));
+      selectMoleculeSite(data.site);
+      dispatch(addDensity(stage, data, colourToggle));
     };
 
     const onDensity = () => {
@@ -467,12 +457,12 @@ const MoleculeView = memo(
     };
 
     const removeSelectedVector = () => {
-      dispatch(removeVector(majorViewStage, data));
+      dispatch(removeVector(stage, data));
     };
 
     const addNewVector = () => {
-      selectMoleculeSite();
-      dispatch(addVector(majorViewStage, data)).catch(error => {
+      selectMoleculeSite(data.site);
+      dispatch(addVector(stage, data)).catch(error => {
         throw new Error(error);
       });
     };
@@ -514,22 +504,22 @@ const MoleculeView = memo(
     const moveSelectedMolSettings = newItemDataset => {
       if (newItemDataset) {
         if (isLigandOn) {
-          dispatch(addLigand(majorViewStage, newItemDataset, colourToggle));
+          dispatch(addLigand(stage, newItemDataset, colourToggle));
         }
         if (isProteinOn) {
-          dispatch(addHitProtein(majorViewStage, newItemDataset, colourToggle));
+          dispatch(addHitProtein(stage, newItemDataset, colourToggle));
         }
         if (isComplexOn) {
-          dispatch(addComplex(majorViewStage, newItemDataset, colourToggle));
+          dispatch(addComplex(stage, newItemDataset, colourToggle));
         }
         if (isSurfaceOn) {
-          dispatch(addSurface(majorViewStage, newItemDataset, colourToggle));
+          dispatch(addSurface(stage, newItemDataset, colourToggle));
         }
         if (isDensityOn) {
-          dispatch(addDensity(majorViewStage, newItemDataset, colourToggle));
+          dispatch(addDensity(stage, newItemDataset, colourToggle));
         }
         if (isVectorOn) {
-          dispatch(addVector(majorViewStage, newItemDataset)).catch(error => {
+          dispatch(addVector(stage, newItemDataset)).catch(error => {
             throw new Error(error);
           });
         }
@@ -583,7 +573,7 @@ const MoleculeView = memo(
                       variant="outlined"
                       className={classes.myLocationButton}
                       onClick={() => {
-                        dispatch(centerOnLigandByMoleculeID(majorViewStage, data?.id));
+                        dispatch(centerOnLigandByMoleculeID(stage, data?.id));
                       }}
                       disabled={disableUserInteraction || !isLigandOn}
                     >
