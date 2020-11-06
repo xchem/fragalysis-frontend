@@ -1,4 +1,4 @@
-import { setCurrentActionsList } from './actions';
+import { setCurrentActionsList, setIsTrackingMoleculesRestoring, setIsTrackingCompoundsRestoring } from './actions';
 import { actionType, actionObjectType } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
 import { setCurrentVector } from '../selection/actions';
@@ -24,7 +24,10 @@ import {
   loadDataSets,
   loadDatasetCompoundsWithScores
 } from '../../components/datasets/redux/dispatchActions';
-import { appendMoleculeToCompoundsOfDatasetToBuy } from '../../components/datasets/redux/actions';
+import {
+  appendMoleculeToCompoundsOfDatasetToBuy,
+  setMoleculeListIsLoading
+} from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import * as listType from '../../constants/listTypes';
@@ -157,7 +160,8 @@ const mapCurrentAction = action => {
     timestamp: action.timestamp,
     object_name: action.object_name,
     object_type: action.object_type,
-    action_type: action.type
+    action_type: action.type,
+    dataset_id: action.dataset_id
   });
 };
 
@@ -212,6 +216,8 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
 };
 
 export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) => {
+  dispatch(setIsTrackingMoleculesRestoring(true));
+  dispatch(setIsTrackingCompoundsRestoring(true));
   dispatch(unmountPreviewComponent(stages));
   dispatch(resetTargetState());
   dispatch(restoreStateBySavedActionList(stages));
@@ -226,9 +232,10 @@ const restoreStateBySavedActionList = stages => (dispatch, getState) => {
   dispatch(restoreTargetActions(orderedActionList, stages));
 };
 
-const restoreTargetActions = (orderedActionList, stages, state) => (dispatch, getState) => {
+const restoreTargetActions = (orderedActionList, stages) => (dispatch, getState) => {
   const state = getState();
 
+  const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
   const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
   let targetAction = orderedActionList.find(action => action.action_type === actionType.TARGET_LOADED);
@@ -250,32 +257,28 @@ const restoreTargetActions = (orderedActionList, stages, state) => (dispatch, ge
           throw error;
         })
         .finally(() => {
-          const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-          const stage = majorView.stage;
-
           dispatch(restoreSitesActions(orderedActionList, summaryView));
-          dispatch(loadAllMolecules(orderedActionList, target.id, stage));
+          dispatch(loadAllMolecules(orderedActionList, target.id, majorView.stage));
         });
 
-      dispatch(loadAllDatasaets);
+      dispatch(loadAllDatasets(orderedActionList, target.id, majorView.stage));
     }
   }
 };
 
-const loadAllDatasaets = (orderedActionList, target_on, stage) => (dispatch, getState) => {
-  //dispatch(setMoleculeListIsLoading(true));
+const loadAllDatasets = (orderedActionList, target_on, stage) => (dispatch, getState) => {
+  dispatch(setMoleculeListIsLoading(true));
   dispatch(loadDataSets(target_on))
     .then(results => {
-      //setSelectedDatasetIndex(0);
-
       return dispatch(loadDatasetCompoundsWithScores());
     })
     .catch(error => {
       throw new Error(error);
     })
     .finally(() => {
-      //dispatch(setMoleculeListIsLoading(false));
       dispatch(restoreCompoundsActions(orderedActionList, stage));
+      dispatch(setMoleculeListIsLoading(false));
+      dispatch(setIsTrackingCompoundsRestoring(false));
     });
 };
 
@@ -304,6 +307,7 @@ const loadAllMolecules = (orderedActionList, target_on, stage) => (dispatch, get
       });
       dispatch(setAllMolLists(listToSet));
       dispatch(restoreMoleculesActions(orderedActionList, stage));
+      dispatch(setIsTrackingMoleculesRestoring(false));
     })
     .catch(err => console.log(err));
 };
@@ -390,7 +394,7 @@ const addNewType = (moleculesAction, actionType, type, stage, state) => dispatch
     actions.forEach(action => {
       let data = getMolecule(action.object_name, state);
       if (data) {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length]), true);
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length]));
       }
     });
   }
@@ -402,7 +406,7 @@ const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => 
     actions.forEach(action => {
       let data = getCompound(action.object_name, state);
       if (data) {
-        dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length]), data.datasetID);
+        dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
       }
     });
   }

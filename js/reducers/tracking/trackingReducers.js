@@ -2,7 +2,9 @@ import { constants } from './constants';
 
 export const INITIAL_STATE = {
   truck_actions_list: [],
-  current_actions_list: []
+  current_actions_list: [],
+  isTrackingMoleculesRestoring: false,
+  isTrackingCompoundsRestoring: false
 };
 
 export default function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -20,6 +22,16 @@ export default function trackingReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_CURRENT_ACTIONS_LIST:
       return Object.assign({}, state, {
         current_actions_list: action.current_actions_list
+      });
+
+    case constants.SET_IS_TRACKING_MOLECULES_RESTORING:
+      return Object.assign({}, state, {
+        isTrackingMoleculesRestoring: action.isTrackingMoleculesRestoring
+      });
+
+    case constants.SET_IS_TRACKING_COMPOUNDS_RESTORING:
+      return Object.assign({}, state, {
+        isTrackingCompoundsRestoring: action.isTrackingCompoundsRestoring
       });
 
     default:

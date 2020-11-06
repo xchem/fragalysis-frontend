@@ -20,3 +20,17 @@ export const setCurrentActionsList = function(current_actions_list) {
     current_actions_list: current_actions_list
   };
 };
+
+export const setIsTrackingMoleculesRestoring = function(isTrackingMoleculesRestoring) {
+  return {
+    type: constants.SET_IS_TRACKING_MOLECULES_RESTORING,
+    isTrackingMoleculesRestoring: isTrackingMoleculesRestoring
+  };
+};
+
+export const setIsTrackingCompoundsRestoring = function(isTrackingCompoundsRestoring) {
+  return {
+    type: constants.SET_IS_TRACKING_COMPOUNDS_RESTORING,
+    isTrackingCompoundsRestoring: isTrackingCompoundsRestoring
+  };
+};

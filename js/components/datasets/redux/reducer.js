@@ -363,7 +363,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, lists);
 
     case constants.RESET_DATASETS_STATE:
-      return INITIAL_STATE;
+      const datasetsLists = {
+        ligandLists: reloadLists([], 'ligandLists'),
+        proteinLists: reloadLists([], 'proteinLists'),
+        complexLists: reloadLists([], 'complexLists'),
+        surfaceLists: reloadLists([], 'surfaceLists'),
+        inspirationLists: reloadLists([], 'inspirationLists'),
+        compoundsToBuyDatasetMap: reloadLists([], 'compoundsToBuyDatasetMap')
+      };
+      return Object.assign({}, state, { ...INITIAL_STATE, ...datasetsLists });
 
     default:
       return state;
