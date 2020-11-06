@@ -390,7 +390,6 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
   const state = getState();
 
   const directDisplay = state.apiReducers.direct_access;
-  const mol_group_selection = state.selectionReducers.mol_group_selection;
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
   const proteinList = state.selectionReducers.proteinList;
   const complexList = state.selectionReducers.complexList;
@@ -412,6 +411,8 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
           let mol = molList[molIndex];
           if (mol.protein_code.includes(m.name) || mol.protein_code.includes(m.name.toLowerCase())) {
             let molGroupId = groupId;
+            // Has to be declared here because otherwise we read stale value
+            const mol_group_selection = getState().selectionReducers.mol_group_selection;
             if (!mol_group_selection.includes(parseInt(molGroupId))) {
               let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));
               dispatch(selectMoleculeGroup(molGroup, stageSummaryView));
