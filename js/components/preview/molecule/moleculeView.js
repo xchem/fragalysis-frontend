@@ -530,7 +530,7 @@ const MoleculeView = memo(
       moveSelectedMolSettings(previousItemData);
     };
 
-    let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
+    let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
     return (
       <>
