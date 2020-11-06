@@ -361,14 +361,12 @@ const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getStat
     dispatch(addNewTypeCompound(compoundsAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
   }
 
-  let compoundsSelectedAction = compoundsAction.filter(
-    action => action.action_type === actionObjectType.COMPOUND_SELECTED
-  );
+  let compoundsSelectedAction = compoundsAction.filter(action => action.action_type === actionType.COMPOUND_SELECTED);
 
   compoundsSelectedAction.forEach(action => {
     let data = getCompound(action.object_name, state);
     if (data) {
-      dispatch(appendMoleculeToCompoundsOfDatasetToBuy(data.datasetID, data.id, data.name));
+      dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
     }
   });
 };
@@ -394,7 +392,7 @@ const addNewType = (moleculesAction, actionType, type, stage, state) => dispatch
     actions.forEach(action => {
       let data = getMolecule(action.object_name, state);
       if (data) {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length]));
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
       }
     });
   }
