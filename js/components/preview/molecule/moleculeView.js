@@ -345,7 +345,9 @@ const MoleculeView = memo(
       isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
     const addNewLigand = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addLigand(stage, data, colourToggle));
     };
 
@@ -376,7 +378,9 @@ const MoleculeView = memo(
     };
 
     const addNewProtein = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addHitProtein(stage, data, colourToggle));
     };
 
@@ -402,7 +406,9 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addComplex(stage, data, colourToggle));
     };
 
@@ -427,7 +433,9 @@ const MoleculeView = memo(
     };
 
     const addNewSurface = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addSurface(stage, data, colourToggle));
     };
 
@@ -444,7 +452,9 @@ const MoleculeView = memo(
     };
 
     const addNewDensity = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addDensity(stage, data, colourToggle));
     };
 
@@ -461,7 +471,9 @@ const MoleculeView = memo(
     };
 
     const addNewVector = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addVector(stage, data)).catch(error => {
         throw new Error(error);
       });
