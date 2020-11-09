@@ -404,6 +404,8 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     //const molGroupMap = getMolGroupNameToId();
     directDisplay.molecules.forEach(m => {
       let keys = Object.keys(allMols);
+      let directProteinNameModded = m.name.toLowerCase();
+      let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
       for (let groupIndex = 0; groupIndex < keys.length; groupIndex++) {
         let groupId = keys[groupIndex];
         let molList = allMols[groupId];
@@ -411,7 +413,7 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
         for (let molIndex = 0; molIndex < molCount; molIndex++) {
           let mol = molList[molIndex];
           let proteinCodeModded = mol.protein_code.toLowerCase();
-          if (proteinCodeModded.includes(m.name.toLowerCase())) {
+          if (m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)) {
             let molGroupId = groupId;
             if (!mol_group_selection.includes(parseInt(molGroupId))) {
               let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));

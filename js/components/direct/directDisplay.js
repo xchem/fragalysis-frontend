@@ -65,12 +65,16 @@ export const DirectDisplay = memo(props => {
                       currentMolecule.V = true;
                       break;
                     default:
-                      currentMolecule = { name: part, L: true, P: false, C: false, S: false, V: false };
-                      molecules.push(currentMolecule);
+                      if (part.toLowerCase() === URL_TOKENS.exact) {
+                        currentMolecule.exact = true;
+                      } else {
+                        currentMolecule = { name: part, L: true, P: false, C: false, S: false, V: false, exact: false };
+                        molecules.push(currentMolecule);
+                      }
                       break;
                   }
                 } else {
-                  currentMolecule = { name: part, L: true, P: false, C: false, S: false, V: false };
+                  currentMolecule = { name: part, L: true, P: false, C: false, S: false, V: false, exact: false };
                   molecules.push(currentMolecule);
                 }
               } else {
