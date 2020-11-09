@@ -278,14 +278,14 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
-export const appendMoleculeToCompoundsOfDatasetToBuy = (datasetID, moleculeID) => ({
+export const appendMoleculeToCompoundsOfDatasetToBuy = (datasetID, moleculeID, moleculeTitle) => ({
   type: constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET,
-  payload: { datasetID, moleculeID }
+  payload: { datasetID, moleculeID, moleculeTitle }
 });
 
-export const removeMoleculeFromCompoundsOfDatasetToBuy = (datasetID, moleculeID) => ({
+export const removeMoleculeFromCompoundsOfDatasetToBuy = (datasetID, moleculeID, moleculeTitle) => ({
   type: constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET,
-  payload: { datasetID, moleculeID }
+  payload: { datasetID, moleculeID, moleculeTitle }
 });
 
 export const reloadDatasetsReducer = savedDatasetsReducers => {

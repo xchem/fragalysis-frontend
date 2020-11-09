@@ -80,12 +80,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.REMOVE_COMPONENT_REPRESENTATION:
+      const representationID = action.representation && action.representation.uuid;
       const newObjInViewWithRemovedRepresentation = JSON.parse(JSON.stringify(state.objectsInView));
       if (newObjInViewWithRemovedRepresentation[action.objectInViewID].representations) {
         for (let i = 0; i < newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.length; i++) {
           if (
-            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations[i].uuid ===
-            action.representationID
+            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations[i].uuid === representationID
           ) {
             newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.splice(i, 1);
             break;
