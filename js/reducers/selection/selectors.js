@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { getMoleculeList } from '../api/selectors';
+import { getAllMoleculeList } from '../api/selectors';
 
 const getCurrentCompoundClass = state => state.previewReducers.compounds.currentCompoundClass;
 const getVectorList = state => state.selectionReducers.vector_list;
@@ -10,14 +10,16 @@ const getCompoundsOfVectors = state => state.selectionReducers.compoundsOfVector
 export const getMoleculeOfCurrentVector = createSelector(
   getCurrentVector,
   getVectorList,
-  getMoleculeList,
+  getAllMoleculeList,
   (selectedVectorSmile, vectorList, moleculeList) => {
     if (selectedVectorSmile !== null && vectorList && moleculeList) {
       const foundedVector = vectorList.find(vector => vector.name.includes(selectedVectorSmile));
       if (foundedVector) {
-        for (const molecule in moleculeList) {
-          if (moleculeList.hasOwnProperty(molecule)) {
-            if (molecule.id === foundedVector.moleculeId) {
+        for (const moleculeProperty in moleculeList) {
+          if (moleculeList.hasOwnProperty(moleculeProperty)) {
+            let molecules = moleculeList[moleculeProperty];
+            let molecule = molecules.find(m => m.id === foundedVector.moleculeId);
+            if (molecule) {
               return molecule;
             }
           }
