@@ -11,6 +11,7 @@ import { previewReducers } from '../components/preview/redux';
 import { projectReducers } from '../components/projects/redux/reducer';
 import { issueReducers } from '../components/userFeedback/redux/reducer';
 import { datasetsReducers } from '../components/datasets/redux/reducer';
+import trackingReducers from './tracking/trackingReducers';
 
 const rootReducer = combineReducers({
   apiReducers,
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
   previewReducers,
   projectReducers,
   issueReducers,
-  datasetsReducers
+  datasetsReducers,
+  trackingReducers
 });
 
 export { rootReducer };

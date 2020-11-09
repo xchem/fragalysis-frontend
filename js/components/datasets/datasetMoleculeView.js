@@ -37,7 +37,6 @@ import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isNumber, isString } from 'lodash';
 import { SvgTooltip } from '../common';
 
-
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -541,9 +540,9 @@ export const DatasetMoleculeView = memo(
                 onChange={e => {
                   const result = e.target.checked;
                   if (result) {
-                    dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID));
+                    dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
                   } else {
-                    dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID));
+                    dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
                   }
                 }}
               />
@@ -730,7 +729,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={disableUserInteraction}
+                        disabled={true}
                       >
                         X
                       </Button>

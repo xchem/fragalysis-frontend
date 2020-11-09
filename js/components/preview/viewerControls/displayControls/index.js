@@ -107,7 +107,7 @@ export default memo(({ open, onClose }) => {
         // remove from nglReducer and selectionReducer
         dispatch(deleteObject(targetObject, nglView.stage, true));
       } else {
-        dispatch(removeComponentRepresentation(parentKey, representation.uuid));
+        dispatch(removeComponentRepresentation(parentKey, representation));
       }
     }
   };
@@ -118,7 +118,7 @@ export default memo(({ open, onClose }) => {
     const targetObject = objectsInView[parentKey];
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
-    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation.uuid)));
+    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation)));
 
     // remove from nglReducer and selectionReducer
     dispatch(deleteObject(targetObject, nglView.stage, true));

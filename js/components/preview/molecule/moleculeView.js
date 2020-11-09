@@ -32,7 +32,6 @@ import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
 
-
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -530,7 +529,7 @@ const MoleculeView = memo(
       moveSelectedMolSettings(previousItemData);
     };
 
-    let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
+    let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
     return (
       <>
