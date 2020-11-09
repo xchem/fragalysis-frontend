@@ -23,9 +23,9 @@ export const addComponentRepresentation = (objectInViewID, newRepresentation) =>
   objectInViewID
 });
 
-export const removeComponentRepresentation = (objectInViewID, representationID) => ({
+export const removeComponentRepresentation = (objectInViewID, representation) => ({
   type: CONSTANTS.REMOVE_COMPONENT_REPRESENTATION,
-  representationID,
+  representation,
   objectInViewID
 });
 

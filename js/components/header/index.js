@@ -26,7 +26,8 @@ import {
   SupervisorAccount,
   Menu as MenuIcon,
   Work,
-  Description
+  Description,
+  Timeline
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -39,6 +40,7 @@ import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { IdeaReport } from '../userFeedback/ideaReport';
 import { FundersModal } from '../funders/fundersModal';
+import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
 
@@ -94,6 +96,7 @@ export default memo(
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
+    const [openTrackingModal, setOpenTrackingModal] = useState(false);
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -212,6 +215,16 @@ export default memo(
             <Grid item>
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
                 <Grid item>
+                  <Button
+                    startIcon={<Timeline />}
+                    variant="text"
+                    size="small"
+                    onClick={() => setOpenTrackingModal(true)}
+                  >
+                    Timeline
+                  </Button>
+                </Grid>
+                <Grid item>
                   <IssueReport />
                 </Grid>
                 <Grid item>
@@ -275,6 +288,7 @@ export default memo(
           )}
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
+        <TrackingModal openModal={openTrackingModal} onModalClose={() => setOpenTrackingModal(false)} />
         <Drawer
           anchor="left"
           open={openMenu}

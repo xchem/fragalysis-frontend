@@ -410,7 +410,8 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
         let molCount = molList.length;
         for (let molIndex = 0; molIndex < molCount; molIndex++) {
           let mol = molList[molIndex];
-          if (mol.protein_code.includes(m.name) || mol.protein_code.includes(m.name.toLowerCase())) {
+          let proteinCodeModded = mol.protein_code.toLowerCase();
+          if (proteinCodeModded.includes(m.name.toLowerCase())) {
             let molGroupId = groupId;
             if (!mol_group_selection.includes(parseInt(molGroupId))) {
               let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));
