@@ -60,7 +60,8 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     overflowY: 'auto',
-    height: 214
+    height: 214,
+    width: 'fit-content'
   },
   search: {
     margin: theme.spacing(1),
