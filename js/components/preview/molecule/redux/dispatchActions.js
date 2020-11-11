@@ -42,8 +42,8 @@ import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import {selectMoleculeGroup} from '../../moleculeGroups/redux/dispatchActions';
-import {setDirectAccess, setDirectAccessProcessed} from '../../../../reducers/api/actions';
+import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
+import { setDirectAccess, setDirectAccessProcessed } from '../../../../reducers/api/actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -442,5 +442,4 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
   }
-
 };
