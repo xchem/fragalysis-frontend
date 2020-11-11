@@ -32,3 +32,23 @@ export const selectJoinedMoleculeList = createSelector(
     return joinedMoleculeLists;
   }
 );
+
+export const selectAllMoleculeList = createSelector(
+  getAllMolecules,
+  getMoleculeGroupLists,
+  (all_mol_lists, mol_group_list) => {
+    const groupList = mol_group_list || [];
+    const allMoleculesList = [];
+    groupList.forEach((site, index) => {
+      const siteMolecules = (all_mol_lists || {})[site.id];
+
+      if (siteMolecules) {
+        siteMolecules.forEach(r => {
+          allMoleculesList.push({ site: index + 1, ...r })
+        });
+      }
+    });
+
+    return allMoleculesList;
+  }
+);
