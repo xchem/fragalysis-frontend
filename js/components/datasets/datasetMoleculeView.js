@@ -161,6 +161,10 @@ const useStyles = makeStyles(theme => ({
   inheritWidth: {
     width: 'inherit'
   },
+  widthOverflow: {
+    maxWidth: '180px',
+    overflow: 'hidden'
+  },
   rank: {
     fontStyle: 'italic',
     fontSize: 7
@@ -553,7 +557,13 @@ export const DatasetMoleculeView = memo(
           </Grid>
           <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
             {/* Title label */}
-            <Grid item xs={!showCrossReferenceModal && hideFButton ? 8 : 7} container direction="column">
+            <Grid
+              item
+              xs={!showCrossReferenceModal && hideFButton ? 8 : 7}
+              container
+              direction="column"
+              className={!showCrossReferenceModal && hideFButton ? classes.widthOverflow : ''}
+            >
               <Grid item className={classes.inheritWidth}>
                 <Tooltip title={moleculeTitle} placement="bottom-start">
                   <div className={classNames(classes.moleculeTitleLabel, isCheckedToBuy && classes.selectedMolecule)}>

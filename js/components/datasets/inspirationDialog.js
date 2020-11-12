@@ -218,6 +218,8 @@ export const InspirationDialog = memo(
       surface: removeSurface
     };
 
+    const selectMoleculeSite = moleculeGroupSite => {};
+
     const removeOfAllSelectedTypes = () => {
       proteinList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
@@ -409,6 +411,7 @@ export const InspirationDialog = memo(
                         previousItemData={previousData}
                         nextItemData={nextData}
                         removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                        selectMoleculeSite={selectMoleculeSite}
                       />
                     );
                   })}

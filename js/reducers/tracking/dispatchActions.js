@@ -46,9 +46,14 @@ import {
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
-import { removeComponentRepresentation, addComponentRepresentation } from '../../../js/reducers/ngl/actions';
+import {
+  removeComponentRepresentation,
+  addComponentRepresentation,
+  updateComponentRepresentation
+} from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
+import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
 
 export const selectCurrentActionsList = () => (dispatch, getState) => {
   const state = getState();
@@ -600,10 +605,10 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.REPRESENTATION_CHANGED:
         break;
       case actionType.REPRESENTATION_ADDED:
-        dispatch(handleRepresentationAction(action, false));
+        dispatch(handleRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
-        dispatch(handleRepresentationAction(action, true));
+        dispatch(handleRepresentationAction(action, true, majorView));
         break;
       default:
         break;
@@ -734,27 +739,44 @@ const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
 };
 
 const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
-  const state = getState();
   if (action) {
     if (isAdd === true) {
-      const objectsInView = state.nglReducers.objectsInView;
-      if (objectsInView) {
-        const oldRepresentation = action.new_representation;
-        const newRepresentationType = oldRepresentation.type;
-
-        const comp = nglView.stage.getComponentsByName(action.object_id).first;
-
-        // add representation to NGL
-        const newRepresentation = assignRepresentationToComp(
-          newRepresentationType,
-          oldRepresentation.params,
-          comp,
-          oldRepresentation.lastKnownID
-        );
-        dispatch(addComponentRepresentation(action.object_id, newRepresentation));
-      }
+      dispatch(addRepresentation(action.object_id, action.representation, nglView));
     } else {
-      dispatch(removeComponentRepresentation(action.object_id, action.representation));
+      dispatch(removeRepresentation(action.object_id, action.representation, nglView));
+    }
+  }
+};
+
+const addRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+  const oldRepresentation = representation;
+  const newRepresentationType = oldRepresentation.type;
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  // add representation to NGL
+  const newRepresentation = assignRepresentationToComp(
+    newRepresentationType,
+    oldRepresentation.params,
+    comp,
+    oldRepresentation.lastKnownID
+  );
+  dispatch(addComponentRepresentation(parentKey, newRepresentation));
+};
+
+const removeRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  let foundedRepresentation = undefined;
+  comp.eachRepresentation(r => {
+    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+      foundedRepresentation = r;
+    }
+  });
+  if (foundedRepresentation) {
+    comp.removeRepresentation(foundedRepresentation);
+
+    if (comp.reprList.length === 0) {
+      dispatch(deleteObject(nglView, nglView.stage, true));
+    } else {
+      dispatch(removeComponentRepresentation(parentKey, representation));
     }
   }
 };
