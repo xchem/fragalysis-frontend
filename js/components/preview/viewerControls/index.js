@@ -2,13 +2,17 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext } from 'react';
+import { useDispatch } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
-import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
+import { Settings, Mouse, PersonalVideo, Undo, Redo } from '@material-ui/icons';
 import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
+import { undoAction, redoAction, getCanRedo, getCanUndo } from '../../../../js/reducers/tracking/dispatchActions';
+import { NglContext } from '../../nglView/nglProvider';
 
 const drawers = {
   settings: 'settings',
@@ -27,6 +31,10 @@ const useStyles = makeStyles(theme => ({
 export const ViewerControls = memo(({}) => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const { nglViewList } = useContext(NglContext);
+  const [canUndo, setCanUndo] = useState(true);
+  const [canRedo, setCanRedo] = useState(false);
 
   const openDrawer = key => {
     //close all and open selected by key
@@ -43,6 +51,22 @@ export const ViewerControls = memo(({}) => {
       <Grid container justify="center">
         <Grid item>
           <ButtonGroup variant="contained" color="primary">
+            <Tooltip title="Undo">
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => {
+                  dispatch(UndoActionCreators.undo());
+                  setCanRedo(dispatch(getCanRedo()));
+                  setCanUndo(dispatch(getCanUndo()));
+                  dispatch(undoAction(nglViewList));
+                }}
+                className={classes.button}
+                disabled={!canUndo}
+              >
+                <Undo />
+              </Button>
+            </Tooltip>
             <Tooltip title="Settings controls">
               <Button
                 size="small"
@@ -66,6 +90,22 @@ export const ViewerControls = memo(({}) => {
             <Tooltip title="Mouse controls">
               <Button size="small" color="primary" onClick={() => openDrawer(drawers.mouse)} className={classes.button}>
                 <Mouse />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Redo">
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => {
+                  dispatch(UndoActionCreators.redo());
+                  setCanRedo(dispatch(getCanRedo()));
+                  setCanUndo(dispatch(getCanUndo()));
+                  dispatch(redoAction(nglViewList));
+                }}
+                className={classes.button}
+                disabled={!canRedo}
+              >
+                <Redo />
               </Button>
             </Tooltip>
           </ButtonGroup>
