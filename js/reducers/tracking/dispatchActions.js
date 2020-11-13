@@ -904,7 +904,7 @@ const sendTruckingActions = (sendActions, currentProject) => (dispatch, getState
       dispatch(setIsActionsSending(true));
       return api({
         url: `${base_url}/api/session-actions/${projectID}/`,
-        method: METHOD.PUT,
+        method: METHOD.POST,
         data: JSON.stringify(sendActions)
       })
         .then(response => {
