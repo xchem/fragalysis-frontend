@@ -60,7 +60,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
+import { selectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -253,7 +253,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
-  
+  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingMoleculesRestoring);
+
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
@@ -315,26 +316,31 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       target_on &&
       mol_group_list &&
       mol_group_list.length > 0 &&
-      Object.keys(all_mol_lists).length <= 0
+      Object.keys(all_mol_lists).length <= 0 &&
+      isTrackingRestoring === false
     ) {
       let promises = [];
       mol_group_list.forEach(molGroup => {
         let id = molGroup.id;
         let url = getUrl({ list_type, target_on, mol_group_on: id });
-        promises.push(loadAllMolsFromMolGroup({
-          url,
-          mol_group: id
-        }))
+        promises.push(
+          loadAllMolsFromMolGroup({
+            url,
+            mol_group: id
+          })
+        );
       });
-      Promise.all(promises).then((results) => {
-        let listToSet = {};
-        results.forEach(molResult => {
-          listToSet[molResult.mol_group] = molResult.molecules;
-        });
-        dispatch(setAllMolLists(listToSet))
-      }).catch((err) => console.log(err));
+      Promise.all(promises)
+        .then(results => {
+          let listToSet = {};
+          results.forEach(molResult => {
+            listToSet[molResult.mol_group] = molResult.molecules;
+          });
+          dispatch(setAllMolLists(listToSet));
+        })
+        .catch(err => console.log(err));
     }
-  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists]);
+  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists, isTrackingRestoring]);
 
   useEffect(() => {
     loadAllMolecules();
@@ -346,16 +352,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       mol_group_list.forEach(mg => {
         molGroupMap[mg.description] = mg.id;
       });
-    return molGroupMap;
+      return molGroupMap;
     }
   }, [mol_group_list]);
 
   useEffect(() => {
     const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
-    if (
-      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-      allMolsGroupsCount > 0
-    ) {
+    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && allMolsGroupsCount > 0) {
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(majorViewStage, stageSummaryView));

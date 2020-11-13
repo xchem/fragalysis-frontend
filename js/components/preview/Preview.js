@@ -94,12 +94,13 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
   const currentDataset = customDatasets[selectedDatasetIndex];
   const target_on = useSelector(state => state.apiReducers.target_on);
+  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
 
   /*
      Loading datasets
    */
   useEffect(() => {
-    if (customDatasets.length === 0) {
+    if (customDatasets.length === 0 && isTrackingRestoring === false) {
       dispatch(setMoleculeListIsLoading(true));
       dispatch(loadDataSets(target_on))
         .then(results => {
@@ -115,7 +116,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           dispatch(setMoleculeListIsLoading(false));
         });
     }
-  }, [customDatasets.length, dispatch, target_on]);
+  }, [customDatasets.length, dispatch, target_on, isTrackingRestoring]);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);

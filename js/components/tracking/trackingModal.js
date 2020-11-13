@@ -1,11 +1,13 @@
-import React, { memo } from 'react';
-import { useSelector } from 'react-redux';
+import React, { memo, useContext } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Modal from '../common/Modal';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles, IconButton, Tooltip } from '@material-ui/core';
 import { Timeline, TimelineEvent } from 'react-event-timeline';
-import { Check, Clear } from '@material-ui/icons';
+import { Check, Clear, Save, Restore, Close } from '@material-ui/icons';
 import palette from '../../theme/palette';
 import { Panel } from '../common';
+import { selectCurrentActionsList, restoreCurrentActionsList } from '../../reducers/tracking/dispatchActions';
+import { NglContext } from '../nglView/nglProvider';
 
 const useStyles = makeStyles(theme => ({
   customModal: {
@@ -34,6 +36,9 @@ const useStyles = makeStyles(theme => ({
 
 export const TrackingModal = memo(({ openModal, onModalClose }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const { nglViewList } = useContext(NglContext);
+
   const actionList = useSelector(state => state.trackingReducers.truck_actions_list);
   const orderedActionList = actionList.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -42,6 +47,24 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
     onModalClose();
   }
 
+  const actions = [
+    <IconButton color={'inherit'} onClick={() => dispatch(selectCurrentActionsList())}>
+      <Tooltip title="Save">
+        <Save />
+      </Tooltip>
+    </IconButton>,
+    <IconButton color={'inherit'} onClick={() => dispatch(restoreCurrentActionsList(nglViewList))}>
+      <Tooltip title="Restore">
+        <Restore />
+      </Tooltip>
+    </IconButton>,
+    <IconButton color={'inherit'} onClick={() => onModalClose()}>
+      <Tooltip title="Close">
+        <Close />
+      </Tooltip>
+    </IconButton>
+  ];
+
   return (
     <Modal
       otherClasses={classes.customModal}
@@ -49,30 +72,34 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
       open={openModal}
       onClose={() => onModalClose()}
     >
-      <Panel bodyOverflow={true} hasHeader={true} title="Action List">
+      <Panel bodyOverflow={true} hasHeader={true} title="Action List" headerActions={actions}>
         <Grid container justify="space-between" className={classes.containerExpanded}>
           <div className={classes.divContainer}>
             <div className={classes.divScrollable}>
               <Timeline>
                 {orderedActionList &&
-                  orderedActionList.map((data, index) => (
-                    <TimelineEvent
-                      key={index}
-                      title={data.text}
-                      createdAt={new Date(data.timestamp).toLocaleString()}
-                      icon={
-                        data.type.includes('OFF') === true ||
-                        data.type.includes('DESELECTED') === true ||
-                        data.type.includes('REMOVED') === true ? (
-                          <Clear />
-                        ) : (
-                          <Check />
-                        )
-                      }
-                      iconColor={palette.primary.main}
-                      className={classes.timelineEvent}
-                    ></TimelineEvent>
-                  ))}
+                  orderedActionList.map((data, index) => {
+                    if (data && data != null) {
+                      return (
+                        <TimelineEvent
+                          key={index}
+                          title={data.text}
+                          createdAt={new Date(data.timestamp).toLocaleString()}
+                          icon={
+                            data.type.includes('OFF') === true ||
+                            data.type.includes('DESELECTED') === true ||
+                            data.type.includes('REMOVED') === true ? (
+                              <Clear />
+                            ) : (
+                              <Check />
+                            )
+                          }
+                          iconColor={palette.primary.main}
+                          className={classes.timelineEvent}
+                        ></TimelineEvent>
+                      );
+                    }
+                  })}
               </Timeline>
             </div>
           </div>
