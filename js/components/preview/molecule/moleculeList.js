@@ -442,18 +442,26 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       handleFilterChange(newFilter);*/
   };
 
-  const changeButtonClassname = (givenList = []) => {
-    if (joinedMoleculeLists.length === givenList.length) {
+  const joinedGivenMatch = useCallback((givenList) => {
+    return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0).length;
+  }, [joinedMoleculeLists]);
+
+  const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [fragmentDisplayList, joinedGivenMatch]);
+  const joinedProteinMatchLength = useMemo(() => joinedGivenMatch(proteinList), [proteinList, joinedGivenMatch]);
+  const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
+
+  const changeButtonClassname = (givenList = [], matchListLength) => {
+    if (joinedMoleculeLists.length === matchListLength) {
       return true;
-    } else if (givenList.length > 0) {
+    } else if (givenList.length > 0 && matchListLength > 0) {
       return null;
     }
     return false;
   };
 
-  const isLigandOn = changeButtonClassname(fragmentDisplayList);
-  const isProteinOn = changeButtonClassname(proteinList);
-  const isComplexOn = changeButtonClassname(complexList);
+  const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
+  const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);
+  const isComplexOn = changeButtonClassname(complexList, joinedComplexMatchLength);
 
   const addType = {
     ligand: addLigand,
