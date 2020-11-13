@@ -41,3 +41,31 @@ export const setIsUndoRedoAction = function(isUndoRedoAction) {
     isUndoRedoAction: isUndoRedoAction
   };
 };
+
+export const setIsActionsSending = function(isActionsSending) {
+  return {
+    type: constants.SET_IS_ACTIONS_SENDING,
+    isActionsSending: isActionsSending
+  };
+};
+
+export const setIsActionsLoading = function(isActionsLoading) {
+  return {
+    type: constants.SET_IS_ACTIONS_LOADING,
+    isActionsLoading: isActionsLoading
+  };
+};
+
+export const setSendActionsList = function(truck_actions_list) {
+  return {
+    type: constants.SET_SEND_ACTIONS_LIST,
+    send_actions_list: truck_actions_list
+  };
+};
+
+export const appendToSendActionList = function(truck_action) {
+  return {
+    type: constants.APPEND_SEND_ACTIONS_LIST,
+    truck_action: truck_action
+  };
+};

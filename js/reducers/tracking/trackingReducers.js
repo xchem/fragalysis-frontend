@@ -6,7 +6,10 @@ export const INITIAL_STATE = {
   current_actions_list: [],
   isTrackingMoleculesRestoring: false,
   isTrackingCompoundsRestoring: false,
-  isUndoRedoAction: false
+  isUndoRedoAction: false,
+  isActionsSending: false,
+  isActionsLoading: false,
+  send_actions_list: []
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -35,9 +38,30 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         isTrackingCompoundsRestoring: action.isTrackingCompoundsRestoring
       });
+
     case constants.SET_IS_UNDO_REDO_ACTION:
       return Object.assign({}, state, {
         isUndoRedoAction: action.isUndoRedoAction
+      });
+
+    case constants.SET_IS_ACTIONS_SENDING:
+      return Object.assign({}, state, {
+        isActionsSending: action.isActionsSending
+      });
+
+    case constants.SET_IS_ACTIONS_LOADING:
+      return Object.assign({}, state, {
+        isActionsLoading: action.isActionsLoading
+      });
+
+    case constants.SET_SEND_ACTIONS_LIST:
+      return Object.assign({}, state, {
+        send_actions_list: action.send_actions_list
+      });
+
+    case constants.APPEND_SEND_ACTIONS_LIST:
+      return Object.assign({}, state, {
+        send_actions_list: [...new Set([...state.send_actions_list, action.truck_action])]
       });
 
     default:
