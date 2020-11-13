@@ -276,6 +276,7 @@ export const DatasetMoleculeList = memo(
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
+    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
     const isLigandOn = (ligandList && ligandList.length > 0) || false;
     const isProteinOn = (proteinList && proteinList.length > 0) || false;
@@ -625,6 +626,11 @@ export const DatasetMoleculeList = memo(
                           removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                           removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
                           moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
+                          L={ligandList.includes(data.id)}
+                          P={proteinList.includes(data.id)}
+                          C={complexList.includes(data.id)}
+                          S={surfaceList.includes(data.id)}
+                          V={false}
                         />
                       ))}
                   </InfiniteScroll>

@@ -4,19 +4,20 @@ import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/cor
 import { useDispatch, useSelector } from 'react-redux';
 import { getMoleculesObjectIDListOfCompoundsToBuy } from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { DatasetMoleculeView } from './datasetMoleculeView';
+import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import {
   autoHideDatasetDialogsOnScroll,
   resetCrossReferenceDialog,
-  moveMoleculeInspirationsSettings,
-  removeAllSelectedDatasetMolecules
+  removeDatasetComplex,
+  removeDatasetHitProtein,
+  removeDatasetLigand,
+  removeDatasetSurface  
 } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
-import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
 import { getMoleculeList } from '../preview/molecule/redux/selectors';
 
 const useStyles = makeStyles(theme => ({
@@ -64,42 +65,64 @@ export const SelectedCompoundList = memo(({ height }) => {
   const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
 
-  const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
-
-  const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
-  const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
-
-  const proteinListMolecule = useSelector(state => state.selectionReducers.proteinList);
-  const complexListMolecule = useSelector(state => state.selectionReducers.complexList);
-  const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
-  const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
-  const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
-  const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
+  const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
+  const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
+  const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
+  const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
 
   const removeOfAllSelectedTypes = () => {
-    dispatch(removeAllSelectedDatasetMolecules(stage));
-  };
-
-  const removeOfAllSelectedTypesOfInspirations = () => {
-    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-    dispatch(hideAllSelectedMolecules(stage, [...molecules]));
-  };
-
-  const moveSelectedMoleculeInspirationsSettings = (data, newItemData) => (dispatch, getState) => {
-    dispatch(
-      moveMoleculeInspirationsSettings(
-        data,
-        newItemData,
-        stage,
-        objectsInView,
-        fragmentDisplayListMolecule,
-        proteinListMolecule,
-        complexListMolecule,
-        surfaceListMolecule,
-        densityListMolecule,
-        vectorOnListMolecule
-      )
-    );
+    Object.keys(ligandListAllDatasets).forEach(datasetKey => {
+      ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetLigand(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+    Object.keys(proteinListAllDatasets).forEach(datasetKey => {
+      proteinListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetHitProtein(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+    Object.keys(complexListAllDatasets).forEach(datasetKey => {
+      complexListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetComplex(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
+    Object.keys(surfaceListAllDatasets).forEach(datasetKey => {
+      surfaceListAllDatasets[datasetKey]?.forEach(moleculeID => {
+        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
+        dispatch(
+          removeDatasetSurface(
+            stage,
+            foundedMolecule?.molecule,
+            colourList[foundedMolecule?.molecule?.id % colourList.length],
+            datasetKey
+          )
+        );
+      });
+    });
   };
 
   useEffect(() => {
@@ -162,8 +185,11 @@ export const SelectedCompoundList = memo(({ height }) => {
                   previousItemData={index > 0 && array[index - 1]}
                   nextItemData={index < array?.length && array[index + 1]}
                   removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                  removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
-                  moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
+                  L={ligandListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  P={proteinListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  C={complexListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  S={surfaceListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  V={false}
                 />
               ))}
             </InfiniteScroll>
