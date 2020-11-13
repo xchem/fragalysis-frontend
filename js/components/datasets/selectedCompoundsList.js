@@ -1,6 +1,7 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
-import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
+import { CircularProgress, Grid, makeStyles, Typography, Button } from '@material-ui/core';
+import { CloudDownload } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMoleculesObjectIDListOfCompoundsToBuy } from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -19,6 +20,8 @@ import {
 import MoleculeView from '../preview/molecule/moleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
+import FileSaver from 'file-saver';
+import JSZip from 'jszip';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -35,6 +38,9 @@ const useStyles = makeStyles(theme => ({
   },
   notFound: {
     paddingTop: theme.spacing(2)
+  },
+  sdfButton: {
+    marginRight: theme.spacing(1)
   }
 }));
 
@@ -46,8 +52,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   const moleculesPerPage = 5;
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(0);
-  const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);
-  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+  const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
   const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
   const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
   const inspirationDialogRef = useRef();
@@ -132,8 +137,56 @@ export const SelectedCompoundList = memo(({ height }) => {
     };
   }, [dispatch]);
 
+  const downloadAsCsv = () => {
+    let data = 'smiles,dataset';
+    moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
+      data += `\n${compound.molecule.smiles},${compound.datasetID}`;
+    });
+    const dataBlob = new Blob([data], {type: 'text/csv;charset=utf-8'});
+
+    FileSaver.saveAs(dataBlob, 'selectedCompounds.csv');
+  };
+
+  const downloadAsSdf = async () => {
+    const zip = new JSZip();
+    const folders = {};
+
+    moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
+      const datasetID = compound.datasetID;
+      let folder = folders[datasetID];
+      if (!folder) {
+        folder = zip.folder(datasetID);
+        folders[datasetID] = folder;
+      }
+
+      const { name, sdf_info } = compound.molecule;
+      folder.file(`${name}.sdf`, sdf_info);
+    });
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    FileSaver.saveAs(zipBlob, 'selectedCompounds.zip');
+  };
+
   return (
-    <Panel hasHeader title="Selected Compounds" withTooltip>
+    <Panel hasHeader title="Selected Compounds" withTooltip headerActions={[
+      <Button
+        color="inherit"
+        variant="text"
+        onClick={downloadAsCsv}
+        startIcon={<CloudDownload />}
+      >
+        Download CSV
+      </Button>,
+      <Button
+        color="inherit"
+        variant="text"
+        className={classes.sdfButton}
+        onClick={downloadAsSdf}
+        startIcon={<CloudDownload />}
+      >
+        Download SDF
+      </Button>
+    ]}>
       {isOpenInspirationDialog && (
         <InspirationDialog
           open
