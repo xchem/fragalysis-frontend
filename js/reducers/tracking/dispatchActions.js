@@ -54,9 +54,11 @@ import {
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
-import { appendToSendActionList, setSendActionsList, setIsActionsSending } from './actions';
-import { api, getCsrfToken, METHOD } from '../../../js/utils/api';
+import { setSendActionsList, setIsActionsSending } from './actions';
+import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
+import { CONSTANTS } from '../../../js/constants/constants';
+import moment from 'moment';
 
 export const selectCurrentActionsList = () => (dispatch, getState) => {
   const state = getState();
@@ -881,18 +883,14 @@ export const getCanRedo = () => (dispatch, getState) => {
   return state.undoableTrackingReducers.future.length > 0;
 };
 
-export const checkSendTruckingActions = truckAction => (dispatch, getState) => {
+export const checkSendTruckingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const sendActions = state.trackingReducers.send_actions_list;
   const length = sendActions.length;
 
-  if (length >= 5) {
-    Promise.resolve(dispatch(sendTruckingActions(sendActions, currentProject))).then(response => {
-      dispatch(appendToSendActionList(truckAction));
-    });
-  } else {
-    dispatch(appendToSendActionList(truckAction));
+  if (length >= CONSTANTS.COUNT_SEND_TRUCK_ACTIONS) {
+    dispatch(sendTruckingActions(sendActions, currentProject));
   }
 };
 
@@ -902,14 +900,20 @@ const sendTruckingActions = (sendActions, currentProject) => (dispatch, getState
 
     if (projectID) {
       dispatch(setIsActionsSending(true));
+
+      const dataToSend = {
+        session_project: projectID,
+        author: currentProject.authorID,
+        last_update_date: moment().format(),
+        actions: JSON.stringify(sendActions)
+      };
       return api({
-        url: `${base_url}/api/session-actions/${projectID}/`,
+        url: `${base_url}/api/session-actions/`,
         method: METHOD.POST,
-        data: JSON.stringify(sendActions)
+        data: JSON.stringify(dataToSend)
       })
         .then(response => {
           dispatch(setSendActionsList([]));
-          console.log('RES:' + response);
         })
         .catch(error => {
           throw new Error(error);
@@ -924,4 +928,4 @@ const sendTruckingActions = (sendActions, currentProject) => (dispatch, getState
     return Promise.resolve();
   }
 };
-export const getTruckingActions = sendActions => (dispatch, getState) => {};
+export const getTruckingActions = () => (dispatch, getState) => {};
