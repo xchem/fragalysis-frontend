@@ -248,6 +248,7 @@ export const findTruckAction = (action, state) => {
           object_type: actionObjectType.MOLECULE,
           object_name: objectName,
           object_id: objectName,
+          item: action.item,
           text: `${objectType} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
         };
       }
@@ -263,6 +264,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
+          item: action.item,
           text: `${objectType} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
         };
       }
@@ -461,7 +463,8 @@ export const findTruckAction = (action, state) => {
         object_id: action.objectInViewID,
         representation_id: action.representationID,
         representation: action.newRepresentation,
-        text: `${objectType} parameter of ${action.objectInViewID} ${actionDescription.CHANGED}`
+        change: action.change,
+        text: `${objectType} '${action.change?.key}' of ${action.objectInViewID} ${actionDescription.CHANGED} from value: ${action.change?.oldValue} to value: ${action.change?.value}`
       };
     } else if (action.type.includes(nglConstants.ADD_COMPONENT_REPRESENTATION)) {
       let objectType = actionObjectType.REPRESENTATION;
@@ -475,7 +478,7 @@ export const findTruckAction = (action, state) => {
         object_name: representationName,
         object_id: action.objectInViewID,
         representation: action.newRepresentation,
-        text: `${objectType} ${representationName} of ${action.objectInViewID} ${actionDescription.ADDED}`
+        text: `${objectType} '${representationName}' of ${action.objectInViewID} ${actionDescription.ADDED}`
       };
     } else if (action.type.includes(nglConstants.REMOVE_COMPONENT_REPRESENTATION)) {
       let objectType = actionObjectType.REPRESENTATION;
@@ -489,7 +492,7 @@ export const findTruckAction = (action, state) => {
         object_name: representationName,
         object_id: action.objectInViewID,
         representation: action.representation,
-        text: `${objectType} ${representationName} of ${action.objectInViewID} ${actionDescription.REMOVED}`
+        text: `${objectType} '${representationName}' of ${action.objectInViewID} ${actionDescription.REMOVED}`
       };
     }
   }

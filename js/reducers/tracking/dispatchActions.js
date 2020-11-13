@@ -603,6 +603,7 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleCompoundAction(action, true));
         break;
       case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
         dispatch(handleRepresentationAction(action, false, majorView));
@@ -685,6 +686,7 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleCompoundAction(action, false));
         break;
       case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
         dispatch(handleRepresentationAction(action, true, majorView));
@@ -728,12 +730,12 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 };
 
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
-  const state = getState();
   if (action) {
+    let data = action.item;
     if (isAdd) {
-      //dispatch(appendToBuyList(data));
+      dispatch(appendToBuyList(data));
     } else {
-      //dispatch(removeFromToBuyList(data));
+      dispatch(removeFromToBuyList(data));
     }
   }
 };
@@ -752,7 +754,6 @@ const addRepresentation = (parentKey, representation, nglView) => (dispatch, get
   const oldRepresentation = representation;
   const newRepresentationType = oldRepresentation.type;
   const comp = nglView.stage.getComponentsByName(parentKey).first;
-  // add representation to NGL
   const newRepresentation = assignRepresentationToComp(
     newRepresentationType,
     oldRepresentation.params,
@@ -760,6 +761,26 @@ const addRepresentation = (parentKey, representation, nglView) => (dispatch, get
     oldRepresentation.lastKnownID
   );
   dispatch(addComponentRepresentation(parentKey, newRepresentation));
+};
+
+const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    dispatch(changeRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
+  }
+};
+
+const changeRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch, getState) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
+  if (r && change) {
+    let key = change.key;
+    let value = isAdd ? change.value : change.oldValue;
+
+    r.setParameters({ [key]: value });
+    representation.params[key] = value;
+
+    dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+  }
 };
 
 const removeRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
