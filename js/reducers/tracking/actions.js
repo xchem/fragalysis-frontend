@@ -69,3 +69,10 @@ export const appendToSendActionList = function(truck_action) {
     truck_action: truck_action
   };
 };
+
+export const setProjectActionList = function(project_actions_list) {
+  return {
+    type: constants.SET_PROJECT_ACTIONS_LIST,
+    project_actions_list: project_actions_list
+  };
+};

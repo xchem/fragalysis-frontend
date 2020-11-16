@@ -9,7 +9,8 @@ export const INITIAL_STATE = {
   isUndoRedoAction: false,
   isActionsSending: false,
   isActionsLoading: false,
-  send_actions_list: []
+  send_actions_list: [],
+  project_actions_list: []
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -62,6 +63,11 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
     case constants.APPEND_SEND_ACTIONS_LIST:
       return Object.assign({}, state, {
         send_actions_list: [...new Set([...state.send_actions_list, action.truck_action])]
+      });
+
+    case constants.SET_PROJECT_ACTIONS_LIST:
+      return Object.assign({}, state, {
+        project_actions_list: action.project_actions_list
       });
 
     default:
