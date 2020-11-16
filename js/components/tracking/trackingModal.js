@@ -47,14 +47,14 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
   const orderedActionList = (actionList && actionList.sort((a, b) => a.timestamp - b.timestamp)) || [];
 
   const loadAllActions = useCallback(() => {
-    if (openModal === true && actionList && actionList.length <= 0) {
+    if (openModal === true) {
       dispatch(setProjectTruckingActions());
     }
-  }, [dispatch, actionList, openModal]);
+  }, [dispatch, openModal]);
 
   useEffect(() => {
     loadAllActions();
-  }, [actionList, loadAllActions]);
+  }, [loadAllActions]);
 
   if (openModal === undefined) {
     console.log('undefined openModal');
