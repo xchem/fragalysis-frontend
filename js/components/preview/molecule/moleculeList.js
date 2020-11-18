@@ -60,7 +60,6 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import {selectMoleculeGroup} from '../moleculeGroups/redux/dispatchActions';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
