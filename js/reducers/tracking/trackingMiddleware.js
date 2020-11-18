@@ -1,4 +1,4 @@
-import { appendToActionList } from './actions';
+import { appendAndSendTruckingActions } from './dispatchActions';
 import { constants } from './constants';
 import { findTruckAction } from './trackingActions';
 
@@ -10,7 +10,7 @@ const trackingMiddleware = ({ dispatch, getState }) => next => action => {
     if (action && !action.type.includes(constants.APPEND_ACTIONS_LIST)) {
       let truckAction = findTruckAction(action, state);
       if (truckAction && truckAction != null) {
-        dispatch(appendToActionList(truckAction));
+        dispatch(appendAndSendTruckingActions(truckAction));
       }
     }
 

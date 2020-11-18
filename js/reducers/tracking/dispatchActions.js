@@ -54,6 +54,12 @@ import {
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
+import { setSendActionsList, setIsActionsSending, setIsActionsLoading } from './actions';
+import { api, METHOD } from '../../../js/utils/api';
+import { base_url } from '../../components/routes/constants';
+import { CONSTANTS } from '../../../js/constants/constants';
+import moment from 'moment';
+import { appendToActionList, appendToSendActionList, setProjectActionList } from './actions';
 
 export const selectCurrentActionsList = () => (dispatch, getState) => {
   const state = getState();
@@ -876,4 +882,125 @@ export const getCanUndo = () => (dispatch, getState) => {
 export const getCanRedo = () => (dispatch, getState) => {
   const state = getState();
   return state.undoableTrackingReducers.future.length > 0;
+};
+
+export const appendAndSendTruckingActions = truckAction => (dispatch, getState) => {
+  const state = getState();
+  const currentProject = state.projectReducers.currentProject;
+  const projectID = currentProject && currentProject.projectID;
+  const sendActions = state.trackingReducers.send_actions_list;
+
+  Promise.resolve(dispatch(checkActionsProject(sendActions, projectID))).then(response => {
+    dispatch(appendToActionList(truckAction));
+    dispatch(appendToSendActionList(truckAction));
+    dispatch(checkSendTruckingActions(truckAction));
+    return response;
+  });
+};
+
+const checkSendTruckingActions = truckAction => (dispatch, getState) => {
+  const state = getState();
+  const currentProject = state.projectReducers.currentProject;
+  const sendActions = state.trackingReducers.send_actions_list;
+  const length = sendActions.length;
+
+  if (length >= CONSTANTS.COUNT_SEND_TRUCK_ACTIONS) {
+    dispatch(sendTruckingActions(sendActions, currentProject));
+  }
+};
+
+const sendTruckingActions = (sendActions, project) => (dispatch, getState) => {
+  if (project) {
+    const projectID = project && project.projectID;
+
+    if (projectID) {
+      dispatch(setIsActionsSending(true));
+
+      const dataToSend = {
+        session_project: projectID,
+        author: project.authorID,
+        last_update_date: moment().format(),
+        actions: JSON.stringify(sendActions)
+      };
+      return api({
+        url: `${base_url}/api/session-actions/`,
+        method: METHOD.POST,
+        data: JSON.stringify(dataToSend)
+      })
+        .then(response => {
+          dispatch(setSendActionsList([]));
+        })
+        .catch(error => {
+          throw new Error(error);
+        })
+        .finally(() => {
+          dispatch(setIsActionsSending(false));
+        });
+    } else {
+      return Promise.resolve();
+    }
+  } else {
+    return Promise.resolve();
+  }
+};
+
+export const setProjectTruckingActions = () => (dispatch, getState) => {
+  const state = getState();
+  const currentProject = state.projectReducers.currentProject;
+  const sendActions = state.trackingReducers.send_actions_list;
+  const projectID = currentProject && currentProject.projectID;
+
+  Promise.resolve(dispatch(checkActionsProject(sendActions, projectID))).then(response => {
+    dispatch(getTruckingActions(projectID));
+    return response;
+  });
+};
+
+const getTruckingActions = projectID => (dispatch, getState) => {
+  const state = getState();
+  const sendActions = state.trackingReducers.send_actions_list;
+
+  if (projectID) {
+    dispatch(setIsActionsLoading(true));
+    return api({
+      url: `${base_url}/api/session-actions/?session_project=${projectID}`
+    })
+      .then(response => {
+        let results = response.data.results;
+        let listToSet = [];
+        results.forEach(r => {
+          let resultActions = JSON.parse(r.actions);
+          listToSet.push(...resultActions);
+        });
+
+        let projectActions = [...listToSet, ...sendActions];
+        dispatch(setProjectActionList(projectActions));
+      })
+      .catch(error => {
+        throw new Error(error);
+      })
+      .finally(() => {
+        dispatch(setIsActionsLoading(false));
+      });
+  } else {
+    return Promise.resolve();
+  }
+};
+
+const checkActionsProject = (actions, currentProjectID) => (dispatch, getState) => {
+  let project = dispatch(getActionProject(actions, currentProjectID));
+  if (project !== null) {
+    dispatch(sendTruckingActions(actions, project));
+  } else {
+    return Promise.resolve();
+  }
+};
+
+const getActionProject = (actions, currentProjectID) => (dispatch, getState) => {
+  let action = actions && actions.slice(-1).pop();
+  let project = null;
+  if (action && action.project.projectID !== currentProjectID) {
+    project = action.project;
+  }
+  return project;
 };
