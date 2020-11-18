@@ -1,10 +1,16 @@
-import { setCurrentActionsList, setIsTrackingMoleculesRestoring, setIsTrackingCompoundsRestoring } from './actions';
+import {
+  setCurrentActionsList,
+  setIsTrackingMoleculesRestoring,
+  setIsTrackingCompoundsRestoring,
+  setIsUndoRedoAction
+} from './actions';
 import { actionType, actionObjectType } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, removeFromToBuyList } from '../selection/actions';
 import { unmountPreviewComponent, shouldLoadProtein } from '../../components/preview/redux/dispatchActions';
 import {
   selectMoleculeGroup,
+  onDeselectMoleculeGroup,
   loadMoleculeGroupsOfTarget
 } from '../../components/preview/moleculeGroups/redux/dispatchActions';
 import { resetTargetState, setTargetOn } from '../api/actions';
@@ -13,7 +19,12 @@ import {
   addLigand,
   addHitProtein,
   addSurface,
-  addVector
+  addVector,
+  removeComplex,
+  removeLigand,
+  removeHitProtein,
+  removeSurface,
+  removeVector
 } from '../../components/preview/molecule/redux/dispatchActions';
 import { colourList } from '../../components/preview/molecule/moleculeView';
 import {
@@ -21,16 +32,28 @@ import {
   addDatasetLigand,
   addDatasetHitProtein,
   addDatasetSurface,
+  removeDatasetComplex,
+  removeDatasetLigand,
+  removeDatasetHitProtein,
+  removeDatasetSurface,
   loadDataSets,
   loadDatasetCompoundsWithScores
 } from '../../components/datasets/redux/dispatchActions';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
+  removeMoleculeFromCompoundsOfDatasetToBuy,
   setMoleculeListIsLoading
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
+import {
+  removeComponentRepresentation,
+  addComponentRepresentation,
+  updateComponentRepresentation
+} from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
+import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
+import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
 
 export const selectCurrentActionsList = () => (dispatch, getState) => {
   const state = getState();
@@ -398,6 +421,15 @@ const addNewType = (moleculesAction, actionType, type, stage, state) => dispatch
   }
 };
 
+const addNewTypeOfAction = (action, type, stage, state) => dispatch => {
+  if (action) {
+    let data = getMolecule(action.object_name, state);
+    if (data) {
+      dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+    }
+  }
+};
+
 const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => dispatch => {
   let actions = moleculesAction.filter(action => action.action_type === actionType);
   if (actions) {
@@ -407,6 +439,15 @@ const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => 
         dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
       }
     });
+  }
+};
+
+const addNewTypeCompoundOfAction = (action, type, stage, state) => dispatch => {
+  if (action) {
+    let data = getCompound(action.object_name, state);
+    if (data) {
+      dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
+    }
   }
 };
 
@@ -452,4 +493,387 @@ const getCompound = (name, state) => {
     }
   }
   return molecule;
+};
+
+export const undoAction = (stages = []) => (dispatch, getState) => {
+  const state = getState();
+  let action = null;
+
+  dispatch(setIsUndoRedoAction(true));
+
+  const actionUndoList = state.undoableTrackingReducers.future;
+  let actions = actionUndoList && actionUndoList[0];
+  if (actions) {
+    let actionsLenght = actions.truck_actions_list.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions.truck_actions_list[actionsLenght];
+
+    Promise.resolve(dispatch(handleUndoAction(action, stages))).then(function(response) {
+      dispatch(setIsUndoRedoAction(false));
+      return response;
+    });
+  }
+};
+
+export const redoAction = (stages = []) => (dispatch, getState) => {
+  const state = getState();
+  let action = null;
+
+  dispatch(setIsUndoRedoAction(true));
+
+  const actions = state.undoableTrackingReducers.present;
+  if (actions) {
+    let actionsLenght = actions.truck_actions_list.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions.truck_actions_list[actionsLenght];
+
+    Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(function(response) {
+      dispatch(setIsUndoRedoAction(false));
+      return response;
+    });
+  }
+};
+
+const handleUndoAction = (action, stages) => (dispatch, getState) => {
+  const state = getState();
+
+  if (action) {
+    const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
+    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    const stageSummaryView = summaryView.stage;
+    const majorViewStage = majorView.stage;
+
+    const type = action.type;
+    switch (type) {
+      case actionType.LIGAND_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'ligand', false, majorViewStage, state));
+        break;
+      case actionType.SIDECHAINS_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'protein', false, majorViewStage, state));
+        break;
+      case actionType.INTERACTIONS_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'complex', false, majorViewStage, state));
+        break;
+      case actionType.SURFACE_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
+        break;
+      case actionType.VECTORS_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
+        break;
+      case actionType.LIGAND_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'ligand', true, majorViewStage, state));
+        break;
+      case actionType.SIDECHAINS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'protein', true, majorViewStage, state));
+        break;
+      case actionType.INTERACTIONS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'complex', true, majorViewStage, state));
+        break;
+      case actionType.SURFACE_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
+        break;
+      case actionType.VECTORS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
+        break;
+      case actionType.VECTOR_SELECTED:
+        dispatch(setCurrentVector(undefined));
+        break;
+      case actionType.VECTOR_DESELECTED:
+        dispatch(setCurrentVector(action.object_name));
+        break;
+      case actionType.TARGET_LOADED:
+        dispatch(handleTargetAction(action, false));
+        break;
+      case actionType.SITE_TURNED_ON:
+        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
+        break;
+      case actionType.SITE_TURNED_OFF:
+        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
+        break;
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
+        dispatch(handleShoppingCartAction(action, false));
+        break;
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
+        dispatch(handleShoppingCartAction(action, true));
+        break;
+      case actionType.COMPOUND_SELECTED:
+        dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.COMPOUND_DESELECTED:
+        dispatch(handleCompoundAction(action, true));
+        break;
+      case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_ADDED:
+        dispatch(handleRepresentationAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_REMOVED:
+        dispatch(handleRepresentationAction(action, true, majorView));
+        break;
+      default:
+        break;
+    }
+  }
+};
+
+const handleRedoAction = (action, stages) => (dispatch, getState) => {
+  const state = getState();
+
+  if (action) {
+    const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
+    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    const stageSummaryView = summaryView.stage;
+    const majorViewStage = majorView.stage;
+
+    const type = action.type;
+    switch (type) {
+      case actionType.LIGAND_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'ligand', true, majorViewStage, state));
+        break;
+      case actionType.SIDECHAINS_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'protein', true, majorViewStage, state));
+        break;
+      case actionType.INTERACTIONS_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'complex', true, majorViewStage, state));
+        break;
+      case actionType.SURFACE_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
+        break;
+      case actionType.VECTORS_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
+        break;
+      case actionType.LIGAND_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'ligand', false, majorViewStage, state));
+        break;
+      case actionType.SIDECHAINS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'protein', false, majorViewStage, state));
+        break;
+      case actionType.INTERACTIONS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'complex', false, majorViewStage, state));
+        break;
+      case actionType.SURFACE_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
+        break;
+      case actionType.VECTORS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
+        break;
+      case actionType.VECTOR_SELECTED:
+        dispatch(setCurrentVector(action.object_name));
+        break;
+      case actionType.VECTOR_DESELECTED:
+        dispatch(setCurrentVector(undefined));
+        break;
+      case actionType.TARGET_LOADED:
+        dispatch(handleTargetAction(action, true));
+        break;
+      case actionType.SITE_TURNED_ON:
+        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
+        break;
+      case actionType.SITE_TURNED_OFF:
+        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
+        break;
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
+        dispatch(handleShoppingCartAction(action, true));
+        break;
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
+        dispatch(handleShoppingCartAction(action, false));
+        break;
+      case actionType.COMPOUND_SELECTED:
+        dispatch(handleCompoundAction(action, true));
+        break;
+      case actionType.COMPOUND_DESELECTED:
+        dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_ADDED:
+        dispatch(handleRepresentationAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_REMOVED:
+        dispatch(handleRepresentationAction(action, false, majorView));
+        break;
+      default:
+        break;
+    }
+  }
+};
+
+const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    if (isSelected === false) {
+      dispatch(setTargetOn(undefined));
+    } else {
+      let target = getTarget(action.object_name, state);
+      if (target) {
+        dispatch(setTargetOn(target.id));
+        dispatch(shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false }));
+      }
+    }
+  }
+};
+
+const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let data = getCompound(action.object_name, state);
+    if (data) {
+      if (isSelected === true) {
+        dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
+      } else {
+        dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
+      }
+    }
+  }
+};
+
+const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
+  if (action) {
+    let data = action.item;
+    if (isAdd) {
+      dispatch(appendToBuyList(data));
+    } else {
+      dispatch(removeFromToBuyList(data));
+    }
+  }
+};
+
+const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    if (isAdd === true) {
+      dispatch(addRepresentation(action.object_id, action.representation, nglView));
+    } else {
+      dispatch(removeRepresentation(action.object_id, action.representation, nglView));
+    }
+  }
+};
+
+const addRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+  const oldRepresentation = representation;
+  const newRepresentationType = oldRepresentation.type;
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  const newRepresentation = assignRepresentationToComp(
+    newRepresentationType,
+    oldRepresentation.params,
+    comp,
+    oldRepresentation.lastKnownID
+  );
+  dispatch(addComponentRepresentation(parentKey, newRepresentation));
+};
+
+const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    dispatch(changeRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
+  }
+};
+
+const changeRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch, getState) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
+  if (r && change) {
+    let key = change.key;
+    let value = isAdd ? change.value : change.oldValue;
+
+    r.setParameters({ [key]: value });
+    representation.params[key] = value;
+
+    dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+  }
+};
+
+const removeRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  let foundedRepresentation = undefined;
+  comp.eachRepresentation(r => {
+    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+      foundedRepresentation = r;
+    }
+  });
+  if (foundedRepresentation) {
+    comp.removeRepresentation(foundedRepresentation);
+
+    if (comp.reprList.length === 0) {
+      dispatch(deleteObject(nglView, nglView.stage, true));
+    } else {
+      dispatch(removeComponentRepresentation(parentKey, representation));
+    }
+  }
+};
+
+const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let moleculeGroup = getMolGroup(action.object_name, state);
+    if (moleculeGroup) {
+      if (isSelected === true) {
+        dispatch(selectMoleculeGroup(moleculeGroup, stageSummaryView));
+      } else {
+        dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
+      }
+    }
+  }
+};
+
+const handleMoleculeAction = (action, type, isAdd, stage, state) => (dispatch, getState) => {
+  if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
+    if (isAdd) {
+      dispatch(addNewTypeOfAction(action, type, stage, state));
+    } else {
+      dispatch(removeNewType(action, type, stage, state));
+    }
+  } else if (
+    action.object_type === actionObjectType.COMPOUND ||
+    action.object_type === actionObjectType.CROSS_REFERENCE
+  ) {
+    if (isAdd) {
+      dispatch(addNewTypeCompoundOfAction(action, type, stage, state));
+    } else {
+      dispatch(removeNewTypeCompound(action, type, stage, state));
+    }
+  }
+};
+
+const removeType = {
+  ligand: removeLigand,
+  protein: removeHitProtein,
+  complex: removeComplex,
+  surface: removeSurface,
+  vector: removeVector
+};
+
+const removeTypeCompound = {
+  ligand: removeDatasetLigand,
+  protein: removeDatasetHitProtein,
+  complex: removeDatasetComplex,
+  surface: removeDatasetSurface
+};
+
+const removeNewType = (action, type, stage, state) => dispatch => {
+  if (action) {
+    let data = getMolecule(action.object_name, state);
+    if (data) {
+      dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], true));
+    }
+  }
+};
+
+const removeNewTypeCompound = (action, type, stage, state) => dispatch => {
+  if (action) {
+    let data = getCompound(action.object_name, state);
+    if (data) {
+      dispatch(removeTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
+    }
+  }
+};
+
+export const getCanUndo = () => (dispatch, getState) => {
+  const state = getState();
+  return state.undoableTrackingReducers.past.length > 0;
+};
+
+export const getCanRedo = () => (dispatch, getState) => {
+  const state = getState();
+  return state.undoableTrackingReducers.future.length > 0;
 };

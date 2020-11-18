@@ -34,3 +34,10 @@ export const setIsTrackingCompoundsRestoring = function(isTrackingCompoundsResto
     isTrackingCompoundsRestoring: isTrackingCompoundsRestoring
   };
 };
+
+export const setIsUndoRedoAction = function(isUndoRedoAction) {
+  return {
+    type: constants.SET_IS_UNDO_REDO_ACTION,
+    isUndoRedoAction: isUndoRedoAction
+  };
+};

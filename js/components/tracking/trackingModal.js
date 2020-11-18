@@ -40,7 +40,7 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
   const { nglViewList } = useContext(NglContext);
 
   const actionList = useSelector(state => state.trackingReducers.truck_actions_list);
-  const orderedActionList = actionList.sort((a, b) => a.timestamp - b.timestamp);
+  const orderedActionList = (actionList && actionList.sort((a, b) => a.timestamp - b.timestamp)) || [];
 
   if (openModal === undefined) {
     console.log('undefined openModal');

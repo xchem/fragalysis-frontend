@@ -28,7 +28,7 @@ export const INITIAL_STATE = {
   currentVector: null // selected vector smile (ID) of compoundsOfVectors
 };
 
-export default function selectionReducers(state = INITIAL_STATE, action = {}) {
+export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     case constants.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
