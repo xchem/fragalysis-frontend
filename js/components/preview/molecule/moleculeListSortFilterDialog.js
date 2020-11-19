@@ -172,7 +172,7 @@ export const MoleculeListSortFilterDialog = memo(
       return initObject;
     }, [joinedMoleculeLists]);
 
-    const [initState] = useState(initialize());
+    const [initState, setInitState] = useState(initialize());
     const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(joinedMoleculeLists, filter));
     const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 
@@ -187,20 +187,53 @@ export const MoleculeListSortFilterDialog = memo(
     }, [dispatch]);
 
     useEffect(() => {
+      const init = initialize();
+
+      setInitState(init);
+      
       if (!filter.active) {
-        const init = initialize();
-        dispatch(setFilter(init));
-        setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, init));
-        handleFilterChange(init);
+        const initCopy = { ...init };
+        dispatch(setFilter(initCopy));
+        handleFilterChange(initCopy);
       }
     }, [initialize, dispatch, joinedMoleculeLists, handleFilterChange, filter.active]);
+
+    useEffect(() => {
+      setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, filter));
+    }, [joinedMoleculeLists, filter]);
+
+    useEffect(() => {
+      let changed = false;
+      const newFilter = { ...filter };
+
+      for (let attr of MOL_ATTRIBUTES) {
+        if (!attr.filter) continue;
+        const key = attr.key;
+        const filterValue = newFilter.filter[key];
+        const initValue = initState.filter[key];
+
+        if (filterValue.minValue < initValue.minValue) {
+          filterValue.minValue = initValue.minValue;
+          changed = true;
+        }
+
+        if (filterValue.maxValue > initValue.maxValue) {
+          filterValue.maxValue = initValue.maxValue;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        dispatch(setFilter(newFilter));
+        handleFilterChange(newFilter);
+      }
+    }, [initState, filter, dispatch, handleFilterChange]);
 
     const handleItemChange = key => setting => {
       let newFilter = Object.assign({}, filter);
       newFilter.filter[key] = setting;
       newFilter.active = true;
       dispatch(setFilter(newFilter));
-      setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, newFilter));
       handleFilterChange(newFilter);
     };
 
@@ -224,7 +257,6 @@ export const MoleculeListSortFilterDialog = memo(
       const resetFilter = initialize();
       setPredefinedFilter('none');
       dispatch(setFilter(resetFilter));
-      setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, resetFilter));
       handleFilterChange(resetFilter);
     };
 
