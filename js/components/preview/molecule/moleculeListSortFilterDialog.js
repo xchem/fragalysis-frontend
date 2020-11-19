@@ -212,12 +212,12 @@ export const MoleculeListSortFilterDialog = memo(
         const filterValue = newFilter.filter[key];
         const initValue = initState.filter[key];
 
-        if (filterValue.minValue < initValue.minValue) {
+        if (filterValue.minValue < initValue.minValue || filterValue.minValue > initValue.maxValue) {
           filterValue.minValue = initValue.minValue;
           changed = true;
         }
 
-        if (filterValue.maxValue > initValue.maxValue) {
+        if (filterValue.maxValue > initValue.maxValue || filterValue.maxValue < initValue.minValue) {
           filterValue.maxValue = initValue.maxValue;
           changed = true;
         }
