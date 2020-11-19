@@ -9,8 +9,11 @@ export const INITIAL_STATE = {
   isUndoRedoAction: false,
   isActionsSending: false,
   isActionsLoading: false,
+  isActionSaving: false,
+  setIsActionsRestoring: false,
   send_actions_list: [],
-  project_actions_list: []
+  project_actions_list: [],
+  isActionRestoring: false
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -68,6 +71,16 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_PROJECT_ACTIONS_LIST:
       return Object.assign({}, state, {
         project_actions_list: action.project_actions_list
+      });
+
+    case constants.SET_IS_ACTIONS_SAVING:
+      return Object.assign({}, state, {
+        isActionSaving: action.isActionSaving
+      });
+
+    case constants.SET_IS_ACTIONS_RESTORING:
+      return Object.assign({}, state, {
+        isActionRestoring: action.isActionRestoring
       });
 
     default:

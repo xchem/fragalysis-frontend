@@ -76,3 +76,17 @@ export const setProjectActionList = function(project_actions_list) {
     project_actions_list: project_actions_list
   };
 };
+
+export const setIsActionsSaving = function(isActionSaving) {
+  return {
+    type: constants.SET_IS_ACTIONS_SAVING,
+    isActionSaving: isActionSaving
+  };
+};
+
+export const setIsActionsRestoring = function(isActionRestoring) {
+  return {
+    type: constants.SET_IS_ACTIONS_RESTORING,
+    isActionRestoring: isActionRestoring
+  };
+};

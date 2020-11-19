@@ -5,6 +5,8 @@ import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
+import { NglContext } from '../../nglView/nglProvider';
 
 export const ProjectPreview = memo(({}) => {
   const { setSnackBarTitle } = useContext(HeaderContext);
@@ -12,10 +14,13 @@ export const ProjectPreview = memo(({}) => {
   const isSnapshotLoaded = useRef(undefined);
   let match = useRouteMatch();
   const dispatch = useDispatch();
+  const { nglViewList } = useContext(NglContext);
+
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
 
   useEffect(() => {
     if (!snapshotId && currentSnapshotID === null) {
@@ -38,12 +43,15 @@ export const ProjectPreview = memo(({}) => {
               if (response.session_project && `${response.session_project.id}` === projectId) {
                 isSnapshotLoaded.current = response.id;
                 setCanShow(true);
+                if (isActionRestoring === false) {
+                  dispatch(restoreCurrentActionsList(nglViewList));
+                } else {
+                  setCanShow(false);
+                }
               } else {
+                isSnapshotLoaded.current = response;
                 setCanShow(false);
               }
-            } else {
-              isSnapshotLoaded.current = response;
-              setCanShow(false);
             }
           }
         })
@@ -52,7 +60,7 @@ export const ProjectPreview = memo(({}) => {
           throw new Error(error);
         });
     }
-  }, [currentSnapshotID, dispatch, projectId, snapshotId]);
+  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, nglViewList, canShow]);
 
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');

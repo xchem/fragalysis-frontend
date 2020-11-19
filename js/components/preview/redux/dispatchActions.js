@@ -84,7 +84,7 @@ export const shouldLoadProtein = ({
       (!routeSnapshotID || routeSnapshotID === currentSnapshotID.toString()) &&
       currentSnapshotData !== null
     ) {
-      dispatch(reloadSession(currentSnapshotData, nglViewList));
+      //dispatch(reloadSession(currentSnapshotData, nglViewList));
     }
 
     if (targetOnName !== undefined) {

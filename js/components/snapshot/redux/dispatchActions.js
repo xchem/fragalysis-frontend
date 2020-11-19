@@ -25,6 +25,7 @@ import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
+import { saveCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -215,6 +216,8 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
+          dispatch(saveCurrentActionsList(res.data.id));
+
           if (disableRedirect === false) {
             // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
             // use react-router !

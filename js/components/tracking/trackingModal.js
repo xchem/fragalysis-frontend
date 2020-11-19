@@ -7,7 +7,7 @@ import { Check, Clear, Save, Restore, Close } from '@material-ui/icons';
 import palette from '../../theme/palette';
 import { Panel } from '../common';
 import {
-  selectCurrentActionsList,
+  saveCurrentActionsList,
   restoreCurrentActionsList,
   setProjectTruckingActions
 } from '../../reducers/tracking/dispatchActions';
@@ -62,7 +62,7 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
   }
 
   const actions = [
-    <IconButton color={'inherit'} onClick={() => dispatch(selectCurrentActionsList())}>
+    <IconButton color={'inherit'} onClick={() => dispatch(saveCurrentActionsList())}>
       <Tooltip title="Save">
         <Save />
       </Tooltip>
