@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useMemo, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Popper, Tooltip, IconButton } from '@material-ui/core';
 import { Close, Delete } from '@material-ui/icons';
@@ -142,7 +142,7 @@ export const MoleculeListSortFilterDialog = memo(
     const dispatch = useDispatch();
     const moleculeGroupList = useSelector(state => state.apiReducers.mol_group_list);
 
-    const getListedMolecules = () => {
+    const getListedMolecules = useMemo(() => {
       let molecules = [];
       for (let molGroupId of molGroupSelection) {
         // Selected molecule groups
@@ -155,9 +155,9 @@ export const MoleculeListSortFilterDialog = memo(
       }
 
       return molecules;
-    };
+    }, [molGroupSelection, cachedMolList]);
 
-    const initialize = () => {
+    const initialize = useCallback(() => {
       let initObject = {
         active: false,
         predefined: 'none',
@@ -169,7 +169,7 @@ export const MoleculeListSortFilterDialog = memo(
         const lowAttr = attr.key.toLowerCase();
         let minValue = -999999;
         let maxValue = 0;
-        const moleculeList = getListedMolecules();
+        const moleculeList = getListedMolecules;
 
         moleculeList.forEach(molecule => {
           const attrValue = molecule[lowAttr];
@@ -187,13 +187,13 @@ export const MoleculeListSortFilterDialog = memo(
         };
       }
       return initObject;
-    };
+    }, [getListedMolecules]);
 
     const [initState] = useState(initialize());
-    const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
+    const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules, filter));
     const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 
-    const handleFilterChange = filter => {
+    const handleFilterChange = useCallback(filter => {
       const filterSet = Object.assign({}, filter);
       for (let attr of MOL_ATTRIBUTES) {
         if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
@@ -201,14 +201,23 @@ export const MoleculeListSortFilterDialog = memo(
         }
       }
       dispatch(setFilter(filterSet));
-    };
+    }, [dispatch]);
+
+    useEffect(() => {
+      if (!filter.active) {
+        const init = initialize();
+        dispatch(setFilter(init));
+        setFilteredCount(getFilteredMoleculesCount(getListedMolecules, init));
+        handleFilterChange(init);
+      }
+    }, [initialize, dispatch, getListedMolecules, handleFilterChange, filter.active]);
 
     const handleItemChange = key => setting => {
       let newFilter = Object.assign({}, filter);
       newFilter.filter[key] = setting;
       newFilter.active = true;
       dispatch(setFilter(newFilter));
-      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
+      setFilteredCount(getFilteredMoleculesCount(getListedMolecules, newFilter));
       handleFilterChange(newFilter);
     };
 
@@ -232,7 +241,7 @@ export const MoleculeListSortFilterDialog = memo(
       const resetFilter = initialize();
       setPredefinedFilter('none');
       dispatch(setFilter(resetFilter));
-      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
+      setFilteredCount(getFilteredMoleculesCount(getListedMolecules, resetFilter));
       handleFilterChange(resetFilter);
     };
 
