@@ -25,6 +25,10 @@ import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
+import {
+  sendTruckingActionsByProjectId,
+  appendAndSendTruckingActions
+} from '../../../reducers/tracking/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -261,6 +265,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     };
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
+        dispatch(appendAndSendTruckingActions(null));
         dispatch(setOpenSnapshotSavingDialog(true));
       })
       .catch(error => {
@@ -268,7 +273,6 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
       });
   } else if (finallyShareSnapshot === true && loggedInUserID && projectID !== null && currentSnapshotAuthor === null) {
     dispatch(setForceCreateProject(true));
-
     dispatch(setOpenSnapshotSavingDialog(true));
   } else {
     dispatch(setOpenSnapshotSavingDialog(true));
@@ -342,6 +346,7 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
       author: loggedInUserID || null,
       tags: '[]'
     };
+
     dispatch(createProjectWithoutStateModification(data))
       .then(projectID => {
         const username = DJANGO_CONTEXT['username'];
@@ -352,6 +357,8 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
         const author = loggedInUserID || null;
         const parent = null;
         const session_project = projectID;
+
+        dispatch(sendTruckingActionsByProjectId(projectID, author));
 
         return dispatch(
           createNewSnapshotWithoutStateModification({ title, description, type, author, parent, session_project })
