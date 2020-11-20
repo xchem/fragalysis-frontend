@@ -21,6 +21,9 @@ export const INITIAL_STATE = {
   surfaceLists: {}, // map of $datasetID and its $list
   inspirationLists: {}, // map of $datasetID and its $list
 
+  molecule_all_selection: null,
+  molecule_all_deselection: null,
+
   // search
   searchString: null,
 
@@ -373,6 +376,15 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       };
       return Object.assign({}, state, { ...INITIAL_STATE, ...datasetsLists });
 
+    case constants.SET_SELECTED_ALL:
+      return Object.assign({}, state, {
+        molecule_all_selection: action.payload
+      });
+
+    case constants.SET_DESELECTED_ALL:
+      return Object.assign({}, state, {
+        molecule_all_deselection: action.payload
+      });
     default:
       return state;
   }

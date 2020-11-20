@@ -375,6 +375,42 @@ export const findTruckAction = (action, state) => {
           text: `${objectType} ${objectName} ${actionDescription.DESELECTED} of dataset: ${action.payload.datasetID}`
         };
       }
+    } else if (action.type.includes(customDatasetConstants.SET_SELECTED_ALL)) {
+      if (action.payload && action.payload.item) {
+        let objectType =
+          action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+        let objectName = action.payload.item.name;
+
+        truckAction = {
+          type: actionType.ALL_TURNED_ON,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.item.id,
+          dataset_id: action.payload.datasetID,
+          text: `${actionDescription.ALL} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type.includes(customDatasetConstants.SET_DESELECTED_ALL)) {
+      if (action.payload && action.payload.item) {
+        let objectType =
+          action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+        let objectName = action.payload.item.name;
+
+        truckAction = {
+          type: actionType.ALL_TURNED_OFF,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.item.id,
+          dataset_id: action.payload.datasetID,
+          text: `${actionDescription.ALL} ${actionDescription.ALL_TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+        };
+      }
     } else if (action.type.includes(customDatasetConstants.APPEND_LIGAND_LIST)) {
       if (action.payload && action.payload.item) {
         let objectType =
