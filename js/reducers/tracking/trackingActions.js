@@ -15,7 +15,7 @@ export const findTruckAction = (action, state) => {
   let project = { projectID, authorID };
 
   let truckAction = null;
-  if (isUndoRedoAction === false) {
+  if (isUndoRedoAction === false && action.skipTracking !== true) {
     if (action.type.includes(apiConstants.SET_TARGET_ON)) {
       if (action.target_on) {
         let targetName = getTargetName(action.target_on, state);
@@ -61,6 +61,44 @@ export const findTruckAction = (action, state) => {
           object_name: molGroupName,
           object_id: objectId,
           text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
+        };
+      }
+    } else if (action.type.includes(selectionConstants.SET_SELECTED_ALL)) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        truckAction = {
+          type: actionType.ALL_TURNED_ON,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.ALL} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
+    } else if (action.type.includes(selectionConstants.SET_DESELECTED_ALL)) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        truckAction = {
+          type: actionType.ALL_TURNED_OFF,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
         };
       }
     } else if (action.type.includes(selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST)) {

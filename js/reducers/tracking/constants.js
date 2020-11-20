@@ -38,7 +38,9 @@ export const actionType = {
   REPRESENTATION_ADDED: 'REPRESENTATION_ADDED',
   REPRESENTATION_REMOVED: 'REPRESENTATION_REMOVED',
   UNDO: 'UNDO',
-  REDO: 'REDO'
+  REDO: 'REDO',
+  ALL_TURNED_ON: 'ALL_TURNED_ON',
+  ALL_TURNED_OFF: 'ALL_TURNED_OFF'
 };
 
 export const actionDescription = {
@@ -58,7 +60,8 @@ export const actionDescription = {
   VECTOR: 'Vector',
   SURFACE: 'Surface',
   SITE: 'Site',
-  TARGET: 'Target'
+  TARGET: 'Target',
+  ALL: 'All'
 };
 
 export const actionObjectType = {
