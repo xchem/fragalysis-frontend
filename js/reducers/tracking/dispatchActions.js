@@ -393,7 +393,7 @@ const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getStat
   let compoundsSelectedAction = compoundsAction.filter(action => action.action_type === actionType.COMPOUND_SELECTED);
 
   compoundsSelectedAction.forEach(action => {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
     }
@@ -440,7 +440,7 @@ const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => 
   let actions = moleculesAction.filter(action => action.action_type === actionType);
   if (actions) {
     actions.forEach(action => {
-      let data = getCompound(action.object_name, state);
+      let data = getCompound(action, state);
       if (data) {
         dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
       }
@@ -450,7 +450,7 @@ const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => 
 
 const addNewTypeCompoundOfAction = (action, type, stage, state) => dispatch => {
   if (action) {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
     }
@@ -485,18 +485,16 @@ const getMolecule = (moleculeName, state) => {
   return molecule;
 };
 
-const getCompound = (name, state) => {
+const getCompound = (action, state) => {
   let moleculeList = state.datasetsReducers.moleculeLists;
   let molecule = null;
 
+  let name = action.object_name;
+  let datasetID = action.dataset_id;
+
   if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-      molecule = molecules.find(m => m.name === name);
-      if (molecule && molecule != null) {
-        break;
-      }
-    }
+    let moleculeListOfDataset = moleculeList[datasetID];
+    molecule = moleculeListOfDataset.find(m => m.name === name);
   }
   return molecule;
 };
@@ -722,7 +720,7 @@ const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) 
 const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       if (isSelected === true) {
         dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
@@ -865,7 +863,7 @@ const removeNewType = (action, type, stage, state) => dispatch => {
 
 const removeNewTypeCompound = (action, type, stage, state) => dispatch => {
   if (action) {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       dispatch(removeTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
     }
