@@ -470,9 +470,9 @@ export const DatasetMoleculeView = memo(
     const setCalledFromAll = () => {
       let isSelected = selectedAll.current === true;
       if (isSelected) {
-        dispatch(setSelectedAll(datasetID, data));
+        dispatch(setSelectedAll(datasetID, data, true, true, true));
       } else {
-        dispatch(setDeselectedAll(datasetID, data));
+        dispatch(setDeselectedAll(datasetID, data, isLigandOn, isProteinOn, isComplexOn));
       }
     };
 

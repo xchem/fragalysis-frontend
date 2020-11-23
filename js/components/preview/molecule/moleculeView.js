@@ -491,9 +491,9 @@ const MoleculeView = memo(
     const setCalledFromAll = () => {
       let isSelected = selectedAll.current === true;
       if (isSelected) {
-        dispatch(setSelectedAll(data));
+        dispatch(setSelectedAll(data, true, true, true));
       } else {
-        dispatch(setDeselectedAll(data));
+        dispatch(setDeselectedAll(data, isLigandOn, isProteinOn, isComplexOn));
       }
     };
 

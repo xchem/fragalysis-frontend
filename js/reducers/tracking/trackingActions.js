@@ -63,7 +63,7 @@ export const findTruckAction = (action, state) => {
           text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
         };
       }
-    } else if (action.type.includes(selectionConstants.SET_SELECTED_ALL)) {
+    } else if (action.type === selectionConstants.SET_SELECTED_ALL) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -76,13 +76,16 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
+          isLigand: action.isLigand,
+          isProtein: action.isProtein,
+          isComplex: action.isComplex,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.SET_DESELECTED_ALL)) {
+    } else if (action.type === selectionConstants.SET_DESELECTED_ALL) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -95,10 +98,45 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
+          isLigand: action.isLigand,
+          isProtein: action.isProtein,
+          isComplex: action.isComplex,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_SELECTED_ALL_BY_TYPE) {
+      if (action.payload) {
+        let payload = action.payload;
+        let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+
+        truckAction = {
+          type: actionType.ALL_TURNED_ON_BY_TYPE,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          control_type: payload.type,
+          items: payload.items,
+          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.TURNED_ON} ${objectType}`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_DESELECTED_ALL_BY_TYPE) {
+      if (action.payload) {
+        let payload = action.payload;
+        let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+
+        truckAction = {
+          type: actionType.ALL_TURNED_OFF_BY_TYPE,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          control_type: payload.type,
+          items: payload.items,
+          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.TURNED_OFF} ${objectType}`
         };
       }
     } else if (action.type.includes(selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST)) {
@@ -375,7 +413,7 @@ export const findTruckAction = (action, state) => {
           text: `${objectType} ${objectName} ${actionDescription.DESELECTED} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.SET_SELECTED_ALL)) {
+    } else if (action.type === customDatasetConstants.SET_SELECTED_ALL) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -390,10 +428,13 @@ export const findTruckAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
+          isLigand: action.payload.isLigand,
+          isProtein: action.payload.isProtein,
+          isComplex: action.payload.isComplex,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.SET_DESELECTED_ALL)) {
+    } else if (action.type === customDatasetConstants.SET_DESELECTED_ALL) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -408,7 +449,44 @@ export const findTruckAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
-          text: `${actionDescription.ALL} ${actionDescription.ALL_TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+          isLigand: action.payload.isLigand,
+          isProtein: action.payload.isProtein,
+          isComplex: action.payload.isComplex,
+          text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.SET_SELECTED_ALL_BY_TYPE) {
+      if (action.payload) {
+        let payload = action.payload;
+        let objectType =
+          payload.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+
+        truckAction = {
+          type: actionType.ALL_TURNED_ON_BY_TYPE,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          control_type: payload.type,
+          items: payload.items,
+          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.ALL_TURNED_ON} ${objectType} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.SET_DESELECTED_ALL_BY_TYPE) {
+      if (action.payload) {
+        let payload = action.payload;
+        let objectType =
+          payload.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+
+        truckAction = {
+          type: actionType.ALL_TURNED_OFF_BY_TYPE,
+          timestamp: Date.now(),
+          username: username,
+          project: project,
+          object_type: objectType,
+          control_type: payload.type,
+          items: payload.items,
+          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.ALL_TURNED_OFF} ${objectType}  of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.APPEND_LIGAND_LIST)) {

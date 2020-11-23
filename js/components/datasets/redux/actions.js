@@ -307,18 +307,44 @@ export const resetDatasetsState = () => {
   };
 };
 
-export const setSelectedAll = (datsetID, item) => ({
+export const setSelectedAll = (datsetID, item, isLigand, isProtein, isComplex) => ({
   type: constants.SET_SELECTED_ALL,
   payload: {
     datasetID: datsetID,
-    item: item
+    item: item,
+    isLigand: isLigand,
+    isProtein: isProtein,
+    isComplex: isComplex
   }
 });
 
-export const setDeselectedAll = (datsetID, item) => ({
+export const setDeselectedAll = (datsetID, item, isLigand, isProtein, isComplex) => ({
   type: constants.SET_DESELECTED_ALL,
   payload: {
     datasetID: datsetID,
-    item: item
+    item: item,
+    isLigand: isLigand,
+    isProtein: isProtein,
+    isComplex: isComplex
+  }
+});
+
+export const setSelectedAllByType = (type, datsetID, items, isCrossReference) => ({
+  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  payload: {
+    type: type,
+    datasetID: datsetID,
+    items: items,
+    isCrossReference: isCrossReference
+  }
+});
+
+export const setDeselectedAllByType = (type, datsetID, items, isCrossReference) => ({
+  type: constants.SET_DESELECTED_ALL_BY_TYPE,
+  payload: {
+    type: type,
+    datasetID: datsetID,
+    items: items,
+    isCrossReference: isCrossReference
   }
 });

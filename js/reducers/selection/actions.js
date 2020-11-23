@@ -228,12 +228,28 @@ export const updateBondColorMapOfCompounds = (key, value) => ({
   payload: { key, value }
 });
 
-export const setSelectedAll = item => ({
+export const setSelectedAll = (item, isLigand, isProtein, isComplex) => ({
   type: constants.SET_SELECTED_ALL,
-  item: item
+  item: item,
+  isLigand: isLigand,
+  isProtein: isProtein,
+  isComplex: isComplex
 });
 
-export const setDeselectedAll = item => ({
+export const setDeselectedAll = (item, isLigand, isProtein, isComplex) => ({
   type: constants.SET_DESELECTED_ALL,
-  item: item
+  item: item,
+  isLigand: isLigand,
+  isProtein: isProtein,
+  isComplex: isComplex
+});
+
+export const setSelectedAllByType = (type, items, isInspiration) => ({
+  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  payload: { type, items, isInspiration }
+});
+
+export const setDeselectedAllByType = (type, items, isInspiration) => ({
+  type: constants.SET_DESELECTED_ALL_BY_TYPE,
+  payload: { type, items, isInspiration }
 });

@@ -40,7 +40,9 @@ export const actionType = {
   UNDO: 'UNDO',
   REDO: 'REDO',
   ALL_TURNED_ON: 'ALL_TURNED_ON',
-  ALL_TURNED_OFF: 'ALL_TURNED_OFF'
+  ALL_TURNED_OFF: 'ALL_TURNED_OFF',
+  ALL_TURNED_ON_BY_TYPE: 'ALL_TURNED_ON_BY_TYPE',
+  ALL_TURNED_OFF_BY_TYPE: 'ALL_TURNED_OFF_BY_TYPE'
 };
 
 export const actionDescription = {
