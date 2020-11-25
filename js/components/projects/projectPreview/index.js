@@ -5,7 +5,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
+import { restoreCurrentActionsList, restoreAfterTargetActions } from '../../../reducers/tracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 
 export const ProjectPreview = memo(({}) => {
@@ -36,15 +36,14 @@ export const ProjectPreview = memo(({}) => {
           throw new Error(error);
         });
     } else {
-      dispatch(loadCurrentSnapshotByID(snapshotId || currentSnapshotID))
-        .then(response => {
-          if (response !== false) {
-            if (response) {
-              if (response.session_project && `${response.session_project.id}` === projectId) {
-                isSnapshotLoaded.current = response.id;
-                setCanShow(true);
-                if (isActionRestoring === false) {
-                  dispatch(restoreCurrentActionsList(nglViewList));
+      if (currentSnapshotID === null) {
+        dispatch(loadCurrentSnapshotByID(snapshotId))
+          .then(response => {
+            if (response !== false) {
+              if (response) {
+                if (response.session_project && `${response.session_project.id}` === projectId) {
+                  isSnapshotLoaded.current = response.id;
+                  setCanShow(true);
                 } else {
                   setCanShow(false);
                 }
@@ -53,12 +52,18 @@ export const ProjectPreview = memo(({}) => {
                 setCanShow(false);
               }
             }
-          }
-        })
-        .catch(error => {
-          setCanShow(false);
-          throw new Error(error);
-        });
+          })
+          .catch(error => {
+            setCanShow(false);
+            throw new Error(error);
+          });
+      } else {
+        if (isActionRestoring === false) {
+          dispatch(restoreCurrentActionsList(nglViewList));
+        } else if (nglViewList && nglViewList.length > 0) {
+          dispatch(restoreAfterTargetActions(nglViewList));
+        }
+      }
     }
   }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, nglViewList, canShow]);
 

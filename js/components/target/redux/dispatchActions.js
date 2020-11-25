@@ -30,7 +30,9 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   });
 };
 
-export const updateTarget = ({ target, setIsLoading, targetIdList, projectId, snapshotId }) => dispatch => {
+export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) => (dispatch, getState) => {
+  const isActionRestoring = getState().trackingReducers.isActionRestoring;
+
   // Get from the REST API
   let targetUnrecognisedFlag = true;
   if (target !== undefined) {
@@ -64,7 +66,7 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId, sn
       return api({ url: `${base_url}/api/session-projects/${projectId}/` })
         .then(response => {
           let promises = [];
-          if (!snapshotId) {
+          if (!isActionRestoring || isActionRestoring === false) {
             promises.push(dispatch(setTargetOn(response.data.target.id, true)));
           }
           promises.push(

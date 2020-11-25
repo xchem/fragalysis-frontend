@@ -28,7 +28,7 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [setTargetUUIDs, snapshotUuid, uuid]);
 
       useEffect(() => {
-        updateTarget({ target, setIsLoading, targetIdList, projectId, snapshotId }).catch(error => {
+        updateTarget({ target, setIsLoading, targetIdList, projectId }).catch(error => {
           setState(() => {
             throw error;
           });

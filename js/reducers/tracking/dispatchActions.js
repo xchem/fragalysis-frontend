@@ -276,8 +276,6 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
 };
 
 export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) => {
-  const state = getState();
-  const isRestoring = state.trackingReducers.setIsActionsRestoring;
   dispatch(setIsActionsRestoring(true));
 
   Promise.resolve(dispatch(restoreTruckingActions())).then(response => {
@@ -324,7 +322,6 @@ const restoreStateBySavedActionList = stages => (dispatch, getState) => {
   const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
 
   dispatch(restoreTargetActions(orderedActionList, stages));
-  dispatch(restoreRepresentationActions(orderedActionList, stages));
 };
 
 const restoreTargetActions = (orderedActionList, stages) => (dispatch, getState) => {
@@ -335,29 +332,40 @@ const restoreTargetActions = (orderedActionList, stages) => (dispatch, getState)
     let target = getTarget(targetAction.object_name, state);
     if (target) {
       dispatch(setTargetOn(target.id));
-
-      const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-      const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
-
-      dispatch(shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false }));
-
-      dispatch(
-        loadMoleculeGroupsOfTarget({
-          summaryView: summaryView.stage,
-          isStateLoaded: false,
-          setOldUrl: url => {},
-          target_on: target.id
-        })
-      )
-        .catch(error => {
-          throw error;
-        })
-        .finally(() => {
-          dispatch(restoreSitesActions(orderedActionList, summaryView));
-          dispatch(loadAllMolecules(orderedActionList, target.id, majorView.stage));
-          dispatch(loadAllDatasets(orderedActionList, target.id, majorView.stage));
-        });
     }
+  }
+};
+
+export const restoreAfterTargetActions = stages => (dispatch, getState) => {
+  const state = getState();
+
+  const currentActionList = state.trackingReducers.current_actions_list;
+  const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
+  const targetId = state.apiReducers.target_on;
+
+  if (targetId && stages && stages.length > 0) {
+    const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
+    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+
+    dispatch(shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false }));
+
+    dispatch(
+      loadMoleculeGroupsOfTarget({
+        summaryView: summaryView.stage,
+        isStateLoaded: false,
+        setOldUrl: url => {},
+        target_on: targetId
+      })
+    )
+      .catch(error => {
+        throw error;
+      })
+      .finally(() => {
+        dispatch(restoreSitesActions(orderedActionList, summaryView));
+        dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+        dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+        dispatch(restoreRepresentationActions(orderedActionList, stages));
+      });
   }
 };
 
