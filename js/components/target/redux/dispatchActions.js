@@ -64,7 +64,7 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) 
       return api({ url: `${base_url}/api/session-projects/${projectId}/` })
         .then(response => {
           return Promise.all([
-            dispatch(setTargetOn(response.data.target.id)),
+            dispatch(setTargetOn(response.data.target.id, true)),
             dispatch(
               setCurrentProject({
                 projectID: response.data.id,

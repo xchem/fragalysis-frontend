@@ -25,10 +25,7 @@ import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
-import {
-  sendTruckingActionsByProjectId,
-  appendAndSendTruckingActions
-} from '../../../reducers/tracking/dispatchActions';
+import { sendTrackingActionsByProjectId, manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -253,6 +250,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
   const projectID = state.projectReducers.currentProject.projectID;
   const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
 
+  dispatch(manageSendTrackingActions());
   dispatch(setDisableRedirect(finallyShareSnapshot));
 
   if (!loggedInUserID && targetId) {
@@ -265,7 +263,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     };
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
-        dispatch(appendAndSendTruckingActions(null));
+        dispatch(manageSendTrackingActions(projectID, true));
         dispatch(setOpenSnapshotSavingDialog(true));
       })
       .catch(error => {
@@ -358,7 +356,7 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
         const parent = null;
         const session_project = projectID;
 
-        dispatch(sendTruckingActionsByProjectId(projectID, author));
+        dispatch(sendTrackingActionsByProjectId(projectID, author));
 
         return dispatch(
           createNewSnapshotWithoutStateModification({ title, description, type, author, parent, session_project })

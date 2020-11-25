@@ -2,7 +2,7 @@ import { constants } from './constants';
 import undoable, { includeAction } from 'redux-undo';
 
 export const INITIAL_STATE = {
-  truck_actions_list: [],
+  track_actions_list: [],
   current_actions_list: [],
   isTrackingMoleculesRestoring: false,
   isTrackingCompoundsRestoring: false,
@@ -17,12 +17,12 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     case constants.SET_ACTIONS_LIST:
       return Object.assign({}, state, {
-        truck_actions_list: action.truck_actions_list
+        track_actions_list: action.track_actions_list
       });
 
     case constants.APPEND_ACTIONS_LIST:
       return Object.assign({}, state, {
-        truck_actions_list: [...new Set([...state.truck_actions_list, action.truck_action])]
+        track_actions_list: [...new Set([...state.track_actions_list, action.track_action])]
       });
 
     case constants.SET_CURRENT_ACTIONS_LIST:
@@ -62,7 +62,7 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.APPEND_SEND_ACTIONS_LIST:
       return Object.assign({}, state, {
-        send_actions_list: [...new Set([...state.send_actions_list, action.truck_action])]
+        send_actions_list: [...new Set([...state.send_actions_list, action.track_action])]
       });
 
     case constants.SET_PROJECT_ACTIONS_LIST:
