@@ -60,7 +60,8 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     overflowY: 'auto',
-    height: 214
+    height: 214,
+    width: 'fit-content'
   },
   search: {
     margin: theme.spacing(1),
@@ -317,21 +318,27 @@ export const CrossReferenceDialog = memo(
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((data, index, array) => (
-                    <DatasetMoleculeView
-                      key={index}
-                      index={index}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data.molecule}
-                      datasetID={data.datasetID}
-                      hideFButton
-                      showDatasetName
-                      previousItemData={index > 0 && array[index - 1]}
-                      nextItemData={index < array?.length && array[index + 1]}
-                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                    />
-                  ))}
+                  moleculeList.map((data, index, array) => {
+                    let molecule = Object.assign({ isCrossReference: true }, data.molecule);
+                    let previousData = index > 0 && Object.assign({ isCrossReference: true }, array[index - 1]);
+                    let nextData = index < array?.length && Object.assign({ isCrossReference: true }, array[index + 1]);
+
+                    return (
+                      <DatasetMoleculeView
+                        key={index}
+                        index={index}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={molecule}
+                        datasetID={data.datasetID}
+                        hideFButton
+                        showDatasetName
+                        previousItemData={previousData}
+                        nextItemData={nextData}
+                        removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      />
+                    );
+                  })}
                 {!(moleculeList.length > 0) && (
                   <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
                     <Grid item>

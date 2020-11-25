@@ -5,18 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "chrome",
-      "request": "launch",
-      "name": "Launch Chrome against localhost",
-      "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}"
-    },
-    {
-      "name": "Attach to Chrome against localhost",
+      "name": "Attach to Chrome",
       "port": 9222,
       "request": "attach",
       "type": "pwa-chrome",
       "urlFilter": "http://localhost:8080/*",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:8080",
       "webRoot": "${workspaceFolder}"
     }
   ]

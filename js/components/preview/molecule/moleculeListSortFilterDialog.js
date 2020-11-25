@@ -190,6 +190,9 @@ export const MoleculeListSortFilterDialog = memo(
     };
 
     const [initState] = useState(initialize());
+
+    filter = filter || initState;
+
     const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
     const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 

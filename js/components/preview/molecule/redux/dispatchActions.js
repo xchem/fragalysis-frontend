@@ -42,8 +42,8 @@ import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import {selectMoleculeGroup} from '../../moleculeGroups/redux/dispatchActions';
-import {setDirectAccess, setDirectAccessProcessed} from '../../../../reducers/api/actions';
+import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
+import { setDirectAccess, setDirectAccessProcessed } from '../../../../reducers/api/actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -390,7 +390,6 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
   const state = getState();
 
   const directDisplay = state.apiReducers.direct_access;
-  const mol_group_selection = state.selectionReducers.mol_group_selection;
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
   const proteinList = state.selectionReducers.proteinList;
   const complexList = state.selectionReducers.complexList;
@@ -404,14 +403,19 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     //const molGroupMap = getMolGroupNameToId();
     directDisplay.molecules.forEach(m => {
       let keys = Object.keys(allMols);
+      let directProteinNameModded = m.name.toLowerCase();
+      let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
       for (let groupIndex = 0; groupIndex < keys.length; groupIndex++) {
         let groupId = keys[groupIndex];
         let molList = allMols[groupId];
         let molCount = molList.length;
         for (let molIndex = 0; molIndex < molCount; molIndex++) {
           let mol = molList[molIndex];
-          if (mol.protein_code.includes(m.name) || mol.protein_code.includes(m.name.toLowerCase())) {
+          let proteinCodeModded = mol.protein_code.toLowerCase();
+          if (m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)) {
             let molGroupId = groupId;
+            // Has to be declared here because otherwise we read stale value
+            const mol_group_selection = getState().selectionReducers.mol_group_selection;
             if (!mol_group_selection.includes(parseInt(molGroupId))) {
               let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));
               dispatch(selectMoleculeGroup(molGroup, stageSummaryView));
@@ -438,5 +442,4 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
   }
-
 };
