@@ -70,7 +70,7 @@ import {
 export const saveCurrentActionsList = snapshotID => (dispatch, getState) => {
   const state = getState();
 
-  const actionList = state.trackingReducers.truck_actions_list;
+  const actionList = state.trackingReducers.track_actions_list;
   const currentTargetOn = state.apiReducers.target_on;
   const currentSites = state.selectionReducers.mol_group_selection;
   const currentLigands = state.selectionReducers.fragmentDisplayList;
@@ -608,9 +608,9 @@ export const undoAction = (stages = []) => (dispatch, getState) => {
   const actionUndoList = state.undoableTrackingReducers.future;
   let actions = actionUndoList && actionUndoList[0];
   if (actions) {
-    let actionsLenght = actions.truck_actions_list.length;
+    let actionsLenght = actions.track_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.truck_actions_list[actionsLenght];
+    action = actions.track_actions_list[actionsLenght];
 
     Promise.resolve(dispatch(handleUndoAction(action, stages))).then(() => {
       dispatch(setIsUndoRedoAction(false));
@@ -626,9 +626,9 @@ export const redoAction = (stages = []) => (dispatch, getState) => {
 
   const actions = state.undoableTrackingReducers.present;
   if (actions) {
-    let actionsLenght = actions.truck_actions_list.length;
+    let actionsLenght = actions.track_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.truck_actions_list[actionsLenght];
+    action = actions.track_actions_list[actionsLenght];
 
     Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(() => {
       dispatch(setIsUndoRedoAction(false));
@@ -980,34 +980,35 @@ export const getCanRedo = () => (dispatch, getState) => {
   return state.undoableTrackingReducers.future.length > 0;
 };
 
-export const appendAndSendTruckingActions = truckAction => (dispatch, getState) => {
-  const state = getState();
-  const currentProject = state.projectReducers.currentProject;
-  const sendActions = state.trackingReducers.send_actions_list;
+export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
+  if (trackAction && trackAction !== null) {
+    dispatch(appendToActionList(trackAction));
+    dispatch(appendToSendActionList(trackAction));
+  }
 
-  Promise.resolve(dispatch(checkActionsProject(sendActions, currentProject))).then(response => {
-    if (truckAction) {
-      dispatch(appendToActionList(truckAction));
-      dispatch(appendToSendActionList(truckAction));
-    }
-    if (response === true) {
-      dispatch(checkSendTruckingActions());
-    }
-  });
+  dispatch(checkSendTrackingActions());
 };
 
-export const checkSendTruckingActions = () => (dispatch, getState) => {
+export const manageSendTrackingActions = (projectID, copy) => (dispatch, getState) => {
+  if (copy) {
+    dispatch(checkActionsProject(projectID));
+  } else {
+    dispatch(checkSendTrackingActions(true));
+  }
+};
+
+export const checkSendTrackingActions = (save = false) => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const sendActions = state.trackingReducers.send_actions_list;
   const length = sendActions.length;
 
-  if (length >= CONSTANTS.COUNT_SEND_TRUCK_ACTIONS) {
-    dispatch(sendTruckingActions(sendActions, currentProject));
+  if (length >= CONSTANTS.COUNT_SEND_TRUCK_ACTIONS || save) {
+    dispatch(sendTrackingActions(sendActions, currentProject));
   }
 };
 
-const sendTruckingActions = (sendActions, project) => (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project) => (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -1042,15 +1043,15 @@ const sendTruckingActions = (sendActions, project) => (dispatch, getState) => {
   }
 };
 
-export const setProjectTruckingActions = () => (dispatch, getState) => {
+export const setProjectTrackingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const projectID = currentProject && currentProject.projectID;
 
-  dispatch(getTruckingActions(projectID));
+  dispatch(getTrackingActions(projectID));
 };
 
-const getTruckingActions = projectID => (dispatch, getState) => {
+const getTrackingActions = projectID => (dispatch, getState) => {
   const state = getState();
   const sendActions = state.trackingReducers.send_actions_list;
 
@@ -1069,6 +1070,7 @@ const getTruckingActions = projectID => (dispatch, getState) => {
 
         let projectActions = [...listToSet, ...sendActions];
         dispatch(setProjectActionList(projectActions));
+        return Promise.resolve();
       })
       .catch(error => {
         throw new Error(error);
@@ -1083,49 +1085,42 @@ const getTruckingActions = projectID => (dispatch, getState) => {
   }
 };
 
-const checkActionsProject = (actions, currentProject) => (dispatch, getState) => {
+const checkActionsProject = projectID => (dispatch, getState) => {
   const state = getState();
-  const currentProjectID = currentProject && currentProject.projectID;
-  const actionList = state.trackingReducers.truck_actions_list;
+  const currentProject = state.projectReducers.currentProject;
 
-  let project = dispatch(getActionProject(actionList, currentProjectID));
-  if (project !== null) {
-    dispatch(sendTruckingActions(actions, project));
+  Promise.resolve(dispatch(getTrackingActions(projectID))).then(() => {
+    dispatch(copyActionsToProject(currentProject));
+  });
+};
 
-    let newProject = { projectID: currentProject.projectID, authorID: currentProject.authorID };
+const copyActionsToProject = (toProject, setActionList = true) => (dispatch, getState) => {
+  const state = getState();
+  const actionList = state.trackingReducers.project_actions_list;
+
+  if (toProject) {
+    let newProject = { projectID: toProject.projectID, authorID: toProject.authorID };
     let newActionsList = [];
 
     actionList.forEach(r => {
       newActionsList.push(Object.assign({ ...r, project: newProject }));
     });
 
-    dispatch(setActionsList(newActionsList));
-    dispatch(sendTruckingActions(newActionsList, currentProject));
-    return Promise.resolve(false);
-  } else {
-    return Promise.resolve(true);
+    if (setActionList === true) {
+      dispatch(setActionsList(newActionsList));
+    }
+    dispatch(sendTrackingActions(newActionsList, toProject));
   }
 };
 
-const getActionProject = (actions, currentProjectID) => (dispatch, getState) => {
-  let action = actions && actions.slice(-1).pop();
-  let project = null;
-  if (action && action.project.projectID !== currentProjectID) {
-    project = action.project;
-  }
-  return project;
-};
-
-export const sendTruckingActionsByProjectId = (projectID, authorID) => (dispatch, getState) => {
+export const sendTrackingActionsByProjectId = (projectID, authorID) => (dispatch, getState) => {
   const state = getState();
-  const actionList = state.trackingReducers.truck_actions_list;
+  const currentProject = state.projectReducers.currentProject;
+  const currentProjectID = currentProject && currentProject.projectID;
+
   const project = { projectID, authorID };
 
-  let newActionsList = [];
-
-  actionList.forEach(r => {
-    newActionsList.push(Object.assign({ ...r, project: project }));
+  Promise.resolve(dispatch(getTrackingActions(currentProjectID))).then(() => {
+    dispatch(copyActionsToProject(project, false));
   });
-
-  dispatch(sendTruckingActions(newActionsList, project));
 };

@@ -65,7 +65,7 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId, sn
         .then(response => {
           let promises = [];
           if (!snapshotId) {
-            promises.push(dispatch(setTargetOn(response.data.target.id)));
+            promises.push(dispatch(setTargetOn(response.data.target.id, true)));
           }
           promises.push(
             dispatch(
