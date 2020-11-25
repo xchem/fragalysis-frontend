@@ -431,7 +431,11 @@ const addNewTypeOfAction = (action, type, stage, state) => dispatch => {
   if (action) {
     let data = getMolecule(action.object_name, state);
     if (data) {
-      dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+      if (type === 'ligand') {
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+      } else {
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length]));
+      }
     }
   }
 };
@@ -547,6 +551,18 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
 
     const type = action.type;
     switch (type) {
+      case actionType.ALL_TURNED_ON:
+        dispatch(handleAllAction(action, false, majorViewStage, state));
+        break;
+      case actionType.ALL_TURNED_OFF:
+        dispatch(handleAllAction(action, true, majorViewStage, state));
+        break;
+      case actionType.ALL_TURNED_ON_BY_TYPE:
+        dispatch(handleAllActionByType(action, false, majorViewStage));
+        break;
+      case actionType.ALL_TURNED_OFF_BY_TYPE:
+        dispatch(handleAllActionByType(action, true, majorViewStage));
+        break;
       case actionType.LIGAND_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'ligand', false, majorViewStage, state));
         break;
@@ -630,6 +646,18 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
 
     const type = action.type;
     switch (type) {
+      case actionType.ALL_TURNED_ON:
+        dispatch(handleAllAction(action, true, majorViewStage, state));
+        break;
+      case actionType.ALL_TURNED_OFF:
+        dispatch(handleAllAction(action, false, majorViewStage, state));
+        break;
+      case actionType.ALL_TURNED_ON_BY_TYPE:
+        dispatch(handleAllActionByType(action, true, majorViewStage));
+        break;
+      case actionType.ALL_TURNED_OFF_BY_TYPE:
+        dispatch(handleAllActionByType(action, false, majorViewStage));
+        break;
       case actionType.LIGAND_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'ligand', true, majorViewStage, state));
         break;
@@ -699,6 +727,65 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       default:
         break;
     }
+  }
+};
+
+const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => {
+  let actionItems = action.items;
+  let type = action.control_type;
+  if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
+    if (isAdd) {
+      actionItems.forEach(data => {
+        if (data) {
+          if (type === 'ligand') {
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+          } else {
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length]));
+          }
+        }
+      });
+    } else {
+      actionItems.forEach(data => {
+        if (data) {
+          dispatch(removeType[type](stage, data, colourList[data.id % colourList.length]));
+        }
+      });
+    }
+  } else if (
+    action.object_type === actionObjectType.COMPOUND ||
+    action.object_type === actionObjectType.CROSS_REFERENCE
+  ) {
+    if (isAdd) {
+      actionItems.forEach(data => {
+        if (data && data.molecule) {
+          dispatch(
+            addTypeCompound[type](stage, data.molecule, colourList[data.id % colourList.length], data.datasetID)
+          );
+        }
+      });
+    } else {
+      actionItems.forEach(data => {
+        if (data && data.molecule) {
+          dispatch(
+            removeTypeCompound[type](stage, data.molecule, colourList[data.id % colourList.length], data.datasetID)
+          );
+        }
+      });
+    }
+  }
+};
+
+const handleAllAction = (action, isSelected, majorViewStage, state) => (dispatch, getState) => {
+  if (action.isLigand) {
+    dispatch(handleMoleculeAction(action, 'ligand', isSelected, majorViewStage, state));
+  }
+
+  if (action.isProtein) {
+    dispatch(handleMoleculeAction(action, 'protein', isSelected, majorViewStage, state));
+  }
+
+  if (action.isComplex) {
+    dispatch(handleMoleculeAction(action, 'complex', isSelected, majorViewStage, state));
   }
 };
 
@@ -856,7 +943,7 @@ const removeNewType = (action, type, stage, state) => dispatch => {
   if (action) {
     let data = getMolecule(action.object_name, state);
     if (data) {
-      dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], true));
+      dispatch(removeType[type](stage, data, colourList[data.id % colourList.length]));
     }
   }
 };

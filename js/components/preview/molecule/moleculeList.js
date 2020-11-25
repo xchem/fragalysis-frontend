@@ -61,6 +61,7 @@ import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
+import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -446,11 +447,18 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       handleFilterChange(newFilter);*/
   };
 
-  const joinedGivenMatch = useCallback((givenList) => {
-    return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0).length;
-  }, [joinedMoleculeLists]);
+  const joinedGivenMatch = useCallback(
+    givenList => {
+      return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0)
+        .length;
+    },
+    [joinedMoleculeLists]
+  );
 
-  const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [fragmentDisplayList, joinedGivenMatch]);
+  const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
+    fragmentDisplayList,
+    joinedGivenMatch
+  ]);
   const joinedProteinMatchLength = useMemo(() => joinedGivenMatch(proteinList), [proteinList, joinedGivenMatch]);
   const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
 
@@ -489,10 +497,17 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   // TODO so this could lead to inconsistend behaviour while scrolling
   // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
-  const removeSelectedType = type => {
-    joinedMoleculeLists.forEach(molecule => {
-      dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length]));
-    });
+  const removeSelectedType = (type, skipTracking = false) => {
+    if (type === 'ligand') {
+      joinedMoleculeLists.forEach(molecule => {
+        dispatch(removeType[type](majorViewStage, molecule, skipTracking));
+      });
+    } else {
+      joinedMoleculeLists.forEach(molecule => {
+        dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+      });
+    }
+
     selectedAll.current = false;
   };
 
@@ -523,16 +538,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     });
   };
 
-  const selectMoleculeSite = (moleculeGroupSite) => {
+  const selectMoleculeSite = moleculeGroupSite => {
     const moleculeGroup = mol_group_list[moleculeGroupSite - 1];
     dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: true }));
-  }
+  };
 
-  const addNewType = type => {
-    joinedMoleculeLists.forEach(molecule => {
-      selectMoleculeSite(molecule.site);
-      dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length]));
-    });
+  const addNewType = (type, skipTracking = false) => {
+    if (type === 'ligand') {
+      joinedMoleculeLists.forEach(molecule => {
+        selectMoleculeSite(molecule.site);
+        dispatch(
+          addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], false, skipTracking)
+        );
+      });
+    } else {
+      joinedMoleculeLists.forEach(molecule => {
+        selectMoleculeSite(molecule.site);
+        dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+      });
+    }
   };
 
   const ucfirst = string => {
@@ -543,17 +567,44 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     if (calledFromSelectAll === true && selectedAll.current === true) {
       // REDO
       if (eval('is' + ucfirst(type) + 'On') === false) {
-        addNewType(type);
+        addNewType(type, true);
       }
     } else if (calledFromSelectAll && selectedAll.current === false) {
-      removeSelectedType(type);
+      removeSelectedType(type, true);
     } else if (!calledFromSelectAll) {
       if (eval('is' + ucfirst(type) + 'On') === false) {
-        addNewType(type);
+        let molecules = getSelectedMoleculesByType(type, true);
+        dispatch(setSelectedAllByType(type, molecules));
+        addNewType(type, true);
       } else {
-        removeSelectedType(type);
+        let molecules = getSelectedMoleculesByType(type, false);
+        dispatch(setDeselectedAllByType(type, molecules));
+        removeSelectedType(type, true);
       }
     }
+  };
+
+  const getSelectedMoleculesByType = (type, isAdd) => {
+    switch (type) {
+      case 'ligand':
+        return isAdd ? getMoleculesToSelect(fragmentDisplayList) : getMoleculesToDeselect(fragmentDisplayList);
+      case 'protein':
+        return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+      case 'complex':
+        return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+      default:
+        return null;
+    }
+  };
+
+  const getMoleculesToSelect = list => {
+    let molecules = joinedMoleculeLists.filter(m => !list.includes(m.id));
+    return molecules;
+  };
+
+  const getMoleculesToDeselect = list => {
+    let molecules = joinedMoleculeLists.filter(m => list.includes(m.id));
+    return molecules;
   };
 
   let debouncedFn;
@@ -734,7 +785,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isLigandOn === true,
                               [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
-                            onClick={() => onButtonToggle('ligand')}
+                            onClick={() => {
+                              onButtonToggle('ligand');
+                            }}
                             disabled={disableUserInteraction}
                           >
                             L
@@ -749,7 +802,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isProteinOn,
                               [classes.contColButtonHalfSelected]: isProteinOn === null
                             })}
-                            onClick={() => onButtonToggle('protein')}
+                            onClick={() => {
+                              onButtonToggle('protein');
+                            }}
                             disabled={disableUserInteraction}
                           >
                             P
@@ -765,7 +820,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isComplexOn,
                               [classes.contColButtonHalfSelected]: isComplexOn === null
                             })}
-                            onClick={() => onButtonToggle('complex')}
+                            onClick={() => {
+                              onButtonToggle('complex');
+                            }}
                             disabled={disableUserInteraction}
                           >
                             C
