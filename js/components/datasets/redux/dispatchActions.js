@@ -30,7 +30,7 @@ import {
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
-  generateMoleculeId,
+  generateMoleculeCompoundId,
   generateHitProteinObject,
   generateComplexObject,
   generateSurfaceObject,
@@ -78,7 +78,7 @@ export const addDatasetHitProtein = (stage, data, colourToggle, datasetID, repre
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendProteinList(datasetID, generateMoleculeId(data)));
+  dispatch(appendProteinList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) => dispatch => {
@@ -91,7 +91,7 @@ export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID) =>
       stage
     )
   );
-  dispatch(removeFromProteinList(datasetID, generateMoleculeId(data)));
+  dispatch(removeFromProteinList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const addDatasetComplex = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
@@ -109,7 +109,7 @@ export const addDatasetComplex = (stage, data, colourToggle, datasetID, represen
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendComplexList(datasetID, generateMoleculeId(data)));
+  dispatch(appendComplexList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => dispatch => {
@@ -119,7 +119,7 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID) => di
       stage
     )
   );
-  dispatch(removeFromComplexList(datasetID, generateMoleculeId(data)));
+  dispatch(removeFromComplexList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const addDatasetSurface = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
@@ -137,7 +137,7 @@ export const addDatasetSurface = (stage, data, colourToggle, datasetID, represen
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendSurfaceList(datasetID, generateMoleculeId(data)));
+  dispatch(appendSurfaceList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => dispatch => {
@@ -147,7 +147,7 @@ export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => di
       stage
     )
   );
-  dispatch(removeFromSurfaceList(datasetID, generateMoleculeId(data)));
+  dispatch(removeFromSurfaceList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const addDatasetLigand = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
@@ -168,7 +168,7 @@ export const addDatasetLigand = (stage, data, colourToggle, datasetID, represent
     // keep current orientation of NGL View
     stage.viewerControls.orient(currentOrientation);
   });
-  dispatch(appendLigandList(datasetID, generateMoleculeId(data)));
+  dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dispatch => {
@@ -178,7 +178,7 @@ export const removeDatasetLigand = (stage, data, colourToggle, datasetID) => dis
       stage
     )
   );
-  dispatch(removeFromLigandList(datasetID, generateMoleculeId(data)));
+  dispatch(removeFromLigandList(datasetID, generateMoleculeCompoundId(data)));
 };
 
 export const loadDataSets = targetId => dispatch =>

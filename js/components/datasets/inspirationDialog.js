@@ -221,31 +221,40 @@ export const InspirationDialog = memo(
       surface: removeSurface
     };
 
+    const selectMoleculeSite = moleculeGroupSite => {};
+
     const removeOfAllSelectedTypes = () => {
       let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
 
       proteinList?.forEach(moleculeID => {
-        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
+        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
+
         dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       complexList?.forEach(moleculeID => {
-        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
+        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
         dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       ligandList?.forEach(moleculeID => {
-        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
+        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
         dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       surfaceList?.forEach(moleculeID => {
-        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
+        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
         dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       densityList?.forEach(moleculeID => {
-        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
+        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
         dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
       vectorOnList?.forEach(moleculeID => {
-        const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
+        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
+        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
         dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
       });
     };
@@ -391,24 +400,31 @@ export const InspirationDialog = memo(
               </Grid>
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
-                  moleculeList.map((molecule, index, array) => (
-                    <MoleculeView
-                      key={index}
-                      index={index}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={molecule}
-                      searchMoleculeGroup
-                      previousItemData={index > 0 && array[index - 1]}
-                      nextItemData={index < array?.length && array[index + 1]}
-                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                      L={ligandList.includes(molecule.id)}
-                      P={proteinList.includes(molecule.id)}
-                      C={complexList.includes(molecule.id)}
-                      S={surfaceList.includes(molecule.id)}
-                      V={vectorOnList.includes(molecule.id)}
-                    />
-                  ))}
+                  moleculeList.map((molecule, index, array) => {
+                    let data = Object.assign({ isInspiration: true }, molecule);
+                    let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
+                    let nextData = index < array?.length && Object.assign({ isInspiration: true }, array[index + 1]);
+
+                    return (
+                      <MoleculeView
+                        key={index}
+                        index={index}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data}
+                        searchMoleculeGroup
+                        previousItemData={previousData}
+                        nextItemData={nextData}
+                        removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                        selectMoleculeSite={selectMoleculeSite}
+                        L={ligandList.includes(molecule.id)}
+                        P={proteinList.includes(molecule.id)}
+                        C={complexList.includes(molecule.id)}
+                        S={surfaceList.includes(molecule.id)}
+                        V={vectorOnList.includes(molecule.id)}
+                      />
+                    );
+                  })}
                 {!(moleculeList.length > 0) && (
                   <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
                     <Grid item>

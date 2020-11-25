@@ -79,6 +79,13 @@ export const setCachedMolLists = function(cached_mol_lists) {
   };
 };
 
+export const setAllMolLists = all_mol_lists => {
+  return {
+    type: constants.SET_ALL_MOL_LISTS,
+    all_mol_lists: all_mol_lists
+  };
+};
+
 export const setSavingState = function(savingState) {
   return {
     type: constants.SET_SAVING_STATE,
@@ -146,6 +153,20 @@ export const setUuid = function(uuid) {
   return {
     type: constants.SET_UUID,
     uuid: uuid
+  };
+};
+
+export const setDirectAccess = (directAccessParams) => {
+  return {
+    type: constants.SET_DIRECT_ACCESS,
+    direct_access: directAccessParams
+  };
+};
+
+export const setDirectAccessProcessed = (directAccessProcessedParams) => {
+  return {
+    type: constants.SET_DIRECT_ACCESS_PROCESSED,
+    direct_access_processed: directAccessProcessedParams
   };
 };
 

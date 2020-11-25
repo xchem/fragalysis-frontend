@@ -12,3 +12,4 @@ export const HOTSPOT = 'HOTSPOT';
 export const SESSIONS = 'SESSIONS';
 export const PROPOSALS = 'PROPOSALS';
 export const PROPOSALTARGETS = 'PROPOSALTARGETS';
+export const ALLMOLECULES = 'ALLMOLECULES';

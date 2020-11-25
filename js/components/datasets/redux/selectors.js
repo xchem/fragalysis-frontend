@@ -330,7 +330,10 @@ export const getCrossReferenceCompoundListByCompoundName = createSelector(
     Object.keys(moleculesDatasetMap).forEach(datasetID => {
       const currentList = moleculesDatasetMap[datasetID];
       if (currentList && Array.isArray(currentList)) {
-        results.push({ molecule: currentList.find(item => item.name === compoundName), datasetID });
+        let molecule = currentList.find(item => item.name === compoundName);
+        if (molecule) {
+          results.push({ molecule, datasetID });
+        }
       }
     });
     return results;

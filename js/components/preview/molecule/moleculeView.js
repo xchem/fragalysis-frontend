@@ -207,7 +207,8 @@ const MoleculeView = memo(
     previousItemData,
     nextItemData,
     removeOfAllSelectedTypes,
-    L, P, C, S, V
+    L, P, C, S, V,
+    selectMoleculeSite
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -344,6 +345,9 @@ const MoleculeView = memo(
       isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
     const addNewLigand = () => {
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addLigand(stage, data, colourToggle));
     };
 
@@ -374,6 +378,9 @@ const MoleculeView = memo(
     };
 
     const addNewProtein = () => {
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addHitProtein(stage, data, colourToggle));
     };
 
@@ -399,6 +406,9 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = () => {
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addComplex(stage, data, colourToggle));
     };
 
@@ -423,6 +433,9 @@ const MoleculeView = memo(
     };
 
     const addNewSurface = () => {
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addSurface(stage, data, colourToggle));
     };
 
@@ -439,6 +452,9 @@ const MoleculeView = memo(
     };
 
     const addNewDensity = () => {
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addDensity(stage, data, colourToggle));
     };
 
@@ -455,6 +471,9 @@ const MoleculeView = memo(
     };
 
     const addNewVector = () => {
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addVector(stage, data)).catch(error => {
         throw new Error(error);
       });
@@ -548,7 +567,7 @@ const MoleculeView = memo(
       moveSelectedMolSettings(previousItemData);
     };
 
-    let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
+    let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
     return (
       <>
