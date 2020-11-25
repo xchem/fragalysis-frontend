@@ -114,7 +114,7 @@ export const Panel = memo(
                 {title && (
                   <Grid
                     item
-                    xs={hasExpansion || headerActions ? (headerActions && headerActions.length > 2 ? 4 : 6) : 12}
+                    xs={hasExpansion || headerActions ? (headerActions && headerActions.length > 1 ? 4 : 6) : 12}
                     className={classes.headerTitle}
                   >
                     {withTooltip ? (
@@ -136,7 +136,7 @@ export const Panel = memo(
                     container
                     direction="row"
                     justify="flex-end"
-                    xs={title ? (headerActions && headerActions.length > 2 ? 8 : 6) : 12}
+                    xs={title ? (headerActions && headerActions.length > 1 ? 8 : 6) : 12}
                   >
                     {headerActions &&
                       headerActions.map((action, index) => (

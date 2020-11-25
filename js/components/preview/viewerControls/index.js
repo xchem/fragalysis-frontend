@@ -2,7 +2,7 @@
  * Created by ricgillams on 28/06/2018.
  */
 
-import React, { memo, useState, useContext } from 'react';
+import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
 import { Settings, Mouse, PersonalVideo, Undo, Redo } from '@material-ui/icons';
@@ -46,6 +46,37 @@ export const ViewerControls = memo(({}) => {
     setDrawerSettings(JSON.parse(JSON.stringify(initDrawers)));
   };
 
+  const doUndo = () => {
+    dispatch(UndoActionCreators.undo());
+    setCanRedo(dispatch(getCanRedo()));
+    setCanUndo(dispatch(getCanUndo()));
+    dispatch(undoAction(nglViewList));
+  };
+
+  const doRedo = () => {
+    dispatch(UndoActionCreators.redo());
+    setCanRedo(dispatch(getCanRedo()));
+    setCanUndo(dispatch(getCanUndo()));
+    dispatch(redoAction(nglViewList));
+  };
+
+  const handleUserKeyPress = useCallback(e => {
+    var evtobj = window.event ? window.event : e;
+    if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
+      doUndo();
+    } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
+      doRedo();
+    }
+  });
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleUserKeyPress);
+
+    return () => {
+      window.removeEventListener('keydown', handleUserKeyPress);
+    };
+  }, [handleUserKeyPress]);
+
   return (
     <>
       <Grid container justify="center">
@@ -56,10 +87,7 @@ export const ViewerControls = memo(({}) => {
                 size="small"
                 color="primary"
                 onClick={() => {
-                  dispatch(UndoActionCreators.undo());
-                  setCanRedo(dispatch(getCanRedo()));
-                  setCanUndo(dispatch(getCanUndo()));
-                  dispatch(undoAction(nglViewList));
+                  doUndo();
                 }}
                 className={classes.button}
                 disabled={!canUndo}
@@ -97,10 +125,7 @@ export const ViewerControls = memo(({}) => {
                 size="small"
                 color="primary"
                 onClick={() => {
-                  dispatch(UndoActionCreators.redo());
-                  setCanRedo(dispatch(getCanRedo()));
-                  setCanUndo(dispatch(getCanUndo()));
-                  dispatch(redoAction(nglViewList));
+                  doRedo();
                 }}
                 className={classes.button}
                 disabled={!canRedo}

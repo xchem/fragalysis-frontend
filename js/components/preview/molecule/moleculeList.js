@@ -60,7 +60,6 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import {selectMoleculeGroup} from '../moleculeGroups/redux/dispatchActions';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
@@ -279,14 +278,18 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       // setCurrentPage(0);
     }, [object_selection]);*/
 
-  let joinedMoleculeLists = [];
-  if (searchString !== null) {
-    joinedMoleculeLists = getAllMoleculeList.filter(molecule =>
-      molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
-    );
-  } else {
-    joinedMoleculeLists = getJoinedMoleculeList;
-  }
+  let joinedMoleculeLists = useMemo(() => {
+    if (searchString) {
+      return getAllMoleculeList.filter(molecule =>
+        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+      );
+    } else {
+      return getJoinedMoleculeList;
+    }
+  }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
+
+  // Used for MoleculeListSortFilterDialog when using textSearch
+  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
   if (isActiveFilter) {
     joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
@@ -443,18 +446,26 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       handleFilterChange(newFilter);*/
   };
 
-  const changeButtonClassname = (givenList = []) => {
-    if (joinedMoleculeLists.length === givenList.length) {
+  const joinedGivenMatch = useCallback((givenList) => {
+    return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0).length;
+  }, [joinedMoleculeLists]);
+
+  const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [fragmentDisplayList, joinedGivenMatch]);
+  const joinedProteinMatchLength = useMemo(() => joinedGivenMatch(proteinList), [proteinList, joinedGivenMatch]);
+  const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
+
+  const changeButtonClassname = (givenList = [], matchListLength) => {
+    if (joinedMoleculeLists.length === matchListLength) {
       return true;
-    } else if (givenList.length > 0) {
+    } else if (givenList.length > 0 && matchListLength > 0) {
       return null;
     }
     return false;
   };
 
-  const isLigandOn = changeButtonClassname(fragmentDisplayList);
-  const isProteinOn = changeButtonClassname(proteinList);
-  const isComplexOn = changeButtonClassname(complexList);
+  const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
+  const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);
+  const isComplexOn = changeButtonClassname(complexList, joinedComplexMatchLength);
 
   const addType = {
     ligand: addLigand,
@@ -648,10 +659,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
           <MoleculeListSortFilterDialog
             open={sortDialogOpen}
             anchorEl={sortDialogAnchorEl}
-            molGroupSelection={object_selection}
-            cachedMolList={all_mol_lists}
             filter={filter}
             setSortDialogAnchorEl={setSortDialogAnchorEl}
+            joinedMoleculeLists={joinedMoleculeListsCopy}
           />
         )}
         <div ref={filterRef}>

@@ -54,7 +54,7 @@ import {
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
-import { setSendActionsList, setIsActionsSending, setIsActionsLoading } from './actions';
+import { setSendActionsList, setIsActionsSending, setIsActionsLoading, setActionsList } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
@@ -276,6 +276,8 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
 };
 
 export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) => {
+  const state = getState();
+  const isRestoring = state.trackingReducers.setIsActionsRestoring;
   dispatch(setIsActionsRestoring(true));
 
   Promise.resolve(dispatch(restoreTruckingActions())).then(response => {
@@ -491,7 +493,7 @@ const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getStat
   let compoundsSelectedAction = compoundsAction.filter(action => action.type === actionType.COMPOUND_SELECTED);
 
   compoundsSelectedAction.forEach(action => {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
     }
@@ -538,7 +540,7 @@ const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => 
   let actions = moleculesAction.filter(action => action.type === actionType);
   if (actions) {
     actions.forEach(action => {
-      let data = getCompound(action.object_name, state);
+      let data = getCompound(action, state);
       if (data) {
         dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
       }
@@ -548,7 +550,7 @@ const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => 
 
 const addNewTypeCompoundOfAction = (action, type, stage, state) => dispatch => {
   if (action) {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
     }
@@ -583,18 +585,16 @@ const getMolecule = (moleculeName, state) => {
   return molecule;
 };
 
-const getCompound = (name, state) => {
+const getCompound = (action, state) => {
   let moleculeList = state.datasetsReducers.moleculeLists;
   let molecule = null;
 
+  let name = action.object_name;
+  let datasetID = action.dataset_id;
+
   if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-      molecule = molecules.find(m => m.name === name);
-      if (molecule && molecule != null) {
-        break;
-      }
-    }
+    let moleculeListOfDataset = moleculeList[datasetID];
+    molecule = moleculeListOfDataset.find(m => m.name === name);
   }
   return molecule;
 };
@@ -612,9 +612,8 @@ export const undoAction = (stages = []) => (dispatch, getState) => {
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
     action = actions.truck_actions_list[actionsLenght];
 
-    Promise.resolve(dispatch(handleUndoAction(action, stages))).then(function(response) {
+    Promise.resolve(dispatch(handleUndoAction(action, stages))).then(() => {
       dispatch(setIsUndoRedoAction(false));
-      return response;
     });
   }
 };
@@ -631,9 +630,8 @@ export const redoAction = (stages = []) => (dispatch, getState) => {
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
     action = actions.truck_actions_list[actionsLenght];
 
-    Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(function(response) {
+    Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(() => {
       dispatch(setIsUndoRedoAction(false));
-      return response;
     });
   }
 };
@@ -822,7 +820,7 @@ const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) 
 const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       if (isSelected === true) {
         dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
@@ -965,7 +963,7 @@ const removeNewType = (action, type, stage, state) => dispatch => {
 
 const removeNewTypeCompound = (action, type, stage, state) => dispatch => {
   if (action) {
-    let data = getCompound(action.object_name, state);
+    let data = getCompound(action, state);
     if (data) {
       dispatch(removeTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
     }
@@ -985,18 +983,20 @@ export const getCanRedo = () => (dispatch, getState) => {
 export const appendAndSendTruckingActions = truckAction => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
-  const projectID = currentProject && currentProject.projectID;
   const sendActions = state.trackingReducers.send_actions_list;
 
-  Promise.resolve(dispatch(checkActionsProject(sendActions, projectID))).then(response => {
-    dispatch(appendToActionList(truckAction));
-    dispatch(appendToSendActionList(truckAction));
-    dispatch(checkSendTruckingActions(truckAction));
-    return response;
+  Promise.resolve(dispatch(checkActionsProject(sendActions, currentProject))).then(response => {
+    if (truckAction) {
+      dispatch(appendToActionList(truckAction));
+      dispatch(appendToSendActionList(truckAction));
+    }
+    if (response === true) {
+      dispatch(checkSendTruckingActions());
+    }
   });
 };
 
-const checkSendTruckingActions = truckAction => (dispatch, getState) => {
+export const checkSendTruckingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const sendActions = state.trackingReducers.send_actions_list;
@@ -1011,7 +1011,7 @@ const sendTruckingActions = (sendActions, project) => (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
-    if (projectID) {
+    if (projectID && sendActions && sendActions.length > 0) {
       dispatch(setIsActionsSending(true));
 
       const dataToSend = {
@@ -1025,7 +1025,7 @@ const sendTruckingActions = (sendActions, project) => (dispatch, getState) => {
         method: METHOD.POST,
         data: JSON.stringify(dataToSend)
       })
-        .then(response => {
+        .then(() => {
           dispatch(setSendActionsList([]));
         })
         .catch(error => {
@@ -1045,13 +1045,9 @@ const sendTruckingActions = (sendActions, project) => (dispatch, getState) => {
 export const setProjectTruckingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
-  const sendActions = state.trackingReducers.send_actions_list;
   const projectID = currentProject && currentProject.projectID;
 
-  Promise.resolve(dispatch(checkActionsProject(sendActions, projectID))).then(response => {
-    dispatch(getTruckingActions(projectID));
-    return response;
-  });
+  dispatch(getTruckingActions(projectID));
 };
 
 const getTruckingActions = projectID => (dispatch, getState) => {
@@ -1087,12 +1083,27 @@ const getTruckingActions = projectID => (dispatch, getState) => {
   }
 };
 
-const checkActionsProject = (actions, currentProjectID) => (dispatch, getState) => {
-  let project = dispatch(getActionProject(actions, currentProjectID));
+const checkActionsProject = (actions, currentProject) => (dispatch, getState) => {
+  const state = getState();
+  const currentProjectID = currentProject && currentProject.projectID;
+  const actionList = state.trackingReducers.truck_actions_list;
+
+  let project = dispatch(getActionProject(actionList, currentProjectID));
   if (project !== null) {
     dispatch(sendTruckingActions(actions, project));
+
+    let newProject = { projectID: currentProject.projectID, authorID: currentProject.authorID };
+    let newActionsList = [];
+
+    actionList.forEach(r => {
+      newActionsList.push(Object.assign({ ...r, project: newProject }));
+    });
+
+    dispatch(setActionsList(newActionsList));
+    dispatch(sendTruckingActions(newActionsList, currentProject));
+    return Promise.resolve(false);
   } else {
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 };
 
@@ -1103,4 +1114,18 @@ const getActionProject = (actions, currentProjectID) => (dispatch, getState) => 
     project = action.project;
   }
   return project;
+};
+
+export const sendTruckingActionsByProjectId = (projectID, authorID) => (dispatch, getState) => {
+  const state = getState();
+  const actionList = state.trackingReducers.truck_actions_list;
+  const project = { projectID, authorID };
+
+  let newActionsList = [];
+
+  actionList.forEach(r => {
+    newActionsList.push(Object.assign({ ...r, project: project }));
+  });
+
+  dispatch(sendTruckingActions(newActionsList, project));
 };
