@@ -1,7 +1,4 @@
 import {
-  complexObjectTypes,
-  generateComplex,
-  generateMolecule,
   generateSphere
 } from '../../molecule/molecules_helpers';
 import { VIEWS } from '../../../../constants/constants';
@@ -10,14 +7,12 @@ import {
   deleteObject,
   loadObject
 } from '../../../../reducers/ngl/dispatchActions';
-import { selectJoinedMoleculeList } from '../../molecule/redux/selectors';
 import {
   resetSelectionState,
   setComplexList,
   setFilter,
   setFragmentDisplayList,
   setMolGroupSelection,
-  setObjectSelection,
   setVectorList,
   setVectorOnList
 } from '../../../../reducers/selection/actions';
