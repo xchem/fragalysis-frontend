@@ -283,14 +283,40 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
     );
   } else {
-    joinedMoleculeLists = getJoinedMoleculeList;
+    joinedMoleculeLists = [...getJoinedMoleculeList];
   }
+
+  //Ensures that sorting is applied on only selected sites
+  if (!isActiveFilter) {
+    // default sort is by site
+    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
+  }
+
+  const addSelectedMoleculesFromUnselectedSites = (list) => {
+    const mols = [];
+    list?.forEach(moleculeID => {
+      const foundJoinedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      if (!foundJoinedMolecule) {
+        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
+        if (molecule) {
+          mols.push(molecule);
+        }
+      }
+    });
+
+    mols.sort((a, b) => a.site - b.site || a.number - b.number);
+    joinedMoleculeLists.push(...mols);
+  };
+
+  addSelectedMoleculesFromUnselectedSites(proteinList);
+  addSelectedMoleculesFromUnselectedSites(complexList);
+  addSelectedMoleculesFromUnselectedSites(fragmentDisplayList);
+  addSelectedMoleculesFromUnselectedSites(surfaceList);
+  addSelectedMoleculesFromUnselectedSites(densityList);
+  addSelectedMoleculesFromUnselectedSites(vectorOnList);
 
   if (isActiveFilter) {
     joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
-  } else {
-    // default sort is by site
-    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
   }
 
   const loadNextMolecules = () => {
