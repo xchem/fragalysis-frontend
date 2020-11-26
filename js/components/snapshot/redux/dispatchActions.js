@@ -215,7 +215,7 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
-          dispatch(saveCurrentActionsList(res.data.id));
+          dispatch(saveCurrentActionsList(res.data.id, session_project));
 
           if (disableRedirect === false) {
             // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
@@ -320,7 +320,7 @@ export const createNewSnapshotWithoutStateModification = ({
             disableRedirect: true
           })
         );
-        dispatch(saveCurrentActionsList(res.data.id));
+        dispatch(saveCurrentActionsList(res.data.id, session_project));
       }
     });
   });

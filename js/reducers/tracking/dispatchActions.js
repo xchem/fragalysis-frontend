@@ -67,10 +67,24 @@ import {
   setIsActionsRestoring
 } from './actions';
 
-export const saveCurrentActionsList = snapshotID => (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshotID, projectID) => (dispatch, getState) => {
   const state = getState();
 
-  const actionList = state.trackingReducers.track_actions_list;
+  let actionList = state.trackingReducers.track_actions_list;
+
+  if (!actionList || actionList.length === 0) {
+    Promise.resolve(dispatch(getTrackingActions(projectID))).then(response => {
+      actionList = response;
+      dispatch(saveActionsList(snapshotID, actionList));
+    });
+  } else {
+    dispatch(saveActionsList(snapshotID, actionList));
+  }
+};
+
+export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) => {
+  const state = getState();
+
   const currentTargetOn = state.apiReducers.target_on;
   const currentSites = state.selectionReducers.mol_group_selection;
   const currentLigands = state.selectionReducers.fragmentDisplayList;
@@ -89,9 +103,10 @@ export const saveCurrentActionsList = snapshotID => (dispatch, getState) => {
   const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
   const currentobjectsInView = state.nglReducers.objectsInView;
 
-  const orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
   const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
   const currentVectorSmiles = (currentVector && [currentVector]) || [];
+
+  let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
 
   let currentActions = [];
 
@@ -1078,7 +1093,7 @@ const getTrackingActions = projectID => (dispatch, getState) => {
 
         let projectActions = [...listToSet, ...sendActions];
         dispatch(setProjectActionList(projectActions));
-        return Promise.resolve();
+        return Promise.resolve(projectActions);
       })
       .catch(error => {
         throw new Error(error);
@@ -1089,7 +1104,7 @@ const getTrackingActions = projectID => (dispatch, getState) => {
   } else {
     let projectActions = [...sendActions];
     dispatch(setProjectActionList(projectActions));
-    return Promise.resolve();
+    return Promise.resolve(projectActions);
   }
 };
 

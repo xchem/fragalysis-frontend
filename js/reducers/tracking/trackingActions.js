@@ -9,9 +9,10 @@ export const findTrackAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
+  const isActionRestoring = state.trackingReducers.isActionRestoring;
 
   let trackAction = null;
-  if (isUndoRedoAction === false && action.skipTracking !== true) {
+  if (isUndoRedoAction === false && isActionRestoring === false && action.skipTracking !== true) {
     if (action.type.includes(apiConstants.SET_TARGET_ON)) {
       if (action.target_on) {
         let targetName = getTargetName(action.target_on, state);

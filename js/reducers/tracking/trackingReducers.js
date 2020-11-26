@@ -10,7 +10,6 @@ export const INITIAL_STATE = {
   isActionsSending: false,
   isActionsLoading: false,
   isActionSaving: false,
-  setIsActionsRestoring: false,
   send_actions_list: [],
   project_actions_list: [],
   isActionRestoring: false
