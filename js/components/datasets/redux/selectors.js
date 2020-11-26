@@ -266,11 +266,11 @@ export const getFilteredDatasetMoleculeList = createSelector(
         for (let prioAttr of sortedAttributes) {
           const order = filterProperties[prioAttr].order;
 
-          const scoreValueOfA =
+          let scoreValueOfA =
             Object.keys(a.numerical_scores).find(key => key === prioAttr) && a.numerical_scores[prioAttr];
           scoreValueOfA =
             scoreValueOfA || (Object.keys(a.text_scores).find(key => key === prioAttr) && a.text_scores[prioAttr]);
-          const scoreValueOfB =
+          let scoreValueOfB =
             Object.keys(b.numerical_scores).find(key => key === prioAttr) && b.numerical_scores[prioAttr];
           scoreValueOfB =
             scoreValueOfB || (Object.keys(b.text_scores).find(key => key === prioAttr) && b.text_scores[prioAttr]);
@@ -296,7 +296,6 @@ export const getFilteredDatasetMoleculeList = createSelector(
           }
         }
       });
-      return filteredMolecules;
     }
     return datasetMoleculeList;
   }

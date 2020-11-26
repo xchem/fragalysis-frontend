@@ -35,13 +35,13 @@ export const selectJoinedMoleculeList = createSelector(
 );
 
 export const getMoleculeList = createSelector(
-  getCachedMoleculeLists,
+  getAllMolecules,
   getMoleculeGroupLists,
-  (cached_mol_lists, mol_group_list) => {
+  (all_mol_lists, mol_group_list) => {
     let cachedDataArray = [];
     if (mol_group_list) {
       mol_group_list.forEach(obj => {
-        const cachedData = cached_mol_lists[obj.id];
+        const cachedData = all_mol_lists[obj.id];
 
         if (cachedData && Array.isArray(cachedData)) {
           cachedDataArray.push(...cachedData);

@@ -249,7 +249,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
-  const cached_mol_lists = useSelector(state => state.apiReducers.cached_mol_lists);
 
   const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
 

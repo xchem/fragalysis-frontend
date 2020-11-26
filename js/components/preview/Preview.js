@@ -95,6 +95,10 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const currentDataset = customDatasets[selectedDatasetIndex];
   const target_on = useSelector(state => state.apiReducers.target_on);
 
+  const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
+  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+
   /*
      Loading datasets
    */
@@ -116,6 +120,17 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         });
     }
   }, [customDatasets.length, dispatch, target_on]);
+
+  useEffect(() => {
+    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
+    const moleculeListsCount = Object.keys(moleculeLists || {}).length;
+    if (allMolsGroupsCount > 0 && moleculeListsCount > 0 && !isLoadingMoleculeList) {
+      const keys = Object.keys(moleculeLists);
+      keys.forEach(key => {
+        let dataset = moleculeLists[key];
+      });
+    }
+  }, [all_mol_lists, moleculeLists, isLoadingMoleculeList]);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
