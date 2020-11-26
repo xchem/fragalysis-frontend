@@ -25,10 +25,8 @@ import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
-import {
-  sendTruckingActionsByProjectId,
-  appendAndSendTruckingActions
-} from '../../../reducers/tracking/dispatchActions';
+import { saveCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
+import { sendTrackingActionsByProjectId, manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -86,7 +84,7 @@ export const saveCurrentSnapshot = ({
   dispatch(resetCurrentSnapshot());
   return api({
     url: `${base_url}/api/snapshots/`,
-    data: { type, title, author, description, data: JSON.stringify(data), created, parent, children, session_project },
+    data: { type, title, author, description, created, parent, data: '[]', children, session_project },
     method: METHOD.POST
   })
     .then(response =>
@@ -185,8 +183,6 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
   getState
 ) => {
   const state = getState();
-  const { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers } = state;
-  const data = { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers };
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
   const disableRedirect = state.snapshotReducers.disableRedirect;
 
@@ -212,13 +208,15 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
           author,
           parent,
           session_project,
-          data: JSON.stringify(data),
+          data: '[]',
           children: []
         },
         method: METHOD.POST
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
+          dispatch(saveCurrentActionsList(res.data.id, session_project));
+
           if (disableRedirect === false) {
             // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
             // use react-router !
@@ -253,6 +251,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
   const projectID = state.projectReducers.currentProject.projectID;
   const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
 
+  dispatch(manageSendTrackingActions());
   dispatch(setDisableRedirect(finallyShareSnapshot));
 
   if (!loggedInUserID && targetId) {
@@ -265,7 +264,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     };
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
-        dispatch(appendAndSendTruckingActions(null));
+        dispatch(manageSendTrackingActions(projectID, true));
         dispatch(setOpenSnapshotSavingDialog(true));
       })
       .catch(error => {
@@ -287,10 +286,6 @@ export const createNewSnapshotWithoutStateModification = ({
   parent,
   session_project
 }) => (dispatch, getState) => {
-  const state = getState();
-  const { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers } = state;
-  const data = { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers };
-
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
   }
@@ -311,7 +306,7 @@ export const createNewSnapshotWithoutStateModification = ({
         author,
         parent,
         session_project,
-        data: JSON.stringify(data),
+        data: '[]',
         children: []
       },
       method: METHOD.POST
@@ -325,6 +320,7 @@ export const createNewSnapshotWithoutStateModification = ({
             disableRedirect: true
           })
         );
+        dispatch(saveCurrentActionsList(res.data.id, session_project));
       }
     });
   });
@@ -358,7 +354,7 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
         const parent = null;
         const session_project = projectID;
 
-        dispatch(sendTruckingActionsByProjectId(projectID, author));
+        dispatch(sendTrackingActionsByProjectId(projectID, author));
 
         return dispatch(
           createNewSnapshotWithoutStateModification({ title, description, type, author, parent, session_project })

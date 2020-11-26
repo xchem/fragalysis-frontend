@@ -5,25 +5,21 @@ import { constants as selectionConstants } from '../selection/constants';
 import { constants as customDatasetConstants } from '../../components/datasets/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
-export const findTruckAction = (action, state) => {
+export const findTrackAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
-  const currentProject = state.projectReducers.currentProject;
-  const projectID = currentProject && currentProject.projectID;
-  const authorID = currentProject && currentProject.authorID;
-  let project = { projectID, authorID };
+  const isActionRestoring = state.trackingReducers.isActionRestoring;
 
-  let truckAction = null;
-  if (action.skipTracking !== true) {
+  let trackAction = null;
+  if (isActionRestoring === false && action.skipTracking !== true) {
     if (action.type.includes(apiConstants.SET_TARGET_ON)) {
       if (action.target_on) {
         let targetName = getTargetName(action.target_on, state);
-        truckAction = {
+        trackAction = {
           type: actionType.TARGET_LOADED,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: actionObjectType.TARGET,
           object_name: targetName,
           object_id: action.target_on,
@@ -36,11 +32,10 @@ export const findTruckAction = (action, state) => {
         let currentMolGroup = molGroupSelection && molGroupSelection.find(o => o === action.mol_group_on);
         if (!currentMolGroup) {
           let molGroupName = getMolGroupName(action.mol_group_on, state);
-          truckAction = {
+          trackAction = {
             type: actionType.SITE_TURNED_ON,
             timestamp: Date.now(),
             username: username,
-            project: project,
             object_type: actionObjectType.SITE,
             object_name: molGroupName,
             object_id: action.mol_group_on,
@@ -52,11 +47,10 @@ export const findTruckAction = (action, state) => {
       let objectId = action.payload && action.payload[0];
       if (objectId) {
         let molGroupName = getMolGroupName(objectId, state);
-        truckAction = {
+        trackAction = {
           type: actionType.SITE_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: actionObjectType.SITE,
           object_name: molGroupName,
           object_id: objectId,
@@ -68,11 +62,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -91,11 +84,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -115,11 +107,10 @@ export const findTruckAction = (action, state) => {
         let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_ON_BY_TYPE,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
@@ -132,11 +123,10 @@ export const findTruckAction = (action, state) => {
         let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_OFF_BY_TYPE,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
@@ -148,11 +138,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.LIGAND_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -167,11 +156,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.LIGAND_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -186,11 +174,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.SIDECHAINS_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -205,11 +192,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.SIDECHAINS_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -224,11 +210,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.INTERACTIONS_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -243,11 +228,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.INTERACTIONS_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -262,11 +246,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.SURFACE_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -281,11 +264,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.SURFACE_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -300,11 +282,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.VECTORS_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -319,11 +300,10 @@ export const findTruckAction = (action, state) => {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
 
-        truckAction = {
+        trackAction = {
           type: actionType.VECTORS_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
@@ -338,11 +318,10 @@ export const findTruckAction = (action, state) => {
         let objectType = actionObjectType.MOLECULE;
         let objectName = action.vector;
 
-        truckAction = {
+        trackAction = {
           type: actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: actionObjectType.MOLECULE,
           object_name: objectName,
           object_id: objectName,
@@ -355,11 +334,10 @@ export const findTruckAction = (action, state) => {
         let objectType = actionObjectType.MOLECULE;
         let objectName = action.vector;
 
-        truckAction = {
+        trackAction = {
           type: actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
@@ -372,11 +350,10 @@ export const findTruckAction = (action, state) => {
         let objectType = actionObjectType.MOLECULE;
         let objectName = action.payload;
 
-        truckAction = {
+        trackAction = {
           type: actionType.VECTOR_SELECTED,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload,
@@ -388,11 +365,10 @@ export const findTruckAction = (action, state) => {
         let objectType = actionObjectType.COMPOUND;
         let objectName = action.payload.moleculeTitle;
 
-        truckAction = {
+        trackAction = {
           type: actionType.COMPOUND_SELECTED,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.moleculeID,
@@ -405,11 +381,10 @@ export const findTruckAction = (action, state) => {
         let objectType = actionObjectType.COMPOUND;
         let objectName = action.payload.moleculeTitle;
 
-        truckAction = {
+        trackAction = {
           type: actionType.COMPOUND_DESELECTED,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.moleculeID,
@@ -423,11 +398,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -445,11 +419,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -469,11 +442,10 @@ export const findTruckAction = (action, state) => {
         let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
         let datasetDescription = payload.datasetID ? `of dataset: ${payload.datasetID}` : '';
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_ON_BY_TYPE,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
@@ -488,11 +460,10 @@ export const findTruckAction = (action, state) => {
         let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
         let datasetDescription = payload.datasetID ? `of dataset: ${payload.datasetID}` : '';
 
-        truckAction = {
+        trackAction = {
           type: actionType.ALL_TURNED_OFF_BY_TYPE,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
@@ -505,11 +476,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.LIGAND_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -523,11 +493,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.LIGAND_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -541,11 +510,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.SIDECHAINS_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -559,11 +527,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.SIDECHAINS_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -577,11 +544,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.INTERACTIONS_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -595,11 +561,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.INTERACTIONS_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -613,11 +578,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.SURFACE_TURNED_ON,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -631,11 +595,10 @@ export const findTruckAction = (action, state) => {
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectName = action.payload.item.name;
 
-        truckAction = {
+        trackAction = {
           type: actionType.SURFACE_TURNED_OFF,
           timestamp: Date.now(),
           username: username,
-          project: project,
           object_type: objectType,
           object_name: objectName,
           object_id: action.payload.item.id,
@@ -646,11 +609,10 @@ export const findTruckAction = (action, state) => {
     } else if (action.type.includes(nglConstants.UPDATE_COMPONENT_REPRESENTATION)) {
       let objectType = actionObjectType.REPRESENTATION;
 
-      truckAction = {
+      trackAction = {
         type: actionType.REPRESENTATION_CHANGED,
         timestamp: Date.now(),
         username: username,
-        project: project,
         object_type: actionObjectType.REPRESENTATION,
         object_name: action.objectInViewID,
         object_id: action.objectInViewID,
@@ -663,11 +625,10 @@ export const findTruckAction = (action, state) => {
       let objectType = actionObjectType.REPRESENTATION;
       let representationName = action.newRepresentation && action.newRepresentation.type;
 
-      truckAction = {
+      trackAction = {
         type: actionType.REPRESENTATION_ADDED,
         timestamp: Date.now(),
         username: username,
-        project: project,
         object_type: actionObjectType.REPRESENTATION,
         object_name: representationName,
         object_id: action.objectInViewID,
@@ -678,11 +639,10 @@ export const findTruckAction = (action, state) => {
       let objectType = actionObjectType.REPRESENTATION;
       let representationName = action.representation && action.representation.type;
 
-      truckAction = {
+      trackAction = {
         type: actionType.REPRESENTATION_REMOVED,
         timestamp: Date.now(),
         username: username,
-        project: project,
         object_type: objectType,
         object_name: representationName,
         object_id: action.objectInViewID,
@@ -691,11 +651,11 @@ export const findTruckAction = (action, state) => {
       };
     }
   }
-  return truckAction;
+  return trackAction;
 };
 
 const getMoleculeTitle = (objectName, targetName) => {
-  let title = objectName.replace(`${targetName}-`, '');
+  let title = objectName.replace(new RegExp(`${targetName}-`, 'i'), '');
   return title;
 };
 
