@@ -455,11 +455,11 @@ export const removeOrAddAllHitProteinsOfList = (areAllSelected, moleculeList = [
 
   if (areAllSelected) {
     let molecules = dispatch(getSelectedMoleculesByType(type, false, moleculeList));
-    dispatch(setDeselectedAllByType(type, molecules));
+    dispatch(setDeselectedAllByType(type, null, molecules, true));
     dispatch(removeAllHitProteins(moleculeList, stage, true));
   } else {
     let molecules = dispatch(getSelectedMoleculesByType(type, true, moleculeList));
-    dispatch(setSelectedAllByType(type, molecules));
+    dispatch(setSelectedAllByType(type, null, molecules, true));
     dispatch(addAllHitProteins(moleculeList, stage, true));
   }
 };
@@ -497,11 +497,11 @@ export const removeOrAddAllComplexesOfList = (areAllSelected, moleculeList = [],
 
   if (areAllSelected) {
     let molecules = dispatch(getSelectedMoleculesByType(type, false, moleculeList));
-    dispatch(setDeselectedAllByType(type, molecules));
+    dispatch(setDeselectedAllByType(type, null, molecules, true));
     dispatch(removeAllComplexes(moleculeList, stage, true));
   } else {
     let molecules = dispatch(getSelectedMoleculesByType(type, true, moleculeList));
-    dispatch(setSelectedAllByType(type, molecules));
+    dispatch(setSelectedAllByType(type, null, molecules, true));
     dispatch(addAllComplexes(moleculeList, stage, true));
   }
 };

@@ -57,13 +57,16 @@ export const actionDescription = {
   TO_SHOPPING_CART: 'to shopping cart',
   FROM_SHOPPING_CART: 'from shopping cart',
   LIGAND: 'Ligand',
-  SIDECHAINS: 'Sidechain',
-  INTERACTIONS: 'Interaction',
+  SIDECHAIN: 'Sidechain',
+  INTERACTION: 'Interaction',
   VECTOR: 'Vector',
   SURFACE: 'Surface',
   SITE: 'Site',
   TARGET: 'Target',
-  ALL: 'All'
+  ALL: 'All',
+  LIGANDS: 'Ligands',
+  SIDECHAINS: 'Sidechains',
+  INTERACTIONS: 'Interactions'
 };
 
 export const actionObjectType = {

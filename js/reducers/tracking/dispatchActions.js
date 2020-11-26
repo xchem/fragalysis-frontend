@@ -60,6 +60,18 @@ import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
 import moment from 'moment';
 import { appendToActionList, appendToSendActionList, setProjectActionList } from './actions';
+import {
+  setSelectedAll,
+  setDeselectedAll,
+  setSelectedAllByType,
+  setDeselectedAllByType
+} from '../../../js/reducers/selection/actions';
+import {
+  setSelectedAll as setSelectedAllOfDataset,
+  setDeselectedAll as setDeselectedAllOfDataset,
+  setSelectedAllByType as setSelectedAllByTypeOfDataset,
+  setDeselectedAllByType as setDeselectedAllByTypeOfDataset
+} from '../../components/datasets/redux/actions';
 
 export const selectCurrentActionsList = () => (dispatch, getState) => {
   const state = getState();
@@ -415,48 +427,56 @@ const addTypeCompound = {
   surface: addDatasetSurface
 };
 
-const addNewType = (moleculesAction, actionType, type, stage, state) => dispatch => {
+const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => dispatch => {
   let actions = moleculesAction.filter(action => action.action_type === actionType);
   if (actions) {
     actions.forEach(action => {
       let data = getMolecule(action.object_name, state);
       if (data) {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+        if (type === 'ligand') {
+          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+        } else {
+          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
+        }
       }
     });
   }
 };
 
-const addNewTypeOfAction = (action, type, stage, state) => dispatch => {
+const addNewTypeOfAction = (action, type, stage, state, skipTracking = false) => dispatch => {
   if (action) {
     let data = getMolecule(action.object_name, state);
     if (data) {
       if (type === 'ligand') {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
       } else {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length]));
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
     }
   }
 };
 
-const addNewTypeCompound = (moleculesAction, actionType, type, stage, state) => dispatch => {
+const addNewTypeCompound = (moleculesAction, actionType, type, stage, state, skipTracking = false) => dispatch => {
   let actions = moleculesAction.filter(action => action.action_type === actionType);
   if (actions) {
     actions.forEach(action => {
       let data = getCompound(action, state);
       if (data) {
-        dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
+        dispatch(
+          addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id, skipTracking)
+        );
       }
     });
   }
 };
 
-const addNewTypeCompoundOfAction = (action, type, stage, state) => dispatch => {
+const addNewTypeCompoundOfAction = (action, type, stage, state, skipTracking = false) => dispatch => {
   if (action) {
     let data = getCompound(action, state);
     if (data) {
-      dispatch(addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
+      dispatch(
+        addTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id, skipTracking)
+      );
     }
   }
 };
@@ -647,82 +667,82 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
     const type = action.type;
     switch (type) {
       case actionType.ALL_TURNED_ON:
-        dispatch(handleAllAction(action, true, majorViewStage, state));
-        break;
-      case actionType.ALL_TURNED_OFF:
         dispatch(handleAllAction(action, false, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_ON_BY_TYPE:
-        dispatch(handleAllActionByType(action, true, majorViewStage));
+      case actionType.ALL_TURNED_OFF:
+        dispatch(handleAllAction(action, true, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_OFF_BY_TYPE:
+      case actionType.ALL_TURNED_ON_BY_TYPE:
         dispatch(handleAllActionByType(action, false, majorViewStage));
         break;
+      case actionType.ALL_TURNED_OFF_BY_TYPE:
+        dispatch(handleAllActionByType(action, true, majorViewStage));
+        break;
       case actionType.LIGAND_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'ligand', true, majorViewStage, state));
-        break;
-      case actionType.SIDECHAINS_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'protein', true, majorViewStage, state));
-        break;
-      case actionType.INTERACTIONS_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'complex', true, majorViewStage, state));
-        break;
-      case actionType.SURFACE_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
-        break;
-      case actionType.VECTORS_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
-        break;
-      case actionType.LIGAND_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'ligand', false, majorViewStage, state));
         break;
-      case actionType.SIDECHAINS_TURNED_OFF:
+      case actionType.SIDECHAINS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'protein', false, majorViewStage, state));
         break;
-      case actionType.INTERACTIONS_TURNED_OFF:
+      case actionType.INTERACTIONS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'complex', false, majorViewStage, state));
         break;
-      case actionType.SURFACE_TURNED_OFF:
+      case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
         break;
-      case actionType.VECTORS_TURNED_OFF:
+      case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
         break;
-      case actionType.VECTOR_SELECTED:
-        dispatch(setCurrentVector(action.object_name));
+      case actionType.LIGAND_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'ligand', true, majorViewStage, state));
         break;
-      case actionType.VECTOR_DESELECTED:
+      case actionType.SIDECHAINS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'protein', true, majorViewStage, state));
+        break;
+      case actionType.INTERACTIONS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'complex', true, majorViewStage, state));
+        break;
+      case actionType.SURFACE_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
+        break;
+      case actionType.VECTORS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
+        break;
+      case actionType.VECTOR_SELECTED:
         dispatch(setCurrentVector(undefined));
         break;
+      case actionType.VECTOR_DESELECTED:
+        dispatch(setCurrentVector(action.object_name));
+        break;
       case actionType.TARGET_LOADED:
-        dispatch(handleTargetAction(action, true));
+        dispatch(handleTargetAction(action, false));
         break;
       case actionType.SITE_TURNED_ON:
-        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
-        break;
-      case actionType.SITE_TURNED_OFF:
         dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
         break;
-      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
-        dispatch(handleShoppingCartAction(action, true));
+      case actionType.SITE_TURNED_OFF:
+        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
         break;
-      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, false));
         break;
-      case actionType.COMPOUND_SELECTED:
-        dispatch(handleCompoundAction(action, true));
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
+        dispatch(handleShoppingCartAction(action, true));
         break;
-      case actionType.COMPOUND_DESELECTED:
+      case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
+      case actionType.COMPOUND_DESELECTED:
+        dispatch(handleCompoundAction(action, true));
+        break;
       case actionType.REPRESENTATION_CHANGED:
-        dispatch(handleChangeRepresentationAction(action, true, majorView));
+        dispatch(handleChangeRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
-        dispatch(handleRepresentationAction(action, true, majorView));
+        dispatch(handleRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
-        dispatch(handleRepresentationAction(action, false, majorView));
+        dispatch(handleRepresentationAction(action, true, majorView));
         break;
       default:
         break;
@@ -735,19 +755,27 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
   let type = action.control_type;
   if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
     if (isAdd) {
+      dispatch(setSelectedAllByType(type, actionItems, action.object_type === actionObjectType.INSPIRATION));
+
       actionItems.forEach(data => {
         if (data) {
           if (type === 'ligand') {
-            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
           } else {
-            dispatch(addType[type](stage, data, colourList[data.id % colourList.length]));
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
           }
         }
       });
     } else {
+      dispatch(setDeselectedAllByType(type, actionItems, action.object_type === actionObjectType.INSPIRATION));
+
       actionItems.forEach(data => {
         if (data) {
-          dispatch(removeType[type](stage, data, colourList[data.id % colourList.length]));
+          if (type === 'ligand') {
+            dispatch(removeType[type](stage, data, true));
+          } else {
+            dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], true));
+          }
         }
       });
     }
@@ -756,18 +784,42 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
     action.object_type === actionObjectType.CROSS_REFERENCE
   ) {
     if (isAdd) {
+      dispatch(
+        setSelectedAllByTypeOfDataset(
+          type,
+          action.dataset_id,
+          actionItems,
+          action.object_type === actionObjectType.CROSS_REFERENCE
+        )
+      );
+
       actionItems.forEach(data => {
         if (data && data.molecule) {
           dispatch(
-            addTypeCompound[type](stage, data.molecule, colourList[data.id % colourList.length], data.datasetID)
+            addTypeCompound[type](stage, data.molecule, colourList[data.id % colourList.length], data.datasetID, true)
           );
         }
       });
     } else {
+      dispatch(
+        setDeselectedAllByTypeOfDataset(
+          type,
+          action.dataset_id,
+          actionItems,
+          action.object_type === actionObjectType.CROSS_REFERENCE
+        )
+      );
+
       actionItems.forEach(data => {
         if (data && data.molecule) {
           dispatch(
-            removeTypeCompound[type](stage, data.molecule, colourList[data.id % colourList.length], data.datasetID)
+            removeTypeCompound[type](
+              stage,
+              data.molecule,
+              colourList[data.id % colourList.length],
+              data.datasetID,
+              true
+            )
           );
         }
       });
@@ -776,16 +828,35 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
 };
 
 const handleAllAction = (action, isSelected, majorViewStage, state) => (dispatch, getState) => {
+  let isSelection =
+    action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION;
+
+  if (isSelected) {
+    if (isSelection) {
+      dispatch(setSelectedAll(action.item, true, true, true));
+    } else {
+      dispatch(setSelectedAllOfDataset(action.dataset_id, action.item, true, true, true));
+    }
+  } else {
+    if (isSelection) {
+      dispatch(setDeselectedAll(action.item, action.isLigand, action.isProtein, action.isComplex));
+    } else {
+      dispatch(
+        setDeselectedAllOfDataset(action.dataset_id, action.item, action.isLigand, action.isProtein, action.isComplex)
+      );
+    }
+  }
+
   if (action.isLigand) {
-    dispatch(handleMoleculeAction(action, 'ligand', isSelected, majorViewStage, state));
+    dispatch(handleMoleculeAction(action, 'ligand', isSelected, majorViewStage, state, true));
   }
 
   if (action.isProtein) {
-    dispatch(handleMoleculeAction(action, 'protein', isSelected, majorViewStage, state));
+    dispatch(handleMoleculeAction(action, 'protein', isSelected, majorViewStage, state, true));
   }
 
   if (action.isComplex) {
-    dispatch(handleMoleculeAction(action, 'complex', isSelected, majorViewStage, state));
+    dispatch(handleMoleculeAction(action, 'complex', isSelected, majorViewStage, state, true));
   }
 };
 
@@ -905,21 +976,21 @@ const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorVi
   }
 };
 
-const handleMoleculeAction = (action, type, isAdd, stage, state) => (dispatch, getState) => {
+const handleMoleculeAction = (action, type, isAdd, stage, state, skipTracking) => (dispatch, getState) => {
   if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
     if (isAdd) {
-      dispatch(addNewTypeOfAction(action, type, stage, state));
+      dispatch(addNewTypeOfAction(action, type, stage, state, skipTracking));
     } else {
-      dispatch(removeNewType(action, type, stage, state));
+      dispatch(removeNewType(action, type, stage, state, skipTracking));
     }
   } else if (
     action.object_type === actionObjectType.COMPOUND ||
     action.object_type === actionObjectType.CROSS_REFERENCE
   ) {
     if (isAdd) {
-      dispatch(addNewTypeCompoundOfAction(action, type, stage, state));
+      dispatch(addNewTypeCompoundOfAction(action, type, stage, state, skipTracking));
     } else {
-      dispatch(removeNewTypeCompound(action, type, stage, state));
+      dispatch(removeNewTypeCompound(action, type, stage, state, skipTracking));
     }
   }
 };
@@ -939,20 +1010,26 @@ const removeTypeCompound = {
   surface: removeDatasetSurface
 };
 
-const removeNewType = (action, type, stage, state) => dispatch => {
+const removeNewType = (action, type, stage, state, skipTracking) => dispatch => {
   if (action) {
     let data = getMolecule(action.object_name, state);
     if (data) {
-      dispatch(removeType[type](stage, data, colourList[data.id % colourList.length]));
+      if (type === 'ligand') {
+        dispatch(removeType[type](stage, data, skipTracking));
+      } else {
+        dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
+      }
     }
   }
 };
 
-const removeNewTypeCompound = (action, type, stage, state) => dispatch => {
+const removeNewTypeCompound = (action, type, stage, state, skipTracking) => dispatch => {
   if (action) {
     let data = getCompound(action, state);
     if (data) {
-      dispatch(removeTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id));
+      dispatch(
+        removeTypeCompound[type](stage, data, colourList[data.id % colourList.length], action.dataset_id, skipTracking)
+      );
     }
   }
 };

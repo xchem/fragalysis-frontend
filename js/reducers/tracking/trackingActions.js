@@ -15,7 +15,7 @@ export const findTruckAction = (action, state) => {
   let project = { projectID, authorID };
 
   let truckAction = null;
-  if (isUndoRedoAction === false && action.skipTracking !== true) {
+  if (action.skipTracking !== true) {
     if (action.type.includes(apiConstants.SET_TARGET_ON)) {
       if (action.target_on) {
         let targetName = getTargetName(action.target_on, state);
@@ -79,6 +79,7 @@ export const findTruckAction = (action, state) => {
           isLigand: action.isLigand,
           isProtein: action.isProtein,
           isComplex: action.isComplex,
+          item: action.item,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
@@ -101,6 +102,7 @@ export const findTruckAction = (action, state) => {
           isLigand: action.isLigand,
           isProtein: action.isProtein,
           isComplex: action.isComplex,
+          item: action.item,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
@@ -111,6 +113,7 @@ export const findTruckAction = (action, state) => {
       if (action.payload) {
         let payload = action.payload;
         let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
 
         truckAction = {
           type: actionType.ALL_TURNED_ON_BY_TYPE,
@@ -120,13 +123,14 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.TURNED_ON} ${objectType}`
+          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType}`
         };
       }
     } else if (action.type === selectionConstants.SET_DESELECTED_ALL_BY_TYPE) {
       if (action.payload) {
         let payload = action.payload;
         let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
 
         truckAction = {
           type: actionType.ALL_TURNED_OFF_BY_TYPE,
@@ -136,7 +140,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.TURNED_OFF} ${objectType}`
+          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType}`
         };
       }
     } else if (action.type.includes(selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST)) {
@@ -190,7 +194,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
-          text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          text: `${actionDescription.SIDECHAIN} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
@@ -209,7 +213,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
-          text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          text: `${actionDescription.SIDECHAIN} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
@@ -228,7 +232,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
-          text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          text: `${actionDescription.INTERACTION} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
@@ -247,7 +251,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: action.item.id,
-          text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          text: `${actionDescription.INTERACTION} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
@@ -431,6 +435,7 @@ export const findTruckAction = (action, state) => {
           isLigand: action.payload.isLigand,
           isProtein: action.payload.isProtein,
           isComplex: action.payload.isComplex,
+          item: action.payload.item,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
@@ -452,6 +457,7 @@ export const findTruckAction = (action, state) => {
           isLigand: action.payload.isLigand,
           isProtein: action.payload.isProtein,
           isComplex: action.payload.isComplex,
+          item: action.payload.item,
           text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
@@ -460,6 +466,8 @@ export const findTruckAction = (action, state) => {
         let payload = action.payload;
         let objectType =
           payload.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+        let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
+        let datasetDescription = payload.datasetID ? `of dataset: ${payload.datasetID}` : '';
 
         truckAction = {
           type: actionType.ALL_TURNED_ON_BY_TYPE,
@@ -469,7 +477,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.ALL_TURNED_ON} ${objectType} of dataset: ${action.payload.datasetID}`
+          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType} ${datasetDescription}`
         };
       }
     } else if (action.type === customDatasetConstants.SET_DESELECTED_ALL_BY_TYPE) {
@@ -477,6 +485,8 @@ export const findTruckAction = (action, state) => {
         let payload = action.payload;
         let objectType =
           payload.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+        let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
+        let datasetDescription = payload.datasetID ? `of dataset: ${payload.datasetID}` : '';
 
         truckAction = {
           type: actionType.ALL_TURNED_OFF_BY_TYPE,
@@ -486,7 +496,7 @@ export const findTruckAction = (action, state) => {
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${payload.type} ${actionDescription.ALL_TURNED_OFF} ${objectType}  of dataset: ${action.payload.datasetID}`
+          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType} ${datasetDescription}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.APPEND_LIGAND_LIST)) {
@@ -540,7 +550,7 @@ export const findTruckAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
-          text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+          text: `${actionDescription.SIDECHAIN} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_PROTEIN_LIST)) {
@@ -558,7 +568,7 @@ export const findTruckAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
-          text: `${actionDescription.SIDECHAINS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+          text: `${actionDescription.SIDECHAIN} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.APPEND_COMPLEX_LIST)) {
@@ -576,7 +586,7 @@ export const findTruckAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
-          text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+          text: `${actionDescription.INTERACTION} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_COMPLEX_LIST)) {
@@ -594,7 +604,7 @@ export const findTruckAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
-          text: `${actionDescription.INTERACTIONS} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+          text: `${actionDescription.INTERACTION} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.APPEND_SURFACE_LIST)) {
@@ -719,4 +729,17 @@ const getMoleculeName = (moleculeId, state) => {
     }
   }
   return moleculeName;
+};
+
+const getTypeDescriptionOfSelectedAllAction = type => {
+  switch (type) {
+    case 'ligand':
+      return actionDescription.LIGANDS;
+    case 'protein':
+      return actionDescription.SIDECHAINS;
+    case 'complex':
+      return actionDescription.INTERACTIONS;
+    default:
+      return type;
+  }
 };
