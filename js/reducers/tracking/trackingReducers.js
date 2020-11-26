@@ -3,6 +3,7 @@ import undoable, { includeAction } from 'redux-undo';
 
 export const INITIAL_STATE = {
   track_actions_list: [],
+  undo_redo_actions_list: [],
   current_actions_list: [],
   isTrackingMoleculesRestoring: false,
   isTrackingCompoundsRestoring: false,
@@ -25,6 +26,11 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
     case constants.APPEND_ACTIONS_LIST:
       return Object.assign({}, state, {
         track_actions_list: [...new Set([...state.track_actions_list, action.track_action])]
+      });
+
+    case constants.APPEND_UNDO_REDO_ACTIONS_LIST:
+      return Object.assign({}, state, {
+        undo_redo_actions_list: [...new Set([...state.undo_redo_actions_list, action.track_action])]
       });
 
     case constants.SET_CURRENT_ACTIONS_LIST:
@@ -89,5 +95,5 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
 
 export const undoableTrackingReducers = undoable(trackingReducers, {
   limit: false,
-  filter: includeAction(constants.APPEND_ACTIONS_LIST)
+  filter: includeAction(constants.APPEND_UNDO_REDO_ACTIONS_LIST)
 });

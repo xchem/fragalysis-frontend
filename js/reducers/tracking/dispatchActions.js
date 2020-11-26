@@ -64,7 +64,8 @@ import {
   appendToSendActionList,
   setProjectActionList,
   setIsActionsSaving,
-  setIsActionsRestoring
+  setIsActionsRestoring,
+  appendToUndoRedoActionList
 } from './actions';
 import {
   setSelectedAll,
@@ -655,9 +656,9 @@ export const undoAction = (stages = []) => (dispatch, getState) => {
   const actionUndoList = state.undoableTrackingReducers.future;
   let actions = actionUndoList && actionUndoList[0];
   if (actions) {
-    let actionsLenght = actions.track_actions_list.length;
+    let actionsLenght = actions.undo_redo_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.track_actions_list[actionsLenght];
+    action = actions.undo_redo_actions_list[actionsLenght];
 
     Promise.resolve(dispatch(handleUndoAction(action, stages))).then(() => {
       dispatch(setIsUndoRedoAction(false));
@@ -673,9 +674,9 @@ export const redoAction = (stages = []) => (dispatch, getState) => {
 
   const actions = state.undoableTrackingReducers.present;
   if (actions) {
-    let actionsLenght = actions.track_actions_list.length;
+    let actionsLenght = actions.undo_redo_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.track_actions_list[actionsLenght];
+    action = actions.undo_redo_actions_list[actionsLenght];
 
     Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(() => {
       dispatch(setIsUndoRedoAction(false));
@@ -790,82 +791,82 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
     const type = action.type;
     switch (type) {
       case actionType.ALL_TURNED_ON:
-        dispatch(handleAllAction(action, false, majorViewStage, state));
-        break;
-      case actionType.ALL_TURNED_OFF:
         dispatch(handleAllAction(action, true, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_ON_BY_TYPE:
-        dispatch(handleAllActionByType(action, false, majorViewStage));
+      case actionType.ALL_TURNED_OFF:
+        dispatch(handleAllAction(action, false, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_OFF_BY_TYPE:
+      case actionType.ALL_TURNED_ON_BY_TYPE:
         dispatch(handleAllActionByType(action, true, majorViewStage));
         break;
+      case actionType.ALL_TURNED_OFF_BY_TYPE:
+        dispatch(handleAllActionByType(action, false, majorViewStage));
+        break;
       case actionType.LIGAND_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'ligand', false, majorViewStage, state));
-        break;
-      case actionType.SIDECHAINS_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'protein', false, majorViewStage, state));
-        break;
-      case actionType.INTERACTIONS_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'complex', false, majorViewStage, state));
-        break;
-      case actionType.SURFACE_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
-        break;
-      case actionType.VECTORS_TURNED_ON:
-        dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
-        break;
-      case actionType.LIGAND_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'ligand', true, majorViewStage, state));
         break;
-      case actionType.SIDECHAINS_TURNED_OFF:
+      case actionType.SIDECHAINS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'protein', true, majorViewStage, state));
         break;
-      case actionType.INTERACTIONS_TURNED_OFF:
+      case actionType.INTERACTIONS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'complex', true, majorViewStage, state));
         break;
-      case actionType.SURFACE_TURNED_OFF:
+      case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
         break;
-      case actionType.VECTORS_TURNED_OFF:
+      case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
-      case actionType.VECTOR_SELECTED:
-        dispatch(setCurrentVector(undefined));
+      case actionType.LIGAND_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'ligand', false, majorViewStage, state));
         break;
-      case actionType.VECTOR_DESELECTED:
+      case actionType.SIDECHAINS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'protein', false, majorViewStage, state));
+        break;
+      case actionType.INTERACTIONS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'complex', false, majorViewStage, state));
+        break;
+      case actionType.SURFACE_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
+        break;
+      case actionType.VECTORS_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
+        break;
+      case actionType.VECTOR_SELECTED:
         dispatch(setCurrentVector(action.object_name));
         break;
+      case actionType.VECTOR_DESELECTED:
+        dispatch(setCurrentVector(undefined));
+        break;
       case actionType.TARGET_LOADED:
-        dispatch(handleTargetAction(action, false));
+        dispatch(handleTargetAction(action, true));
         break;
       case actionType.SITE_TURNED_ON:
-        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
-        break;
-      case actionType.SITE_TURNED_OFF:
         dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
         break;
-      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
-        dispatch(handleShoppingCartAction(action, false));
+      case actionType.SITE_TURNED_OFF:
+        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
         break;
-      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, true));
         break;
-      case actionType.COMPOUND_SELECTED:
-        dispatch(handleCompoundAction(action, false));
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
+        dispatch(handleShoppingCartAction(action, false));
         break;
-      case actionType.COMPOUND_DESELECTED:
+      case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
+      case actionType.COMPOUND_DESELECTED:
+        dispatch(handleCompoundAction(action, false));
+        break;
       case actionType.REPRESENTATION_CHANGED:
-        dispatch(handleChangeRepresentationAction(action, false, majorView));
+        dispatch(handleChangeRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
-        dispatch(handleRepresentationAction(action, false, majorView));
+        dispatch(handleRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
-        dispatch(handleRepresentationAction(action, true, majorView));
+        dispatch(handleRepresentationAction(action, false, majorView));
         break;
       default:
         break;
@@ -1168,9 +1169,16 @@ export const getCanRedo = () => (dispatch, getState) => {
 };
 
 export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
+  const state = getState();
+  const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
+
   if (trackAction && trackAction !== null) {
-    dispatch(appendToActionList(trackAction));
+    dispatch(appendToActionList(trackAction, isUndoRedoAction));
     dispatch(appendToSendActionList(trackAction));
+
+    if (isUndoRedoAction === false) {
+      dispatch(appendToUndoRedoActionList(trackAction));
+    }
   }
 
   dispatch(checkSendTrackingActions());

@@ -14,6 +14,13 @@ export const appendToActionList = function(track_action) {
   };
 };
 
+export const appendToUndoRedoActionList = function(track_action) {
+  return {
+    type: constants.APPEND_UNDO_REDO_ACTIONS_LIST,
+    track_action: track_action
+  };
+};
+
 export const setCurrentActionsList = function(current_actions_list) {
   return {
     type: constants.SET_CURRENT_ACTIONS_LIST,
