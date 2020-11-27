@@ -3,6 +3,7 @@ const prefix = 'REDUCERS_TRACKING_';
 export const constants = {
   SET_ACTIONS_LIST: prefix + 'SET_ACTIONS_LIST',
   APPEND_ACTIONS_LIST: prefix + 'APPEND_ACTIONS_LIST',
+  APPEND_UNDO_REDO_ACTIONS_LIST: prefix + 'APPEND_UNDO_REDO_ACTIONS_LIST',
   SET_CURRENT_ACTIONS_LIST: prefix + 'SET_CURRENT_ACTIONS_LIST',
   SET_IS_TRACKING_COMPOUNDS_RESTORING: prefix + 'SET_IS_TRACKING_COMPOUNDS_RESTORING',
   SET_IS_TRACKING_MOLECULES_RESTORING: prefix + 'SET_IS_TRACKING_MOLECULES_RESTORING',
@@ -11,7 +12,9 @@ export const constants = {
   APPEND_SEND_ACTIONS_LIST: prefix + 'APPEND_SEND_ACTIONS_LIST',
   SET_IS_ACTIONS_SENDING: prefix + 'SET_IS_ACTIONS_SENDING',
   SET_IS_ACTIONS_LOADING: prefix + 'SET_IS_ACTIONS_LOADING',
-  SET_PROJECT_ACTIONS_LIST: prefix + 'SET_PROJECT_ACTIONS_LIST'
+  SET_PROJECT_ACTIONS_LIST: prefix + 'SET_PROJECT_ACTIONS_LIST',
+  SET_IS_ACTIONS_SAVING: prefix + 'SET_IS_ACTIONS_SAVING',
+  SET_IS_ACTIONS_RESTORING: prefix + 'SET_IS_ACTIONS_RESTORING'
 };
 
 export const actionType = {
@@ -38,7 +41,11 @@ export const actionType = {
   REPRESENTATION_ADDED: 'REPRESENTATION_ADDED',
   REPRESENTATION_REMOVED: 'REPRESENTATION_REMOVED',
   UNDO: 'UNDO',
-  REDO: 'REDO'
+  REDO: 'REDO',
+  ALL_TURNED_ON: 'ALL_TURNED_ON',
+  ALL_TURNED_OFF: 'ALL_TURNED_OFF',
+  ALL_TURNED_ON_BY_TYPE: 'ALL_TURNED_ON_BY_TYPE',
+  ALL_TURNED_OFF_BY_TYPE: 'ALL_TURNED_OFF_BY_TYPE'
 };
 
 export const actionDescription = {
@@ -53,12 +60,16 @@ export const actionDescription = {
   TO_SHOPPING_CART: 'to shopping cart',
   FROM_SHOPPING_CART: 'from shopping cart',
   LIGAND: 'Ligand',
-  SIDECHAINS: 'Sidechain',
-  INTERACTIONS: 'Interaction',
+  SIDECHAIN: 'Sidechain',
+  INTERACTION: 'Interaction',
   VECTOR: 'Vector',
   SURFACE: 'Surface',
   SITE: 'Site',
-  TARGET: 'Target'
+  TARGET: 'Target',
+  ALL: 'All',
+  LIGANDS: 'Ligands',
+  SIDECHAINS: 'Sidechains',
+  INTERACTIONS: 'Interactions'
 };
 
 export const actionObjectType = {

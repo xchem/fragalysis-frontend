@@ -17,10 +17,11 @@ export const setDuckYankData = function(input_json) {
   };
 };
 
-export const setTargetOn = function(target_id) {
+export const setTargetOn = function(target_id, skipTracking = false) {
   return {
     type: constants.SET_TARGET_ON,
-    target_on: target_id
+    target_on: target_id,
+    skipTracking: skipTracking
   };
 };
 
@@ -156,14 +157,14 @@ export const setUuid = function(uuid) {
   };
 };
 
-export const setDirectAccess = (directAccessParams) => {
+export const setDirectAccess = directAccessParams => {
   return {
     type: constants.SET_DIRECT_ACCESS,
     direct_access: directAccessParams
   };
 };
 
-export const setDirectAccessProcessed = (directAccessProcessedParams) => {
+export const setDirectAccessProcessed = directAccessProcessedParams => {
   return {
     type: constants.SET_DIRECT_ACCESS_PROCESSED,
     direct_access_processed: directAccessProcessedParams
