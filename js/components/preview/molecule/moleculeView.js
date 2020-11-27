@@ -32,7 +32,6 @@ import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
 
-
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -346,7 +345,9 @@ const MoleculeView = memo(
       isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
     const addNewLigand = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addLigand(stage, data, colourToggle));
     };
 
@@ -377,7 +378,9 @@ const MoleculeView = memo(
     };
 
     const addNewProtein = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addHitProtein(stage, data, colourToggle));
     };
 
@@ -403,7 +406,9 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addComplex(stage, data, colourToggle));
     };
 
@@ -428,7 +433,9 @@ const MoleculeView = memo(
     };
 
     const addNewSurface = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addSurface(stage, data, colourToggle));
     };
 
@@ -445,7 +452,9 @@ const MoleculeView = memo(
     };
 
     const addNewDensity = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addDensity(stage, data, colourToggle));
     };
 
@@ -462,7 +471,9 @@ const MoleculeView = memo(
     };
 
     const addNewVector = () => {
-      selectMoleculeSite(data.site);
+      if (selectMoleculeSite) {
+        selectMoleculeSite(data.site);
+      }
       dispatch(addVector(stage, data)).catch(error => {
         throw new Error(error);
       });
@@ -537,7 +548,7 @@ const MoleculeView = memo(
       moveSelectedMolSettings(previousItemData);
     };
 
-    let moleculeTitle = data?.protein_code.replace(`${target_on_name}-`, '');
+    let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
     return (
       <>

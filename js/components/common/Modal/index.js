@@ -24,7 +24,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const Modal = memo(
-  ({ children, open, loading, onClose, noPadding, resizable, onResize, otherClasses, ...rest }) => {
+  ({
+    children,
+    open,
+    loading,
+    onClose,
+    noPadding,
+    resizable,
+    onResize,
+    otherClasses,
+    otherContentClasses,
+    ...rest
+  }) => {
     const classes = useStyles();
     const content = loading ? <CircularProgress /> : children;
 
@@ -48,7 +59,13 @@ export const Modal = memo(
             { [otherClasses]: !!otherClasses }
           )}
         >
-          <div className={noPadding ? undefined : classes.withPadding}>{content}</div>
+          <div
+            className={classNames(noPadding ? undefined : classes.withPadding, {
+              [otherContentClasses]: !!otherContentClasses
+            })}
+          >
+            {content}
+          </div>
         </div>
       </MaterialModal>
     );

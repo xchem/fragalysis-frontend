@@ -11,7 +11,9 @@ import { applyMiddleware, createStore } from 'redux';
 import { rootReducer } from './reducers/rootReducer';
 import { saveStore } from './components/helpers/globalStore';
 import thunkMiddleware from 'redux-thunk';
+import trackingMiddleware from './reducers/tracking/trackingMiddleware';
 import { composeWithDevTools } from 'redux-devtools-extension';
+
 require('react-hot-loader/patch');
 
 if (process.env.NODE_ENV === 'production') {
@@ -37,7 +39,8 @@ if (process.env.NODE_ENV === 'production') {
 
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
-  thunkMiddleware
+  thunkMiddleware,
+  trackingMiddleware
 );
 const enhancers = [middlewareEnhancer];
 const composedEnhancers = composeWithDevTools(...enhancers);
