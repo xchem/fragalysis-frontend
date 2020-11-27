@@ -56,6 +56,20 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
         };
       }
+    } else if (action.type === selectionConstants.SET_HIDE_ALL) {
+      if (action.data) {
+        let objectType = actionObjectType.MOLECULE;
+        let description = action.isHide === true ? `` : `${actionDescription.CANCELED}`;
+
+        trackAction = {
+          type: actionType.ALL_HIDE,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          data: action.data,
+          text: `${actionDescription.ALL} ${actionDescription.HIDDEN} ${description}`
+        };
+      }
     } else if (action.type === selectionConstants.SET_SELECTED_ALL) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;

@@ -6,7 +6,7 @@ import {
 } from './actions';
 import { actionType, actionObjectType } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, removeFromToBuyList } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, removeFromToBuyList, setHideAll } from '../selection/actions';
 import { unmountPreviewComponent, shouldLoadProtein } from '../../components/preview/redux/dispatchActions';
 import {
   selectMoleculeGroup,
@@ -749,6 +749,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
 
     const type = action.type;
     switch (type) {
+      case actionType.ALL_HIDE:
+        dispatch(handleAllHideAction(action, true, majorViewStage));
+        break;
       case actionType.ALL_TURNED_ON:
         dispatch(handleAllAction(action, false, majorViewStage, state));
         break;
@@ -844,6 +847,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
 
     const type = action.type;
     switch (type) {
+      case actionType.ALL_HIDE:
+        dispatch(handleAllHideAction(action, false, majorViewStage));
+        break;
       case actionType.ALL_TURNED_ON:
         dispatch(handleAllAction(action, true, majorViewStage, state));
         break;
@@ -1002,6 +1008,77 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
         }
       });
     }
+  }
+};
+
+const handleAllHideAction = (action, isAdd, stage) => (dispatch, getState) => {
+  let data = action.data;
+  let ligandDataList = data.ligandList;
+  let proteinDataList = data.proteinList;
+  let complexDataList = data.complexList;
+  let surfaceDataList = data.surfaceList;
+  let vectorOnDataList = data.vectorOnList;
+
+  dispatch(setHideAll(data, !isAdd));
+
+  if (isAdd) {
+    ligandDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['ligand'](stage, data, colourList[data.id % colourList.length], true, true));
+      }
+    });
+
+    proteinDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['protein'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    complexDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['complex'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    surfaceDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['surface'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+    vectorOnDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['vector'](stage, data, true));
+      }
+    });
+  } else {
+    ligandDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['ligand'](stage, data, true));
+      }
+    });
+
+    proteinDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['protein'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    complexDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['complex'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    surfaceDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['surface'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+    vectorOnDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['vector'](stage, data, true));
+      }
+    });
   }
 };
 
