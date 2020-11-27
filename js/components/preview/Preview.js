@@ -91,7 +91,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const dispatch = useDispatch();
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
-  const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
+  const [selectedDatasetIndex, setSelectedDatasetIndex] = useState(0);
   const currentDataset = customDatasets[selectedDatasetIndex];
   const target_on = useSelector(state => state.apiReducers.target_on);
   const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);

@@ -1,16 +1,23 @@
 import { constants } from './constants';
 
-export const setActionsList = function(truck_actions_list) {
+export const setActionsList = function(track_actions_list) {
   return {
     type: constants.SET_ACTIONS_LIST,
-    truck_actions_list: truck_actions_list
+    track_actions_list: track_actions_list
   };
 };
 
-export const appendToActionList = function(truck_action) {
+export const appendToActionList = function(track_action) {
   return {
     type: constants.APPEND_ACTIONS_LIST,
-    truck_action: truck_action
+    track_action: track_action
+  };
+};
+
+export const appendToUndoRedoActionList = function(track_action) {
+  return {
+    type: constants.APPEND_UNDO_REDO_ACTIONS_LIST,
+    track_action: track_action
   };
 };
 
@@ -56,17 +63,17 @@ export const setIsActionsLoading = function(isActionsLoading) {
   };
 };
 
-export const setSendActionsList = function(truck_actions_list) {
+export const setSendActionsList = function(track_actions_list) {
   return {
     type: constants.SET_SEND_ACTIONS_LIST,
-    send_actions_list: truck_actions_list
+    send_actions_list: track_actions_list
   };
 };
 
-export const appendToSendActionList = function(truck_action) {
+export const appendToSendActionList = function(track_action) {
   return {
     type: constants.APPEND_SEND_ACTIONS_LIST,
-    truck_action: truck_action
+    track_action: track_action
   };
 };
 
@@ -74,5 +81,19 @@ export const setProjectActionList = function(project_actions_list) {
   return {
     type: constants.SET_PROJECT_ACTIONS_LIST,
     project_actions_list: project_actions_list
+  };
+};
+
+export const setIsActionsSaving = function(isActionSaving) {
+  return {
+    type: constants.SET_IS_ACTIONS_SAVING,
+    isActionSaving: isActionSaving
+  };
+};
+
+export const setIsActionsRestoring = function(isActionRestoring) {
+  return {
+    type: constants.SET_IS_ACTIONS_RESTORING,
+    isActionRestoring: isActionRestoring
   };
 };

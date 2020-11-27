@@ -1,6 +1,6 @@
-import { appendAndSendTruckingActions } from './dispatchActions';
+import { appendAndSendTrackingActions } from './dispatchActions';
 import { constants } from './constants';
-import { findTruckAction } from './trackingActions';
+import { findTrackAction } from './trackingActions';
 
 const trackingMiddleware = ({ dispatch, getState }) => next => action => {
   //console.log(`Redux Log:`, action);
@@ -8,9 +8,9 @@ const trackingMiddleware = ({ dispatch, getState }) => next => action => {
   if (action) {
     const state = getState();
     if (action && !action.type.includes(constants.APPEND_ACTIONS_LIST)) {
-      let truckAction = findTruckAction(action, state);
-      if (truckAction && truckAction != null) {
-        dispatch(appendAndSendTruckingActions(truckAction));
+      let trackAction = findTrackAction(action, state);
+      if (trackAction && trackAction != null) {
+        dispatch(appendAndSendTrackingActions(trackAction));
       }
     }
 

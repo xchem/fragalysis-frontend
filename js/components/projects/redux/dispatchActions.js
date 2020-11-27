@@ -38,7 +38,7 @@ export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (
           created: response.data.created,
           children: response.data.children,
           parent: response.data.parent,
-          data: JSON.parse(response.data.data)
+          data: '[]'
         })
       )
     )
@@ -147,7 +147,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
               created: response.data.results[0].created,
               children: response.data.results[0].children,
               parent: response.data.results[0].parent,
-              data: JSON.parse(response.data.results[0].data)
+              data: '[]'
             })
           );
           return Promise.resolve(response.data.results[0].id);
@@ -184,7 +184,7 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
               created: response.data.created,
               children: response.data.children,
               parent: response.data.parent,
-              data: JSON.parse(response.data.data)
+              data: '[]'
             })
           );
           return Promise.resolve(response.data);
@@ -294,7 +294,7 @@ const copySnapshot = (selectedSnapshot, projectID, history) => dispatch => {
       title: selectedSnapshot.title,
       author: (selectedSnapshot && selectedSnapshot.author && selectedSnapshot.author.id) || null,
       description: selectedSnapshot.description,
-      data: JSON.parse(selectedSnapshot.data),
+      data: '[]',
       created: selectedSnapshot.created,
       parent: null,
       children: selectedSnapshot.children,

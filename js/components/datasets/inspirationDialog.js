@@ -258,7 +258,7 @@ export const InspirationDialog = memo(
     const removeSelectedType = (type, skipTracking = false) => {
       if (type === 'ligand') {
         moleculeList.forEach(molecule => {
-          dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], false, skipTracking));
+          dispatch(removeType[type](stage, molecule, skipTracking));
         });
       } else {
         moleculeList.forEach(molecule => {

@@ -30,7 +30,9 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   });
 };
 
-export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) => dispatch => {
+export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) => (dispatch, getState) => {
+  const isActionRestoring = getState().trackingReducers.isActionRestoring;
+
   // Get from the REST API
   let targetUnrecognisedFlag = true;
   if (target !== undefined) {
@@ -63,8 +65,11 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) 
       setIsLoading(true);
       return api({ url: `${base_url}/api/session-projects/${projectId}/` })
         .then(response => {
-          return Promise.all([
-            dispatch(setTargetOn(response.data.target.id)),
+          let promises = [];
+          if (!isActionRestoring || isActionRestoring === false) {
+            promises.push(dispatch(setTargetOn(response.data.target.id, true)));
+          }
+          promises.push(
             dispatch(
               setCurrentProject({
                 projectID: response.data.id,
@@ -75,7 +80,8 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) 
                 tags: JSON.parse(response.data.tags)
               })
             )
-          ]);
+          );
+          return Promise.all(promises);
         })
         .finally(() => setIsLoading(false));
     }
