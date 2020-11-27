@@ -8,7 +8,6 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 export const findTrackAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
-  const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
   const isActionRestoring = state.trackingReducers.isActionRestoring;
 
   let trackAction = null;

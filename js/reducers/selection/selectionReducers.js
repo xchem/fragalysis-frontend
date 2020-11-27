@@ -16,10 +16,8 @@ export const INITIAL_STATE = {
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
-  molecule_all_selection: null,
-  molecule_all_deselection: null,
-  molecule_all_type_selection: [],
-  molecule_all_type_deselection: [],
+  moleculeAllSelection: [],
+  moleculeAllTypeSelection: [],
 
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
@@ -282,22 +280,24 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_SELECTED_ALL:
       return Object.assign({}, state, {
-        molecule_all_selection: action.item
+        moleculeAllSelection: [...new Set([...state.moleculeAllSelection, action.item.id])]
       });
 
     case constants.SET_DESELECTED_ALL:
+      let selectedMolecules = new Set(state.moleculeAllSelection);
+      selectedMolecules.delete(action.item.id);
       return Object.assign({}, state, {
-        molecule_all_deselection: action.item
+        moleculeAllSelection: [...selectedMolecules]
       });
 
     case constants.SET_SELECTED_ALL_BY_TYPE:
       return Object.assign({}, state, {
-        molecule_all_type_selection: action.payload.items
+        moleculeAllTypeSelection: action.payload.type
       });
 
     case constants.SET_DESELECTED_ALL_BY_TYPE:
       return Object.assign({}, state, {
-        molecule_all_type_deselection: action.payload.items
+        moleculeAllTypeSelection: action.payload.type
       });
     // Cases like: @@redux/INIT
     default:
