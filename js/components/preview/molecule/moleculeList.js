@@ -287,39 +287,53 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
   }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
 
-  // Used for MoleculeListSortFilterDialog when using textSearch
-  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
-
-  //Ensures that sorting is applied on only selected sites
-  if (!isActiveFilter) {
-    // default sort is by site
-    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
-  }
-
-  const addSelectedMoleculesFromUnselectedSites = (list) => {
-    const mols = [];
+  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
+    const result = [...joinedMoleculeLists];
     list?.forEach(moleculeID => {
-      const foundJoinedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
       if (!foundJoinedMolecule) {
         const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
         if (molecule) {
-          mols.push(molecule);
+          result.push(molecule);
         }
       }
     });
 
-    mols.sort((a, b) => a.site - b.site || a.number - b.number);
-    joinedMoleculeLists.push(...mols);
-  };
+    return result;
+  }, [getAllMoleculeList]);
 
-  addSelectedMoleculesFromUnselectedSites(proteinList);
-  addSelectedMoleculesFromUnselectedSites(complexList);
-  addSelectedMoleculesFromUnselectedSites(fragmentDisplayList);
-  addSelectedMoleculesFromUnselectedSites(surfaceList);
-  addSelectedMoleculesFromUnselectedSites(densityList);
-  addSelectedMoleculesFromUnselectedSites(vectorOnList);
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, proteinList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, complexList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, fragmentDisplayList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, surfaceList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, densityList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, vectorOnList]
+  );
 
-  if (isActiveFilter) {
+  // Used for MoleculeListSortFilterDialog when using textSearch
+  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
+
+  if (!isActiveFilter) {
+    // default sort is by site
+    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
+  } else {
     joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
   }
 
