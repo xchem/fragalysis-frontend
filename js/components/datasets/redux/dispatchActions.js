@@ -399,7 +399,7 @@ const addAllLigandsFromList = (moleculeList = [], stage, skipTracking = false) =
 const removeAllLigandsFromList = (moleculeList = [], stage, skipTracking = false) => dispatch => {
   moleculeList.forEach(molecule => {
     dispatch(
-      addDatasetLigand(
+      removeDatasetLigand(
         stage,
         molecule.molecule,
         colourList[molecule.molecule.id % colourList.length],
