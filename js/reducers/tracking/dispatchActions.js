@@ -53,7 +53,7 @@ import {
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
+import { deleteObject, setOrientation } from '../../../js/reducers/ngl/dispatchActions';
 import { setSendActionsList, setIsActionsSending, setIsActionsLoading, setActionsList } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
@@ -80,7 +80,7 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshotID, projectID) => (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshotID, projectID, nglViewList) => (dispatch, getState) => {
   const state = getState();
 
   let actionList = state.trackingReducers.track_actions_list;
@@ -91,11 +91,11 @@ export const saveCurrentActionsList = (snapshotID, projectID) => (dispatch, getS
       dispatch(saveActionsList(snapshotID, actionList));
     });
   } else {
-    dispatch(saveActionsList(snapshotID, actionList));
+    dispatch(saveActionsList(snapshotID, actionList, nglViewList));
   }
 };
 
-export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) => {
+export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatch, getState) => {
   const state = getState();
 
   const currentTargetOn = state.apiReducers.target_on;
@@ -214,6 +214,18 @@ export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) 
     getCollectionOfDatasetOfRepresentation(currentobjectsInView),
     currentActions
   );
+
+  let nglStateList = nglViewList.map(nglView => {
+    return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
+  });
+
+  let trackAction = {
+    type: actionType.NGL_STATE,
+    timestamp: Date.now(),
+    nglStateList: nglStateList
+  };
+
+  currentActions.push(Object.assign({ ...trackAction }));
 
   dispatch(setCurrentActionsList(currentActions));
   dispatch(saveTrackingActions(currentActions, snapshotID));
@@ -403,11 +415,31 @@ export const restoreAfterTargetActions = stages => (dispatch, getState) => {
         throw error;
       })
       .finally(() => {
-        dispatch(restoreSitesActions(orderedActionList, summaryView));
-        dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
-        dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
-        dispatch(restoreRepresentationActions(orderedActionList, stages));
+        Promise.resolve(
+          dispatch(restoreSitesActions(orderedActionList, summaryView)),
+          dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage)),
+          dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage))
+        ).then(() => {
+          dispatch(restoreNglStateAction(orderedActionList, stages));
+          dispatch(restoreRepresentationActions(orderedActionList, stages));
+        });
       });
+  }
+};
+
+const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
+  let action = orderedActionList.find(action => action.type === actionType.NGL_STATE);
+  if (action && action.nglStateList) {
+    action.nglStateList.forEach(nglView => {
+      dispatch(setOrientation(nglView.id, nglView.orientation));
+
+      if (nglView.id !== VIEWS.SUMMARY_VIEW) {
+        let viewStage = stages.find(s => s.id === nglView.id);
+        if (viewStage) {
+          viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+        }
+      }
+    });
   }
 };
 
