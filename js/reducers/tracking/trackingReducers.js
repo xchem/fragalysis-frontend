@@ -13,7 +13,8 @@ export const INITIAL_STATE = {
   isActionSaving: false,
   send_actions_list: [],
   project_actions_list: [],
-  isActionRestoring: false
+  isActionRestoring: false,
+  isActionRestored: false
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -85,7 +86,8 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_IS_ACTIONS_RESTORING:
       return Object.assign({}, state, {
-        isActionRestoring: action.isActionRestoring
+        isActionRestoring: action.isActionRestoring,
+        isActionRestored: action.isActionRestored
       });
 
     default:

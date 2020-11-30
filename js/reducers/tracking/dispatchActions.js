@@ -8,6 +8,7 @@ import { actionType, actionObjectType } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
 import { setCurrentVector, appendToBuyList, removeFromToBuyList } from '../selection/actions';
 import { unmountPreviewComponent, shouldLoadProtein } from '../../components/preview/redux/dispatchActions';
+import { setCurrentProject } from '../../components/projects/redux/actions';
 import {
   selectMoleculeGroup,
   onDeselectMoleculeGroup,
@@ -317,8 +318,12 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
   return list;
 };
 
+export const resetRestoringState = (stages = []) => (dispatch, getState) => {
+  dispatch(setTargetOn(undefined));
+  dispatch(setIsActionsRestoring(false, false));
+};
 export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) => {
-  dispatch(setIsActionsRestoring(true));
+  dispatch(setIsActionsRestoring(true, false));
 
   Promise.resolve(dispatch(restoreTrackingActions())).then(response => {
     dispatch(setIsTrackingMoleculesRestoring(true));
@@ -378,7 +383,7 @@ const restoreTargetActions = (orderedActionList, stages) => (dispatch, getState)
   }
 };
 
-export const restoreAfterTargetActions = stages => (dispatch, getState) => {
+export const restoreAfterTargetActions = (stages, projectId) => async (dispatch, getState) => {
   const state = getState();
 
   const currentActionList = state.trackingReducers.current_actions_list;
@@ -389,9 +394,11 @@ export const restoreAfterTargetActions = stages => (dispatch, getState) => {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
     const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
-    dispatch(shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false }));
+    await dispatch(
+      shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false })
+    );
 
-    dispatch(
+    await dispatch(
       loadMoleculeGroupsOfTarget({
         summaryView: summaryView.stage,
         isStateLoaded: false,
@@ -402,18 +409,20 @@ export const restoreAfterTargetActions = stages => (dispatch, getState) => {
       .catch(error => {
         throw error;
       })
-      .finally(() => {
-        dispatch(restoreSitesActions(orderedActionList, summaryView));
-        dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
-        dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
-        dispatch(restoreRepresentationActions(orderedActionList, stages));
-      });
+      .finally(() => {});
+
+    await dispatch(restoreSitesActions(orderedActionList, summaryView));
+    await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+    await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+    await dispatch(restoreRepresentationActions(orderedActionList, stages));
+    await dispatch(restoreProject(projectId));
+    dispatch(setIsActionsRestoring(false, true));
   }
 };
 
-const loadAllDatasets = (orderedActionList, target_on, stage) => (dispatch, getState) => {
+const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
   dispatch(setMoleculeListIsLoading(true));
-  dispatch(loadDataSets(target_on))
+  await dispatch(loadDataSets(target_on))
     .then(results => {
       return dispatch(loadDatasetCompoundsWithScores());
     })
@@ -428,7 +437,7 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => (dispatch, getS
     });
 };
 
-const loadAllMolecules = (orderedActionList, target_on, stage) => (dispatch, getState) => {
+const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
   const state = getState();
   const list_type = listType.MOLECULE;
 
@@ -445,17 +454,18 @@ const loadAllMolecules = (orderedActionList, target_on, stage) => (dispatch, get
       })
     );
   });
-  Promise.all(promises)
-    .then(results => {
-      let listToSet = {};
-      results.forEach(molResult => {
-        listToSet[molResult.mol_group] = molResult.molecules;
-      });
-      dispatch(setAllMolLists(listToSet));
-      dispatch(restoreMoleculesActions(orderedActionList, stage));
-      dispatch(setIsTrackingMoleculesRestoring(false));
-    })
-    .catch(err => console.log(err));
+  try {
+    const results = await Promise.all(promises);
+    let listToSet = {};
+    results.forEach(molResult => {
+      listToSet[molResult.mol_group] = molResult.molecules;
+    });
+    dispatch(setAllMolLists(listToSet));
+    dispatch(restoreMoleculesActions(orderedActionList, stage));
+    dispatch(setIsTrackingMoleculesRestoring(false));
+  } catch (err) {
+    return console.log(err);
+  }
 };
 
 const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getState) => {
@@ -561,6 +571,27 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   if (representationsChangesActions) {
     representationsChangesActions.forEach(action => {
       dispatch(changeRepresentation(true, action.change, action.object_id, action.representation, nglView));
+    });
+  }
+};
+
+const restoreProject = projectId => (dispatch, getState) => {
+  if (projectId !== undefined) {
+    return api({ url: `${base_url}/api/session-projects/${projectId}/` }).then(response => {
+      let promises = [];
+      promises.push(
+        dispatch(
+          setCurrentProject({
+            projectID: response.data.id,
+            authorID: (response.data.author && response.data.author.id) || null,
+            title: response.data.title,
+            description: response.data.description,
+            targetID: response.data.target.id,
+            tags: JSON.parse(response.data.tags)
+          })
+        )
+      );
+      return Promise.all(promises);
     });
   }
 };
