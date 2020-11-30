@@ -82,18 +82,10 @@ import {
 } from '../../components/datasets/redux/actions';
 
 export const saveCurrentActionsList = (snapshotID, projectID) => (dispatch, getState) => {
-  const state = getState();
-
-  let actionList = state.trackingReducers.track_actions_list;
-
-  if (!actionList || actionList.length === 0) {
-    Promise.resolve(dispatch(getTrackingActions(projectID))).then(response => {
-      actionList = response;
-      dispatch(saveActionsList(snapshotID, actionList));
-    });
-  } else {
+  Promise.resolve(dispatch(getTrackingActions(projectID))).then(response => {
+    let actionList = response;
     dispatch(saveActionsList(snapshotID, actionList));
-  }
+  });
 };
 
 export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) => {
