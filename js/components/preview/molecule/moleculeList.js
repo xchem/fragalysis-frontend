@@ -328,6 +328,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   );
 
   // Used for MoleculeListSortFilterDialog when using textSearch
+  // Also used for displaying filter, since using the original would perform deadlock when creating a filter which matches
+  // 0 molecules
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
   if (!isActiveFilter) {
@@ -444,6 +446,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       setFilterItemsHeight(0);
     }
   }, [isActiveFilter, setFilterItemsHeight]);
+
+  useEffect(() => {
+    if (!joinedMoleculeListsCopy.length) {
+      dispatch(setSortDialogOpen(false));
+    } 
+  }, [dispatch, joinedMoleculeListsCopy.length]);
 
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
@@ -607,7 +615,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const actions = [
-    <FormControl className={classes.formControl} disabled={!(object_selection || []).length || sortDialogOpen}>
+    <FormControl className={classes.formControl} disabled={!joinedMoleculeListsCopy.length || sortDialogOpen}>
       <Select
         className={classes.select}
         value={predefinedFilter}
@@ -644,7 +652,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
     <IconButton
       color={'inherit'}
-      disabled={!(object_selection || []).length}
+      disabled={!joinedMoleculeListsCopy.length}
       onClick={() => dispatch(hideAllSelectedMolecules(majorViewStage, joinedMoleculeLists))}
     >
       <Tooltip title="Hide all">
@@ -662,7 +670,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         }
       }}
       color={'inherit'}
-      disabled={!(object_selection || []).length || predefinedFilter !== 'none'}
+      disabled={!joinedMoleculeListsCopy.length || predefinedFilter !== 'none'}
     >
       <Tooltip title="Filter/Sort">
         <FilterList />
