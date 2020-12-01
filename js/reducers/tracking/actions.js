@@ -91,9 +91,10 @@ export const setIsActionsSaving = function(isActionSaving) {
   };
 };
 
-export const setIsActionsRestoring = function(isActionRestoring) {
+export const setIsActionsRestoring = function(isActionRestoring, isActionRestored) {
   return {
     type: constants.SET_IS_ACTIONS_RESTORING,
-    isActionRestoring: isActionRestoring
+    isActionRestoring: isActionRestoring,
+    isActionRestored: isActionRestored
   };
 };

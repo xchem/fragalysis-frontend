@@ -21,6 +21,7 @@ export const ProjectPreview = memo(({}) => {
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
   const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
+  const isActionRestored = useSelector(state => state.trackingReducers.isActionRestored);
 
   useEffect(() => {
     if (!snapshotId && currentSnapshotID === null) {
@@ -58,14 +59,14 @@ export const ProjectPreview = memo(({}) => {
             throw new Error(error);
           });
       } else {
-        if (isActionRestoring === false) {
+        if (isActionRestoring === false && isActionRestored === false) {
           dispatch(restoreCurrentActionsList(nglViewList));
-        } else if (nglViewList && nglViewList.length > 0) {
-          dispatch(restoreAfterTargetActions(nglViewList));
+        } else if (nglViewList && nglViewList.length > 0 && isActionRestored === false) {
+          dispatch(restoreAfterTargetActions(nglViewList, projectId));
         }
       }
     }
-  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, nglViewList, canShow]);
+  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, nglViewList, canShow]);
 
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');

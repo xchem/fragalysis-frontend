@@ -33,7 +33,7 @@ import { OBJECT_TYPE } from '../../../nglView/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { reloadSession } from '../../../snapshot/redux/dispatchActions';
-import { restoreCurrentActionsList } from '../../../../reducers/tracking/dispatchActions';
+import { resetRestoringState } from '../../../../reducers/tracking/dispatchActions';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup, majorViewStage }) => (
   dispatch,
@@ -251,7 +251,7 @@ export const restoreFromCurrentSnapshot = ({ nglViewList }) => (dispatch, getSta
 };
 
 export const restoreSnapshotActions = ({ nglViewList }) => (dispatch, getState) => {
-  dispatch(restoreCurrentActionsList(nglViewList));
+  dispatch(resetRestoringState(nglViewList));
 };
 
 export const onDeselectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage }) => (

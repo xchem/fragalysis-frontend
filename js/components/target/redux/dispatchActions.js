@@ -68,19 +68,20 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) 
           let promises = [];
           if (!isActionRestoring || isActionRestoring === false) {
             promises.push(dispatch(setTargetOn(response.data.target.id, true)));
+            promises.push(
+              dispatch(
+                setCurrentProject({
+                  projectID: response.data.id,
+                  authorID: (response.data.author && response.data.author.id) || null,
+                  title: response.data.title,
+                  description: response.data.description,
+                  targetID: response.data.target.id,
+                  tags: JSON.parse(response.data.tags)
+                })
+              )
+            );
           }
-          promises.push(
-            dispatch(
-              setCurrentProject({
-                projectID: response.data.id,
-                authorID: (response.data.author && response.data.author.id) || null,
-                title: response.data.title,
-                description: response.data.description,
-                targetID: response.data.target.id,
-                tags: JSON.parse(response.data.tags)
-              })
-            )
-          );
+
           return Promise.all(promises);
         })
         .finally(() => setIsLoading(false));
