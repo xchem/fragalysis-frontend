@@ -132,6 +132,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_DATASET:
       return Object.assign({}, state, { datasets: action.payload });
 
+    case constants.REPLACE_ALL_MOLECULELISTS:
+      return {...state, moleculeLists: action.payload};
+
     case constants.ADD_MOLECULELIST:
       // initialize also control containers
       const initializedState = initializeContainerLists(state, action.payload.datasetID);

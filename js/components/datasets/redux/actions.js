@@ -26,6 +26,11 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
+export const replaceAllMoleculeLists = allMoleculeLists => ({
+  type: constants.REPLACE_ALL_MOLECULELISTS,
+  payload: allMoleculeLists
+});
+
 export const setFilterSettings = (datasetID, filter) => ({
   type: constants.SET_FILTER_SETTINGS,
   payload: { datasetID, filter }
