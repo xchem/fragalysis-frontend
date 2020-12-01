@@ -114,17 +114,19 @@ export const setSurfaceList = function(surfaceList) {
   };
 };
 
-export const appendSurfaceList = function(item) {
+export const appendSurfaceList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_SURFACE_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromSurfaceList = function(item) {
+export const removeFromSurfaceList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_SURFACE_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
@@ -156,10 +158,11 @@ export const setVectorOnList = function(vectorOnList) {
   };
 };
 
-export const appendVectorOnList = function(item) {
+export const appendVectorOnList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_VECTOR_ON_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
@@ -252,4 +255,10 @@ export const setSelectedAllByType = (type, items, isInspiration) => ({
 export const setDeselectedAllByType = (type, items, isInspiration) => ({
   type: constants.SET_DESELECTED_ALL_BY_TYPE,
   payload: { type, items, isInspiration }
+});
+
+export const setHideAll = (data, isHide = true) => ({
+  type: constants.SET_HIDE_ALL,
+  isHide: isHide,
+  data: data
 });
