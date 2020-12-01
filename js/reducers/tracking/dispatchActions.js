@@ -14,6 +14,7 @@ import {
   onDeselectMoleculeGroup,
   loadMoleculeGroupsOfTarget
 } from '../../components/preview/moleculeGroups/redux/dispatchActions';
+import { loadTargetList } from '../../components/target/redux/dispatchActions';
 import { resetTargetState, setTargetOn } from '../api/actions';
 import {
   addComplex,
@@ -81,11 +82,9 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshotID, projectID) => (dispatch, getState) => {
-  Promise.resolve(dispatch(getTrackingActions(projectID))).then(response => {
-    let actionList = response;
-    dispatch(saveActionsList(snapshotID, actionList));
-  });
+export const saveCurrentActionsList = (snapshotID, projectID) => async (dispatch, getState) => {
+  let actionList = await dispatch(getTrackingActions(projectID));
+  dispatch(saveActionsList(snapshotID, actionList));
 };
 
 export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) => {
@@ -311,6 +310,10 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
 };
 
 export const resetRestoringState = (stages = []) => (dispatch, getState) => {
+  dispatch(setActionsList([]));
+  dispatch(setProjectActionList([]));
+  dispatch(setSendActionsList([]));
+
   dispatch(setTargetOn(undefined));
   dispatch(setIsActionsRestoring(false, false));
 };
@@ -320,8 +323,8 @@ export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) =
   Promise.resolve(dispatch(restoreTrackingActions())).then(response => {
     dispatch(setIsTrackingMoleculesRestoring(true));
     dispatch(setIsTrackingCompoundsRestoring(true));
-    dispatch(unmountPreviewComponent(stages));
     dispatch(resetTargetState());
+    dispatch(unmountPreviewComponent(stages));
     dispatch(restoreStateBySavedActionList(stages));
   });
 };
@@ -360,7 +363,15 @@ const restoreStateBySavedActionList = stages => (dispatch, getState) => {
   const currentActionList = state.trackingReducers.current_actions_list;
   const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
 
-  dispatch(restoreTargetActions(orderedActionList, stages));
+  let onCancel = () => {};
+  dispatch(loadTargetList(onCancel))
+    .then(() => dispatch(restoreTargetActions(orderedActionList, stages)))
+    .catch(error => {
+      throw new Error(error);
+    });
+  return () => {
+    onCancel();
+  };
 };
 
 const restoreTargetActions = (orderedActionList, stages) => (dispatch, getState) => {
@@ -1280,7 +1291,7 @@ export const checkSendTrackingActions = (save = false) => (dispatch, getState) =
   }
 };
 
-const sendTrackingActions = (sendActions, project) => (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project, clear = true) => (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -1299,7 +1310,9 @@ const sendTrackingActions = (sendActions, project) => (dispatch, getState) => {
         data: JSON.stringify(dataToSend)
       })
         .then(() => {
-          dispatch(setSendActionsList([]));
+          if (clear === true) {
+            dispatch(setSendActionsList([]));
+          }
         })
         .catch(error => {
           throw new Error(error);
@@ -1381,7 +1394,7 @@ const copyActionsToProject = (toProject, setActionList = true) => (dispatch, get
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    dispatch(sendTrackingActions(newActionsList, toProject));
+    dispatch(sendTrackingActions(newActionsList, toProject, false));
   }
 };
 

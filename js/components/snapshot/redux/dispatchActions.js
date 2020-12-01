@@ -215,27 +215,27 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
-          dispatch(saveCurrentActionsList(res.data.id, session_project));
-
-          if (disableRedirect === false) {
-            // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
-            // use react-router !
-            window.location.replace(
-              `${URLS.projects}${session_project}/${
-                selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
-              }`
-            );
-          } else {
-            dispatch(setOpenSnapshotSavingDialog(false));
-            dispatch(setIsLoadingSnapshotDialog(false));
-            dispatch(
-              setSharedSnapshot({
-                title,
-                description,
-                url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
-              })
-            );
-          }
+          Promise.resolve(dispatch(saveCurrentActionsList(res.data.id, session_project))).then(() => {
+            if (disableRedirect === false) {
+              // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
+              // use react-router !
+              window.location.replace(
+                `${URLS.projects}${session_project}/${
+                  selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
+                }`
+              );
+            } else {
+              dispatch(setOpenSnapshotSavingDialog(false));
+              dispatch(setIsLoadingSnapshotDialog(false));
+              dispatch(
+                setSharedSnapshot({
+                  title,
+                  description,
+                  url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
+                })
+              );
+            }
+          });
         }
       });
     })
