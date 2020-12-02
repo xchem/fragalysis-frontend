@@ -94,7 +94,7 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
   const currentSites = state.selectionReducers.mol_group_selection;
   const currentLigands = state.selectionReducers.fragmentDisplayList;
   const currentProteins = state.selectionReducers.proteinList;
-  const currentComplexes = state.selectionReducers.complexLists;
+  const currentComplexes = state.selectionReducers.complexList;
   const currentSurfaces = state.selectionReducers.surfaceList;
   const currentVectors = state.selectionReducers.vectorOnList;
   const currentBuyList = state.selectionReducers.to_buy_list;
@@ -102,7 +102,7 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
   const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
 
   const currentDatasetLigands = state.datasetsReducers.ligandLists;
-  const currentDatasetProteins = state.datasetsReducers.proteinList;
+  const currentDatasetProteins = state.datasetsReducers.proteinLists;
   const currentDatasetComplexes = state.datasetsReducers.complexLists;
   const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
   const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
@@ -525,7 +525,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
     dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
     dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
     dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.VECTOR_SELECTED, 'vector', stage, state));
+    dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
   }
 
   let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
@@ -1479,13 +1479,14 @@ const getTrackingActions = projectID => (dispatch, getState) => {
 const checkActionsProject = projectID => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
+  const currentProjectID = currentProject && currentProject.projectID;
 
   Promise.resolve(dispatch(getTrackingActions(projectID))).then(() => {
-    dispatch(copyActionsToProject(currentProject));
+    dispatch(copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false));
   });
 };
 
-const copyActionsToProject = (toProject, setActionList = true) => (dispatch, getState) => {
+const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => (dispatch, getState) => {
   const state = getState();
   const actionList = state.trackingReducers.project_actions_list;
 
@@ -1499,7 +1500,7 @@ const copyActionsToProject = (toProject, setActionList = true) => (dispatch, get
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    dispatch(sendTrackingActions(newActionsList, toProject, false));
+    dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
   }
 };
 
@@ -1511,6 +1512,6 @@ export const sendTrackingActionsByProjectId = (projectID, authorID) => (dispatch
   const project = { projectID, authorID };
 
   Promise.resolve(dispatch(getTrackingActions(currentProjectID))).then(() => {
-    dispatch(copyActionsToProject(project, false));
+    dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
   });
 };
