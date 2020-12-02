@@ -298,7 +298,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         }
       }
     });
-
     return result;
   }, [getAllMoleculeList]);
 
