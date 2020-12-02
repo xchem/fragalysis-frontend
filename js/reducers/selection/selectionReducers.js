@@ -299,6 +299,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });
+
+    case constants.SET_HIDE_ALL:
+      return state;
+
     // Cases like: @@redux/INIT
     default:
       return state;

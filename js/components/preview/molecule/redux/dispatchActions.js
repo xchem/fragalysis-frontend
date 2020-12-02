@@ -19,7 +19,8 @@ import {
   updateVectorCompounds,
   updateBondColorMapOfCompounds,
   resetBondColorMapOfVectors,
-  setCurrentVector
+  setCurrentVector,
+  setHideAll
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -115,11 +116,11 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
-export const addVector = (stage, data) => async (dispatch, getState) => {
+export const addVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
   const currentVector = getState().selectionReducers.currentVector;
 
   dispatch(incrementCountOfPendingVectorLoadRequests());
-  dispatch(appendVectorOnList(generateMoleculeId(data)));
+  dispatch(appendVectorOnList(generateMoleculeId(data), skipTracking));
   dispatch(selectVectorAndResetCompounds(currentVector));
 
   return api({ url: getViewUrl('graph', data) })
@@ -226,7 +227,7 @@ export const removeComplex = (stage, data, colourToggle, skipTracking = false) =
   dispatch(removeFromComplexList(generateMoleculeId(data), skipTracking));
 };
 
-export const addSurface = (stage, data, colourToggle) => dispatch => {
+export const addSurface = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
@@ -237,17 +238,17 @@ export const addSurface = (stage, data, colourToggle) => dispatch => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendSurfaceList(generateMoleculeId(data)));
+  dispatch(appendSurfaceList(generateMoleculeId(data), skipTracking));
 };
 
-export const removeSurface = (stage, data, colourToggle) => dispatch => {
+export const removeSurface = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage
     )
   );
-  dispatch(removeFromSurfaceList(generateMoleculeId(data)));
+  dispatch(removeFromSurfaceList(generateMoleculeId(data), skipTracking));
 };
 
 export const addDensity = (stage, data, colourToggle) => dispatch => {
@@ -330,23 +331,33 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   const vectorOnList = state.selectionReducers.vectorOnList;
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
+  const vectorList = state.selectionReducers.vector_list;
+
+  let ligandDataList = [];
+  let complexDataList = [];
+  let vectorOnDataList = [];
+  let surfaceDataList = [];
+  let proteinDataList = [];
 
   fragmentDisplayList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeLigand(stage, data));
+      ligandDataList.push(data);
+      dispatch(removeLigand(stage, data, true));
     }
   });
   complexList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeComplex(stage, data, colourList[0]));
+      complexDataList.push(data);
+      dispatch(removeComplex(stage, data, colourList[0], true));
     }
   });
   vectorOnList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeVector(stage, data));
+      vectorOnDataList.push(data);
+      dispatch(removeVector(stage, data, true));
     }
   });
 
@@ -354,7 +365,8 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   surfaceList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeSurface(stage, data));
+      surfaceDataList.push(data);
+      dispatch(removeSurface(stage, data, colourList[0], true));
     }
   });
 
@@ -362,7 +374,8 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   proteinList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeHitProtein(stage, data));
+      proteinDataList.push(data);
+      dispatch(removeHitProtein(stage, data, colourList[0], true));
     }
   });
 
@@ -371,6 +384,15 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   dispatch(resetCompoundsOfVectors());
   dispatch(resetBondColorMapOfVectors());
   dispatch(setCompoundImage(noCompoundImage));
+
+  let data = {
+    ligandList: ligandDataList,
+    proteinList: proteinDataList,
+    complexList: complexDataList,
+    surfaceList: surfaceDataList,
+    vectorOnList: vectorOnDataList
+  };
+  dispatch(setHideAll(data));
 };
 
 export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>

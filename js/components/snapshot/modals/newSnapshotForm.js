@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext } from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
@@ -9,6 +9,8 @@ import { TextField } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';
+import { NglContext } from '../../nglView/nglProvider';
+
 import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
@@ -33,6 +35,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const classes = useStyles();
   const [state, setState] = useState();
   const dispatch = useDispatch();
+  const { nglViewList } = useContext(NglContext);
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
@@ -70,11 +73,13 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
           const parent = isForceProjectCreated === false ? currentSnapshot.id : null;
           const session_project = currentProject.projectID;
 
-          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project })).catch(error => {
-            setState(() => {
-              throw error;
-            });
-          });
+          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project, nglViewList })).catch(
+            error => {
+              setState(() => {
+                throw error;
+              });
+            }
+          );
         }}
       >
         {({ submitForm, isSubmitting }) => (

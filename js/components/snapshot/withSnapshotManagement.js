@@ -78,7 +78,7 @@ export const withSnapshotManagement = WrappedComponent => {
           startIcon={<Share />}
           disabled={disableShareButton || disableUserInteraction}
           onClick={() => {
-            dispatch(saveAndShareSnapshot(target));
+            dispatch(saveAndShareSnapshot(nglViewList));
           }}
         >
           Share

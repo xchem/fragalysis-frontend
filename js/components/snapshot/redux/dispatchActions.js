@@ -178,7 +178,7 @@ export const createInitSnapshotFromCopy = ({
   return Promise.reject('ProjectID is missing');
 };
 
-export const createNewSnapshot = ({ title, description, type, author, parent, session_project }) => (
+export const createNewSnapshot = ({ title, description, type, author, parent, session_project, nglViewList }) => (
   dispatch,
   getState
 ) => {
@@ -215,7 +215,7 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
-          Promise.resolve(dispatch(saveCurrentActionsList(res.data.id, session_project))).then(() => {
+          Promise.resolve(dispatch(saveCurrentActionsList(res.data.id, session_project, nglViewList))).then(() => {
             if (disableRedirect === false) {
               // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
               // use react-router !
@@ -284,7 +284,8 @@ export const createNewSnapshotWithoutStateModification = ({
   type,
   author,
   parent,
-  session_project
+  session_project,
+  nglViewList
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -320,13 +321,13 @@ export const createNewSnapshotWithoutStateModification = ({
             disableRedirect: true
           })
         );
-        dispatch(saveCurrentActionsList(res.data.id, session_project));
+        dispatch(saveCurrentActionsList(res.data.id, session_project, nglViewList));
       }
     });
   });
 };
 
-export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState) => {
+export const saveAndShareSnapshot = nglViewList => (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
@@ -357,7 +358,15 @@ export const saveAndShareSnapshot = (target = undefined) => (dispatch, getState)
         dispatch(sendTrackingActionsByProjectId(projectID, author));
 
         return dispatch(
-          createNewSnapshotWithoutStateModification({ title, description, type, author, parent, session_project })
+          createNewSnapshotWithoutStateModification({
+            title,
+            description,
+            type,
+            author,
+            parent,
+            session_project,
+            nglViewList
+          })
         );
       })
       .catch(error => {

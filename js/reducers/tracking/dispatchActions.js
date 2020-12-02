@@ -6,7 +6,7 @@ import {
 } from './actions';
 import { actionType, actionObjectType } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, removeFromToBuyList } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, removeFromToBuyList, setHideAll } from '../selection/actions';
 import { unmountPreviewComponent, shouldLoadProtein } from '../../components/preview/redux/dispatchActions';
 import { setCurrentProject } from '../../components/projects/redux/actions';
 import {
@@ -55,7 +55,7 @@ import {
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { deleteObject } from '../../../js/reducers/ngl/dispatchActions';
+import { deleteObject, setOrientation } from '../../../js/reducers/ngl/dispatchActions';
 import { setSendActionsList, setIsActionsSending, setIsActionsLoading, setActionsList } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
@@ -82,12 +82,12 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshotID, projectID) => async (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshotID, projectID, nglViewList) => async (dispatch, getState) => {
   let actionList = await dispatch(getTrackingActions(projectID));
-  dispatch(saveActionsList(snapshotID, actionList));
+  dispatch(saveActionsList(snapshotID, actionList, nglViewList));
 };
 
-export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) => {
+export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatch, getState) => {
   const state = getState();
 
   const currentTargetOn = state.apiReducers.target_on;
@@ -207,6 +207,20 @@ export const saveActionsList = (snapshotID, actionList) => (dispatch, getState) 
     currentActions
   );
 
+  if (nglViewList) {
+    let nglStateList = nglViewList.map(nglView => {
+      return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
+    });
+
+    let trackAction = {
+      type: actionType.NGL_STATE,
+      timestamp: Date.now(),
+      nglStateList: nglStateList
+    };
+
+    currentActions.push(Object.assign({ ...trackAction }));
+  }
+
   dispatch(setCurrentActionsList(currentActions));
   dispatch(saveTrackingActions(currentActions, snapshotID));
 };
@@ -309,7 +323,7 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
   return list;
 };
 
-export const resetRestoringState = (stages = []) => (dispatch, getState) => {
+export const resetRestoringState = () => (dispatch, getState) => {
   dispatch(setActionsList([]));
   dispatch(setProjectActionList([]));
   dispatch(setSendActionsList([]));
@@ -317,6 +331,7 @@ export const resetRestoringState = (stages = []) => (dispatch, getState) => {
   dispatch(setTargetOn(undefined));
   dispatch(setIsActionsRestoring(false, false));
 };
+
 export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) => {
   dispatch(setIsActionsRestoring(true, false));
 
@@ -419,7 +434,21 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
+    dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
+  }
+};
+
+const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
+  let action = orderedActionList.find(action => action.type === actionType.NGL_STATE);
+  if (action && action.nglStateList) {
+    action.nglStateList.forEach(nglView => {
+      dispatch(setOrientation(nglView.id, nglView.orientation));
+      let viewStage = stages.find(s => s.id === nglView.id);
+      if (viewStage) {
+        viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+      }
+    });
   }
 };
 
@@ -783,6 +812,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
 
     const type = action.type;
     switch (type) {
+      case actionType.ALL_HIDE:
+        dispatch(handleAllHideAction(action, true, majorViewStage));
+        break;
       case actionType.ALL_TURNED_ON:
         dispatch(handleAllAction(action, false, majorViewStage, state));
         break;
@@ -878,6 +910,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
 
     const type = action.type;
     switch (type) {
+      case actionType.ALL_HIDE:
+        dispatch(handleAllHideAction(action, false, majorViewStage));
+        break;
       case actionType.ALL_TURNED_ON:
         dispatch(handleAllAction(action, true, majorViewStage, state));
         break;
@@ -1036,6 +1071,77 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
         }
       });
     }
+  }
+};
+
+const handleAllHideAction = (action, isAdd, stage) => (dispatch, getState) => {
+  let data = action.data;
+  let ligandDataList = data.ligandList;
+  let proteinDataList = data.proteinList;
+  let complexDataList = data.complexList;
+  let surfaceDataList = data.surfaceList;
+  let vectorOnDataList = data.vectorOnList;
+
+  dispatch(setHideAll(data, !isAdd));
+
+  if (isAdd) {
+    ligandDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['ligand'](stage, data, colourList[data.id % colourList.length], true, true));
+      }
+    });
+
+    proteinDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['protein'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    complexDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['complex'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    surfaceDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['surface'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+    vectorOnDataList.forEach(data => {
+      if (data) {
+        dispatch(addType['vector'](stage, data, true));
+      }
+    });
+  } else {
+    ligandDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['ligand'](stage, data, true));
+      }
+    });
+
+    proteinDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['protein'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    complexDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['complex'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+
+    surfaceDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['surface'](stage, data, colourList[data.id % colourList.length], true));
+      }
+    });
+    vectorOnDataList.forEach(data => {
+      if (data) {
+        dispatch(removeType['vector'](stage, data, true));
+      }
+    });
   }
 };
 
@@ -1384,11 +1490,10 @@ const copyActionsToProject = (toProject, setActionList = true) => (dispatch, get
   const actionList = state.trackingReducers.project_actions_list;
 
   if (toProject) {
-    let newProject = { projectID: toProject.projectID, authorID: toProject.authorID };
     let newActionsList = [];
 
     actionList.forEach(r => {
-      newActionsList.push(Object.assign({ ...r, project: newProject }));
+      newActionsList.push(Object.assign({ ...r }));
     });
 
     if (setActionList === true) {
