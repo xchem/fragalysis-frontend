@@ -248,6 +248,11 @@ export const setInspirationMoleculeDataList = (moleculeList = []) => ({
   payload: moleculeList
 });
 
+export const setAllInspirations = (allInspirationsMap) => ({
+  type: constants.SET_ALL_INSPIRATIONS,
+  payload: allInspirationsMap
+});
+
 export const setAllInspirationMoleculeDataList = (moleculeList = []) => ({
   type: constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST,
   payload: moleculeList

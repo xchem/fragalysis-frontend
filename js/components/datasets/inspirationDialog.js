@@ -24,11 +24,10 @@ import {
   removeDensity,
   removeVector
 } from '../preview/molecule/redux/dispatchActions';
-import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { debounce } from 'lodash';
-import { setInspirationMoleculeDataList, setIsOpenInspirationDialog } from './redux/actions';
+import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
@@ -37,7 +36,6 @@ import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
-import { getMoleculeList } from '../preview/molecule/redux/selectors';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -143,14 +141,10 @@ export const InspirationDialog = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
-
     const isLoadingInspirationListOfMolecules = useSelector(
       state => state.datasetsReducers.isLoadingInspirationListOfMolecules
     );
     const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.inspirationMoleculeDataList);
-    const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
-    const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
 
     const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -161,16 +155,6 @@ export const InspirationDialog = memo(
 
     const dispatch = useDispatch();
     // const disableUserInteraction = useDisableUserInteraction();
-
-    useEffect(() => {
-      if (inspirationFragmentList && inspirationFragmentList.length > 0) {
-        dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
-          throw new Error(error);
-        });
-      } else {
-        dispatch(setInspirationMoleculeDataList([]));
-      }
-    }, [dispatch, inspirationFragmentList]);
 
     let debouncedFn;
 
@@ -224,8 +208,6 @@ export const InspirationDialog = memo(
     const selectMoleculeSite = moleculeGroupSite => {};
 
     const removeOfAllSelectedTypes = () => {
-      let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-
       proteinList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);

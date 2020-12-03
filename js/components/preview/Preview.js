@@ -31,7 +31,7 @@ import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 import { DatasetSelectorMenuButton } from '../datasets/datasetSelectorMenuButton';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { setMoleculeListIsLoading, replaceAllMoleculeLists } from '../datasets/redux/actions';
+import { setMoleculeListIsLoading, setAllInspirations } from '../datasets/redux/actions';
 
 const hitNavigatorWidth = 504;
 
@@ -130,19 +130,18 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       const keys = Object.keys(moleculeLists);
       keys.forEach(key => {
         let dataset = moleculeLists[key];
-        let mols = [];
+        let mols = {};
         dataset.forEach(dsMol => {
           let inspirations = [];
           dsMol.computed_inspirations.forEach(id => {
             let lhsMol = allMolsMap[id];
             inspirations.push(lhsMol);
           });
-          dsMol.inspirations = inspirations;
-          mols.push(dsMol);
+          mols[dsMol.id] = inspirations;
         });
         allDatasets[key] = mols;
       });
-      dispatch(replaceAllMoleculeLists(allDatasets));
+      dispatch(setAllInspirations(allDatasets));
     }
   }, [all_mol_lists, moleculeLists, isLoadingMoleculeList, linearizeMoleculesLists, dispatch]);
 

@@ -45,7 +45,8 @@ export const loadObject = ({
       object_name: versionFixedTarget.name,
       representations: previousRepresentations,
       orientationMatrix,
-      markAsRightSideLigand
+      markAsRightSideLigand,
+      dispatch
     })
       .then(representations => {
          dispatch(loadNglObject(versionFixedTarget, representations))

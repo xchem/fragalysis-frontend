@@ -32,11 +32,12 @@ import {
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog,
-  setInspirationFragmentList
+  setInspirationFragmentList,
+  setInspirationMoleculeDataList
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
-import { isNumber, isString } from 'lodash';
+import { isString } from 'lodash';
 import { SvgTooltip } from '../common';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { getRepresentationsByType } from '../nglView/generatingObjects';
@@ -265,6 +266,7 @@ export const DatasetMoleculeView = memo(
     const ref = useRef(null);
     const dispatch = useDispatch();
     const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
+    const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
 
     const datasets = useSelector(state => state.datasetsReducers.datasets);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
@@ -525,6 +527,16 @@ export const DatasetMoleculeView = memo(
       });
     };
 
+    const getInspirationsForMol = (datasetId, molId) => {
+      let inspirations = [];
+
+      if (allInspirations && allInspirations.hasOwnProperty(datasetId) && allInspirations[datasetId].hasOwnProperty(molId)) {
+        inspirations = allInspirations[datasetId][molId];
+      }
+
+      return inspirations;
+    };
+
     const handleClickOnDownArrow = () => {
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
@@ -538,7 +550,9 @@ export const DatasetMoleculeView = memo(
 
       moveSelectedMoleculeSettings(nextItem, nextDatasetID);
       dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
-      dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
+      const inspirations = getInspirationsForMol(datasetID, nextItem.id);
+      dispatch(setInspirationMoleculeDataList(inspirations));
+      // dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
@@ -560,7 +574,9 @@ export const DatasetMoleculeView = memo(
 
       moveSelectedMoleculeSettings(previousItem, previousDatasetID);
       dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
-      dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
+      const inspirations = getInspirationsForMol(datasetID, previousItem.id);
+      dispatch(setInspirationMoleculeDataList(inspirations));
+      // dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);
@@ -752,7 +768,7 @@ export const DatasetMoleculeView = memo(
                             clickOnInspirations({
                               datasetID,
                               currentID,
-                              computed_inspirations: data && data.computed_inspirations
+                              computed_inspirations: getInspirationsForMol(datasetID, currentID)
                             })
                           );
                           if (setRef) {

@@ -30,6 +30,7 @@ export const INITIAL_STATE = {
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: [],
   allInspirationMoleculeDataList: [],
+  allInspirations: {},
 
   // cross reference
   isOpenCrossReferenceDialog: false,
@@ -340,6 +341,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         diminishedInspirationFragmentList.delete(foundtem);
       }
       return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
+
+    case constants.SET_ALL_INSPIRATIONS:
+      return {...state, allInspirations: action.payload};
 
     case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
       const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);

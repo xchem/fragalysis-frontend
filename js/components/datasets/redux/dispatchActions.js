@@ -386,7 +386,7 @@ export const clearDatasetSettings = datasetID => dispatch => {
 
 export const clickOnInspirations = ({ datasetID, currentID, computed_inspirations = [] }) => dispatch => {
   dispatch(setInspirationList(datasetID, [currentID]));
-  dispatch(setInspirationFragmentList(computed_inspirations));
+  dispatch(setInspirationMoleculeDataList(computed_inspirations));
   dispatch(setIsOpenInspirationDialog(true));
 };
 
