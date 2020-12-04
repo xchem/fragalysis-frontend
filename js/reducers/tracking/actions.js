@@ -98,3 +98,9 @@ export const setIsActionsRestoring = function(isActionRestoring, isActionRestore
     isActionRestored: isActionRestored
   };
 };
+
+export const resetTrackingState = function() {
+  return {
+    type: constants.RESET_TRACKING_STATE
+  };
+};

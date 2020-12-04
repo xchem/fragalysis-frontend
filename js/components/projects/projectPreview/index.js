@@ -5,8 +5,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { restoreCurrentActionsList, restoreAfterTargetActions } from '../../../reducers/tracking/dispatchActions';
-import { NglContext } from '../../nglView/nglProvider';
+import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
 
 export const ProjectPreview = memo(({}) => {
   const { setSnackBarTitle } = useContext(HeaderContext);
@@ -14,7 +13,6 @@ export const ProjectPreview = memo(({}) => {
   const isSnapshotLoaded = useRef(undefined);
   let match = useRouteMatch();
   const dispatch = useDispatch();
-  const { nglViewList } = useContext(NglContext);
 
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
@@ -60,13 +58,15 @@ export const ProjectPreview = memo(({}) => {
           });
       } else {
         if (isActionRestoring === false && isActionRestored === false) {
-          dispatch(restoreCurrentActionsList(nglViewList));
-        } else if (nglViewList && nglViewList.length > 0 && isActionRestored === false) {
-          dispatch(restoreAfterTargetActions(nglViewList, projectId));
+          let snapshotID = currentSnapshotID;
+          isSnapshotLoaded.current = currentSnapshotID;
+          setCanShow(true);
+
+          dispatch(restoreCurrentActionsList(snapshotID));
         }
       }
     }
-  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, nglViewList, canShow]);
+  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, canShow]);
 
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');

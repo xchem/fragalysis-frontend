@@ -90,6 +90,9 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
         isActionRestored: action.isActionRestored
       });
 
+    case constants.RESET_TRACKING_STATE:
+      return INITIAL_STATE;
+
     default:
       return state;
   }

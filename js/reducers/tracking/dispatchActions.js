@@ -4,10 +4,15 @@ import {
   setIsTrackingCompoundsRestoring,
   setIsUndoRedoAction
 } from './actions';
+import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
 import { setCurrentVector, appendToBuyList, removeFromToBuyList, setHideAll } from '../selection/actions';
-import { unmountPreviewComponent, shouldLoadProtein } from '../../components/preview/redux/dispatchActions';
+import {
+  resetReducersForRestoringActions,
+  shouldLoadProtein,
+  loadProteinOfRestoringActions
+} from '../../components/preview/redux/dispatchActions';
 import { setCurrentProject } from '../../components/projects/redux/actions';
 import {
   selectMoleculeGroup,
@@ -67,7 +72,8 @@ import {
   setProjectActionList,
   setIsActionsSaving,
   setIsActionsRestoring,
-  appendToUndoRedoActionList
+  appendToUndoRedoActionList,
+  resetTrackingState
 } from './actions';
 import {
   setSelectedAll,
@@ -225,7 +231,7 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
   dispatch(saveTrackingActions(currentActions, snapshotID));
 };
 
-const saveTrackingActions = (currentActions, snapshotID) => (dispatch, getState) => {
+export const saveTrackingActions = (currentActions, snapshotID) => (dispatch, getState) => {
   const state = getState();
   const project = state.projectReducers.currentProject;
   const projectID = project && project.projectID;
@@ -332,47 +338,42 @@ export const resetRestoringState = () => (dispatch, getState) => {
   dispatch(setIsActionsRestoring(false, false));
 };
 
-export const restoreCurrentActionsList = (stages = []) => (dispatch, getState) => {
+export const restoreCurrentActionsList = snapshotID => async (dispatch, getState) => {
+  dispatch(resetTrackingState());
   dispatch(setIsActionsRestoring(true, false));
 
-  Promise.resolve(dispatch(restoreTrackingActions())).then(response => {
-    dispatch(setIsTrackingMoleculesRestoring(true));
-    dispatch(setIsTrackingCompoundsRestoring(true));
-    dispatch(resetTargetState());
-    dispatch(unmountPreviewComponent(stages));
-    dispatch(restoreStateBySavedActionList(stages));
-  });
+  await dispatch(restoreTrackingActions(snapshotID));
+  dispatch(setIsTrackingMoleculesRestoring(true));
+  dispatch(setIsTrackingCompoundsRestoring(true));
+  dispatch(resetTargetState());
+  dispatch(resetReducersForRestoringActions());
+  dispatch(restoreStateBySavedActionList());
 };
 
-const restoreTrackingActions = () => (dispatch, getState) => {
-  const state = getState();
-  const snapshot = state.projectReducers.currentSnapshot;
-  const snapshotID = snapshot && snapshot.id;
-
+const restoreTrackingActions = snapshotID => async (dispatch, getState) => {
   if (snapshotID) {
-    return api({
-      url: `${base_url}/api/snapshot-actions/?snapshot=${snapshotID}`
-    })
-      .then(response => {
-        let results = response.data.results;
-        let listToSet = [];
-        results.forEach(r => {
-          let resultActions = JSON.parse(r.actions);
-          listToSet.push(...resultActions);
-        });
-
-        let snapshotActions = [...listToSet];
-        dispatch(setCurrentActionsList(snapshotActions));
-      })
-      .catch(error => {
-        throw new Error(error);
+    try {
+      const response = await api({
+        url: `${base_url}/api/snapshot-actions/?snapshot=${snapshotID}`
       });
+      let results = response.data.results;
+      let listToSet = [];
+      results.forEach(r => {
+        let resultActions = JSON.parse(r.actions);
+        listToSet.push(...resultActions);
+      });
+
+      let snapshotActions = [...listToSet];
+      dispatch(setCurrentActionsList(snapshotActions));
+    } catch (error) {
+      throw new Error(error);
+    }
   } else {
     return Promise.resolve();
   }
 };
 
-const restoreStateBySavedActionList = stages => (dispatch, getState) => {
+const restoreStateBySavedActionList = () => (dispatch, getState) => {
   const state = getState();
 
   const currentActionList = state.trackingReducers.current_actions_list;
@@ -380,7 +381,7 @@ const restoreStateBySavedActionList = stages => (dispatch, getState) => {
 
   let onCancel = () => {};
   dispatch(loadTargetList(onCancel))
-    .then(() => dispatch(restoreTargetActions(orderedActionList, stages)))
+    .then(() => dispatch(restoreTargetActions(orderedActionList)))
     .catch(error => {
       throw new Error(error);
     });
@@ -389,7 +390,7 @@ const restoreStateBySavedActionList = stages => (dispatch, getState) => {
   };
 };
 
-const restoreTargetActions = (orderedActionList, stages) => (dispatch, getState) => {
+const restoreTargetActions = orderedActionList => (dispatch, getState) => {
   const state = getState();
 
   let targetAction = orderedActionList.find(action => action.type === actionType.TARGET_LOADED);
@@ -412,9 +413,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
     const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
-    await dispatch(
-      shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false })
-    );
+    await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
 
     await dispatch(
       loadMoleculeGroupsOfTarget({
@@ -495,8 +494,8 @@ const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatc
     dispatch(setAllMolLists(listToSet));
     dispatch(restoreMoleculesActions(orderedActionList, stage));
     dispatch(setIsTrackingMoleculesRestoring(false));
-  } catch (err) {
-    return console.log(err);
+  } catch (error) {
+    throw new Error(error);
   }
 };
 
@@ -1514,4 +1513,18 @@ export const sendTrackingActionsByProjectId = (projectID, authorID) => (dispatch
   Promise.resolve(dispatch(getTrackingActions(currentProjectID))).then(() => {
     dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
   });
+};
+
+export const sendInitTrackingActionByProjectId = target_on => (dispatch, getState) => {
+  const state = getState();
+  const snapshotID = state.projectReducers.currentSnapshot && state.projectReducers.currentSnapshot.id;
+
+  let trackAction = dispatch(createInitAction(target_on));
+  if (trackAction && trackAction != null) {
+    let actions = [];
+    actions.push(trackAction);
+    dispatch(appendToSendActionList(trackAction));
+    dispatch(checkSendTrackingActions(true));
+    dispatch(saveTrackingActions(actions, snapshotID));
+  }
 };
