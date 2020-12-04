@@ -716,3 +716,23 @@ const getTypeDescriptionOfSelectedAllAction = type => {
       return type;
   }
 };
+
+export const createInitAction = target_on => (dispatch, getState) => {
+  const state = getState();
+  const username = DJANGO_CONTEXT['username'];
+
+  if (target_on) {
+    let targetName = getTargetName(target_on, state);
+    let trackAction = {
+      type: actionType.TARGET_LOADED,
+      timestamp: Date.now(),
+      username: username,
+      object_type: actionObjectType.TARGET,
+      object_name: targetName,
+      object_id: target_on,
+      text: `${actionDescription.TARGET} ${targetName} ${actionDescription.LOADED}`
+    };
+
+    return trackAction;
+  }
+};

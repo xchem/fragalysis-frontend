@@ -19,6 +19,8 @@ import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
+import moment from 'moment';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -377,8 +379,14 @@ export const createProjectFromScratch = ({ title, description, target, author, t
       const tags = response.data.tags;
 
       dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
-      // create project_target relationShip on BE
-      history.push(`${URLS.projects}${projectID}`);
+
+      let promises = [];
+      promises.push(dispatch(createInitSnapshotToProjectWitActions(projectID, authorID, null, targetID)));
+
+      Promise.all(promises).then(() => {
+        // create project_target relationShip on BE
+        history.push(`${URLS.projects}${projectID}`);
+      });
     })
     .finally(() => {
       dispatch(setProjectModalIsLoading(false));
@@ -389,4 +397,48 @@ export const createProjectWithoutStateModification = data => dispatch => {
   return api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data }).then(response => {
     return response.data.id;
   });
+};
+
+export const createInitSnapshotToProjectWitActions = (session_project, author, parent, target) => (
+  dispatch,
+  getState
+) => {
+  let type = SnapshotType.INIT;
+  const created = moment();
+  const title = 'Initial Snapshot';
+  const description = 'Auto generated initial snapshot';
+
+  return Promise.all([
+    api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
+      return api({
+        url: `${base_url}/api/snapshots/`,
+        data: {
+          title,
+          description,
+          type: type,
+          author,
+          parent,
+          session_project,
+          data: '[]',
+          children: []
+        },
+        method: METHOD.POST
+      }).then(res => {
+        dispatch(
+          setCurrentSnapshot({
+            id: res.data.id,
+            type,
+            title,
+            author,
+            description,
+            created,
+            parent,
+            children: res.data.children,
+            data: '[]'
+          })
+        );
+        dispatch(sendInitTrackingActionByProjectId(target));
+      });
+    })
+  ]);
 };
