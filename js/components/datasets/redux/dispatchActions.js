@@ -621,7 +621,7 @@ export const moveMoleculeInspirationsSettings = (
       isAnyInspirationDensityOn ||
       isAnyInspirationVectorOn
     ) {
-      dispatch(loadInspirationMoleculesDataList(newItemData.computed_inspirations)).then(() => {
+      // dispatch(loadInspirationMoleculesDataList(newItemData.computed_inspirations)).then(() => {
         dispatch(
           moveInspirations(
             stage,
@@ -634,7 +634,7 @@ export const moveMoleculeInspirationsSettings = (
             isAnyInspirationVectorOn
           )
         );
-      });
+      // });
     }
   }
 };

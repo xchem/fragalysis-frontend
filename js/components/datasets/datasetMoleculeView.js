@@ -525,10 +525,10 @@ export const DatasetMoleculeView = memo(
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
       const moleculeTitleNext = nextItem && nextItem.name;
 
-      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
-      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
       const inspirations = getInspirationsForMol(datasetID, nextItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
+      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
@@ -548,10 +548,10 @@ export const DatasetMoleculeView = memo(
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
       const moleculeTitlePrev = previousItem && previousItem.name;
 
-      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
-      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
       const inspirations = getInspirationsForMol(datasetID, previousItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
+      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);
