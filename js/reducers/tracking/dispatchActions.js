@@ -127,12 +127,72 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
   getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
   getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
-  getCurrentActionList(orderedActionList, actionType.ALL_TURNED_ON, getCollection(currentSelectionAll), currentActions);
-  getCurrentActionList(
+  getCurrentActionListOfAllSelection(
+    orderedActionList,
+    actionType.ALL_TURNED_ON,
+    getCollection(currentSelectionAll),
+    currentActions,
+    getCollection(currentLigands),
+    getCollection(currentProteins),
+    getCollection(currentComplexes)
+  );
+
+  getCurrentActionListOfAllSelectionByType(
+    orderedActionList,
+    actionType.ALL_TURNED_ON_BY_TYPE,
+    'ligand',
+    getCollection(currentLigands),
+    currentActions
+  );
+
+  getCurrentActionListOfAllSelectionByType(
+    orderedActionList,
+    actionType.ALL_TURNED_ON_BY_TYPE,
+    'protein',
+    getCollection(currentProteins),
+    currentActions
+  );
+
+  getCurrentActionListOfAllSelectionByType(
+    orderedActionList,
+    actionType.ALL_TURNED_ON_BY_TYPE,
+    'complex',
+    getCollection(currentComplexes),
+    currentActions
+  );
+
+  getCurrentActionListOfAllSelectionByTypeOfDataset(
+    orderedActionList,
+    actionType.ALL_TURNED_ON_BY_TYPE,
+    'ligand',
+    getCollectionOfDataset(currentDatasetLigands),
+    currentActions
+  );
+
+  getCurrentActionListOfAllSelectionByTypeOfDataset(
+    orderedActionList,
+    actionType.ALL_TURNED_ON_BY_TYPE,
+    'protein',
+    getCollectionOfDataset(currentDatasetProteins),
+    currentActions
+  );
+
+  getCurrentActionListOfAllSelectionByTypeOfDataset(
+    orderedActionList,
+    actionType.ALL_TURNED_ON_BY_TYPE,
+    'complex',
+    getCollectionOfDataset(currentDatasetComplexes),
+    currentActions
+  );
+
+  getCurrentActionListOfAllSelection(
     orderedActionList,
     actionType.ALL_TURNED_ON,
     getCollectionOfDataset(currentDatasetSelectionAll),
-    currentActions
+    currentActions,
+    getCollectionOfDataset(currentDatasetLigands),
+    getCollectionOfDataset(currentDatasetProteins),
+    getCollectionOfDataset(currentDatasetComplexes)
   );
 
   getCurrentActionList(
@@ -276,6 +336,91 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
         currentActions.push(Object.assign({ ...action }));
       }
     });
+  }
+};
+
+const getCurrentActionListOfAllSelection = (
+  orderedActionList,
+  type,
+  collection,
+  currentActions,
+  ligandList,
+  proteinList,
+  complexList
+) => {
+  let actionList = orderedActionList.filter(action => action.type === type);
+
+  if (collection) {
+    collection.forEach(data => {
+      let action = actionList.find(action => action.object_id === data.id && action.dataset_id === data.datasetId);
+
+      if (action) {
+        let ligandAction = ligandList.find(
+          data => data.id === action.object_id && action.dataset_id === data.datasetId
+        );
+        let proteinAction = proteinList.find(
+          data => data.id === action.object_id && action.dataset_id === data.datasetId
+        );
+        let complexAction = complexList.find(
+          data => data.id === action.object_id && action.dataset_id === data.datasetId
+        );
+
+        let isLigand = ligandAction && ligandAction != null ? true : false;
+        let isProtein = proteinAction && proteinAction != null ? true : false;
+        let isComplex = complexAction && complexAction != null ? true : false;
+        currentActions.push(
+          Object.assign({ ...action, isLigand: isLigand, isProtein: isProtein, isComplex: isComplex })
+        );
+      }
+    });
+  }
+};
+
+const getCurrentActionListOfAllSelectionByType = (orderedActionList, type, controlType, collection, currentActions) => {
+  let action = orderedActionList.find(
+    action =>
+      action.type === type &&
+      action.control_type === controlType &&
+      (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION)
+  );
+  if (action && collection) {
+    let actionItems = action.items;
+    let items = [];
+    collection.forEach(data => {
+      let item = actionItems.find(action => action.id === data.id && action.dataset_id === data.datasetId);
+      if (item) {
+        items.push(item);
+      }
+    });
+
+    currentActions.push(Object.assign({ ...action, items: items }));
+  }
+};
+
+const getCurrentActionListOfAllSelectionByTypeOfDataset = (
+  orderedActionList,
+  type,
+  controlType,
+  collection,
+  currentActions
+) => {
+  let action = orderedActionList.find(
+    action =>
+      action.type === type &&
+      action.control_type === controlType &&
+      (action.object_type === actionObjectType.COMPOUND || action.object_type === actionObjectType.CROSS_REFERENCE)
+  );
+  if (action && collection) {
+    let actionItems = action.items;
+    let items = [];
+    collection.forEach(data => {
+      let item = actionItems.find(item => item.molecule.id === data.id && item.datasetID === data.datasetId);
+      if (item) {
+        items.push(item);
+      }
+    });
+
+    currentActions.push(Object.assign({ ...action, items: items }));
   }
 };
 
@@ -429,11 +574,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList, summaryView));
-    await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
-    await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+    await dispatch(loadData(orderedActionList, targetId, majorView));
+    await dispatch(restoreActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
-    dispatch(restoreNglStateAction(orderedActionList, stages));
+    await dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
   }
 };
@@ -451,21 +596,23 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState
   }
 };
 
+const restoreActions = (orderedActionList, stage) => (dispatch, getState) => {
+  dispatch(restoreMoleculesActions(orderedActionList, stage));
+};
+
+const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
+  await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+  await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+};
+
 const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
   dispatch(setMoleculeListIsLoading(true));
-  await dispatch(loadDataSets(target_on))
-    .then(results => {
-      return dispatch(loadDatasetCompoundsWithScores());
-    })
-    .catch(error => {
-      throw new Error(error);
-    })
-    .finally(() => {
-      dispatch(restoreCompoundsActions(orderedActionList, stage));
-      dispatch(setMoleculeListIsLoading(false));
-      dispatch(restoreAllSelectionActions(orderedActionList, stage, false));
-      dispatch(setIsTrackingCompoundsRestoring(false));
-    });
+
+  await dispatch(loadDataSets(target_on));
+  await dispatch(loadDatasetCompoundsWithScores());
+  dispatch(setMoleculeListIsLoading(false));
+
+  dispatch(restoreCompoundsActions(orderedActionList, stage));
 };
 
 const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
@@ -492,8 +639,6 @@ const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatc
       listToSet[molResult.mol_group] = molResult.molecules;
     });
     dispatch(setAllMolLists(listToSet));
-    dispatch(restoreMoleculesActions(orderedActionList, stage));
-    dispatch(setIsTrackingMoleculesRestoring(false));
   } catch (error) {
     throw new Error(error);
   }
@@ -534,6 +679,8 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
 
   dispatch(restoreCartActions(moleculesAction));
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
+  dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, true));
+  dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
 const restoreCartActions = moleculesAction => (dispatch, getState) => {
@@ -570,6 +717,14 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
   if (actions) {
     actions.forEach(action => {
       if (action) {
+        if (isSelection) {
+          dispatch(setSelectedAll(action.item, action.isLigand, action.isProtein, action.isComplex));
+        } else {
+          dispatch(
+            setSelectedAllOfDataset(action.dataset_id, action.item, action.isLigand, action.isProtein, action.isComplex)
+          );
+        }
+
         if (action.isLigand) {
           dispatch(handleMoleculeAction(action, 'ligand', true, stage, state, true));
         }
@@ -580,6 +735,70 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
 
         if (action.isComplex) {
           dispatch(handleMoleculeAction(action, 'complex', true, stage, state, true));
+        }
+      }
+    });
+  }
+};
+
+const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
+  let state = getState();
+
+  let actions =
+    isSelection === true
+      ? moleculesAction.filter(
+          action =>
+            action.type === actionType.ALL_TURNED_ON_BY_TYPE &&
+            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+        )
+      : moleculesAction.filter(
+          action =>
+            action.type === actionType.ALL_TURNED_ON_BY_TYPE &&
+            (action.object_type === actionObjectType.CROSS_REFERENCE ||
+              action.object_type === actionObjectType.COMPOUND)
+        );
+
+  if (actions) {
+    actions.forEach(action => {
+      if (action) {
+        let actionItems = action.items;
+        let type = action.control_type;
+
+        if (isSelection) {
+          dispatch(setSelectedAllByType(type, actionItems, action.object_type === actionObjectType.INSPIRATION));
+
+          actionItems.forEach(data => {
+            if (data) {
+              if (type === 'ligand') {
+                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+              } else {
+                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
+              }
+            }
+          });
+        } else {
+          dispatch(
+            setSelectedAllByTypeOfDataset(
+              type,
+              action.dataset_id,
+              actionItems,
+              action.object_type === actionObjectType.CROSS_REFERENCE
+            )
+          );
+
+          actionItems.forEach(data => {
+            if (data && data.molecule) {
+              dispatch(
+                addTypeCompound[type](
+                  stage,
+                  data.molecule,
+                  colourList[data.molecule.id % colourList.length],
+                  data.datasetID,
+                  true
+                )
+              );
+            }
+          });
         }
       }
     });
@@ -650,6 +869,10 @@ const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getStat
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
     }
   });
+
+  dispatch(restoreAllSelectionActions(orderedActionList, stage, false));
+  dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, false));
+  dispatch(setIsTrackingCompoundsRestoring(false));
 };
 
 const addType = {
@@ -758,7 +981,9 @@ const getCompound = (action, state) => {
 
   if (moleculeList) {
     let moleculeListOfDataset = moleculeList[datasetID];
-    molecule = moleculeListOfDataset.find(m => m.name === name);
+    if (moleculeListOfDataset) {
+      molecule = moleculeListOfDataset.find(m => m.name === name);
+    }
   }
   return molecule;
 };
@@ -1042,7 +1267,13 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
       actionItems.forEach(data => {
         if (data && data.molecule) {
           dispatch(
-            addTypeCompound[type](stage, data.molecule, colourList[data.id % colourList.length], data.datasetID, true)
+            addTypeCompound[type](
+              stage,
+              data.molecule,
+              colourList[data.molecule.id % colourList.length],
+              data.datasetID,
+              true
+            )
           );
         }
       });
@@ -1062,7 +1293,7 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
             removeTypeCompound[type](
               stage,
               data.molecule,
-              colourList[data.id % colourList.length],
+              colourList[data.molecule.id % colourList.length],
               data.datasetID,
               true
             )
