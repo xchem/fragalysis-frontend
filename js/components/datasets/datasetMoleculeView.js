@@ -41,6 +41,8 @@ import { isString } from 'lodash';
 import { SvgTooltip } from '../common';
 import { OBJECT_TYPE } from '../nglView/constants';
 import { getRepresentationsByType } from '../nglView/generatingObjects';
+import { getMolImage } from '../preview/molecule/redux/dispatchActions';
+import { MOL_TYPE } from '../preview/molecule/redux/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -312,35 +314,9 @@ export const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (/*refOnCancelImage.current === undefined && */ data && data.smiles) {
-        let onCancel = () => {};
-        let url = new URL(`${base_url}/viewer/img_from_smiles/`);
-        const params = {
-          width: imageHeight,
-          height: imageWidth,
-          smiles: data.smiles
-        };
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-
-        api({
-          url,
-          cancel: onCancel
-        })
-          .then(response => {
-            if (response.data !== undefined) {
-              setImage(response.data);
-            }
-          })
-          .catch(error => {
-            throw new Error(error);
-          });
-        refOnCancelImage.current = onCancel;
-      }
-      return () => {
-        if (refOnCancelImage) {
-          refOnCancelImage.current();
-        }
-      };
+      dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageHeight, imageWidth)).then(i => {
+        setImage(i);
+      });
     }, [
       C,
       currentID,
@@ -350,7 +326,8 @@ export const DatasetMoleculeView = memo(
       imageWidth,
       data.smiles,
       data.id,
-      filteredDatasetMoleculeList
+      filteredDatasetMoleculeList,
+      dispatch
     ]);
 
     const svg_image = (
@@ -552,7 +529,6 @@ export const DatasetMoleculeView = memo(
       dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
       const inspirations = getInspirationsForMol(datasetID, nextItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      // dispatch(setInspirationFragmentList(nextItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
@@ -576,7 +552,6 @@ export const DatasetMoleculeView = memo(
       dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
       const inspirations = getInspirationsForMol(datasetID, previousItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      // dispatch(setInspirationFragmentList(previousItem.computed_inspirations));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);

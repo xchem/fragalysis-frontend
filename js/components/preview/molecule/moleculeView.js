@@ -25,7 +25,8 @@ import {
   removeDensity,
   addLigand,
   removeLigand,
-  searchMoleculeGroupByMoleculeID
+  searchMoleculeGroupByMoleculeID,
+  getMolImage
 } from './redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
@@ -33,6 +34,7 @@ import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchAction
 import { SvgTooltip } from '../../common';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
+import {MOL_TYPE} from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -280,37 +282,10 @@ const MoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (refOnCancel.current === undefined) {
-        let onCancel = () => {};
-        Promise.all([
-          loadFromServer({
-            width: imageHeight,
-            height: imageWidth,
-            key,
-            old_url: oldUrl.current,
-            setImg_data,
-            setOld_url: newUrl => setOldUrl(newUrl),
-            url,
-            cancel: onCancel
-          })
-          /*  api({ url: `${base_url}/api/vector/${data.id}` }).then(response => {
-          const vectors = response.data.vectors['3d'];
-          setCountOfVectors(generateObjectList(vectors).length);
-        }),
-        api({ url: `${base_url}/api/graph/${data.id}` }).then(response => {
-          setCmpds(getTotalCountOfCompounds(response.data.graph));
-        })*/
-        ]).catch(error => {
-          throw new Error(error);
-        });
-        refOnCancel.current = onCancel;
-      }
-      return () => {
-        if (refOnCancel) {
-          refOnCancel.current();
-        }
-      };
-    }, [data.id, data.smiles, imageHeight, url, imageWidth]);
+      dispatch(getMolImage(data.id, MOL_TYPE.HIT, imageHeight, imageWidth)).then(i => {
+        setImg_data(i);
+      });
+    }, [data.id, data.smiles, imageHeight, url, imageWidth, dispatch]);
 
     useEffect(() => {
       if (searchMoleculeGroup) {

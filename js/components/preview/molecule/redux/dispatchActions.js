@@ -456,7 +456,7 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
 export const getMolImage = (molId, molType, width, height) => (dispatch, getState) => {
   const state = getState();
 
-  const imageCache = state.molecule.imageCache;
+  const imageCache = state.previewReducers.molecule.imageCache;
 
   const molIdStr = molId.toString();
   if (imageCache.hasOwnProperty(molIdStr)) {
@@ -464,8 +464,10 @@ export const getMolImage = (molId, molType, width, height) => (dispatch, getStat
       resolve(imageCache[molIdStr]);
     });
   } else {
-    loadMolImage(molId, molType, width, height).then(i => {
-      dispatch(addImageToCache(molId.toString(), i));
+    return loadMolImage(molId, molType, width, height).then(i => {
+      if (!imageCache.hasOwnProperty(molIdStr)) {
+        dispatch(addImageToCache(molId.toString(), i));
+      };
       return i;
     });
   }
@@ -488,7 +490,7 @@ export const loadMolImage = (molId, molType, width, height) => {
   }
 
   let onCancel = () => {};
-  api({
+  return api({
     url,
     onCancel
   }).then(response => {
