@@ -574,11 +574,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList, summaryView));
-    await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
-    await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+    await dispatch(loadData(orderedActionList, targetId, majorView));
+    await dispatch(restoreActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
-    dispatch(restoreNglStateAction(orderedActionList, stages));
+    await dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
   }
 };
@@ -596,22 +596,23 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState
   }
 };
 
+const restoreActions = (orderedActionList, stage) => (dispatch, getState) => {
+  dispatch(restoreMoleculesActions(orderedActionList, stage));
+};
+
+const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
+  await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+  await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+};
+
 const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
   dispatch(setMoleculeListIsLoading(true));
-  await dispatch(loadDataSets(target_on))
-    .then(results => {
-      return dispatch(loadDatasetCompoundsWithScores());
-    })
-    .catch(error => {
-      throw new Error(error);
-    })
-    .finally(() => {
-      dispatch(restoreCompoundsActions(orderedActionList, stage));
-      dispatch(setMoleculeListIsLoading(false));
-      dispatch(restoreAllSelectionActions(orderedActionList, stage, false));
-      dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, false));
-      dispatch(setIsTrackingCompoundsRestoring(false));
-    });
+
+  await dispatch(loadDataSets(target_on));
+  await dispatch(loadDatasetCompoundsWithScores());
+  dispatch(setMoleculeListIsLoading(false));
+
+  dispatch(restoreCompoundsActions(orderedActionList, stage));
 };
 
 const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
@@ -638,8 +639,6 @@ const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatc
       listToSet[molResult.mol_group] = molResult.molecules;
     });
     dispatch(setAllMolLists(listToSet));
-    dispatch(restoreMoleculesActions(orderedActionList, stage));
-    dispatch(setIsTrackingMoleculesRestoring(false));
   } catch (error) {
     throw new Error(error);
   }
@@ -681,6 +680,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
   dispatch(restoreCartActions(moleculesAction));
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
   dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, true));
+  dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
 const restoreCartActions = moleculesAction => (dispatch, getState) => {
@@ -869,6 +869,10 @@ const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getStat
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
     }
   });
+
+  dispatch(restoreAllSelectionActions(orderedActionList, stage, false));
+  dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, false));
+  dispatch(setIsTrackingCompoundsRestoring(false));
 };
 
 const addType = {
@@ -977,7 +981,9 @@ const getCompound = (action, state) => {
 
   if (moleculeList) {
     let moleculeListOfDataset = moleculeList[datasetID];
-    molecule = moleculeListOfDataset.find(m => m.name === name);
+    if (moleculeListOfDataset) {
+      molecule = moleculeListOfDataset.find(m => m.name === name);
+    }
   }
   return molecule;
 };
