@@ -44,6 +44,8 @@ import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selec
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import { setDirectAccess, setDirectAccessProcessed } from '../../../../reducers/api/actions';
+import {MOL_TYPE} from './constants';
+import {addImageToCache} from './actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -449,4 +451,51 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
   }
+};
+
+export const getMolImage = (molId, molType, width, height) => (dispatch, getState) => {
+  const state = getState();
+
+  const imageCache = state.molecule.imageCache;
+
+  const molIdStr = molId.toString();
+  if (imageCache.hasOwnProperty(molIdStr)) {
+    return new Promise((resolve, reject) => {
+      resolve(imageCache[molIdStr]);
+    });
+  } else {
+    loadMolImage(molId, molType, width, height).then(i => {
+      dispatch(addImageToCache(molId.toString(), i));
+      return i;
+    });
+  }
+};
+
+export const loadMolImage = (molId, molType, width, height) => {
+  let url = undefined;
+  if (molType === MOL_TYPE.HIT) {
+    url = new URL(`${base_url}/api/molimg/${molId}/`);
+    url.searchParams.append('width', width);
+    url.searchParams.append('height', height);
+  } else if (molType === MOL_TYPE.DATASET) {
+    url = new URL(`${base_url}/viewer/img_from_smiles/`);
+    url.searchParams.append('width', width);
+    url.searchParams.append('height', height);
+    url.searchParams.append('smiles', molId);
+  } else {
+    console.error('Trying to load image for unknown molecule type.');
+    return Promise.resolve();
+  }
+
+  let onCancel = () => {};
+  api({
+    url,
+    onCancel
+  }).then(response => {
+    if (molType === MOL_TYPE.HIT) {
+      return response.data['mol_image'];
+    } else {
+      return response.data;
+    }
+  });
 };
