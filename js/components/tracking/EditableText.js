@@ -11,17 +11,20 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const EditableInput = props => {
+const EditableInput = ({ dataText, index, updateText }) => {
   const inputRef = useRef(null);
   const [inputVisible, setInputVisible] = useState(false);
-  const [text, setText] = useState(props.text);
+  const [text, setText] = useState(dataText);
   const classes = useStyles();
 
-  function onClickOutSide(e) {
+  const onClickOutSide = e => {
     if (inputRef.current && !inputRef.current.contains(e.target)) {
       setInputVisible(false);
+      if (updateText && text !== dataText) {
+        updateText(text);
+      }
     }
-  }
+  };
 
   useEffect(() => {
     // Handle outside clicks on mounted state
@@ -47,7 +50,7 @@ const EditableInput = props => {
           }}
         />
       ) : (
-        <Grid item key={props.index}>
+        <Grid item key={index}>
           {<span onClick={() => setInputVisible(true)}>{text}</span>}
           {
             <IconButton color={'primary'} size="small" onClick={() => setInputVisible(true)}>

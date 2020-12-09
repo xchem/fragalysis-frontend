@@ -1,10 +1,12 @@
 import React, { useState, useRef, memo } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles, IconButton, Tooltip, Grid } from '@material-ui/core';
 import { Check, Clear, Warning, Favorite, Star } from '@material-ui/icons';
 import { actionAnnotation } from '../../reducers/tracking/constants';
 import { TimelineEvent } from 'react-event-timeline';
 import EditableText from './editableText';
 import palette from '../../theme/palette';
+import { updateTrackingActions } from '../../reducers/tracking/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   headerGrid: {
@@ -23,6 +25,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TimelineView = memo(({ data, index }) => {
+  const dispatch = useDispatch();
+
   const ref = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const [updatedIcon, setUpdatedIcon] = useState(null);
@@ -51,7 +55,14 @@ const TimelineView = memo(({ data, index }) => {
   };
 
   const annotationActions = [
-    <IconButton className={classes.iconButton} color={'primary'} onClick={() => setUpdatedIcon(actionAnnotation.CHECK)}>
+    <IconButton
+      className={classes.iconButton}
+      color={'primary'}
+      onClick={() => {
+        setUpdatedIcon(actionAnnotation.CHECK);
+        updateDataAnnotation(actionAnnotation.CHECK);
+      }}
+    >
       <Tooltip title="Check">
         <Check />
       </Tooltip>
@@ -61,6 +72,7 @@ const TimelineView = memo(({ data, index }) => {
       color={'primary'}
       onClick={() => {
         setUpdatedIcon(actionAnnotation.CLEAR);
+        updateDataAnnotation(actionAnnotation.CLEAR);
       }}
     >
       <Tooltip title="Clear">
@@ -72,6 +84,7 @@ const TimelineView = memo(({ data, index }) => {
       color={'primary'}
       onClick={() => {
         setUpdatedIcon(actionAnnotation.WARNING);
+        updateDataAnnotation(actionAnnotation.WARNING);
       }}
     >
       <Tooltip title="Warning">
@@ -83,6 +96,7 @@ const TimelineView = memo(({ data, index }) => {
       color={'primary'}
       onClick={() => {
         setUpdatedIcon(actionAnnotation.FAVORITE);
+        updateDataAnnotation(actionAnnotation.FAVORITE);
       }}
     >
       <Tooltip title="Favorite">
@@ -94,6 +108,7 @@ const TimelineView = memo(({ data, index }) => {
       color={'primary'}
       onClick={() => {
         setUpdatedIcon(actionAnnotation.STAR);
+        updateDataAnnotation(actionAnnotation.STAR);
       }}
     >
       <Tooltip title="Star">
@@ -101,6 +116,16 @@ const TimelineView = memo(({ data, index }) => {
       </Tooltip>
     </IconButton>
   ];
+
+  const updateDataText = text => {
+    data.text = text;
+    dispatch(updateTrackingActions(data));
+  };
+
+  const updateDataAnnotation = annotation => {
+    data.annotation = annotation;
+    dispatch(updateTrackingActions(data));
+  };
 
   return (
     <div ref={ref} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
@@ -111,7 +136,7 @@ const TimelineView = memo(({ data, index }) => {
             <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.headerGrid}>
               {
                 <Grid item xs={8} className={classes.grid}>
-                  <EditableText text={data.text} index={index} />
+                  <EditableText dataText={data.text} index={index} updateText={updateDataText} />
                 </Grid>
               }
               {isHovering && (
@@ -137,7 +162,6 @@ const TimelineView = memo(({ data, index }) => {
         }
         createdAt={new Date(data.timestamp).toLocaleString()}
         icon={updatedIcon && updatedIcon != null ? getActionIcon(updatedIcon) : getActionIcon(data.annotation)}
-        //icon={getActionIcon(data.annotation)}
         iconColor={palette.primary.main}
         className={classes.timelineEvent}
       ></TimelineEvent>

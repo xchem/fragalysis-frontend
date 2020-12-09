@@ -1528,3 +1528,30 @@ export const sendInitTrackingActionByProjectId = target_on => (dispatch, getStat
     dispatch(saveTrackingActions(actions, snapshotID));
   }
 };
+
+export const updateTrackingActions = action => (dispatch, getState) => {
+  const state = getState();
+  const project = state.projectReducers.currentProject;
+  const projectActions = state.trackingReducers.project_actions_list;
+  const projectID = project && project.projectID;
+  const actionID = action && action.Id;
+
+  if (projectID && actionID) {
+    const dataToSend = {
+      last_update_date: moment().format(),
+      actions: JSON.stringify(projectActions)
+    };
+    return api({
+      url: `${base_url}/api/session-actions/${projectID}/${actionID}`,
+      method: METHOD.PUT,
+      data: JSON.stringify(dataToSend)
+    })
+      .then(() => {})
+      .catch(error => {
+        throw new Error(error);
+      })
+      .finally(() => {});
+  } else {
+    return Promise.resolve();
+  }
+};

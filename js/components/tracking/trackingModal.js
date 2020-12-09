@@ -4,7 +4,6 @@ import Modal from '../common/Modal';
 import { Grid, makeStyles, IconButton, Tooltip } from '@material-ui/core';
 import { Timeline } from 'react-event-timeline';
 import { Close } from '@material-ui/icons';
-import palette from '../../theme/palette';
 import { Panel } from '../common';
 import TimelineView from './timelineView';
 import { setProjectTrackingActions } from '../../reducers/tracking/dispatchActions';
