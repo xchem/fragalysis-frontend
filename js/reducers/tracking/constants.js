@@ -86,3 +86,11 @@ export const actionObjectType = {
   CROSS_REFERENCE: 'CROSS_REFERENCE',
   REPRESENTATION: 'REPRESENTATION'
 };
+
+export const actionAnnotation = {
+  CHECK: 'CHECK',
+  CLEAR: 'CLEAR',
+  WARNING: 'WARNING',
+  FAVORITE: 'FAVORITE',
+  STAR: 'STAR'
+};

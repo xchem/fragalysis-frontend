@@ -1,4 +1,4 @@
-import { actionType, actionObjectType, actionDescription } from './constants';
+import { actionType, actionObjectType, actionDescription, actionAnnotation } from './constants';
 import { constants as apiConstants } from '../api/constants';
 import { CONSTANTS as nglConstants } from '../ngl/constants';
 import { constants as selectionConstants } from '../selection/constants';
@@ -17,6 +17,7 @@ export const findTrackAction = (action, state) => {
         let targetName = getTargetName(action.target_on, state);
         trackAction = {
           type: actionType.TARGET_LOADED,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: actionObjectType.TARGET,
@@ -33,6 +34,7 @@ export const findTrackAction = (action, state) => {
           let molGroupName = getMolGroupName(action.mol_group_on, state);
           trackAction = {
             type: actionType.SITE_TURNED_ON,
+            annotation: actionAnnotation.CHECK,
             timestamp: Date.now(),
             username: username,
             object_type: actionObjectType.SITE,
@@ -48,6 +50,7 @@ export const findTrackAction = (action, state) => {
         let molGroupName = getMolGroupName(objectId, state);
         trackAction = {
           type: actionType.SITE_TURNED_OFF,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: actionObjectType.SITE,
@@ -63,6 +66,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_HIDE,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -77,6 +81,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -99,6 +104,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -122,6 +128,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_ON_BY_TYPE,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -138,6 +145,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_OFF_BY_TYPE,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -153,6 +161,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.LIGAND_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -171,6 +180,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.LIGAND_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -189,6 +199,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SIDECHAINS_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -207,6 +218,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SIDECHAINS_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -225,6 +237,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.INTERACTIONS_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -243,6 +256,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.INTERACTIONS_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -261,6 +275,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SURFACE_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -279,6 +294,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SURFACE_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -297,6 +313,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.VECTORS_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -315,6 +332,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.VECTORS_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -333,6 +351,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: actionObjectType.MOLECULE,
@@ -349,6 +368,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -365,6 +385,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.VECTOR_SELECTED,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -380,6 +401,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.COMPOUND_SELECTED,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -396,6 +418,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.COMPOUND_DESELECTED,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -413,6 +436,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -434,6 +458,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -457,6 +482,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_ON_BY_TYPE,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -475,6 +501,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.ALL_TURNED_OFF_BY_TYPE,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -491,6 +518,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.LIGAND_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -508,6 +536,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.LIGAND_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -525,6 +554,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SIDECHAINS_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -542,6 +572,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SIDECHAINS_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -559,6 +590,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.INTERACTIONS_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -576,6 +608,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.INTERACTIONS_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -593,6 +626,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SURFACE_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -610,6 +644,7 @@ export const findTrackAction = (action, state) => {
 
         trackAction = {
           type: actionType.SURFACE_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
@@ -624,6 +659,7 @@ export const findTrackAction = (action, state) => {
 
       trackAction = {
         type: actionType.REPRESENTATION_CHANGED,
+        annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
         username: username,
         object_type: actionObjectType.REPRESENTATION,
@@ -640,6 +676,7 @@ export const findTrackAction = (action, state) => {
 
       trackAction = {
         type: actionType.REPRESENTATION_ADDED,
+        annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
         username: username,
         object_type: actionObjectType.REPRESENTATION,
@@ -654,6 +691,7 @@ export const findTrackAction = (action, state) => {
 
       trackAction = {
         type: actionType.REPRESENTATION_REMOVED,
+        annotation: actionAnnotation.CLEAR,
         timestamp: Date.now(),
         username: username,
         object_type: objectType,

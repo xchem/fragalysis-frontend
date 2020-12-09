@@ -2,10 +2,11 @@ import React, { memo, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Modal from '../common/Modal';
 import { Grid, makeStyles, IconButton, Tooltip } from '@material-ui/core';
-import { Timeline, TimelineEvent } from 'react-event-timeline';
-import { Check, Clear, Close } from '@material-ui/icons';
+import { Timeline } from 'react-event-timeline';
+import { Close } from '@material-ui/icons';
 import palette from '../../theme/palette';
 import { Panel } from '../common';
+import TimelineView from './timelineView';
 import { setProjectTrackingActions } from '../../reducers/tracking/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
@@ -16,10 +17,7 @@ const useStyles = makeStyles(theme => ({
   customContentModal: {
     height: '100%'
   },
-  timelineEvent: {
-    borderBottom: '1px dashed ' + palette.divider,
-    paddingBottom: '10px'
-  },
+
   divContainer: {
     height: '100%',
     width: '100%',
@@ -78,24 +76,7 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
                 {orderedActionList &&
                   orderedActionList.map((data, index) => {
                     if (data && data != null) {
-                      return (
-                        <TimelineEvent
-                          key={index}
-                          title={data.text}
-                          createdAt={new Date(data.timestamp).toLocaleString()}
-                          icon={
-                            data.type.includes('OFF') === true ||
-                            data.type.includes('DESELECTED') === true ||
-                            data.type.includes('REMOVED') === true ? (
-                              <Clear />
-                            ) : (
-                              <Check />
-                            )
-                          }
-                          iconColor={palette.primary.main}
-                          className={classes.timelineEvent}
-                        ></TimelineEvent>
-                      );
+                      return <TimelineView data={data} index={index}></TimelineView>;
                     }
                   })}
               </Timeline>
