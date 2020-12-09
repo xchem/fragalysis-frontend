@@ -76,7 +76,7 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
                 {orderedActionList &&
                   orderedActionList.map((data, index) => {
                     if (data && data != null) {
-                      return <TimelineView data={data} index={index}></TimelineView>;
+                      return <TimelineView key={index} data={data} index={index}></TimelineView>;
                     }
                   })}
               </Timeline>

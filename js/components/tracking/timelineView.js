@@ -25,12 +25,13 @@ const useStyles = makeStyles(theme => ({
 const TimelineView = memo(({ data, index }) => {
   const ref = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [updatedIcon, setUpdatedIcon] = useState(null);
 
   const classes = useStyles();
 
-  const getActionIcon = data => {
-    if (data && data.annotation) {
-      switch (data.annotation) {
+  const getActionIcon = annotation => {
+    if (annotation) {
+      switch (annotation) {
         case actionAnnotation.CHECK:
           return <Check />;
         case actionAnnotation.CLEAR:
@@ -50,27 +51,51 @@ const TimelineView = memo(({ data, index }) => {
   };
 
   const annotationActions = [
-    <IconButton className={classes.iconButton} color={'primary'} onClick={() => {}}>
+    <IconButton className={classes.iconButton} color={'primary'} onClick={() => setUpdatedIcon(actionAnnotation.CHECK)}>
       <Tooltip title="Check">
         <Check />
       </Tooltip>
     </IconButton>,
-    <IconButton className={classes.iconButton} color={'primary'} onClick={() => {}}>
+    <IconButton
+      className={classes.iconButton}
+      color={'primary'}
+      onClick={() => {
+        setUpdatedIcon(actionAnnotation.CLEAR);
+      }}
+    >
       <Tooltip title="Clear">
         <Clear />
       </Tooltip>
     </IconButton>,
-    <IconButton className={classes.iconButton} color={'primary'} onClick={() => {}}>
+    <IconButton
+      className={classes.iconButton}
+      color={'primary'}
+      onClick={() => {
+        setUpdatedIcon(actionAnnotation.WARNING);
+      }}
+    >
       <Tooltip title="Warning">
         <Warning />
       </Tooltip>
     </IconButton>,
-    <IconButton className={classes.iconButton} color={'primary'} onClick={() => {}}>
+    <IconButton
+      className={classes.iconButton}
+      color={'primary'}
+      onClick={() => {
+        setUpdatedIcon(actionAnnotation.FAVORITE);
+      }}
+    >
       <Tooltip title="Favorite">
         <Favorite />
       </Tooltip>
     </IconButton>,
-    <IconButton className={classes.iconButton} color={'primary'} onClick={() => {}}>
+    <IconButton
+      className={classes.iconButton}
+      color={'primary'}
+      onClick={() => {
+        setUpdatedIcon(actionAnnotation.STAR);
+      }}
+    >
       <Tooltip title="Star">
         <Star />
       </Tooltip>
@@ -85,12 +110,20 @@ const TimelineView = memo(({ data, index }) => {
           <div>
             <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.headerGrid}>
               {
-                <Grid item xs={8} justify="flex-start" direction="row" alignItems="flex-start">
-                  <EditableText text={data.text} identifier={index} />
+                <Grid item xs={8} className={classes.grid}>
+                  <EditableText text={data.text} index={index} />
                 </Grid>
               }
               {isHovering && (
-                <Grid item container direction="row" justify="flex-end" xs={4} className={classes.grid}>
+                <Grid
+                  container
+                  item
+                  justify="flex-end"
+                  direction="row"
+                  alignItems="flex-end"
+                  xs={4}
+                  className={classes.grid}
+                >
                   {annotationActions &&
                     annotationActions.map((action, index) => (
                       <Grid item key={index}>
@@ -102,12 +135,9 @@ const TimelineView = memo(({ data, index }) => {
             </Grid>
           </div>
         }
-        createdAt={
-          <Grid item justify="flex-start" alignItems="flex-start">
-            {new Date(data.timestamp).toLocaleString()}
-          </Grid>
-        }
-        icon={getActionIcon(data)}
+        createdAt={new Date(data.timestamp).toLocaleString()}
+        icon={updatedIcon && updatedIcon != null ? getActionIcon(updatedIcon) : getActionIcon(data.annotation)}
+        //icon={getActionIcon(data.annotation)}
         iconColor={palette.primary.main}
         className={classes.timelineEvent}
       ></TimelineEvent>

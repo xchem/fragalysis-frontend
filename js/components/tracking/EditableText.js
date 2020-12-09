@@ -47,7 +47,7 @@ const EditableInput = props => {
           }}
         />
       ) : (
-        <Grid item justify="flex-start" alignItems="flex-start">
+        <Grid item key={props.index}>
           {<span onClick={() => setInputVisible(true)}>{text}</span>}
           {
             <IconButton color={'primary'} size="small" onClick={() => setInputVisible(true)}>
