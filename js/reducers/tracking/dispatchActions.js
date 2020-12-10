@@ -1455,7 +1455,8 @@ const getTrackingActions = projectID => (dispatch, getState) => {
         let listToSet = [];
         results.forEach(r => {
           let resultActions = JSON.parse(r.actions);
-          listToSet.push(...resultActions);
+          let actions = resultActions.map(obj => ({ ...obj, actionId: r.id }));
+          listToSet.push(...actions);
         });
 
         let projectActions = [...listToSet, ...sendActions];
@@ -1534,23 +1535,32 @@ export const updateTrackingActions = action => (dispatch, getState) => {
   const project = state.projectReducers.currentProject;
   const projectActions = state.trackingReducers.project_actions_list;
   const projectID = project && project.projectID;
-  const actionID = action && action.Id;
+  let actionID = action && action.actionId;
 
-  if (projectID && actionID) {
-    const dataToSend = {
-      last_update_date: moment().format(),
-      actions: JSON.stringify(projectActions)
-    };
-    return api({
-      url: `${base_url}/api/session-actions/${projectID}/${actionID}`,
-      method: METHOD.PUT,
-      data: JSON.stringify(dataToSend)
-    })
-      .then(() => {})
-      .catch(error => {
-        throw new Error(error);
+  if (projectID && actionID && projectActions) {
+    let actions = projectActions.filter(a => a.actionId === actionID);
+
+    if (actions && actions.length > 0) {
+      const dataToSend = {
+        session_action_id: actionID,
+        session_project: projectID,
+        author: project.authorID,
+        last_update_date: moment().format(),
+        actions: JSON.stringify(actions)
+      };
+      return api({
+        url: `${base_url}/api/session-actions/${actionID}`,
+        method: METHOD.PUT,
+        data: JSON.stringify(dataToSend)
       })
-      .finally(() => {});
+        .then(() => {})
+        .catch(error => {
+          throw new Error(error);
+        })
+        .finally(() => {});
+    } else {
+      return Promise.resolve();
+    }
   } else {
     return Promise.resolve();
   }
