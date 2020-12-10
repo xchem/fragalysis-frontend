@@ -61,6 +61,7 @@ import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
+import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -253,7 +254,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
-  
+  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingMoleculesRestoring);
+
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
@@ -283,23 +285,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
       );
     } else {
-      return [...getJoinedMoleculeList];
+      return getJoinedMoleculeList;
     }
   }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
 
-  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
-    const result = [...joinedMoleculeLists];
-    list?.forEach(moleculeID => {
-      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
-      if (!foundJoinedMolecule) {
-        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
-        if (molecule) {
-          result.push(molecule);
-        }
-      }
-    });
-    return result;
-  }, [getAllMoleculeList]);
+  // Used for MoleculeListSortFilterDialog when using textSearch
+  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList),
@@ -360,26 +351,31 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       target_on &&
       mol_group_list &&
       mol_group_list.length > 0 &&
-      Object.keys(all_mol_lists).length <= 0
+      Object.keys(all_mol_lists).length <= 0 &&
+      isTrackingRestoring === false
     ) {
       let promises = [];
       mol_group_list.forEach(molGroup => {
         let id = molGroup.id;
         let url = getUrl({ list_type, target_on, mol_group_on: id });
-        promises.push(loadAllMolsFromMolGroup({
-          url,
-          mol_group: id
-        }))
+        promises.push(
+          loadAllMolsFromMolGroup({
+            url,
+            mol_group: id
+          })
+        );
       });
-      Promise.all(promises).then((results) => {
-        let listToSet = {};
-        results.forEach(molResult => {
-          listToSet[molResult.mol_group] = molResult.molecules;
-        });
-        dispatch(setAllMolLists(listToSet))
-      }).catch((err) => console.log(err));
+      Promise.all(promises)
+        .then(results => {
+          let listToSet = {};
+          results.forEach(molResult => {
+            listToSet[molResult.mol_group] = molResult.molecules;
+          });
+          dispatch(setAllMolLists(listToSet));
+        })
+        .catch(err => console.log(err));
     }
-  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists]);
+  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists, isTrackingRestoring]);
 
   useEffect(() => {
     loadAllMolecules();
@@ -391,16 +387,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       mol_group_list.forEach(mg => {
         molGroupMap[mg.description] = mg.id;
       });
-    return molGroupMap;
+      return molGroupMap;
     }
   }, [mol_group_list]);
 
   useEffect(() => {
     const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
-    if (
-      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-      allMolsGroupsCount > 0
-    ) {
+    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && allMolsGroupsCount > 0) {
       dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(majorViewStage, stageSummaryView));
@@ -490,11 +483,18 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       handleFilterChange(newFilter);*/
   };
 
-  const joinedGivenMatch = useCallback((givenList) => {
-    return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0).length;
-  }, [joinedMoleculeLists]);
+  const joinedGivenMatch = useCallback(
+    givenList => {
+      return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0)
+        .length;
+    },
+    [joinedMoleculeLists]
+  );
 
-  const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [fragmentDisplayList, joinedGivenMatch]);
+  const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
+    fragmentDisplayList,
+    joinedGivenMatch
+  ]);
   const joinedProteinMatchLength = useMemo(() => joinedGivenMatch(proteinList), [proteinList, joinedGivenMatch]);
   const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
 
@@ -533,10 +533,17 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   // TODO so this could lead to inconsistend behaviour while scrolling
   // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
-  const removeSelectedType = type => {
-    joinedMoleculeLists.forEach(molecule => {
-      dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length]));
-    });
+  const removeSelectedType = (type, skipTracking = false) => {
+    if (type === 'ligand') {
+      joinedMoleculeLists.forEach(molecule => {
+        dispatch(removeType[type](majorViewStage, molecule, skipTracking));
+      });
+    } else {
+      joinedMoleculeLists.forEach(molecule => {
+        dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+      });
+    }
+
     selectedAll.current = false;
   };
 
@@ -567,16 +574,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     });
   };
 
-  const selectMoleculeSite = (moleculeGroupSite) => {
+  const selectMoleculeSite = moleculeGroupSite => {
     const moleculeGroup = mol_group_list[moleculeGroupSite - 1];
     dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: true }));
-  }
+  };
 
-  const addNewType = type => {
-    joinedMoleculeLists.forEach(molecule => {
-      selectMoleculeSite(molecule.site);
-      dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length]));
-    });
+  const addNewType = (type, skipTracking = false) => {
+    if (type === 'ligand') {
+      joinedMoleculeLists.forEach(molecule => {
+        selectMoleculeSite(molecule.site);
+        dispatch(
+          addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], false, skipTracking)
+        );
+      });
+    } else {
+      joinedMoleculeLists.forEach(molecule => {
+        selectMoleculeSite(molecule.site);
+        dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+      });
+    }
   };
 
   const ucfirst = string => {
@@ -587,17 +603,44 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     if (calledFromSelectAll === true && selectedAll.current === true) {
       // REDO
       if (eval('is' + ucfirst(type) + 'On') === false) {
-        addNewType(type);
+        addNewType(type, true);
       }
     } else if (calledFromSelectAll && selectedAll.current === false) {
-      removeSelectedType(type);
+      removeSelectedType(type, true);
     } else if (!calledFromSelectAll) {
       if (eval('is' + ucfirst(type) + 'On') === false) {
-        addNewType(type);
+        let molecules = getSelectedMoleculesByType(type, true);
+        dispatch(setSelectedAllByType(type, molecules));
+        addNewType(type, true);
       } else {
-        removeSelectedType(type);
+        let molecules = getSelectedMoleculesByType(type, false);
+        dispatch(setDeselectedAllByType(type, molecules));
+        removeSelectedType(type, true);
       }
     }
+  };
+
+  const getSelectedMoleculesByType = (type, isAdd) => {
+    switch (type) {
+      case 'ligand':
+        return isAdd ? getMoleculesToSelect(fragmentDisplayList) : getMoleculesToDeselect(fragmentDisplayList);
+      case 'protein':
+        return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+      case 'complex':
+        return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+      default:
+        return null;
+    }
+  };
+
+  const getMoleculesToSelect = list => {
+    let molecules = joinedMoleculeLists.filter(m => !list.includes(m.id));
+    return molecules;
+  };
+
+  const getMoleculesToDeselect = list => {
+    let molecules = joinedMoleculeLists.filter(m => list.includes(m.id));
+    return molecules;
   };
 
   let debouncedFn;
@@ -778,7 +821,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isLigandOn === true,
                               [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
-                            onClick={() => onButtonToggle('ligand')}
+                            onClick={() => {
+                              onButtonToggle('ligand');
+                            }}
                             disabled={disableUserInteraction}
                           >
                             L
@@ -793,7 +838,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isProteinOn,
                               [classes.contColButtonHalfSelected]: isProteinOn === null
                             })}
-                            onClick={() => onButtonToggle('protein')}
+                            onClick={() => {
+                              onButtonToggle('protein');
+                            }}
                             disabled={disableUserInteraction}
                           >
                             P
@@ -809,7 +856,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isComplexOn,
                               [classes.contColButtonHalfSelected]: isComplexOn === null
                             })}
-                            onClick={() => onButtonToggle('complex')}
+                            onClick={() => {
+                              onButtonToggle('complex');
+                            }}
                             disabled={disableUserInteraction}
                           >
                             C

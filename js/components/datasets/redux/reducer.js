@@ -21,6 +21,9 @@ export const INITIAL_STATE = {
   surfaceLists: {}, // map of $datasetID and its $list
   inspirationLists: {}, // map of $datasetID and its $list
 
+  moleculeAllSelection: {},
+  moleculeAllTypeSelection: {},
+
   // search
   searchString: null,
 
@@ -117,6 +120,7 @@ const initializeContainerLists = (state, datasetID) => {
   state.complexLists[datasetID] = state.complexLists[datasetID] || [];
   state.surfaceLists[datasetID] = state.surfaceLists[datasetID] || [];
   state.inspirationLists[datasetID] = state.inspirationLists[datasetID] || [];
+  state.moleculeAllSelection[datasetID] = state.moleculeAllSelection[datasetID] || [];
   return state;
 };
 
@@ -363,8 +367,31 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, lists);
 
     case constants.RESET_DATASETS_STATE:
-      return INITIAL_STATE;
+      const datasetsLists = {
+        ligandLists: reloadLists([], 'ligandLists'),
+        proteinLists: reloadLists([], 'proteinLists'),
+        complexLists: reloadLists([], 'complexLists'),
+        surfaceLists: reloadLists([], 'surfaceLists'),
+        inspirationLists: reloadLists([], 'inspirationLists'),
+        compoundsToBuyDatasetMap: reloadLists([], 'compoundsToBuyDatasetMap')
+      };
+      return Object.assign({}, state, { ...INITIAL_STATE, ...datasetsLists });
 
+    case constants.SET_SELECTED_ALL:
+      return appendToList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
+
+    case constants.SET_DESELECTED_ALL:
+      return removeFromList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
+
+    case constants.SET_SELECTED_ALL_BY_TYPE:
+      return Object.assign({}, state, {
+        moleculeAllTypeSelection: action.payload.type
+      });
+
+    case constants.SET_DESELECTED_ALL_BY_TYPE:
+      return Object.assign({}, state, {
+        moleculeAllTypeSelection: action.payload.type
+      });
     default:
       return state;
   }

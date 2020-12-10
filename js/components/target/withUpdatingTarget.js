@@ -13,6 +13,7 @@ export const withUpdatingTarget = WrappedContainer => {
       const target = match && match.params && match.params.target;
       const uuid = match && match.params && match.params.uuid;
       const snapshotUuid = match && match.params && match.params.snapshotUuid;
+      const snapshotId = match && match.params && match.params.snapshotId;
       const projectId = match && match.params && match.params.projectId;
 
       const { isLoading, setIsLoading } = useContext(HeaderContext);
@@ -32,7 +33,7 @@ export const withUpdatingTarget = WrappedContainer => {
             throw error;
           });
         });
-      }, [setIsLoading, target, updateTarget, targetIdList, projectId]);
+      }, [setIsLoading, target, updateTarget, targetIdList, projectId, snapshotId]);
 
       if (isLoading === true) {
         return null;

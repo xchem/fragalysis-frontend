@@ -37,6 +37,7 @@ import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
+import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -254,17 +255,30 @@ export const InspirationDialog = memo(
       });
     };
 
-    const removeSelectedType = type => {
-      moleculeList.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
-      });
+    const removeSelectedType = (type, skipTracking = false) => {
+      if (type === 'ligand') {
+        moleculeList.forEach(molecule => {
+          dispatch(removeType[type](stage, molecule, skipTracking));
+        });
+      } else {
+        moleculeList.forEach(molecule => {
+          dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        });
+      }
+
       selectedAll.current = false;
     };
 
-    const addNewType = type => {
-      moleculeList.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
-      });
+    const addNewType = (type, skipTracking = false) => {
+      if (type === 'ligand') {
+        moleculeList.forEach(molecule => {
+          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, skipTracking));
+        });
+      } else {
+        moleculeList.forEach(molecule => {
+          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        });
+      }
     };
 
     const ucfirst = string => {
@@ -281,12 +295,40 @@ export const InspirationDialog = memo(
         removeSelectedType(type);
       } else if (!calledFromSelectAll) {
         if (eval('is' + ucfirst(type) + 'On') === false) {
-          addNewType(type);
+          let molecules = getSelectedMoleculesByType(type, true);
+          dispatch(setSelectedAllByType(type, molecules, true));
+          addNewType(type, true);
         } else {
-          removeSelectedType(type);
+          let molecules = getSelectedMoleculesByType(type, false);
+          dispatch(setDeselectedAllByType(type, molecules, true));
+          removeSelectedType(type, true);
         }
       }
     };
+
+    const getSelectedMoleculesByType = (type, isAdd) => {
+      switch (type) {
+        case 'ligand':
+          return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
+        case 'protein':
+          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+        case 'complex':
+          return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+        default:
+          return null;
+      }
+    };
+
+    const getMoleculesToSelect = list => {
+      let molecules = moleculeList.filter(m => !list.includes(m.id));
+      return molecules;
+    };
+
+    const getMoleculesToDeselect = list => {
+      let molecules = moleculeList.filter(m => list.includes(m.id));
+      return molecules;
+    };
+
     //  TODO refactor to this line
 
     return (
