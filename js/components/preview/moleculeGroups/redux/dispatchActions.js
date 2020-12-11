@@ -286,7 +286,11 @@ export const onDeselectMoleculeGroup = ({ moleculeGroup, stageSummaryView, major
   const selectionCopy = mol_group_selection.slice();
   const objIdx = mol_group_selection.indexOf(moleculeGroup.id);
   dispatch(
-    clearAfterDeselectingMoleculeGroup()
+    clearAfterDeselectingMoleculeGroup({
+      molGroupId: moleculeGroup.id,
+      currentMolGroup,
+      majorViewStage
+    })
   );
   selectionCopy.splice(objIdx, 1);
   dispatch(
