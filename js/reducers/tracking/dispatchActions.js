@@ -88,147 +88,184 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshotID, projectID, nglViewList) => async (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshot, project, nglViewList) => async (dispatch, getState) => {
+  let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
-  dispatch(saveActionsList(snapshotID, actionList, nglViewList));
+  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
 };
 
-export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatch, getState) => {
+const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
   const state = getState();
 
-  const currentTargetOn = state.apiReducers.target_on;
-  const currentSites = state.selectionReducers.mol_group_selection;
-  const currentLigands = state.selectionReducers.fragmentDisplayList;
-  const currentProteins = state.selectionReducers.proteinList;
-  const currentComplexes = state.selectionReducers.complexList;
-  const currentSurfaces = state.selectionReducers.surfaceList;
-  const currentVectors = state.selectionReducers.vectorOnList;
-  const currentBuyList = state.selectionReducers.to_buy_list;
-  const currentVector = state.selectionReducers.currentVector;
-  const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
+  const snapshotID = snapshot && snapshot.id;
+  if (snapshotID) {
+    const currentTargetOn = state.apiReducers.target_on;
+    const currentSites = state.selectionReducers.mol_group_selection;
+    const currentLigands = state.selectionReducers.fragmentDisplayList;
+    const currentProteins = state.selectionReducers.proteinList;
+    const currentComplexes = state.selectionReducers.complexList;
+    const currentSurfaces = state.selectionReducers.surfaceList;
+    const currentVectors = state.selectionReducers.vectorOnList;
+    const currentBuyList = state.selectionReducers.to_buy_list;
+    const currentVector = state.selectionReducers.currentVector;
+    const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
 
-  const currentDatasetLigands = state.datasetsReducers.ligandLists;
-  const currentDatasetProteins = state.datasetsReducers.proteinLists;
-  const currentDatasetComplexes = state.datasetsReducers.complexLists;
-  const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
-  const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
+    const currentDatasetLigands = state.datasetsReducers.ligandLists;
+    const currentDatasetProteins = state.datasetsReducers.proteinLists;
+    const currentDatasetComplexes = state.datasetsReducers.complexLists;
+    const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
+    const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
-  const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
-  const currentobjectsInView = state.nglReducers.objectsInView;
+    const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
+    const currentobjectsInView = state.nglReducers.objectsInView;
 
-  const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
-  const currentVectorSmiles = (currentVector && [currentVector]) || [];
+    const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
+    const currentVectorSmiles = (currentVector && [currentVector]) || [];
 
-  let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
+    let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
 
-  let currentActions = [];
+    let currentActions = [];
 
-  getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
-  getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
-  getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
+    getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
+    getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
+    getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
-  getCurrentActionList(orderedActionList, actionType.ALL_TURNED_ON, getCollection(currentSelectionAll), currentActions);
-  getCurrentActionList(
-    orderedActionList,
-    actionType.ALL_TURNED_ON,
-    getCollectionOfDataset(currentDatasetSelectionAll),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.ALL_TURNED_ON,
+      getCollection(currentSelectionAll),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.ALL_TURNED_ON,
+      getCollectionOfDataset(currentDatasetSelectionAll),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SIDECHAINS_TURNED_ON,
-    getCollection(currentProteins),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SIDECHAINS_TURNED_ON,
+      getCollection(currentProteins),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.INTERACTIONS_TURNED_ON,
-    getCollection(currentComplexes),
-    currentActions
-  );
-  getCurrentActionList(orderedActionList, actionType.SURFACE_TURNED_ON, getCollection(currentSurfaces), currentActions);
-  getCurrentActionList(orderedActionList, actionType.VECTORS_TURNED_ON, getCollection(currentVectors), currentActions);
-  getCurrentActionList(
-    orderedActionList,
-    actionType.VECTOR_SELECTED,
-    getCollection(currentVectorSmiles),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.INTERACTIONS_TURNED_ON,
+      getCollection(currentComplexes),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SURFACE_TURNED_ON,
+      getCollection(currentSurfaces),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.VECTORS_TURNED_ON,
+      getCollection(currentVectors),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.VECTOR_SELECTED,
+      getCollection(currentVectorSmiles),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
-    getCollectionOfShoppingCart(currentBuyList),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+      getCollectionOfShoppingCart(currentBuyList),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.LIGAND_TURNED_ON,
-    getCollectionOfDataset(currentDatasetLigands),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.LIGAND_TURNED_ON,
+      getCollectionOfDataset(currentDatasetLigands),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SIDECHAINS_TURNED_ON,
-    getCollectionOfDataset(currentDatasetProteins),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SIDECHAINS_TURNED_ON,
+      getCollectionOfDataset(currentDatasetProteins),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.INTERACTIONS_TURNED_ON,
-    getCollectionOfDataset(currentDatasetComplexes),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.INTERACTIONS_TURNED_ON,
+      getCollectionOfDataset(currentDatasetComplexes),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SURFACE_TURNED_ON,
-    getCollectionOfDataset(currentDatasetSurfaces),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SURFACE_TURNED_ON,
+      getCollectionOfDataset(currentDatasetSurfaces),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.COMPOUND_SELECTED,
-    getCollectionOfDataset(currentDatasetBuyList),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.COMPOUND_SELECTED,
+      getCollectionOfDataset(currentDatasetBuyList),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.REPRESENTATION_ADDED,
-    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.REPRESENTATION_ADDED,
+      getCollectionOfDatasetOfRepresentation(currentobjectsInView),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.REPRESENTATION_CHANGED,
-    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.REPRESENTATION_CHANGED,
+      getCollectionOfDatasetOfRepresentation(currentobjectsInView),
+      currentActions
+    );
 
-  if (nglViewList) {
-    let nglStateList = nglViewList.map(nglView => {
-      return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
-    });
+    if (nglViewList) {
+      let nglStateList = nglViewList.map(nglView => {
+        return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
+      });
 
-    let trackAction = {
-      type: actionType.NGL_STATE,
-      timestamp: Date.now(),
-      nglStateList: nglStateList
-    };
+      let trackAction = {
+        type: actionType.NGL_STATE,
+        timestamp: Date.now(),
+        nglStateList: nglStateList
+      };
 
-    currentActions.push(Object.assign({ ...trackAction }));
+      currentActions.push(Object.assign({ ...trackAction }));
+    }
+
+    await dispatch(saveSnapshotAction(snapshot, project));
+    dispatch(setCurrentActionsList(currentActions));
+    dispatch(saveTrackingActions(currentActions, snapshotID));
   }
+};
 
-  dispatch(setCurrentActionsList(currentActions));
-  dispatch(saveTrackingActions(currentActions, snapshotID));
+const saveSnapshotAction = (snapshot, project) => async (dispatch, getState) => {
+  const state = getState();
+  const trackingImageSource = state.trackingReducers.trackingImageSource;
+
+  let sendActions = [];
+  let snapshotAction = {
+    type: actionType.SNAPSHOT,
+    timestamp: Date.now(),
+    object_name: snapshot.title,
+    object_id: snapshot.id,
+    text: `Snapshot: ${snapshot.id} - ${snapshot.title}`,
+    image: trackingImageSource
+  };
+  sendActions.push(snapshotAction);
+  await dispatch(sendTrackingActions(sendActions, project));
 };
 
 export const saveTrackingActions = (currentActions, snapshotID) => (dispatch, getState) => {
@@ -1396,7 +1433,7 @@ export const checkSendTrackingActions = (save = false) => (dispatch, getState) =
   }
 };
 
-const sendTrackingActions = (sendActions, project, clear = true) => (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project, clear = true) => async (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 

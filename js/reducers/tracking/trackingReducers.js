@@ -14,7 +14,8 @@ export const INITIAL_STATE = {
   send_actions_list: [],
   project_actions_list: [],
   isActionRestoring: false,
-  isActionRestored: false
+  isActionRestored: false,
+  trackingImageSource: ''
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -88,6 +89,11 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         isActionRestoring: action.isActionRestoring,
         isActionRestored: action.isActionRestored
+      });
+
+    case constants.SET_TRACKING_IMAGE_SOURCE:
+      return Object.assign({}, state, {
+        trackingImageSource: action.payload
       });
 
     case constants.RESET_TRACKING_STATE:

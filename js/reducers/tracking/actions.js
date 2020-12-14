@@ -104,3 +104,8 @@ export const resetTrackingState = function() {
     type: constants.RESET_TRACKING_STATE
   };
 };
+
+export const setTrackingImageSource = imageSource => ({
+  type: constants.SET_TRACKING_IMAGE_SOURCE,
+  payload: imageSource
+});

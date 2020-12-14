@@ -1,37 +1,51 @@
 import React, { useState, useRef, memo } from 'react';
-import { useDispatch } from 'react-redux';
-import { makeStyles, IconButton, Tooltip, Grid } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles, IconButton, Tooltip, Grid, Box, Chip } from '@material-ui/core';
 import { Check, Clear, Warning, Favorite, Star } from '@material-ui/icons';
 import { actionAnnotation } from '../../reducers/tracking/constants';
 import { TimelineEvent } from 'react-event-timeline';
 import EditableText from './editableText';
 import palette from '../../theme/palette';
 import { updateTrackingActions } from '../../reducers/tracking/dispatchActions';
+import { actionType } from '../../reducers/tracking/constants';
+import Gallery from 'react-grid-gallery';
 
 const useStyles = makeStyles(theme => ({
   headerGrid: {
-    height: '25px'
+    height: '15px'
   },
   grid: {
     height: 'inherit'
   },
   iconButton: {
-    padding: '6px'
+    padding: '6px',
+    paddingTop: '0px'
   },
   timelineEvent: {
     borderBottom: '1px dashed ' + palette.divider,
     paddingBottom: '10px'
+  },
+  title: {
+    position: 'relative',
+    paddingLeft: '45px',
+    textAlign: 'left',
+    fontWeight: 'bold'
+  },
+  titleMargin: {
+    marginRight: '5px'
   }
 }));
 
 const TimelineView = memo(({ data, index }) => {
   const dispatch = useDispatch();
+  const classes = useStyles();
+
+  const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
+  let isSelected = currentSnapshotID === data.object_id;
 
   const ref = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const [updatedIcon, setUpdatedIcon] = useState(null);
-
-  const classes = useStyles();
 
   const getActionIcon = annotation => {
     if (annotation) {
@@ -127,44 +141,85 @@ const TimelineView = memo(({ data, index }) => {
     dispatch(updateTrackingActions(data));
   };
 
+  const IMAGES = [
+    {
+      src: data.image,
+      thumbnail: data.image,
+      thumbnailWidth: 0,
+      thumbnailHeight: 0,
+      caption: data.object_name
+    }
+  ];
+
   return (
     <div ref={ref} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-      <TimelineEvent
-        key={index}
-        title={
-          <div>
-            <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.headerGrid}>
-              {
-                <Grid item xs={8} className={classes.grid}>
-                  <EditableText dataText={data.text} index={index} updateText={updateDataText} />
+      {data.type && data.type === actionType.SNAPSHOT ? (
+        <>
+          <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.title}>
+            {isSelected && (
+              <Box xs={2} className={classes.titleMargin} flexShrink={1}>
+                <Chip color="primary" size="small" label={`selected snapshot`} />
+              </Box>
+            )}
+            {
+              <Box xs={6} flexShrink={1} className={classes.titleMargin}>
+                {`${data.text}`}
+              </Box>
+            }
+            {
+              <Grid item xs={2}>
+                <Gallery
+                  images={IMAGES}
+                  enableImageSelection={false}
+                  backdropClosesModal={true}
+                  showImageCount={false}
+                  lightboxWidth={2048}
+                  rowHeight={30}
+                />
+              </Grid>
+            }
+          </Grid>
+        </>
+      ) : (
+        <>
+          <TimelineEvent
+            key={index}
+            title={
+              <div>
+                <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.headerGrid}>
+                  {
+                    <Grid item xs={8} className={classes.grid}>
+                      <EditableText dataText={data.text} index={index} updateText={updateDataText} />
+                    </Grid>
+                  }
+                  {isHovering && (
+                    <Grid
+                      container
+                      item
+                      justify="flex-end"
+                      direction="row"
+                      alignItems="flex-end"
+                      xs={4}
+                      className={classes.grid}
+                    >
+                      {annotationActions &&
+                        annotationActions.map((action, index) => (
+                          <Grid item key={index}>
+                            {action}
+                          </Grid>
+                        ))}
+                    </Grid>
+                  )}
                 </Grid>
-              }
-              {isHovering && (
-                <Grid
-                  container
-                  item
-                  justify="flex-end"
-                  direction="row"
-                  alignItems="flex-end"
-                  xs={4}
-                  className={classes.grid}
-                >
-                  {annotationActions &&
-                    annotationActions.map((action, index) => (
-                      <Grid item key={index}>
-                        {action}
-                      </Grid>
-                    ))}
-                </Grid>
-              )}
-            </Grid>
-          </div>
-        }
-        createdAt={new Date(data.timestamp).toLocaleString()}
-        icon={updatedIcon && updatedIcon != null ? getActionIcon(updatedIcon) : getActionIcon(data.annotation)}
-        iconColor={palette.primary.main}
-        className={classes.timelineEvent}
-      ></TimelineEvent>
+              </div>
+            }
+            createdAt={new Date(data.timestamp).toLocaleString()}
+            icon={updatedIcon && updatedIcon != null ? getActionIcon(updatedIcon) : getActionIcon(data.annotation)}
+            iconColor={palette.primary.main}
+            className={classes.timelineEvent}
+          ></TimelineEvent>
+        </>
+      )}
     </div>
   );
 });

@@ -27,6 +27,7 @@ import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatch
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
 import { saveCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
 import { sendTrackingActionsByProjectId, manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -215,7 +216,10 @@ export const createNewSnapshot = ({ title, description, type, author, parent, se
       }).then(res => {
         // redirect to project with newest created snapshot /:projectID/:snapshotID
         if (res.data.id && session_project) {
-          Promise.resolve(dispatch(saveCurrentActionsList(res.data.id, session_project, nglViewList))).then(() => {
+          let snapshot = { id: res.data.id, title: title };
+          let project = { projectID: session_project, authorID: author };
+
+          Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
             if (disableRedirect === false) {
               // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
               // use react-router !
@@ -251,6 +255,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
   const projectID = state.projectReducers.currentProject.projectID;
   const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
 
+  dispatch(captureScreenOfSnapshot());
   dispatch(manageSendTrackingActions());
   dispatch(setDisableRedirect(finallyShareSnapshot));
 
@@ -321,7 +326,10 @@ export const createNewSnapshotWithoutStateModification = ({
             disableRedirect: true
           })
         );
-        dispatch(saveCurrentActionsList(res.data.id, session_project, nglViewList));
+
+        let snapshot = { id: res.data.id, title: title };
+        let project = { projectID: session_project, authorID: author };
+        dispatch(saveCurrentActionsList(snapshot, project, nglViewList));
       }
     });
   });
@@ -332,6 +340,7 @@ export const saveAndShareSnapshot = nglViewList => (dispatch, getState) => {
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
 
+  dispatch(captureScreenOfSnapshot());
   dispatch(setDisableRedirect(true));
 
   if (targetId) {
