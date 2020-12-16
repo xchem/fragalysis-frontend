@@ -84,6 +84,13 @@ export const setProjectActionList = function(project_actions_list) {
   };
 };
 
+export const setSnapshotImageActionList = function(snapshotActionImageList) {
+  return {
+    type: constants.SET_SNAPSOT_IMAGE_ACTIONS_LIST,
+    snapshotActionImageList: snapshotActionImageList
+  };
+};
+
 export const setIsActionsSaving = function(isActionSaving) {
   return {
     type: constants.SET_IS_ACTIONS_SAVING,

@@ -13,6 +13,7 @@ export const INITIAL_STATE = {
   isActionSaving: false,
   send_actions_list: [],
   project_actions_list: [],
+  snapshotActionImageList: [],
   isActionRestoring: false,
   isActionRestored: false,
   trackingImageSource: ''
@@ -78,6 +79,11 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_PROJECT_ACTIONS_LIST:
       return Object.assign({}, state, {
         project_actions_list: action.project_actions_list
+      });
+
+    case constants.SET_SNAPSOT_IMAGE_ACTIONS_LIST:
+      return Object.assign({}, state, {
+        snapshotActionImageList: action.snapshotActionImageList
       });
 
     case constants.SET_IS_ACTIONS_SAVING:

@@ -61,7 +61,13 @@ import {
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import { deleteObject, setOrientation } from '../../../js/reducers/ngl/dispatchActions';
-import { setSendActionsList, setIsActionsSending, setIsActionsLoading, setActionsList } from './actions';
+import {
+  setSendActionsList,
+  setIsActionsSending,
+  setIsActionsLoading,
+  setActionsList,
+  setSnapshotImageActionList
+} from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
@@ -245,13 +251,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions.push(Object.assign({ ...trackAction }));
     }
 
-    await dispatch(saveSnapshotAction(snapshot, project));
+    await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    await dispatch(saveTrackingActions(currentActions, snapshotID));
     dispatch(setCurrentActionsList(currentActions));
-    dispatch(saveTrackingActions(currentActions, snapshotID));
   }
 };
 
-const saveSnapshotAction = (snapshot, project) => async (dispatch, getState) => {
+const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatch, getState) => {
   const state = getState();
   const trackingImageSource = state.trackingReducers.trackingImageSource;
 
@@ -265,10 +271,11 @@ const saveSnapshotAction = (snapshot, project) => async (dispatch, getState) => 
     image: trackingImageSource
   };
   sendActions.push(snapshotAction);
+  currentActions.push(snapshotAction);
   await dispatch(sendTrackingActions(sendActions, project));
 };
 
-export const saveTrackingActions = (currentActions, snapshotID) => (dispatch, getState) => {
+export const saveTrackingActions = (currentActions, snapshotID) => async (dispatch, getState) => {
   const state = getState();
   const project = state.projectReducers.currentProject;
   const projectID = project && project.projectID;
@@ -470,6 +477,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
+    dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
   }
@@ -640,6 +648,18 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
     representationsChangesActions.forEach(action => {
       dispatch(changeRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
+  }
+};
+
+const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
+  let actionList = await dispatch(getTrackingActions(projectID));
+
+  let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
+  if (snapshotActions) {
+    let actions = snapshotActions.map(s => {
+      return { id: s.object_id, image: s.image, title: s.object_name };
+    });
+    dispatch(setSnapshotImageActionList(actions));
   }
 };
 
@@ -1513,17 +1533,18 @@ const getTrackingActions = projectID => (dispatch, getState) => {
   }
 };
 
-const checkActionsProject = projectID => (dispatch, getState) => {
+const checkActionsProject = projectID => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
-  Promise.resolve(dispatch(getTrackingActions(projectID))).then(() => {
-    dispatch(copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false));
-  });
+  await dispatch(getTrackingActions(projectID));
+  await dispatch(
+    copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false)
+  );
 };
 
-const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => (dispatch, getState) => {
+const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => async (dispatch, getState) => {
   const state = getState();
   const actionList = state.trackingReducers.project_actions_list;
 
@@ -1537,20 +1558,19 @@ const copyActionsToProject = (toProject, setActionList = true, clearSendList = t
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
+    await dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
   }
 };
 
-export const sendTrackingActionsByProjectId = (projectID, authorID) => (dispatch, getState) => {
+export const sendTrackingActionsByProjectId = (projectID, authorID) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
   const project = { projectID, authorID };
 
-  Promise.resolve(dispatch(getTrackingActions(currentProjectID))).then(() => {
-    dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
-  });
+  await dispatch(getTrackingActions(currentProjectID));
+  await dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
 };
 
 export const sendInitTrackingActionByProjectId = target_on => (dispatch, getState) => {

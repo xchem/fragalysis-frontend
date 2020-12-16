@@ -141,7 +141,7 @@ const TimelineView = memo(({ data, index }) => {
     dispatch(updateTrackingActions(data));
   };
 
-  const IMAGES = [
+  const images = [
     {
       src: data.image,
       thumbnail: data.image,
@@ -169,7 +169,7 @@ const TimelineView = memo(({ data, index }) => {
             {
               <Grid item xs={2}>
                 <Gallery
-                  images={IMAGES}
+                  images={images}
                   enableImageSelection={false}
                   backdropClosesModal={true}
                   showImageCount={false}
