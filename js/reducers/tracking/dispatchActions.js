@@ -97,6 +97,8 @@ import {
 export const saveCurrentActionsList = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
+
+  dispatch(setSnapshotToActions(actionList, snapshot, projectID));
   await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
 };
 
@@ -267,12 +269,21 @@ const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatc
     timestamp: Date.now(),
     object_name: snapshot.title,
     object_id: snapshot.id,
+    snapshotId: snapshot.id,
     text: `Snapshot: ${snapshot.id} - ${snapshot.title}`,
     image: trackingImageSource
   };
   sendActions.push(snapshotAction);
   currentActions.push(snapshotAction);
   await dispatch(sendTrackingActions(sendActions, project));
+};
+
+const setSnapshotToActions = (actionList, snapshot, projectID) => (dispatch, getState) => {
+  if (actionList && snapshot) {
+    let actionsWithoutSnapshot = actionList.filter(a => a.snapshotId === null || a.snapshotId === undefined);
+    let updatedActions = actionsWithoutSnapshot.map(obj => ({ ...obj, snapshotId: snapshot.id }));
+    dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
+  }
 };
 
 export const saveTrackingActions = (currentActions, snapshotID) => async (dispatch, getState) => {
@@ -1494,11 +1505,11 @@ export const setProjectTrackingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const projectID = currentProject && currentProject.projectID;
-
-  dispatch(getTrackingActions(projectID));
+  dispatch(setProjectActionList([]));
+  dispatch(getTrackingActions(projectID, true));
 };
 
-const getTrackingActions = projectID => (dispatch, getState) => {
+const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
   const state = getState();
   const sendActions = state.trackingReducers.send_actions_list;
 
@@ -1516,6 +1527,10 @@ const getTrackingActions = projectID => (dispatch, getState) => {
           listToSet.push(...actions);
         });
 
+        if (withTreeSeparation === true) {
+          listToSet = dispatch(separateTrackkingActionBySnapshotTree(listToSet));
+        }
+
         let projectActions = [...listToSet, ...sendActions];
         dispatch(setProjectActionList(projectActions));
         return Promise.resolve(projectActions);
@@ -1530,6 +1545,40 @@ const getTrackingActions = projectID => (dispatch, getState) => {
     let projectActions = [...sendActions];
     dispatch(setProjectActionList(projectActions));
     return Promise.resolve(projectActions);
+  }
+};
+
+const separateTrackkingActionBySnapshotTree = actionList => (dispatch, getState) => {
+  const state = getState();
+  const snapshotID = state.projectReducers.currentSnapshot && state.projectReducers.currentSnapshot.id;
+  const currentSnapshotTree = state.projectReducers.currentSnapshotTree;
+  const currentSnapshotList = state.projectReducers.currentSnapshotList;
+
+  if (snapshotID && currentSnapshotTree != null) {
+    let treeActionList = [];
+    let snapshotIdList = [];
+    snapshotIdList.push(currentSnapshotTree.id);
+
+    if (currentSnapshotList != null) {
+      for (const id in currentSnapshotList) {
+        let snapshot = currentSnapshotList[id];
+        let snapshotChildren = snapshot.children;
+
+        if (
+          (snapshotChildren && snapshotChildren !== null && snapshotChildren.includes(snapshotID)) ||
+          snapshot.id === snapshotID
+        ) {
+          snapshotIdList.push(snapshot.id);
+        }
+      }
+    }
+
+    treeActionList = actionList.filter(
+      a => snapshotIdList.includes(a.snapshotId) || a.snapshotId === null || a.snapshotId === undefined
+    );
+    return treeActionList;
+  } else {
+    return actionList;
   }
 };
 
@@ -1617,6 +1666,46 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         .finally(() => {});
     } else {
       return Promise.resolve();
+    }
+  } else {
+    return Promise.resolve();
+  }
+};
+
+function groupArrayOfObjects(list, key) {
+  return list.reduce(function(rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+}
+
+export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch, getState) => {
+  if (projectID) {
+    const groupBy = groupArrayOfObjects(actionList, 'actionId');
+
+    for (const group in groupBy) {
+      let actionID = group;
+      let actions = groupBy[group];
+      if (actionID && actions && actions.length > 0) {
+        const dataToSend = {
+          session_action_id: actionID,
+          session_project: projectID,
+          last_update_date: moment().format(),
+          actions: JSON.stringify(actions)
+        };
+        return api({
+          url: `${base_url}/api/session-actions/${actionID}`,
+          method: METHOD.PUT,
+          data: JSON.stringify(dataToSend)
+        })
+          .then(() => {})
+          .catch(error => {
+            throw new Error(error);
+          })
+          .finally(() => {});
+      } else {
+        return Promise.resolve();
+      }
     }
   } else {
     return Promise.resolve();
