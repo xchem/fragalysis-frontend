@@ -12,11 +12,12 @@ export const deleteNglObject = target => ({
   target
 });
 
-export const updateComponentRepresentation = (objectInViewID, representationID, newRepresentation) => ({
+export const updateComponentRepresentation = (objectInViewID, representationID, newRepresentation, change) => ({
   type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION,
   representationID,
   newRepresentation,
-  objectInViewID
+  objectInViewID,
+  change
 });
 
 export const addComponentRepresentation = (objectInViewID, newRepresentation) => ({

@@ -48,6 +48,7 @@ import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
 import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
 import { getMoleculeList } from '../preview/molecule/redux/selectors';
+import { setSelectedAllByType, setDeselectedAllByType } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -325,15 +326,17 @@ export const DatasetMoleculeList = memo(
     // TODO so this could lead to inconsistend behaviour while scrolling
     // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
-    const removeSelectedType = type => {
+    const removeSelectedType = (type, skipTracking) => {
       joinedMoleculeLists.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
+        dispatch(
+          removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+        );
       });
       selectedAll.current = false;
     };
-    const addNewType = type => {
+    const addNewType = (type, skipTracking) => {
       joinedMoleculeLists.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
+        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
       });
     };
     const ucfirst = string => {
@@ -349,12 +352,46 @@ export const DatasetMoleculeList = memo(
         removeSelectedType(type);
       } else if (!calledFromSelectAll) {
         if (eval('is' + ucfirst(type) + 'On') === false) {
-          addNewType(type);
+          let molecules = getSelectedMoleculesByType(type, true);
+          dispatch(setSelectedAllByType(type, datasetID, molecules));
+          addNewType(type, true);
         } else {
-          removeSelectedType(type);
+          let molecules = getSelectedMoleculesByType(type, false);
+          dispatch(setDeselectedAllByType(type, datasetID, molecules));
+          removeSelectedType(type, true);
         }
       }
     };
+
+    const getSelectedMoleculesByType = (type, isAdd) => {
+      switch (type) {
+        case 'ligand':
+          return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
+        case 'protein':
+          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+        case 'complex':
+          return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+        default:
+          return null;
+      }
+    };
+
+    const getMoleculesToSelect = list => {
+      let molecules = joinedMoleculeLists.filter(m => !list.includes(m.id));
+      let data = molecules.map(m => {
+        return { datasetID, molecule: m };
+      });
+      return data;
+    };
+
+    const getMoleculesToDeselect = list => {
+      let molecules = joinedMoleculeLists.filter(m => list.includes(m.id));
+      let data = molecules.map(m => {
+        return { datasetID, molecule: m };
+      });
+      return data;
+    };
+
     let debouncedFn;
 
     const handleSearch = event => {

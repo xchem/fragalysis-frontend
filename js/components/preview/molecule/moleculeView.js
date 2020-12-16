@@ -28,6 +28,7 @@ import {
   searchMoleculeGroupByMoleculeID,
   getMolImage
 } from './redux/dispatchActions';
+import { setSelectedAll, setDeselectedAll } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
@@ -319,25 +320,25 @@ const MoleculeView = memo(
     const current_style =
       isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
 
-    const addNewLigand = () => {
+    const addNewLigand = (skipTracking = false) => {
       if (selectMoleculeSite) {
         selectMoleculeSite(data.site);
       }
-      dispatch(addLigand(stage, data, colourToggle));
+      dispatch(addLigand(stage, data, colourToggle, false, skipTracking));
     };
 
-    const removeSelectedLigand = () => {
-      dispatch(removeLigand(stage, data));
+    const removeSelectedLigand = (skipTracking = false) => {
+      dispatch(removeLigand(stage, data, skipTracking));
       selectedAll.current = false;
     };
 
     const onLigand = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isLigandOn === false) {
-          addNewLigand();
+          addNewLigand(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedLigand();
+        removeSelectedLigand(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
         if (isLigandOn === false) {
           addNewLigand();
@@ -347,25 +348,25 @@ const MoleculeView = memo(
       }
     };
 
-    const removeSelectedProtein = () => {
-      dispatch(removeHitProtein(stage, data, colourToggle));
+    const removeSelectedProtein = (skipTracking = false) => {
+      dispatch(removeHitProtein(stage, data, colourToggle, skipTracking));
       selectedAll.current = false;
     };
 
-    const addNewProtein = () => {
+    const addNewProtein = (skipTracking = false) => {
       if (selectMoleculeSite) {
         selectMoleculeSite(data.site);
       }
-      dispatch(addHitProtein(stage, data, colourToggle));
+      dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
     };
 
     const onProtein = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isProteinOn === false) {
-          addNewProtein();
+          addNewProtein(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedProtein();
+        removeSelectedProtein(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
         if (isProteinOn === false) {
           addNewProtein();
@@ -375,25 +376,25 @@ const MoleculeView = memo(
       }
     };
 
-    const removeSelectedComplex = () => {
-      dispatch(removeComplex(stage, data, colourToggle));
+    const removeSelectedComplex = (skipTracking = false) => {
+      dispatch(removeComplex(stage, data, colourToggle, skipTracking));
       selectedAll.current = false;
     };
 
-    const addNewComplex = () => {
+    const addNewComplex = (skipTracking = false) => {
       if (selectMoleculeSite) {
         selectMoleculeSite(data.site);
       }
-      dispatch(addComplex(stage, data, colourToggle));
+      dispatch(addComplex(stage, data, colourToggle, skipTracking));
     };
 
     const onComplex = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isComplexOn === false) {
-          addNewComplex();
+          addNewComplex(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedComplex();
+        removeSelectedComplex(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
         if (isComplexOn === false) {
           addNewComplex();
@@ -459,6 +460,15 @@ const MoleculeView = memo(
         addNewVector();
       } else {
         removeSelectedVector();
+      }
+    };
+
+    const setCalledFromAll = () => {
+      let isSelected = selectedAll.current === true;
+      if (isSelected) {
+        dispatch(setSelectedAll(data, true, true, true));
+      } else {
+        dispatch(setDeselectedAll(data, isLigandOn, isProteinOn, isComplexOn));
       }
     };
 
@@ -604,6 +614,7 @@ const MoleculeView = memo(
                         // always deselect all if are selected only some of options
                         selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
 
+                        setCalledFromAll();
                         onLigand(true);
                         onProtein(true);
                         onComplex(true);

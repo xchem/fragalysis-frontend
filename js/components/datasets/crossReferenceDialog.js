@@ -27,7 +27,7 @@ import {
   getListOfSelectedLigandOfAllDatasets,
   getListOfSelectedProteinOfAllDatasets
 } from './redux/selectors';
-import { changeButtonClassname, onButtonToggle } from './helpers';
+import { changeButtonClassname } from './helpers';
 
 const useStyles = makeStyles(theme => ({
   paper: {

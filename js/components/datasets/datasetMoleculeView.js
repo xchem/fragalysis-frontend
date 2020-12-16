@@ -33,7 +33,9 @@ import {
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog,
   setInspirationFragmentList,
-  setInspirationMoleculeDataList
+  setInspirationMoleculeDataList,
+  setSelectedAll,
+  setDeselectedAll
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
@@ -349,22 +351,22 @@ export const DatasetMoleculeView = memo(
     const not_selected_style = {};
     const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
-    const addNewLigand = () => {
-      dispatch(addDatasetLigand(stage, data, colourToggle, datasetID));
+    const addNewLigand = (skipTracking = false) => {
+      dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
     };
 
-    const removeSelectedLigand = () => {
-      dispatch(removeDatasetLigand(stage, data, colourToggle, datasetID));
+    const removeSelectedLigand = (skipTracking = false) => {
+      dispatch(removeDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
       selectedAll.current = false;
     };
 
     const onLigand = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isLigandOn === false) {
-          addNewLigand();
+          addNewLigand(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedLigand();
+        removeSelectedLigand(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
         if (isLigandOn === false) {
           addNewLigand();
@@ -374,22 +376,22 @@ export const DatasetMoleculeView = memo(
       }
     };
 
-    const removeSelectedProtein = () => {
-      dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID));
+    const removeSelectedProtein = (skipTracking = false) => {
+      dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
       selectedAll.current = false;
     };
 
-    const addNewProtein = () => {
-      dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID));
+    const addNewProtein = (skipTracking = false) => {
+      dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
     };
 
     const onProtein = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isProteinOn === false) {
-          addNewProtein();
+          addNewProtein(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedProtein();
+        removeSelectedProtein(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
         if (isProteinOn === false) {
           addNewProtein();
@@ -399,22 +401,22 @@ export const DatasetMoleculeView = memo(
       }
     };
 
-    const removeSelectedComplex = () => {
-      dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID));
+    const removeSelectedComplex = (skipTracking = false) => {
+      dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
       selectedAll.current = false;
     };
 
-    const addNewComplex = () => {
-      dispatch(addDatasetComplex(stage, data, colourToggle, datasetID));
+    const addNewComplex = (skipTracking = false) => {
+      dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
     };
 
     const onComplex = calledFromSelectAll => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isComplexOn === false) {
-          addNewComplex();
+          addNewComplex(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedComplex();
+        removeSelectedComplex(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
         if (isComplexOn === false) {
           addNewComplex();
@@ -446,6 +448,15 @@ export const DatasetMoleculeView = memo(
         } else {
           removeSelectedSurface();
         }
+      }
+    };
+
+    const setCalledFromAll = () => {
+      let isSelected = selectedAll.current === true;
+      if (isSelected) {
+        dispatch(setSelectedAll(datasetID, data, true, true, true));
+      } else {
+        dispatch(setDeselectedAll(datasetID, data, isLigandOn, isProteinOn, isComplexOn));
       }
     };
 
@@ -663,6 +674,7 @@ export const DatasetMoleculeView = memo(
                         // always deselect all if are selected only some of options
                         selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
 
+                        setCalledFromAll();
                         onLigand(true);
                         onProtein(true);
                         onComplex(true);

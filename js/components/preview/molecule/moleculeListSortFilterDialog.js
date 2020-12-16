@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Popper, Tooltip, IconButton } from '@material-ui/core';
 import { Close, Delete } from '@material-ui/icons';
@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import MoleculeListSortFilterItem from './moleculeListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../../reducers/selection/actions';
 import { Panel } from '../../common/Surfaces/Panel';
@@ -62,6 +62,7 @@ export const getFilteredMoleculesCount = (molecules, filter) => {
   for (let molecule of molecules) {
     let add = true; // By default molecule passes filter
     for (let attr of MOL_ATTRIBUTES) {
+      if (!attr.filter) continue;
       const lowAttr = attr.key.toLowerCase();
       const attrValue = molecule[lowAttr];
       if (attrValue < filter.filter[attr.key].minValue || attrValue > filter.filter[attr.key].maxValue) {
@@ -129,35 +130,18 @@ export const filterMolecules = (molecules, filter) => {
 
 export const MoleculeListSortFilterDialog = memo(
   ({
-    molGroupSelection,
-    cachedMolList,
     filter,
     anchorEl,
     open,
     parentID = 'default',
     placement = 'right-start',
-    setSortDialogAnchorEl
+    setSortDialogAnchorEl,
+    joinedMoleculeLists
   }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
-    const moleculeGroupList = useSelector(state => state.apiReducers.mol_group_list);
 
-    const getListedMolecules = () => {
-      let molecules = [];
-      for (let molGroupId of molGroupSelection) {
-        // Selected molecule groups
-        const molGroup = cachedMolList[molGroupId];
-        if (molGroup) {
-          molecules = molecules.concat(molGroup);
-        } else {
-          console.log(`Molecule group ${molGroupId} not found in cached list`);
-        }
-      }
-
-      return molecules;
-    };
-
-    const initialize = () => {
+    const initialize = useCallback(() => {
       let initObject = {
         active: false,
         predefined: 'none',
@@ -169,9 +153,8 @@ export const MoleculeListSortFilterDialog = memo(
         const lowAttr = attr.key.toLowerCase();
         let minValue = -999999;
         let maxValue = 0;
-        const moleculeList = getListedMolecules();
 
-        moleculeList.forEach(molecule => {
+        joinedMoleculeLists.forEach(molecule => {
           const attrValue = molecule[lowAttr];
           if (attrValue > maxValue) maxValue = attrValue;
           if (minValue === -999999) minValue = maxValue;
@@ -187,16 +170,13 @@ export const MoleculeListSortFilterDialog = memo(
         };
       }
       return initObject;
-    };
+    }, [joinedMoleculeLists]);
 
-    const [initState] = useState(initialize());
-
-    filter = filter || initState;
-
-    const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(getListedMolecules(), filter));
+    const [initState, setInitState] = useState(initialize());
+    const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(joinedMoleculeLists, filter));
     const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 
-    const handleFilterChange = filter => {
+    const handleFilterChange = useCallback(filter => {
       const filterSet = Object.assign({}, filter);
       for (let attr of MOL_ATTRIBUTES) {
         if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
@@ -204,14 +184,56 @@ export const MoleculeListSortFilterDialog = memo(
         }
       }
       dispatch(setFilter(filterSet));
-    };
+    }, [dispatch]);
+
+    useEffect(() => {
+      const init = initialize();
+
+      setInitState(init);
+      
+      if (!filter.active) {
+        const initCopy = { ...init };
+        dispatch(setFilter(initCopy));
+        handleFilterChange(initCopy);
+      }
+    }, [initialize, dispatch, joinedMoleculeLists, handleFilterChange, filter.active]);
+
+    useEffect(() => {
+      setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, filter));
+    }, [joinedMoleculeLists, filter]);
+
+    useEffect(() => {
+      let changed = false;
+      const newFilter = { ...filter };
+
+      for (let attr of MOL_ATTRIBUTES) {
+        if (!attr.filter) continue;
+        const key = attr.key;
+        const filterValue = newFilter.filter[key];
+        const initValue = initState.filter[key];
+
+        if (filterValue.minValue < initValue.minValue || filterValue.minValue > initValue.maxValue) {
+          filterValue.minValue = initValue.minValue;
+          changed = true;
+        }
+
+        if (filterValue.maxValue > initValue.maxValue || filterValue.maxValue < initValue.minValue) {
+          filterValue.maxValue = initValue.maxValue;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        dispatch(setFilter(newFilter));
+        handleFilterChange(newFilter);
+      }
+    }, [initState, filter, dispatch, handleFilterChange]);
 
     const handleItemChange = key => setting => {
       let newFilter = Object.assign({}, filter);
       newFilter.filter[key] = setting;
       newFilter.active = true;
       dispatch(setFilter(newFilter));
-      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), newFilter));
       handleFilterChange(newFilter);
     };
 
@@ -235,7 +257,6 @@ export const MoleculeListSortFilterDialog = memo(
       const resetFilter = initialize();
       setPredefinedFilter('none');
       dispatch(setFilter(resetFilter));
-      setFilteredCount(getFilteredMoleculesCount(getListedMolecules(), resetFilter));
       handleFilterChange(resetFilter);
     };
 
@@ -338,8 +359,6 @@ export const MoleculeListSortFilterDialog = memo(
 );
 
 MoleculeListSortFilterDialog.propTypes = {
-  molGroupSelection: PropTypes.arrayOf(PropTypes.number).isRequired,
-  cachedMolList: PropTypes.object.isRequired,
   filter: PropTypes.object,
   setFilter: PropTypes.func,
   anchorEl: PropTypes.object,

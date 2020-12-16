@@ -9,7 +9,7 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
-import { restoreFromCurrentSnapshot } from '../preview/moleculeGroups/redux/dispatchActions';
+import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -64,7 +64,7 @@ export const withSnapshotManagement = WrappedComponent => {
           <Button
             key="restoreSnapshot"
             color="primary"
-            onClick={() => dispatch(restoreFromCurrentSnapshot({ nglViewList }))}
+            onClick={() => dispatch(restoreSnapshotActions({ nglViewList }))}
             startIcon={<Restore />}
             disabled={disableShareButton || false}
           >
@@ -78,7 +78,7 @@ export const withSnapshotManagement = WrappedComponent => {
           startIcon={<Share />}
           disabled={disableShareButton || false}
           onClick={() => {
-            dispatch(saveAndShareSnapshot(target));
+            dispatch(saveAndShareSnapshot(nglViewList));
           }}
         >
           Share

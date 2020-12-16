@@ -55,22 +55,24 @@ export const setLigandList = function(datsetID, ligandList) {
     }
   };
 };
-export const appendLigandList = function(datsetID, item) {
+export const appendLigandList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.APPEND_LIGAND_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
-export const removeFromLigandList = function(datsetID, item) {
+export const removeFromLigandList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_LIGAND_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 
@@ -83,22 +85,24 @@ export const setProteinList = function(datsetID, proteinList) {
     }
   };
 };
-export const appendProteinList = function(datsetID, item) {
+export const appendProteinList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.APPEND_PROTEIN_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
-export const removeFromProteinList = function(datsetID, item) {
+export const removeFromProteinList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_PROTEIN_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 
@@ -111,22 +115,24 @@ export const setComplexList = function(datsetID, complexList) {
     }
   };
 };
-export const appendComplexList = function(datsetID, item) {
+export const appendComplexList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.APPEND_COMPLEX_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
-export const removeFromComplexList = function(datsetID, item) {
+export const removeFromComplexList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_COMPLEX_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 
@@ -320,3 +326,45 @@ export const resetDatasetsState = () => {
     type: constants.RESET_DATASETS_STATE
   };
 };
+
+export const setSelectedAll = (datsetID, item, isLigand, isProtein, isComplex) => ({
+  type: constants.SET_SELECTED_ALL,
+  payload: {
+    datasetID: datsetID,
+    item: item,
+    isLigand: isLigand,
+    isProtein: isProtein,
+    isComplex: isComplex
+  }
+});
+
+export const setDeselectedAll = (datsetID, item, isLigand, isProtein, isComplex) => ({
+  type: constants.SET_DESELECTED_ALL,
+  payload: {
+    datasetID: datsetID,
+    item: item,
+    isLigand: isLigand,
+    isProtein: isProtein,
+    isComplex: isComplex
+  }
+});
+
+export const setSelectedAllByType = (type, datsetID, items, isCrossReference) => ({
+  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  payload: {
+    type: type,
+    datasetID: datsetID,
+    items: items,
+    isCrossReference: isCrossReference
+  }
+});
+
+export const setDeselectedAllByType = (type, datsetID, items, isCrossReference) => ({
+  type: constants.SET_DESELECTED_ALL_BY_TYPE,
+  payload: {
+    type: type,
+    datasetID: datsetID,
+    items: items,
+    isCrossReference: isCrossReference
+  }
+});

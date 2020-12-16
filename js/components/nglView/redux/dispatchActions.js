@@ -8,7 +8,7 @@ import { setDuckYankData, setMolGroupOn, setPanddaSiteOn } from '../../../reduce
 import * as listTypes from '../../../constants/listTypes';
 import { selectVectorAndResetCompounds } from '../../../reducers/selection/dispatchActions';
 
-export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage) => (dispatch, getState) => {
+export const toggleMoleculeGroup = (molGroupId, summaryViewStage) => (dispatch, getState) => {
   const state = getState();
   const molGroupSelection = state.selectionReducers.mol_group_selection;
   const objIdx = molGroupSelection.indexOf(molGroupId);
@@ -58,11 +58,7 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage, majorViewStage
       throw new Error(error);
     });
     dispatch(
-      clearAfterDeselectingMoleculeGroup({
-        molGroupId,
-        currentMolGroup,
-        majorViewStage
-      })
+      clearAfterDeselectingMoleculeGroup()
     );
   }
 };
@@ -117,9 +113,9 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
       const type = name.split('_')[0];
       const pk = parseInt(name.split('_')[1], 10);
       if (type === OBJECT_TYPE.MOLECULE_GROUP && getNglView(VIEWS.MAJOR_VIEW)) {
-        dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage));
+        dispatch(toggleMoleculeGroup(pk, stage));
       } else if (type === OBJECT_TYPE.MOLGROUPS_SELECT && getNglView(VIEWS.MAJOR_VIEW)) {
-        dispatch(toggleMoleculeGroup(pk, stage, getNglView(VIEWS.MAJOR_VIEW).stage));
+        dispatch(toggleMoleculeGroup(pk, stage));
       } else if (type === listTypes.PANDDA_SITE) {
         dispatch(setPanddaSiteOn(pk));
       }
