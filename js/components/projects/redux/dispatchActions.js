@@ -393,10 +393,9 @@ export const createProjectFromScratch = ({ title, description, target, author, t
     });
 };
 
-export const createProjectWithoutStateModification = data => dispatch => {
-  return api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data }).then(response => {
-    return response.data.id;
-  });
+export const createProjectWithoutStateModification = data => async () => {
+  const response = await api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data });
+  return response.data.id;
 };
 
 export const createInitSnapshotToProjectWitActions = (session_project, author, parent, target) => (

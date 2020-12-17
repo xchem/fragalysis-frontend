@@ -1,5 +1,6 @@
 import { setImageSource, setIsOpenForm } from './redux/actions';
-
+import { setTrackingImageSource } from '../../reducers/tracking/actions';
+import html2canvas from 'html2canvas';
 /* Getting image from screen capture or  */
 
 // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
@@ -80,4 +81,10 @@ export const captureScreen = () => async dispatch => {
 
   dispatch(setImageSource(image));
   dispatch(setIsOpenForm(true));
+};
+
+export const captureScreenOfSnapshot = () => async dispatch => {
+  html2canvas(document.body).then(canvas => {
+    dispatch(setTrackingImageSource(canvas.toDataURL()));
+  });
 };
