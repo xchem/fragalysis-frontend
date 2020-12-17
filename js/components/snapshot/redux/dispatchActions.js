@@ -25,8 +25,12 @@ import { base_url, URLS } from '../../routes/constants';
 import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
-import { saveCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
-import { sendTrackingActionsByProjectId, manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import {
+  saveCurrentActionsList,
+  addCurrentActionsListToSnapshot,
+  sendTrackingActionsByProjectId,
+  manageSendTrackingActions
+} from '../../../reducers/tracking/dispatchActions';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
@@ -179,71 +183,95 @@ export const createInitSnapshotFromCopy = ({
   return Promise.reject('ProjectID is missing');
 };
 
-export const createNewSnapshot = ({ title, description, type, author, parent, session_project, nglViewList }) => (
-  dispatch,
-  getState
-) => {
+export const createNewSnapshot = ({
+  title,
+  description,
+  type,
+  author,
+  parent,
+  session_project,
+  nglViewList,
+  overwriteSnapshot
+}) => (dispatch, getState) => {
   const state = getState();
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
   const disableRedirect = state.snapshotReducers.disableRedirect;
+  const currentSnapshot = state.projectReducers.currentSnapshot;
+  const currentSnapshotId = currentSnapshot && currentSnapshot.id;
 
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
   }
 
-  let newType = type;
+  if (overwriteSnapshot === true && currentSnapshotId) {
+    dispatch(setIsLoadingSnapshotDialog(true));
+    let project = { projectID: session_project, authorID: author };
 
-  return Promise.all([
-    dispatch(setIsLoadingSnapshotDialog(true)),
-    api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
-      if (response.data.count === 0) {
-        newType = SnapshotType.INIT;
-      }
-
-      return api({
-        url: `${base_url}/api/snapshots/`,
-        data: {
-          title,
-          description,
-          type: newType,
-          author,
-          parent,
-          session_project,
-          data: '[]',
-          children: []
-        },
-        method: METHOD.POST
-      }).then(res => {
-        // redirect to project with newest created snapshot /:projectID/:snapshotID
-        if (res.data.id && session_project) {
-          let snapshot = { id: res.data.id, title: title };
-          let project = { projectID: session_project, authorID: author };
-
-          Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
-            if (disableRedirect === false) {
-              // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
-              // use react-router !
-              window.location.replace(
-                `${URLS.projects}${session_project}/${
-                  selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
-                }`
-              );
-            } else {
-              dispatch(setOpenSnapshotSavingDialog(false));
-              dispatch(setIsLoadingSnapshotDialog(false));
-              dispatch(
-                setSharedSnapshot({
-                  title,
-                  description,
-                  url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
-                })
-              );
-            }
-          });
+    return Promise.resolve(dispatch(addCurrentActionsListToSnapshot(currentSnapshot, project, nglViewList))).then(
+      () => {
+        if (disableRedirect === false && selectedSnapshotToSwitch != null) {
+          window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+        } else {
+          dispatch(setIsLoadingSnapshotDialog(false));
+          dispatch(setOpenSnapshotSavingDialog(false));
         }
-      });
-    })
-  ]);
+      }
+    );
+  } else {
+    let newType = type;
+
+    return Promise.all([
+      dispatch(setIsLoadingSnapshotDialog(true)),
+      api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
+        if (response.data.count === 0) {
+          newType = SnapshotType.INIT;
+        }
+
+        return api({
+          url: `${base_url}/api/snapshots/`,
+          data: {
+            title,
+            description,
+            type: newType,
+            author,
+            parent,
+            session_project,
+            data: '[]',
+            children: []
+          },
+          method: METHOD.POST
+        }).then(res => {
+          // redirect to project with newest created snapshot /:projectID/:snapshotID
+          if (res.data.id && session_project) {
+            let snapshot = { id: res.data.id, title: title };
+            let project = { projectID: session_project, authorID: author };
+
+            Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
+              if (disableRedirect === false) {
+                // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
+                // use react-router !
+                window.location.replace(
+                  `${URLS.projects}${session_project}/${
+                    selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
+                  }`
+                );
+              } else {
+                dispatch(setOpenSnapshotSavingDialog(false));
+                dispatch(setIsLoadingSnapshotDialog(false));
+                dispatch(
+                  setSharedSnapshot({
+                    title,
+                    description,
+                    url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
+                  })
+                );
+              }
+            });
+          }
+        });
+      })
+    ]);
+  }
 };
 
 export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareSnapshot = false) => (
@@ -329,7 +357,7 @@ export const createNewSnapshotWithoutStateModification = ({
 
         let snapshot = { id: res.data.id, title: title };
         let project = { projectID: session_project, authorID: author };
-        dispatch(saveCurrentActionsList(snapshot, project, nglViewList));
+        dispatch(saveCurrentActionsList(snapshot, project, nglViewList, true));
       }
     });
   });

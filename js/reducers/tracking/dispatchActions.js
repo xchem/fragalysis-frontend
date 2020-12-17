@@ -94,11 +94,22 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshot, project, nglViewList) => async (dispatch, getState) => {
+export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
 
-  dispatch(setSnapshotToActions(actionList, snapshot, projectID));
+  await dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, true));
+};
+
+export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async (dispatch, getState) => {
+  let projectID = project && project.projectID;
+  let actionList = await dispatch(getTrackingActions(projectID));
+
+  if (all === false) {
+    dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
+  } else {
+    dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+  }
   await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
 };
 
@@ -278,10 +289,24 @@ const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatc
   await dispatch(sendTrackingActions(sendActions, project));
 };
 
-const setSnapshotToActions = (actionList, snapshot, projectID) => (dispatch, getState) => {
+const setSnapshotToActions = (actionList, snapshot, projectID, project, nglViewList, addToSnapshot) => async (
+  dispatch,
+  getState
+) => {
   if (actionList && snapshot) {
     let actionsWithoutSnapshot = actionList.filter(a => a.snapshotId === null || a.snapshotId === undefined);
     let updatedActions = actionsWithoutSnapshot.map(obj => ({ ...obj, snapshotId: snapshot.id }));
+    dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
+
+    if (addToSnapshot === true) {
+      await dispatch(saveActionsList(project, snapshot, updatedActions, nglViewList));
+    }
+  }
+};
+
+const setSnapshotToAllActions = (actionList, snapshot, projectID) => async (dispatch, getState) => {
+  if (actionList && snapshot) {
+    let updatedActions = actionList.map(obj => ({ ...obj, snapshotId: snapshot.id }));
     dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
   }
 };
@@ -495,7 +520,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 };
 
 const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
-  let action = orderedActionList.find(action => action.type === actionType.NGL_STATE);
+  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+  let action = [...actions].pop();
   if (action && action.nglStateList) {
     action.nglStateList.forEach(nglView => {
       dispatch(setOrientation(nglView.id, nglView.orientation));
@@ -668,9 +694,11 @@ const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
   let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
   if (snapshotActions) {
     let actions = snapshotActions.map(s => {
-      return { id: s.object_id, image: s.image, title: s.object_name };
+      return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
     });
-    dispatch(setSnapshotImageActionList(actions));
+    const key = 'object_id';
+    const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
+    dispatch(setSnapshotImageActionList(arrayUniqueByKey));
   }
 };
 
@@ -1529,6 +1557,15 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
 
         if (withTreeSeparation === true) {
           listToSet = dispatch(separateTrackkingActionBySnapshotTree(listToSet));
+
+          let actionsWithoutSnapshot = listToSet.filter(action => action.type !== actionType.SNAPSHOT);
+          let snapshotActions = listToSet.filter(action => action.type === actionType.SNAPSHOT);
+          if (snapshotActions) {
+            const key = 'object_id';
+            const arrayUniqueByKey = [...new Map(snapshotActions.map(item => [item[key], item])).values()];
+            actionsWithoutSnapshot.push(...arrayUniqueByKey);
+            listToSet = actionsWithoutSnapshot;
+          }
         }
 
         let projectActions = [...listToSet, ...sendActions];
