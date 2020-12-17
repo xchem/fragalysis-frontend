@@ -4,7 +4,7 @@ import { makeStyles, IconButton, Tooltip, Grid, Box, Chip } from '@material-ui/c
 import { Check, Clear, Warning, Favorite, Star } from '@material-ui/icons';
 import { actionAnnotation } from '../../reducers/tracking/constants';
 import { TimelineEvent } from 'react-event-timeline';
-import EditableText from './editableText';
+import EditableText from './EditableText';
 import palette from '../../theme/palette';
 import { updateTrackingActions } from '../../reducers/tracking/dispatchActions';
 import { actionType } from '../../reducers/tracking/constants';
