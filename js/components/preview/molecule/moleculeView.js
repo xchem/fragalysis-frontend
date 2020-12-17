@@ -612,7 +612,7 @@ const MoleculeView = memo(
                       )}
                       onClick={() => {
                         // always deselect all if are selected only some of options
-                        selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
+                        selectedAll.current = hasSomeValuesOn || hasAllValuesOn ? false : !selectedAll.current;
 
                         setCalledFromAll();
                         onLigand(true);
