@@ -84,6 +84,13 @@ export const setProjectActionList = function(project_actions_list) {
   };
 };
 
+export const setSnapshotImageActionList = function(snapshotActionImageList) {
+  return {
+    type: constants.SET_SNAPSOT_IMAGE_ACTIONS_LIST,
+    snapshotActionImageList: snapshotActionImageList
+  };
+};
+
 export const setIsActionsSaving = function(isActionSaving) {
   return {
     type: constants.SET_IS_ACTIONS_SAVING,
@@ -104,3 +111,8 @@ export const resetTrackingState = function() {
     type: constants.RESET_TRACKING_STATE
   };
 };
+
+export const setTrackingImageSource = imageSource => ({
+  type: constants.SET_TRACKING_IMAGE_SOURCE,
+  payload: imageSource
+});
