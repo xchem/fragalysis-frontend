@@ -784,7 +784,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={true || false}
+                        disabled={false}
                       >
                         X
                       </Button>
