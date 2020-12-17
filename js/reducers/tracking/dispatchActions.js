@@ -61,7 +61,13 @@ import {
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import { deleteObject, setOrientation } from '../../../js/reducers/ngl/dispatchActions';
-import { setSendActionsList, setIsActionsSending, setIsActionsLoading, setActionsList } from './actions';
+import {
+  setSendActionsList,
+  setIsActionsSending,
+  setIsActionsLoading,
+  setActionsList,
+  setSnapshotImageActionList
+} from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
@@ -88,12 +94,15 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshotID, projectID, nglViewList) => async (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshot, project, nglViewList) => async (dispatch, getState) => {
+  let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
-  dispatch(saveActionsList(snapshotID, actionList, nglViewList));
+
+  dispatch(setSnapshotToActions(actionList, snapshot, projectID));
+  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
 };
 
-export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatch, getState) => {
+const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
   const state = getState();
 
   const currentTargetOn = state.apiReducers.target_on;
@@ -101,23 +110,14 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
   const currentLigands = state.selectionReducers.fragmentDisplayList;
   const currentProteins = state.selectionReducers.proteinList;
   const currentComplexes = state.selectionReducers.complexList;
-  const currentSurfaces = state.selectionReducers.surfaceList;
-  const currentVectors = state.selectionReducers.vectorOnList;
-  const currentBuyList = state.selectionReducers.to_buy_list;
-  const currentVector = state.selectionReducers.currentVector;
   const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
 
   const currentDatasetLigands = state.datasetsReducers.ligandLists;
   const currentDatasetProteins = state.datasetsReducers.proteinLists;
   const currentDatasetComplexes = state.datasetsReducers.complexLists;
-  const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
   const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
-  const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
-  const currentobjectsInView = state.nglReducers.objectsInView;
-
   const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
-  const currentVectorSmiles = (currentVector && [currentVector]) || [];
 
   let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
 
@@ -201,97 +201,188 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
     getCollection(currentProteins),
     currentActions
   );
+  const snapshotID = snapshot && snapshot.id;
+  if (snapshotID) {
+    const currentTargetOn = state.apiReducers.target_on;
+    const currentSites = state.selectionReducers.mol_group_selection;
+    const currentLigands = state.selectionReducers.fragmentDisplayList;
+    const currentProteins = state.selectionReducers.proteinList;
+    const currentComplexes = state.selectionReducers.complexList;
+    const currentSurfaces = state.selectionReducers.surfaceList;
+    const currentVectors = state.selectionReducers.vectorOnList;
+    const currentBuyList = state.selectionReducers.to_buy_list;
+    const currentVector = state.selectionReducers.currentVector;
+    const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.INTERACTIONS_TURNED_ON,
-    getCollection(currentComplexes),
-    currentActions
-  );
-  getCurrentActionList(orderedActionList, actionType.SURFACE_TURNED_ON, getCollection(currentSurfaces), currentActions);
-  getCurrentActionList(orderedActionList, actionType.VECTORS_TURNED_ON, getCollection(currentVectors), currentActions);
-  getCurrentActionList(
-    orderedActionList,
-    actionType.VECTOR_SELECTED,
-    getCollection(currentVectorSmiles),
-    currentActions
-  );
+    const currentDatasetLigands = state.datasetsReducers.ligandLists;
+    const currentDatasetProteins = state.datasetsReducers.proteinLists;
+    const currentDatasetComplexes = state.datasetsReducers.complexLists;
+    const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
+    const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
-    getCollectionOfShoppingCart(currentBuyList),
-    currentActions
-  );
+    const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
+    const currentobjectsInView = state.nglReducers.objectsInView;
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.LIGAND_TURNED_ON,
-    getCollectionOfDataset(currentDatasetLigands),
-    currentActions
-  );
+    const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
+    const currentVectorSmiles = (currentVector && [currentVector]) || [];
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SIDECHAINS_TURNED_ON,
-    getCollectionOfDataset(currentDatasetProteins),
-    currentActions
-  );
+    let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.INTERACTIONS_TURNED_ON,
-    getCollectionOfDataset(currentDatasetComplexes),
-    currentActions
-  );
+    let currentActions = [];
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SURFACE_TURNED_ON,
-    getCollectionOfDataset(currentDatasetSurfaces),
-    currentActions
-  );
+    getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
+    getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
+    getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.COMPOUND_SELECTED,
-    getCollectionOfDataset(currentDatasetBuyList),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.ALL_TURNED_ON,
+      getCollection(currentSelectionAll),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.ALL_TURNED_ON,
+      getCollectionOfDataset(currentDatasetSelectionAll),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.REPRESENTATION_ADDED,
-    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SIDECHAINS_TURNED_ON,
+      getCollection(currentProteins),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.REPRESENTATION_CHANGED,
-    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.INTERACTIONS_TURNED_ON,
+      getCollection(currentComplexes),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SURFACE_TURNED_ON,
+      getCollection(currentSurfaces),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.VECTORS_TURNED_ON,
+      getCollection(currentVectors),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.VECTOR_SELECTED,
+      getCollection(currentVectorSmiles),
+      currentActions
+    );
 
-  if (nglViewList) {
-    let nglStateList = nglViewList.map(nglView => {
-      return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
-    });
+    getCurrentActionList(
+      orderedActionList,
+      actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+      getCollectionOfShoppingCart(currentBuyList),
+      currentActions
+    );
 
-    let trackAction = {
-      type: actionType.NGL_STATE,
-      timestamp: Date.now(),
-      nglStateList: nglStateList
-    };
+    getCurrentActionList(
+      orderedActionList,
+      actionType.LIGAND_TURNED_ON,
+      getCollectionOfDataset(currentDatasetLigands),
+      currentActions
+    );
 
-    currentActions.push(Object.assign({ ...trackAction }));
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SIDECHAINS_TURNED_ON,
+      getCollectionOfDataset(currentDatasetProteins),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.INTERACTIONS_TURNED_ON,
+      getCollectionOfDataset(currentDatasetComplexes),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SURFACE_TURNED_ON,
+      getCollectionOfDataset(currentDatasetSurfaces),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.COMPOUND_SELECTED,
+      getCollectionOfDataset(currentDatasetBuyList),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.REPRESENTATION_ADDED,
+      getCollectionOfDatasetOfRepresentation(currentobjectsInView),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.REPRESENTATION_CHANGED,
+      getCollectionOfDatasetOfRepresentation(currentobjectsInView),
+      currentActions
+    );
+
+    if (nglViewList) {
+      let nglStateList = nglViewList.map(nglView => {
+        return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
+      });
+
+      let trackAction = {
+        type: actionType.NGL_STATE,
+        timestamp: Date.now(),
+        nglStateList: nglStateList
+      };
+
+      currentActions.push(Object.assign({ ...trackAction }));
+    }
+
+    await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    await dispatch(saveTrackingActions(currentActions, snapshotID));
+    dispatch(setCurrentActionsList(currentActions));
   }
-
-  dispatch(setCurrentActionsList(currentActions));
-  dispatch(saveTrackingActions(currentActions, snapshotID));
 };
 
-export const saveTrackingActions = (currentActions, snapshotID) => (dispatch, getState) => {
+const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatch, getState) => {
+  const state = getState();
+  const trackingImageSource = state.trackingReducers.trackingImageSource;
+
+  let sendActions = [];
+  let snapshotAction = {
+    type: actionType.SNAPSHOT,
+    timestamp: Date.now(),
+    object_name: snapshot.title,
+    object_id: snapshot.id,
+    snapshotId: snapshot.id,
+    text: `Snapshot: ${snapshot.id} - ${snapshot.title}`,
+    image: trackingImageSource
+  };
+  sendActions.push(snapshotAction);
+  currentActions.push(snapshotAction);
+  await dispatch(sendTrackingActions(sendActions, project));
+};
+
+const setSnapshotToActions = (actionList, snapshot, projectID) => (dispatch, getState) => {
+  if (actionList && snapshot) {
+    let actionsWithoutSnapshot = actionList.filter(a => a.snapshotId === null || a.snapshotId === undefined);
+    let updatedActions = actionsWithoutSnapshot.map(obj => ({ ...obj, snapshotId: snapshot.id }));
+    dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
+  }
+};
+
+export const saveTrackingActions = (currentActions, snapshotID) => async (dispatch, getState) => {
   const state = getState();
   const project = state.projectReducers.currentProject;
   const projectID = project && project.projectID;
@@ -578,7 +669,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
-    await dispatch(restoreNglStateAction(orderedActionList, stages));
+    dispatch(restoreSnapshotImageActions(projectId));
+    dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
   }
 };
@@ -742,7 +834,6 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
 };
 
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
-  let state = getState();
 
   let actions =
     isSelection === true
@@ -822,6 +913,18 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
     representationsChangesActions.forEach(action => {
       dispatch(changeRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
+  }
+};
+
+const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
+  let actionList = await dispatch(getTrackingActions(projectID));
+
+  let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
+  if (snapshotActions) {
+    let actions = snapshotActions.map(s => {
+      return { id: s.object_id, image: s.image, title: s.object_name };
+    });
+    dispatch(setSnapshotImageActionList(actions));
   }
 };
 
@@ -1641,7 +1744,7 @@ export const checkSendTrackingActions = (save = false) => (dispatch, getState) =
   }
 };
 
-const sendTrackingActions = (sendActions, project, clear = true) => (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project, clear = true) => async (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -1682,11 +1785,11 @@ export const setProjectTrackingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const projectID = currentProject && currentProject.projectID;
-
-  dispatch(getTrackingActions(projectID));
+  dispatch(setProjectActionList([]));
+  dispatch(getTrackingActions(projectID, true));
 };
 
-const getTrackingActions = projectID => (dispatch, getState) => {
+const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
   const state = getState();
   const sendActions = state.trackingReducers.send_actions_list;
 
@@ -1700,8 +1803,13 @@ const getTrackingActions = projectID => (dispatch, getState) => {
         let listToSet = [];
         results.forEach(r => {
           let resultActions = JSON.parse(r.actions);
-          listToSet.push(...resultActions);
+          let actions = resultActions.map(obj => ({ ...obj, actionId: r.id }));
+          listToSet.push(...actions);
         });
+
+        if (withTreeSeparation === true) {
+          listToSet = dispatch(separateTrackkingActionBySnapshotTree(listToSet));
+        }
 
         let projectActions = [...listToSet, ...sendActions];
         dispatch(setProjectActionList(projectActions));
@@ -1720,17 +1828,52 @@ const getTrackingActions = projectID => (dispatch, getState) => {
   }
 };
 
-const checkActionsProject = projectID => (dispatch, getState) => {
+const separateTrackkingActionBySnapshotTree = actionList => (dispatch, getState) => {
+  const state = getState();
+  const snapshotID = state.projectReducers.currentSnapshot && state.projectReducers.currentSnapshot.id;
+  const currentSnapshotTree = state.projectReducers.currentSnapshotTree;
+  const currentSnapshotList = state.projectReducers.currentSnapshotList;
+
+  if (snapshotID && currentSnapshotTree != null) {
+    let treeActionList = [];
+    let snapshotIdList = [];
+    snapshotIdList.push(currentSnapshotTree.id);
+
+    if (currentSnapshotList != null) {
+      for (const id in currentSnapshotList) {
+        let snapshot = currentSnapshotList[id];
+        let snapshotChildren = snapshot.children;
+
+        if (
+          (snapshotChildren && snapshotChildren !== null && snapshotChildren.includes(snapshotID)) ||
+          snapshot.id === snapshotID
+        ) {
+          snapshotIdList.push(snapshot.id);
+        }
+      }
+    }
+
+    treeActionList = actionList.filter(
+      a => snapshotIdList.includes(a.snapshotId) || a.snapshotId === null || a.snapshotId === undefined
+    );
+    return treeActionList;
+  } else {
+    return actionList;
+  }
+};
+
+const checkActionsProject = projectID => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
-  Promise.resolve(dispatch(getTrackingActions(projectID))).then(() => {
-    dispatch(copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false));
-  });
+  await dispatch(getTrackingActions(projectID));
+  await dispatch(
+    copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false)
+  );
 };
 
-const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => (dispatch, getState) => {
+const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => async (dispatch, getState) => {
   const state = getState();
   const actionList = state.trackingReducers.project_actions_list;
 
@@ -1744,20 +1887,19 @@ const copyActionsToProject = (toProject, setActionList = true, clearSendList = t
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
+    await dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
   }
 };
 
-export const sendTrackingActionsByProjectId = (projectID, authorID) => (dispatch, getState) => {
+export const sendTrackingActionsByProjectId = (projectID, authorID) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
   const project = { projectID, authorID };
 
-  Promise.resolve(dispatch(getTrackingActions(currentProjectID))).then(() => {
-    dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
-  });
+  await dispatch(getTrackingActions(currentProjectID));
+  await dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
 };
 
 export const sendInitTrackingActionByProjectId = target_on => (dispatch, getState) => {
@@ -1771,5 +1913,81 @@ export const sendInitTrackingActionByProjectId = target_on => (dispatch, getStat
     dispatch(appendToSendActionList(trackAction));
     dispatch(checkSendTrackingActions(true));
     dispatch(saveTrackingActions(actions, snapshotID));
+  }
+};
+
+export const updateTrackingActions = action => (dispatch, getState) => {
+  const state = getState();
+  const project = state.projectReducers.currentProject;
+  const projectActions = state.trackingReducers.project_actions_list;
+  const projectID = project && project.projectID;
+  let actionID = action && action.actionId;
+
+  if (projectID && actionID && projectActions) {
+    let actions = projectActions.filter(a => a.actionId === actionID);
+
+    if (actions && actions.length > 0) {
+      const dataToSend = {
+        session_action_id: actionID,
+        session_project: projectID,
+        author: project.authorID,
+        last_update_date: moment().format(),
+        actions: JSON.stringify(actions)
+      };
+      return api({
+        url: `${base_url}/api/session-actions/${actionID}`,
+        method: METHOD.PUT,
+        data: JSON.stringify(dataToSend)
+      })
+        .then(() => {})
+        .catch(error => {
+          throw new Error(error);
+        })
+        .finally(() => {});
+    } else {
+      return Promise.resolve();
+    }
+  } else {
+    return Promise.resolve();
+  }
+};
+
+function groupArrayOfObjects(list, key) {
+  return list.reduce(function(rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+}
+
+export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch, getState) => {
+  if (projectID) {
+    const groupBy = groupArrayOfObjects(actionList, 'actionId');
+
+    for (const group in groupBy) {
+      let actionID = group;
+      let actions = groupBy[group];
+      if (actionID && actions && actions.length > 0) {
+        const dataToSend = {
+          session_action_id: actionID,
+          session_project: projectID,
+          last_update_date: moment().format(),
+          actions: JSON.stringify(actions)
+        };
+        return api({
+          url: `${base_url}/api/session-actions/${actionID}`,
+          method: METHOD.PUT,
+          data: JSON.stringify(dataToSend)
+        })
+          .then(() => {})
+          .catch(error => {
+            throw new Error(error);
+          })
+          .finally(() => {});
+      } else {
+        return Promise.resolve();
+      }
+    }
+  } else {
+    return Promise.resolve();
   }
 };

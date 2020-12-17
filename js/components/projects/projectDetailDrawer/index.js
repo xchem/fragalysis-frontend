@@ -1,15 +1,14 @@
-import React, { memo, useContext } from 'react';
-import { IconButton, makeStyles, Drawer, Typography, Grid } from '@material-ui/core';
+import React, { memo } from 'react';
+import { IconButton, makeStyles, Drawer, Typography, Grid, Box } from '@material-ui/core';
 import { Share, Close } from '@material-ui/icons';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
 import { base_url, URLS } from '../../routes/constants';
 import moment from 'moment';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useRouteMatch } from 'react-router-dom';
 import palette from '../../../theme/palette';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch, setSharedSnapshot } from '../../snapshot/redux/actions';
-import { NglContext } from '../../nglView/nglProvider';
+import Gallery from 'react-grid-gallery';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -72,46 +71,67 @@ const options = {
 export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
-  let history = useHistory();
-  let match = useRouteMatch();
-  const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
-  const projectID = match && match.params && match.params.projectId;
   const currentProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
+  const currentSnapshotImageList = useSelector(state => state.trackingReducers.snapshotActionImageList);
 
   const handleClickOnCommit = commit => {
     dispatch(setSelectedSnapshotToSwitch(commit.hash));
     dispatch(setIsOpenModalBeforeExit(true));
   };
 
-  const commitFunction = ({ title, description, photo, author, email, hash, isSelected, created }) => ({
+  const commitFunction = ({ title, description, photo, author, email, hash, isSelected, created, images }) => ({
     hash: `${hash}`,
     subject: `${title}`,
     body: (
       <>
-        {/*<img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />*/}
-        {/*<IconButton>*/}
-        {/*  <Delete />*/}
-        {/*</IconButton>*/}
-        {/*<br />*/}
-        <Typography variant="caption">
-          <b>{`${moment(created).format('LLL')}, ${email}: `}</b>
-          {description}
-        </Typography>
-        <IconButton
-          disabled={!currentProjectID || !hash}
-          onClick={() => {
-            dispatch(
-              setSharedSnapshot({ title, description, url: `${base_url}${URLS.projects}${currentProjectID}/${hash}` })
-            );
-          }}
-        >
-          <Share />
-        </IconButton>
+        <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.title}>
+          {
+            <Box xs={6} flexShrink={1} className={classes.titleMargin}>
+              {/*<img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />*/}
+              {/*<IconButton>*/}
+              {/*  <Delete />*/}
+              {/*</IconButton>*/}
+              {/*<br />*/}
+              <Typography variant="caption">
+                <b>{`${moment(created).format('LLL')}, ${email}: `}</b>
+                {description}
+              </Typography>
+            </Box>
+          }
+          {
+            <IconButton
+              disabled={!currentProjectID || !hash}
+              onClick={() => {
+                dispatch(
+                  setSharedSnapshot({
+                    title,
+                    description,
+                    url: `${base_url}${URLS.projects}${currentProjectID}/${hash}`
+                  })
+                );
+              }}
+            >
+              <Share />
+            </IconButton>
+          }
+          {
+            <Grid item xs={2}>
+              <Gallery
+                images={images}
+                enableImageSelection={false}
+                backdropClosesModal={true}
+                showImageCount={false}
+                lightboxWidth={2048}
+                rowHeight={30}
+              />
+            </Grid>
+          }
+        </Grid>
       </>
     ),
     onMessageClick: handleClickOnCommit,
@@ -128,6 +148,20 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
         name: node.title
       });
 
+      let currentSnapshotImage = currentSnapshotImageList.find(i => i.id === node.id);
+      const nodeImages =
+        currentSnapshotImage != null
+          ? [
+              {
+                src: currentSnapshotImage.image,
+                thumbnail: currentSnapshotImage.image,
+                thumbnailWidth: 0,
+                thumbnailHeight: 0,
+                caption: currentSnapshotImage.title
+              }
+            ]
+          : [];
+
       newBranch.commit(
         commitFunction({
           title: node.title || '',
@@ -136,7 +170,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
           email: (node.author && node.author.email) || '',
           hash: node.id,
           isSelected: currentSnapshotID === node.id,
-          created: node.created
+          created: node.created,
+          images: nodeImages
         })
       );
 
@@ -149,6 +184,20 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const handleCloseHistory = () => {
     setShowHistory(false);
   };
+
+  let image = currentSnapshotTree != null ? currentSnapshotImageList.find(i => i.id === currentSnapshotTree.id) : null;
+  const images =
+    image != null
+      ? [
+          {
+            src: image.image,
+            thumbnail: image.image,
+            thumbnailWidth: 0,
+            thumbnailHeight: 0,
+            caption: image.title
+          }
+        ]
+      : [];
 
   return (
     <>
@@ -187,7 +236,8 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
                         email: (currentSnapshotTree.author && currentSnapshotTree.author.email) || '',
                         hash: currentSnapshotTree.id,
                         isSelected: currentSnapshotID === currentSnapshotTree.id,
-                        created: currentSnapshotTree.created
+                        created: currentSnapshotTree.created,
+                        images
                       })
                     );
 
