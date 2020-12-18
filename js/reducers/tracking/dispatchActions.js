@@ -834,7 +834,6 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
 };
 
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
-
   let actions =
     isSelection === true
       ? moleculesAction.filter(
@@ -1092,36 +1091,70 @@ const getCompound = (action, state) => {
 };
 
 export const undoAction = (stages = []) => (dispatch, getState) => {
-  const state = getState();
-  let action = null;
-
   dispatch(setIsUndoRedoAction(true));
-
-  const actionUndoList = state.undoableTrackingReducers.future;
-  let actions = actionUndoList && actionUndoList[0];
-  if (actions) {
-    let actionsLenght = actions.undo_redo_actions_list.length;
-    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.undo_redo_actions_list[actionsLenght];
-
+  let action = dispatch(getUndoAction());
+  if (action) {
     Promise.resolve(dispatch(handleUndoAction(action, stages))).then(() => {
       dispatch(setIsUndoRedoAction(false));
     });
   }
 };
 
-export const redoAction = (stages = []) => (dispatch, getState) => {
+const getUndoAction = () => (dispatch, getState) => {
   const state = getState();
-  let action = null;
+  const actionUndoList = state.undoableTrackingReducers.future;
 
-  dispatch(setIsUndoRedoAction(true));
-
-  const actions = state.undoableTrackingReducers.present;
+  let action = { text: '' };
+  let actions = actionUndoList && actionUndoList[0];
   if (actions) {
     let actionsLenght = actions.undo_redo_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
     action = actions.undo_redo_actions_list[actionsLenght];
+  }
 
+  return action;
+};
+
+const getRedoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actions = state.undoableTrackingReducers.present;
+
+  let action = { text: '' };
+  if (actions) {
+    let actionsLenght = actions.undo_redo_actions_list.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions.undo_redo_actions_list[actionsLenght];
+  }
+
+  return action;
+};
+
+const getNextUndoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actionUndoList = state.undoableTrackingReducers.present;
+
+  let action = { text: '' };
+  let actions = actionUndoList && actionUndoList.undo_redo_actions_list;
+  if (actions) {
+    let actionsLenght = actions.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions[actionsLenght];
+  }
+
+  return action;
+};
+
+const getNextRedoAction = () => (dispatch, getState) => {
+  const state = getState();
+  let action = { text: '' };
+
+  return action;
+};
+
+export const redoAction = (stages = []) => (dispatch, getState) => {
+  dispatch(setIsUndoRedoAction(true));
+  let action = dispatch(getRedoAction());
+  if (action) {
     Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(() => {
       dispatch(setIsUndoRedoAction(false));
     });
@@ -1707,6 +1740,16 @@ export const getCanUndo = () => (dispatch, getState) => {
 export const getCanRedo = () => (dispatch, getState) => {
   const state = getState();
   return state.undoableTrackingReducers.future.length > 0;
+};
+
+export const getUndoActionText = () => (dispatch, getState) => {
+  let action = dispatch(getNextUndoAction());
+  return action?.text ?? '';
+};
+
+export const getRedoActionText = () => (dispatch, getState) => {
+  let action = dispatch(getNextRedoAction());
+  return action?.text ?? '';
 };
 
 export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {

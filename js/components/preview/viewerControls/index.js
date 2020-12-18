@@ -11,7 +11,14 @@ import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
-import { undoAction, redoAction, getCanRedo, getCanUndo } from '../../../../js/reducers/tracking/dispatchActions';
+import {
+  undoAction,
+  redoAction,
+  getCanRedo,
+  getCanUndo,
+  getUndoActionText,
+  getRedoActionText
+} from '../../../../js/reducers/tracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 
 const drawers = {
@@ -33,6 +40,8 @@ export const ViewerControls = memo(({}) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { nglViewList } = useContext(NglContext);
+  const [undoTooltip, setUndoTooltip] = useState('Undo');
+  const [redoTooltip, setRedoTooltip] = useState('Redo');
   const [canUndo, setCanUndo] = useState(true);
   const [canRedo, setCanRedo] = useState(false);
 
@@ -51,6 +60,9 @@ export const ViewerControls = memo(({}) => {
     setCanRedo(dispatch(getCanRedo()));
     setCanUndo(dispatch(getCanUndo()));
     dispatch(undoAction(nglViewList));
+
+    setUndoTooltip(dispatch(getUndoActionText()));
+    setRedoTooltip(dispatch(getRedoActionText()));
   };
 
   const doRedo = () => {
@@ -58,6 +70,9 @@ export const ViewerControls = memo(({}) => {
     setCanRedo(dispatch(getCanRedo()));
     setCanUndo(dispatch(getCanUndo()));
     dispatch(redoAction(nglViewList));
+
+    setUndoTooltip(dispatch(getUndoActionText()));
+    setRedoTooltip(dispatch(getRedoActionText()));
   };
 
   const handleUserKeyPress = useCallback(e => {
@@ -82,7 +97,7 @@ export const ViewerControls = memo(({}) => {
       <Grid container justify="center">
         <Grid item>
           <ButtonGroup variant="contained" color="primary">
-            <Tooltip title="Undo">
+            <Tooltip title={undoTooltip}>
               <Button
                 size="small"
                 color="primary"
@@ -120,7 +135,7 @@ export const ViewerControls = memo(({}) => {
                 <Mouse />
               </Button>
             </Tooltip>
-            <Tooltip title="Redo">
+            <Tooltip title={redoTooltip}>
               <Button
                 size="small"
                 color="primary"
