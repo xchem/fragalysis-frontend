@@ -9,7 +9,8 @@ import { NglContext } from '../../../nglView/nglProvider';
 import {
   addComponentRepresentation,
   removeComponentRepresentation,
-  updateComponentRepresentation
+  updateComponentRepresentation,
+  changeComponentRepresentation
 } from '../../../../reducers/ngl/actions';
 import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
@@ -71,10 +72,12 @@ export default memo(({ open, onClose }) => {
       oldRepresentation.lastKnownID
     );
     // add new representation to redux
-    dispatch(addComponentRepresentation(parentKey, newRepresentation));
+    dispatch(addComponentRepresentation(parentKey, newRepresentation, true));
 
     // remove previous representation from NGL
-    removeRepresentation(representation, parentKey);
+    removeRepresentation(representation, parentKey, true);
+
+    dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
   };
 
   const addMolecularRepresentation = (parentKey, e) => {
@@ -88,7 +91,7 @@ export default memo(({ open, onClose }) => {
     dispatch(addComponentRepresentation(parentKey, newRepresentation));
   };
 
-  const removeRepresentation = (representation, parentKey) => {
+  const removeRepresentation = (representation, parentKey, skipTracking) => {
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     let foundedRepresentation = undefined;
@@ -107,7 +110,7 @@ export default memo(({ open, onClose }) => {
         // remove from nglReducer and selectionReducer
         dispatch(deleteObject(targetObject, nglView.stage, true));
       } else {
-        dispatch(removeComponentRepresentation(parentKey, representation));
+        dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
       }
     }
   };
