@@ -20,15 +20,24 @@ export const updateComponentRepresentation = (objectInViewID, representationID, 
   change
 });
 
-export const addComponentRepresentation = (objectInViewID, newRepresentation) => ({
+export const addComponentRepresentation = (objectInViewID, newRepresentation, skipTracking = false) => ({
   type: CONSTANTS.ADD_COMPONENT_REPRESENTATION,
   newRepresentation,
-  objectInViewID
+  objectInViewID,
+  skipTracking
 });
 
-export const removeComponentRepresentation = (objectInViewID, representation) => ({
+export const removeComponentRepresentation = (objectInViewID, representation, skipTracking = false) => ({
   type: CONSTANTS.REMOVE_COMPONENT_REPRESENTATION,
   representation,
+  objectInViewID,
+  skipTracking
+});
+
+export const changeComponentRepresentation = (objectInViewID, oldRepresentation, newRepresentation) => ({
+  type: CONSTANTS.CHANGE_COMPONENT_REPRESENTATION,
+  oldRepresentation,
+  newRepresentation,
   objectInViewID
 });
 
@@ -91,5 +100,5 @@ export const removeMoleculeOrientation = moleculeGroupID => ({
 
 export const addToPdbCache = (name, cacheItem) => ({
   type: CONSTANTS.ADD_TO_PDB_CACHE,
-  payload: {name: name, cacheItem: cacheItem}
+  payload: { name: name, cacheItem: cacheItem }
 });
