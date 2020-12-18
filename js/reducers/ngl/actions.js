@@ -1,6 +1,8 @@
 /**
  * Created by abradley on 03/03/2018.
  */
+import { constant } from 'lodash';
+import { constants } from '../selection/constants';
 import { CONSTANTS } from './constants';
 
 export const loadNglObject = (target, representations) => ({ type: CONSTANTS.LOAD_OBJECT, target, representations });
@@ -85,4 +87,9 @@ export const setMoleculeOrientations = moleculeOrientations => ({
 export const removeMoleculeOrientation = moleculeGroupID => ({
   type: CONSTANTS.REMOVE_MOLECULE_ORIENTATION,
   payload: moleculeGroupID
+});
+
+export const addToPdbCache = (name, cacheItem) => ({
+  type: CONSTANTS.ADD_TO_PDB_CACHE,
+  payload: {name: name, cacheItem: cacheItem}
 });

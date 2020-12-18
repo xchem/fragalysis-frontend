@@ -28,7 +28,7 @@ import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addVector,
@@ -250,6 +250,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
+
+  const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
+
   const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
@@ -268,7 +271,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const filterRef = useRef();
 
-  const disableUserInteraction = useDisableUserInteraction();
+  // const disableUserInteraction = useDisableUserInteraction();
 
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
@@ -292,11 +295,51 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   // Used for MoleculeListSortFilterDialog when using textSearch
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
-  if (isActiveFilter) {
-    joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
-  } else {
+  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
+    const result = [...joinedMoleculeLists];
+    list?.forEach(moleculeID => {
+      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
+      if (!foundJoinedMolecule) {
+        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
+        if (molecule) {
+          result.push(molecule);
+        }
+      }
+    });
+
+    return result;
+  }, [getAllMoleculeList]);
+
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, proteinList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, complexList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, fragmentDisplayList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, surfaceList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, densityList]
+  );
+  joinedMoleculeLists = useMemo(
+    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList),
+    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, vectorOnList]
+  );
+
+  if (!isActiveFilter) {
     // default sort is by site
     joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
+  } else {
+    joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
   }
 
   const loadNextMolecules = () => {
@@ -409,6 +452,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
   }, [isActiveFilter, setFilterItemsHeight]);
 
+  useEffect(() => {
+    if (!joinedMoleculeListsCopy.length) {
+      dispatch(setSortDialogOpen(false));
+    } 
+  }, [dispatch, joinedMoleculeListsCopy.length]);
+
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
     for (let attr of MOL_ATTRIBUTES) {
@@ -512,6 +561,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const removeOfAllSelectedTypes = () => {
+    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
+
     proteinList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
       dispatch(removeHitProtein(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
@@ -621,7 +672,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const actions = [
-    <FormControl className={classes.formControl} disabled={!(object_selection || []).length || sortDialogOpen}>
+    <FormControl className={classes.formControl} disabled={!joinedMoleculeListsCopy.length || sortDialogOpen}>
       <Select
         className={classes.select}
         value={predefinedFilter}
@@ -653,12 +704,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         )
       }}
       onChange={handleSearch}
-      disabled={disableUserInteraction}
+      disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
     />,
 
     <IconButton
       color={'inherit'}
-      disabled={!(object_selection || []).length}
+      disabled={!joinedMoleculeListsCopy.length}
       onClick={() => dispatch(hideAllSelectedMolecules(majorViewStage, joinedMoleculeLists))}
     >
       <Tooltip title="Hide all">
@@ -676,7 +727,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         }
       }}
       color={'inherit'}
-      disabled={!(object_selection || []).length || predefinedFilter !== 'none'}
+      disabled={!joinedMoleculeListsCopy.length || predefinedFilter !== 'none'}
     >
       <Tooltip title="Filter/Sort">
         <FilterList />
@@ -785,10 +836,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isLigandOn === true,
                               [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
-                            onClick={() => {
-                              onButtonToggle('ligand');
-                            }}
-                            disabled={disableUserInteraction}
+                            onClick={() => onButtonToggle('ligand')}
+                            disabled={false}
                           >
                             L
                           </Button>
@@ -802,10 +851,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isProteinOn,
                               [classes.contColButtonHalfSelected]: isProteinOn === null
                             })}
-                            onClick={() => {
-                              onButtonToggle('protein');
-                            }}
-                            disabled={disableUserInteraction}
+                            onClick={() => onButtonToggle('protein')}
+                            disabled={false}
                           >
                             P
                           </Button>
@@ -820,10 +867,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isComplexOn,
                               [classes.contColButtonHalfSelected]: isComplexOn === null
                             })}
-                            onClick={() => {
-                              onButtonToggle('complex');
-                            }}
-                            disabled={disableUserInteraction}
+                            onClick={() => onButtonToggle('complex')}
+                            disabled={false}
                           >
                             C
                           </Button>
@@ -867,6 +912,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      L={fragmentDisplayList.includes(data.id)}
+                      P={proteinList.includes(data.id)}
+                      C={complexList.includes(data.id)}
+                      S={surfaceList.includes(data.id)}
+                      V={vectorOnList.includes(data.id)}
                       selectMoleculeSite={selectMoleculeSite}
                     />
                   ))}

@@ -10,7 +10,7 @@ import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
   addDatasetLigand,
   removeDatasetLigand,
@@ -23,6 +23,7 @@ import {
   clickOnInspirations,
   getDatasetMoleculeID
 } from './redux/dispatchActions';
+
 import { base_url } from '../routes/constants';
 import { api } from '../../utils/api';
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
@@ -31,13 +32,19 @@ import {
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog,
+  setInspirationFragmentList,
+  setInspirationMoleculeDataList,
   setSelectedAll,
   setDeselectedAll
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
-import { isNumber, isString } from 'lodash';
+import { isString } from 'lodash';
 import { SvgTooltip } from '../common';
+import { OBJECT_TYPE } from '../nglView/constants';
+import { getRepresentationsByType } from '../nglView/generatingObjects';
+import { getMolImage } from '../preview/molecule/redux/dispatchActions';
+import { MOL_TYPE } from '../preview/molecule/redux/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -252,36 +259,38 @@ export const DatasetMoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes
+    removeOfAllSelectedTypes,
+    removeOfAllSelectedTypesOfInspirations,
+    moveSelectedMoleculeInspirationsSettings,
+    L, P, C, S, V
   }) => {
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const ref = useRef(null);
-
     const dispatch = useDispatch();
     const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
-    const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
-    const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
-    const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+    const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
+
     const datasets = useSelector(state => state.datasetsReducers.datasets);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filter = useSelector(state => state.selectionReducers.filter);
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
+
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
 
     const [image, setImage] = useState(img_data_init);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const isLigandOn = (currentID && ligandList.includes(currentID)) || false;
-    const isProteinOn = (currentID && proteinList.includes(currentID)) || false;
-    const isComplexOn = (currentID && complexList.includes(currentID)) || false;
-    const isSurfaceOn = (currentID && surfaceList.includes(currentID)) || false;
+    const isLigandOn = L;
+    const isProteinOn = P;
+    const isComplexOn = C;
+    const isSurfaceOn = S;
 
     const isCheckedToBuy = (currentID && compoundsToBuyList && compoundsToBuyList.includes(currentID)) || false;
 
@@ -290,7 +299,7 @@ export const DatasetMoleculeView = memo(
 
     const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
 
-    const disableUserInteraction = useDisableUserInteraction();
+    // const disableUserInteraction = useDisableUserInteraction();
 
     const refOnCancelImage = useRef();
     const getRandomColor = () => colourList[currentID % colourList.length];
@@ -307,45 +316,20 @@ export const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      if (/*refOnCancelImage.current === undefined && */ data && data.smiles) {
-        let onCancel = () => {};
-        let url = new URL(`${base_url}/viewer/img_from_smiles/`);
-        const params = {
-          width: imageHeight,
-          height: imageWidth,
-          smiles: data.smiles
-        };
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-
-        api({
-          url,
-          cancel: onCancel
-        })
-          .then(response => {
-            if (response.data !== undefined) {
-              setImage(response.data);
-            }
-          })
-          .catch(error => {
-            throw new Error(error);
-          });
-        refOnCancelImage.current = onCancel;
-      }
-      return () => {
-        if (refOnCancelImage) {
-          refOnCancelImage.current();
-        }
-      };
+      dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageHeight, imageWidth)).then(i => {
+        setImage(i);
+      });
     }, [
-      complexList,
+      C,
       currentID,
       data,
-      ligandList,
+      L,
       imageHeight,
       imageWidth,
       data.smiles,
       data.id,
-      filteredDatasetMoleculeList
+      filteredDatasetMoleculeList,
+      dispatch
     ]);
 
     const svg_image = (
@@ -505,35 +489,84 @@ export const DatasetMoleculeView = memo(
     const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
       if (newItemData) {
         if (isLigandOn) {
-          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND, datasetID);
+          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isProteinOn) {
-          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.PROTEIN, datasetID);
+          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isComplexOn) {
-          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX, datasetID);
+          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
         if (isSurfaceOn) {
-          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule));
+          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE, datasetID);
+          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
         }
       }
     };
 
+    const scrollToElement = element => {
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    };
+
+    const getInspirationsForMol = (datasetId, molId) => {
+      let inspirations = [];
+
+      if (allInspirations && allInspirations.hasOwnProperty(datasetId) && allInspirations[datasetId].hasOwnProperty(molId)) {
+        inspirations = allInspirations[datasetId][molId];
+      }
+
+      return inspirations;
+    };
+
     const handleClickOnDownArrow = () => {
+      const refNext = ref.current.nextSibling;
+      scrollToElement(refNext);
+
       removeOfAllSelectedTypes();
+      removeOfAllSelectedTypesOfInspirations();
+
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+      const moleculeTitleNext = nextItem && nextItem.name;
+
+      const inspirations = getInspirationsForMol(datasetID, nextItem.id);
+      dispatch(setInspirationMoleculeDataList(inspirations));
       moveSelectedMoleculeSettings(nextItem, nextDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
+      dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+      if (setRef && ref.current) {
+        setRef(refNext);
+      }
     };
 
     const handleClickOnUpArrow = () => {
+      const refPrevious = ref.current.previousSibling;
+      scrollToElement(refPrevious);
+
       removeOfAllSelectedTypes();
+      removeOfAllSelectedTypesOfInspirations();
+
       const previousItem =
         (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
       const previousDatasetID =
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
+      const moleculeTitlePrev = previousItem && previousItem.name;
 
+      const inspirations = getInspirationsForMol(datasetID, previousItem.id);
+      dispatch(setInspirationMoleculeDataList(inspirations));
       moveSelectedMoleculeSettings(previousItem, previousDatasetID);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
+      dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+      if (setRef && ref.current) {
+        setRef(refPrevious);
+      }
     };
 
     const moleculeTitle = data && data.name;
@@ -618,7 +651,7 @@ export const DatasetMoleculeView = memo(
                       onClick={() => {
                         dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
                       }}
-                      disabled={disableUserInteraction || !isLigandOn}
+                      disabled={false || !isLigandOn}
                     >
                       <MyLocation className={classes.myLocation} />
                     </Button>
@@ -646,7 +679,7 @@ export const DatasetMoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       A
                     </Button>
@@ -660,7 +693,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       L
                     </Button>
@@ -674,7 +707,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       P
                     </Button>
@@ -689,7 +722,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       C
                     </Button>
@@ -703,7 +736,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={disableUserInteraction}
+                      disabled={false}
                     >
                       S
                     </Button>
@@ -722,14 +755,14 @@ export const DatasetMoleculeView = memo(
                             clickOnInspirations({
                               datasetID,
                               currentID,
-                              computed_inspirations: data && data.computed_inspirations
+                              computed_inspirations: getInspirationsForMol(datasetID, currentID)
                             })
                           );
                           if (setRef) {
                             setRef(ref.current);
                           }
                         }}
-                        disabled={disableUserInteraction}
+                        disabled={false}
                       >
                         F
                       </Button>
@@ -751,7 +784,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={disableUserInteraction}
+                        disabled={false}
                       >
                         X
                       </Button>
@@ -812,7 +845,7 @@ export const DatasetMoleculeView = memo(
                 <IconButton
                   color="primary"
                   size="small"
-                  disabled={disableUserInteraction || !previousItemData || !areArrowsVisible}
+                  disabled={false || !previousItemData || !areArrowsVisible}
                   onClick={handleClickOnUpArrow}
                 >
                   <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
@@ -822,7 +855,7 @@ export const DatasetMoleculeView = memo(
                 <IconButton
                   color="primary"
                   size="small"
-                  disabled={disableUserInteraction || !nextItemData || !areArrowsVisible}
+                  disabled={false || !nextItemData || !areArrowsVisible}
                   onClick={handleClickOnDownArrow}
                 >
                   <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />

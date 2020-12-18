@@ -12,9 +12,11 @@ export const useDisableUserInteraction = () => {
   const countOfPendingNglObjects = useSelector(state => state.nglReducers.countOfPendingNglObjects);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
   const isLoadingCurrentSnapshot = useSelector(state => state.projectReducers.isLoadingCurrentSnapshot);
+  const isRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
 
   useEffect(() => {
     if (
+      isRestoring === false &&
       isLoadingTree === false &&
       isLoadingCurrentSnapshot === false &&
       countOfPendingVectorLoadRequests === 0 &&
@@ -39,6 +41,7 @@ export const useDisableUserInteraction = () => {
     disableInteraction,
     isLoadingCurrentSnapshot,
     isLoadingTree,
+    isRestoring,
     proteinsHasLoaded
   ]);
 

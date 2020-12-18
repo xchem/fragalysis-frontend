@@ -24,14 +24,13 @@ import {
   removeDensity,
   removeVector
 } from '../preview/molecule/redux/dispatchActions';
-import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { debounce } from 'lodash';
-import { setInspirationMoleculeDataList, setIsOpenInspirationDialog } from './redux/actions';
+import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -143,8 +142,6 @@ export const InspirationDialog = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
-
     const isLoadingInspirationListOfMolecules = useSelector(
       state => state.datasetsReducers.isLoadingInspirationListOfMolecules
     );
@@ -158,17 +155,7 @@ export const InspirationDialog = memo(
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
     const dispatch = useDispatch();
-    const disableUserInteraction = useDisableUserInteraction();
-
-    useEffect(() => {
-      if (inspirationFragmentList && inspirationFragmentList.length > 0) {
-        dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
-          throw new Error(error);
-        });
-      } else {
-        dispatch(setInspirationMoleculeDataList([]));
-      }
-    }, [dispatch, inspirationFragmentList]);
+    // const disableUserInteraction = useDisableUserInteraction();
 
     let debouncedFn;
 
@@ -393,7 +380,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               L
                             </Button>
@@ -408,7 +395,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               P
                             </Button>
@@ -424,7 +411,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               C
                             </Button>
@@ -454,6 +441,11 @@ export const InspirationDialog = memo(
                         nextItemData={nextData}
                         removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                         selectMoleculeSite={selectMoleculeSite}
+                        L={ligandList.includes(molecule.id)}
+                        P={proteinList.includes(molecule.id)}
+                        C={complexList.includes(molecule.id)}
+                        S={surfaceList.includes(molecule.id)}
+                        V={vectorOnList.includes(molecule.id)}
                       />
                     );
                   })}

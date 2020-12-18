@@ -44,6 +44,19 @@ export const findTrackAction = (action, state) => {
           };
         }
       }
+    } else if (action.type.includes(apiConstants.SET_MOL_GROUP_OFF)) {
+      const { mol_group_off, selectionGroups } = action;
+      let molGroupName = getMolGroupName(mol_group_off, state);
+      trackAction = {
+        type: actionType.SITE_TURNED_OFF,
+        timestamp: Date.now(),
+        username: username,
+        object_type: actionObjectType.SITE,
+        object_name: molGroupName,
+        object_id: mol_group_off,
+        selectionGroups,
+        text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
+      };
     } else if (action.type.includes(selectionConstants.SET_OBJECT_SELECTION)) {
       let objectId = action.payload && action.payload[0];
       if (objectId) {

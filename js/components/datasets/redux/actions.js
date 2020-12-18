@@ -26,6 +26,11 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
+export const replaceAllMoleculeLists = allMoleculeLists => ({
+  type: constants.REPLACE_ALL_MOLECULELISTS,
+  payload: allMoleculeLists
+});
+
 export const setFilterSettings = (datasetID, filter) => ({
   type: constants.SET_FILTER_SETTINGS,
   payload: { datasetID, filter }
@@ -249,8 +254,23 @@ export const setInspirationMoleculeDataList = (moleculeList = []) => ({
   payload: moleculeList
 });
 
+export const setAllInspirations = (allInspirationsMap) => ({
+  type: constants.SET_ALL_INSPIRATIONS,
+  payload: allInspirationsMap
+});
+
+export const setAllInspirationMoleculeDataList = (moleculeList = []) => ({
+  type: constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: moleculeList
+});
+
 export const appendToInspirationMoleculeDataList = molecule => ({
   type: constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: molecule
+});
+
+export const appendToAllInspirationMoleculeDataList = molecule => ({
+  type: constants.APPEND_TO_ALL_INSPIRATION_MOLECULE_DATA_LIST,
   payload: molecule
 });
 

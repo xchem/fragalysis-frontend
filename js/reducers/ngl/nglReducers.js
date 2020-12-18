@@ -1,6 +1,5 @@
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
 import { CONSTANTS } from './constants';
-import NglView from '../../components/nglView/nglView';
 import { VIEWS } from '../../constants/constants';
 
 export const INITIAL_STATE = {
@@ -39,7 +38,8 @@ export const INITIAL_STATE = {
     [VIEWS.MAJOR_VIEW]: 0,
     [VIEWS.SUMMARY_VIEW]: 0
   },
-  moleculeOrientations: {}
+  moleculeOrientations: {},
+  pdbCache: {}
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -173,6 +173,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         delete diminishedMoleculeOrientations[action.payload];
       }
       return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
+
+    case CONSTANTS.ADD_TO_PDB_CACHE:
+      return {...state, pdbCache: {
+        ...state.pdbCache, [action.payload.name]: action.payload.cacheItem
+      }};
 
     default:
       return state;
