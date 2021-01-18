@@ -7,7 +7,8 @@ import {
   setIsLoadingSnapshotDialog,
   setListOfSnapshots,
   setOpenSnapshotSavingDialog,
-  setSharedSnapshot
+  setSharedSnapshot,
+  setSnapshotJustSaved
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import {
@@ -32,6 +33,7 @@ import {
   manageSendTrackingActions
 } from '../../../reducers/tracking/dispatchActions';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
+import { setCurrentProject } from '../../projects/redux/actions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -250,11 +252,49 @@ export const createNewSnapshot = ({
               if (disableRedirect === false) {
                 // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
                 // use react-router !
-                window.location.replace(
+                window.history.replaceState(
+                  null, null,
                   `${URLS.projects}${session_project}/${
                     selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
                   }`
                 );
+                api({ url: `${base_url}/api/session-projects/${session_project}/` }).then(projectResponse => {
+                  api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
+                    if (response.data.results.length === 0) {
+                      dispatch(resetCurrentSnapshot());
+                    } else if (response.data.results[0] !== undefined) {
+                      dispatch(
+                        setCurrentSnapshot({
+                          id: response.data.results[0].id,
+                          type: response.data.results[0].type,
+                          title: response.data.results[0].title,
+                          author: response.data.results[0].author,
+                          description: response.data.results[0].description,
+                          created: response.data.results[0].created,
+                          children: response.data.results[0].children,
+                          parent: response.data.results[0].parent,
+                          data: '[]'
+                        })
+                      );
+                      dispatch(
+                        setCurrentProject({
+                          projectID: projectResponse.data.id,
+                          authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
+                          title: projectResponse.data.title,
+                          description: projectResponse.data.description,
+                          targetID: projectResponse.data.target.id,
+                          tags: JSON.parse(projectResponse.data.tags)
+                        })
+                      );
+                      dispatch(setOpenSnapshotSavingDialog(false));
+                      dispatch(setIsLoadingSnapshotDialog(false));
+                      dispatch(setSnapshotJustSaved(projectResponse.data.id));
+                    }
+                  })
+                  .catch(error => {
+                    dispatch(resetCurrentSnapshot());
+                  })
+                });
               } else {
                 dispatch(setOpenSnapshotSavingDialog(false));
                 dispatch(setIsLoadingSnapshotDialog(false));
