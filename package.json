@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.9.32",
+  "version": "0.9.32-nologrocket",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -53,7 +53,6 @@
     "js-base64": "^2.5.2",
     "jszip": "^3.2.2",
     "lodash": "^4.17.15",
-    "logrocket": "^1.0.3",
     "moment": "^2.24.0",
     "ngl": "2.0.0-dev.37",
     "react": "^16.11.0",
