@@ -56,7 +56,8 @@ import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
   removeComponentRepresentation,
   addComponentRepresentation,
-  updateComponentRepresentation
+  updateComponentRepresentation,
+  changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
@@ -95,11 +96,22 @@ import {
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
 
-export const saveCurrentActionsList = (snapshot, project, nglViewList) => async (dispatch, getState) => {
+export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
 
-  dispatch(setSnapshotToActions(actionList, snapshot, projectID));
+  await dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, true));
+};
+
+export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async (dispatch, getState) => {
+  let projectID = project && project.projectID;
+  let actionList = await dispatch(getTrackingActions(projectID));
+
+  if (all === false) {
+    dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
+  } else {
+    dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+  }
   await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
 };
 
@@ -331,7 +343,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(
       orderedActionList,
-      actionType.REPRESENTATION_CHANGED,
+      actionType.REPRESENTATION_UPDATED,
       getCollectionOfDatasetOfRepresentation(currentobjectsInView),
       currentActions
     );
@@ -375,10 +387,24 @@ const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatc
   await dispatch(sendTrackingActions(sendActions, project));
 };
 
-const setSnapshotToActions = (actionList, snapshot, projectID) => (dispatch, getState) => {
+const setSnapshotToActions = (actionList, snapshot, projectID, project, nglViewList, addToSnapshot) => async (
+  dispatch,
+  getState
+) => {
   if (actionList && snapshot) {
     let actionsWithoutSnapshot = actionList.filter(a => a.snapshotId === null || a.snapshotId === undefined);
     let updatedActions = actionsWithoutSnapshot.map(obj => ({ ...obj, snapshotId: snapshot.id }));
+    dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
+
+    if (addToSnapshot === true) {
+      await dispatch(saveActionsList(project, snapshot, updatedActions, nglViewList));
+    }
+  }
+};
+
+const setSnapshotToAllActions = (actionList, snapshot, projectID) => async (dispatch, getState) => {
+  if (actionList && snapshot) {
+    let updatedActions = actionList.map(obj => ({ ...obj, snapshotId: snapshot.id }));
     dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
   }
 };
@@ -677,7 +703,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 };
 
 const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
-  let action = orderedActionList.find(action => action.type === actionType.NGL_STATE);
+  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+  let action = [...actions].pop();
   if (action && action.nglStateList) {
     action.nglStateList.forEach(nglView => {
       dispatch(setOrientation(nglView.id, nglView.orientation));
@@ -907,11 +934,11 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   }
 
   let representationsChangesActions = moleculesAction.filter(
-    action => action.type === actionType.REPRESENTATION_CHANGED
+    action => action.type === actionType.REPRESENTATION_UPDATED
   );
   if (representationsChangesActions) {
     representationsChangesActions.forEach(action => {
-      dispatch(changeRepresentation(true, action.change, action.object_id, action.representation, nglView));
+      dispatch(updateRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
   }
 };
@@ -922,9 +949,11 @@ const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
   let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
   if (snapshotActions) {
     let actions = snapshotActions.map(s => {
-      return { id: s.object_id, image: s.image, title: s.object_name };
+      return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
     });
-    dispatch(setSnapshotImageActionList(actions));
+    const key = 'object_id';
+    const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
+    dispatch(setSnapshotImageActionList(arrayUniqueByKey));
   }
 };
 
@@ -1255,14 +1284,17 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
-      case actionType.REPRESENTATION_CHANGED:
-        dispatch(handleChangeRepresentationAction(action, false, majorView));
+      case actionType.REPRESENTATION_UPDATED:
+        dispatch(handleUpdateRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
         dispatch(handleRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
         dispatch(handleRepresentationAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, false, majorView));
         break;
       default:
         break;
@@ -1353,14 +1385,17 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
-      case actionType.REPRESENTATION_CHANGED:
-        dispatch(handleChangeRepresentationAction(action, true, majorView));
+      case actionType.REPRESENTATION_UPDATED:
+        dispatch(handleUpdateRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
         dispatch(handleRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
         dispatch(handleRepresentationAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, true, majorView));
         break;
       default:
         break;
@@ -1598,14 +1633,17 @@ const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
 const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
     if (isAdd === true) {
-      dispatch(addRepresentation(action.object_id, action.representation, nglView));
+      dispatch(addRepresentation(action, action.object_id, action.representation, nglView));
     } else {
-      dispatch(removeRepresentation(action.object_id, action.representation, nglView));
+      dispatch(removeRepresentation(action, action.object_id, action.representation, nglView));
     }
   }
 };
 
-const addRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+const addRepresentation = (action, parentKey, representation, nglView, update, skipTracking = false) => (
+  dispatch,
+  getState
+) => {
   const oldRepresentation = representation;
   const newRepresentationType = oldRepresentation.type;
   const comp = nglView.stage.getComponentsByName(parentKey).first;
@@ -1615,16 +1653,22 @@ const addRepresentation = (parentKey, representation, nglView) => (dispatch, get
     comp,
     oldRepresentation.lastKnownID
   );
-  dispatch(addComponentRepresentation(parentKey, newRepresentation));
+  action.representation = newRepresentation;
+  if (update === true) {
+    action.newRepresentation = newRepresentation;
+  } else {
+    action.oldRepresentation = newRepresentation;
+  }
+  dispatch(addComponentRepresentation(parentKey, newRepresentation, skipTracking));
 };
 
-const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+const handleUpdateRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
-    dispatch(changeRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
+    dispatch(updateRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
   }
 };
 
-const changeRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch, getState) => {
+const updateRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch, getState) => {
   const comp = nglView.stage.getComponentsByName(parentKey).first;
   const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
   if (r && change) {
@@ -1638,7 +1682,10 @@ const changeRepresentation = (isAdd, change, parentKey, representation, nglView)
   }
 };
 
-const removeRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+const removeRepresentation = (action, parentKey, representation, nglView, skipTracking = false) => (
+  dispatch,
+  getState
+) => {
   const comp = nglView.stage.getComponentsByName(parentKey).first;
   let foundedRepresentation = undefined;
   comp.eachRepresentation(r => {
@@ -1646,14 +1693,36 @@ const removeRepresentation = (parentKey, representation, nglView) => (dispatch, 
       foundedRepresentation = r;
     }
   });
+
   if (foundedRepresentation) {
     comp.removeRepresentation(foundedRepresentation);
 
     if (comp.reprList.length === 0) {
       dispatch(deleteObject(nglView, nglView.stage, true));
     } else {
-      dispatch(removeComponentRepresentation(parentKey, representation));
+      dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
     }
+  }
+};
+
+const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    dispatch(changeRepresentation(isAdd, action, nglView));
+  }
+};
+
+const changeRepresentation = (isAdd, action, nglView) => (dispatch, getState) => {
+  let oldRepresentation = action.oldRepresentation;
+  let newRepresentation = action.newRepresentation;
+
+  if (isAdd === true) {
+    dispatch(changeComponentRepresentation(action.object_id, oldRepresentation, newRepresentation));
+    dispatch(addRepresentation(action, action.object_id, newRepresentation, nglView, isAdd, true));
+    dispatch(removeRepresentation(action, action.object_id, oldRepresentation, nglView, true));
+  } else {
+    dispatch(changeComponentRepresentation(action.object_id, newRepresentation, oldRepresentation));
+    dispatch(addRepresentation(action, action.object_id, oldRepresentation, nglView, isAdd, true));
+    dispatch(removeRepresentation(action, action.object_id, newRepresentation, nglView, true));
   }
 };
 
@@ -1864,6 +1933,15 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
 
         if (withTreeSeparation === true) {
           listToSet = dispatch(separateTrackkingActionBySnapshotTree(listToSet));
+
+          let actionsWithoutSnapshot = listToSet.filter(action => action.type !== actionType.SNAPSHOT);
+          let snapshotActions = listToSet.filter(action => action.type === actionType.SNAPSHOT);
+          if (snapshotActions) {
+            const key = 'object_id';
+            const arrayUniqueByKey = [...new Map(snapshotActions.map(item => [item[key], item])).values()];
+            actionsWithoutSnapshot.push(...arrayUniqueByKey);
+            listToSet = actionsWithoutSnapshot;
+          }
         }
 
         let projectActions = [...listToSet, ...sendActions];

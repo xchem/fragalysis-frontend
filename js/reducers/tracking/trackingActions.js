@@ -671,7 +671,7 @@ export const findTrackAction = (action, state) => {
       let objectType = actionObjectType.REPRESENTATION;
 
       trackAction = {
-        type: actionType.REPRESENTATION_CHANGED,
+        type: actionType.REPRESENTATION_UPDATED,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
         username: username,
@@ -681,7 +681,7 @@ export const findTrackAction = (action, state) => {
         representation_id: action.representationID,
         representation: action.newRepresentation,
         change: action.change,
-        text: `${objectType} '${action.change?.key}' of ${action.objectInViewID} ${actionDescription.CHANGED} from value: ${action.change?.oldValue} to value: ${action.change?.value}`
+        text: `${objectType} '${action.change?.key}' of ${action.objectInViewID} ${actionDescription.UPDATED} from value: ${action.change?.oldValue} to value: ${action.change?.value}`
       };
     } else if (action.type.includes(nglConstants.ADD_COMPONENT_REPRESENTATION)) {
       let objectType = actionObjectType.REPRESENTATION;
@@ -712,6 +712,23 @@ export const findTrackAction = (action, state) => {
         object_id: action.objectInViewID,
         representation: action.representation,
         text: `${objectType} '${representationName}' of ${action.objectInViewID} ${actionDescription.REMOVED}`
+      };
+    } else if (action.type.includes(nglConstants.CHANGE_COMPONENT_REPRESENTATION)) {
+      let objectType = actionObjectType.REPRESENTATION;
+      let oldRepresentationName = action.oldRepresentation && action.oldRepresentation.type;
+      let newRepresentationName = action.newRepresentation && action.newRepresentation.type;
+
+      trackAction = {
+        type: actionType.REPRESENTATION_CHANGED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: action.objectInViewID,
+        object_id: action.objectInViewID,
+        oldRepresentation: action.oldRepresentation,
+        newRepresentation: action.newRepresentation,
+        text: `${objectType} of ${action.objectInViewID} ${actionDescription.CHANGED} from value: ${oldRepresentationName} to value: ${newRepresentationName}`
       };
     }
   }
