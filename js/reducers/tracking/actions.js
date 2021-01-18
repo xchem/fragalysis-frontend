@@ -106,6 +106,13 @@ export const setIsActionsRestoring = function(isActionRestoring, isActionRestore
   };
 };
 
+export const setIsActionTracking = function(isActionTracking) {
+  return {
+    type: constants.SET_IS_ACTION_TRACKING,
+    isActionTracking: isActionTracking
+  };
+};
+
 export const resetTrackingState = function() {
   return {
     type: constants.RESET_TRACKING_STATE

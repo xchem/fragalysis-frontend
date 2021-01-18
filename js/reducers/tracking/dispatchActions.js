@@ -79,7 +79,8 @@ import {
   setIsActionsSaving,
   setIsActionsRestoring,
   appendToUndoRedoActionList,
-  resetTrackingState
+  resetTrackingState,
+  setIsActionTracking
 } from './actions';
 import {
   setSelectedAll,
@@ -1146,7 +1147,17 @@ const getNextUndoAction = () => (dispatch, getState) => {
 
 const getNextRedoAction = () => (dispatch, getState) => {
   const state = getState();
+  const actionUndoList = state.undoableTrackingReducers.future;
+
   let action = { text: '' };
+  let actionss = actionUndoList && actionUndoList[0];
+
+  let actions = actionss && actionss.undo_redo_actions_list;
+  if (actions) {
+    let actionsLenght = actions.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions[actionsLenght];
+  }
 
   return action;
 };
@@ -1755,6 +1766,7 @@ export const getRedoActionText = () => (dispatch, getState) => {
 export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
   const state = getState();
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
+  dispatch(setIsActionTracking(true));
 
   if (trackAction && trackAction !== null) {
     dispatch(appendToActionList(trackAction, isUndoRedoAction));
@@ -1764,7 +1776,7 @@ export const appendAndSendTrackingActions = trackAction => (dispatch, getState) 
       dispatch(appendToUndoRedoActionList(trackAction));
     }
   }
-
+  dispatch(setIsActionTracking(false));
   dispatch(checkSendTrackingActions());
 };
 

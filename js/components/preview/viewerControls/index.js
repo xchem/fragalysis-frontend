@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
 import { Settings, Mouse, PersonalVideo, Undo, Redo } from '@material-ui/icons';
 import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
@@ -44,6 +44,7 @@ export const ViewerControls = memo(({}) => {
   const [redoTooltip, setRedoTooltip] = useState('Redo');
   const [canUndo, setCanUndo] = useState(true);
   const [canRedo, setCanRedo] = useState(false);
+  const isActionTracking = useSelector(state => state.trackingReducers.isActionTracking);
 
   const openDrawer = key => {
     //close all and open selected by key
@@ -85,12 +86,16 @@ export const ViewerControls = memo(({}) => {
   });
 
   useEffect(() => {
+    if (isActionTracking === false) {
+      setUndoTooltip(dispatch(getUndoActionText()));
+      setRedoTooltip(dispatch(getRedoActionText()));
+    }
     window.addEventListener('keydown', handleUserKeyPress);
 
     return () => {
       window.removeEventListener('keydown', handleUserKeyPress);
     };
-  }, [handleUserKeyPress]);
+  }, [handleUserKeyPress, dispatch, isActionTracking]);
 
   return (
     <>
