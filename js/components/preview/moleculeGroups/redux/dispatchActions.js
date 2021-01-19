@@ -272,6 +272,7 @@ export const restoreFromCurrentSnapshot = ({ nglViewList }) => (dispatch, getSta
 
 export const restoreSnapshotActions = ({ nglViewList, projectId, snapshotId, history }) => (dispatch, getState) => {
   dispatch(resetRestoringState(nglViewList));
+  // Trigger react-router to get rid of snapshot just saved flag
   history.replace(`${URLS.projects}${projectId}/${snapshotId}`);
 };
 

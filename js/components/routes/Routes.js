@@ -45,6 +45,7 @@ const Routes = memo(() => {
   };
 
   useEffect(() => {
+    // Reset the snapshot just saved flag on each route change
     dispatch(setSnapshotJustSaved(undefined));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);

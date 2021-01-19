@@ -31,12 +31,11 @@ export const withSnapshotManagement = WrappedComponent => {
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
     const directDisplay = useSelector(state => state.apiReducers.direct_access);
-    
+
+    const projectId = currentProject.projectID;
     const snapshotJustSaved = useSelector(state => state.snapshotReducers.snapshotJustSaved);
-    let projectId = currentProject.projectID;
-    /*let projectId = match && match.params && match.params.projectId;
-    projectId = snapshotJustSaved || projectId;*/
     let target = match && match.params && match.params.target;
+    // Check whether the snapshot was just saved
     target = snapshotJustSaved ? undefined : target;
     //const disableUserInteraction = useDisableUserInteraction();
 
