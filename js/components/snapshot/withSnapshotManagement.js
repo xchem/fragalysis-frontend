@@ -33,8 +33,9 @@ export const withSnapshotManagement = WrappedComponent => {
     const directDisplay = useSelector(state => state.apiReducers.direct_access);
     
     const snapshotJustSaved = useSelector(state => state.snapshotReducers.snapshotJustSaved);
-    let projectId = match && match.params && match.params.projectId;
-    projectId = snapshotJustSaved || projectId;
+    let projectId = currentProject.projectID;
+    /*let projectId = match && match.params && match.params.projectId;
+    projectId = snapshotJustSaved || projectId;*/
     let target = match && match.params && match.params.target;
     target = snapshotJustSaved ? undefined : target;
     //const disableUserInteraction = useDisableUserInteraction();
@@ -99,6 +100,9 @@ export const withSnapshotManagement = WrappedComponent => {
       };
     }, [enableSaveButton, dispatch, sessionTitle, setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, targetIdList, targetName, setSnackBarColor, projectId, currentSnapshotID, currentProject, disableShareButton, target, nglViewList, currentSnapshot.id, history]);
 
-    return <WrappedComponent {...rest} />;
+    return <WrappedComponent {...rest} hideProjects={
+      DJANGO_CONTEXT['pk'] === undefined ||
+      (DJANGO_CONTEXT['pk'] !== undefined && (currentProject.projectID === null || currentProject.authorID === null))
+    }/>;
   });
 };

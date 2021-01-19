@@ -23,7 +23,7 @@ import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
-import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
+import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject, setForceProjectCreated } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
 import {
@@ -227,6 +227,8 @@ export const createNewSnapshot = ({
       api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
         if (response.data.count === 0) {
           newType = SnapshotType.INIT;
+          // Without this, the snapshot tree wouldnt work
+          dispatch(setForceProjectCreated(false));
         }
 
         return api({
@@ -250,8 +252,7 @@ export const createNewSnapshot = ({
 
             Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
               if (disableRedirect === false) {
-                // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
-                // use react-router !
+                // A hacky way of changing the URL without triggering react-router
                 window.history.replaceState(
                   null, null,
                   `${URLS.projects}${session_project}/${
@@ -259,20 +260,21 @@ export const createNewSnapshot = ({
                   }`
                 );
                 api({ url: `${base_url}/api/session-projects/${session_project}/` }).then(projectResponse => {
-                  api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
-                    if (response.data.results.length === 0) {
+                  api({ url: `${base_url}/api/snapshots/?session_project=${session_project}` }).then(response => {
+                    const length = response.data.results.length;
+                    if (length === 0) {
                       dispatch(resetCurrentSnapshot());
-                    } else if (response.data.results[0] !== undefined) {
+                    } else if (response.data.results[length - 1] !== undefined) {
                       dispatch(
                         setCurrentSnapshot({
-                          id: response.data.results[0].id,
-                          type: response.data.results[0].type,
-                          title: response.data.results[0].title,
-                          author: response.data.results[0].author,
-                          description: response.data.results[0].description,
-                          created: response.data.results[0].created,
-                          children: response.data.results[0].children,
-                          parent: response.data.results[0].parent,
+                          id: response.data.results[length - 1].id,
+                          type: response.data.results[length - 1].type,
+                          title: response.data.results[length - 1].title,
+                          author: response.data.results[length - 1].author,
+                          description: response.data.results[length - 1].description,
+                          created: response.data.results[length - 1].created,
+                          children: response.data.results[length - 1].children,
+                          parent: response.data.results[length - 1].parent,
                           data: '[]'
                         })
                       );
@@ -286,6 +288,9 @@ export const createNewSnapshot = ({
                           tags: JSON.parse(projectResponse.data.tags)
                         })
                       );
+                      dispatch(loadSnapshotTree(projectResponse.data.id)).catch(error => {
+                        throw new Error(error);
+                      });
                       dispatch(setOpenSnapshotSavingDialog(false));
                       dispatch(setIsLoadingSnapshotDialog(false));
                       dispatch(setSnapshotJustSaved(projectResponse.data.id));
