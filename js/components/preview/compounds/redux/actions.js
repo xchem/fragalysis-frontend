@@ -29,11 +29,12 @@ export const updateCurrentCompound = ({ id, key, value }) => ({
   }
 });
 
-export const setCompoundClasses = (compoundClasses, oldCompoundClasses, newClassDescription) => ({
+export const setCompoundClasses = (compoundClasses, oldCompoundClasses, value, id) => ({
   type: constants.SET_COMPOUND_CLASSES,
   payload: compoundClasses,
   oldCompoundClasses: oldCompoundClasses,
-  newClassDescription: newClassDescription
+  value: value,
+  id: id
 });
 
 export const resetCompoundClasses = compoundClasses => ({
@@ -41,11 +42,12 @@ export const resetCompoundClasses = compoundClasses => ({
   payload: compoundClasses
 });
 
-export const setCurrentCompoundClass = (currentCompoundClass, oldCompoundClass) => {
+export const setCurrentCompoundClass = (currentCompoundClass, oldCompoundClass, skipTracking) => {
   return {
     type: constants.SET_CURRENT_COMPOUND_CLASS,
     payload: currentCompoundClass,
-    oldCompoundClass: oldCompoundClass
+    oldCompoundClass: oldCompoundClass,
+    skipTracking: skipTracking
   };
 };
 

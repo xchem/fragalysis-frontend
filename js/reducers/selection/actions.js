@@ -11,18 +11,20 @@ export const setToBuyList = function(to_buy_list) {
   };
 };
 
-export const appendToBuyList = function(item, skipTracking = false) {
+export const appendToBuyList = function(item, index, skipTracking = false) {
   return {
     type: constants.APPEND_TO_BUY_LIST,
     item: item,
+    index: index,
     skipTracking: skipTracking
   };
 };
 
-export const removeFromToBuyList = function(item, skipTracking = false) {
+export const removeFromToBuyList = function(item, index, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_TO_BUY_LIST,
     item: item,
+    index: index,
     skipTracking: skipTracking
   };
 };
