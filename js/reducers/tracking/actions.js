@@ -21,6 +21,13 @@ export const appendToUndoRedoActionList = function(track_action) {
   };
 };
 
+export const setUndoRedoActionList = (undo_redo_actions_list) => {
+  return {
+    type: constants.SET_UNDO_REDO_ACTIONS_LIST,
+    undo_redo_actions_list: undo_redo_actions_list
+  };
+}
+
 export const setCurrentActionsList = function(current_actions_list) {
   return {
     type: constants.SET_CURRENT_ACTIONS_LIST,
@@ -103,6 +110,13 @@ export const setIsActionsRestoring = function(isActionRestoring, isActionRestore
     type: constants.SET_IS_ACTIONS_RESTORING,
     isActionRestoring: isActionRestoring,
     isActionRestored: isActionRestored
+  };
+};
+
+export const setIsActionTracking = function(isActionTracking) {
+  return {
+    type: constants.SET_IS_ACTION_TRACKING,
+    isActionTracking: isActionTracking
   };
 };
 

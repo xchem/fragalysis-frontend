@@ -1,7 +1,7 @@
-import React, { memo, useContext } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import { Box, IconButton, makeStyles, Snackbar, useTheme } from '@material-ui/core';
 import Header from '../header';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Route, Switch, useLocation } from 'react-router-dom';
 import { Management } from '../management/management';
 import Tindspect from '../tindspect/Tindspect';
 import Landing from '../landing/Landing';
@@ -17,6 +17,8 @@ import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 import { SessionRedirect } from '../snapshot/sessionRedirect';
 import { DirectDisplay } from '../direct/directDisplay';
+import { setSnapshotJustSaved } from '../snapshot/redux/actions';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -31,6 +33,9 @@ const Routes = memo(() => {
   const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
+  
+  const dispatch = useDispatch();
+  const location = useLocation();
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -38,6 +43,12 @@ const Routes = memo(() => {
     }
     setSnackBarTitle(null);
   };
+
+  useEffect(() => {
+    // Reset the snapshot just saved flag on each route change
+    dispatch(setSnapshotJustSaved(undefined));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   return (
     <Box minHeight="100vh" width="100%" margin={0}>

@@ -7,7 +7,8 @@ import {
   setIsLoadingSnapshotDialog,
   setListOfSnapshots,
   setOpenSnapshotSavingDialog,
-  setSharedSnapshot
+  setSharedSnapshot,
+  setSnapshotJustSaved
 } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import {
@@ -22,7 +23,7 @@ import moment from 'moment';
 import { setProteinLoadingState } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
-import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject } from '../../projects/redux/actions';
+import { resetCurrentSnapshot, setCurrentSnapshot, setForceCreateProject, setForceProjectCreated } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import { reloadDatasetsReducer } from '../../datasets/redux/actions';
 import {
@@ -32,6 +33,7 @@ import {
   manageSendTrackingActions
 } from '../../../reducers/tracking/dispatchActions';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
+import { setCurrentProject } from '../../projects/redux/actions';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -225,6 +227,8 @@ export const createNewSnapshot = ({
       api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
         if (response.data.count === 0) {
           newType = SnapshotType.INIT;
+          // Without this, the snapshot tree wouldnt work
+          dispatch(setForceProjectCreated(false));
         }
 
         return api({
@@ -248,13 +252,53 @@ export const createNewSnapshot = ({
 
             Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
               if (disableRedirect === false) {
-                // Really bad usage or redirection. Hint for everybody in this line ignore it, but in other parts of code
-                // use react-router !
-                window.location.replace(
+                // A hacky way of changing the URL without triggering react-router
+                window.history.replaceState(
+                  null, null,
                   `${URLS.projects}${session_project}/${
                     selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
                   }`
                 );
+                api({ url: `${base_url}/api/session-projects/${session_project}/` }).then(async projectResponse => {
+                  const response = await api({ url: `${base_url}/api/snapshots/?session_project=${session_project}` });
+                  const length = response.data.results.length;
+                  if (length === 0) {
+                    dispatch(resetCurrentSnapshot());
+                  } else if (response.data.results[length - 1] !== undefined) {
+                    // If the tree fails to load, bail out first without modifying the store
+                    dispatch(loadSnapshotTree(projectResponse.data.id));
+                    // Pick the latest snapshot which should be the last one
+                    dispatch(
+                      setCurrentSnapshot({
+                        id: response.data.results[length - 1].id,
+                        type: response.data.results[length - 1].type,
+                        title: response.data.results[length - 1].title,
+                        author: response.data.results[length - 1].author,
+                        description: response.data.results[length - 1].description,
+                        created: response.data.results[length - 1].created,
+                        children: response.data.results[length - 1].children,
+                        parent: response.data.results[length - 1].parent,
+                        data: '[]'
+                      })
+                    );
+                    dispatch(
+                      setCurrentProject({
+                        projectID: projectResponse.data.id,
+                        authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
+                        title: projectResponse.data.title,
+                        description: projectResponse.data.description,
+                        targetID: projectResponse.data.target.id,
+                        tags: JSON.parse(projectResponse.data.tags)
+                      })
+                    );
+                    dispatch(setOpenSnapshotSavingDialog(false));
+                    dispatch(setIsLoadingSnapshotDialog(false));
+                    dispatch(setSnapshotJustSaved(projectResponse.data.id));
+                  }
+                }).catch(error => {
+                  dispatch(resetCurrentSnapshot());
+                  dispatch(setIsLoadingSnapshotDialog(false));
+                });
               } else {
                 dispatch(setOpenSnapshotSavingDialog(false));
                 dispatch(setIsLoadingSnapshotDialog(false));

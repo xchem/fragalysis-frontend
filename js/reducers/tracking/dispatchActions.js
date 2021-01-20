@@ -5,7 +5,7 @@ import {
   setIsUndoRedoAction
 } from './actions';
 import { createInitAction } from './trackingActions';
-import { actionType, actionObjectType } from './constants';
+import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
 import { setCurrentVector, appendToBuyList, removeFromToBuyList, setHideAll } from '../selection/actions';
 import {
@@ -61,26 +61,27 @@ import {
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { deleteObject, setOrientation } from '../../../js/reducers/ngl/dispatchActions';
+import { deleteObject, setOrientation, setNglBckGrndColor, setNglClipNear } from '../../../js/reducers/ngl/dispatchActions';
 import {
   setSendActionsList,
   setIsActionsSending,
   setIsActionsLoading,
   setActionsList,
-  setSnapshotImageActionList
+  setSnapshotImageActionList,
+  setUndoRedoActionList
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
 import moment from 'moment';
 import {
-  appendToActionList,
   appendToSendActionList,
   setProjectActionList,
   setIsActionsSaving,
   setIsActionsRestoring,
   appendToUndoRedoActionList,
-  resetTrackingState
+  resetTrackingState,
+  setIsActionTracking
 } from './actions';
 import {
   setSelectedAll,
@@ -1120,36 +1121,80 @@ const getCompound = (action, state) => {
 };
 
 export const undoAction = (stages = []) => (dispatch, getState) => {
-  const state = getState();
-  let action = null;
-
   dispatch(setIsUndoRedoAction(true));
-
-  const actionUndoList = state.undoableTrackingReducers.future;
-  let actions = actionUndoList && actionUndoList[0];
-  if (actions) {
-    let actionsLenght = actions.undo_redo_actions_list.length;
-    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.undo_redo_actions_list[actionsLenght];
-
+  let action = dispatch(getUndoAction());
+  if (action) {
     Promise.resolve(dispatch(handleUndoAction(action, stages))).then(() => {
       dispatch(setIsUndoRedoAction(false));
     });
   }
 };
 
-export const redoAction = (stages = []) => (dispatch, getState) => {
+const getUndoAction = () => (dispatch, getState) => {
   const state = getState();
-  let action = null;
+  const actionUndoList = state.undoableTrackingReducers.future;
 
-  dispatch(setIsUndoRedoAction(true));
-
-  const actions = state.undoableTrackingReducers.present;
+  let action = { text: '' };
+  let actions = actionUndoList && actionUndoList[0];
   if (actions) {
     let actionsLenght = actions.undo_redo_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
     action = actions.undo_redo_actions_list[actionsLenght];
+  }
 
+  return action;
+};
+
+const getRedoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actions = state.undoableTrackingReducers.present;
+
+  let action = { text: '' };
+  if (actions) {
+    let actionsLenght = actions.undo_redo_actions_list.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions.undo_redo_actions_list[actionsLenght];
+  }
+
+  return action;
+};
+
+const getNextUndoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actionUndoList = state.undoableTrackingReducers.present;
+
+  let action = { text: '' };
+  let actions = actionUndoList && actionUndoList.undo_redo_actions_list;
+  if (actions) {
+    let actionsLenght = actions.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions[actionsLenght];
+  }
+
+  return action;
+};
+
+const getNextRedoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actionUndoList = state.undoableTrackingReducers.future;
+
+  let action = { text: '' };
+  let actionss = actionUndoList && actionUndoList[0];
+
+  let actions = actionss && actionss.undo_redo_actions_list;
+  if (actions) {
+    let actionsLenght = actions.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions[actionsLenght];
+  }
+
+  return action;
+};
+
+export const redoAction = (stages = []) => (dispatch, getState) => {
+  dispatch(setIsUndoRedoAction(true));
+  let action = dispatch(getRedoAction());
+  if (action) {
     Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(() => {
       dispatch(setIsUndoRedoAction(false));
     });
@@ -1251,6 +1296,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.REPRESENTATION_CHANGED:
         dispatch(handleChangeRepresentationAction(action, false, majorView));
         break;
+      case actionType.BACKGROUND_COLOR_CHANGED:
+        dispatch(setNglBckGrndColor(action.oldSetting, majorViewStage, stageSummaryView));
+        break;
+      case actionType.CLIP_NEAR:
+        dispatch(setNglClipNear(action.oldSetting, action.newSetting, majorViewStage));
+        break;
       default:
         break;
     }
@@ -1351,6 +1402,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.REPRESENTATION_CHANGED:
         dispatch(handleChangeRepresentationAction(action, true, majorView));
+        break;
+      case actionType.BACKGROUND_COLOR_CHANGED:
+        dispatch(setNglBckGrndColor(action.newSetting, majorViewStage, stageSummaryView));
+        break;
+      case actionType.CLIP_NEAR:
+        dispatch(setNglClipNear(action.newSetting, action.oldSetting, majorViewStage));
         break;
       default:
         break;
@@ -1777,20 +1834,71 @@ export const getCanRedo = () => (dispatch, getState) => {
   return state.undoableTrackingReducers.future.length > 0;
 };
 
+export const getUndoActionText = () => (dispatch, getState) => {
+  let action = dispatch(getNextUndoAction());
+  return action?.text ?? '';
+};
+
+export const getRedoActionText = () => (dispatch, getState) => {
+  let action = dispatch(getNextRedoAction());
+  return action?.text ?? '';
+};
+
 export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
   const state = getState();
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
+  dispatch(setIsActionTracking(true));
 
   if (trackAction && trackAction !== null) {
-    dispatch(appendToActionList(trackAction, isUndoRedoAction));
-    dispatch(appendToSendActionList(trackAction));
+    const actionList = state.trackingReducers.track_actions_list;
+    const sendActionList = state.trackingReducers.send_actions_list;
+    const mergedActionList = mergeActions(trackAction, [...actionList]);
+    const mergedSendActionList = mergeActions(trackAction, [...sendActionList]);
+    dispatch(setActionsList(mergedActionList));
+    dispatch(setSendActionsList(mergedSendActionList));
 
     if (isUndoRedoAction === false) {
-      dispatch(appendToUndoRedoActionList(trackAction));
+      const undoRedoActionList = state.trackingReducers.undo_redo_actions_list;
+      const mergedUndoRedoActionList = mergeActions(trackAction, [...undoRedoActionList]);
+      dispatch(setUndoRedoActionList(mergedUndoRedoActionList));
     }
   }
-
+  dispatch(setIsActionTracking(false));
   dispatch(checkSendTrackingActions());
+};
+
+export const mergeActions = (trackAction, list) => {
+  if (needsToBeMerged(trackAction)) {
+    let newList = [];
+    if (list.length > 0) {
+      const lastEntry = list[list.length - 1];
+      if (isSameTypeOfAction(trackAction, lastEntry) && isActionWithinTimeLimit(lastEntry, trackAction)) {
+        trackAction.oldSetting = lastEntry.oldSetting;
+        trackAction.text = trackAction.getText();
+        newList = [...list.slice(0, list.length - 1), trackAction];
+      } else {
+        newList = [...list, trackAction];
+      }
+    } else {
+      newList.push(trackAction);
+    }
+    return newList;
+  } else {
+    return [...list, trackAction];
+  }
+};
+
+const needsToBeMerged = (trackAction) => {
+  return trackAction.merge !== undefined ? trackAction.merge : false;
+};
+
+const isSameTypeOfAction = (firstAction, secondAction) => {
+  return firstAction.type === secondAction.type;
+};
+
+const isActionWithinTimeLimit = (firstAction, secondAction) => {
+  const diffInSeconds = Math.abs(firstAction.timestamp - secondAction.timestamp) / 1000;
+  return diffInSeconds <= NUM_OF_SECONDS_TO_IGNORE_MERGE;
 };
 
 export const manageSendTrackingActions = (projectID, copy) => (dispatch, getState) => {

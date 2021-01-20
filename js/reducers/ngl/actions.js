@@ -41,16 +41,34 @@ export const changeComponentRepresentation = (objectInViewID, oldRepresentation,
   objectInViewID
 });
 
-export const setNglViewParams = (key, value, stage = undefined) => {
+export const setNglViewParams = (key, value, stage = undefined, objectId = undefined) => {
   if (stage) {
     stage.setParameters({ [key]: value });
   }
   return {
     type: CONSTANTS.SET_NGL_VIEW_PARAMS,
     key,
-    value
+    value,
+    object_id: objectId
   };
 };
+
+export const setBackgroundColor = (color) => {
+  return {
+    type: CONSTANTS.SET_BACKGROUND_COLOR,
+    payload: color
+  };
+};
+
+export const setNglClipNearAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_CLIP_NEAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+}
 
 export const setNglOrientation = (orientation, div_id) => ({ type: CONSTANTS.SET_ORIENTATION, orientation, div_id });
 

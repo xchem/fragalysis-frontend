@@ -34,6 +34,7 @@ import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { reloadSession } from '../../../snapshot/redux/dispatchActions';
 import { resetRestoringState } from '../../../../reducers/tracking/dispatchActions';
 import { selectJoinedMoleculeList } from '../../molecule/redux/selectors';
+import { URLS } from '../../../routes/constants';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId, currentMolGroup, majorViewStage }) => (
   dispatch,
@@ -269,8 +270,10 @@ export const restoreFromCurrentSnapshot = ({ nglViewList }) => (dispatch, getSta
   dispatch(reloadSession(snapshot, nglViewList));
 };
 
-export const restoreSnapshotActions = ({ nglViewList }) => (dispatch, getState) => {
+export const restoreSnapshotActions = ({ nglViewList, projectId, snapshotId, history }) => (dispatch, getState) => {
   dispatch(resetRestoringState(nglViewList));
+  // Trigger react-router to get rid of snapshot just saved flag
+  history.replace(`${URLS.projects}${projectId}/${snapshotId}`);
 };
 
 export const onDeselectMoleculeGroup = ({ moleculeGroup, stageSummaryView, majorViewStage }) => (

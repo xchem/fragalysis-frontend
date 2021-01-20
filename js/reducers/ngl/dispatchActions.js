@@ -7,7 +7,9 @@ import {
   setNglStateFromCurrentSnapshot,
   setMoleculeOrientations,
   setNglOrientation,
-  setNglViewParams
+  setNglViewParams,
+  setBackgroundColor,
+  setNglClipNearAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
@@ -23,6 +25,7 @@ import {
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 import { VIEWS } from '../../constants/constants';
+import { NGL_PARAMS } from '../../components/nglView/constants/index';
 
 export const loadObject = ({
   target,
@@ -157,7 +160,7 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
     if (display_div !== VIEWS.SUMMARY_VIEW) {
       // loop over nglViewParams
       Object.keys(snapshot.viewParams).forEach(param => {
-        dispatch(setNglViewParams(param, snapshot.viewParams[param], stage));
+        dispatch(setNglViewParams(param, snapshot.viewParams[param], stage, VIEWS.MAJOR_VIEW));
       });
 
       // nglOrientations
@@ -172,4 +175,15 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
       }
     }
   });
+};
+
+export const setNglBckGrndColor = (color, major, summary) => (dispatch, getState) => {
+  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, summary, VIEWS.SUMMARY_VIEW));
+  dispatch(setBackgroundColor(color));
+};
+
+export const setNglClipNear = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));  
+  dispatch(setNglClipNearAction(newValue, oldValue));
 };
