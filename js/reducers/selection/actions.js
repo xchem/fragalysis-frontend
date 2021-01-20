@@ -11,17 +11,33 @@ export const setToBuyList = function(to_buy_list) {
   };
 };
 
-export const appendToBuyList = function(item) {
+export const appendToBuyList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_TO_BUY_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromToBuyList = function(item) {
+export const removeFromToBuyList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_TO_BUY_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const appendToBuyListAll = function(items) {
+  return {
+    type: constants.APPEND_TO_BUY_LIST_ALL,
+    items: items
+  };
+};
+
+export const removeFromToBuyListAll = function(items) {
+  return {
+    type: constants.REMOVE_FROM_BUY_LIST_ALL,
+    items: items
   };
 };
 

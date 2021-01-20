@@ -29,9 +29,11 @@ export const updateCurrentCompound = ({ id, key, value }) => ({
   }
 });
 
-export const setCompoundClasses = compoundClasses => ({
+export const setCompoundClasses = (compoundClasses, oldCompoundClasses, newClassDescription) => ({
   type: constants.SET_COMPOUND_CLASSES,
-  payload: compoundClasses
+  payload: compoundClasses,
+  oldCompoundClasses: oldCompoundClasses,
+  newClassDescription: newClassDescription
 });
 
 export const resetCompoundClasses = compoundClasses => ({
@@ -39,10 +41,11 @@ export const resetCompoundClasses = compoundClasses => ({
   payload: compoundClasses
 });
 
-export const setCurrentCompoundClass = currentCompoundClass => {
+export const setCurrentCompoundClass = (currentCompoundClass, oldCompoundClass) => {
   return {
     type: constants.SET_CURRENT_COMPOUND_CLASS,
-    payload: currentCompoundClass
+    payload: currentCompoundClass,
+    oldCompoundClass: oldCompoundClass
   };
 };
 
@@ -57,14 +60,16 @@ export const setShowedCompoundList = compounds => ({
   payload: compounds
 });
 
-export const addShowedCompoundToList = compoundId => ({
+export const addShowedCompoundToList = (compoundId, item) => ({
   type: constants.APPEND_SHOWED_COMPOUND_LIST,
-  payload: compoundId
+  payload: compoundId,
+  item: item
 });
 
-export const removeShowedCompoundFromList = compoundId => ({
+export const removeShowedCompoundFromList = (compoundId, item) => ({
   type: constants.REMOVE_SHOWED_COMPOUND_LIST,
-  payload: compoundId
+  payload: compoundId,
+  item: item
 });
 
 export const addSelectedCompoundClass = (classID, compoundID) => ({
