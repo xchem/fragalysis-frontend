@@ -9,7 +9,11 @@ import {
   setNglOrientation,
   setNglViewParams,
   setBackgroundColor,
-  setNglClipNearAction
+  setNglClipNearAction,
+  setNglClipFarAction,
+  setNglClipDistAction,
+  setNglFogNearAction,
+  setNglFogFarAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
@@ -186,4 +190,24 @@ export const setNglBckGrndColor = (color, major, summary) => (dispatch, getState
 export const setNglClipNear = (newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));  
   dispatch(setNglClipNearAction(newValue, oldValue));
+};
+
+export const setNglClipFar = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(setNglViewParams(NGL_PARAMS.clipFar, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglClipFarAction(newValue, oldValue));
+};
+
+export const setNglClipDist = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(setNglViewParams(NGL_PARAMS.clipDist, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglClipDistAction(newValue, oldValue));
+};
+
+export const setNglFogNear = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(setNglViewParams(NGL_PARAMS.fogNear, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglFogNearAction(newValue, oldValue));
+};
+
+export const setNglFogFar = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(setNglViewParams(NGL_PARAMS.fogFar, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglFogFarAction(newValue, oldValue));
 };

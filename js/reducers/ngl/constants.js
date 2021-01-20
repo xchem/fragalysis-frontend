@@ -28,7 +28,11 @@ export const CONSTANTS = {
   ADD_TO_PDB_CACHE: prefix + 'ADD_TO_PDB_CACHE',
 
   SET_BACKGROUND_COLOR: prefix + 'SET_BACKGROUND_COLOR',
-  SET_CLIP_NEAR: prefix + 'SET_CLIP_NEAR'
+  SET_CLIP_NEAR: prefix + 'SET_CLIP_NEAR',
+  SET_CLIP_FAR: prefix + 'SET_CLIP_FAR',
+  SET_CLIP_DIST: prefix + 'SET_CLIP_DIST',
+  SET_FOG_NEAR: prefix + 'SET_FOG_NEAR',
+  SET_FOG_FAR: prefix + 'SET_FOG_FAR'
 };
 
 export const SCENES = {

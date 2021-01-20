@@ -61,7 +61,16 @@ import {
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { deleteObject, setOrientation, setNglBckGrndColor, setNglClipNear } from '../../../js/reducers/ngl/dispatchActions';
+import { 
+  deleteObject, 
+  setOrientation, 
+  setNglBckGrndColor, 
+  setNglClipNear, 
+  setNglClipFar, 
+  setNglClipDist, 
+  setNglFogNear,
+  setNglFogFar
+} from '../../../js/reducers/ngl/dispatchActions';
 import {
   setSendActionsList,
   setIsActionsSending,
@@ -1302,6 +1311,18 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.CLIP_NEAR:
         dispatch(setNglClipNear(action.oldSetting, action.newSetting, majorViewStage));
         break;
+      case actionType.CLIP_FAR:
+        dispatch(setNglClipFar(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CLIP_DIST:
+        dispatch(setNglClipDist(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.FOG_NEAR:
+        dispatch(setNglFogNear(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.FOG_FAR:
+        dispatch(setNglFogFar(action.oldSetting, action.newSetting, majorViewStage));
+        break;
       default:
         break;
     }
@@ -1408,6 +1429,18 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.CLIP_NEAR:
         dispatch(setNglClipNear(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CLIP_FAR:
+        dispatch(setNglClipFar(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CLIP_DIST:
+        dispatch(setNglClipDist(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.FOG_NEAR:
+        dispatch(setNglFogNear(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.FOG_FAR:
+        dispatch(setNglFogFar(action.newSetting, action.oldSetting, majorViewStage));
         break;
       default:
         break;

@@ -766,6 +766,82 @@ export const findTrackAction = (action, state) => {
         },
         text: `Clip near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
+    } else if (action.type.includes(nglConstants.SET_CLIP_FAR)) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.CLIP_FAR,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return "Clip far of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+        },
+        text: `Clip far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+      };      
+    } else if (action.type.includes(nglConstants.SET_CLIP_DIST)) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.CLIP_DIST,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return "Clip dist of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+        },
+        text: `Clip dist of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+      };      
+    } else if (action.type.includes(nglConstants.SET_FOG_NEAR)) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.FOG_NEAR,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return "Fog near of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+        },
+        text: `For near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+      };      
+    } else if (action.type.includes(nglConstants.SET_FOG_FAR)) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.FOG_FAR,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return "Fog far of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+        },
+        text: `For far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+      };           
     }
   }
   return trackAction;
