@@ -4,7 +4,7 @@ import { Drawer } from '../../common/Navigation/Drawer';
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { setNglViewParams } from '../../../reducers/ngl/actions';
-import { setNglBckGrndColor, setNglClipNear } from '../../../reducers/ngl/dispatchActions';
+import { setNglBckGrndColor, setNglClipNear, setNglClipFar, setNglClipDist, setNglFogNear, setNglFogFar } from '../../../reducers/ngl/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 
@@ -86,7 +86,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.clipFar, value, majorView, VIEWS.MAJOR_VIEW))}
+              onChange={(e, value) => dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.cli], majorView))}
             />
           </Grid>
         </Grid>
@@ -98,7 +98,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             <TextField
               type="number"
               value={viewParams[NGL_PARAMS.clipDist]}
-              onChange={e => dispatch(setNglViewParams(NGL_PARAMS.clipDist, e.target.value, majorView, VIEWS.MAJOR_VIEW))}
+              onChange={e => dispatch(setNglClipDist(e.target.value, viewParams[NGL_PARAMS.clipDist], majorView))}
               className={classes.textField}
             />
           </Grid>
@@ -114,7 +114,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.fogNear, value, majorView, VIEWS.MAJOR_VIEW))}
+              onChange={(e, value) => dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorView))}
             />
           </Grid>
         </Grid>
@@ -129,7 +129,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.fogFar, value, majorView, VIEWS.MAJOR_VIEW))}
+              onChange={(e, value) => dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorView))}
             />
           </Grid>
         </Grid>

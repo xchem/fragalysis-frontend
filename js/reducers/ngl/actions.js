@@ -1,8 +1,6 @@
 /**
  * Created by abradley on 03/03/2018.
  */
-import { constant } from 'lodash';
-import { constants } from '../selection/constants';
 import { CONSTANTS } from './constants';
 
 export const loadNglObject = (target, representations) => ({ type: CONSTANTS.LOAD_OBJECT, target, representations });
@@ -68,7 +66,47 @@ export const setNglClipNearAction = (newValue, oldValue) => {
       oldValue: oldValue
     }
   };
-}
+};
+
+export const setNglClipFarAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_CLIP_FAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglClipDistAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_CLIP_DIST,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglFogNearAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_FOG_NEAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglFogFarAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_FOG_FAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
 
 export const setNglOrientation = (orientation, div_id) => ({ type: CONSTANTS.SET_ORIENTATION, orientation, div_id });
 
