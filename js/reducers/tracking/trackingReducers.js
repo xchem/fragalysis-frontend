@@ -16,6 +16,7 @@ export const INITIAL_STATE = {
   snapshotActionImageList: [],
   isActionRestoring: false,
   isActionRestored: false,
+  isActionTracking: false,
   trackingImageSource: ''
 };
 
@@ -100,6 +101,10 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         isActionRestoring: action.isActionRestoring,
         isActionRestored: action.isActionRestored
+      });
+    case constants.SET_IS_ACTION_TRACKING:
+      return Object.assign({}, state, {
+        isActionTracking: action.isActionTracking
       });
 
     case constants.SET_TRACKING_IMAGE_SOURCE:
