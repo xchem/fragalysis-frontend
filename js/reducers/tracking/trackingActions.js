@@ -4,11 +4,13 @@ import { CONSTANTS as nglConstants } from '../ngl/constants';
 import { constants as selectionConstants } from '../selection/constants';
 import { constants as customDatasetConstants } from '../../components/datasets/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import {NGL_PARAMS, BACKGROUND_COLOR} from '../../components/nglView/constants/index';
 
 export const findTrackAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
   const isActionRestoring = state.trackingReducers.isActionRestoring;
+  const viewParams = state.nglReducers.viewParams;
 
   let trackAction = null;
   if (isActionRestoring === false && action.skipTracking !== true) {
@@ -729,6 +731,40 @@ export const findTrackAction = (action, state) => {
         oldRepresentation: action.oldRepresentation,
         newRepresentation: action.newRepresentation,
         text: `${objectType} of ${action.objectInViewID} ${actionDescription.CHANGED} from value: ${oldRepresentationName} to value: ${newRepresentationName}`
+      };
+    } else if (action.type.includes(nglConstants.SET_BACKGROUND_COLOR)) {
+      let oldSetting = action.payload === BACKGROUND_COLOR.white ? BACKGROUND_COLOR.black : BACKGROUND_COLOR.white;
+      let newSetting = action.payload;
+
+      trackAction = {
+        type: actionType.BACKGROUND_COLOR_CHANGED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        text: `Color of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+      };
+    } else if (action.type.includes(nglConstants.SET_CLIP_NEAR)) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.CLIP_NEAR,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return "Clip near of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+        },
+        text: `Clip near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
     }
   }

@@ -35,10 +35,15 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         undo_redo_actions_list: [...new Set([...state.undo_redo_actions_list, action.track_action])]
       });
+    
+    case constants.SET_UNDO_REDO_ACTIONS_LIST:
+      return {
+        ...state, undo_redo_actions_list: action.undo_redo_actions_list
+      };
 
     case constants.SET_CURRENT_ACTIONS_LIST:
       return Object.assign({}, state, {
-        current_actions_list: action.current_actions_list
+        current_actions_list: [...action.current_actions_list]
       });
 
     case constants.SET_IS_TRACKING_MOLECULES_RESTORING:
@@ -68,7 +73,7 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_SEND_ACTIONS_LIST:
       return Object.assign({}, state, {
-        send_actions_list: action.send_actions_list
+        send_actions_list: [...action.send_actions_list]
       });
 
     case constants.APPEND_SEND_ACTIONS_LIST:
@@ -112,5 +117,5 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
 
 export const undoableTrackingReducers = undoable(trackingReducers, {
   limit: false,
-  filter: includeAction(constants.APPEND_UNDO_REDO_ACTIONS_LIST)
+  filter: includeAction(constants.SET_UNDO_REDO_ACTIONS_LIST)
 });
