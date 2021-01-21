@@ -4,8 +4,13 @@ import { getAllCompoundsList } from './selectors';
 import { MOL_ATTRIBUTES } from '../../components/preview/molecule/redux/constants';
 
 export const selectVectorAndResetCompounds = vectorSmile => async (dispatch, getState) => {
+  const state = getState();
+  let currentVector = state.selectionReducers.currentVector;
+  if (currentVector !== vectorSmile) {
+    await dispatch(setCurrentVector(vectorSmile));
+  }
+
   await dispatch(resetCurrentCompoundsSettings(false));
-  await dispatch(setCurrentVector(vectorSmile));
   const currentCompoundsList = getAllCompoundsList(getState());
   dispatch(setCurrentCompounds(currentCompoundsList));
 };

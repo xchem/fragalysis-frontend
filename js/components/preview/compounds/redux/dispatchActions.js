@@ -1,4 +1,10 @@
-import { appendToBuyList, removeFromToBuyList, setToBuyList } from '../../../../reducers/selection/actions';
+import {
+  appendToBuyList,
+  removeFromToBuyList,
+  setToBuyList,
+  appendToBuyListAll,
+  removeFromToBuyListAll
+} from '../../../../reducers/selection/actions';
 import {
   setCompoundClasses,
   setCurrentPage,
@@ -32,6 +38,7 @@ export const selectAllCompounds = () => (dispatch, getState) => {
   const moleculeOfVector = getMoleculeOfCurrentVector(state);
   const smiles = moleculeOfVector && moleculeOfVector.smiles;
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
+  let items = [];
 
   for (let key in currentVectorCompoundsFiltered) {
     for (let index in currentVectorCompoundsFiltered[key]) {
@@ -41,14 +48,19 @@ export const selectAllCompounds = () => (dispatch, getState) => {
             smiles: currentVectorCompoundsFiltered[key][index][indexOfCompound].end,
             vector: currentVectorCompoundsFiltered[key].vector.split('_')[0],
             mol: smiles,
-            class: parseInt(currentCompoundClass)
+            class: parseInt(currentCompoundClass),
+            indexOfCompound: indexOfCompound,
+            index: index
           };
-          dispatch(appendToBuyList(thisObj));
+          items.push(thisObj);
+          dispatch(appendToBuyList(thisObj, index, true));
           dispatch(addSelectedCompoundClass(currentCompoundClass, parseInt(indexOfCompound)));
         }
       }
     }
   }
+
+  dispatch(appendToBuyListAll(items));
 };
 
 export const onChangeCompoundClassValue = event => (dispatch, getState) => {
@@ -59,16 +71,22 @@ export const onChangeCompoundClassValue = event => (dispatch, getState) => {
   });
   // const compoundClasses = state.previewReducers.compounds.compoundClasses;
 
-  const newClassDescription = { [event.target.id]: event.target.value };
+  let id = event.target.id;
+  let value = event.target.value;
+  let oldDescriptionToSet = Object.assign({}, compoundClasses);
+  const newClassDescription = { [id]: value };
   const descriptionToSet = Object.assign(compoundClasses, newClassDescription);
 
-  dispatch(setCompoundClasses(descriptionToSet));
+  dispatch(setCompoundClasses(descriptionToSet, oldDescriptionToSet, value, id));
 };
 
-export const onKeyDownCompoundClass = event => dispatch => {
+export const onKeyDownCompoundClass = event => (dispatch, getState) => {
+  const state = getState();
+
   // on Enter
   if (event.keyCode === 13) {
-    dispatch(setCurrentCompoundClass(event.target.id));
+    let oldCompoundClass = state.previewReducers.compounds.currentCompoundClass;
+    dispatch(setCurrentCompoundClass(event.target.id, oldCompoundClass));
   }
 };
 
@@ -131,8 +149,17 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
 };
 
 export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) => {
-  dispatch(setToBuyList([]));
   const state = getState();
+
+  let to_buy_list = state.selectionReducers.to_buy_list;
+  dispatch(clearCompounds(to_buy_list, majorViewStage));
+};
+
+const clearCompounds = (items, majorViewStage) => (dispatch, getState) => {
+  const state = getState();
+
+  dispatch(removeFromToBuyListAll(items));
+  dispatch(setToBuyList([]));
   // reset objects from nglView and showedCompoundList
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
@@ -150,7 +177,7 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
   // reset configuration
   dispatch(resetConfiguration());
   // reset current compound class
-  dispatch(dispatch(setCurrentCompoundClass(compoundsColors.blue.key)));
+  dispatch(dispatch(setCurrentCompoundClass(compoundsColors.blue.key, compoundsColors.blue.key, true)));
 };
 
 export const handleClickOnCompound = ({ event, data, majorViewStage, index }) => async (dispatch, getState) => {
@@ -164,9 +191,9 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
   if (event.shiftKey) {
     await dispatch(showCompoundNglView({ majorViewStage, data, index }));
     if (showedCompoundList.find(item => item === index) !== undefined) {
-      dispatch(removeShowedCompoundFromList(index));
+      dispatch(removeShowedCompoundFromList(index, data));
     } else {
-      dispatch(addShowedCompoundToList(index));
+      dispatch(addShowedCompoundToList(index, data));
     }
   } else {
     let isSelectedID;
@@ -180,11 +207,47 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
 
     if (isSelectedID !== undefined) {
       await dispatch(removeSelectedCompoundClass(index));
-      dispatch(removeFromToBuyList(data));
+      dispatch(removeFromToBuyList(data, index));
     } else {
       await dispatch(addSelectedCompoundClass(currentCompoundClass, index));
-      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass })));
+      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass })), index);
     }
+  }
+};
+
+export const handleBuyList = ({ isSelected, data, index }) => async (dispatch, getState) => {
+  const state = getState();
+  const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
+
+  dispatch(setHighlightedCompoundId(index));
+
+  if (isSelected === false) {
+    await dispatch(removeSelectedCompoundClass(index));
+    dispatch(removeFromToBuyList(data, index, true));
+  } else {
+    await dispatch(addSelectedCompoundClass(currentCompoundClass, index));
+    dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass }), index, true));
+  }
+};
+
+export const handleBuyListAll = ({ isSelected, items, majorViewStage }) => async (dispatch, getState) => {
+  if (isSelected === false) {
+    dispatch(clearCompounds(items, majorViewStage));
+  } else {
+    for (var item in items) {
+      dispatch(appendToBuyList(item, item.index, true));
+      dispatch(addSelectedCompoundClass(item.class, item.indexOfCompound));
+    }
+    dispatch(appendToBuyListAll(items));
+  }
+};
+
+export const handleShowVectorCompound = ({ isSelected, data, index, majorViewStage }) => async (dispatch, getState) => {
+  await dispatch(showCompoundNglView({ majorViewStage, data, index }));
+  if (isSelected === false) {
+    dispatch(removeShowedCompoundFromList(index, data));
+  } else {
+    dispatch(addShowedCompoundToList(index, data));
   }
 };
 

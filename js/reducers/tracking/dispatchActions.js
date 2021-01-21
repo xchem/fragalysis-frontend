@@ -7,7 +7,7 @@ import {
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, removeFromToBuyList, setHideAll } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, setHideAll } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -33,6 +33,12 @@ import {
   removeSurface,
   removeVector
 } from '../../components/preview/molecule/redux/dispatchActions';
+import {
+  handleBuyList,
+  handleBuyListAll,
+  handleShowVectorCompound
+} from '../../components/preview/compounds/redux/dispatchActions';
+import { setCurrentCompoundClass, setCompoundClasses } from '../../components/preview/compounds/redux/actions';
 import { colourList } from '../../components/preview/molecule/moleculeView';
 import {
   addDatasetComplex,
@@ -88,7 +94,6 @@ import {
   setProjectActionList,
   setIsActionsSaving,
   setIsActionsRestoring,
-  appendToUndoRedoActionList,
   resetTrackingState,
   setIsActionTracking
 } from './actions';
@@ -104,6 +109,7 @@ import {
   setSelectedAllByType as setSelectedAllByTypeOfDataset,
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
+import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -1267,10 +1273,22 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
       case actionType.VECTOR_SELECTED:
-        dispatch(setCurrentVector(undefined));
+        dispatch(handleVectorAction(action, false));
         break;
       case actionType.VECTOR_DESELECTED:
-        dispatch(setCurrentVector(action.object_name));
+        dispatch(handleVectorAction(action, true));
+        break;
+      case actionType.VECTOR_COUMPOUND_ADDED:
+        dispatch(handleVectorCompoundAction(action, false, majorViewStage));
+        break;
+      case actionType.VECTOR_COUMPOUND_REMOVED:
+        dispatch(handleVectorCompoundAction(action, true, majorViewStage));
+        break;
+      case actionType.CLASS_SELECTED:
+        dispatch(handleClassSelectedAction(action, false));
+        break;
+      case actionType.CLASS_UPDATED:
+        dispatch(handleClassUpdatedAction(action, false));
         break;
       case actionType.TARGET_LOADED:
         dispatch(handleTargetAction(action, false));
@@ -1287,6 +1305,13 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, true));
         break;
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, false));
+        break;
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, true));
+        break;
+
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
@@ -1386,10 +1411,22 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
         break;
       case actionType.VECTOR_SELECTED:
-        dispatch(setCurrentVector(action.object_name));
+        dispatch(handleVectorAction(action, true));
         break;
       case actionType.VECTOR_DESELECTED:
-        dispatch(setCurrentVector(undefined));
+        dispatch(handleVectorAction(action, false));
+        break;
+      case actionType.VECTOR_COUMPOUND_ADDED:
+        dispatch(handleVectorCompoundAction(action, true));
+        break;
+      case actionType.VECTOR_COUMPOUND_REMOVED:
+        dispatch(handleVectorCompoundAction(action, false));
+        break;
+      case actionType.CLASS_SELECTED:
+        dispatch(handleClassSelectedAction(action, true));
+        break;
+      case actionType.CLASS_UPDATED:
+        dispatch(handleClassUpdatedAction(action, true));
         break;
       case actionType.TARGET_LOADED:
         dispatch(handleTargetAction(action, true));
@@ -1405,6 +1442,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, false));
+        break;
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, true));
+        break;
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, false));
         break;
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, true));
@@ -1635,6 +1678,43 @@ const handleAllAction = (action, isSelected, majorViewStage, state) => (dispatch
   }
 };
 
+const handleVectorAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    if (isSelected === false) {
+      dispatch(selectVectorAndResetCompounds(undefined));
+    } else {
+      dispatch(selectVectorAndResetCompounds(action.object_name));
+    }
+  }
+};
+
+const handleVectorCompoundAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  if (action) {
+    let data = action.item;
+    let index = action.index;
+    dispatch(handleShowVectorCompound({ isSelected, data, index, majorViewStage: majorViewStage }));
+  }
+};
+
+const handleClassSelectedAction = (action, isAdd) => (dispatch, getState) => {
+  if (action) {
+    let value = isAdd ? action.value : action.oldValue;
+    let oldValue = isAdd ? action.oldValue : action.value;
+    dispatch(setCurrentCompoundClass(value, oldValue));
+  }
+};
+
+const handleClassUpdatedAction = (action, isAdd) => (dispatch, getState) => {
+  if (action) {
+    let id = action.object_id;
+    let newValue = isAdd ? action.newCompoundClasses : action.oldCompoundClasses;
+    let oldValue = isAdd ? action.oldCompoundClasses : action.newCompoundClasses;
+    let value = isAdd ? action.object_name : action.oldCompoundClasses[id];
+    value = value !== undefined ? value : '';
+    dispatch(setCompoundClasses(newValue, oldValue, value, id));
+  }
+};
+
 const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) => {
   const state = getState();
   if (action) {
@@ -1667,10 +1747,19 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    if (isAdd) {
-      dispatch(appendToBuyList(data));
-    } else {
-      dispatch(removeFromToBuyList(data));
+    let index = action.index;
+
+    if (data) {
+      dispatch(handleBuyList({ isSelected: isAdd, data, index }));
+    }
+  }
+};
+
+const handleShoppingCartAllAction = (action, isAdd) => (dispatch, getState) => {
+  if (action) {
+    let data = action.items;
+    if (data) {
+      dispatch(handleBuyListAll({ isSelected: isAdd, data }));
     }
   }
 };
@@ -1921,7 +2010,7 @@ export const mergeActions = (trackAction, list) => {
   }
 };
 
-const needsToBeMerged = (trackAction) => {
+const needsToBeMerged = trackAction => {
   return trackAction.merge !== undefined ? trackAction.merge : false;
 };
 

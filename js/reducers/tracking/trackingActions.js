@@ -1,10 +1,11 @@
 import { actionType, actionObjectType, actionDescription, actionAnnotation } from './constants';
 import { constants as apiConstants } from '../api/constants';
 import { CONSTANTS as nglConstants } from '../ngl/constants';
+import { constants as previewCompoundConstants } from '../../components/preview/compounds/redux/constants';
 import { constants as selectionConstants } from '../selection/constants';
 import { constants as customDatasetConstants } from '../../components/datasets/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import {NGL_PARAMS, BACKGROUND_COLOR} from '../../components/nglView/constants/index';
+import { NGL_PARAMS, BACKGROUND_COLOR } from '../../components/nglView/constants/index';
 
 export const findTrackAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
@@ -359,27 +360,28 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.APPEND_TO_BUY_LIST)) {
+    } else if (action.type === selectionConstants.APPEND_TO_BUY_LIST) {
       if (action.item) {
         let objectType = actionObjectType.MOLECULE;
-        let objectName = action.vector;
+        let objectName = action.item && action.item.vector;
 
         trackAction = {
           type: actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
           annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
-          object_type: actionObjectType.MOLECULE,
+          object_type: objectType,
           object_name: objectName,
           object_id: objectName,
+          index: action.index,
           item: action.item,
-          text: `${objectType} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
+          text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
         };
       }
-    } else if (action.type.includes(selectionConstants.REMOVE_FROM_TO_BUY_LIST)) {
+    } else if (action.type === selectionConstants.REMOVE_FROM_TO_BUY_LIST) {
       if (action.item) {
         let objectType = actionObjectType.MOLECULE;
-        let objectName = action.vector;
+        let objectName = action.item && action.item.vector;
 
         trackAction = {
           type: actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART,
@@ -389,8 +391,71 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
+          index: action.index,
           item: action.item,
-          text: `${objectType} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
+          text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
+        };
+      }
+    } else if (action.type === selectionConstants.APPEND_TO_BUY_LIST_ALL) {
+      let items = action.items;
+      let objectType = actionObjectType.COMPOUND;
+
+      trackAction = {
+        type: actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        items: items,
+        text: `${actionDescription.ALL} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
+      };
+    } else if (action.type === selectionConstants.REMOVE_FROM_BUY_LIST_ALL) {
+      let items = action.items;
+      let objectType = actionObjectType.COMPOUND;
+
+      trackAction = {
+        type: actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL,
+        annotation: actionAnnotation.CLEAR,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        items: items,
+        text: `${actionDescription.ALL} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
+      };
+    } else if (action.type === previewCompoundConstants.APPEND_SHOWED_COMPOUND_LIST) {
+      if (action.item && action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.item && action.item.vector;
+
+        trackAction = {
+          type: actionType.VECTOR_COUMPOUND_ADDED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload,
+          item: action.item,
+          index: action.payload,
+          text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.ADDED}`
+        };
+      }
+    } else if (action.type === previewCompoundConstants.REMOVE_SHOWED_COMPOUND_LIST) {
+      if (action.item && action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.item && action.item.vector;
+
+        trackAction = {
+          type: actionType.VECTOR_COUMPOUND_REMOVED,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload,
+          item: action.item,
+          index: action.payload,
+          text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`
         };
       }
     } else if (action.type.includes(selectionConstants.SET_CURRENT_VECTOR)) {
@@ -407,6 +472,42 @@ export const findTrackAction = (action, state) => {
           object_name: objectName,
           object_id: action.payload,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.SELECTED}`
+        };
+      }
+    } else if (action.type === previewCompoundConstants.SET_CURRENT_COMPOUND_CLASS) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload;
+        let oldObjectName = action.oldCompoundClass;
+
+        trackAction = {
+          type: actionType.CLASS_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: objectName,
+          oldValue: oldObjectName,
+          value: objectName,
+          text: `${actionDescription.CLASS} ${objectName} ${actionDescription.SELECTED}`
+        };
+      }
+    } else if (action.type === previewCompoundConstants.SET_COMPOUND_CLASSES) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+
+        trackAction = {
+          type: actionType.CLASS_UPDATED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: action.value,
+          object_id: action.id,
+          newCompoundClasses: action.payload,
+          oldCompoundClasses: action.oldCompoundClasses,
+          text: `${actionDescription.CLASS} value ${actionDescription.UPDATED}: ${action.id}:${action.value}`
         };
       }
     } else if (action.type.includes(customDatasetConstants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET)) {
@@ -762,7 +863,14 @@ export const findTrackAction = (action, state) => {
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
-          return "Clip near of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+          return (
+            'Clip near of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
         },
         text: `Clip near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
