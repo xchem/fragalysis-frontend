@@ -452,6 +452,7 @@ export const saveAndShareSnapshot = nglViewList => async (dispatch, getState) =>
 
       dispatch(setIsLoadingSnapshotDialog(false));
     } catch (error) {
+      dispatch(setIsLoadingSnapshotDialog(false));
       throw new Error(error);
     }
   }
