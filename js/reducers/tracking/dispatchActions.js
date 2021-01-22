@@ -63,6 +63,8 @@ import {
   removeComponentRepresentation,
   addComponentRepresentation,
   updateComponentRepresentation,
+  updateComponentRepresentationVisibility,
+  updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
@@ -1318,6 +1320,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
+      case actionType.REPRESENTATION_VISIBILITY_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAllAction(action, false, majorView));
+        break;
       case actionType.REPRESENTATION_UPDATED:
         dispatch(handleUpdateRepresentationAction(action, false, majorView));
         break;
@@ -1454,6 +1462,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAllAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_UPDATED:
         dispatch(handleUpdateRepresentationAction(action, true, majorView));
@@ -1822,6 +1836,56 @@ const removeRepresentation = (action, parentKey, representation, nglView, skipTr
     }
   } else {
     console.log(`Not found representation:`, representation);
+  }
+};
+
+const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    let parentKey = action.object_id;
+    let representation = action.representation;
+
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    comp.eachRepresentation(r => {
+      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+        const newVisibility = isAdd ? action.value : !action.value;
+        // update in redux
+        representation.params.visible = newVisibility;
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+        dispatch(
+          updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility)
+        );
+        // update in nglView
+        r.setVisibility(newVisibility);
+      }
+    });
+  }
+};
+
+const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    const state = getState();
+    let parentKey = action.object_id;
+    let objectsInView = state.nglReducers.objectsInView;
+    let newVisibility = isAdd ? action.value : !action.value;
+
+    const representations = (objectsInView[parentKey] && objectsInView[parentKey].representations) || [];
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+    if (representations) {
+      representations.forEach((representation, index) => {
+        comp.eachRepresentation(r => {
+          if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+            representation.params.visible = newVisibility;
+            // update in nglView
+            r.setVisibility(newVisibility);
+            // update in redux
+            dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+          }
+        });
+      });
+
+      dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
+    }
   }
 };
 

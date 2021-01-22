@@ -10,12 +10,41 @@ export const deleteNglObject = target => ({
   target
 });
 
-export const updateComponentRepresentation = (objectInViewID, representationID, newRepresentation, change) => ({
+export const updateComponentRepresentationVisibility = (
+  objectInViewID,
+  representationID,
+  representation,
+  newVisibility,
+  skipTracking = false
+) => ({
+  type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY,
+  representationID,
+  representation,
+  newVisibility,
+  objectInViewID,
+  skipTracking
+});
+
+export const updateComponentRepresentationVisibilityAll = (objectInViewID, newVisibility, skipTracking = false) => ({
+  type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY_ALL,
+  newVisibility,
+  objectInViewID,
+  skipTracking
+});
+
+export const updateComponentRepresentation = (
+  objectInViewID,
+  representationID,
+  newRepresentation,
+  change,
+  skipTracking = false
+) => ({
   type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION,
   representationID,
   newRepresentation,
   objectInViewID,
-  change
+  change,
+  skipTracking
 });
 
 export const addComponentRepresentation = (objectInViewID, newRepresentation, skipTracking = false) => ({
@@ -51,7 +80,7 @@ export const setNglViewParams = (key, value, stage = undefined, objectId = undef
   };
 };
 
-export const setBackgroundColor = (color) => {
+export const setBackgroundColor = color => {
   return {
     type: CONSTANTS.SET_BACKGROUND_COLOR,
     payload: color

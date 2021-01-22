@@ -10,6 +10,8 @@ import {
   addComponentRepresentation,
   removeComponentRepresentation,
   updateComponentRepresentation,
+  updateComponentRepresentationVisibility,
+  updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../../reducers/ngl/actions';
 import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
@@ -52,7 +54,10 @@ export default memo(({ open, onClose }) => {
         const newVisibility = !r.getVisibility();
         // update in redux
         representation.params.visible = newVisibility;
-        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+        dispatch(
+          updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility)
+        );
         // update in nglView
         r.setVisibility(newVisibility);
       }
@@ -144,10 +149,12 @@ export default memo(({ open, onClose }) => {
           // update in nglView
           r.setVisibility(newVisibility);
           // update in redux
-          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
         }
       });
     });
+
+    dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
   };
 
   const hasAllRepresentationVisibled = parentKey => {
