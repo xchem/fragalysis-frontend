@@ -373,7 +373,7 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
-          index: action.index,
+          compoundId: action.item.compoundId,
           item: action.item,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
         };
@@ -391,7 +391,7 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
-          index: action.index,
+          compoundId: action.item.compoundId,
           item: action.item,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
         };
@@ -423,41 +423,37 @@ export const findTrackAction = (action, state) => {
         text: `${actionDescription.ALL} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
       };
     } else if (action.type === previewCompoundConstants.APPEND_SHOWED_COMPOUND_LIST) {
-      if (action.item && action.payload) {
-        let objectType = actionObjectType.COMPOUND;
-        let objectName = action.item && action.item.vector;
+      let objectType = actionObjectType.COMPOUND;
+      let objectName = action.item && action.item.vector;
 
-        trackAction = {
-          type: actionType.VECTOR_COUMPOUND_ADDED,
-          annotation: actionAnnotation.CHECK,
-          timestamp: Date.now(),
-          username: username,
-          object_type: objectType,
-          object_name: objectName,
-          object_id: action.payload,
-          item: action.item,
-          index: action.payload,
-          text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.ADDED}`
-        };
-      }
+      trackAction = {
+        type: actionType.VECTOR_COUMPOUND_ADDED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.payload,
+        item: action.item,
+        compoundId: action.payload,
+        text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.ADDED}`
+      };
     } else if (action.type === previewCompoundConstants.REMOVE_SHOWED_COMPOUND_LIST) {
-      if (action.item && action.payload) {
-        let objectType = actionObjectType.COMPOUND;
-        let objectName = action.item && action.item.vector;
+      let objectType = actionObjectType.COMPOUND;
+      let objectName = action.item && action.item.vector;
 
-        trackAction = {
-          type: actionType.VECTOR_COUMPOUND_REMOVED,
-          annotation: actionAnnotation.CLEAR,
-          timestamp: Date.now(),
-          username: username,
-          object_type: objectType,
-          object_name: objectName,
-          object_id: action.payload,
-          item: action.item,
-          index: action.payload,
-          text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`
-        };
-      }
+      trackAction = {
+        type: actionType.VECTOR_COUMPOUND_REMOVED,
+        annotation: actionAnnotation.CLEAR,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.payload,
+        item: action.item,
+        compoundId: action.payload,
+        text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`
+      };
     } else if (action.type.includes(selectionConstants.SET_CURRENT_VECTOR)) {
       if (action.payload) {
         let objectType = actionObjectType.MOLECULE;
