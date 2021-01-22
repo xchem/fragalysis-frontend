@@ -86,7 +86,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.cli], majorView))}
+              onChange={(e, value) => dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorView))}
             />
           </Grid>
         </Grid>
