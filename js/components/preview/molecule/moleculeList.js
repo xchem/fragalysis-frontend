@@ -292,8 +292,20 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
   }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
 
-  // Used for MoleculeListSortFilterDialog when using textSearch
-  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
+  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
+    const result = [...joinedMoleculeLists];
+    list?.forEach(moleculeID => {
+      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
+      if (!foundJoinedMolecule) {
+        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
+        if (molecule) {
+          result.push(molecule);
+        }
+      }
+    });
+
+    return result;
+  }, [getAllMoleculeList]);
 
   const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
     const result = [...joinedMoleculeLists];
