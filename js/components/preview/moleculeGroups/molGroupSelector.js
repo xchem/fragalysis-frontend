@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { VIEWS } from '../../../constants/constants';
 import { withLoadingMolGroupList } from './withLoadingMolGroupList';
 import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import { clearMoleculeGroupSelection } from './redux/dispatchActions';
 
 export const heightOfBody = '164px';
@@ -34,7 +34,7 @@ const MolGroupSelector = memo(({ handleHeightChange }) => {
   const ref = useRef(null);
 
   const { getNglView } = useContext(NglContext);
-  const disableUserInteraction = useDisableUserInteraction();
+  // const disableUserInteraction = useDisableUserInteraction();
   const dispatch = useDispatch();
 
   return (
@@ -47,7 +47,7 @@ const MolGroupSelector = memo(({ handleHeightChange }) => {
       headerActions={[
         <Button
           onClick={() => dispatch(clearMoleculeGroupSelection({ getNglView }))}
-          disabled={disableUserInteraction}
+          disabled={false}
           color="inherit"
           variant="text"
           size="small"

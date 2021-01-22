@@ -5,9 +5,9 @@ import {
   setIsUndoRedoAction
 } from './actions';
 import { createInitAction } from './trackingActions';
-import { actionType, actionObjectType } from './constants';
+import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, removeFromToBuyList, setHideAll } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, setHideAll } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -33,6 +33,12 @@ import {
   removeSurface,
   removeVector
 } from '../../components/preview/molecule/redux/dispatchActions';
+import {
+  handleBuyList,
+  handleBuyListAll,
+  handleShowVectorCompound
+} from '../../components/preview/compounds/redux/dispatchActions';
+import { setCurrentCompoundClass, setCompoundClasses } from '../../components/preview/compounds/redux/actions';
 import { colourList } from '../../components/preview/molecule/moleculeView';
 import {
   addDatasetComplex,
@@ -56,24 +62,42 @@ import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
   removeComponentRepresentation,
   addComponentRepresentation,
-  updateComponentRepresentation
+  updateComponentRepresentation,
+  updateComponentRepresentationVisibility,
+  updateComponentRepresentationVisibilityAll,
+  changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { deleteObject, setOrientation } from '../../../js/reducers/ngl/dispatchActions';
-import { setSendActionsList, setIsActionsSending, setIsActionsLoading, setActionsList } from './actions';
+import {
+  deleteObject,
+  setOrientation,
+  setNglBckGrndColor,
+  setNglClipNear,
+  setNglClipFar,
+  setNglClipDist,
+  setNglFogNear,
+  setNglFogFar
+} from '../../../js/reducers/ngl/dispatchActions';
+import {
+  setSendActionsList,
+  setIsActionsSending,
+  setIsActionsLoading,
+  setActionsList,
+  setSnapshotImageActionList,
+  setUndoRedoActionList
+} from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
 import moment from 'moment';
 import {
-  appendToActionList,
   appendToSendActionList,
   setProjectActionList,
   setIsActionsSaving,
   setIsActionsRestoring,
-  appendToUndoRedoActionList,
-  resetTrackingState
+  resetTrackingState,
+  setIsActionTracking
 } from './actions';
 import {
   setSelectedAll,
@@ -87,13 +111,28 @@ import {
   setSelectedAllByType as setSelectedAllByTypeOfDataset,
   setDeselectedAllByType as setDeselectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
+import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
 
-export const saveCurrentActionsList = (snapshotID, projectID, nglViewList) => async (dispatch, getState) => {
+export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
+  let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
-  dispatch(saveActionsList(snapshotID, actionList, nglViewList));
+
+  await dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, true));
 };
 
-export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async (dispatch, getState) => {
+  let projectID = project && project.projectID;
+  let actionList = await dispatch(getTrackingActions(projectID));
+
+  if (all === false) {
+    dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
+  } else {
+    dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+  }
+  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
+};
+
+const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
   const state = getState();
 
   const currentTargetOn = state.apiReducers.target_on;
@@ -101,23 +140,14 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
   const currentLigands = state.selectionReducers.fragmentDisplayList;
   const currentProteins = state.selectionReducers.proteinList;
   const currentComplexes = state.selectionReducers.complexList;
-  const currentSurfaces = state.selectionReducers.surfaceList;
-  const currentVectors = state.selectionReducers.vectorOnList;
-  const currentBuyList = state.selectionReducers.to_buy_list;
-  const currentVector = state.selectionReducers.currentVector;
   const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
 
   const currentDatasetLigands = state.datasetsReducers.ligandLists;
   const currentDatasetProteins = state.datasetsReducers.proteinLists;
   const currentDatasetComplexes = state.datasetsReducers.complexLists;
-  const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
   const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
-  const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
-  const currentobjectsInView = state.nglReducers.objectsInView;
-
   const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
-  const currentVectorSmiles = (currentVector && [currentVector]) || [];
 
   let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
 
@@ -201,97 +231,202 @@ export const saveActionsList = (snapshotID, actionList, nglViewList) => (dispatc
     getCollection(currentProteins),
     currentActions
   );
+  const snapshotID = snapshot && snapshot.id;
+  if (snapshotID) {
+    const currentTargetOn = state.apiReducers.target_on;
+    const currentSites = state.selectionReducers.mol_group_selection;
+    const currentLigands = state.selectionReducers.fragmentDisplayList;
+    const currentProteins = state.selectionReducers.proteinList;
+    const currentComplexes = state.selectionReducers.complexList;
+    const currentSurfaces = state.selectionReducers.surfaceList;
+    const currentVectors = state.selectionReducers.vectorOnList;
+    const currentBuyList = state.selectionReducers.to_buy_list;
+    const currentVector = state.selectionReducers.currentVector;
+    const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.INTERACTIONS_TURNED_ON,
-    getCollection(currentComplexes),
-    currentActions
-  );
-  getCurrentActionList(orderedActionList, actionType.SURFACE_TURNED_ON, getCollection(currentSurfaces), currentActions);
-  getCurrentActionList(orderedActionList, actionType.VECTORS_TURNED_ON, getCollection(currentVectors), currentActions);
-  getCurrentActionList(
-    orderedActionList,
-    actionType.VECTOR_SELECTED,
-    getCollection(currentVectorSmiles),
-    currentActions
-  );
+    const currentDatasetLigands = state.datasetsReducers.ligandLists;
+    const currentDatasetProteins = state.datasetsReducers.proteinLists;
+    const currentDatasetComplexes = state.datasetsReducers.complexLists;
+    const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
+    const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
-    getCollectionOfShoppingCart(currentBuyList),
-    currentActions
-  );
+    const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
+    const currentobjectsInView = state.nglReducers.objectsInView;
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.LIGAND_TURNED_ON,
-    getCollectionOfDataset(currentDatasetLigands),
-    currentActions
-  );
+    const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
+    const currentVectorSmiles = (currentVector && [currentVector]) || [];
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SIDECHAINS_TURNED_ON,
-    getCollectionOfDataset(currentDatasetProteins),
-    currentActions
-  );
+    let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.INTERACTIONS_TURNED_ON,
-    getCollectionOfDataset(currentDatasetComplexes),
-    currentActions
-  );
+    let currentActions = [];
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SURFACE_TURNED_ON,
-    getCollectionOfDataset(currentDatasetSurfaces),
-    currentActions
-  );
+    getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
+    getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
+    getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.COMPOUND_SELECTED,
-    getCollectionOfDataset(currentDatasetBuyList),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.ALL_TURNED_ON,
+      getCollection(currentSelectionAll),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.ALL_TURNED_ON,
+      getCollectionOfDataset(currentDatasetSelectionAll),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.REPRESENTATION_ADDED,
-    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SIDECHAINS_TURNED_ON,
+      getCollection(currentProteins),
+      currentActions
+    );
 
-  getCurrentActionList(
-    orderedActionList,
-    actionType.REPRESENTATION_CHANGED,
-    getCollectionOfDatasetOfRepresentation(currentobjectsInView),
-    currentActions
-  );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.INTERACTIONS_TURNED_ON,
+      getCollection(currentComplexes),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SURFACE_TURNED_ON,
+      getCollection(currentSurfaces),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.VECTORS_TURNED_ON,
+      getCollection(currentVectors),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.VECTOR_SELECTED,
+      getCollection(currentVectorSmiles),
+      currentActions
+    );
 
-  if (nglViewList) {
-    let nglStateList = nglViewList.map(nglView => {
-      return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
-    });
+    getCurrentActionList(
+      orderedActionList,
+      actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+      getCollectionOfShoppingCart(currentBuyList),
+      currentActions
+    );
 
-    let trackAction = {
-      type: actionType.NGL_STATE,
-      timestamp: Date.now(),
-      nglStateList: nglStateList
-    };
+    getCurrentActionList(
+      orderedActionList,
+      actionType.LIGAND_TURNED_ON,
+      getCollectionOfDataset(currentDatasetLigands),
+      currentActions
+    );
 
-    currentActions.push(Object.assign({ ...trackAction }));
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SIDECHAINS_TURNED_ON,
+      getCollectionOfDataset(currentDatasetProteins),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.INTERACTIONS_TURNED_ON,
+      getCollectionOfDataset(currentDatasetComplexes),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.SURFACE_TURNED_ON,
+      getCollectionOfDataset(currentDatasetSurfaces),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.COMPOUND_SELECTED,
+      getCollectionOfDataset(currentDatasetBuyList),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.REPRESENTATION_ADDED,
+      getCollectionOfDatasetOfRepresentation(currentobjectsInView),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.REPRESENTATION_UPDATED,
+      getCollectionOfDatasetOfRepresentation(currentobjectsInView),
+      currentActions
+    );
+
+    if (nglViewList) {
+      let nglStateList = nglViewList.map(nglView => {
+        return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
+      });
+
+      let trackAction = {
+        type: actionType.NGL_STATE,
+        timestamp: Date.now(),
+        nglStateList: nglStateList
+      };
+
+      currentActions.push(Object.assign({ ...trackAction }));
+    }
+
+    await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    await dispatch(saveTrackingActions(currentActions, snapshotID));
+    dispatch(setCurrentActionsList(currentActions));
   }
-
-  dispatch(setCurrentActionsList(currentActions));
-  dispatch(saveTrackingActions(currentActions, snapshotID));
 };
 
-export const saveTrackingActions = (currentActions, snapshotID) => (dispatch, getState) => {
+const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatch, getState) => {
+  const state = getState();
+  const trackingImageSource = state.trackingReducers.trackingImageSource;
+
+  let sendActions = [];
+  let snapshotAction = {
+    type: actionType.SNAPSHOT,
+    timestamp: Date.now(),
+    object_name: snapshot.title,
+    object_id: snapshot.id,
+    snapshotId: snapshot.id,
+    text: `Snapshot: ${snapshot.id} - ${snapshot.title}`,
+    image: trackingImageSource
+  };
+  sendActions.push(snapshotAction);
+  currentActions.push(snapshotAction);
+  await dispatch(sendTrackingActions(sendActions, project));
+};
+
+const setSnapshotToActions = (actionList, snapshot, projectID, project, nglViewList, addToSnapshot) => async (
+  dispatch,
+  getState
+) => {
+  if (actionList && snapshot) {
+    let actionsWithoutSnapshot = actionList.filter(a => a.snapshotId === null || a.snapshotId === undefined);
+    let updatedActions = actionsWithoutSnapshot.map(obj => ({ ...obj, snapshotId: snapshot.id }));
+    dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
+
+    if (addToSnapshot === true) {
+      await dispatch(saveActionsList(project, snapshot, updatedActions, nglViewList));
+    }
+  }
+};
+
+const setSnapshotToAllActions = (actionList, snapshot, projectID) => async (dispatch, getState) => {
+  if (actionList && snapshot) {
+    let updatedActions = actionList.map(obj => ({ ...obj, snapshotId: snapshot.id }));
+    dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
+  }
+};
+
+export const saveTrackingActions = (currentActions, snapshotID) => async (dispatch, getState) => {
   const state = getState();
   const project = state.projectReducers.currentProject;
   const projectID = project && project.projectID;
@@ -578,13 +713,15 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
-    await dispatch(restoreNglStateAction(orderedActionList, stages));
+    dispatch(restoreSnapshotImageActions(projectId));
+    dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
   }
 };
 
 const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
-  let action = orderedActionList.find(action => action.type === actionType.NGL_STATE);
+  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+  let action = [...actions].pop();
   if (action && action.nglStateList) {
     action.nglStateList.forEach(nglView => {
       dispatch(setOrientation(nglView.id, nglView.orientation));
@@ -742,8 +879,6 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
 };
 
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
-  let state = getState();
-
   let actions =
     isSelection === true
       ? moleculesAction.filter(
@@ -816,12 +951,26 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   }
 
   let representationsChangesActions = moleculesAction.filter(
-    action => action.type === actionType.REPRESENTATION_CHANGED
+    action => action.type === actionType.REPRESENTATION_UPDATED
   );
   if (representationsChangesActions) {
     representationsChangesActions.forEach(action => {
-      dispatch(changeRepresentation(true, action.change, action.object_id, action.representation, nglView));
+      dispatch(updateRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
+  }
+};
+
+const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
+  let actionList = await dispatch(getTrackingActions(projectID));
+
+  let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
+  if (snapshotActions) {
+    let actions = snapshotActions.map(s => {
+      return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
+    });
+    const key = 'object_id';
+    const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
+    dispatch(setSnapshotImageActionList(arrayUniqueByKey));
   }
 };
 
@@ -989,36 +1138,80 @@ const getCompound = (action, state) => {
 };
 
 export const undoAction = (stages = []) => (dispatch, getState) => {
-  const state = getState();
-  let action = null;
-
   dispatch(setIsUndoRedoAction(true));
-
-  const actionUndoList = state.undoableTrackingReducers.future;
-  let actions = actionUndoList && actionUndoList[0];
-  if (actions) {
-    let actionsLenght = actions.undo_redo_actions_list.length;
-    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
-    action = actions.undo_redo_actions_list[actionsLenght];
-
+  let action = dispatch(getUndoAction());
+  if (action) {
     Promise.resolve(dispatch(handleUndoAction(action, stages))).then(() => {
       dispatch(setIsUndoRedoAction(false));
     });
   }
 };
 
-export const redoAction = (stages = []) => (dispatch, getState) => {
+const getUndoAction = () => (dispatch, getState) => {
   const state = getState();
-  let action = null;
+  const actionUndoList = state.undoableTrackingReducers.future;
 
-  dispatch(setIsUndoRedoAction(true));
-
-  const actions = state.undoableTrackingReducers.present;
+  let action = { text: '' };
+  let actions = actionUndoList && actionUndoList[0];
   if (actions) {
     let actionsLenght = actions.undo_redo_actions_list.length;
     actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
     action = actions.undo_redo_actions_list[actionsLenght];
+  }
 
+  return action;
+};
+
+const getRedoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actions = state.undoableTrackingReducers.present;
+
+  let action = { text: '' };
+  if (actions) {
+    let actionsLenght = actions.undo_redo_actions_list.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions.undo_redo_actions_list[actionsLenght];
+  }
+
+  return action;
+};
+
+const getNextUndoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actionUndoList = state.undoableTrackingReducers.present;
+
+  let action = { text: '' };
+  let actions = actionUndoList && actionUndoList.undo_redo_actions_list;
+  if (actions) {
+    let actionsLenght = actions.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions[actionsLenght];
+  }
+
+  return action;
+};
+
+const getNextRedoAction = () => (dispatch, getState) => {
+  const state = getState();
+  const actionUndoList = state.undoableTrackingReducers.future;
+
+  let action = { text: '' };
+  let actionss = actionUndoList && actionUndoList[0];
+
+  let actions = actionss && actionss.undo_redo_actions_list;
+  if (actions) {
+    let actionsLenght = actions.length;
+    actionsLenght = actionsLenght > 0 ? actionsLenght - 1 : actionsLenght;
+    action = actions[actionsLenght];
+  }
+
+  return action;
+};
+
+export const redoAction = (stages = []) => (dispatch, getState) => {
+  dispatch(setIsUndoRedoAction(true));
+  let action = dispatch(getRedoAction());
+  if (action) {
     Promise.resolve(dispatch(dispatch(handleRedoAction(action, stages)))).then(() => {
       dispatch(setIsUndoRedoAction(false));
     });
@@ -1082,10 +1275,22 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
       case actionType.VECTOR_SELECTED:
-        dispatch(setCurrentVector(undefined));
+        dispatch(handleVectorAction(action, false));
         break;
       case actionType.VECTOR_DESELECTED:
-        dispatch(setCurrentVector(action.object_name));
+        dispatch(handleVectorAction(action, true));
+        break;
+      case actionType.VECTOR_COUMPOUND_ADDED:
+        dispatch(handleVectorCompoundAction(action, false, majorViewStage));
+        break;
+      case actionType.VECTOR_COUMPOUND_REMOVED:
+        dispatch(handleVectorCompoundAction(action, true, majorViewStage));
+        break;
+      case actionType.CLASS_SELECTED:
+        dispatch(handleClassSelectedAction(action, false));
+        break;
+      case actionType.CLASS_UPDATED:
+        dispatch(handleClassUpdatedAction(action, false));
         break;
       case actionType.TARGET_LOADED:
         dispatch(handleTargetAction(action, false));
@@ -1102,20 +1307,53 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, true));
         break;
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, false, majorViewStage));
+        break;
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, true, majorViewStage));
+        break;
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
-      case actionType.REPRESENTATION_CHANGED:
-        dispatch(handleChangeRepresentationAction(action, false, majorView));
+      case actionType.REPRESENTATION_VISIBILITY_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAllAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_UPDATED:
+        dispatch(handleUpdateRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
         dispatch(handleRepresentationAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
         dispatch(handleRepresentationAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, false, majorView));
+        break;
+      case actionType.BACKGROUND_COLOR_CHANGED:
+        dispatch(setNglBckGrndColor(action.oldSetting, majorViewStage, stageSummaryView));
+        break;
+      case actionType.CLIP_NEAR:
+        dispatch(setNglClipNear(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CLIP_FAR:
+        dispatch(setNglClipFar(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CLIP_DIST:
+        dispatch(setNglClipDist(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.FOG_NEAR:
+        dispatch(setNglFogNear(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.FOG_FAR:
+        dispatch(setNglFogFar(action.oldSetting, action.newSetting, majorViewStage));
         break;
       default:
         break;
@@ -1180,10 +1418,22 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
         break;
       case actionType.VECTOR_SELECTED:
-        dispatch(setCurrentVector(action.object_name));
+        dispatch(handleVectorAction(action, true));
         break;
       case actionType.VECTOR_DESELECTED:
-        dispatch(setCurrentVector(undefined));
+        dispatch(handleVectorAction(action, false));
+        break;
+      case actionType.VECTOR_COUMPOUND_ADDED:
+        dispatch(handleVectorCompoundAction(action, true));
+        break;
+      case actionType.VECTOR_COUMPOUND_REMOVED:
+        dispatch(handleVectorCompoundAction(action, false));
+        break;
+      case actionType.CLASS_SELECTED:
+        dispatch(handleClassSelectedAction(action, true));
+        break;
+      case actionType.CLASS_UPDATED:
+        dispatch(handleClassUpdatedAction(action, true));
         break;
       case actionType.TARGET_LOADED:
         dispatch(handleTargetAction(action, true));
@@ -1200,20 +1450,53 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, false));
         break;
+      case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, true, majorViewStage));
+        break;
+      case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
+        dispatch(handleShoppingCartAllAction(action, false, majorViewStage));
+        break;
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
-      case actionType.REPRESENTATION_CHANGED:
-        dispatch(handleChangeRepresentationAction(action, true, majorView));
+      case actionType.REPRESENTATION_VISIBILITY_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAllAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_UPDATED:
+        dispatch(handleUpdateRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_ADDED:
         dispatch(handleRepresentationAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_REMOVED:
         dispatch(handleRepresentationAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_CHANGED:
+        dispatch(handleChangeRepresentationAction(action, true, majorView));
+        break;
+      case actionType.BACKGROUND_COLOR_CHANGED:
+        dispatch(setNglBckGrndColor(action.newSetting, majorViewStage, stageSummaryView));
+        break;
+      case actionType.CLIP_NEAR:
+        dispatch(setNglClipNear(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CLIP_FAR:
+        dispatch(setNglClipFar(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CLIP_DIST:
+        dispatch(setNglClipDist(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.FOG_NEAR:
+        dispatch(setNglFogNear(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.FOG_FAR:
+        dispatch(setNglFogFar(action.newSetting, action.oldSetting, majorViewStage));
         break;
       default:
         break;
@@ -1408,6 +1691,43 @@ const handleAllAction = (action, isSelected, majorViewStage, state) => (dispatch
   }
 };
 
+const handleVectorAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    if (isSelected === false) {
+      dispatch(selectVectorAndResetCompounds(undefined));
+    } else {
+      dispatch(selectVectorAndResetCompounds(action.object_name));
+    }
+  }
+};
+
+const handleVectorCompoundAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  if (action) {
+    let data = action.item;
+    let compoundId = action.compoundId;
+    dispatch(handleShowVectorCompound({ isSelected, data, index: compoundId, majorViewStage: majorViewStage }));
+  }
+};
+
+const handleClassSelectedAction = (action, isAdd) => (dispatch, getState) => {
+  if (action) {
+    let value = isAdd ? action.value : action.oldValue;
+    let oldValue = isAdd ? action.oldValue : action.value;
+    dispatch(setCurrentCompoundClass(value, oldValue));
+  }
+};
+
+const handleClassUpdatedAction = (action, isAdd) => (dispatch, getState) => {
+  if (action) {
+    let id = action.object_id;
+    let newValue = isAdd ? action.newCompoundClasses : action.oldCompoundClasses;
+    let oldValue = isAdd ? action.oldCompoundClasses : action.newCompoundClasses;
+    let value = isAdd ? action.object_name : action.oldCompoundClasses[id];
+    value = value !== undefined ? value : '';
+    dispatch(setCompoundClasses(newValue, oldValue, value, id));
+  }
+};
+
 const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) => {
   const state = getState();
   if (action) {
@@ -1440,25 +1760,34 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    if (isAdd) {
-      dispatch(appendToBuyList(data));
-    } else {
-      dispatch(removeFromToBuyList(data));
+    let compoundId = action.compoundId;
+
+    if (data) {
+      dispatch(handleBuyList({ isSelected: isAdd, data, compoundId }));
     }
+  }
+};
+
+const handleShoppingCartAllAction = (action, isAdd, majorViewStage) => (dispatch, getState) => {
+  if (action) {
+    dispatch(handleBuyListAll({ isSelected: isAdd, items: action.items, majorViewStage: majorViewStage }));
   }
 };
 
 const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
     if (isAdd === true) {
-      dispatch(addRepresentation(action.object_id, action.representation, nglView));
+      dispatch(addRepresentation(action, action.object_id, action.representation, nglView));
     } else {
-      dispatch(removeRepresentation(action.object_id, action.representation, nglView));
+      dispatch(removeRepresentation(action, action.object_id, action.representation, nglView));
     }
   }
 };
 
-const addRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
+const addRepresentation = (action, parentKey, representation, nglView, update, skipTracking = false) => (
+  dispatch,
+  getState
+) => {
   const oldRepresentation = representation;
   const newRepresentationType = oldRepresentation.type;
   const comp = nglView.stage.getComponentsByName(parentKey).first;
@@ -1468,16 +1797,101 @@ const addRepresentation = (parentKey, representation, nglView) => (dispatch, get
     comp,
     oldRepresentation.lastKnownID
   );
-  dispatch(addComponentRepresentation(parentKey, newRepresentation));
+  action.representation = newRepresentation;
+  if (update === true) {
+    action.newRepresentation = newRepresentation;
+  } else {
+    action.oldRepresentation = newRepresentation;
+  }
+  dispatch(addComponentRepresentation(parentKey, newRepresentation, skipTracking));
 };
 
-const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
-  if (action) {
-    dispatch(changeRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
+const removeRepresentation = (action, parentKey, representation, nglView, skipTracking = false) => (
+  dispatch,
+  getState
+) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  let foundedRepresentation = undefined;
+  comp.eachRepresentation(r => {
+    if (
+      r.uuid === representation.uuid ||
+      r.uuid === representation.lastKnownID ||
+      r.repr.type === representation.type
+    ) {
+      foundedRepresentation = r;
+    }
+  });
+
+  if (foundedRepresentation) {
+    comp.removeRepresentation(foundedRepresentation);
+
+    if (comp.reprList.length === 0) {
+      dispatch(deleteObject(nglView, nglView.stage, true));
+    } else {
+      dispatch(removeComponentRepresentation(parentKey, foundedRepresentation, skipTracking));
+    }
+  } else {
+    console.log(`Not found representation:`, representation);
   }
 };
 
-const changeRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch, getState) => {
+const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    let parentKey = action.object_id;
+    let representation = action.representation;
+
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    comp.eachRepresentation(r => {
+      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+        const newVisibility = isAdd ? action.value : !action.value;
+        // update in redux
+        representation.params.visible = newVisibility;
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+        dispatch(
+          updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility)
+        );
+        // update in nglView
+        r.setVisibility(newVisibility);
+      }
+    });
+  }
+};
+
+const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    const state = getState();
+    let parentKey = action.object_id;
+    let objectsInView = state.nglReducers.objectsInView;
+    let newVisibility = isAdd ? action.value : !action.value;
+
+    const representations = (objectsInView[parentKey] && objectsInView[parentKey].representations) || [];
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+    if (representations) {
+      representations.forEach((representation, index) => {
+        comp.eachRepresentation(r => {
+          if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+            representation.params.visible = newVisibility;
+            // update in nglView
+            r.setVisibility(newVisibility);
+            // update in redux
+            dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+          }
+        });
+      });
+
+      dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
+    }
+  }
+};
+
+const handleUpdateRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    dispatch(updateRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
+  }
+};
+
+const updateRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch, getState) => {
   const comp = nglView.stage.getComponentsByName(parentKey).first;
   const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
   if (r && change) {
@@ -1491,32 +1905,63 @@ const changeRepresentation = (isAdd, change, parentKey, representation, nglView)
   }
 };
 
-const removeRepresentation = (parentKey, representation, nglView) => (dispatch, getState) => {
-  const comp = nglView.stage.getComponentsByName(parentKey).first;
-  let foundedRepresentation = undefined;
-  comp.eachRepresentation(r => {
-    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-      foundedRepresentation = r;
-    }
-  });
-  if (foundedRepresentation) {
-    comp.removeRepresentation(foundedRepresentation);
-
-    if (comp.reprList.length === 0) {
-      dispatch(deleteObject(nglView, nglView.stage, true));
-    } else {
-      dispatch(removeComponentRepresentation(parentKey, representation));
-    }
+const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    let representation = action.newRepresentation;
+    let type = action.oldRepresentation.type;
+    dispatch(changeMolecularRepresentation(action, representation, type, action.object_id, nglView));
   }
+};
+
+const changeMolecularRepresentation = (action, representation, type, parentKey, nglView) => (dispatch, getState) => {
+  const newRepresentationType = type;
+
+  //const newRepresentationType = e.target.value;
+  const oldRepresentation = JSON.parse(JSON.stringify(representation));
+  //const nglView = getNglView(objectsInView[parentKey].display_div);
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+  // add representation to NGL
+  const newRepresentation = assignRepresentationToComp(
+    newRepresentationType,
+    oldRepresentation.params,
+    comp,
+    oldRepresentation.lastKnownID
+  );
+
+  action.newRepresentation = newRepresentation;
+  action.oldRepresentation = representation;
+
+  // add new representation to redux
+  dispatch(addComponentRepresentation(parentKey, newRepresentation, true));
+
+  // remove previous representation from NGL
+  dispatch(removeRepresentation(action, parentKey, representation, nglView, true));
+
+  dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
 };
 
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    let moleculeGroup = getMolGroup(action.object_name, state);
+    const { selectionGroups, object_name } = action;
+    let moleculeGroup = getMolGroup(object_name, state);
     if (moleculeGroup) {
       if (isSelected === true) {
         dispatch(selectMoleculeGroup(moleculeGroup, stageSummaryView));
+
+        for (const type in selectionGroups) {
+          if (selectionGroups.hasOwnProperty(type)) {
+            const typeGroup = selectionGroups[type];
+            for (const mol of typeGroup) {
+              if (type === 'ligand') {
+                dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true, true));
+              } else {
+                dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true));
+              }
+            }
+          }
+        }
       } else {
         dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
       }
@@ -1592,20 +2037,71 @@ export const getCanRedo = () => (dispatch, getState) => {
   return state.undoableTrackingReducers.future.length > 0;
 };
 
+export const getUndoActionText = () => (dispatch, getState) => {
+  let action = dispatch(getNextUndoAction());
+  return action?.text ?? '';
+};
+
+export const getRedoActionText = () => (dispatch, getState) => {
+  let action = dispatch(getNextRedoAction());
+  return action?.text ?? '';
+};
+
 export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
   const state = getState();
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
+  dispatch(setIsActionTracking(true));
 
   if (trackAction && trackAction !== null) {
-    dispatch(appendToActionList(trackAction, isUndoRedoAction));
-    dispatch(appendToSendActionList(trackAction));
+    const actionList = state.trackingReducers.track_actions_list;
+    const sendActionList = state.trackingReducers.send_actions_list;
+    const mergedActionList = mergeActions(trackAction, [...actionList]);
+    const mergedSendActionList = mergeActions(trackAction, [...sendActionList]);
+    dispatch(setActionsList(mergedActionList));
+    dispatch(setSendActionsList(mergedSendActionList));
 
     if (isUndoRedoAction === false) {
-      dispatch(appendToUndoRedoActionList(trackAction));
+      const undoRedoActionList = state.trackingReducers.undo_redo_actions_list;
+      const mergedUndoRedoActionList = mergeActions(trackAction, [...undoRedoActionList]);
+      dispatch(setUndoRedoActionList(mergedUndoRedoActionList));
     }
   }
-
+  dispatch(setIsActionTracking(false));
   dispatch(checkSendTrackingActions());
+};
+
+export const mergeActions = (trackAction, list) => {
+  if (needsToBeMerged(trackAction)) {
+    let newList = [];
+    if (list.length > 0) {
+      const lastEntry = list[list.length - 1];
+      if (isSameTypeOfAction(trackAction, lastEntry) && isActionWithinTimeLimit(lastEntry, trackAction)) {
+        trackAction.oldSetting = lastEntry.oldSetting;
+        trackAction.text = trackAction.getText();
+        newList = [...list.slice(0, list.length - 1), trackAction];
+      } else {
+        newList = [...list, trackAction];
+      }
+    } else {
+      newList.push(trackAction);
+    }
+    return newList;
+  } else {
+    return [...list, trackAction];
+  }
+};
+
+const needsToBeMerged = trackAction => {
+  return trackAction.merge !== undefined ? trackAction.merge : false;
+};
+
+const isSameTypeOfAction = (firstAction, secondAction) => {
+  return firstAction.type === secondAction.type;
+};
+
+const isActionWithinTimeLimit = (firstAction, secondAction) => {
+  const diffInSeconds = Math.abs(firstAction.timestamp - secondAction.timestamp) / 1000;
+  return diffInSeconds <= NUM_OF_SECONDS_TO_IGNORE_MERGE;
 };
 
 export const manageSendTrackingActions = (projectID, copy) => (dispatch, getState) => {
@@ -1627,7 +2123,7 @@ export const checkSendTrackingActions = (save = false) => (dispatch, getState) =
   }
 };
 
-const sendTrackingActions = (sendActions, project, clear = true) => (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project, clear = true) => async (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -1668,11 +2164,11 @@ export const setProjectTrackingActions = () => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const projectID = currentProject && currentProject.projectID;
-
-  dispatch(getTrackingActions(projectID));
+  dispatch(setProjectActionList([]));
+  dispatch(getTrackingActions(projectID, true));
 };
 
-const getTrackingActions = projectID => (dispatch, getState) => {
+const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
   const state = getState();
   const sendActions = state.trackingReducers.send_actions_list;
 
@@ -1686,8 +2182,22 @@ const getTrackingActions = projectID => (dispatch, getState) => {
         let listToSet = [];
         results.forEach(r => {
           let resultActions = JSON.parse(r.actions);
-          listToSet.push(...resultActions);
+          let actions = resultActions.map(obj => ({ ...obj, actionId: r.id }));
+          listToSet.push(...actions);
         });
+
+        if (withTreeSeparation === true) {
+          listToSet = dispatch(separateTrackkingActionBySnapshotTree(listToSet));
+
+          let actionsWithoutSnapshot = listToSet.filter(action => action.type !== actionType.SNAPSHOT);
+          let snapshotActions = listToSet.filter(action => action.type === actionType.SNAPSHOT);
+          if (snapshotActions) {
+            const key = 'object_id';
+            const arrayUniqueByKey = [...new Map(snapshotActions.map(item => [item[key], item])).values()];
+            actionsWithoutSnapshot.push(...arrayUniqueByKey);
+            listToSet = actionsWithoutSnapshot;
+          }
+        }
 
         let projectActions = [...listToSet, ...sendActions];
         dispatch(setProjectActionList(projectActions));
@@ -1706,17 +2216,52 @@ const getTrackingActions = projectID => (dispatch, getState) => {
   }
 };
 
-const checkActionsProject = projectID => (dispatch, getState) => {
+const separateTrackkingActionBySnapshotTree = actionList => (dispatch, getState) => {
+  const state = getState();
+  const snapshotID = state.projectReducers.currentSnapshot && state.projectReducers.currentSnapshot.id;
+  const currentSnapshotTree = state.projectReducers.currentSnapshotTree;
+  const currentSnapshotList = state.projectReducers.currentSnapshotList;
+
+  if (snapshotID && currentSnapshotTree != null) {
+    let treeActionList = [];
+    let snapshotIdList = [];
+    snapshotIdList.push(currentSnapshotTree.id);
+
+    if (currentSnapshotList != null) {
+      for (const id in currentSnapshotList) {
+        let snapshot = currentSnapshotList[id];
+        let snapshotChildren = snapshot.children;
+
+        if (
+          (snapshotChildren && snapshotChildren !== null && snapshotChildren.includes(snapshotID)) ||
+          snapshot.id === snapshotID
+        ) {
+          snapshotIdList.push(snapshot.id);
+        }
+      }
+    }
+
+    treeActionList = actionList.filter(
+      a => snapshotIdList.includes(a.snapshotId) || a.snapshotId === null || a.snapshotId === undefined
+    );
+    return treeActionList;
+  } else {
+    return actionList;
+  }
+};
+
+const checkActionsProject = projectID => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
-  Promise.resolve(dispatch(getTrackingActions(projectID))).then(() => {
-    dispatch(copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false));
-  });
+  await dispatch(getTrackingActions(projectID));
+  await dispatch(
+    copyActionsToProject(currentProject, true, currentProjectID && currentProjectID != null ? true : false)
+  );
 };
 
-const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => (dispatch, getState) => {
+const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => async (dispatch, getState) => {
   const state = getState();
   const actionList = state.trackingReducers.project_actions_list;
 
@@ -1730,20 +2275,19 @@ const copyActionsToProject = (toProject, setActionList = true, clearSendList = t
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
+    await dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
   }
 };
 
-export const sendTrackingActionsByProjectId = (projectID, authorID) => (dispatch, getState) => {
+export const sendTrackingActionsByProjectId = (projectID, authorID) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
   const project = { projectID, authorID };
 
-  Promise.resolve(dispatch(getTrackingActions(currentProjectID))).then(() => {
-    dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
-  });
+  await dispatch(getTrackingActions(currentProjectID));
+  await dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
 };
 
 export const sendInitTrackingActionByProjectId = target_on => (dispatch, getState) => {
@@ -1757,5 +2301,81 @@ export const sendInitTrackingActionByProjectId = target_on => (dispatch, getStat
     dispatch(appendToSendActionList(trackAction));
     dispatch(checkSendTrackingActions(true));
     dispatch(saveTrackingActions(actions, snapshotID));
+  }
+};
+
+export const updateTrackingActions = action => (dispatch, getState) => {
+  const state = getState();
+  const project = state.projectReducers.currentProject;
+  const projectActions = state.trackingReducers.project_actions_list;
+  const projectID = project && project.projectID;
+  let actionID = action && action.actionId;
+
+  if (projectID && actionID && projectActions) {
+    let actions = projectActions.filter(a => a.actionId === actionID);
+
+    if (actions && actions.length > 0) {
+      const dataToSend = {
+        session_action_id: actionID,
+        session_project: projectID,
+        author: project.authorID,
+        last_update_date: moment().format(),
+        actions: JSON.stringify(actions)
+      };
+      return api({
+        url: `${base_url}/api/session-actions/${actionID}`,
+        method: METHOD.PUT,
+        data: JSON.stringify(dataToSend)
+      })
+        .then(() => {})
+        .catch(error => {
+          throw new Error(error);
+        })
+        .finally(() => {});
+    } else {
+      return Promise.resolve();
+    }
+  } else {
+    return Promise.resolve();
+  }
+};
+
+function groupArrayOfObjects(list, key) {
+  return list.reduce(function(rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+}
+
+export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch, getState) => {
+  if (projectID) {
+    const groupBy = groupArrayOfObjects(actionList, 'actionId');
+
+    for (const group in groupBy) {
+      let actionID = group;
+      let actions = groupBy[group];
+      if (actionID && actions && actions.length > 0) {
+        const dataToSend = {
+          session_action_id: actionID,
+          session_project: projectID,
+          last_update_date: moment().format(),
+          actions: JSON.stringify(actions)
+        };
+        return api({
+          url: `${base_url}/api/session-actions/${actionID}`,
+          method: METHOD.PUT,
+          data: JSON.stringify(dataToSend)
+        })
+          .then(() => {})
+          .catch(error => {
+            throw new Error(error);
+          })
+          .finally(() => {});
+      } else {
+        return Promise.resolve();
+      }
+    }
+  } else {
+    return Promise.resolve();
   }
 };

@@ -21,6 +21,13 @@ export const appendToUndoRedoActionList = function(track_action) {
   };
 };
 
+export const setUndoRedoActionList = (undo_redo_actions_list) => {
+  return {
+    type: constants.SET_UNDO_REDO_ACTIONS_LIST,
+    undo_redo_actions_list: undo_redo_actions_list
+  };
+}
+
 export const setCurrentActionsList = function(current_actions_list) {
   return {
     type: constants.SET_CURRENT_ACTIONS_LIST,
@@ -84,6 +91,13 @@ export const setProjectActionList = function(project_actions_list) {
   };
 };
 
+export const setSnapshotImageActionList = function(snapshotActionImageList) {
+  return {
+    type: constants.SET_SNAPSOT_IMAGE_ACTIONS_LIST,
+    snapshotActionImageList: snapshotActionImageList
+  };
+};
+
 export const setIsActionsSaving = function(isActionSaving) {
   return {
     type: constants.SET_IS_ACTIONS_SAVING,
@@ -99,8 +113,20 @@ export const setIsActionsRestoring = function(isActionRestoring, isActionRestore
   };
 };
 
+export const setIsActionTracking = function(isActionTracking) {
+  return {
+    type: constants.SET_IS_ACTION_TRACKING,
+    isActionTracking: isActionTracking
+  };
+};
+
 export const resetTrackingState = function() {
   return {
     type: constants.RESET_TRACKING_STATE
   };
 };
+
+export const setTrackingImageSource = imageSource => ({
+  type: constants.SET_TRACKING_IMAGE_SOURCE,
+  payload: imageSource
+});

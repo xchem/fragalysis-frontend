@@ -11,17 +11,35 @@ export const setToBuyList = function(to_buy_list) {
   };
 };
 
-export const appendToBuyList = function(item) {
+export const appendToBuyList = function(item, index, skipTracking = false) {
   return {
     type: constants.APPEND_TO_BUY_LIST,
-    item: item
+    item: item,
+    index: index,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromToBuyList = function(item) {
+export const removeFromToBuyList = function(item, index, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_TO_BUY_LIST,
-    item: item
+    item: item,
+    index: index,
+    skipTracking: skipTracking
+  };
+};
+
+export const appendToBuyListAll = function(items) {
+  return {
+    type: constants.APPEND_TO_BUY_LIST_ALL,
+    items: items
+  };
+};
+
+export const removeFromToBuyListAll = function(items) {
+  return {
+    type: constants.REMOVE_FROM_BUY_LIST_ALL,
+    items: items
   };
 };
 
@@ -39,10 +57,11 @@ export const setCurrentVector = vectorSmile => {
   };
 };
 
-export const setFragmentDisplayList = function(fragmentDisplayList) {
+export const setFragmentDisplayList = function(fragmentDisplayList, skipTracking = false) {
   return {
     type: constants.SET_FRAGMENT_DISPLAY_LIST,
-    fragmentDisplayList: fragmentDisplayList
+    fragmentDisplayList: fragmentDisplayList,
+    skipTracking
   };
 };
 
@@ -62,10 +81,11 @@ export const removeFromFragmentDisplayList = function(item, skipTracking = false
   };
 };
 
-export const setProteinList = function(proteinList) {
+export const setProteinList = function(proteinList, skipTracking = false) {
   return {
     type: constants.SET_PROTEIN_LIST,
-    proteinList: proteinList
+    proteinList: proteinList,
+    skipTracking
   };
 };
 
@@ -84,10 +104,11 @@ export const removeFromProteinList = function(item, skipTracking = false) {
     skipTracking: skipTracking
   };
 };
-export const setComplexList = function(complexList) {
+export const setComplexList = function(complexList, skipTracking = false) {
   return {
     type: constants.SET_COMPLEX_LIST,
-    complexList: complexList
+    complexList: complexList,
+    skipTracking
   };
 };
 
@@ -107,10 +128,11 @@ export const removeFromComplexList = function(item, skipTracking = false) {
   };
 };
 
-export const setSurfaceList = function(surfaceList) {
+export const setSurfaceList = function(surfaceList, skipTracking = false) {
   return {
     type: constants.SET_SURFACE_LIST,
-    surfaceList: surfaceList
+    surfaceList: surfaceList,
+    skipTracking
   };
 };
 
@@ -151,10 +173,11 @@ export const removeFromDensityList = function(item) {
   };
 };
 
-export const setVectorOnList = function(vectorOnList) {
+export const setVectorOnList = function(vectorOnList, skipTracking = false) {
   return {
     type: constants.SET_VECTOR_ON_LIST,
-    vectorOnList: vectorOnList
+    vectorOnList: vectorOnList,
+    skipTracking
   };
 };
 

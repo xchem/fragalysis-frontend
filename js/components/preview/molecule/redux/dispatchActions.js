@@ -45,6 +45,8 @@ import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selec
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import { setDirectAccess, setDirectAccessProcessed } from '../../../../reducers/api/actions';
+import {MOL_TYPE} from './constants';
+import {addImageToCache} from './actions';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -179,11 +181,12 @@ export const removeVector = (stage, data, skipTracking = false) => async (dispat
   dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
 };
 
-export const addHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+export const addHitProtein = (stage, data, colourToggle, skipTracking = false, representations = undefined) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -203,11 +206,12 @@ export const removeHitProtein = (stage, data, colourToggle, skipTracking = false
   dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
 };
 
-export const addComplex = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+export const addComplex = (stage, data, colourToggle, skipTracking = false, representations = undefined) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -227,11 +231,12 @@ export const removeComplex = (stage, data, colourToggle, skipTracking = false) =
   dispatch(removeFromComplexList(generateMoleculeId(data), skipTracking));
 };
 
-export const addSurface = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+export const addSurface = (stage, data, colourToggle, skipTracking = false, representations = undefined) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -251,13 +256,14 @@ export const removeSurface = (stage, data, colourToggle, skipTracking = false) =
   dispatch(removeFromSurfaceList(generateMoleculeId(data), skipTracking));
 };
 
-export const addDensity = (stage, data, colourToggle) => dispatch => {
+export const addDensity = (stage, data, colourToggle, representations = undefined) => dispatch => {
   console.log('TODO');
   return;
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -279,7 +285,7 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
   dispatch(removeFromDensityList(generateMoleculeId(data)));
 };
 
-export const addLigand = (stage, data, colourToggle, centerOn = false, skipTracking = false) => (
+export const addLigand = (stage, data, colourToggle, centerOn = false, skipTracking = false, representations = undefined) => (
   dispatch,
   getState
 ) => {
@@ -289,7 +295,7 @@ export const addLigand = (stage, data, colourToggle, centerOn = false, skipTrack
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
-      undefined
+      previousRepresentations: representations
     })
   ).finally(() => {
     const ligandOrientation = stage.viewerControls.getOrientation();
@@ -395,21 +401,43 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   dispatch(setHideAll(data));
 };
 
-export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>
-  api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` }).then(response => {
-    let resultMolGroupID = null;
-    const molGroupID = response?.data?.results[0]?.id;
-    const mol_group_list = getState().apiReducers.mol_group_list;
+// export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>
+//   api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` }).then(response => {
+//     let resultMolGroupID = null;
+//     const molGroupID = response?.data?.results[0]?.id;
+//     const mol_group_list = getState().apiReducers.mol_group_list;
 
-    if (mol_group_list && Array.isArray(mol_group_list) && molGroupID) {
-      mol_group_list.forEach((item, index) => {
-        if (item.id === molGroupID) {
-          resultMolGroupID = index + 1;
-        }
-      });
-    }
-    return Promise.resolve(resultMolGroupID);
-  });
+//     if (mol_group_list && Array.isArray(mol_group_list) && molGroupID) {
+//       mol_group_list.forEach((item, index) => {
+//         if (item.id === molGroupID) {
+//           resultMolGroupID = index + 1;
+//         }
+//       });
+//     }
+//     return Promise.resolve(resultMolGroupID);
+//   });
+
+export const searchMoleculeGroupByMoleculeID = moleculeId => (dispatch, getState) => {
+  const state = getState();
+  const all_mol_lists = state.apiReducers.all_mol_lists;
+
+  let resultMolGroupID = null;
+  const molGroupIds = Object.keys(all_mol_lists);
+  for (let groupId of molGroupIds) {
+    const mols = all_mol_lists[groupId];
+    for (let mol of mols) {
+      if (mol.id === moleculeId) {
+        resultMolGroupID = groupId;
+        break;
+      };
+    };
+    if (resultMolGroupID != null) {
+      break;
+    };
+  };
+
+  return Promise.resolve(resultMolGroupID);
+}
 
 export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getState) => {
   const state = getState();
@@ -471,4 +499,53 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
   }
+};
+
+export const getMolImage = (molId, molType, width, height) => (dispatch, getState) => {
+  const state = getState();
+
+  const imageCache = state.previewReducers.molecule.imageCache;
+
+  const molIdStr = molId.toString();
+  if (imageCache.hasOwnProperty(molIdStr)) {
+    return new Promise((resolve, reject) => {
+      resolve(imageCache[molIdStr]);
+    });
+  } else {
+    return loadMolImage(molId, molType, width, height).then(i => {
+      if (!imageCache.hasOwnProperty(molIdStr)) {
+        dispatch(addImageToCache(molId.toString(), i));
+      };
+      return i;
+    });
+  }
+};
+
+export const loadMolImage = (molId, molType, width, height) => {
+  let url = undefined;
+  if (molType === MOL_TYPE.HIT) {
+    url = new URL(`${base_url}/api/molimg/${molId}/`);
+    url.searchParams.append('width', width);
+    url.searchParams.append('height', height);
+  } else if (molType === MOL_TYPE.DATASET) {
+    url = new URL(`${base_url}/viewer/img_from_smiles/`);
+    url.searchParams.append('width', width);
+    url.searchParams.append('height', height);
+    url.searchParams.append('smiles', molId);
+  } else {
+    console.error('Trying to load image for unknown molecule type.');
+    return Promise.resolve();
+  }
+
+  let onCancel = () => {};
+  return api({
+    url,
+    onCancel
+  }).then(response => {
+    if (molType === MOL_TYPE.HIT) {
+      return response.data['mol_image'];
+    } else {
+      return response.data;
+    }
+  });
 };

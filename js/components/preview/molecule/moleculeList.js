@@ -28,7 +28,7 @@ import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addVector,
@@ -250,6 +250,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
   const target_on = useSelector(state => state.apiReducers.target_on);
   const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
+
+  const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
+
   const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
@@ -268,7 +271,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const filterRef = useRef();
 
-  const disableUserInteraction = useDisableUserInteraction();
+  // const disableUserInteraction = useDisableUserInteraction();
 
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
@@ -288,6 +291,21 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       return getJoinedMoleculeList;
     }
   }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
+
+  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
+    const result = [...joinedMoleculeLists];
+    list?.forEach(moleculeID => {
+      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
+      if (!foundJoinedMolecule) {
+        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
+        if (molecule) {
+          result.push(molecule);
+        }
+      }
+    });
+
+    return result;
+  }, [getAllMoleculeList]);
 
   const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
     const result = [...joinedMoleculeLists];
@@ -328,11 +346,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList),
     [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, vectorOnList]
   );
-
-  // Used for MoleculeListSortFilterDialog when using textSearch
-  // Also used for displaying filter, since using the original would perform deadlock when creating a filter which matches
-  // 0 molecules
-  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
   if (!isActiveFilter) {
     // default sort is by site
@@ -560,6 +573,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const removeOfAllSelectedTypes = () => {
+    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
+
     proteinList?.forEach(moleculeID => {
       const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
       dispatch(removeHitProtein(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
@@ -701,7 +716,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         )
       }}
       onChange={handleSearch}
-      disabled={disableUserInteraction}
+      disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
     />,
 
     <IconButton
@@ -833,10 +848,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isLigandOn === true,
                               [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
-                            onClick={() => {
-                              onButtonToggle('ligand');
-                            }}
-                            disabled={disableUserInteraction}
+                            onClick={() => onButtonToggle('ligand')}
+                            disabled={false}
                           >
                             L
                           </Button>
@@ -850,10 +863,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isProteinOn,
                               [classes.contColButtonHalfSelected]: isProteinOn === null
                             })}
-                            onClick={() => {
-                              onButtonToggle('protein');
-                            }}
-                            disabled={disableUserInteraction}
+                            onClick={() => onButtonToggle('protein')}
+                            disabled={false}
                           >
                             P
                           </Button>
@@ -868,10 +879,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonSelected]: isComplexOn,
                               [classes.contColButtonHalfSelected]: isComplexOn === null
                             })}
-                            onClick={() => {
-                              onButtonToggle('complex');
-                            }}
-                            disabled={disableUserInteraction}
+                            onClick={() => onButtonToggle('complex')}
+                            disabled={false}
                           >
                             C
                           </Button>
@@ -915,6 +924,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      L={fragmentDisplayList.includes(data.id)}
+                      P={proteinList.includes(data.id)}
+                      C={complexList.includes(data.id)}
+                      S={surfaceList.includes(data.id)}
+                      V={vectorOnList.includes(data.id)}
                       selectMoleculeSite={selectMoleculeSite}
                     />
                   ))}

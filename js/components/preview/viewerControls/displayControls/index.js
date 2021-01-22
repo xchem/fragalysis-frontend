@@ -9,7 +9,10 @@ import { NglContext } from '../../../nglView/nglProvider';
 import {
   addComponentRepresentation,
   removeComponentRepresentation,
-  updateComponentRepresentation
+  updateComponentRepresentation,
+  updateComponentRepresentationVisibility,
+  updateComponentRepresentationVisibilityAll,
+  changeComponentRepresentation
 } from '../../../../reducers/ngl/actions';
 import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
@@ -51,7 +54,10 @@ export default memo(({ open, onClose }) => {
         const newVisibility = !r.getVisibility();
         // update in redux
         representation.params.visible = newVisibility;
-        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+        dispatch(
+          updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility)
+        );
         // update in nglView
         r.setVisibility(newVisibility);
       }
@@ -71,10 +77,12 @@ export default memo(({ open, onClose }) => {
       oldRepresentation.lastKnownID
     );
     // add new representation to redux
-    dispatch(addComponentRepresentation(parentKey, newRepresentation));
+    dispatch(addComponentRepresentation(parentKey, newRepresentation, true));
 
     // remove previous representation from NGL
-    removeRepresentation(representation, parentKey);
+    removeRepresentation(representation, parentKey, true);
+
+    dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
   };
 
   const addMolecularRepresentation = (parentKey, e) => {
@@ -88,7 +96,7 @@ export default memo(({ open, onClose }) => {
     dispatch(addComponentRepresentation(parentKey, newRepresentation));
   };
 
-  const removeRepresentation = (representation, parentKey) => {
+  const removeRepresentation = (representation, parentKey, skipTracking) => {
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     let foundedRepresentation = undefined;
@@ -107,7 +115,7 @@ export default memo(({ open, onClose }) => {
         // remove from nglReducer and selectionReducer
         dispatch(deleteObject(targetObject, nglView.stage, true));
       } else {
-        dispatch(removeComponentRepresentation(parentKey, representation));
+        dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
       }
     }
   };
@@ -118,7 +126,7 @@ export default memo(({ open, onClose }) => {
     const targetObject = objectsInView[parentKey];
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
-    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation)));
+    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation, true)));
 
     // remove from nglReducer and selectionReducer
     dispatch(deleteObject(targetObject, nglView.stage, true));
@@ -141,10 +149,12 @@ export default memo(({ open, onClose }) => {
           // update in nglView
           r.setVisibility(newVisibility);
           // update in redux
-          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
+          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
         }
       });
     });
+
+    dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
   };
 
   const hasAllRepresentationVisibled = parentKey => {

@@ -11,15 +11,15 @@ import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import {
   autoHideDatasetDialogsOnScroll,
+  resetCrossReferenceDialog,
   removeDatasetComplex,
   removeDatasetHitProtein,
   removeDatasetLigand,
-  removeDatasetSurface,
-  resetCrossReferenceDialog
+  removeDatasetSurface  
 } from './redux/dispatchActions';
-import MoleculeView from '../preview/molecule/moleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
+import { getMoleculeList } from '../preview/molecule/redux/selectors';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
 
@@ -238,6 +238,11 @@ export const SelectedCompoundList = memo(({ height }) => {
                   previousItemData={index > 0 && array[index - 1]}
                   nextItemData={index < array?.length && array[index + 1]}
                   removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                  L={ligandListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  P={proteinListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  C={complexListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  S={surfaceListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  V={false}
                 />
               ))}
             </InfiniteScroll>

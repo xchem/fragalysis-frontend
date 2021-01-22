@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme, ButtonGroup, Button } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
@@ -31,7 +31,7 @@ import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 import { DatasetSelectorMenuButton } from '../datasets/datasetSelectorMenuButton';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { setMoleculeListIsLoading } from '../datasets/redux/actions';
+import { setMoleculeListIsLoading, setAllInspirations } from '../datasets/redux/actions';
 
 const hitNavigatorWidth = 504;
 
@@ -96,6 +96,10 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const target_on = useSelector(state => state.apiReducers.target_on);
   const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
 
+  const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
+  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+
   /*
      Loading datasets
    */
@@ -117,6 +121,44 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         });
     }
   }, [customDatasets.length, dispatch, target_on, isTrackingRestoring]);
+
+  useEffect(() => {
+    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
+    const moleculeListsCount = Object.keys(moleculeLists || {}).length;
+    if (allMolsGroupsCount > 0 && moleculeListsCount > 0 && !isLoadingMoleculeList) {
+      const allDatasets = {};
+      const allMolsMap = linearizeMoleculesLists();
+      const keys = Object.keys(moleculeLists);
+      keys.forEach(key => {
+        let dataset = moleculeLists[key];
+        let mols = {};
+        dataset.forEach(dsMol => {
+          let inspirations = [];
+          dsMol.computed_inspirations.forEach(id => {
+            let lhsMol = allMolsMap[id];
+            inspirations.push(lhsMol);
+          });
+          mols[dsMol.id] = inspirations;
+        });
+        allDatasets[key] = mols;
+      });
+      dispatch(setAllInspirations(allDatasets));
+    }
+  }, [all_mol_lists, moleculeLists, isLoadingMoleculeList, linearizeMoleculesLists, dispatch]);
+
+  const linearizeMoleculesLists = useCallback(() => {
+    const keys = Object.keys(all_mol_lists);
+    const allMolsMap = {};
+
+    keys.forEach(key => {
+      let molList = all_mol_lists[key];
+      molList.forEach(mol => {
+        allMolsMap[mol.id] = mol;
+      });
+    });
+
+    return allMolsMap;
+  }, [all_mol_lists]);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);

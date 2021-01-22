@@ -1,5 +1,5 @@
 import React, { memo, useState, useContext } from 'react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography, Checkbox, FormControlLabel } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
@@ -28,6 +28,9 @@ const useStyles = makeStyles(theme => ({
   formControl: {
     margin: theme.spacing(1),
     width: 400
+  },
+  checkbox: {
+    margin: theme.spacing(0)
   }
 }));
 
@@ -36,14 +39,24 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const [state, setState] = useState();
   const dispatch = useDispatch();
   const { nglViewList } = useContext(NglContext);
+  const [overwriteSnapshot, setoverwriteSnapshot] = useState(false);
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
   const isForceProjectCreated = useSelector(state => state.projectReducers.isForceProjectCreated);
 
+  const currentSnapshotId = currentSnapshot && currentSnapshot.id;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
   const username = DJANGO_CONTEXT['username'];
+
+  const toggleoverwriteSnapshot = () => {
+    if (overwriteSnapshot === true) {
+      setoverwriteSnapshot(false);
+    } else {
+      setoverwriteSnapshot(true);
+    }
+  };
 
   return (
     <>
@@ -73,13 +86,22 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
           const parent = isForceProjectCreated === false ? currentSnapshot.id : null;
           const session_project = currentProject.projectID;
 
-          dispatch(createNewSnapshot({ title, description, type, author, parent, session_project, nglViewList })).catch(
-            error => {
-              setState(() => {
-                throw error;
-              });
-            }
-          );
+          dispatch(
+            createNewSnapshot({
+              title,
+              description,
+              type,
+              author,
+              parent,
+              session_project,
+              nglViewList,
+              overwriteSnapshot
+            })
+          ).catch(error => {
+            setState(() => {
+              throw error;
+            });
+          });
         }}
       >
         {({ submitForm, isSubmitting }) => (
@@ -115,6 +137,25 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                   }
                 />
               </Grid>
+              {currentSnapshotId && (
+                <Grid item>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        name="overwrite"
+                        color="primary"
+                        onChange={() => {
+                          toggleoverwriteSnapshot();
+                        }}
+                      />
+                    }
+                    label="Overwrite current snapshot"
+                    labelPlacement="end"
+                    className={classes.checkbox}
+                    disabled={isLoadingSnapshotDialog || isSubmitting}
+                  />
+                </Grid>
+              )}
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>

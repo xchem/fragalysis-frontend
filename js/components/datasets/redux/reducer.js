@@ -32,6 +32,8 @@ export const INITIAL_STATE = {
   inspirationFragmentList: [],
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: [],
+  allInspirationMoleculeDataList: [],
+  allInspirations: {},
 
   // cross reference
   isOpenCrossReferenceDialog: false,
@@ -134,6 +136,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_DATASET:
       return Object.assign({}, state, { datasets: action.payload });
+
+    case constants.REPLACE_ALL_MOLECULELISTS:
+      return {...state, moleculeLists: action.payload};
 
     case constants.ADD_MOLECULELIST:
       // initialize also control containers
@@ -295,10 +300,20 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_INSPIRATION_MOLECULE_DATA_LIST:
       return Object.assign({}, state, { inspirationMoleculeDataList: action.payload });
 
+    case constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST:
+      return Object.assign({}, state, { allInspirationMoleculeDataList: action.payload });
+
     case constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST:
       const extendedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
       extendedInspirationMoleculeDataList.add(action.payload);
       return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
+
+    case constants.APPEND_TO_ALL_INSPIRATION_MOLECULE_DATA_LIST:
+      const molecules = new Set(state.allInspirationMoleculeDataList);
+      if (!molecules.has(action.payload)) {
+        molecules.add(action.payload);
+      }
+      return Object.assign({}, state, { allInspirationMoleculeDataList: [...molecules] });
 
     case constants.REMOVE_FROM_INSPIRATION_MOLECULE_DATA_LIST:
       const diminishedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
@@ -330,6 +345,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         diminishedInspirationFragmentList.delete(foundtem);
       }
       return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
+
+    case constants.SET_ALL_INSPIRATIONS:
+      return {...state, allInspirations: action.payload};
 
     case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
       const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);

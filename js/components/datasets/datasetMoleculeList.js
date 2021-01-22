@@ -14,7 +14,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -23,7 +23,7 @@ import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addDatasetLigand,
@@ -34,7 +34,9 @@ import {
   removeDatasetComplex,
   addDatasetSurface,
   removeDatasetSurface,
-  autoHideDatasetDialogsOnScroll
+  autoHideDatasetDialogsOnScroll,
+  moveMoleculeInspirationsSettings,
+  removeAllSelectedDatasetMolecules
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -44,6 +46,8 @@ import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
+import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
+import { getMoleculeList } from '../preview/molecule/redux/selectors';
 import { setSelectedAllByType, setDeselectedAllByType } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
@@ -226,7 +230,10 @@ export const DatasetMoleculeList = memo(
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
 
-    const disableUserInteraction = useDisableUserInteraction();
+    const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
+    const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
+
+    // const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
 
@@ -258,6 +265,15 @@ export const DatasetMoleculeList = memo(
 
     const selectedAll = useRef(false);
 
+    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
+
+    const proteinListMolecule = useSelector(state => state.selectionReducers.proteinList);
+    const complexListMolecule = useSelector(state => state.selectionReducers.complexList);
+    const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
+    const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
+    const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
+
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
@@ -280,31 +296,30 @@ export const DatasetMoleculeList = memo(
       surface: removeDatasetSurface
     };
 
+    const removeOfAllSelectedTypesOfInspirations = () => {
+      let molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
+      dispatch(hideAllSelectedMolecules(stage, [...molecules]));
+    };
+
     const removeOfAllSelectedTypes = () => {
-      ligandList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      proteinList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      complexList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
-      surfaceList?.forEach(moleculeID => {
-        const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-        dispatch(
-          removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
-        );
-      });
+      dispatch(removeAllSelectedDatasetMolecules(stage));
+    };
+
+    const moveSelectedMoleculeInspirationsSettings = (data, newItemData) => (dispatch, getState) => {
+      dispatch(
+        moveMoleculeInspirationsSettings(
+          data,
+          newItemData,
+          stage,
+          objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          densityListMolecule,
+          vectorOnListMolecule
+        )
+      );
     };
 
     // TODO "currentMolecules" do not need to correspondent to selections in {type}List
@@ -552,7 +567,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isLigandOn
                                 })}
                                 onClick={() => onButtonToggle('ligand')}
-                                disabled={disableUserInteraction}
+                                disabled={false}
                               >
                                 L
                               </Button>
@@ -566,7 +581,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isProteinOn
                                 })}
                                 onClick={() => onButtonToggle('protein')}
-                                disabled={disableUserInteraction}
+                                disabled={false}
                               >
                                 P
                               </Button>
@@ -581,7 +596,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isComplexOn
                                 })}
                                 onClick={() => onButtonToggle('complex')}
-                                disabled={disableUserInteraction}
+                                disabled={false}
                               >
                                 C
                               </Button>
@@ -646,6 +661,13 @@ export const DatasetMoleculeList = memo(
                           previousItemData={index > 0 && array[index - 1]}
                           nextItemData={index < array?.length && array[index + 1]}
                           removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                          removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
+                          moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
+                          L={ligandList.includes(data.id)}
+                          P={proteinList.includes(data.id)}
+                          C={complexList.includes(data.id)}
+                          S={surfaceList.includes(data.id)}
+                          V={false}
                         />
                       ))}
                   </InfiniteScroll>
