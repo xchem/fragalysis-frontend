@@ -126,7 +126,7 @@ export default memo(({ open, onClose }) => {
     const targetObject = objectsInView[parentKey];
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
-    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation)));
+    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation, true)));
 
     // remove from nglReducer and selectionReducer
     dispatch(deleteObject(targetObject, nglView.stage, true));
