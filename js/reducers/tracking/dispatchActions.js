@@ -67,13 +67,13 @@ import {
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { 
-  deleteObject, 
-  setOrientation, 
-  setNglBckGrndColor, 
-  setNglClipNear, 
-  setNglClipFar, 
-  setNglClipDist, 
+import {
+  deleteObject,
+  setOrientation,
+  setNglBckGrndColor,
+  setNglClipNear,
+  setNglClipFar,
+  setNglClipDist,
   setNglFogNear,
   setNglFogFar
 } from '../../../js/reducers/ngl/dispatchActions';
@@ -1796,6 +1796,35 @@ const addRepresentation = (action, parentKey, representation, nglView, update, s
   dispatch(addComponentRepresentation(parentKey, newRepresentation, skipTracking));
 };
 
+const removeRepresentation = (action, parentKey, representation, nglView, skipTracking = false) => (
+  dispatch,
+  getState
+) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  let foundedRepresentation = undefined;
+  comp.eachRepresentation(r => {
+    if (
+      r.uuid === representation.uuid ||
+      r.uuid === representation.lastKnownID ||
+      r.repr.type === representation.type
+    ) {
+      foundedRepresentation = r;
+    }
+  });
+
+  if (foundedRepresentation) {
+    comp.removeRepresentation(foundedRepresentation);
+
+    if (comp.reprList.length === 0) {
+      dispatch(deleteObject(nglView, nglView.stage, true));
+    } else {
+      dispatch(removeComponentRepresentation(parentKey, foundedRepresentation, skipTracking));
+    }
+  } else {
+    console.log(`Not found representation:`, representation);
+  }
+};
+
 const handleUpdateRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
     dispatch(updateRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
@@ -1816,48 +1845,40 @@ const updateRepresentation = (isAdd, change, parentKey, representation, nglView)
   }
 };
 
-const removeRepresentation = (action, parentKey, representation, nglView, skipTracking = false) => (
-  dispatch,
-  getState
-) => {
-  const comp = nglView.stage.getComponentsByName(parentKey).first;
-  let foundedRepresentation = undefined;
-  comp.eachRepresentation(r => {
-    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-      foundedRepresentation = r;
-    }
-  });
-
-  if (foundedRepresentation) {
-    comp.removeRepresentation(foundedRepresentation);
-
-    if (comp.reprList.length === 0) {
-      dispatch(deleteObject(nglView, nglView.stage, true));
-    } else {
-      dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
-    }
-  }
-};
-
 const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
-    dispatch(changeRepresentation(isAdd, action, nglView));
+    let representation = action.newRepresentation;
+    let type = action.oldRepresentation.type;
+    dispatch(changeMolecularRepresentation(action, representation, type, action.object_id, nglView));
   }
 };
 
-const changeRepresentation = (isAdd, action, nglView) => (dispatch, getState) => {
-  let oldRepresentation = action.oldRepresentation;
-  let newRepresentation = action.newRepresentation;
+const changeMolecularRepresentation = (action, representation, type, parentKey, nglView) => (dispatch, getState) => {
+  const newRepresentationType = type;
 
-  if (isAdd === true) {
-    dispatch(changeComponentRepresentation(action.object_id, oldRepresentation, newRepresentation));
-    dispatch(addRepresentation(action, action.object_id, newRepresentation, nglView, isAdd, true));
-    dispatch(removeRepresentation(action, action.object_id, oldRepresentation, nglView, true));
-  } else {
-    dispatch(changeComponentRepresentation(action.object_id, newRepresentation, oldRepresentation));
-    dispatch(addRepresentation(action, action.object_id, oldRepresentation, nglView, isAdd, true));
-    dispatch(removeRepresentation(action, action.object_id, newRepresentation, nglView, true));
-  }
+  //const newRepresentationType = e.target.value;
+  const oldRepresentation = JSON.parse(JSON.stringify(representation));
+  //const nglView = getNglView(objectsInView[parentKey].display_div);
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+  // add representation to NGL
+  const newRepresentation = assignRepresentationToComp(
+    newRepresentationType,
+    oldRepresentation.params,
+    comp,
+    oldRepresentation.lastKnownID
+  );
+
+  action.newRepresentation = newRepresentation;
+  action.oldRepresentation = representation;
+
+  // add new representation to redux
+  dispatch(addComponentRepresentation(parentKey, newRepresentation, true));
+
+  // remove previous representation from NGL
+  dispatch(removeRepresentation(action, parentKey, representation, nglView, true));
+
+  dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
 };
 
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
