@@ -1306,12 +1306,11 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleShoppingCartAction(action, true));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, false));
+        dispatch(handleShoppingCartAllAction(action, false, majorViewStage));
         break;
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, true));
+        dispatch(handleShoppingCartAllAction(action, true, majorViewStage));
         break;
-
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
@@ -1444,10 +1443,10 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleShoppingCartAction(action, false));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, true));
+        dispatch(handleShoppingCartAllAction(action, true, majorViewStage));
         break;
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, false));
+        dispatch(handleShoppingCartAllAction(action, false, majorViewStage));
         break;
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, true));
@@ -1691,8 +1690,8 @@ const handleVectorAction = (action, isSelected) => (dispatch, getState) => {
 const handleVectorCompoundAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let index = action.index;
-    dispatch(handleShowVectorCompound({ isSelected, data, index, majorViewStage: majorViewStage }));
+    let compoundId = action.compoundId;
+    dispatch(handleShowVectorCompound({ isSelected, data, index: compoundId, majorViewStage: majorViewStage }));
   }
 };
 
@@ -1747,20 +1746,17 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let index = action.index;
+    let compoundId = action.compoundId;
 
     if (data) {
-      dispatch(handleBuyList({ isSelected: isAdd, data, index }));
+      dispatch(handleBuyList({ isSelected: isAdd, data, compoundId }));
     }
   }
 };
 
-const handleShoppingCartAllAction = (action, isAdd) => (dispatch, getState) => {
+const handleShoppingCartAllAction = (action, isAdd, majorViewStage) => (dispatch, getState) => {
   if (action) {
-    let data = action.items;
-    if (data) {
-      dispatch(handleBuyListAll({ isSelected: isAdd, data }));
-    }
+    dispatch(handleBuyListAll({ isSelected: isAdd, items: action.items, majorViewStage: majorViewStage }));
   }
 };
 
