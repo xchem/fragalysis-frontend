@@ -5,7 +5,7 @@
 import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
-import { Settings, Mouse, PersonalVideo, Undo, Redo } from '@material-ui/icons';
+import { Settings, Mouse, PersonalVideo, Undo, Redo, Restore } from '@material-ui/icons';
 import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
@@ -17,7 +17,8 @@ import {
   getCanRedo,
   getCanUndo,
   getUndoActionText,
-  getRedoActionText
+  getRedoActionText,
+  restoreNglViewSettings
 } from '../../../../js/reducers/tracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 
@@ -32,6 +33,10 @@ const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [draw
 const useStyles = makeStyles(theme => ({
   button: {
     padding: theme.spacing(1)
+  },
+  buttonMargin: {
+    padding: theme.spacing(1),
+    marginLeft: theme.spacing(8)
   }
 }));
 
@@ -155,6 +160,17 @@ export const ViewerControls = memo(({}) => {
             </Tooltip>
           </ButtonGroup>
         </Grid>
+
+        <Tooltip title="Restore ngl view settings">
+          <Button
+            color="primary"
+            onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
+            startIcon={<Restore />}
+            className={classes.buttonMargin}
+          >
+            Restore view
+          </Button>
+        </Tooltip>
       </Grid>
       <SettingControls open={drawerSettings[drawers.settings]} onClose={closeAllDrawers} />
       <DisplayControls open={drawerSettings[drawers.display]} onClose={closeAllDrawers} />
