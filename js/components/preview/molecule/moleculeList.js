@@ -307,21 +307,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     return result;
   }, [getAllMoleculeList]);
 
-  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
-    const result = [...joinedMoleculeLists];
-    list?.forEach(moleculeID => {
-      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
-      if (!foundJoinedMolecule) {
-        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
-        if (molecule) {
-          result.push(molecule);
-        }
-      }
-    });
-
-    return result;
-  }, [getAllMoleculeList]);
-
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList),
     [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, proteinList]
