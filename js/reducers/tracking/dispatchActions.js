@@ -63,17 +63,19 @@ import {
   removeComponentRepresentation,
   addComponentRepresentation,
   updateComponentRepresentation,
+  updateComponentRepresentationVisibility,
+  updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
-import { 
-  deleteObject, 
-  setOrientation, 
-  setNglBckGrndColor, 
-  setNglClipNear, 
-  setNglClipFar, 
-  setNglClipDist, 
+import {
+  deleteObject,
+  setOrientation,
+  setNglBckGrndColor,
+  setNglClipNear,
+  setNglClipFar,
+  setNglClipDist,
   setNglFogNear,
   setNglFogFar
 } from '../../../js/reducers/ngl/dispatchActions';
@@ -1306,17 +1308,22 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleShoppingCartAction(action, true));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, false));
+        dispatch(handleShoppingCartAllAction(action, false, majorViewStage));
         break;
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, true));
+        dispatch(handleShoppingCartAllAction(action, true, majorViewStage));
         break;
-
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAllAction(action, false, majorView));
         break;
       case actionType.REPRESENTATION_UPDATED:
         dispatch(handleUpdateRepresentationAction(action, false, majorView));
@@ -1444,16 +1451,22 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleShoppingCartAction(action, false));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, true));
+        dispatch(handleShoppingCartAllAction(action, true, majorViewStage));
         break;
       case actionType.MOLECULE_REMOVED_FROM_SHOPPING_CART_ALL:
-        dispatch(handleShoppingCartAllAction(action, false));
+        dispatch(handleShoppingCartAllAction(action, false, majorViewStage));
         break;
       case actionType.COMPOUND_SELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
+        break;
+      case actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED:
+        dispatch(handleUpdateRepresentationVisibilityAllAction(action, true, majorView));
         break;
       case actionType.REPRESENTATION_UPDATED:
         dispatch(handleUpdateRepresentationAction(action, true, majorView));
@@ -1691,8 +1704,8 @@ const handleVectorAction = (action, isSelected) => (dispatch, getState) => {
 const handleVectorCompoundAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let index = action.index;
-    dispatch(handleShowVectorCompound({ isSelected, data, index, majorViewStage: majorViewStage }));
+    let compoundId = action.compoundId;
+    dispatch(handleShowVectorCompound({ isSelected, data, index: compoundId, majorViewStage: majorViewStage }));
   }
 };
 
@@ -1747,20 +1760,17 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let index = action.index;
+    let compoundId = action.compoundId;
 
     if (data) {
-      dispatch(handleBuyList({ isSelected: isAdd, data, index }));
+      dispatch(handleBuyList({ isSelected: isAdd, data, compoundId }));
     }
   }
 };
 
-const handleShoppingCartAllAction = (action, isAdd) => (dispatch, getState) => {
+const handleShoppingCartAllAction = (action, isAdd, majorViewStage) => (dispatch, getState) => {
   if (action) {
-    let data = action.items;
-    if (data) {
-      dispatch(handleBuyListAll({ isSelected: isAdd, data }));
-    }
+    dispatch(handleBuyListAll({ isSelected: isAdd, items: action.items, majorViewStage: majorViewStage }));
   }
 };
 
@@ -1796,6 +1806,85 @@ const addRepresentation = (action, parentKey, representation, nglView, update, s
   dispatch(addComponentRepresentation(parentKey, newRepresentation, skipTracking));
 };
 
+const removeRepresentation = (action, parentKey, representation, nglView, skipTracking = false) => (
+  dispatch,
+  getState
+) => {
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  let foundedRepresentation = undefined;
+  comp.eachRepresentation(r => {
+    if (
+      r.uuid === representation.uuid ||
+      r.uuid === representation.lastKnownID ||
+      r.repr.type === representation.type
+    ) {
+      foundedRepresentation = r;
+    }
+  });
+
+  if (foundedRepresentation) {
+    comp.removeRepresentation(foundedRepresentation);
+
+    if (comp.reprList.length === 0) {
+      dispatch(deleteObject(nglView, nglView.stage, true));
+    } else {
+      dispatch(removeComponentRepresentation(parentKey, foundedRepresentation, skipTracking));
+    }
+  } else {
+    console.log(`Not found representation:`, representation);
+  }
+};
+
+const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    let parentKey = action.object_id;
+    let representation = action.representation;
+
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    comp.eachRepresentation(r => {
+      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+        const newVisibility = isAdd ? action.value : !action.value;
+        // update in redux
+        representation.params.visible = newVisibility;
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+        dispatch(
+          updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility)
+        );
+        // update in nglView
+        r.setVisibility(newVisibility);
+      }
+    });
+  }
+};
+
+const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) => (dispatch, getState) => {
+  if (action) {
+    const state = getState();
+    let parentKey = action.object_id;
+    let objectsInView = state.nglReducers.objectsInView;
+    let newVisibility = isAdd ? action.value : !action.value;
+
+    const representations = (objectsInView[parentKey] && objectsInView[parentKey].representations) || [];
+    const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+    if (representations) {
+      representations.forEach((representation, index) => {
+        comp.eachRepresentation(r => {
+          if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+            representation.params.visible = newVisibility;
+            // update in nglView
+            r.setVisibility(newVisibility);
+            // update in redux
+            dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+          }
+        });
+      });
+
+      dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
+    }
+  }
+};
+
 const handleUpdateRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
     dispatch(updateRepresentation(isAdd, action.change, action.object_id, action.representation, nglView));
@@ -1816,48 +1905,40 @@ const updateRepresentation = (isAdd, change, parentKey, representation, nglView)
   }
 };
 
-const removeRepresentation = (action, parentKey, representation, nglView, skipTracking = false) => (
-  dispatch,
-  getState
-) => {
-  const comp = nglView.stage.getComponentsByName(parentKey).first;
-  let foundedRepresentation = undefined;
-  comp.eachRepresentation(r => {
-    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-      foundedRepresentation = r;
-    }
-  });
-
-  if (foundedRepresentation) {
-    comp.removeRepresentation(foundedRepresentation);
-
-    if (comp.reprList.length === 0) {
-      dispatch(deleteObject(nglView, nglView.stage, true));
-    } else {
-      dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
-    }
-  }
-};
-
 const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, getState) => {
   if (action) {
-    dispatch(changeRepresentation(isAdd, action, nglView));
+    let representation = action.newRepresentation;
+    let type = action.oldRepresentation.type;
+    dispatch(changeMolecularRepresentation(action, representation, type, action.object_id, nglView));
   }
 };
 
-const changeRepresentation = (isAdd, action, nglView) => (dispatch, getState) => {
-  let oldRepresentation = action.oldRepresentation;
-  let newRepresentation = action.newRepresentation;
+const changeMolecularRepresentation = (action, representation, type, parentKey, nglView) => (dispatch, getState) => {
+  const newRepresentationType = type;
 
-  if (isAdd === true) {
-    dispatch(changeComponentRepresentation(action.object_id, oldRepresentation, newRepresentation));
-    dispatch(addRepresentation(action, action.object_id, newRepresentation, nglView, isAdd, true));
-    dispatch(removeRepresentation(action, action.object_id, oldRepresentation, nglView, true));
-  } else {
-    dispatch(changeComponentRepresentation(action.object_id, newRepresentation, oldRepresentation));
-    dispatch(addRepresentation(action, action.object_id, oldRepresentation, nglView, isAdd, true));
-    dispatch(removeRepresentation(action, action.object_id, newRepresentation, nglView, true));
-  }
+  //const newRepresentationType = e.target.value;
+  const oldRepresentation = JSON.parse(JSON.stringify(representation));
+  //const nglView = getNglView(objectsInView[parentKey].display_div);
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+
+  // add representation to NGL
+  const newRepresentation = assignRepresentationToComp(
+    newRepresentationType,
+    oldRepresentation.params,
+    comp,
+    oldRepresentation.lastKnownID
+  );
+
+  action.newRepresentation = newRepresentation;
+  action.oldRepresentation = representation;
+
+  // add new representation to redux
+  dispatch(addComponentRepresentation(parentKey, newRepresentation, true));
+
+  // remove previous representation from NGL
+  dispatch(removeRepresentation(action, parentKey, representation, nglView, true));
+
+  dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
 };
 
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {

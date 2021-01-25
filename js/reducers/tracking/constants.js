@@ -49,6 +49,8 @@ export const actionType = {
   COMPOUND_SELECTED: 'COMPOUND_SELECTED',
   COMPOUND_DESELECTED: 'COMPOUND_DESELECTED',
   REPRESENTATION_UPDATED: 'REPRESENTATION_UPDATED',
+  REPRESENTATION_VISIBILITY_UPDATED: 'REPRESENTATION_VISIBILITY_UPDATED',
+  REPRESENTATION_VISIBILITY_ALL_UPDATED: 'REPRESENTATION_VISIBILITY_ALL_UPDATED',
   REPRESENTATION_ADDED: 'REPRESENTATION_ADDED',
   REPRESENTATION_REMOVED: 'REPRESENTATION_REMOVED',
   REPRESENTATION_CHANGED: 'REPRESENTATION_CHANGED',
@@ -76,11 +78,13 @@ export const actionDescription = {
   SELECTED: 'was selected',
   DESELECTED: 'was deselected',
   HIDDEN: 'hidden',
+  VISIBLE: 'visible',
   CANCELED: 'canceled',
   ADDED: 'was added',
   REMOVED: 'was removed',
   CHANGED: 'was changed',
   UPDATED: 'was updated',
+  VISIBILITY: 'visiblity',
   TO_SHOPPING_CART: 'to shopping cart',
   FROM_SHOPPING_CART: 'from shopping cart',
   LIGAND: 'Ligand',
@@ -94,8 +98,7 @@ export const actionDescription = {
   TARGET: 'Target',
   ALL: 'All',
   LIGANDS: 'Ligands',
-  SIDECHAINS: 'Sidechains',
-  INTERACTIONS: 'Interactions'
+  SIDECHAINS: 'Sidechains'
 };
 
 export const actionObjectType = {

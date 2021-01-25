@@ -373,7 +373,7 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
-          index: action.index,
+          compoundId: action.item.compoundId,
           item: action.item,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
         };
@@ -391,7 +391,7 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
-          index: action.index,
+          compoundId: action.item.compoundId,
           item: action.item,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
         };
@@ -423,41 +423,37 @@ export const findTrackAction = (action, state) => {
         text: `${actionDescription.ALL} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
       };
     } else if (action.type === previewCompoundConstants.APPEND_SHOWED_COMPOUND_LIST) {
-      if (action.item && action.payload) {
-        let objectType = actionObjectType.COMPOUND;
-        let objectName = action.item && action.item.vector;
+      let objectType = actionObjectType.COMPOUND;
+      let objectName = action.item && action.item.vector;
 
-        trackAction = {
-          type: actionType.VECTOR_COUMPOUND_ADDED,
-          annotation: actionAnnotation.CHECK,
-          timestamp: Date.now(),
-          username: username,
-          object_type: objectType,
-          object_name: objectName,
-          object_id: action.payload,
-          item: action.item,
-          index: action.payload,
-          text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.ADDED}`
-        };
-      }
+      trackAction = {
+        type: actionType.VECTOR_COUMPOUND_ADDED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.payload,
+        item: action.item,
+        compoundId: action.payload,
+        text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.ADDED}`
+      };
     } else if (action.type === previewCompoundConstants.REMOVE_SHOWED_COMPOUND_LIST) {
-      if (action.item && action.payload) {
-        let objectType = actionObjectType.COMPOUND;
-        let objectName = action.item && action.item.vector;
+      let objectType = actionObjectType.COMPOUND;
+      let objectName = action.item && action.item.vector;
 
-        trackAction = {
-          type: actionType.VECTOR_COUMPOUND_REMOVED,
-          annotation: actionAnnotation.CLEAR,
-          timestamp: Date.now(),
-          username: username,
-          object_type: objectType,
-          object_name: objectName,
-          object_id: action.payload,
-          item: action.item,
-          index: action.payload,
-          text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`
-        };
-      }
+      trackAction = {
+        type: actionType.VECTOR_COUMPOUND_REMOVED,
+        annotation: actionAnnotation.CLEAR,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.payload,
+        item: action.item,
+        compoundId: action.payload,
+        text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`
+      };
     } else if (action.type.includes(selectionConstants.SET_CURRENT_VECTOR)) {
       if (action.payload) {
         let objectType = actionObjectType.MOLECULE;
@@ -770,8 +766,49 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
+    } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
+      let objectType = actionObjectType.REPRESENTATION;
+      let value = action.newVisibility;
+      let valueDescription = value === true ? actionDescription.VISIBLE : actionDescription.HIDDEN;
+
+      trackAction = {
+        type: actionType.REPRESENTATION_VISIBILITY_UPDATED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: actionObjectType.REPRESENTATION,
+        object_name: action.objectInViewID,
+        object_id: action.objectInViewID,
+        representation_id: action.representationID,
+        representation: action.representation,
+        value: value,
+        text: `${objectType} '${action.representation?.type}' ${actionDescription.VISIBILITY} of ${action.objectInViewID} ${actionDescription.CHANGED} to: ${valueDescription}`
+      };
+    } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY_ALL) {
+      let objectType = actionObjectType.REPRESENTATION;
+      let value = action.newVisibility;
+      let valueDescription = value === true ? actionDescription.VISIBLE : actionDescription.HIDDEN;
+
+      trackAction = {
+        type: actionType.REPRESENTATION_VISIBILITY_ALL_UPDATED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: actionObjectType.REPRESENTATION,
+        object_name: action.objectInViewID,
+        object_id: action.objectInViewID,
+        value: value,
+        text: `${objectType} ${actionDescription.VISIBILITY} of ${action.objectInViewID} ${actionDescription.CHANGED} to: ${valueDescription}`
+      };
     } else if (action.type.includes(nglConstants.UPDATE_COMPONENT_REPRESENTATION)) {
       let objectType = actionObjectType.REPRESENTATION;
+      let key = action.change?.key;
+      let oldValue = action.change?.oldValue;
+      let newValue = action.change?.value;
+      let valueDescription =
+        key !== 'clipCenter'
+          ? `from value: ${oldValue} to value: ${newValue}`
+          : getClipCenterChange(oldValue, newValue);
 
       trackAction = {
         type: actionType.REPRESENTATION_UPDATED,
@@ -784,7 +821,7 @@ export const findTrackAction = (action, state) => {
         representation_id: action.representationID,
         representation: action.newRepresentation,
         change: action.change,
-        text: `${objectType} '${action.change?.key}' of ${action.objectInViewID} ${actionDescription.UPDATED} from value: ${action.change?.oldValue} to value: ${action.change?.value}`
+        text: `${objectType} '${key}' of ${action.objectInViewID} ${actionDescription.UPDATED} ${valueDescription}`
       };
     } else if (action.type.includes(nglConstants.ADD_COMPONENT_REPRESENTATION)) {
       let objectType = actionObjectType.REPRESENTATION;
@@ -889,10 +926,17 @@ export const findTrackAction = (action, state) => {
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
-          return "Clip far of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+          return (
+            'Clip far of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
         },
         text: `Clip far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
-      };      
+      };
     } else if (action.type.includes(nglConstants.SET_CLIP_DIST)) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
@@ -908,10 +952,17 @@ export const findTrackAction = (action, state) => {
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
-          return "Clip dist of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+          return (
+            'Clip dist of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
         },
         text: `Clip dist of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
-      };      
+      };
     } else if (action.type.includes(nglConstants.SET_FOG_NEAR)) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
@@ -927,10 +978,17 @@ export const findTrackAction = (action, state) => {
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
-          return "Fog near of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+          return (
+            'Fog near of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
         },
         text: `For near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
-      };      
+      };
     } else if (action.type.includes(nglConstants.SET_FOG_FAR)) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
@@ -946,10 +1004,17 @@ export const findTrackAction = (action, state) => {
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
-          return "Fog far of NGL " + actionDescription.CHANGED + " from value: " + this.oldSetting + " to value: " + this.newSetting;
+          return (
+            'Fog far of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
         },
         text: `For far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
-      };           
+      };
     }
   }
   return trackAction;
@@ -1003,6 +1068,22 @@ const getTypeDescriptionOfSelectedAllAction = type => {
     default:
       return type;
   }
+};
+
+const getClipCenterChange = (oldValue, newValue) => {
+  let description = '';
+  if (oldValue && newValue) {
+    if (oldValue.x !== newValue.x) {
+      description += ' from value: x:' + oldValue.x + ' to value: x:' + newValue.x;
+    }
+    if (oldValue.y !== newValue.y) {
+      description += ' from value: y:' + oldValue.y + ' to value: y:' + newValue.y;
+    }
+    if (oldValue.z !== newValue.z) {
+      description += ' from value: z:' + oldValue.z + ' to value: z:' + newValue.z;
+    }
+  }
+  return description;
 };
 
 export const createInitAction = target_on => (dispatch, getState) => {
