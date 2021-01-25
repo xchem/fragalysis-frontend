@@ -1424,10 +1424,10 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleVectorAction(action, false));
         break;
       case actionType.VECTOR_COUMPOUND_ADDED:
-        dispatch(handleVectorCompoundAction(action, true));
+        dispatch(handleVectorCompoundAction(action, true, majorViewStage));
         break;
       case actionType.VECTOR_COUMPOUND_REMOVED:
-        dispatch(handleVectorCompoundAction(action, false));
+        dispatch(handleVectorCompoundAction(action, false, majorViewStage));
         break;
       case actionType.CLASS_SELECTED:
         dispatch(handleClassSelectedAction(action, true));
