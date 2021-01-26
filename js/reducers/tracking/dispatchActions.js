@@ -67,7 +67,7 @@ import {
   updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
-import { NGL_PARAMS } from '../../components/nglView/constants';
+import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import {
@@ -731,39 +731,51 @@ export const restoreNglViewSettings = stages => (dispatch, getState) => {
   const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
 
   let backgroundAction = orderedActionList.find(action => action.type === actionType.BACKGROUND_COLOR_CHANGED);
-  if (backgroundAction && backgroundAction.newSetting) {
+  if (backgroundAction && backgroundAction.newSetting !== undefined) {
     let value = backgroundAction.newSetting;
     dispatch(setNglBckGrndColor(value, majorView, summaryView));
+  } else {
+    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorView, summaryView));
   }
 
   let clipNearAction = orderedActionList.find(action => action.type === actionType.CLIP_NEAR);
-  if (clipNearAction && clipNearAction.newSetting) {
+  if (clipNearAction && clipNearAction.newSetting !== undefined) {
     let value = clipNearAction.newSetting;
     dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView));
+  } else {
+    dispatch(setNglClipNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipNear], viewParams[NGL_PARAMS.clipNear], majorView));
   }
 
   let clipFarAction = orderedActionList.find(action => action.type === actionType.CLIP_FAR);
-  if (clipFarAction && clipFarAction.newSetting) {
+  if (clipFarAction && clipFarAction.newSetting !== undefined) {
     let value = clipFarAction.newSetting;
     dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorView));
+  } else {
+    dispatch(setNglClipFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipFar], viewParams[NGL_PARAMS.clipFar], majorView));
   }
 
   let clipDistAction = orderedActionList.find(action => action.type === actionType.CLIP_DIST);
-  if (clipDistAction && clipDistAction.newSetting) {
+  if (clipDistAction && clipDistAction.newSetting !== undefined) {
     let value = clipDistAction.newSetting;
     dispatch(setNglClipDist(value, viewParams[NGL_PARAMS.clipDist], majorView));
+  } else {
+    dispatch(setNglClipDist(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipDist], viewParams[NGL_PARAMS.clipDist], majorView));
   }
 
   let fogNearAction = orderedActionList.find(action => action.type === actionType.FOG_NEAR);
-  if (fogNearAction && fogNearAction.newSetting) {
+  if (fogNearAction && fogNearAction.newSetting !== undefined) {
     let value = fogNearAction.newSetting;
     dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorView));
+  } else {
+    dispatch(setNglFogNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogNear], viewParams[NGL_PARAMS.fogNear], majorView));
   }
 
   let fogFarAction = orderedActionList.find(action => action.type === actionType.FOG_FAR);
-  if (fogFarAction && fogFarAction.newSetting) {
+  if (fogFarAction && fogFarAction.newSetting !== undefined) {
     let value = fogFarAction.newSetting;
     dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorView));
+  } else {
+    dispatch(setNglFogFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogFar], viewParams[NGL_PARAMS.fogFar], majorView));
   }
 };
 
