@@ -2102,11 +2102,11 @@ const isActionWithinTimeLimit = (firstAction, secondAction) => {
   return diffInSeconds <= NUM_OF_SECONDS_TO_IGNORE_MERGE;
 };
 
-export const manageSendTrackingActions = (projectID, copy) => (dispatch, getState) => {
+export const manageSendTrackingActions = (projectID, copy) => async (dispatch, getState) => {
   if (copy) {
-    dispatch(checkActionsProject(projectID));
+    await dispatch(checkActionsProject(projectID));
   } else {
-    dispatch(checkSendTrackingActions(true));
+    await dispatch(checkSendTrackingActions(true));
   }
 };
 
