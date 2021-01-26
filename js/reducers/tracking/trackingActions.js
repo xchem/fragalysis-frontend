@@ -486,7 +486,7 @@ export const findTrackAction = (action, state) => {
           object_id: objectName,
           oldValue: oldObjectName,
           value: objectName,
-          text: `${actionDescription.CLASS} ${objectName} ${actionDescription.SELECTED}`
+          text: `${actionDescription.CLASS} ${actionDescription.CHANGED} from value: ${oldObjectName} to value: ${objectName}`
         };
       }
     } else if (action.type === previewCompoundConstants.SET_COMPOUND_CLASSES) {
