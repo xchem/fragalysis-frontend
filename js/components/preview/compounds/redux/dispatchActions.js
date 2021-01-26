@@ -206,11 +206,11 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
     }
 
     if (isSelectedID !== undefined) {
-      await dispatch(removeSelectedCompoundClass(index));
+      dispatch(removeSelectedCompoundClass(index));
       dispatch(removeFromToBuyList(data, index));
     } else {
-      await dispatch(addSelectedCompoundClass(currentCompoundClass, index));
-      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass })), index);
+      dispatch(addSelectedCompoundClass(currentCompoundClass, index));
+      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass }), index));
     }
   }
 };
@@ -234,12 +234,7 @@ export const handleBuyListAll = ({ isSelected, items, majorViewStage }) => (disp
   if (isSelected === false) {
     dispatch(clearCompounds(items, majorViewStage));
   } else {
-    for (var item in items) {
-      let index = item.compoundId;
-      dispatch(appendToBuyList(item, index, true));
-      dispatch(addSelectedCompoundClass(item.class, index));
-    }
-    dispatch(appendToBuyListAll(items));
+    dispatch(selectAllCompounds());
   }
 };
 
