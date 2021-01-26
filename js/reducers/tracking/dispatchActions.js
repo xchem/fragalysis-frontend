@@ -1916,9 +1916,7 @@ const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, 
 const changeMolecularRepresentation = (action, representation, type, parentKey, nglView) => (dispatch, getState) => {
   const newRepresentationType = type;
 
-  //const newRepresentationType = e.target.value;
   const oldRepresentation = JSON.parse(JSON.stringify(representation));
-  //const nglView = getNglView(objectsInView[parentKey].display_div);
   const comp = nglView.stage.getComponentsByName(parentKey).first;
 
   // add representation to NGL
@@ -2112,18 +2110,18 @@ export const manageSendTrackingActions = (projectID, copy) => (dispatch, getStat
   }
 };
 
-export const checkSendTrackingActions = (save = false) => (dispatch, getState) => {
+export const checkSendTrackingActions = (save = false) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const sendActions = state.trackingReducers.send_actions_list;
   const length = sendActions.length;
 
   if (length >= CONSTANTS.COUNT_SEND_TRACK_ACTIONS || save) {
-    dispatch(sendTrackingActions(sendActions, currentProject));
+    await dispatch(sendTrackingActions(sendActions, currentProject, true));
   }
 };
 
-const sendTrackingActions = (sendActions, project, clear = true) => async (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project, clear = false) => async (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -2170,6 +2168,8 @@ export const setProjectTrackingActions = () => (dispatch, getState) => {
 
 const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
   const state = getState();
+  const currentProject = state.projectReducers.currentProject;
+  const currentProjectID = currentProject && currentProject.projectID;
   const sendActions = state.trackingReducers.send_actions_list;
 
   if (projectID) {
@@ -2199,7 +2199,7 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
           }
         }
 
-        let projectActions = [...listToSet, ...sendActions];
+        let projectActions = currentProjectID && currentProjectID != null ? [...listToSet, ...sendActions] : listToSet;
         dispatch(setProjectActionList(projectActions));
         return Promise.resolve(projectActions);
       })
@@ -2261,7 +2261,7 @@ const checkActionsProject = projectID => async (dispatch, getState) => {
   );
 };
 
-const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => async (dispatch, getState) => {
+const copyActionsToProject = (toProject, setActionList = true, clear = false) => async (dispatch, getState) => {
   const state = getState();
   const actionList = state.trackingReducers.project_actions_list;
 
@@ -2275,7 +2275,7 @@ const copyActionsToProject = (toProject, setActionList = true, clearSendList = t
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    await dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
+    await dispatch(sendTrackingActions(newActionsList, toProject, clear));
   }
 };
 
