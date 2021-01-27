@@ -11,6 +11,7 @@ import { URLS } from '../../routes/constants';
 import { resetDatasetsState } from '../../datasets/redux/actions';
 import { restoreAfterTargetActions } from '../../../reducers/tracking/dispatchActions';
 import { resetTrackingState } from '../../../reducers/tracking/actions';
+import { setTargetOn } from '../../../reducers/api/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -145,6 +146,7 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
   dispatch(resetTrackingState());
+  dispatch(setTargetOn(undefined));
 };
 
 export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, history }) => (dispatch, getState) => {
