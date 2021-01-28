@@ -67,6 +67,7 @@ import {
   updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
+import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import {
@@ -620,6 +621,9 @@ export const resetRestoringState = () => (dispatch, getState) => {
 
 export const restoreCurrentActionsList = snapshotID => async (dispatch, getState) => {
   dispatch(resetTrackingState());
+  dispatch(resetTargetState());
+  dispatch(setTargetOn(undefined));
+
   dispatch(setIsActionsRestoring(true, false));
 
   await dispatch(restoreTrackingActions(snapshotID));
@@ -716,6 +720,65 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
+  }
+};
+
+export const restoreNglViewSettings = stages => (dispatch, getState) => {
+  const state = getState();
+  const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
+  const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
+
+  const viewParams = state.nglReducers.viewParams;
+
+  const currentActionList = state.trackingReducers.track_actions_list;
+  const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
+
+  let backgroundAction = orderedActionList.find(action => action.type === actionType.BACKGROUND_COLOR_CHANGED);
+  if (backgroundAction && backgroundAction.newSetting !== undefined) {
+    let value = backgroundAction.newSetting;
+    dispatch(setNglBckGrndColor(value, majorView, summaryView));
+  } else {
+    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorView, summaryView));
+  }
+
+  let clipNearAction = orderedActionList.find(action => action.type === actionType.CLIP_NEAR);
+  if (clipNearAction && clipNearAction.newSetting !== undefined) {
+    let value = clipNearAction.newSetting;
+    dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView));
+  } else {
+    dispatch(setNglClipNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipNear], viewParams[NGL_PARAMS.clipNear], majorView));
+  }
+
+  let clipFarAction = orderedActionList.find(action => action.type === actionType.CLIP_FAR);
+  if (clipFarAction && clipFarAction.newSetting !== undefined) {
+    let value = clipFarAction.newSetting;
+    dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorView));
+  } else {
+    dispatch(setNglClipFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipFar], viewParams[NGL_PARAMS.clipFar], majorView));
+  }
+
+  let clipDistAction = orderedActionList.find(action => action.type === actionType.CLIP_DIST);
+  if (clipDistAction && clipDistAction.newSetting !== undefined) {
+    let value = clipDistAction.newSetting;
+    dispatch(setNglClipDist(value, viewParams[NGL_PARAMS.clipDist], majorView));
+  } else {
+    dispatch(setNglClipDist(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipDist], viewParams[NGL_PARAMS.clipDist], majorView));
+  }
+
+  let fogNearAction = orderedActionList.find(action => action.type === actionType.FOG_NEAR);
+  if (fogNearAction && fogNearAction.newSetting !== undefined) {
+    let value = fogNearAction.newSetting;
+    dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorView));
+  } else {
+    dispatch(setNglFogNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogNear], viewParams[NGL_PARAMS.fogNear], majorView));
+  }
+
+  let fogFarAction = orderedActionList.find(action => action.type === actionType.FOG_FAR);
+  if (fogFarAction && fogFarAction.newSetting !== undefined) {
+    let value = fogFarAction.newSetting;
+    dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorView));
+  } else {
+    dispatch(setNglFogFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogFar], viewParams[NGL_PARAMS.fogFar], majorView));
   }
 };
 
@@ -1424,10 +1487,10 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleVectorAction(action, false));
         break;
       case actionType.VECTOR_COUMPOUND_ADDED:
-        dispatch(handleVectorCompoundAction(action, true));
+        dispatch(handleVectorCompoundAction(action, true, majorViewStage));
         break;
       case actionType.VECTOR_COUMPOUND_REMOVED:
-        dispatch(handleVectorCompoundAction(action, false));
+        dispatch(handleVectorCompoundAction(action, false, majorViewStage));
         break;
       case actionType.CLASS_SELECTED:
         dispatch(handleClassSelectedAction(action, true));
@@ -1916,9 +1979,7 @@ const handleChangeRepresentationAction = (action, isAdd, nglView) => (dispatch, 
 const changeMolecularRepresentation = (action, representation, type, parentKey, nglView) => (dispatch, getState) => {
   const newRepresentationType = type;
 
-  //const newRepresentationType = e.target.value;
   const oldRepresentation = JSON.parse(JSON.stringify(representation));
-  //const nglView = getNglView(objectsInView[parentKey].display_div);
   const comp = nglView.stage.getComponentsByName(parentKey).first;
 
   // add representation to NGL
@@ -2104,26 +2165,26 @@ const isActionWithinTimeLimit = (firstAction, secondAction) => {
   return diffInSeconds <= NUM_OF_SECONDS_TO_IGNORE_MERGE;
 };
 
-export const manageSendTrackingActions = (projectID, copy) => (dispatch, getState) => {
+export const manageSendTrackingActions = (projectID, copy) => async (dispatch, getState) => {
   if (copy) {
-    dispatch(checkActionsProject(projectID));
+    await dispatch(checkActionsProject(projectID));
   } else {
-    dispatch(checkSendTrackingActions(true));
+    await dispatch(checkSendTrackingActions(true));
   }
 };
 
-export const checkSendTrackingActions = (save = false) => (dispatch, getState) => {
+export const checkSendTrackingActions = (save = false) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const sendActions = state.trackingReducers.send_actions_list;
   const length = sendActions.length;
 
   if (length >= CONSTANTS.COUNT_SEND_TRACK_ACTIONS || save) {
-    dispatch(sendTrackingActions(sendActions, currentProject));
+    await dispatch(sendTrackingActions(sendActions, currentProject, true));
   }
 };
 
-const sendTrackingActions = (sendActions, project, clear = true) => async (dispatch, getState) => {
+const sendTrackingActions = (sendActions, project, clear = false) => async (dispatch, getState) => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -2170,6 +2231,8 @@ export const setProjectTrackingActions = () => (dispatch, getState) => {
 
 const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
   const state = getState();
+  const currentProject = state.projectReducers.currentProject;
+  const currentProjectID = currentProject && currentProject.projectID;
   const sendActions = state.trackingReducers.send_actions_list;
 
   if (projectID) {
@@ -2199,7 +2262,7 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
           }
         }
 
-        let projectActions = [...listToSet, ...sendActions];
+        let projectActions = currentProjectID && currentProjectID != null ? [...listToSet, ...sendActions] : listToSet;
         dispatch(setProjectActionList(projectActions));
         return Promise.resolve(projectActions);
       })
@@ -2261,7 +2324,7 @@ const checkActionsProject = projectID => async (dispatch, getState) => {
   );
 };
 
-const copyActionsToProject = (toProject, setActionList = true, clearSendList = true) => async (dispatch, getState) => {
+const copyActionsToProject = (toProject, setActionList = true, clear = false) => async (dispatch, getState) => {
   const state = getState();
   const actionList = state.trackingReducers.project_actions_list;
 
@@ -2275,7 +2338,7 @@ const copyActionsToProject = (toProject, setActionList = true, clearSendList = t
     if (setActionList === true) {
       dispatch(setActionsList(newActionsList));
     }
-    await dispatch(sendTrackingActions(newActionsList, toProject, clearSendList));
+    await dispatch(sendTrackingActions(newActionsList, toProject, clear));
   }
 };
 

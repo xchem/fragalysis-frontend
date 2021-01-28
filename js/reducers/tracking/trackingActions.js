@@ -373,7 +373,7 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
-          compoundId: action.item.compoundId,
+          compoundId: action.index,
           item: action.item,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.ADDED} ${actionDescription.TO_SHOPPING_CART}`
         };
@@ -391,7 +391,7 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           object_name: objectName,
           object_id: objectName,
-          compoundId: action.item.compoundId,
+          compoundId: action.index,
           item: action.item,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.REMOVED} ${actionDescription.FROM_SHOPPING_CART}`
         };
@@ -486,7 +486,7 @@ export const findTrackAction = (action, state) => {
           object_id: objectName,
           oldValue: oldObjectName,
           value: objectName,
-          text: `${actionDescription.CLASS} ${objectName} ${actionDescription.SELECTED}`
+          text: `${actionDescription.CLASS} ${actionDescription.CHANGED} from value: ${oldObjectName} to value: ${objectName}`
         };
       }
     } else if (action.type === previewCompoundConstants.SET_COMPOUND_CLASSES) {

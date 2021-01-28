@@ -79,3 +79,12 @@ export const MOL_REPRESENTATION = {
 };
 
 export const MOL_REPRESENTATION_BUFFER = 'buffer';
+
+export const NGL_VIEW_DEFAULT_VALUES = {
+  [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+  [NGL_PARAMS.clipNear]: 42,
+  [NGL_PARAMS.clipFar]: 100,
+  [NGL_PARAMS.clipDist]: 10,
+  [NGL_PARAMS.fogNear]: 50,
+  [NGL_PARAMS.fogFar]: 62
+};
