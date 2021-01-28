@@ -5,17 +5,16 @@ import { constants as previewCompoundConstants } from '../../components/preview/
 import { constants as selectionConstants } from '../selection/constants';
 import { constants as customDatasetConstants } from '../../components/datasets/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { NGL_PARAMS, BACKGROUND_COLOR } from '../../components/nglView/constants/index';
+import { BACKGROUND_COLOR } from '../../components/nglView/constants/index';
 
 export const findTrackAction = (action, state) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
   const isActionRestoring = state.trackingReducers.isActionRestoring;
-  const viewParams = state.nglReducers.viewParams;
 
   let trackAction = null;
   if (isActionRestoring === false && action.skipTracking !== true) {
-    if (action.type.includes(apiConstants.SET_TARGET_ON)) {
+    if (action.type === apiConstants.SET_TARGET_ON) {
       if (action.target_on) {
         let targetName = getTargetName(action.target_on, state);
         trackAction = {
@@ -29,7 +28,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.TARGET} ${targetName} ${actionDescription.LOADED}`
         };
       }
-    } else if (action.type.includes(apiConstants.SET_MOL_GROUP_ON)) {
+    } else if (action.type === apiConstants.SET_MOL_GROUP_ON) {
       if (action.mol_group_on) {
         let molGroupSelection = state.selectionReducers.mol_group_selection;
         let currentMolGroup = molGroupSelection && molGroupSelection.find(o => o === action.mol_group_on);
@@ -47,7 +46,7 @@ export const findTrackAction = (action, state) => {
           };
         }
       }
-    } else if (action.type.includes(apiConstants.SET_MOL_GROUP_OFF)) {
+    } else if (action.type === apiConstants.SET_MOL_GROUP_OFF) {
       const { mol_group_off, selectionGroups } = action;
       let molGroupName = getMolGroupName(mol_group_off, state);
       trackAction = {
@@ -60,7 +59,7 @@ export const findTrackAction = (action, state) => {
         selectionGroups,
         text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
       };
-    } else if (action.type.includes(selectionConstants.SET_OBJECT_SELECTION)) {
+    } else if (action.type === selectionConstants.SET_OBJECT_SELECTION) {
       let objectId = action.payload && action.payload[0];
       if (objectId) {
         let molGroupName = getMolGroupName(objectId, state);
@@ -170,7 +169,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType}`
         };
       }
-    } else if (action.type.includes(selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST)) {
+    } else if (action.type === selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -189,7 +188,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST)) {
+    } else if (action.type === selectionConstants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -208,7 +207,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.APPEND_PROTEIN_LIST)) {
+    } else if (action.type === selectionConstants.APPEND_PROTEIN_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -227,7 +226,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.REMOVE_FROM_PROTEIN_LIST)) {
+    } else if (action.type === selectionConstants.REMOVE_FROM_PROTEIN_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -246,7 +245,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.APPEND_COMPLEX_LIST)) {
+    } else if (action.type === selectionConstants.APPEND_COMPLEX_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -265,7 +264,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.REMOVE_FROM_COMPLEX_LIST)) {
+    } else if (action.type === selectionConstants.REMOVE_FROM_COMPLEX_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -284,7 +283,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.APPEND_SURFACE_LIST)) {
+    } else if (action.type === selectionConstants.APPEND_SURFACE_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -303,7 +302,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.REMOVE_FROM_SURFACE_LIST)) {
+    } else if (action.type === selectionConstants.REMOVE_FROM_SURFACE_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -322,7 +321,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.APPEND_VECTOR_ON_LIST)) {
+    } else if (action.type === selectionConstants.APPEND_VECTOR_ON_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -341,7 +340,7 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type.includes(selectionConstants.REMOVE_FROM_VECTOR_ON_LIST)) {
+    } else if (action.type === selectionConstants.REMOVE_FROM_VECTOR_ON_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectName = action.item.name || getMoleculeName(action.item.id, state);
@@ -358,6 +357,35 @@ export const findTrackAction = (action, state) => {
             objectName,
             target_on_name
           )}`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_ARROW_UP_DOWN) {
+      let payload = action.payload;
+
+      if (payload) {
+        let item = payload.item;
+        let newItem = payload.newItem;
+        let objectType = item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectTypeDescription =
+          item.isInspiration === true ? actionDescription.INSPIRATION : actionDescription.MOLECULE;
+        let itemName = item.name || getMoleculeName(item.id, state);
+        let newItemName = newItem.name || getMoleculeName(newItem.id, state);
+
+        trackAction = {
+          type: actionType.ARROW_NAVIGATION,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: itemName,
+          object_id: item.id,
+          newItem: newItem,
+          isLigand: payload.isLigand,
+          isProtein: payload.isProtein,
+          isComplex: payload.isComplex,
+          isSurface: payload.isSurface,
+          isVector: payload.isVector,
+          text: `${objectTypeDescription} ${actionDescription.MOVED} ${payload.arrowType} from: ${itemName} to ${newItemName}`
         };
       }
     } else if (action.type === selectionConstants.APPEND_TO_BUY_LIST) {
@@ -454,7 +482,7 @@ export const findTrackAction = (action, state) => {
         compoundId: action.payload,
         text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`
       };
-    } else if (action.type.includes(selectionConstants.SET_CURRENT_VECTOR)) {
+    } else if (action.type === selectionConstants.SET_CURRENT_VECTOR) {
       if (action.payload) {
         let objectType = actionObjectType.MOLECULE;
         let objectName = action.payload;
@@ -506,7 +534,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.CLASS} value ${actionDescription.UPDATED}: ${action.id}:${action.value}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET)) {
+    } else if (action.type === customDatasetConstants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET) {
       if (action.payload) {
         let objectType = actionObjectType.COMPOUND;
         let objectName = action.payload.moleculeTitle;
@@ -523,7 +551,7 @@ export const findTrackAction = (action, state) => {
           text: `${objectType} ${objectName} ${actionDescription.SELECTED} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET)) {
+    } else if (action.type === customDatasetConstants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET) {
       if (action.payload) {
         let objectType = actionObjectType.COMPOUND;
         let objectName = action.payload.moleculeTitle;
@@ -622,7 +650,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType} ${datasetDescription}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.APPEND_LIGAND_LIST)) {
+    } else if (action.type === customDatasetConstants.APPEND_LIGAND_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -640,7 +668,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.LIGAND} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_LIGAND_LIST)) {
+    } else if (action.type === customDatasetConstants.REMOVE_FROM_LIGAND_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -658,7 +686,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.LIGAND} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.APPEND_PROTEIN_LIST)) {
+    } else if (action.type === customDatasetConstants.APPEND_PROTEIN_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -676,7 +704,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.SIDECHAIN} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_PROTEIN_LIST)) {
+    } else if (action.type === customDatasetConstants.REMOVE_FROM_PROTEIN_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -694,7 +722,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.SIDECHAIN} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.APPEND_COMPLEX_LIST)) {
+    } else if (action.type === customDatasetConstants.APPEND_COMPLEX_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -712,7 +740,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.INTERACTION} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_COMPLEX_LIST)) {
+    } else if (action.type === customDatasetConstants.REMOVE_FROM_COMPLEX_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -730,7 +758,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.INTERACTION} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.APPEND_SURFACE_LIST)) {
+    } else if (action.type === customDatasetConstants.APPEND_SURFACE_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -748,7 +776,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.SURFACE} ${actionDescription.TURNED_ON} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type.includes(customDatasetConstants.REMOVE_FROM_SURFACE_LIST)) {
+    } else if (action.type === customDatasetConstants.REMOVE_FROM_SURFACE_LIST) {
       if (action.payload && action.payload.item) {
         let objectType =
           action.payload.item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
@@ -764,6 +792,34 @@ export const findTrackAction = (action, state) => {
           object_id: action.payload.item.id,
           dataset_id: action.payload.datasetID,
           text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.SET_ARROW_UP_DOWN) {
+      let payload = action.payload;
+
+      if (payload) {
+        let item = payload.item;
+        let newItem = payload.newItem;
+        let objectType = item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+        let objectTypeDescription =
+          item.isCrossReference === true ? actionDescription.CROSS_REFERENCE : actionDescription.COMPOUND;
+        let itemName = item.name;
+        let newItemName = newItem.name;
+
+        trackAction = {
+          type: actionType.ARROW_NAVIGATION,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: itemName,
+          object_id: item.id,
+          newItem: newItem,
+          isLigand: payload.isLigand,
+          isProtein: payload.isProtein,
+          isComplex: payload.isComplex,
+          isSurface: payload.isSurface,
+          text: `${objectTypeDescription} ${actionDescription.MOVED} ${payload.arrowType} from: ${itemName} to ${newItemName}`
         };
       }
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
@@ -800,7 +856,7 @@ export const findTrackAction = (action, state) => {
         value: value,
         text: `${objectType} ${actionDescription.VISIBILITY} of ${action.objectInViewID} ${actionDescription.CHANGED} to: ${valueDescription}`
       };
-    } else if (action.type.includes(nglConstants.UPDATE_COMPONENT_REPRESENTATION)) {
+    } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION) {
       let objectType = actionObjectType.REPRESENTATION;
       let key = action.change?.key;
       let oldValue = action.change?.oldValue;
@@ -823,7 +879,7 @@ export const findTrackAction = (action, state) => {
         change: action.change,
         text: `${objectType} '${key}' of ${action.objectInViewID} ${actionDescription.UPDATED} ${valueDescription}`
       };
-    } else if (action.type.includes(nglConstants.ADD_COMPONENT_REPRESENTATION)) {
+    } else if (action.type === nglConstants.ADD_COMPONENT_REPRESENTATION) {
       let objectType = actionObjectType.REPRESENTATION;
       let representationName = action.newRepresentation && action.newRepresentation.type;
 
@@ -838,7 +894,7 @@ export const findTrackAction = (action, state) => {
         representation: action.newRepresentation,
         text: `${objectType} '${representationName}' of ${action.objectInViewID} ${actionDescription.ADDED}`
       };
-    } else if (action.type.includes(nglConstants.REMOVE_COMPONENT_REPRESENTATION)) {
+    } else if (action.type === nglConstants.REMOVE_COMPONENT_REPRESENTATION) {
       let objectType = actionObjectType.REPRESENTATION;
       let representationName = action.representation && action.representation.type;
 
@@ -853,7 +909,7 @@ export const findTrackAction = (action, state) => {
         representation: action.representation,
         text: `${objectType} '${representationName}' of ${action.objectInViewID} ${actionDescription.REMOVED}`
       };
-    } else if (action.type.includes(nglConstants.CHANGE_COMPONENT_REPRESENTATION)) {
+    } else if (action.type === nglConstants.CHANGE_COMPONENT_REPRESENTATION) {
       let objectType = actionObjectType.REPRESENTATION;
       let oldRepresentationName = action.oldRepresentation && action.oldRepresentation.type;
       let newRepresentationName = action.newRepresentation && action.newRepresentation.type;
@@ -870,7 +926,7 @@ export const findTrackAction = (action, state) => {
         newRepresentation: action.newRepresentation,
         text: `${objectType} of ${action.objectInViewID} ${actionDescription.CHANGED} from value: ${oldRepresentationName} to value: ${newRepresentationName}`
       };
-    } else if (action.type.includes(nglConstants.SET_BACKGROUND_COLOR)) {
+    } else if (action.type === nglConstants.SET_BACKGROUND_COLOR) {
       let oldSetting = action.payload === BACKGROUND_COLOR.white ? BACKGROUND_COLOR.black : BACKGROUND_COLOR.white;
       let newSetting = action.payload;
 
@@ -885,7 +941,7 @@ export const findTrackAction = (action, state) => {
         newSetting: newSetting,
         text: `Color of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
-    } else if (action.type.includes(nglConstants.SET_CLIP_NEAR)) {
+    } else if (action.type === nglConstants.SET_CLIP_NEAR) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -911,7 +967,7 @@ export const findTrackAction = (action, state) => {
         },
         text: `Clip near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
-    } else if (action.type.includes(nglConstants.SET_CLIP_FAR)) {
+    } else if (action.type === nglConstants.SET_CLIP_FAR) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -937,7 +993,7 @@ export const findTrackAction = (action, state) => {
         },
         text: `Clip far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
-    } else if (action.type.includes(nglConstants.SET_CLIP_DIST)) {
+    } else if (action.type === nglConstants.SET_CLIP_DIST) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -963,7 +1019,7 @@ export const findTrackAction = (action, state) => {
         },
         text: `Clip dist of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
-    } else if (action.type.includes(nglConstants.SET_FOG_NEAR)) {
+    } else if (action.type === nglConstants.SET_FOG_NEAR) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -989,7 +1045,7 @@ export const findTrackAction = (action, state) => {
         },
         text: `For near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
       };
-    } else if (action.type.includes(nglConstants.SET_FOG_FAR)) {
+    } else if (action.type === nglConstants.SET_FOG_FAR) {
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 

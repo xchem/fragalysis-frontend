@@ -5,13 +5,11 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward, FormatListBulletedTwoTone, FormatListBulletedSharp, FormatListNumbered } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS } from '../../../constants/constants';
-import { loadFromServer } from '../../../utils/genericView';
+import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import {
   addVector,
   removeVector,
@@ -28,14 +26,14 @@ import {
   searchMoleculeGroupByMoleculeID,
   getMolImage
 } from './redux/dispatchActions';
-import { setSelectedAll, setDeselectedAll } from '../../../reducers/selection/actions';
+import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
-import {MOL_TYPE} from './redux/constants';
+import { MOL_TYPE } from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -210,7 +208,11 @@ const MoleculeView = memo(
     previousItemData,
     nextItemData,
     removeOfAllSelectedTypes,
-    L, P, C, S, V,
+    L,
+    P,
+    C,
+    S,
+    V,
     selectMoleculeSite
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
@@ -498,30 +500,30 @@ const MoleculeView = memo(
       return cssClass;
     };
 
-    const moveSelectedMolSettings = newItemDataset => {
+    const moveSelectedMolSettings = (newItemDataset, skipTracking) => {
       if (newItemDataset) {
         if (isLigandOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND);
-          dispatch(addLigand(stage, newItemDataset, colourToggle, false, representations));
+          dispatch(addLigand(stage, newItemDataset, colourToggle, false, skipTracking, representations));
         }
         if (isProteinOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.HIT_PROTEIN);
-          dispatch(addHitProtein(stage, newItemDataset, colourToggle, representations));
+          dispatch(addHitProtein(stage, newItemDataset, colourToggle, skipTracking, representations));
         }
         if (isComplexOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX);
-          dispatch(addComplex(stage, newItemDataset, colourToggle, representations));
+          dispatch(addComplex(stage, newItemDataset, colourToggle, skipTracking, representations));
         }
         if (isSurfaceOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE);
-          dispatch(addSurface(stage, newItemDataset, colourToggle, representations));
+          dispatch(addSurface(stage, newItemDataset, colourToggle, skipTracking, representations));
         }
         // if (isDensityOn) {
         //   let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.DENSITY);
         //   dispatch(addDensity(stage, newItemDataset, colourToggle, representations));
         // }
         if (isVectorOn) {
-          dispatch(addVector(stage, newItemDataset)).catch(error => {
+          dispatch(addVector(stage, newItemDataset, skipTracking)).catch(error => {
             throw new Error(error);
           });
         }
@@ -540,16 +542,40 @@ const MoleculeView = memo(
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
 
-      removeOfAllSelectedTypes();
-      moveSelectedMolSettings(nextItemData);
+      removeOfAllSelectedTypes(true);
+      moveSelectedMolSettings(nextItemData, true);
+      dispatch(
+        setArrowUpDown(
+          data,
+          nextItemData,
+          ARROW_TYPE.DOWN,
+          isLigandOn,
+          isProteinOn,
+          isComplexOn,
+          isSurfaceOn,
+          isVectorOn
+        )
+      );
     };
 
     const handleClickOnUpArrow = () => {
       const refPrevious = ref.current.previousSibling;
       scrollToElement(refPrevious);
 
-      removeOfAllSelectedTypes();
-      moveSelectedMolSettings(previousItemData);
+      removeOfAllSelectedTypes(true);
+      moveSelectedMolSettings(previousItemData, true);
+      dispatch(
+        setArrowUpDown(
+          data,
+          previousItemData,
+          ARROW_TYPE.UP,
+          isLigandOn,
+          isProteinOn,
+          isComplexOn,
+          isSurfaceOn,
+          isVectorOn
+        )
+      );
     };
 
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');

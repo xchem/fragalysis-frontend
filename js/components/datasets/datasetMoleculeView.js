@@ -8,7 +8,7 @@ import { Grid, Button, makeStyles, Tooltip, Checkbox, IconButton } from '@materi
 import { ClearOutlined, CheckOutlined } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS } from '../../constants/constants';
+import { VIEWS, ARROW_TYPE } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
@@ -24,18 +24,16 @@ import {
   getDatasetMoleculeID
 } from './redux/dispatchActions';
 
-import { base_url } from '../routes/constants';
-import { api } from '../../utils/api';
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog,
-  setInspirationFragmentList,
   setInspirationMoleculeDataList,
   setSelectedAll,
-  setDeselectedAll
+  setDeselectedAll,
+  setArrowUpDown
 } from './redux/actions';
 import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
@@ -262,7 +260,11 @@ export const DatasetMoleculeView = memo(
     removeOfAllSelectedTypes,
     removeOfAllSelectedTypesOfInspirations,
     moveSelectedMoleculeInspirationsSettings,
-    L, P, C, S, V
+    L,
+    P,
+    C,
+    S,
+    V
   }) => {
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || undefined;
@@ -319,18 +321,7 @@ export const DatasetMoleculeView = memo(
       dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageHeight, imageWidth)).then(i => {
         setImage(i);
       });
-    }, [
-      C,
-      currentID,
-      data,
-      L,
-      imageHeight,
-      imageWidth,
-      data.smiles,
-      data.id,
-      filteredDatasetMoleculeList,
-      dispatch
-    ]);
+    }, [C, currentID, data, L, imageHeight, imageWidth, data.smiles, data.id, filteredDatasetMoleculeList, dispatch]);
 
     const svg_image = (
       <SVGInline
@@ -486,23 +477,31 @@ export const DatasetMoleculeView = memo(
       return cssClass;
     };
 
-    const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule) => {
+    const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule, skipTracking) => {
       if (newItemData) {
         if (isLigandOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND, datasetID);
-          dispatch(addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
+          dispatch(
+            addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          );
         }
         if (isProteinOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.PROTEIN, datasetID);
-          dispatch(addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
+          dispatch(
+            addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          );
         }
         if (isComplexOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX, datasetID);
-          dispatch(addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
+          dispatch(
+            addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          );
         }
         if (isSurfaceOn) {
           let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE, datasetID);
-          dispatch(addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule, representations));
+          dispatch(
+            addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          );
         }
       }
     };
@@ -518,7 +517,11 @@ export const DatasetMoleculeView = memo(
     const getInspirationsForMol = (datasetId, molId) => {
       let inspirations = [];
 
-      if (allInspirations && allInspirations.hasOwnProperty(datasetId) && allInspirations[datasetId].hasOwnProperty(molId)) {
+      if (
+        allInspirations &&
+        allInspirations.hasOwnProperty(datasetId) &&
+        allInspirations[datasetId].hasOwnProperty(molId)
+      ) {
         inspirations = allInspirations[datasetId][molId];
       }
 
@@ -529,8 +532,8 @@ export const DatasetMoleculeView = memo(
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
 
-      removeOfAllSelectedTypes();
-      removeOfAllSelectedTypesOfInspirations();
+      removeOfAllSelectedTypes(true);
+      removeOfAllSelectedTypesOfInspirations(true);
 
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
@@ -538,20 +541,22 @@ export const DatasetMoleculeView = memo(
 
       const inspirations = getInspirationsForMol(datasetID, nextItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      moveSelectedMoleculeSettings(nextItem, nextDatasetID);
-      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem));
+      moveSelectedMoleculeSettings(nextItem, nextDatasetID, true);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, true));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
       }
+
+      dispatch(setArrowUpDown(data, nextItemData, ARROW_TYPE.DOWN, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn));
     };
 
     const handleClickOnUpArrow = () => {
       const refPrevious = ref.current.previousSibling;
       scrollToElement(refPrevious);
 
-      removeOfAllSelectedTypes();
-      removeOfAllSelectedTypesOfInspirations();
+      removeOfAllSelectedTypes(true);
+      removeOfAllSelectedTypesOfInspirations(true);
 
       const previousItem =
         (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
@@ -561,12 +566,16 @@ export const DatasetMoleculeView = memo(
 
       const inspirations = getInspirationsForMol(datasetID, previousItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      moveSelectedMoleculeSettings(previousItem, previousDatasetID);
-      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem));
+      moveSelectedMoleculeSettings(previousItem, previousDatasetID, true);
+      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, true));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);
       }
+
+      dispatch(
+        setArrowUpDown(data, previousItemData, ARROW_TYPE.UP, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn)
+      );
     };
 
     const moleculeTitle = data && data.name;
