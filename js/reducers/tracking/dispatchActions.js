@@ -621,6 +621,9 @@ export const resetRestoringState = () => (dispatch, getState) => {
 
 export const restoreCurrentActionsList = snapshotID => async (dispatch, getState) => {
   dispatch(resetTrackingState());
+  dispatch(resetTargetState());
+  dispatch(setTargetOn(undefined));
+
   dispatch(setIsActionsRestoring(true, false));
 
   await dispatch(restoreTrackingActions(snapshotID));
