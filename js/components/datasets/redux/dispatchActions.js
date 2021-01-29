@@ -693,6 +693,20 @@ export const removeAllSelectedDatasetMolecules = (stage, skipTracking) => (dispa
   }
 };
 
+export const getInspirationsForMol = (allInspirations, datasetId, molId) => {
+  let inspirations = [];
+
+  if (
+    allInspirations &&
+    allInspirations.hasOwnProperty(datasetId) &&
+    allInspirations[datasetId].hasOwnProperty(molId)
+  ) {
+    inspirations = allInspirations[datasetId][molId];
+  }
+
+  return inspirations;
+};
+
 export const moveMoleculeInspirationsSettings = (
   data,
   newItemData,
@@ -801,6 +815,95 @@ const moveInspirations = (
         }
       }
     });
+  }
+};
+
+export const moveSelectedInspirations = (
+  stage,
+  objectsInView,
+  fragmentDisplayListMolecule,
+  proteinListMolecule,
+  complexListMolecule,
+  surfaceListMolecule,
+  vectorOnListMolecule,
+  skipTracking
+) => (dispatch, getState) => {
+  const state = getState();
+  const molecules = state.datasetsReducers.inspirationMoleculeDataList;
+  if (molecules) {
+    molecules.forEach(molecule => {
+      if (molecule) {
+        if (fragmentDisplayListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
+          dispatch(
+            addLigand(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              false,
+              skipTracking,
+              representations
+            )
+          );
+        }
+        if (proteinListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
+          dispatch(
+            addHitProtein(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (complexListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
+          dispatch(
+            addComplex(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (surfaceListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
+          dispatch(
+            addSurface(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (vectorOnListMolecule.includes(molecule.id)) {
+          dispatch(addVector(stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        }
+      }
+    });
+  }
+};
+
+export const moveSelectedMoleculeSettings = (
+  stage,
+  item,
+  newItem,
+  datasetIdOfMolecule,
+  datasetID,
+  data,
+  skipTracking
+) => (dispatch, getState) => {
+  if (newItem && data) {
+    if (data.isLigandOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND, datasetID);
+      dispatch(addDatasetLigand(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations));
+    }
+    if (data.isProteinOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.PROTEIN, datasetID);
+      dispatch(
+        addDatasetHitProtein(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+      );
+    }
+    if (data.isComplexOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX, datasetID);
+      dispatch(
+        addDatasetComplex(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+      );
+    }
+    if (data.isSurfaceOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE, datasetID);
+      dispatch(
+        addDatasetSurface(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+      );
+    }
   }
 };
 

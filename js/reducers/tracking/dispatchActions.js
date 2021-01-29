@@ -7,7 +7,7 @@ import {
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, setHideAll } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, setHideAll, setArrowUpDown } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -31,7 +31,10 @@ import {
   removeLigand,
   removeHitProtein,
   removeSurface,
-  removeVector
+  removeVector,
+  moveSelectedMolSettings,
+  removeAllSelectedMolTypes,
+  hideAllSelectedMolecules
 } from '../../components/preview/molecule/redux/dispatchActions';
 import {
   handleBuyList,
@@ -50,7 +53,12 @@ import {
   removeDatasetHitProtein,
   removeDatasetSurface,
   loadDataSets,
-  loadDatasetCompoundsWithScores
+  loadDatasetCompoundsWithScores,
+  removeAllSelectedDatasetMolecules,
+  moveSelectedMoleculeSettings,
+  moveSelectedInspirations,
+  moveMoleculeInspirationsSettings,
+  getInspirationsForMol
 } from '../../components/datasets/redux/dispatchActions';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
@@ -110,7 +118,10 @@ import {
   setSelectedAll as setSelectedAllOfDataset,
   setDeselectedAll as setDeselectedAllOfDataset,
   setSelectedAllByType as setSelectedAllByTypeOfDataset,
-  setDeselectedAllByType as setDeselectedAllByTypeOfDataset
+  setDeselectedAllByType as setDeselectedAllByTypeOfDataset,
+  setArrowUpDown as setArrowUpDownOfDataset,
+  setCrossReferenceCompoundName,
+  setInspirationMoleculeDataList
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
 
@@ -1334,6 +1345,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
+      case actionType.ARROW_NAVIGATION:
+        dispatch(handleArrowNavigationAction(action, false, majorViewStage));
+        break;
       case actionType.VECTOR_SELECTED:
         dispatch(handleVectorAction(action, false));
         break;
@@ -1476,6 +1490,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
+        break;
+      case actionType.ARROW_NAVIGATION:
+        dispatch(handleArrowNavigationAction(action, true, majorViewStage));
         break;
       case actionType.VECTOR_SELECTED:
         dispatch(handleVectorAction(action, true));
@@ -1997,6 +2014,97 @@ const changeMolecularRepresentation = (action, representation, type, parentKey, 
   dispatch(removeRepresentation(action, parentKey, representation, nglView, true));
 
   dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
+};
+
+const handleArrowNavigationAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  if (action) {
+    let isSelection =
+      action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION;
+
+    if (isSelection === true) {
+      dispatch(handleArrowNavigationActionOfMolecule(action, isSelected, majorViewStage));
+    } else {
+      dispatch(handleArrowNavigationActionOfCompound(action, isSelected, majorViewStage));
+    }
+  }
+};
+
+const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let molecules = state.apiReducers.allMolecules;
+    let item = isSelected === true ? action.item : action.newItem;
+    let newItem = isSelected === true ? action.newItem : action.item;
+    let data = action.data;
+
+    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, true));
+    dispatch(moveSelectedMolSettings(majorViewStage, item, newItem, data, true));
+    dispatch(setArrowUpDown(item, newItem, action.arrowType, data));
+  }
+};
+
+const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    const molecules = state.apiReducers.allMolecules;
+    const allInspirations = state.datasetsReducers.allInspirations;
+
+    let data = action.data;
+    let item = isSelected === true ? action.item : action.newItem;
+    let newItem = isSelected === true ? action.newItem : action.item;
+    let datasetID = action.datasetID;
+
+    const proteinListMolecule = data.proteinList;
+    const complexListMolecule = data.complexList;
+    const fragmentDisplayListMolecule = data.fragmentDisplayList;
+    const surfaceListMolecule = data.surfaceList;
+    const densityListMolecule = data.surfaceList;
+    const vectorOnListMolecule = data.vectorOnList;
+
+    dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
+    dispatch(removeAllSelectedDatasetMolecules(majorViewStage, true));
+
+    const newDatasetID = (newItem.hasOwnProperty('datasetID') && newItem.datasetID) || datasetID;
+    const moleculeTitlePrev = newItem && newItem.name;
+
+    const inspirations = getInspirationsForMol(allInspirations, datasetID, newItem.id);
+    dispatch(setInspirationMoleculeDataList(inspirations));
+    dispatch(moveSelectedMoleculeSettings(majorViewStage, item, newItem, newDatasetID, datasetID, data, true));
+
+    if (isSelected === true) {
+      dispatch(
+        moveMoleculeInspirationsSettings(
+          item,
+          newItem,
+          majorViewStage,
+          data.objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          densityListMolecule,
+          vectorOnListMolecule,
+          true
+        )
+      );
+    } else {
+      dispatch(
+        moveSelectedInspirations(
+          majorViewStage,
+          data.objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          vectorOnListMolecule,
+          true
+        )
+      );
+    }
+
+    dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+    dispatch(setArrowUpDownOfDataset(datasetID, item, newItem, action.arrowType, data));
+  }
 };
 
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {

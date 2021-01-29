@@ -369,15 +369,13 @@ export const setDeselectedAllByType = (type, datsetID, items, isCrossReference) 
   }
 });
 
-export const setArrowUpDown = (item, newItem, arrowType, isLigand, isProtein, isComplex, isSurface) => ({
+export const setArrowUpDown = (datasetID, item, newItem, arrowType, data) => ({
   type: constants.SET_ARROW_UP_DOWN,
   payload: {
+    datasetID,
     item: item,
     newItem: newItem,
     arrowType: arrowType,
-    isLigand: isLigand,
-    isProtein: isProtein,
-    isComplex: isComplex,
-    isSurface: isSurface
+    data
   }
 });

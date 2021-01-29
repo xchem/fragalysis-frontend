@@ -286,16 +286,12 @@ export const setHideAll = (data, isHide = true) => ({
   data: data
 });
 
-export const setArrowUpDown = (item, newItem, arrowType, isLigand, isProtein, isComplex, isSurface, isVector) => ({
+export const setArrowUpDown = (item, newItem, arrowType, data) => ({
   type: constants.SET_ARROW_UP_DOWN,
   payload: {
     item: item,
     newItem: newItem,
     arrowType: arrowType,
-    isLigand: isLigand,
-    isProtein: isProtein,
-    isComplex: isComplex,
-    isSurface: isSurface,
-    isVector: isVector
+    data
   }
 });

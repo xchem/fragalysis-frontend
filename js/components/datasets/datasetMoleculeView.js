@@ -21,7 +21,9 @@ import {
   addDatasetSurface,
   removeDatasetSurface,
   clickOnInspirations,
-  getDatasetMoleculeID
+  getDatasetMoleculeID,
+  moveSelectedMoleculeSettings,
+  getInspirationsForMol
 } from './redux/dispatchActions';
 
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
@@ -39,8 +41,6 @@ import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isString } from 'lodash';
 import { SvgTooltip } from '../common';
-import { OBJECT_TYPE } from '../nglView/constants';
-import { getRepresentationsByType } from '../nglView/generatingObjects';
 import { getMolImage } from '../preview/molecule/redux/dispatchActions';
 import { MOL_TYPE } from '../preview/molecule/redux/constants';
 
@@ -477,35 +477,6 @@ export const DatasetMoleculeView = memo(
       return cssClass;
     };
 
-    const moveSelectedMoleculeSettings = (newItemData, datasetIdOfMolecule, skipTracking) => {
-      if (newItemData) {
-        if (isLigandOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND, datasetID);
-          dispatch(
-            addDatasetLigand(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
-          );
-        }
-        if (isProteinOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.PROTEIN, datasetID);
-          dispatch(
-            addDatasetHitProtein(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
-          );
-        }
-        if (isComplexOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX, datasetID);
-          dispatch(
-            addDatasetComplex(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
-          );
-        }
-        if (isSurfaceOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE, datasetID);
-          dispatch(
-            addDatasetSurface(stage, newItemData, colourToggle, datasetIdOfMolecule, skipTracking, representations)
-          );
-        }
-      }
-    };
-
     const scrollToElement = element => {
       element.scrollIntoView({
         behavior: 'auto',
@@ -514,49 +485,33 @@ export const DatasetMoleculeView = memo(
       });
     };
 
-    const getInspirationsForMol = (datasetId, molId) => {
-      let inspirations = [];
-
-      if (
-        allInspirations &&
-        allInspirations.hasOwnProperty(datasetId) &&
-        allInspirations[datasetId].hasOwnProperty(molId)
-      ) {
-        inspirations = allInspirations[datasetId][molId];
-      }
-
-      return inspirations;
-    };
-
     const handleClickOnDownArrow = () => {
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
-
-      removeOfAllSelectedTypes(true);
-      removeOfAllSelectedTypesOfInspirations(true);
 
       const nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
       const moleculeTitleNext = nextItem && nextItem.name;
 
-      const inspirations = getInspirationsForMol(datasetID, nextItem.id);
+      let dataValue = { objectsInView, colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+      dispatch(setArrowUpDown(datasetID, data, nextItem, ARROW_TYPE.DOWN, dataValue));
+
+      removeOfAllSelectedTypes(true);
+      removeOfAllSelectedTypesOfInspirations(true);
+
+      const inspirations = getInspirationsForMol(allInspirations, datasetID, nextItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      moveSelectedMoleculeSettings(nextItem, nextDatasetID, true);
+      dispatch(moveSelectedMoleculeSettings(stage, data, nextItem, nextDatasetID, datasetID, dataValue, true));
       dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, true));
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
       }
-
-      dispatch(setArrowUpDown(data, nextItemData, ARROW_TYPE.DOWN, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn));
     };
 
     const handleClickOnUpArrow = () => {
       const refPrevious = ref.current.previousSibling;
       scrollToElement(refPrevious);
-
-      removeOfAllSelectedTypes(true);
-      removeOfAllSelectedTypesOfInspirations(true);
 
       const previousItem =
         (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
@@ -564,18 +519,21 @@ export const DatasetMoleculeView = memo(
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
       const moleculeTitlePrev = previousItem && previousItem.name;
 
-      const inspirations = getInspirationsForMol(datasetID, previousItem.id);
+      let dataValue = { objectsInView, colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+      dispatch(setArrowUpDown(datasetID, data, previousItem, ARROW_TYPE.UP, dataValue));
+
+      removeOfAllSelectedTypes(true);
+      removeOfAllSelectedTypesOfInspirations(true);
+
+      const inspirations = getInspirationsForMol(allInspirations, datasetID, previousItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      moveSelectedMoleculeSettings(previousItem, previousDatasetID, true);
+      dispatch(moveSelectedMoleculeSettings(stage, data, previousItem, previousDatasetID, datasetID, dataValue, true));
+
       dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, true));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);
       }
-
-      dispatch(
-        setArrowUpDown(data, previousItemData, ARROW_TYPE.UP, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn)
-      );
     };
 
     const moleculeTitle = data && data.name;
@@ -764,7 +722,7 @@ export const DatasetMoleculeView = memo(
                             clickOnInspirations({
                               datasetID,
                               currentID,
-                              computed_inspirations: getInspirationsForMol(datasetID, currentID)
+                              computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
                             })
                           );
                           if (setRef) {

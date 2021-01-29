@@ -18,7 +18,7 @@ import {
   ButtonGroup
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -45,7 +45,8 @@ import {
   removeLigand,
   hideAllSelectedMolecules,
   initializeMolecules,
-  applyDirectSelection
+  applyDirectSelection,
+  removeAllSelectedMolTypes
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
@@ -58,7 +59,7 @@ import { getUrl, loadAllMolsFromMolGroup } from '../../../utils/genericList';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
-import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
+import { setMoleculeList, setAllMolLists, setAllMolecules } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/selection/actions';
@@ -386,10 +387,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       Promise.all(promises)
         .then(results => {
           let listToSet = {};
+          let allMolecules = [];
           results.forEach(molResult => {
             listToSet[molResult.mol_group] = molResult.molecules;
+            allMolecules.push(...molResult.molecules);
           });
           dispatch(setAllMolLists(listToSet));
+          dispatch(setAllMolecules(allMolecules));
         })
         .catch(err => console.log(err));
     }
@@ -569,44 +573,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const removeOfAllSelectedTypes = (skipTracking = false) => {
     let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-
-    proteinList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(
-        removeHitProtein(
-          majorViewStage,
-          foundedMolecule,
-          colourList[foundedMolecule.id % colourList.length],
-          skipTracking
-        )
-      );
-    });
-    complexList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(
-        removeComplex(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-      );
-    });
-    fragmentDisplayList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeLigand(majorViewStage, foundedMolecule, skipTracking));
-    });
-    surfaceList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(
-        removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-      );
-    });
-    densityList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(
-        removeDensity(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-      );
-    });
-    vectorOnList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeVector(majorViewStage, foundedMolecule, skipTracking));
-    });
+    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking));
   };
 
   const selectMoleculeSite = moleculeGroupSite => {

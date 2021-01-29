@@ -24,15 +24,14 @@ import {
   addLigand,
   removeLigand,
   searchMoleculeGroupByMoleculeID,
-  getMolImage
+  getMolImage,
+  moveSelectedMolSettings
 } from './redux/dispatchActions';
 import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
-import { OBJECT_TYPE } from '../../nglView/constants';
-import { getRepresentationsByType } from '../../nglView/generatingObjects';
 import { MOL_TYPE } from './redux/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -500,36 +499,6 @@ const MoleculeView = memo(
       return cssClass;
     };
 
-    const moveSelectedMolSettings = (newItemDataset, skipTracking) => {
-      if (newItemDataset) {
-        if (isLigandOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.LIGAND);
-          dispatch(addLigand(stage, newItemDataset, colourToggle, false, skipTracking, representations));
-        }
-        if (isProteinOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.HIT_PROTEIN);
-          dispatch(addHitProtein(stage, newItemDataset, colourToggle, skipTracking, representations));
-        }
-        if (isComplexOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.COMPLEX);
-          dispatch(addComplex(stage, newItemDataset, colourToggle, skipTracking, representations));
-        }
-        if (isSurfaceOn) {
-          let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.SURFACE);
-          dispatch(addSurface(stage, newItemDataset, colourToggle, skipTracking, representations));
-        }
-        // if (isDensityOn) {
-        //   let representations = getRepresentationsByType(objectsInView, data, OBJECT_TYPE.DENSITY);
-        //   dispatch(addDensity(stage, newItemDataset, colourToggle, representations));
-        // }
-        if (isVectorOn) {
-          dispatch(addVector(stage, newItemDataset, skipTracking)).catch(error => {
-            throw new Error(error);
-          });
-        }
-      }
-    };
-
     const scrollToElement = element => {
       element.scrollIntoView({
         behavior: 'auto',
@@ -542,40 +511,36 @@ const MoleculeView = memo(
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
 
+      let dataValue = {
+        isLigandOn: isLigandOn,
+        isProteinOn: isProteinOn,
+        isComplexOn: isComplexOn,
+        isSurfaceOn: isSurfaceOn,
+        isVectorOn: isVectorOn,
+        objectsInView: objectsInView,
+        colourToggle: colourToggle
+      };
       removeOfAllSelectedTypes(true);
-      moveSelectedMolSettings(nextItemData, true);
-      dispatch(
-        setArrowUpDown(
-          data,
-          nextItemData,
-          ARROW_TYPE.DOWN,
-          isLigandOn,
-          isProteinOn,
-          isComplexOn,
-          isSurfaceOn,
-          isVectorOn
-        )
-      );
+      dispatch(moveSelectedMolSettings(stage, data, nextItemData, dataValue, true));
+      dispatch(setArrowUpDown(data, nextItemData, ARROW_TYPE.DOWN, dataValue));
     };
 
     const handleClickOnUpArrow = () => {
       const refPrevious = ref.current.previousSibling;
       scrollToElement(refPrevious);
 
+      let dataValue = {
+        isLigandOn: isLigandOn,
+        isProteinOn: isProteinOn,
+        isComplexOn: isComplexOn,
+        isSurfaceOn: isSurfaceOn,
+        isVectorOn: isVectorOn,
+        objectsInView: objectsInView,
+        colourToggle: colourToggle
+      };
       removeOfAllSelectedTypes(true);
-      moveSelectedMolSettings(previousItemData, true);
-      dispatch(
-        setArrowUpDown(
-          data,
-          previousItemData,
-          ARROW_TYPE.UP,
-          isLigandOn,
-          isProteinOn,
-          isComplexOn,
-          isSurfaceOn,
-          isVectorOn
-        )
-      );
+      dispatch(moveSelectedMolSettings(stage, data, previousItemData, dataValue, true));
+      dispatch(setArrowUpDown(data, previousItemData, ARROW_TYPE.UP, dataValue));
     };
 
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');

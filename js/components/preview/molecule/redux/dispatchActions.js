@@ -44,9 +44,11 @@ import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
-import { setDirectAccess, setDirectAccessProcessed } from '../../../../reducers/api/actions';
+import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
 import { addImageToCache } from './actions';
+import { OBJECT_TYPE } from '../../../nglView/constants';
+import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -365,7 +367,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   const vectorOnList = state.selectionReducers.vectorOnList;
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
-  const vectorList = state.selectionReducers.vector_list;
 
   let ligandDataList = [];
   let complexDataList = [];
@@ -430,6 +431,74 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   if (isHideAll === true) {
     dispatch(setHideAll(data));
   }
+};
+
+export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking) => (dispatch, getState) => {
+  if (newItem && data) {
+    if (data.isLigandOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND);
+      dispatch(addLigand(stage, newItem, data.colourToggle, false, skipTracking, representations));
+    }
+    if (data.isProteinOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);
+      dispatch(addHitProtein(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isComplexOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX);
+      dispatch(addComplex(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isSurfaceOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE);
+      dispatch(addSurface(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isVectorOn) {
+      dispatch(addVector(stage, newItem, skipTracking)).catch(error => {
+        throw new Error(error);
+      });
+    }
+  }
+};
+
+export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTracking = false) => (dispatch, getState) => {
+  const state = getState();
+  const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
+  const complexList = state.selectionReducers.complexList;
+  const vectorOnList = state.selectionReducers.vectorOnList;
+  const surfaceList = state.selectionReducers.surfaceList;
+  const proteinList = state.selectionReducers.proteinList;
+  let joinedMoleculeLists = molecules;
+
+  proteinList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(
+      removeHitProtein(
+        majorViewStage,
+        foundedMolecule,
+        colourList[foundedMolecule.id % colourList.length],
+        skipTracking
+      )
+    );
+  });
+  complexList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(
+      removeComplex(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
+  fragmentDisplayList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(removeLigand(majorViewStage, foundedMolecule, skipTracking));
+  });
+  surfaceList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(
+      removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
+  vectorOnList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(removeVector(majorViewStage, foundedMolecule, skipTracking));
+  });
 };
 
 // export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>

@@ -361,15 +361,14 @@ export const findTrackAction = (action, state) => {
       }
     } else if (action.type === selectionConstants.SET_ARROW_UP_DOWN) {
       let payload = action.payload;
-
       if (payload) {
         let item = payload.item;
         let newItem = payload.newItem;
-        let objectType = item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectType = item && item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let objectTypeDescription =
-          item.isInspiration === true ? actionDescription.INSPIRATION : actionDescription.MOLECULE;
-        let itemName = item.name || getMoleculeName(item.id, state);
-        let newItemName = newItem.name || getMoleculeName(newItem.id, state);
+          item && item.isInspiration === true ? actionDescription.INSPIRATION : actionDescription.MOLECULE;
+        let itemName = item?.name || getMoleculeName(item?.id, state);
+        let newItemName = newItem?.name || getMoleculeName(newItem?.id, state);
 
         trackAction = {
           type: actionType.ARROW_NAVIGATION,
@@ -378,14 +377,12 @@ export const findTrackAction = (action, state) => {
           username: username,
           object_type: objectType,
           object_name: itemName,
-          object_id: item.id,
+          object_id: item?.id,
+          item: item,
           newItem: newItem,
-          isLigand: payload.isLigand,
-          isProtein: payload.isProtein,
-          isComplex: payload.isComplex,
-          isSurface: payload.isSurface,
-          isVector: payload.isVector,
-          text: `${objectTypeDescription} ${actionDescription.MOVED} ${payload.arrowType} from: ${itemName} to ${newItemName}`
+          data: payload.data,
+          arrowType: payload.arrowType,
+          text: `${objectTypeDescription} ${actionDescription.MOVED} from: ${itemName} to ${newItemName}`
         };
       }
     } else if (action.type === selectionConstants.APPEND_TO_BUY_LIST) {
@@ -796,15 +793,28 @@ export const findTrackAction = (action, state) => {
       }
     } else if (action.type === customDatasetConstants.SET_ARROW_UP_DOWN) {
       let payload = action.payload;
-
       if (payload) {
+        const proteinList = state.selectionReducers.proteinList;
+        const complexList = state.selectionReducers.complexList;
+        const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
+        const surfaceList = state.selectionReducers.surfaceList;
+        const densityList = state.selectionReducers.densityList;
+        const vectorOnList = state.selectionReducers.vectorOnList;
+
         let item = payload.item;
         let newItem = payload.newItem;
-        let objectType = item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
+        let objectType =
+          item && item.isCrossReference === true ? actionObjectType.CROSS_REFERENCE : actionObjectType.COMPOUND;
         let objectTypeDescription =
-          item.isCrossReference === true ? actionDescription.CROSS_REFERENCE : actionDescription.COMPOUND;
-        let itemName = item.name;
-        let newItemName = newItem.name;
+          item && item.isCrossReference === true ? actionDescription.CROSS_REFERENCE : actionDescription.COMPOUND;
+        let itemId = item?.id;
+        let itemName = item?.name;
+        let newItemName = newItem?.name;
+
+        let data = Object.assign(
+          { proteinList, complexList, fragmentDisplayList, surfaceList, densityList, vectorOnList },
+          payload.data
+        );
 
         trackAction = {
           type: actionType.ARROW_NAVIGATION,
@@ -813,13 +823,13 @@ export const findTrackAction = (action, state) => {
           username: username,
           object_type: objectType,
           object_name: itemName,
-          object_id: item.id,
+          object_id: itemId,
+          datasetID: payload.datasetID,
+          item: item,
           newItem: newItem,
-          isLigand: payload.isLigand,
-          isProtein: payload.isProtein,
-          isComplex: payload.isComplex,
-          isSurface: payload.isSurface,
-          text: `${objectTypeDescription} ${actionDescription.MOVED} ${payload.arrowType} from: ${itemName} to ${newItemName}`
+          data: data,
+          arrowType: payload.arrowType,
+          text: `${objectTypeDescription} ${actionDescription.MOVED} from: ${itemName} to ${newItemName}`
         };
       }
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
