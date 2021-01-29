@@ -377,3 +377,16 @@ export const getListOfSelectedComplexOfAllDatasets = state => {
 
   return [...resultSet];
 };
+
+export const getListOfSelectedSurfaceOfAllDatasets = state => {
+  let resultSet = new Set();
+  const complexesDatasetMap = state.datasetsReducers.surfaceLists;
+  Object.keys(complexesDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = complexesDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};
