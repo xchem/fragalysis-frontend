@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Modal from '../common/Modal';
 import { Grid, makeStyles, IconButton, Tooltip } from '@material-ui/core';
@@ -33,6 +33,7 @@ const useStyles = makeStyles(theme => ({
 export const TrackingModal = memo(({ openModal, onModalClose }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const bottomRef = useRef();
 
   const actionList = useSelector(state => state.trackingReducers.project_actions_list);
   const orderedActionList = (actionList && actionList.sort((a, b) => a.timestamp - b.timestamp)) || [];
@@ -42,6 +43,16 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
       dispatch(setProjectTrackingActions());
     }
   }, [dispatch, openModal]);
+
+  const scrollToBottom = () => {
+    if (bottomRef.current != null) {
+      bottomRef.current.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  };
 
   useEffect(() => {
     loadAllActions();
@@ -79,6 +90,12 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
                     }
                   })}
               </Timeline>
+              <div
+                ref={el => {
+                  bottomRef.current = el;
+                  scrollToBottom();
+                }}
+              ></div>
             </div>
           </div>
         </Grid>
