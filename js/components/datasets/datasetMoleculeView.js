@@ -296,7 +296,7 @@ export const DatasetMoleculeView = memo(
 
     const isCheckedToBuy = (currentID && compoundsToBuyList && compoundsToBuyList.includes(currentID)) || false;
 
-    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn && isSurfaceOn;
+    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
     const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
@@ -483,6 +483,20 @@ export const DatasetMoleculeView = memo(
         block: 'nearest',
         inline: 'nearest'
       });
+    };
+
+    const getInspirationsForMol = (datasetId, molId) => {
+      let inspirations = [];
+
+      if (
+        allInspirations &&
+        allInspirations.hasOwnProperty(datasetId) &&
+        allInspirations[datasetId].hasOwnProperty(molId)
+      ) {
+        inspirations = allInspirations[datasetId][molId];
+      }
+
+      return inspirations;
     };
 
     const handleClickOnDownArrow = () => {
