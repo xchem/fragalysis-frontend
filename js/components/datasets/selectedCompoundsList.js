@@ -3,7 +3,13 @@ import { Panel } from '../common/Surfaces/Panel';
 import { CircularProgress, Grid, makeStyles, Typography, Button } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMoleculesObjectIDListOfCompoundsToBuy } from './redux/selectors';
+import {
+  getMoleculesObjectIDListOfCompoundsToBuy,
+  getListOfSelectedComplexOfAllDatasets,
+  getListOfSelectedLigandOfAllDatasets,
+  getListOfSelectedProteinOfAllDatasets,
+  getListOfSelectedSurfaceOfAllDatasets
+} from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
@@ -15,11 +21,10 @@ import {
   removeDatasetComplex,
   removeDatasetHitProtein,
   removeDatasetLigand,
-  removeDatasetSurface  
+  removeDatasetSurface
 } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
-import { getMoleculeList } from '../preview/molecule/redux/selectors';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
 
@@ -52,7 +57,8 @@ export const SelectedCompoundList = memo(({ height }) => {
   const moleculesPerPage = 5;
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(0);
-  const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+  const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);
+  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
   const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
   const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
   const inspirationDialogRef = useRef();
@@ -69,6 +75,11 @@ export const SelectedCompoundList = memo(({ height }) => {
   const listItemOffset = (currentPage + 1) * moleculesPerPage;
   const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
+
+  const ligandList = useSelector(state => getListOfSelectedLigandOfAllDatasets(state));
+  const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
+  const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
+  const surfaceList = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
 
   const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
   const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
@@ -142,7 +153,7 @@ export const SelectedCompoundList = memo(({ height }) => {
     moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
       data += `\n${compound.molecule.smiles},${compound.datasetID}`;
     });
-    const dataBlob = new Blob([data], {type: 'text/csv;charset=utf-8'});
+    const dataBlob = new Blob([data], { type: 'text/csv;charset=utf-8' });
 
     FileSaver.saveAs(dataBlob, 'selectedCompounds.csv');
   };
@@ -168,25 +179,25 @@ export const SelectedCompoundList = memo(({ height }) => {
   };
 
   return (
-    <Panel hasHeader title="Selected Compounds" withTooltip headerActions={[
-      <Button
-        color="inherit"
-        variant="text"
-        onClick={downloadAsCsv}
-        startIcon={<CloudDownload />}
-      >
-        Download CSV
-      </Button>,
-      <Button
-        color="inherit"
-        variant="text"
-        className={classes.sdfButton}
-        onClick={downloadAsSdf}
-        startIcon={<CloudDownload />}
-      >
-        Download SDF
-      </Button>
-    ]}>
+    <Panel
+      hasHeader
+      title="Selected Compounds"
+      withTooltip
+      headerActions={[
+        <Button color="inherit" variant="text" onClick={downloadAsCsv} startIcon={<CloudDownload />}>
+          Download CSV
+        </Button>,
+        <Button
+          color="inherit"
+          variant="text"
+          className={classes.sdfButton}
+          onClick={downloadAsSdf}
+          startIcon={<CloudDownload />}
+        >
+          Download SDF
+        </Button>
+      ]}
+    >
       {isOpenInspirationDialog && (
         <InspirationDialog
           open
@@ -238,10 +249,10 @@ export const SelectedCompoundList = memo(({ height }) => {
                   previousItemData={index > 0 && array[index - 1]}
                   nextItemData={index < array?.length && array[index + 1]}
                   removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                  L={ligandListAllDatasets[data.datasetID].includes(data.molecule.id)}
-                  P={proteinListAllDatasets[data.datasetID].includes(data.molecule.id)}
-                  C={complexListAllDatasets[data.datasetID].includes(data.molecule.id)}
-                  S={surfaceListAllDatasets[data.datasetID].includes(data.molecule.id)}
+                  L={ligandList.includes(data.molecule.id)}
+                  P={proteinList.includes(data.molecule.id)}
+                  C={complexList.includes(data.molecule.id)}
+                  S={surfaceList.includes(data.molecule.id)}
                   V={false}
                 />
               ))}
