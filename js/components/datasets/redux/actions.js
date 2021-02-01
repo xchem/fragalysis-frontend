@@ -254,7 +254,7 @@ export const setInspirationMoleculeDataList = (moleculeList = []) => ({
   payload: moleculeList
 });
 
-export const setAllInspirations = (allInspirationsMap) => ({
+export const setAllInspirations = allInspirationsMap => ({
   type: constants.SET_ALL_INSPIRATIONS,
   payload: allInspirationsMap
 });
@@ -366,5 +366,16 @@ export const setDeselectedAllByType = (type, datsetID, items, isCrossReference) 
     datasetID: datsetID,
     items: items,
     isCrossReference: isCrossReference
+  }
+});
+
+export const setArrowUpDown = (datasetID, item, newItem, arrowType, data) => ({
+  type: constants.SET_ARROW_UP_DOWN,
+  payload: {
+    datasetID,
+    item: item,
+    newItem: newItem,
+    arrowType: arrowType,
+    data
   }
 });

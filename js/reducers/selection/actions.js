@@ -285,3 +285,13 @@ export const setHideAll = (data, isHide = true) => ({
   isHide: isHide,
   data: data
 });
+
+export const setArrowUpDown = (item, newItem, arrowType, data) => ({
+  type: constants.SET_ARROW_UP_DOWN,
+  payload: {
+    item: item,
+    newItem: newItem,
+    arrowType: arrowType,
+    data
+  }
+});

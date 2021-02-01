@@ -25,3 +25,8 @@ export const SUFFIX = {
   MAIN: '_MAIN',
   INTERACTION: '_INTERACTION'
 };
+
+export const ARROW_TYPE = {
+  UP: 'UP',
+  DOWN: 'DOWN'
+};

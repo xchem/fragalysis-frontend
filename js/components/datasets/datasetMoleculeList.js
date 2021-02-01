@@ -296,16 +296,16 @@ export const DatasetMoleculeList = memo(
       surface: removeDatasetSurface
     };
 
-    const removeOfAllSelectedTypesOfInspirations = () => {
+    const removeOfAllSelectedTypesOfInspirations = skipTracking => {
       let molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
-      dispatch(hideAllSelectedMolecules(stage, [...molecules]));
+      dispatch(hideAllSelectedMolecules(stage, [...molecules], false, skipTracking));
     };
 
-    const removeOfAllSelectedTypes = () => {
-      dispatch(removeAllSelectedDatasetMolecules(stage));
+    const removeOfAllSelectedTypes = skipTracking => {
+      dispatch(removeAllSelectedDatasetMolecules(stage, skipTracking));
     };
 
-    const moveSelectedMoleculeInspirationsSettings = (data, newItemData) => (dispatch, getState) => {
+    const moveSelectedMoleculeInspirationsSettings = (data, newItemData, skipTracking) => (dispatch, getState) => {
       dispatch(
         moveMoleculeInspirationsSettings(
           data,
@@ -317,7 +317,8 @@ export const DatasetMoleculeList = memo(
           complexListMolecule,
           surfaceListMolecule,
           densityListMolecule,
-          vectorOnListMolecule
+          vectorOnListMolecule,
+          skipTracking
         )
       );
     };

@@ -95,6 +95,13 @@ export const setAllMolLists = all_mol_lists => {
   };
 };
 
+export const setAllMolecules = molecules => {
+  return {
+    type: constants.SET_ALL_MOLECULES,
+    allMolecules: molecules
+  };
+};
+
 export const setSavingState = function(savingState) {
   return {
     type: constants.SET_SAVING_STATE,

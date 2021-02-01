@@ -146,7 +146,7 @@ export const CrossReferenceDialog = memo(
     const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
     const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
 
-    const removeOfAllSelectedTypes = () => {
+    const removeOfAllSelectedTypes = skipTracking => {
       Object.keys(ligandListAllDatasets).forEach(datasetKey => {
         ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
           const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
@@ -155,7 +155,8 @@ export const CrossReferenceDialog = memo(
               stage,
               foundedMolecule?.molecule,
               colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey
+              datasetKey,
+              skipTracking
             )
           );
         });
@@ -168,7 +169,8 @@ export const CrossReferenceDialog = memo(
               stage,
               foundedMolecule?.molecule,
               colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey
+              datasetKey,
+              skipTracking
             )
           );
         });
@@ -181,7 +183,8 @@ export const CrossReferenceDialog = memo(
               stage,
               foundedMolecule?.molecule,
               colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey
+              datasetKey,
+              skipTracking
             )
           );
         });
@@ -194,7 +197,8 @@ export const CrossReferenceDialog = memo(
               stage,
               foundedMolecule?.molecule,
               colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey
+              datasetKey,
+              skipTracking
             )
           );
         });

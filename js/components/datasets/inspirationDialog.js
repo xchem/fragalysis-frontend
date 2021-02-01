@@ -208,37 +208,45 @@ export const InspirationDialog = memo(
 
     const selectMoleculeSite = moleculeGroupSite => {};
 
-    const removeOfAllSelectedTypes = () => {
+    const removeOfAllSelectedTypes = (skipTracking = false) => {
       proteinList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
 
-        dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       complexList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       ligandList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(removeLigand(stage, foundedMolecule, skipTracking));
       });
       surfaceList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       densityList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       vectorOnList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(removeVector(stage, foundedMolecule, skipTracking));
       });
     };
 

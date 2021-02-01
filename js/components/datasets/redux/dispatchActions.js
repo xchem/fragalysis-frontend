@@ -64,7 +64,14 @@ export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   dispatch(setFilterProperties(datasetID, initFilterProperties));
 };
 
-export const addDatasetHitProtein = (stage, data, colourToggle, datasetID, skipTracking = false, representations = undefined) => dispatch => {
+export const addDatasetHitProtein = (
+  stage,
+  data,
+  colourToggle,
+  datasetID,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign(
@@ -95,7 +102,14 @@ export const removeDatasetHitProtein = (stage, data, colourToggle, datasetID, sk
   dispatch(removeFromProteinList(datasetID, generateMoleculeCompoundId(data), skipTracking));
 };
 
-export const addDatasetComplex = (stage, data, colourToggle, datasetID, skipTracking = false, representations = undefined) => dispatch => {
+export const addDatasetComplex = (
+  stage,
+  data,
+  colourToggle,
+  datasetID,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign(
@@ -151,7 +165,14 @@ export const removeDatasetSurface = (stage, data, colourToggle, datasetID) => di
   dispatch(removeFromSurfaceList(datasetID, generateMoleculeCompoundId(data)));
 };
 
-export const addDatasetLigand = (stage, data, colourToggle, datasetID, skipTracking = false, representations = undefined) => dispatch => {
+export const addDatasetLigand = (
+  stage,
+  data,
+  colourToggle,
+  datasetID,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(
     loadObject({
@@ -607,7 +628,7 @@ export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossRefe
   }
 };
 
-export const removeAllSelectedDatasetMolecules = stage => (dispatch, getState) => {
+export const removeAllSelectedDatasetMolecules = (stage, skipTracking) => (dispatch, getState) => {
   const state = getState();
   const datasets = state.datasetsReducers.datasets;
   const currentMolecules = state.datasetsReducers.moleculeLists;
@@ -623,29 +644,67 @@ export const removeAllSelectedDatasetMolecules = stage => (dispatch, getState) =
       ligandList?.forEach(moleculeID => {
         const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(
-          removeDatasetLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+          removeDatasetLigand(
+            stage,
+            foundedMolecule,
+            colourList[foundedMolecule.id % colourList.length],
+            datasetID,
+            skipTracking
+          )
         );
       });
       proteinList?.forEach(moleculeID => {
         const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(
-          removeDatasetHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+          removeDatasetHitProtein(
+            stage,
+            foundedMolecule,
+            colourList[foundedMolecule.id % colourList.length],
+            datasetID,
+            skipTracking
+          )
         );
       });
       complexList?.forEach(moleculeID => {
         const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(
-          removeDatasetComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+          removeDatasetComplex(
+            stage,
+            foundedMolecule,
+            colourList[foundedMolecule.id % colourList.length],
+            datasetID,
+            skipTracking
+          )
         );
       });
       surfaceList?.forEach(moleculeID => {
         const foundedMolecule = molecules?.find(mol => mol.id === moleculeID);
         dispatch(
-          removeDatasetSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], datasetID)
+          removeDatasetSurface(
+            stage,
+            foundedMolecule,
+            colourList[foundedMolecule.id % colourList.length],
+            datasetID,
+            skipTracking
+          )
         );
       });
     });
   }
+};
+
+export const getInspirationsForMol = (allInspirations, datasetId, molId) => {
+  let inspirations = [];
+
+  if (
+    allInspirations &&
+    allInspirations.hasOwnProperty(datasetId) &&
+    allInspirations[datasetId].hasOwnProperty(molId)
+  ) {
+    inspirations = allInspirations[datasetId][molId];
+  }
+
+  return inspirations;
 };
 
 export const moveMoleculeInspirationsSettings = (
@@ -658,7 +717,8 @@ export const moveMoleculeInspirationsSettings = (
   complexListMolecule,
   surfaceListMolecule,
   densityListMolecule,
-  vectorOnListMolecule
+  vectorOnListMolecule,
+  skipTracking
 ) => (dispatch, getState) => {
   dispatch(clearAllInspirationsOfDataset());
   if (newItemData) {
@@ -679,18 +739,19 @@ export const moveMoleculeInspirationsSettings = (
       isAnyInspirationVectorOn
     ) {
       // dispatch(loadInspirationMoleculesDataList(newItemData.computed_inspirations)).then(() => {
-        dispatch(
-          moveInspirations(
-            stage,
-            objectsInView,
-            isAnyInspirationLigandOn,
-            isAnyInspirationProteinOn,
-            isAnyInspirationComplexOn,
-            isAnyInspirationSurfaceOn,
-            isAnyInspirationDensityOn,
-            isAnyInspirationVectorOn
-          )
-        );
+      dispatch(
+        moveInspirations(
+          stage,
+          objectsInView,
+          isAnyInspirationLigandOn,
+          isAnyInspirationProteinOn,
+          isAnyInspirationComplexOn,
+          isAnyInspirationSurfaceOn,
+          isAnyInspirationDensityOn,
+          isAnyInspirationVectorOn,
+          skipTracking
+        )
+      );
       // });
     }
   }
@@ -704,7 +765,8 @@ const moveInspirations = (
   isAnyInspirationComplexOn,
   isAnyInspirationSurfaceOn,
   isAnyInspirationDensityOn,
-  isAnyInspirationVectorOn
+  isAnyInspirationVectorOn,
+  skipTracking
 ) => (dispatch, getState) => {
   const state = getState();
   const molecules = state.datasetsReducers.inspirationMoleculeDataList;
@@ -713,29 +775,135 @@ const moveInspirations = (
       if (molecule) {
         if (isAnyInspirationLigandOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
-          dispatch(addLigand(stage, molecule, colourList[molecule.id % colourList.length], false, representations));
+          dispatch(
+            addLigand(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              false,
+              skipTracking,
+              representations
+            )
+          );
         }
         if (isAnyInspirationProteinOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
-          dispatch(addHitProtein(stage, molecule, colourList[molecule.id % colourList.length], representations));
+          dispatch(
+            addHitProtein(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
         }
         if (isAnyInspirationComplexOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
-          dispatch(addComplex(stage, molecule, colourList[molecule.id % colourList.length], representations));
+          dispatch(
+            addComplex(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
         }
         if (isAnyInspirationSurfaceOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
-          dispatch(addSurface(stage, molecule, colourList[molecule.id % colourList.length], representations));
+          dispatch(
+            addSurface(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
         }
         if (isAnyInspirationDensityOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
-          dispatch(addDensity(stage, molecule, colourList[molecule.id % colourList.length], representations));
+          dispatch(
+            addDensity(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
         }
         if (isAnyInspirationVectorOn) {
-          dispatch(addVector(stage, molecule, colourList[molecule.id % colourList.length]));
+          dispatch(addVector(stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
         }
       }
     });
+  }
+};
+
+export const moveSelectedInspirations = (
+  stage,
+  objectsInView,
+  fragmentDisplayListMolecule,
+  proteinListMolecule,
+  complexListMolecule,
+  surfaceListMolecule,
+  vectorOnListMolecule,
+  skipTracking
+) => (dispatch, getState) => {
+  const state = getState();
+  const molecules = state.datasetsReducers.inspirationMoleculeDataList;
+  if (molecules) {
+    molecules.forEach(molecule => {
+      if (molecule) {
+        if (fragmentDisplayListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.LIGAND);
+          dispatch(
+            addLigand(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              false,
+              skipTracking,
+              representations
+            )
+          );
+        }
+        if (proteinListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.HIT_PROTEIN);
+          dispatch(
+            addHitProtein(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (complexListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.COMPLEX);
+          dispatch(
+            addComplex(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (surfaceListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
+          dispatch(
+            addSurface(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (vectorOnListMolecule.includes(molecule.id)) {
+          dispatch(addVector(stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        }
+      }
+    });
+  }
+};
+
+export const moveSelectedMoleculeSettings = (
+  stage,
+  item,
+  newItem,
+  datasetIdOfMolecule,
+  datasetID,
+  data,
+  skipTracking
+) => (dispatch, getState) => {
+  if (newItem && data) {
+    if (data.isLigandOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND, datasetID);
+      dispatch(addDatasetLigand(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations));
+    }
+    if (data.isProteinOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.PROTEIN, datasetID);
+      dispatch(
+        addDatasetHitProtein(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+      );
+    }
+    if (data.isComplexOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX, datasetID);
+      dispatch(
+        addDatasetComplex(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+      );
+    }
+    if (data.isSurfaceOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE, datasetID);
+      dispatch(
+        addDatasetSurface(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+      );
+    }
   }
 };
 
