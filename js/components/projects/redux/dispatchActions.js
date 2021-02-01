@@ -20,6 +20,8 @@ import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/r
 import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
+import { resetTrackingState } from '../../../reducers/tracking/actions';
+
 import moment from 'moment';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
@@ -320,6 +322,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   const snapshotData = JSON.parse(selectedSnapshot && selectedSnapshot.data);
 
   dispatch(setProjectModalIsLoading(true));
+  dispatch(resetTrackingState());
   return dispatch(
     createProject({
       title,
@@ -365,6 +368,7 @@ export const createProjectFromScratch = ({ title, description, target, author, t
   getState
 ) => {
   dispatch(setProjectModalIsLoading(true));
+  dispatch(resetTrackingState());
   return api({
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,
