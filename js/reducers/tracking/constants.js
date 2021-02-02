@@ -125,4 +125,4 @@ export const actionAnnotation = {
   STAR: 'STAR'
 };
 
-export const NUM_OF_SECONDS_TO_IGNORE_MERGE = 5;
+export const NUM_OF_SECONDS_TO_IGNORE_MERGE = 2;

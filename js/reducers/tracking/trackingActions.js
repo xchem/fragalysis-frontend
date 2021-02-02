@@ -949,7 +949,7 @@ export const findTrackAction = (action, state) => {
         object_name: 'NGL',
         oldSetting: oldSetting,
         newSetting: newSetting,
-        text: `Color of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+        text: `Color of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (action.type === nglConstants.SET_CLIP_NEAR) {
       let oldSetting = action.payload.oldValue;
@@ -975,7 +975,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `Clip near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+        text: `Clip near of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (action.type === nglConstants.SET_CLIP_FAR) {
       let oldSetting = action.payload.oldValue;
@@ -1001,7 +1001,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `Clip far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+        text: `Clip far of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (action.type === nglConstants.SET_CLIP_DIST) {
       let oldSetting = action.payload.oldValue;
@@ -1027,7 +1027,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `Clip dist of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+        text: `Clip dist of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (action.type === nglConstants.SET_FOG_NEAR) {
       let oldSetting = action.payload.oldValue;
@@ -1053,7 +1053,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `For near of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+        text: `Fog near of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (action.type === nglConstants.SET_FOG_FAR) {
       let oldSetting = action.payload.oldValue;
@@ -1079,7 +1079,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `For far of NGL ${actionDescription.CHANGED} from value: ${oldSetting} to value: ${newSetting}`
+        text: `Fog far of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     }
   }

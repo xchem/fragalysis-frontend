@@ -7,6 +7,8 @@ import { setNglViewParams } from '../../../reducers/ngl/actions';
 import { setNglBckGrndColor, setNglClipNear, setNglClipFar, setNglClipDist, setNglFogNear, setNglFogFar } from '../../../reducers/ngl/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
+import { throttle, debounce } from 'lodash';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -44,6 +46,8 @@ export const SettingControls = memo(({ open, onClose }) => {
     }
   };
 
+
+
   return (
     <Drawer title="Settings" open={open} onClose={onClose}>
       <Grid container justify="flex-start" direction="column" className={classes.root} spacing={1}>
@@ -71,7 +75,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView))}
+              onChange={debounce((e, value) => dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView)), 50)}
             />
           </Grid>
         </Grid>
