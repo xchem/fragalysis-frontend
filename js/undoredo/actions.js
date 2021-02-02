@@ -4,7 +4,8 @@ export const ActionTypes = {
   JUMP_TO_FUTURE: '@@redux-undo/JUMP_TO_FUTURE',
   JUMP_TO_PAST: '@@redux-undo/JUMP_TO_PAST',
   JUMP: '@@redux-undo/JUMP',
-  CLEAR_HISTORY: '@@redux-undo/CLEAR_HISTORY'
+  CLEAR_HISTORY: '@@redux-undo/CLEAR_HISTORY',
+  REMOVE_LAST_PAST: '@@redux-undo/REMOVE_LAST_PAST'
 }
 
 export const ActionCreators = {
@@ -25,5 +26,8 @@ export const ActionCreators = {
   },
   clearHistory () {
     return { type: ActionTypes.CLEAR_HISTORY }
+  },
+  removeLastPast() {
+    return {type: ActionTypes.REMOVE_LAST_PAST}
   }
 }

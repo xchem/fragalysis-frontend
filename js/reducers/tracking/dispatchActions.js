@@ -125,6 +125,7 @@ import {
   setInspirationMoleculeDataList
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
+import { ActionCreators as UndoActionCreators } from '../../undoredo/actions'
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -2231,7 +2232,12 @@ export const appendAndSendTrackingActions = trackAction => async (dispatch, getS
     if (isUndoRedoAction === false) {
       const undoRedoActionList = state.trackingReducers.undo_redo_actions_list;
       const mergedUndoRedoActionList = mergeActions(trackAction, [...undoRedoActionList]);
-      dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+      if (mergedActionList.merged) {
+        dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+        dispatch(UndoActionCreators.removeLastPast());
+      } else {
+        dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+      }
     }
   }
   dispatch(setIsActionTracking(false));
@@ -2240,26 +2246,26 @@ export const appendAndSendTrackingActions = trackAction => async (dispatch, getS
 
 export const mergeActions = (trackAction, list) => {
   let merged = false;
-  // if (needsToBeMerged(trackAction)) {
-  //   let newList = [];
-  //   if (list.length > 0) {
-  //     const lastEntry = list[list.length - 1];
-  //     if (isSameTypeOfAction(trackAction, lastEntry) && isActionWithinTimeLimit(lastEntry, trackAction)) {
-  //       trackAction.oldSetting = lastEntry.oldSetting;
-  //       trackAction.text = trackAction.getText();
-  //       newList = [...list.slice(0, list.length - 1), trackAction];
-  //       merged = true;
-  //     } else {
-  //       newList = [...list, trackAction];
-  //     }
-  //   } else {
-  //     newList.push(trackAction);
-  //   }
-  //   return {merged: merged, list: newList};
-  // } else {
-  //   return {merged: merged, list: [...list, trackAction]};
-  // }
-  return {merged: merged, list: [...list, trackAction]};
+  if (needsToBeMerged(trackAction)) {
+    let newList = [];
+    if (list.length > 0) {
+      const lastEntry = list[list.length - 1];
+      if (isSameTypeOfAction(trackAction, lastEntry) && isActionWithinTimeLimit(lastEntry, trackAction)) {
+        trackAction.oldSetting = lastEntry.oldSetting;
+        trackAction.text = trackAction.getText();
+        newList = [...list.slice(0, list.length - 1), trackAction];
+        merged = true;
+      } else {
+        newList = [...list, trackAction];
+      }
+    } else {
+      newList.push(trackAction);
+    }
+    return {merged: merged, list: newList};
+  } else {
+    return {merged: merged, list: [...list, trackAction]};
+  }
+  // return {merged: merged, list: [...list, trackAction]};
 };
 
 const needsToBeMerged = trackAction => {

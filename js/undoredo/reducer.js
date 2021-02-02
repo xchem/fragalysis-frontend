@@ -14,6 +14,15 @@ function createHistory (state, ignoreInitialState) {
   return history
 }
 
+function removeLastPast(history) {
+  const { past, present, future } = history;
+
+  const newPast = [...past];
+  newPast.pop();
+
+  return newHistory(newPast, present, future)
+}
+
 // insert: insert `state` into history, which means adding the current state
 //         into `past`, setting the new `state` as `present` and erasing
 //         the `future`.
@@ -87,6 +96,7 @@ export function undoable (reducer, rawConfig = {}) {
     jumpToPastType: ActionTypes.JUMP_TO_PAST,
     jumpToFutureType: ActionTypes.JUMP_TO_FUTURE,
     jumpType: ActionTypes.JUMP,
+    removeLastPast: ActionTypes.REMOVE_LAST_PAST,
     neverSkipReducer: false,
     ignoreInitialState: false,
     syncFilter: false,
@@ -185,6 +195,10 @@ export function undoable (reducer, rawConfig = {}) {
         debug.log(`perform jump to ${action.index}`)
         debug.end(res)
         return skipReducer(res, action, ...slices)
+      
+      case config.removeLastPast:
+        res = removeLastPast(history);
+        return skipReducer(res, action, ...slices);
 
       case actionTypeAmongClearHistoryType(action.type, config.clearHistoryType):
         res = createHistory(history.present, config.ignoreInitialState)
