@@ -10,6 +10,7 @@ import {
   setSharedSnapshot,
   setSnapshotJustSaved
 } from './actions';
+import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import {
   assignSnapshotToProject,
@@ -306,6 +307,7 @@ export const createNewSnapshot = ({
                         dispatch(setOpenSnapshotSavingDialog(false));
                         dispatch(setIsLoadingSnapshotDialog(false));
                         dispatch(setSnapshotJustSaved(projectResponse.data.id));
+                        dispatch(setDialogCurrentStep());
                       }
                     })
                     .catch(error => {
