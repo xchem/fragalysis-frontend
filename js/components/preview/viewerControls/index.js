@@ -168,7 +168,7 @@ export const ViewerControls = memo(({}) => {
             startIcon={<Restore />}
             className={classes.buttonMargin}
           >
-            Restore view
+            Restore clip/slab/centre
           </Button>
         </Tooltip>
       </Grid>
