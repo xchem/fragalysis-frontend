@@ -339,12 +339,14 @@ export const addLigand = (
   });
 };
 
-export const removeLigand = (stage, data, skipTracking = false) => dispatch => {
+export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data), skipTracking));
 
-  // remove vector
-  dispatch(removeVector(stage, data, skipTracking));
+  if (withVector === true) {
+    // remove vector
+    dispatch(removeVector(stage, data, skipTracking));
+  }
 };
 
 /**

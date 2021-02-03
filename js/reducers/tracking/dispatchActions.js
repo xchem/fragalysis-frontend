@@ -982,6 +982,8 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
             if (data) {
               if (type === 'ligand') {
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+              } else if (type === 'vector') {
+                dispatch(addType[type](stage, data, true));
               } else {
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
               }
@@ -1123,6 +1125,8 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
       if (data) {
         if (type === 'ligand') {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+        } else if (type === 'vector') {
+          dispatch(addType[type](stage, data, true));
         } else {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
@@ -1137,6 +1141,8 @@ const addNewTypeOfAction = (action, type, stage, state, skipTracking = false) =>
     if (data) {
       if (type === 'ligand') {
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+      } else if (type === 'vector') {
+        dispatch(addType[type](stage, data, true));
       } else {
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
@@ -1597,6 +1603,8 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
         if (data) {
           if (type === 'ligand') {
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+          } else if (type === 'vector') {
+            dispatch(addType[type](stage, data, true));
           } else {
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
           }
@@ -1607,7 +1615,7 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
 
       actionItems.forEach(data => {
         if (data) {
-          if (type === 'ligand') {
+          if (type === 'ligand' || type === 'vector') {
             dispatch(removeType[type](stage, data, true));
           } else {
             dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], true));
@@ -2127,6 +2135,8 @@ const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorVi
             for (const mol of typeGroup) {
               if (type === 'ligand') {
                 dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true, true));
+              } else if (type === 'vector') {
+                dispatch(addType[type](majorViewStage, mol, true));
               } else {
                 dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true));
               }
@@ -2178,8 +2188,8 @@ const removeNewType = (action, type, stage, state, skipTracking) => dispatch => 
   if (action) {
     let data = getMolecule(action.object_name, state);
     if (data) {
-      if (type === 'ligand') {
-        dispatch(removeType[type](stage, data, skipTracking));
+      if (type === 'ligand' || type === 'vector') {
+        dispatch(removeType[type](stage, data, skipTracking, false));
       } else {
         dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
