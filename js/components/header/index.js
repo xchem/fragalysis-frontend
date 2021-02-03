@@ -228,9 +228,6 @@ export default memo(
                   <IssueReport />
                 </Grid>
                 <Grid item>
-                  <IdeaReport />
-                </Grid>
-                <Grid item>
                   <img
                     src={require('../../img/xchemLogo.png')}
                     height="20"
