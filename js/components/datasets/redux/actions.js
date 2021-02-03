@@ -26,6 +26,16 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
+export const setSelectedDatasetIndex = selectedIndex => ({
+  type: constants.SET_SELECTED_DATASET_INDEX,
+  payload: selectedIndex
+});
+
+export const setTabValue = (oldValue, tabValue, tabName, oldName) => ({
+  type: constants.SET_TAB_VALUE,
+  payload: { oldValue: oldValue, value: tabValue, name: tabName, oldName: oldName }
+});
+
 export const replaceAllMoleculeLists = allMoleculeLists => ({
   type: constants.REPLACE_ALL_MOLECULELISTS,
   payload: allMoleculeLists

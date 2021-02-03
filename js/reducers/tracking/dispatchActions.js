@@ -63,7 +63,8 @@ import {
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
-  setMoleculeListIsLoading
+  setMoleculeListIsLoading,
+  setTabValue
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
@@ -146,103 +147,6 @@ export const saveCurrentActionsList = (snapshot, project, nglViewList, all = fal
 
 const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
   const state = getState();
-
-  const currentTargetOn = state.apiReducers.target_on;
-  const currentSites = state.selectionReducers.mol_group_selection;
-  const currentLigands = state.selectionReducers.fragmentDisplayList;
-  const currentProteins = state.selectionReducers.proteinList;
-  const currentComplexes = state.selectionReducers.complexList;
-  const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
-
-  const currentDatasetLigands = state.datasetsReducers.ligandLists;
-  const currentDatasetProteins = state.datasetsReducers.proteinLists;
-  const currentDatasetComplexes = state.datasetsReducers.complexLists;
-  const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
-
-  const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
-
-  let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
-
-  let currentActions = [];
-
-  getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
-  getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
-  getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
-
-  getCurrentActionListOfAllSelection(
-    orderedActionList,
-    actionType.ALL_TURNED_ON,
-    getCollection(currentSelectionAll),
-    currentActions,
-    getCollection(currentLigands),
-    getCollection(currentProteins),
-    getCollection(currentComplexes)
-  );
-
-  getCurrentActionListOfAllSelectionByType(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'ligand',
-    getCollection(currentLigands),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByType(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'protein',
-    getCollection(currentProteins),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByType(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'complex',
-    getCollection(currentComplexes),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByTypeOfDataset(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'ligand',
-    getCollectionOfDataset(currentDatasetLigands),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByTypeOfDataset(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'protein',
-    getCollectionOfDataset(currentDatasetProteins),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByTypeOfDataset(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'complex',
-    getCollectionOfDataset(currentDatasetComplexes),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelection(
-    orderedActionList,
-    actionType.ALL_TURNED_ON,
-    getCollectionOfDataset(currentDatasetSelectionAll),
-    currentActions,
-    getCollectionOfDataset(currentDatasetLigands),
-    getCollectionOfDataset(currentDatasetProteins),
-    getCollectionOfDataset(currentDatasetComplexes)
-  );
-
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SIDECHAINS_TURNED_ON,
-    getCollection(currentProteins),
-    currentActions
-  );
   const snapshotID = snapshot && snapshot.id;
   if (snapshotID) {
     const currentTargetOn = state.apiReducers.target_on;
@@ -276,17 +180,72 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
     getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
-    getCurrentActionList(
+    getCurrentActionListOfAllSelection(
       orderedActionList,
       actionType.ALL_TURNED_ON,
       getCollection(currentSelectionAll),
+      currentActions,
+      getCollection(currentLigands),
+      getCollection(currentProteins),
+      getCollection(currentComplexes)
+    );
+
+    getCurrentActionListOfAllSelectionByType(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'ligand',
+      getCollection(currentLigands),
       currentActions
     );
-    getCurrentActionList(
+
+    getCurrentActionListOfAllSelectionByType(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'protein',
+      getCollection(currentProteins),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByType(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'complex',
+      getCollection(currentComplexes),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByTypeOfDataset(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'ligand',
+      getCollectionOfDataset(currentDatasetLigands),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByTypeOfDataset(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'protein',
+      getCollectionOfDataset(currentDatasetProteins),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByTypeOfDataset(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'complex',
+      getCollectionOfDataset(currentDatasetComplexes),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelection(
       orderedActionList,
       actionType.ALL_TURNED_ON,
       getCollectionOfDataset(currentDatasetSelectionAll),
-      currentActions
+      currentActions,
+      getCollectionOfDataset(currentDatasetLigands),
+      getCollectionOfDataset(currentDatasetProteins),
+      getCollectionOfDataset(currentDatasetComplexes)
     );
 
     getCurrentActionList(
@@ -376,6 +335,10 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       getCollectionOfDatasetOfRepresentation(currentobjectsInView),
       currentActions
     );
+
+    getCommonLastActionByType(orderedActionList, actionType.TAB, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.DATASET_INDEX, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER, currentActions);
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -483,6 +446,13 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
         currentActions.push(Object.assign({ ...action }));
       }
     });
+  }
+};
+
+const getCommonLastActionByType = (orderedActionList, type, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action) {
+    currentActions.push(Object.assign({ ...action }));
   }
 };
 
@@ -728,6 +698,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
+    dispatch(restoreTabActions(orderedActionList));
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
@@ -1031,6 +1002,13 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
     representationsChangesActions.forEach(action => {
       dispatch(updateRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
+  }
+};
+
+const restoreTabActions = moleculesAction => (dispatch, getState) => {
+  let action = moleculesAction.find(action => action.type === actionType.TAB);
+  if (action) {
+    dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name));
   }
 };
 
@@ -1396,6 +1374,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
+      case actionType.TAB:
+        dispatch(handleTabAction(action, false));
+        break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
         break;
@@ -1541,6 +1522,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.TAB:
+        dispatch(handleTabAction(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
@@ -1820,6 +1804,16 @@ const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) 
         dispatch(shouldLoadProtein({ nglViewList: stages, currentSnapshotID: null, isLoadingCurrentSnapshot: false }));
       }
     }
+  }
+};
+
+const handleTabAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    let newValue = isSelected === true ? action.object_id : action.oldObjectId;
+    let oldValue = isSelected === true ? action.oldObjectId : action.object_id;
+    let name = isSelected === true ? action.object_name : action.oldObjectName;
+    let oldName = isSelected === true ? action.oldObjectName : action.object_name;
+    dispatch(setTabValue(oldValue, newValue, name, oldName));
   }
 };
 

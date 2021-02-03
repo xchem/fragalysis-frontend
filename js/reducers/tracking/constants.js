@@ -59,6 +59,9 @@ export const actionType = {
   REDO: 'REDO',
   ARROW_NAVIGATION: 'ARROW_NAVIGATION',
   SNAPSHOT: 'SNAPSHOT',
+  TAB: 'TAB',
+  DATASET_INDEX: 'DATASET_INDEX',
+  DATASET_FILTER: 'DATASET_FILTER',
   ALL_HIDE: 'ALL_HIDE',
   ALL_TURNED_ON: 'ALL_TURNED_ON',
   ALL_TURNED_OFF: 'ALL_TURNED_OFF',
@@ -103,7 +106,8 @@ export const actionDescription = {
   TARGET: 'Target',
   ALL: 'All',
   LIGANDS: 'Ligands',
-  SIDECHAINS: 'Sidechains'
+  SIDECHAINS: 'Sidechains',
+  TAB: 'Tab'
 };
 
 export const actionObjectType = {
