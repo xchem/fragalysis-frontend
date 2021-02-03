@@ -165,7 +165,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
     case constants.SET_SELECTED_DATASET_INDEX:
-      return Object.assign({}, state, { selectedDatasetIndex: action.payload });
+      return Object.assign({}, state, { selectedDatasetIndex: action.payload.value });
 
     case constants.SET_TAB_VALUE:
       return Object.assign({}, state, { tabValue: action.payload.value });

@@ -64,7 +64,8 @@ import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setMoleculeListIsLoading,
-  setTabValue
+  setTabValue,
+  setSelectedDatasetIndex
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
@@ -1008,7 +1009,19 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
 const restoreTabActions = moleculesAction => (dispatch, getState) => {
   let action = moleculesAction.find(action => action.type === actionType.TAB);
   if (action) {
-    dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name));
+    dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name, action.oldObjectName));
+  }
+
+  let indexAction = moleculesAction.find(action => action.type === actionType.DATASET_INDEX);
+  if (indexAction) {
+    dispatch(
+      setSelectedDatasetIndex(
+        indexAction.oldObjectId,
+        indexAction.object_id,
+        indexAction.object_name,
+        indexAction.oldObjectName
+      )
+    );
   }
 };
 
@@ -1377,6 +1390,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.TAB:
         dispatch(handleTabAction(action, false));
         break;
+      case actionType.DATASET_INDEX:
+        dispatch(handleTabAction(action, false));
+        break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
         break;
@@ -1524,6 +1540,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleCompoundAction(action, false));
         break;
       case actionType.TAB:
+        dispatch(handleTabAction(action, true));
+        break;
+      case actionType.DATASET_INDEX:
         dispatch(handleTabAction(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
@@ -1813,7 +1832,12 @@ const handleTabAction = (action, isSelected) => (dispatch, getState) => {
     let oldValue = isSelected === true ? action.oldObjectId : action.object_id;
     let name = isSelected === true ? action.object_name : action.oldObjectName;
     let oldName = isSelected === true ? action.oldObjectName : action.object_name;
-    dispatch(setTabValue(oldValue, newValue, name, oldName));
+
+    if (action.type === actionType.DATASET_INDEX) {
+      dispatch(setSelectedDatasetIndex(oldValue, newValue, name, oldName));
+    } else {
+      dispatch(setTabValue(oldValue, newValue, name, oldName));
+    }
   }
 };
 

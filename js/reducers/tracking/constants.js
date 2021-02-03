@@ -107,7 +107,8 @@ export const actionDescription = {
   ALL: 'All',
   LIGANDS: 'Ligands',
   SIDECHAINS: 'Sidechains',
-  TAB: 'Tab'
+  TAB: 'Tab',
+  DATASET: 'Dataset'
 };
 
 export const actionObjectType = {

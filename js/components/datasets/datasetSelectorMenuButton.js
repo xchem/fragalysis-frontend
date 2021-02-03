@@ -25,7 +25,9 @@ export const DatasetSelectorMenuButton = ({
   const dispatch = useDispatch();
 
   const handleMenuItemClick = (event, index) => {
-    dispatch(setSelectedDatasetIndex(index));
+    let oldDataset = customDatasets[selectedDatasetIndex]?.title;
+    let newDataset = customDatasets[index]?.title;
+    dispatch(setSelectedDatasetIndex(selectedDatasetIndex, index, newDataset, oldDataset));
     setOpen(false);
     event.stopPropagation();
   };

@@ -115,7 +115,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       dispatch(loadDataSets(target_on))
         .then(results => {
           if (Array.isArray(results) && results.length > 0) {
-            dispatch(setSelectedDatasetIndex(0));
+            let defaultDataset = results[0]?.unique_name;
+            dispatch(setSelectedDatasetIndex(0, 0, defaultDataset, defaultDataset, true));
           }
           return dispatch(loadDatasetCompoundsWithScores());
         })

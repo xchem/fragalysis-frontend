@@ -853,6 +853,27 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.TAB} ${objectName} ${actionDescription.SELECTED}`
         };
       }
+    } else if (action.type === customDatasetConstants.SET_SELECTED_DATASET_INDEX) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.name;
+        let objectId = action.payload.value;
+        let oldObjectId = action.payload.oldValue;
+        let oldObjectName = action.payload.oldName;
+
+        trackAction = {
+          type: actionType.DATASET_INDEX,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: objectId,
+          oldObjectId: oldObjectId,
+          oldObjectName: oldObjectName,
+          text: `${actionDescription.DATASET} ${objectName} ${actionDescription.SELECTED}`
+        };
+      }
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;

@@ -26,9 +26,10 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
-export const setSelectedDatasetIndex = selectedIndex => ({
+export const setSelectedDatasetIndex = (oldValue, tabValue, tabName, oldName, skipTracking = false) => ({
   type: constants.SET_SELECTED_DATASET_INDEX,
-  payload: selectedIndex
+  payload: { oldValue: oldValue, value: tabValue, name: tabName, oldName: oldName },
+  skipTracking: skipTracking
 });
 
 export const setTabValue = (oldValue, tabValue, tabName, oldName) => ({
