@@ -18,7 +18,7 @@ import {
   ButtonGroup
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import MoleculeView, { colourList } from './moleculeView';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -45,7 +45,8 @@ import {
   removeLigand,
   hideAllSelectedMolecules,
   initializeMolecules,
-  applyDirectSelection
+  applyDirectSelection,
+  removeAllSelectedMolTypes
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
@@ -58,7 +59,7 @@ import { getUrl, loadAllMolsFromMolGroup } from '../../../utils/genericList';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
-import { setMoleculeList, setAllMolLists } from '../../../reducers/api/actions';
+import { setMoleculeList, setAllMolLists, setAllMolecules } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/selection/actions';
@@ -292,45 +293,53 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
   }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
 
-  const addSelectedMoleculesFromUnselectedSites = useCallback((joinedMoleculeLists, list) => {
-    const result = [...joinedMoleculeLists];
-    list?.forEach(moleculeID => {
-      const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
-      if (!foundJoinedMolecule) {
-        const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
-        if (molecule) {
-          result.push(molecule);
+  const addSelectedMoleculesFromUnselectedSites = useCallback(
+    (joinedMoleculeLists, list) => {
+      const result = [...joinedMoleculeLists];
+      list?.forEach(moleculeID => {
+        const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
+        if (!foundJoinedMolecule) {
+          const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
+          if (molecule) {
+            result.push(molecule);
+          }
         }
-      }
-    });
+      });
 
-    return result;
-  }, [getAllMoleculeList]);
+      return result;
+    },
+    [getAllMoleculeList]
+  );
 
-  joinedMoleculeLists = useMemo(
-    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList),
-    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, proteinList]
-  );
-  joinedMoleculeLists = useMemo(
-    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList),
-    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, complexList]
-  );
+  joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList), [
+    addSelectedMoleculesFromUnselectedSites,
+    joinedMoleculeLists,
+    proteinList
+  ]);
+  joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
+    addSelectedMoleculesFromUnselectedSites,
+    joinedMoleculeLists,
+    complexList
+  ]);
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
     [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, fragmentDisplayList]
   );
-  joinedMoleculeLists = useMemo(
-    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList),
-    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, surfaceList]
-  );
-  joinedMoleculeLists = useMemo(
-    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList),
-    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, densityList]
-  );
-  joinedMoleculeLists = useMemo(
-    () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList),
-    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, vectorOnList]
-  );
+  joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList), [
+    addSelectedMoleculesFromUnselectedSites,
+    joinedMoleculeLists,
+    surfaceList
+  ]);
+  joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
+    addSelectedMoleculesFromUnselectedSites,
+    joinedMoleculeLists,
+    densityList
+  ]);
+  joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
+    addSelectedMoleculesFromUnselectedSites,
+    joinedMoleculeLists,
+    vectorOnList
+  ]);
 
   if (!isActiveFilter) {
     // default sort is by site
@@ -378,10 +387,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       Promise.all(promises)
         .then(results => {
           let listToSet = {};
+          let allMolecules = [];
           results.forEach(molResult => {
             listToSet[molResult.mol_group] = molResult.molecules;
+            allMolecules.push(...molResult.molecules);
           });
           dispatch(setAllMolLists(listToSet));
+          dispatch(setAllMolecules(allMolecules));
         })
         .catch(err => console.log(err));
     }
@@ -448,13 +460,13 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       setFilterItemsHeight(0);
     }
   }, [isActiveFilter, setFilterItemsHeight]);
-  
+
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
   useEffect(() => {
     if (!joinedMoleculeListsCopy.length) {
       dispatch(setSortDialogOpen(false));
-    } 
+    }
   }, [dispatch, joinedMoleculeListsCopy.length]);
 
   const handleFilterChange = filter => {
@@ -559,33 +571,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     selectedAll.current = false;
   };
 
-  const removeOfAllSelectedTypes = () => {
+  const removeOfAllSelectedTypes = (skipTracking = false) => {
     let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-
-    proteinList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeHitProtein(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
-    });
-    complexList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeComplex(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
-    });
-    fragmentDisplayList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeLigand(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
-    });
-    surfaceList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
-    });
-    densityList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeDensity(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
-    });
-    vectorOnList?.forEach(moleculeID => {
-      const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-      dispatch(removeVector(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
-    });
+    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking));
   };
 
   const selectMoleculeSite = moleculeGroupSite => {
@@ -709,7 +697,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     <IconButton
       color={'inherit'}
       disabled={!joinedMoleculeListsCopy.length}
-      onClick={() => dispatch(hideAllSelectedMolecules(majorViewStage, joinedMoleculeLists))}
+      onClick={() => dispatch(hideAllSelectedMolecules(majorViewStage, joinedMoleculeLists, true, true))}
     >
       <Tooltip title="Hide all">
         <DeleteSweep />

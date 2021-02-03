@@ -8,6 +8,7 @@ import { setNglBckGrndColor, setNglClipNear, setNglClipFar, setNglClipDist, setN
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 
+
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
@@ -43,6 +44,8 @@ export const SettingControls = memo(({ open, onClose }) => {
       // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, summaryView, VIEWS.SUMMARY_VIEW));
     }
   };
+
+
 
   return (
     <Drawer title="Settings" open={open} onClose={onClose}>

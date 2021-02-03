@@ -73,16 +73,20 @@ export const createIssue = ({
   dispatch(setResponse(''));
   const rootReducer = getState();
 
-  //  const state => state.issueReducers;
-  const screenshotUrl = await dispatch(
-    uploadFile({
-      data64Based: imageSource.split(',')[1],
-      formType,
-      name: 'Screenshot',
-      extension: EXTENSION.PNG,
-      raw: true
-    })
-  );
+  let screenshotUrl = undefined;
+  if (imageSource && imageSource !== '') {
+    //  const state => state.issueReducers;
+    screenshotUrl = await dispatch(
+      uploadFile({
+        data64Based: imageSource.split(',')[1],
+        formType,
+        name: 'Screenshot',
+        extension: EXTENSION.PNG,
+        raw: true
+      })
+    );
+  }
+
   const reducerUrl = await dispatch(
     uploadFile({
       data64Based: Base64.encode(JSON.stringify(rootReducer)),
@@ -96,7 +100,7 @@ export const createIssue = ({
     body.push('- Reducers: ' + reducerUrl);
   }
 
-  if (screenshotUrl.length > 0) {
+  if (screenshotUrl && screenshotUrl.length > 0) {
     body.push('', '![screenshot](' + screenshotUrl + ')');
   }
 

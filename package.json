@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.9.54",
+  "version": "0.9.58",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -72,7 +72,6 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "redux-undo": "^1.0.1",
     "reselect": "^4.0.0",
     "style-loader": "^1.0.0",
     "typeface-roboto": "^0.0.75",

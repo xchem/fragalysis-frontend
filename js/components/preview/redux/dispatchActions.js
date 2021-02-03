@@ -121,13 +121,13 @@ export const unmountPreviewComponent = (stages = []) => dispatch => {
     }
   });
 
+  dispatch(resetTrackingState());
+
   dispatch(resetCurrentCompoundsSettings(true));
   dispatch(resetProjectsReducer());
 
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
-
-  dispatch(resetTrackingState());
 };
 
 export const resetReducersForRestoringActions = () => dispatch => {

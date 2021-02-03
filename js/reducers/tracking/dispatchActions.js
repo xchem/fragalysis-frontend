@@ -7,7 +7,7 @@ import {
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, setHideAll } from '../selection/actions';
+import { setCurrentVector, appendToBuyList, setHideAll, setArrowUpDown } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -31,7 +31,10 @@ import {
   removeLigand,
   removeHitProtein,
   removeSurface,
-  removeVector
+  removeVector,
+  moveSelectedMolSettings,
+  removeAllSelectedMolTypes,
+  hideAllSelectedMolecules
 } from '../../components/preview/molecule/redux/dispatchActions';
 import {
   handleBuyList,
@@ -50,7 +53,12 @@ import {
   removeDatasetHitProtein,
   removeDatasetSurface,
   loadDataSets,
-  loadDatasetCompoundsWithScores
+  loadDatasetCompoundsWithScores,
+  removeAllSelectedDatasetMolecules,
+  moveSelectedMoleculeSettings,
+  moveSelectedInspirations,
+  moveMoleculeInspirationsSettings,
+  getInspirationsForMol
 } from '../../components/datasets/redux/dispatchActions';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
@@ -86,7 +94,8 @@ import {
   setIsActionsLoading,
   setActionsList,
   setSnapshotImageActionList,
-  setUndoRedoActionList
+  setUndoRedoActionList,
+  setPast
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
@@ -110,9 +119,13 @@ import {
   setSelectedAll as setSelectedAllOfDataset,
   setDeselectedAll as setDeselectedAllOfDataset,
   setSelectedAllByType as setSelectedAllByTypeOfDataset,
-  setDeselectedAllByType as setDeselectedAllByTypeOfDataset
+  setDeselectedAllByType as setDeselectedAllByTypeOfDataset,
+  setArrowUpDown as setArrowUpDownOfDataset,
+  setCrossReferenceCompoundName,
+  setInspirationMoleculeDataList
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
+import { ActionCreators as UndoActionCreators } from '../../undoredo/actions'
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -969,6 +982,8 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
             if (data) {
               if (type === 'ligand') {
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+              } else if (type === 'vector') {
+                dispatch(addType[type](stage, data, true));
               } else {
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
               }
@@ -1110,6 +1125,8 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
       if (data) {
         if (type === 'ligand') {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+        } else if (type === 'vector') {
+          dispatch(addType[type](stage, data, true));
         } else {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
@@ -1124,6 +1141,8 @@ const addNewTypeOfAction = (action, type, stage, state, skipTracking = false) =>
     if (data) {
       if (type === 'ligand') {
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+      } else if (type === 'vector') {
+        dispatch(addType[type](stage, data, true));
       } else {
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
@@ -1337,6 +1356,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
+      case actionType.ARROW_NAVIGATION:
+        dispatch(handleArrowNavigationAction(action, false, majorViewStage));
+        break;
       case actionType.VECTOR_SELECTED:
         dispatch(handleVectorAction(action, false));
         break;
@@ -1480,6 +1502,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
         break;
+      case actionType.ARROW_NAVIGATION:
+        dispatch(handleArrowNavigationAction(action, true, majorViewStage));
+        break;
       case actionType.VECTOR_SELECTED:
         dispatch(handleVectorAction(action, true));
         break;
@@ -1578,6 +1603,8 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
         if (data) {
           if (type === 'ligand') {
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+          } else if (type === 'vector') {
+            dispatch(addType[type](stage, data, true));
           } else {
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
           }
@@ -1588,7 +1615,7 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
 
       actionItems.forEach(data => {
         if (data) {
-          if (type === 'ligand') {
+          if (type === 'ligand' || type === 'vector') {
             dispatch(removeType[type](stage, data, true));
           } else {
             dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], true));
@@ -2002,6 +2029,97 @@ const changeMolecularRepresentation = (action, representation, type, parentKey, 
   dispatch(changeComponentRepresentation(parentKey, oldRepresentation, newRepresentation));
 };
 
+const handleArrowNavigationAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  if (action) {
+    let isSelection =
+      action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION;
+
+    if (isSelection === true) {
+      dispatch(handleArrowNavigationActionOfMolecule(action, isSelected, majorViewStage));
+    } else {
+      dispatch(handleArrowNavigationActionOfCompound(action, isSelected, majorViewStage));
+    }
+  }
+};
+
+const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let molecules = state.apiReducers.allMolecules;
+    let item = isSelected === true ? action.item : action.newItem;
+    let newItem = isSelected === true ? action.newItem : action.item;
+    let data = action.data;
+
+    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, true));
+    dispatch(moveSelectedMolSettings(majorViewStage, item, newItem, data, true));
+    dispatch(setArrowUpDown(item, newItem, action.arrowType, data));
+  }
+};
+
+const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStage) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    const molecules = state.apiReducers.allMolecules;
+    const allInspirations = state.datasetsReducers.allInspirations;
+
+    let data = action.data;
+    let item = isSelected === true ? action.item : action.newItem;
+    let newItem = isSelected === true ? action.newItem : action.item;
+    let datasetID = action.datasetID;
+
+    const proteinListMolecule = data.proteinList;
+    const complexListMolecule = data.complexList;
+    const fragmentDisplayListMolecule = data.fragmentDisplayList;
+    const surfaceListMolecule = data.surfaceList;
+    const densityListMolecule = data.surfaceList;
+    const vectorOnListMolecule = data.vectorOnList;
+
+    dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
+    dispatch(removeAllSelectedDatasetMolecules(majorViewStage, true));
+
+    const newDatasetID = (newItem.hasOwnProperty('datasetID') && newItem.datasetID) || datasetID;
+    const moleculeTitlePrev = newItem && newItem.name;
+
+    const inspirations = getInspirationsForMol(allInspirations, datasetID, newItem.id);
+    dispatch(setInspirationMoleculeDataList(inspirations));
+    dispatch(moveSelectedMoleculeSettings(majorViewStage, item, newItem, newDatasetID, datasetID, data, true));
+
+    if (isSelected === true) {
+      dispatch(
+        moveMoleculeInspirationsSettings(
+          item,
+          newItem,
+          majorViewStage,
+          data.objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          densityListMolecule,
+          vectorOnListMolecule,
+          true
+        )
+      );
+    } else {
+      dispatch(
+        moveSelectedInspirations(
+          majorViewStage,
+          data.objectsInView,
+          fragmentDisplayListMolecule,
+          proteinListMolecule,
+          complexListMolecule,
+          surfaceListMolecule,
+          vectorOnListMolecule,
+          true
+        )
+      );
+    }
+
+    dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+    dispatch(setArrowUpDownOfDataset(datasetID, item, newItem, action.arrowType, data));
+  }
+};
+
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
@@ -2017,6 +2135,8 @@ const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorVi
             for (const mol of typeGroup) {
               if (type === 'ligand') {
                 dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true, true));
+              } else if (type === 'vector') {
+                dispatch(addType[type](majorViewStage, mol, true));
               } else {
                 dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true));
               }
@@ -2068,8 +2188,8 @@ const removeNewType = (action, type, stage, state, skipTracking) => dispatch => 
   if (action) {
     let data = getMolecule(action.object_name, state);
     if (data) {
-      if (type === 'ligand') {
-        dispatch(removeType[type](stage, data, skipTracking));
+      if (type === 'ligand' || type === 'vector') {
+        dispatch(removeType[type](stage, data, skipTracking, false));
       } else {
         dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
@@ -2108,23 +2228,26 @@ export const getRedoActionText = () => (dispatch, getState) => {
   return action?.text ?? '';
 };
 
-export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
+export const appendAndSendTrackingActions = trackAction => async (dispatch, getState) => {
   const state = getState();
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
   dispatch(setIsActionTracking(true));
-
   if (trackAction && trackAction !== null) {
     const actionList = state.trackingReducers.track_actions_list;
     const sendActionList = state.trackingReducers.send_actions_list;
     const mergedActionList = mergeActions(trackAction, [...actionList]);
     const mergedSendActionList = mergeActions(trackAction, [...sendActionList]);
-    dispatch(setActionsList(mergedActionList));
-    dispatch(setSendActionsList(mergedSendActionList));
-
+    dispatch(setActionsList(mergedActionList.list));
+    dispatch(setSendActionsList(mergedSendActionList.list));
     if (isUndoRedoAction === false) {
       const undoRedoActionList = state.trackingReducers.undo_redo_actions_list;
       const mergedUndoRedoActionList = mergeActions(trackAction, [...undoRedoActionList]);
-      dispatch(setUndoRedoActionList(mergedUndoRedoActionList));
+      if (mergedActionList.merged) {
+        dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+        dispatch(UndoActionCreators.removeLastPast());
+      } else {
+        dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+      }
     }
   }
   dispatch(setIsActionTracking(false));
@@ -2132,6 +2255,7 @@ export const appendAndSendTrackingActions = trackAction => (dispatch, getState) 
 };
 
 export const mergeActions = (trackAction, list) => {
+  let merged = false;
   if (needsToBeMerged(trackAction)) {
     let newList = [];
     if (list.length > 0) {
@@ -2140,16 +2264,18 @@ export const mergeActions = (trackAction, list) => {
         trackAction.oldSetting = lastEntry.oldSetting;
         trackAction.text = trackAction.getText();
         newList = [...list.slice(0, list.length - 1), trackAction];
+        merged = true;
       } else {
         newList = [...list, trackAction];
       }
     } else {
       newList.push(trackAction);
     }
-    return newList;
+    return {merged: merged, list: newList};
   } else {
-    return [...list, trackAction];
+    return {merged: merged, list: [...list, trackAction]};
   }
+  // return {merged: merged, list: [...list, trackAction]};
 };
 
 const needsToBeMerged = trackAction => {

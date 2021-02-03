@@ -10,6 +10,7 @@ import {
   setSharedSnapshot,
   setSnapshotJustSaved
 } from './actions';
+import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import {
   assignSnapshotToProject,
@@ -257,59 +258,63 @@ export const createNewSnapshot = ({
 
             Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
               if (disableRedirect === false) {
-                // A hacky way of changing the URL without triggering react-router
-                window.history.replaceState(
-                  null,
-                  null,
-                  `${URLS.projects}${session_project}/${
-                    selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
-                  }`
-                );
-
-                api({ url: `${base_url}/api/session-projects/${session_project}/` })
-                  .then(async projectResponse => {
-                    const response = await api({
-                      url: `${base_url}/api/snapshots/?session_project=${session_project}`
-                    });
-                    const length = response.data.results.length;
-                    if (length === 0) {
+                if (selectedSnapshotToSwitch != null) {
+                  window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                } else {
+                  // A hacky way of changing the URL without triggering react-router
+                  window.history.replaceState(
+                    null,
+                    null,
+                    `${URLS.projects}${session_project}/${
+                      selectedSnapshotToSwitch === null ? res.data.id : selectedSnapshotToSwitch
+                    }`
+                  );
+                  api({ url: `${base_url}/api/session-projects/${session_project}/` })
+                    .then(async projectResponse => {
+                      const response = await api({
+                        url: `${base_url}/api/snapshots/?session_project=${session_project}`
+                      });
+                      const length = response.data.results.length;
+                      if (length === 0) {
+                        dispatch(resetCurrentSnapshot());
+                      } else if (response.data.results[length - 1] !== undefined) {
+                        // If the tree fails to load, bail out first without modifying the store
+                        dispatch(loadSnapshotTree(projectResponse.data.id));
+                        // Pick the latest snapshot which should be the last one
+                        dispatch(
+                          setCurrentSnapshot({
+                            id: response.data.results[length - 1].id,
+                            type: response.data.results[length - 1].type,
+                            title: response.data.results[length - 1].title,
+                            author: response.data.results[length - 1].author,
+                            description: response.data.results[length - 1].description,
+                            created: response.data.results[length - 1].created,
+                            children: response.data.results[length - 1].children,
+                            parent: response.data.results[length - 1].parent,
+                            data: '[]'
+                          })
+                        );
+                        dispatch(
+                          setCurrentProject({
+                            projectID: projectResponse.data.id,
+                            authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
+                            title: projectResponse.data.title,
+                            description: projectResponse.data.description,
+                            targetID: projectResponse.data.target.id,
+                            tags: JSON.parse(projectResponse.data.tags)
+                          })
+                        );
+                        dispatch(setOpenSnapshotSavingDialog(false));
+                        dispatch(setIsLoadingSnapshotDialog(false));
+                        dispatch(setSnapshotJustSaved(projectResponse.data.id));
+                        dispatch(setDialogCurrentStep());
+                      }
+                    })
+                    .catch(error => {
                       dispatch(resetCurrentSnapshot());
-                    } else if (response.data.results[length - 1] !== undefined) {
-                      // If the tree fails to load, bail out first without modifying the store
-                      dispatch(loadSnapshotTree(projectResponse.data.id));
-                      // Pick the latest snapshot which should be the last one
-                      dispatch(
-                        setCurrentSnapshot({
-                          id: response.data.results[length - 1].id,
-                          type: response.data.results[length - 1].type,
-                          title: response.data.results[length - 1].title,
-                          author: response.data.results[length - 1].author,
-                          description: response.data.results[length - 1].description,
-                          created: response.data.results[length - 1].created,
-                          children: response.data.results[length - 1].children,
-                          parent: response.data.results[length - 1].parent,
-                          data: '[]'
-                        })
-                      );
-                      dispatch(
-                        setCurrentProject({
-                          projectID: projectResponse.data.id,
-                          authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
-                          title: projectResponse.data.title,
-                          description: projectResponse.data.description,
-                          targetID: projectResponse.data.target.id,
-                          tags: JSON.parse(projectResponse.data.tags)
-                        })
-                      );
-                      dispatch(setOpenSnapshotSavingDialog(false));
                       dispatch(setIsLoadingSnapshotDialog(false));
-                      dispatch(setSnapshotJustSaved(projectResponse.data.id));
-                    }
-                  })
-                  .catch(error => {
-                    dispatch(resetCurrentSnapshot());
-                    dispatch(setIsLoadingSnapshotDialog(false));
-                  });
+                    });
+                }
               } else {
                 dispatch(setOpenSnapshotSavingDialog(false));
                 dispatch(setIsLoadingSnapshotDialog(false));
