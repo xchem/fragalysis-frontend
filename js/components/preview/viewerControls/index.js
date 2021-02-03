@@ -10,7 +10,7 @@ import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
-import { ActionCreators as UndoActionCreators } from 'redux-undo';
+import { ActionCreators as UndoActionCreators } from '../../../undoredo/actions';
 import {
   undoAction,
   redoAction,

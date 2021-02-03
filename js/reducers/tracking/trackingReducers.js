@@ -1,5 +1,6 @@
 import { constants } from './constants';
-import undoable, { includeAction } from 'redux-undo';
+import {undoable } from '../../undoredo/reducer';
+import { includeAction } from '../../undoredo/helpers';
 
 export const INITIAL_STATE = {
   track_actions_list: [],
@@ -111,7 +112,7 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         trackingImageSource: action.payload
       });
-
+      
     case constants.RESET_TRACKING_STATE:
       return INITIAL_STATE;
 

@@ -94,7 +94,8 @@ import {
   setIsActionsLoading,
   setActionsList,
   setSnapshotImageActionList,
-  setUndoRedoActionList
+  setUndoRedoActionList,
+  setPast
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
@@ -124,6 +125,7 @@ import {
   setInspirationMoleculeDataList
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
+import { ActionCreators as UndoActionCreators } from '../../undoredo/actions'
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -2216,23 +2218,26 @@ export const getRedoActionText = () => (dispatch, getState) => {
   return action?.text ?? '';
 };
 
-export const appendAndSendTrackingActions = trackAction => (dispatch, getState) => {
+export const appendAndSendTrackingActions = trackAction => async (dispatch, getState) => {
   const state = getState();
   const isUndoRedoAction = state.trackingReducers.isUndoRedoAction;
   dispatch(setIsActionTracking(true));
-
   if (trackAction && trackAction !== null) {
     const actionList = state.trackingReducers.track_actions_list;
     const sendActionList = state.trackingReducers.send_actions_list;
     const mergedActionList = mergeActions(trackAction, [...actionList]);
     const mergedSendActionList = mergeActions(trackAction, [...sendActionList]);
-    dispatch(setActionsList(mergedActionList));
-    dispatch(setSendActionsList(mergedSendActionList));
-
+    dispatch(setActionsList(mergedActionList.list));
+    dispatch(setSendActionsList(mergedSendActionList.list));
     if (isUndoRedoAction === false) {
       const undoRedoActionList = state.trackingReducers.undo_redo_actions_list;
       const mergedUndoRedoActionList = mergeActions(trackAction, [...undoRedoActionList]);
-      dispatch(setUndoRedoActionList(mergedUndoRedoActionList));
+      if (mergedActionList.merged) {
+        dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+        dispatch(UndoActionCreators.removeLastPast());
+      } else {
+        dispatch(setUndoRedoActionList(mergedUndoRedoActionList.list));
+      }
     }
   }
   dispatch(setIsActionTracking(false));
@@ -2240,6 +2245,7 @@ export const appendAndSendTrackingActions = trackAction => (dispatch, getState) 
 };
 
 export const mergeActions = (trackAction, list) => {
+  let merged = false;
   if (needsToBeMerged(trackAction)) {
     let newList = [];
     if (list.length > 0) {
@@ -2248,16 +2254,18 @@ export const mergeActions = (trackAction, list) => {
         trackAction.oldSetting = lastEntry.oldSetting;
         trackAction.text = trackAction.getText();
         newList = [...list.slice(0, list.length - 1), trackAction];
+        merged = true;
       } else {
         newList = [...list, trackAction];
       }
     } else {
       newList.push(trackAction);
     }
-    return newList;
+    return {merged: merged, list: newList};
   } else {
-    return [...list, trackAction];
+    return {merged: merged, list: [...list, trackAction]};
   }
+  // return {merged: merged, list: [...list, trackAction]};
 };
 
 const needsToBeMerged = trackAction => {
