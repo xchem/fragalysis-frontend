@@ -874,6 +874,34 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.DATASET} ${objectName} ${actionDescription.SELECTED}`
         };
       }
+    } else if (action.type === customDatasetConstants.SET_DATASET_FILTER) {
+      if (action.payload) {
+        const filterProperties = state.datasetsReducers.filterPropertiesDatasetMap;
+        const filterSettings = state.datasetsReducers.filterDatasetMap;
+
+        let filterPropertiesOfDataset = filterProperties[action.payload.datasetID];
+        let filterSettingsOfDataset = filterSettings[action.payload.datasetID];
+
+        let objectType = actionObjectType.COMPOUND;
+        let key = action.payload.key;
+
+        trackAction = {
+          type: actionType.DATASET_FILTER,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          oldProperties: filterPropertiesOfDataset,
+          oldSettings: filterSettingsOfDataset,
+          newProperties: action.payload.properties,
+          newSettings: action.payload.settings,
+          dataset_id: action.payload.datasetID,
+          text:
+            key === 'clear'
+              ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${action.payload.datasetID}`
+              : `Filter parameter: ${action.payload.key} ${actionDescription.CHANGED} of dataset: ${action.payload.datasetID}`
+        };
+      }
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;

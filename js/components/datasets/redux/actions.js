@@ -52,6 +52,11 @@ export const setFilterProperties = (datasetID, properties) => ({
   payload: { datasetID, properties }
 });
 
+export const setDatasetFilter = (datasetID, properties, settings, key) => ({
+  type: constants.SET_DATASET_FILTER,
+  payload: { datasetID, properties, settings, key }
+});
+
 export const setFilterDialogOpen = filterDialogOpen => ({
   type: constants.SET_FILTER_DIALOG_OPEN,
   payload: filterDialogOpen

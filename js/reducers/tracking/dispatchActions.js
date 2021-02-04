@@ -65,7 +65,10 @@ import {
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setMoleculeListIsLoading,
   setTabValue,
-  setSelectedDatasetIndex
+  setSelectedDatasetIndex,
+  setDatasetFilter,
+  setFilterProperties,
+  setFilterSettings
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
@@ -1023,6 +1026,16 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
       )
     );
   }
+
+  let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
+  if (filterAction) {
+    let datasetID = filterAction.dataset_id;
+    let newFilterProperties = filterAction.newProperties;
+    let newFilterSettings = filterAction.newSettings;
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key));
+    dispatch(setFilterProperties(datasetID, newFilterProperties));
+    dispatch(setFilterSettings(datasetID, newFilterSettings));
+  }
 };
 
 const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
@@ -1393,6 +1406,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.DATASET_INDEX:
         dispatch(handleTabAction(action, false));
         break;
+      case actionType.DATASET_FILTER:
+        dispatch(handleFilterAction(action, false));
+        break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
         break;
@@ -1544,6 +1560,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.DATASET_INDEX:
         dispatch(handleTabAction(action, true));
+        break;
+      case actionType.DATASET_FILTER:
+        dispatch(handleFilterAction(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
@@ -1838,6 +1857,17 @@ const handleTabAction = (action, isSelected) => (dispatch, getState) => {
     } else {
       dispatch(setTabValue(oldValue, newValue, name, oldName));
     }
+  }
+};
+
+const handleFilterAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    let datasetID = action.dataset_id;
+    let newFilterProperties = isSelected === true ? action.newProperties : action.oldProperties;
+    let newFilterSettings = isSelected === true ? action.newSettings : action.oldSettings;
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, action.key));
+    dispatch(setFilterProperties(datasetID, newFilterProperties));
+    dispatch(setFilterSettings(datasetID, newFilterSettings));
   }
 };
 
