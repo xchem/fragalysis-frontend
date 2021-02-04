@@ -881,9 +881,11 @@ export const findTrackAction = (action, state) => {
 
         let filterPropertiesOfDataset = filterProperties[action.payload.datasetID];
         let filterSettingsOfDataset = filterSettings[action.payload.datasetID];
+        let newProperties = action.payload.properties;
 
         let objectType = actionObjectType.COMPOUND;
         let key = action.payload.key;
+        let descriptionProperties = getFilterKeyChange(filterPropertiesOfDataset[key], newProperties[key]);
 
         trackAction = {
           type: actionType.DATASET_FILTER,
@@ -893,13 +895,32 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           oldProperties: filterPropertiesOfDataset,
           oldSettings: filterSettingsOfDataset,
-          newProperties: action.payload.properties,
+          newProperties: newProperties,
           newSettings: action.payload.settings,
           dataset_id: action.payload.datasetID,
           text:
             key === 'clear'
               ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${action.payload.datasetID}`
-              : `Filter parameter: ${action.payload.key} ${actionDescription.CHANGED} of dataset: ${action.payload.datasetID}`
+              : `Filter parameter: ${action.payload.key} ${actionDescription.CHANGED} of dataset: ${action.payload.datasetID}. ${descriptionProperties}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.SET_FILTER_SHOWED_SCORE_PROPERTIES) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let valueDescription = action.payload.isChecked === true ? actionDescription.VISIBLE : actionDescription.HIDDEN;
+
+        trackAction = {
+          type: actionType.DATASET_FILTER_SCORE,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: action.payload.scoreName,
+          isChecked: action.payload.isChecked,
+          oldScoreList: action.payload.oldScoreList,
+          newScoreList: action.payload.scoreList,
+          dataset_id: action.payload.datasetID,
+          text: `Filter parameter: ${action.payload.scoreName} ${actionDescription.CHANGED} to ${valueDescription} of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
@@ -1218,6 +1239,83 @@ const getClipCenterChange = (oldValue, newValue) => {
     if (oldValue.z !== newValue.z) {
       description += ' from value: z:' + oldValue.z + ' to value: z:' + newValue.z;
     }
+  }
+  return description;
+};
+
+const getFilterKeyChange = (oldValue, newValue) => {
+  let description = '';
+  if (oldValue && newValue) {
+    if (oldValue.order !== newValue.order) {
+      description +=
+        ' from value: order:' +
+        getOrderDescription(oldValue.order) +
+        ' to value: order:' +
+        getOrderDescription(newValue.order);
+      return description;
+    } else if (oldValue.newPrio !== newValue.newPrio) {
+      description +=
+        ' from value: priority: ' + (newValue.oldPrio + 1) + ' to value: priority: ' + (newValue.newPrio + 1);
+      return description;
+    } else {
+      if (oldValue.isBoolean === true) {
+        if (oldValue.minValue !== newValue.minValue) {
+          return (
+            ' from value: ' +
+            getBooleanDescription(oldValue.minValue) +
+            ' to value: ' +
+            getBooleanDescription(newValue.minValue)
+          );
+        } else if (oldValue.maxValue !== newValue.maxValue) {
+          return (
+            ' from value: ' +
+            getBooleanDescription(oldValue.maxValue) +
+            ' to value: ' +
+            getBooleanDescription(newValue.maxValue)
+          );
+        } else {
+          return ' to value: ignore';
+        }
+      } else {
+        if (oldValue.minValue !== newValue.minValue) {
+          return ' from value: ' + oldValue.minValue + ' to value: ' + newValue.minValue;
+        } else if (oldValue.maxValue !== newValue.maxValue) {
+          return ' from value: max: ' + oldValue.maxValue + ' to value: max: ' + newValue.maxValue;
+        }
+      }
+    }
+  }
+  return description;
+};
+
+const getOrderDescription = order => {
+  let description = '';
+  if (order === 1) {
+    return 'up';
+  }
+
+  if (order === -1) {
+    return 'down';
+  }
+
+  if (order === 0) {
+    return 'ignore';
+  }
+  return description;
+};
+
+const getBooleanDescription = value => {
+  let description = '';
+  if (value === 1) {
+    return 'false';
+  }
+
+  if (value === 50) {
+    return 'ignore';
+  }
+
+  if (value === 100) {
+    return 'true';
   }
   return description;
 };

@@ -36,6 +36,7 @@ import {
   removeAllSelectedMolTypes,
   hideAllSelectedMolecules
 } from '../../components/preview/molecule/redux/dispatchActions';
+import { setSortDialogOpen } from '../../components/preview/molecule/redux/actions';
 import {
   handleBuyList,
   handleBuyListAll,
@@ -58,7 +59,8 @@ import {
   moveSelectedMoleculeSettings,
   moveSelectedInspirations,
   moveMoleculeInspirationsSettings,
-  getInspirationsForMol
+  getInspirationsForMol,
+  selectScoreProperty
 } from '../../components/datasets/redux/dispatchActions';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
@@ -68,7 +70,9 @@ import {
   setSelectedDatasetIndex,
   setDatasetFilter,
   setFilterProperties,
-  setFilterSettings
+  setFilterSettings,
+  updateFilterShowedScoreProperties,
+  setFilterShowedScoreProperties
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
@@ -343,6 +347,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.TAB, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_INDEX, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER_SCORE, currentActions);
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -1036,6 +1041,27 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
   }
+
+  let filterScoreAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER_SCORE);
+  if (filterScoreAction) {
+    let datasetID = filterScoreAction.dataset_id;
+    dispatch(
+      updateFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filterScoreAction.newScoreList
+      })
+    );
+
+    dispatch(
+      setFilterShowedScoreProperties({
+        datasetID,
+        scoreList: filterScoreAction.newScoreList,
+        oldScoreList: filterScoreAction.oldScoreList,
+        isChecked: filterScoreAction.isChecked,
+        scoreName: filterScoreAction.object_name
+      })
+    );
+  }
 };
 
 const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
@@ -1409,6 +1435,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.DATASET_FILTER:
         dispatch(handleFilterAction(action, false));
         break;
+      case actionType.DATASET_FILTER_SCORE:
+        dispatch(handleFilterScoreAction(action, false));
+        break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
         break;
@@ -1563,6 +1592,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.DATASET_FILTER:
         dispatch(handleFilterAction(action, true));
+        break;
+      case actionType.DATASET_FILTER_SCORE:
+        dispatch(handleFilterScoreAction(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
@@ -1855,6 +1887,7 @@ const handleTabAction = (action, isSelected) => (dispatch, getState) => {
     if (action.type === actionType.DATASET_INDEX) {
       dispatch(setSelectedDatasetIndex(oldValue, newValue, name, oldName));
     } else {
+      dispatch(setSortDialogOpen(false));
       dispatch(setTabValue(oldValue, newValue, name, oldName));
     }
   }
@@ -1868,6 +1901,15 @@ const handleFilterAction = (action, isSelected) => (dispatch, getState) => {
     dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, action.key));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
+  }
+};
+
+const handleFilterScoreAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    let datasetID = action.dataset_id;
+    let isChecked = isSelected === true ? action.isChecked : !action.isChecked;
+    let scoreName = action.object_name;
+    dispatch(selectScoreProperty({ isChecked, datasetID, scoreName }));
   }
 };
 

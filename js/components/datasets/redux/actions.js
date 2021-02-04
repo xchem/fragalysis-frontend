@@ -250,6 +250,11 @@ export const updateFilterShowedScoreProperties = ({ datasetID, scoreList = [] })
   payload: { datasetID, scoreList }
 });
 
+export const setFilterShowedScoreProperties = ({ datasetID, scoreList = [], oldScoreList, isChecked, scoreName }) => ({
+  type: constants.SET_FILTER_SHOWED_SCORE_PROPERTIES,
+  payload: { datasetID, scoreList, isChecked, scoreName, oldScoreList }
+});
+
 export const removeFromFilterShowedScoreProperties = datasetID => ({
   type: constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES,
   payload: datasetID

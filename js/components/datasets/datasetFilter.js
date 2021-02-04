@@ -97,10 +97,14 @@ export const DatasetFilter = memo(
       return scoreDatasetList[Object.keys(scoreDatasetList).find(attrName => attrName === attr)];
     };
 
-    const handleFilterChange = (newFilterProperties, newFilterSettings, key) => {
+    const handleFilterChange = (newFilterProperties, newFilterSettings, key, prio, oldPrio) => {
       Object.keys(scoreDatasetList).forEach(attrKey => {
         if (newFilterProperties[attrKey].priority === undefined || newFilterProperties[attrKey].priority === '') {
           newFilterProperties[attrKey].priority = 0;
+        }
+        if (attrKey === key && prio !== undefined && prio !== null) {
+          newFilterProperties[attrKey].newPrio = prio;
+          newFilterProperties[attrKey].oldPrio = oldPrio;
         }
       });
       dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key));
@@ -126,7 +130,10 @@ export const DatasetFilter = memo(
         newFilterSettings.priorityOrder = localPriorityOrder;
         newFilterSettings.active = true;
 
-        handleFilterChange(filterProperties, newFilterSettings, key);
+        let oldPrio = index;
+        let newPrio = index + inc;
+        let newFilterProperties = { ...filterProperties };
+        handleFilterChange(newFilterProperties, newFilterSettings, key, newPrio, oldPrio);
       }
     };
 
