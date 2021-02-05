@@ -125,7 +125,7 @@ import {
   setInspirationMoleculeDataList
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
-import { ActionCreators as UndoActionCreators } from '../../undoredo/actions'
+import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -148,103 +148,6 @@ export const saveCurrentActionsList = (snapshot, project, nglViewList, all = fal
 
 const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
   const state = getState();
-
-  const currentTargetOn = state.apiReducers.target_on;
-  const currentSites = state.selectionReducers.mol_group_selection;
-  const currentLigands = state.selectionReducers.fragmentDisplayList;
-  const currentProteins = state.selectionReducers.proteinList;
-  const currentComplexes = state.selectionReducers.complexList;
-  const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
-
-  const currentDatasetLigands = state.datasetsReducers.ligandLists;
-  const currentDatasetProteins = state.datasetsReducers.proteinLists;
-  const currentDatasetComplexes = state.datasetsReducers.complexLists;
-  const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
-
-  const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
-
-  let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
-
-  let currentActions = [];
-
-  getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
-  getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
-  getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
-
-  getCurrentActionListOfAllSelection(
-    orderedActionList,
-    actionType.ALL_TURNED_ON,
-    getCollection(currentSelectionAll),
-    currentActions,
-    getCollection(currentLigands),
-    getCollection(currentProteins),
-    getCollection(currentComplexes)
-  );
-
-  getCurrentActionListOfAllSelectionByType(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'ligand',
-    getCollection(currentLigands),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByType(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'protein',
-    getCollection(currentProteins),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByType(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'complex',
-    getCollection(currentComplexes),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByTypeOfDataset(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'ligand',
-    getCollectionOfDataset(currentDatasetLigands),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByTypeOfDataset(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'protein',
-    getCollectionOfDataset(currentDatasetProteins),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelectionByTypeOfDataset(
-    orderedActionList,
-    actionType.ALL_TURNED_ON_BY_TYPE,
-    'complex',
-    getCollectionOfDataset(currentDatasetComplexes),
-    currentActions
-  );
-
-  getCurrentActionListOfAllSelection(
-    orderedActionList,
-    actionType.ALL_TURNED_ON,
-    getCollectionOfDataset(currentDatasetSelectionAll),
-    currentActions,
-    getCollectionOfDataset(currentDatasetLigands),
-    getCollectionOfDataset(currentDatasetProteins),
-    getCollectionOfDataset(currentDatasetComplexes)
-  );
-
-  getCurrentActionList(
-    orderedActionList,
-    actionType.SIDECHAINS_TURNED_ON,
-    getCollection(currentProteins),
-    currentActions
-  );
   const snapshotID = snapshot && snapshot.id;
   if (snapshotID) {
     const currentTargetOn = state.apiReducers.target_on;
@@ -264,6 +167,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
     const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
+    const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
     const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
     const currentobjectsInView = state.nglReducers.objectsInView;
 
@@ -278,17 +182,72 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
     getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
-    getCurrentActionList(
+    getCurrentActionListOfAllSelection(
       orderedActionList,
       actionType.ALL_TURNED_ON,
       getCollection(currentSelectionAll),
+      currentActions,
+      getCollection(currentLigands),
+      getCollection(currentProteins),
+      getCollection(currentComplexes)
+    );
+
+    getCurrentActionListOfAllSelectionByType(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'ligand',
+      getCollection(currentLigands),
       currentActions
     );
-    getCurrentActionList(
+
+    getCurrentActionListOfAllSelectionByType(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'protein',
+      getCollection(currentProteins),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByType(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'complex',
+      getCollection(currentComplexes),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByTypeOfDataset(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'ligand',
+      getCollectionOfDataset(currentDatasetLigands),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByTypeOfDataset(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'protein',
+      getCollectionOfDataset(currentDatasetProteins),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelectionByTypeOfDataset(
+      orderedActionList,
+      actionType.ALL_TURNED_ON_BY_TYPE,
+      'complex',
+      getCollectionOfDataset(currentDatasetComplexes),
+      currentActions
+    );
+
+    getCurrentActionListOfAllSelection(
       orderedActionList,
       actionType.ALL_TURNED_ON,
       getCollectionOfDataset(currentDatasetSelectionAll),
-      currentActions
+      currentActions,
+      getCollectionOfDataset(currentDatasetLigands),
+      getCollectionOfDataset(currentDatasetProteins),
+      getCollectionOfDataset(currentDatasetComplexes)
     );
 
     getCurrentActionList(
@@ -325,7 +284,21 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(
       orderedActionList,
+      actionType.VECTOR_COUMPOUND_ADDED,
+      getCollection(showedCompoundList),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
       actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+      getCollectionOfShoppingCart(currentBuyList),
+      currentActions
+    );
+
+    getCurrentActionListOfAllShopingCart(
+      orderedActionList,
+      actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL,
       getCollectionOfShoppingCart(currentBuyList),
       currentActions
     );
@@ -378,6 +351,9 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       getCollectionOfDatasetOfRepresentation(currentobjectsInView),
       currentActions
     );
+
+    getCommonLastActionByType(orderedActionList, actionType.CLASS_SELECTED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLASS_UPDATED, currentActions);
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -488,6 +464,13 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
   }
 };
 
+const getCommonLastActionByType = (orderedActionList, type, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action) {
+    currentActions.push(Object.assign({ ...action }));
+  }
+};
+
 const getCurrentActionListOfAllSelection = (
   orderedActionList,
   type,
@@ -564,6 +547,22 @@ const getCurrentActionListOfAllSelectionByTypeOfDataset = (
     let items = [];
     collection.forEach(data => {
       let item = actionItems.find(item => item.molecule.id === data.id && item.datasetID === data.datasetId);
+      if (item) {
+        items.push(item);
+      }
+    });
+
+    currentActions.push(Object.assign({ ...action, items: items }));
+  }
+};
+
+const getCurrentActionListOfAllShopingCart = (orderedActionList, type, collection, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action && collection) {
+    let actionItems = action.items;
+    let items = [];
+    collection.forEach(data => {
+      let item = actionItems.find(action => action.id === data.id && action.dataset_id === data.datasetId);
       if (item) {
         items.push(item);
       }
@@ -887,25 +886,60 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
 
   let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
   if (vectorAction) {
-    dispatch(setCurrentVector(vectorAction.object_name));
+    dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
   }
 
-  dispatch(restoreCartActions(moleculesAction));
+  dispatch(restoreCartActions(moleculesAction, stage));
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
   dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, true));
   dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
-const restoreCartActions = moleculesAction => (dispatch, getState) => {
+const restoreCartActions = (moleculesAction, majorViewStage) => (dispatch, getState) => {
+  let shoppingCartAllaction = moleculesAction.find(
+    action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL
+  );
+  if (shoppingCartAllaction) {
+    dispatch(
+      handleBuyListAll({ isSelected: true, items: shoppingCartAllaction.items, majorViewStage: majorViewStage })
+    );
+  }
+
   let shoppingCartActions = moleculesAction.filter(
     action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART
   );
   if (shoppingCartActions) {
     shoppingCartActions.forEach(action => {
       let data = action.item;
+      let compoundId = action.compoundId;
+
       if (data) {
-        dispatch(appendToBuyList(data));
+        dispatch(handleBuyList({ isSelected: true, data, compoundId }));
       }
+    });
+  }
+
+  let classSelectedAction = moleculesAction.find(action => action.type === actionType.CLASS_SELECTED);
+  if (classSelectedAction) {
+    dispatch(setCurrentCompoundClass(classSelectedAction.value, classSelectedAction.oldValue));
+  }
+
+  let classUpdatedAction = moleculesAction.find(action => action.type === actionType.CLASS_UPDATED);
+  if (classUpdatedAction) {
+    let id = classUpdatedAction.object_id;
+    let newValue = classUpdatedAction.newCompoundClasses;
+    let oldValue = classUpdatedAction.oldCompoundClasses;
+    let value = classUpdatedAction.object_name;
+    value = value !== undefined ? value : '';
+    dispatch(setCompoundClasses(newValue, oldValue, value, id));
+  }
+
+  let vectorCompoundActions = moleculesAction.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
+  if (vectorCompoundActions) {
+    vectorCompoundActions.forEach(action => {
+      let data = action.item;
+      let compoundId = action.compoundId;
+      dispatch(handleShowVectorCompound({ isSelected: true, data, index: compoundId, majorViewStage: majorViewStage }));
     });
   }
 };
@@ -2271,9 +2305,9 @@ export const mergeActions = (trackAction, list) => {
     } else {
       newList.push(trackAction);
     }
-    return {merged: merged, list: newList};
+    return { merged: merged, list: newList };
   } else {
-    return {merged: merged, list: [...list, trackAction]};
+    return { merged: merged, list: [...list, trackAction] };
   }
   // return {merged: merged, list: [...list, trackAction]};
 };
