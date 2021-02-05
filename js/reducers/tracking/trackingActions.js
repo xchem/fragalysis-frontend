@@ -898,10 +898,11 @@ export const findTrackAction = (action, state) => {
           newProperties: newProperties,
           newSettings: action.payload.settings,
           dataset_id: action.payload.datasetID,
+          key: key,
           text:
             key === 'clear'
               ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${action.payload.datasetID}`
-              : `Filter parameter: ${action.payload.key} ${actionDescription.CHANGED} of dataset: ${action.payload.datasetID}. ${descriptionProperties}`
+              : `Filter parameter: ${key} ${actionDescription.CHANGED} ${descriptionProperties} of dataset: ${action.payload.datasetID}`
         };
       }
     } else if (action.type === customDatasetConstants.SET_FILTER_SHOWED_SCORE_PROPERTIES) {
@@ -1248,9 +1249,9 @@ const getFilterKeyChange = (oldValue, newValue) => {
   if (oldValue && newValue) {
     if (oldValue.order !== newValue.order) {
       description +=
-        ' from value: order:' +
+        ' from value: order: ' +
         getOrderDescription(oldValue.order) +
-        ' to value: order:' +
+        ' to value: order: ' +
         getOrderDescription(newValue.order);
       return description;
     } else if (oldValue.newPrio !== newValue.newPrio) {

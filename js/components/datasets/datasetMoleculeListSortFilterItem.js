@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Slider from '@material-ui/core/Slider';
@@ -119,6 +119,10 @@ export const DatasetMoleculeListSortFilter = memo(
       isChecked,
       isString
     };
+
+    useEffect(() => {
+      setSliderValue([normMinValue, normMaxValue]);
+    }, [normMinValue, normMaxValue]);
 
     const handleCheckboxChange = e => {
       const isChecked = e.target.checked;
@@ -259,7 +263,7 @@ export const DatasetMoleculeListSortFilter = memo(
         {isBoolean && (
           <>
             <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-              {"False"}
+              {'False'}
             </Grid>
             <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: widthSlider }}>
               <Slider
@@ -268,44 +272,42 @@ export const DatasetMoleculeListSortFilter = memo(
                 onChangeCommitted={handleCommitChangeSlider}
                 valueLabelDisplay="auto"
                 step={null}
-                marks={[{ value: 1, label: "", }, { value: 50, label: "Ignore", }, { value: 100, label: "", },]}
-                getAriaValueText={
-                  value => {
-                    if (value === 0) {
-                      return "";
-                    } else if (value === 100) {
-                      return "";
-                    } else {
-                      return "Ignore";
-                    }
+                marks={[
+                  { value: 1, label: '' },
+                  { value: 50, label: 'Ignore' },
+                  { value: 100, label: '' }
+                ]}
+                getAriaValueText={value => {
+                  if (value === 0) {
+                    return '';
+                  } else if (value === 100) {
+                    return '';
+                  } else {
+                    return 'Ignore';
                   }
-                }
-                getAriaLabel={
-                  index => {
-                    if (index === 0) {
-                      return "False";
-                    } else if (index === 1) {
-                      return "Ignore";
-                    } else {
-                      return "True";
-                    }
+                }}
+                getAriaLabel={index => {
+                  if (index === 0) {
+                    return 'False';
+                  } else if (index === 1) {
+                    return 'Ignore';
+                  } else {
+                    return 'True';
                   }
-                }
-                valueLabelFormat={
-                  value => {
-                    if (value === 1) {
-                      return "False";
-                    } else if (value === 50) {
-                      return "Ignore";
-                    } else {
-                      return "True";
-                    }
+                }}
+                valueLabelFormat={value => {
+                  if (value === 1) {
+                    return 'False';
+                  } else if (value === 50) {
+                    return 'Ignore';
+                  } else {
+                    return 'True';
                   }
-                }
+                }}
               />
             </Grid>
             <Grid item className={classNames(classes.min, classes.centered)} style={{ width: widthMin }}>
-              {"True"}
+              {'True'}
             </Grid>
           </>
         )}
