@@ -146,7 +146,7 @@ export const DatasetMoleculeListSortFilter = memo(
     };
 
     const handleCommitChangeSlider = (event, newValue) => {
-      setting.minValue = isBoolean ? 1 : (isFloat ? newValue[0] / MULT : newValue[0]);
+      setting.minValue = isFloat ? newValue[0] / MULT : newValue[0];
       setting.maxValue = isFloat ? newValue[1] / MULT : newValue[1];
       if (newValue === 1) {
         setting.isChecked = false;
