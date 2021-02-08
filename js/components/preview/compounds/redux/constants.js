@@ -37,3 +37,6 @@ export const compoundsColors = {
   [colors.purple]: { key: colors.purple, text: 'Purple', color: '#decbe4' },
   [colors.apricot]: { key: colors.apricot, text: 'Apricot', color: '#fed9a6' }
 };
+
+export const AUX_VECTOR_SELECTOR_DATASET_ID = 'vector_selector';
+

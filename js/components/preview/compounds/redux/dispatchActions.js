@@ -25,11 +25,12 @@ import { generateCompoundMolObject } from '../../../nglView/generatingObjects';
 import { api, getCsrfToken, METHOD } from '../../../../utils/api';
 import { base_url } from '../../../routes/constants';
 import { loadFromServer } from '../../../../utils/genericView';
-import { compoundsColors } from './constants';
+import { compoundsColors, AUX_VECTOR_SELECTOR_DATASET_ID } from './constants';
 import {
   getCurrentVectorCompoundsFiltered,
   getMoleculeOfCurrentVector
 } from '../../../../reducers/selection/selectors';
+import {appendMoleculeToCompoundsOfDatasetToBuy, removeMoleculeFromCompoundsOfDatasetToBuy} from '../../../datasets/redux/actions';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();

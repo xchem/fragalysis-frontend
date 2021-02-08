@@ -91,7 +91,8 @@ const generateBondColorMap = inputDict => {
 };
 
 const getViewUrl = (get_view, data) => {
-  return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
+  const url = new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
+  return url;
 };
 
 const handleVector = (json, stage, data) => (dispatch, getState) => {
