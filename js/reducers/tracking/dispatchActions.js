@@ -7,7 +7,7 @@ import {
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, setHideAll, setArrowUpDown } from '../selection/actions';
+import { setHideAll, setArrowUpDown } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -94,8 +94,7 @@ import {
   setIsActionsLoading,
   setActionsList,
   setSnapshotImageActionList,
-  setUndoRedoActionList,
-  setPast
+  setUndoRedoActionList
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
@@ -726,9 +725,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
     await dispatch(restoreSitesActions(orderedActionList, summaryView));
     await dispatch(loadData(orderedActionList, targetId, majorView));
-    await dispatch(restoreActions(orderedActionList, majorView.stage));
+    await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
+    dispatch(restoreCartActions(orderedActionList, majorView.stage));
+
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
@@ -808,10 +809,6 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState
   }
 };
 
-const restoreActions = (orderedActionList, stage) => (dispatch, getState) => {
-  dispatch(restoreMoleculesActions(orderedActionList, stage));
-};
-
 const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
   await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
@@ -889,7 +886,6 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
     dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
   }
 
-  dispatch(restoreCartActions(moleculesAction, stage));
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
   dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, true));
   dispatch(setIsTrackingMoleculesRestoring(false));
