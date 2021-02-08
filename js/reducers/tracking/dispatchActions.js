@@ -728,7 +728,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
-    dispatch(restoreCartActions(orderedActionList, majorView.stage));
+    await dispatch(restoreCartActions(orderedActionList, majorView.stage));
 
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
@@ -881,18 +881,19 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
     dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
   }
 
-  let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
-  if (vectorAction) {
-    dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
-  }
-
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
   dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, true));
   dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
-const restoreCartActions = (moleculesAction, majorViewStage) => (dispatch, getState) => {
-  let shoppingCartAllaction = moleculesAction.find(
+const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
+  let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
+  if (vectorAction) {
+    console.log('vector action: ' + JSON.stringify(vectorAction));
+    await dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
+  }
+
+  let shoppingCartAllaction = orderedActionList.find(
     action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL
   );
   if (shoppingCartAllaction) {
@@ -901,7 +902,7 @@ const restoreCartActions = (moleculesAction, majorViewStage) => (dispatch, getSt
     );
   }
 
-  let shoppingCartActions = moleculesAction.filter(
+  let shoppingCartActions = orderedActionList.filter(
     action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART
   );
   if (shoppingCartActions) {
@@ -915,12 +916,12 @@ const restoreCartActions = (moleculesAction, majorViewStage) => (dispatch, getSt
     });
   }
 
-  let classSelectedAction = moleculesAction.find(action => action.type === actionType.CLASS_SELECTED);
+  let classSelectedAction = orderedActionList.find(action => action.type === actionType.CLASS_SELECTED);
   if (classSelectedAction) {
     dispatch(setCurrentCompoundClass(classSelectedAction.value, classSelectedAction.oldValue));
   }
 
-  let classUpdatedAction = moleculesAction.find(action => action.type === actionType.CLASS_UPDATED);
+  let classUpdatedAction = orderedActionList.find(action => action.type === actionType.CLASS_UPDATED);
   if (classUpdatedAction) {
     let id = classUpdatedAction.object_id;
     let newValue = classUpdatedAction.newCompoundClasses;
@@ -930,7 +931,7 @@ const restoreCartActions = (moleculesAction, majorViewStage) => (dispatch, getSt
     dispatch(setCompoundClasses(newValue, oldValue, value, id));
   }
 
-  let vectorCompoundActions = moleculesAction.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
+  let vectorCompoundActions = orderedActionList.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
   if (vectorCompoundActions) {
     vectorCompoundActions.forEach(action => {
       let data = action.item;
