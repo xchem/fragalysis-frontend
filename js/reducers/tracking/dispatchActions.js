@@ -561,7 +561,7 @@ const getCurrentActionListOfAllShopingCart = (orderedActionList, type, collectio
     let actionItems = action.items;
     let items = [];
     collection.forEach(data => {
-      let item = actionItems.find(action => action.id === data.id && action.dataset_id === data.datasetId);
+      let item = actionItems.find(action => action.vector === data.id);
       if (item) {
         items.push(item);
       }
@@ -887,6 +887,42 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
 };
 
 const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
+  let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
+  if (vectorAction) {
+    await dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
+  }
+
+  let shoppingCartAllaction = orderedActionList.find(
+    action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL
+  );
+
+  let shoppingCartItems = [];
+
+  if (shoppingCartAllaction) {
+    let allItems = shoppingCartAllaction.items;
+    if (allItems) {
+      allItems.forEach(i => {
+        shoppingCartItems.push(i);
+      });
+    }
+  }
+
+  let shoppingCartActions = orderedActionList.filter(
+    action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART
+  );
+  if (shoppingCartActions) {
+    shoppingCartActions.forEach(action => {
+      shoppingCartItems.push(action.item);
+    });
+  }
+
+  shoppingCartItems.forEach(item => {
+    let data = item;
+    if (data) {
+      dispatch(handleBuyList({ isSelected: true, data }));
+    }
+  });
+
   let classSelectedAction = orderedActionList.find(action => action.type === actionType.CLASS_SELECTED);
   if (classSelectedAction) {
     dispatch(setCurrentCompoundClass(classSelectedAction.value, classSelectedAction.oldValue));
@@ -900,35 +936,6 @@ const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatc
     let value = classUpdatedAction.object_name;
     value = value !== undefined ? value : '';
     dispatch(setCompoundClasses(newValue, oldValue, value, id));
-  }
-
-  let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
-  if (vectorAction) {
-    console.log('vector action: ' + JSON.stringify(vectorAction));
-    await dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
-  }
-
-  let shoppingCartAllaction = orderedActionList.find(
-    action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL
-  );
-  if (shoppingCartAllaction) {
-    dispatch(
-      handleBuyListAll({ isSelected: true, items: shoppingCartAllaction.items, majorViewStage: majorViewStage })
-    );
-  }
-
-  let shoppingCartActions = orderedActionList.filter(
-    action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART
-  );
-  if (shoppingCartActions) {
-    shoppingCartActions.forEach(action => {
-      let data = action.item;
-      let compoundId = action.compoundId;
-
-      if (data) {
-        dispatch(handleBuyList({ isSelected: true, data, compoundId }));
-      }
-    });
   }
 
   let vectorCompoundActions = orderedActionList.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
@@ -1881,10 +1888,8 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let compoundId = action.compoundId;
-
     if (data) {
-      dispatch(handleBuyList({ isSelected: isAdd, data, compoundId }));
+      dispatch(handleBuyList({ isSelected: isAdd, data }));
     }
   }
 };
