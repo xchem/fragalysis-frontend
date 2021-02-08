@@ -23,9 +23,6 @@ services:
       nofile:
         soft: 40000
         hard: 40000
-    volumes:
-      - ../data/neo4j/data:/data
-      - ../data/neo4j/logs:/logs
     environment:
       GRAPH_PASSWORD: test123
       CYPHER_PRE_NEO4J_SLEEP: 0

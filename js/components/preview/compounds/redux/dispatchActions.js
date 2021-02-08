@@ -56,6 +56,7 @@ export const selectAllCompounds = () => (dispatch, getState) => {
           items.push(thisObj);
           dispatch(appendToBuyList(thisObj, compoundId, true));
           dispatch(addSelectedCompoundClass(currentCompoundClass, compoundId));
+          dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, compoundId, ''));
         }
       }
     }
@@ -161,6 +162,9 @@ const clearCompounds = (items, majorViewStage) => (dispatch, getState) => {
 
   dispatch(removeFromToBuyListAll(items));
   dispatch(setToBuyList([]));
+  items.forEach(item => {
+    dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, item.id, ''));
+  });
   // reset objects from nglView and showedCompoundList
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
@@ -209,9 +213,11 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
     if (isSelectedID !== undefined) {
       dispatch(removeSelectedCompoundClass(index));
       dispatch(removeFromToBuyList(data, index));
+      dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.id, ''));
     } else {
       dispatch(addSelectedCompoundClass(currentCompoundClass, index));
       dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass }), index));
+      dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.id, ''));
     }
   }
 };
