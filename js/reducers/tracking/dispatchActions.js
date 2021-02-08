@@ -867,18 +867,18 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
   }
 };
 
-const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getState) => {
+const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, getState) => {
   const state = getState();
   let moleculesAction = orderedActionList.filter(
     action => action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION
   );
 
   if (moleculesAction) {
-    dispatch(addNewType(moleculesAction, actionType.LIGAND_TURNED_ON, 'ligand', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.LIGAND_TURNED_ON, 'ligand', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
   }
 
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
@@ -887,6 +887,21 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
 };
 
 const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
+  let classSelectedAction = orderedActionList.find(action => action.type === actionType.CLASS_SELECTED);
+  if (classSelectedAction) {
+    dispatch(setCurrentCompoundClass(classSelectedAction.value, classSelectedAction.oldValue));
+  }
+
+  let classUpdatedAction = orderedActionList.find(action => action.type === actionType.CLASS_UPDATED);
+  if (classUpdatedAction) {
+    let id = classUpdatedAction.object_id;
+    let newValue = classUpdatedAction.newCompoundClasses;
+    let oldValue = classUpdatedAction.oldCompoundClasses;
+    let value = classUpdatedAction.object_name;
+    value = value !== undefined ? value : '';
+    dispatch(setCompoundClasses(newValue, oldValue, value, id));
+  }
+
   let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
   if (vectorAction) {
     console.log('vector action: ' + JSON.stringify(vectorAction));
@@ -914,21 +929,6 @@ const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatc
         dispatch(handleBuyList({ isSelected: true, data, compoundId }));
       }
     });
-  }
-
-  let classSelectedAction = orderedActionList.find(action => action.type === actionType.CLASS_SELECTED);
-  if (classSelectedAction) {
-    dispatch(setCurrentCompoundClass(classSelectedAction.value, classSelectedAction.oldValue));
-  }
-
-  let classUpdatedAction = orderedActionList.find(action => action.type === actionType.CLASS_UPDATED);
-  if (classUpdatedAction) {
-    let id = classUpdatedAction.object_id;
-    let newValue = classUpdatedAction.newCompoundClasses;
-    let oldValue = classUpdatedAction.oldCompoundClasses;
-    let value = classUpdatedAction.object_name;
-    value = value !== undefined ? value : '';
-    dispatch(setCompoundClasses(newValue, oldValue, value, id));
   }
 
   let vectorCompoundActions = orderedActionList.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
@@ -1148,21 +1148,21 @@ const addTypeCompound = {
   surface: addDatasetSurface
 };
 
-const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => dispatch => {
+const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => async dispatch => {
   let actions = moleculesAction.filter(action => action.type === actionType);
   if (actions) {
-    actions.forEach(action => {
+    for (const action of actions) {
       let data = getMolecule(action.object_name, state);
       if (data) {
         if (type === 'ligand') {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
         } else if (type === 'vector') {
-          dispatch(addType[type](stage, data, true));
+          await dispatch(addType[type](stage, data, true));
         } else {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
       }
-    });
+    }
   }
 };
 
