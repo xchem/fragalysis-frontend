@@ -7,6 +7,9 @@ export const INITIAL_STATE = {
   scoreDatasetMap: {}, // map of $datasetID and its $scoreList
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
+  selectedDatasetIndex: 0,
+  tabValue: 0,
+
   // filter
   filterDatasetMap: {}, // map of $datasetID and its $filterSettings
   filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
@@ -138,7 +141,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { datasets: action.payload });
 
     case constants.REPLACE_ALL_MOLECULELISTS:
-      return {...state, moleculeLists: action.payload};
+      return { ...state, moleculeLists: action.payload };
 
     case constants.ADD_MOLECULELIST:
       // initialize also control containers
@@ -160,6 +163,12 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
+
+    case constants.SET_SELECTED_DATASET_INDEX:
+      return Object.assign({}, state, { selectedDatasetIndex: action.payload.value });
+
+    case constants.SET_TAB_VALUE:
+      return Object.assign({}, state, { tabValue: action.payload.value });
 
     case constants.SET_FILTER_SETTINGS:
       const { datasetID, filter } = action.payload;
@@ -347,7 +356,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
 
     case constants.SET_ALL_INSPIRATIONS:
-      return {...state, allInspirations: action.payload};
+      return { ...state, allInspirations: action.payload };
 
     case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
       const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
