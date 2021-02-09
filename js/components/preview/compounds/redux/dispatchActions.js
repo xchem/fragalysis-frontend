@@ -215,16 +215,16 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
   }
 };
 
-export const handleBuyList = ({ isSelected, data }) => (dispatch, getState) => {
+export const handleBuyList = ({ isSelected, data, skipTracking }) => (dispatch, getState) => {
   let compoundId = data.compoundId;
   dispatch(setHighlightedCompoundId(compoundId));
 
   if (isSelected === false) {
     dispatch(removeSelectedCompoundClass(compoundId));
-    dispatch(removeFromToBuyList(data, compoundId, true));
+    dispatch(removeFromToBuyList(data, compoundId, skipTracking));
   } else {
     dispatch(addSelectedCompoundClass(data.class, compoundId));
-    dispatch(appendToBuyList(Object.assign({}, data), compoundId, true));
+    dispatch(appendToBuyList(Object.assign({}, data), compoundId, skipTracking));
   }
 };
 

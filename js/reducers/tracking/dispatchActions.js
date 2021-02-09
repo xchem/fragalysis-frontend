@@ -926,14 +926,16 @@ const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatc
   );
   if (shoppingCartActions) {
     shoppingCartActions.forEach(action => {
-      shoppingCartItems.push(action.item);
+      if (action.item) {
+        shoppingCartItems.push(action.item);
+      }
     });
   }
 
   shoppingCartItems.forEach(item => {
     let data = item;
     if (data) {
-      dispatch(handleBuyList({ isSelected: true, data }));
+      dispatch(handleBuyList({ isSelected: true, data, skipTracking: true }));
     }
   });
 
@@ -2013,7 +2015,7 @@ const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
     if (data) {
-      dispatch(handleBuyList({ isSelected: isAdd, data }));
+      dispatch(handleBuyList({ isSelected: isAdd, data, skipTracking: false }));
     }
   }
 };
