@@ -7,7 +7,7 @@ import {
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setCurrentVector, appendToBuyList, setHideAll, setArrowUpDown } from '../selection/actions';
+import { setHideAll, setArrowUpDown } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -103,8 +103,7 @@ import {
   setIsActionsLoading,
   setActionsList,
   setSnapshotImageActionList,
-  setUndoRedoActionList,
-  setPast
+  setUndoRedoActionList
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
 import { base_url } from '../../components/routes/constants';
@@ -134,7 +133,7 @@ import {
   setInspirationMoleculeDataList
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
-import { ActionCreators as UndoActionCreators } from '../../undoredo/actions'
+import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -176,6 +175,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     const currentDatasetSurfaces = state.datasetsReducers.surfaceLists;
     const currentDatasetSelectionAll = state.datasetsReducers.moleculeAllSelection;
 
+    const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
     const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
     const currentobjectsInView = state.nglReducers.objectsInView;
 
@@ -292,7 +292,21 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(
       orderedActionList,
+      actionType.VECTOR_COUMPOUND_ADDED,
+      getCollection(showedCompoundList),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
       actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
+      getCollectionOfShoppingCart(currentBuyList),
+      currentActions
+    );
+
+    getCurrentActionListOfAllShopingCart(
+      orderedActionList,
+      actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL,
       getCollectionOfShoppingCart(currentBuyList),
       currentActions
     );
@@ -350,6 +364,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.DATASET_INDEX, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER_SCORE, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLASS_SELECTED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLASS_UPDATED, currentActions);
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -552,6 +568,22 @@ const getCurrentActionListOfAllSelectionByTypeOfDataset = (
   }
 };
 
+const getCurrentActionListOfAllShopingCart = (orderedActionList, type, collection, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action && collection) {
+    let actionItems = action.items;
+    let items = [];
+    collection.forEach(data => {
+      let item = actionItems.find(action => action.vector === data.id);
+      if (item) {
+        items.push(item);
+      }
+    });
+
+    currentActions.push(Object.assign({ ...action, items: items }));
+  }
+};
+
 const getCollection = dataList => {
   let list = [];
   if (dataList) {
@@ -706,10 +738,12 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
     await dispatch(restoreSitesActions(orderedActionList, summaryView));
     await dispatch(loadData(orderedActionList, targetId, majorView));
-    await dispatch(restoreActions(orderedActionList, majorView.stage));
+    await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
     dispatch(restoreTabActions(orderedActionList));
+    await dispatch(restoreCartActions(orderedActionList, majorView.stage));
+
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
@@ -789,10 +823,6 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState
   }
 };
 
-const restoreActions = (orderedActionList, stage) => (dispatch, getState) => {
-  dispatch(restoreMoleculesActions(orderedActionList, stage));
-};
-
 const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
   await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
@@ -851,41 +881,83 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
   }
 };
 
-const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getState) => {
+const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, getState) => {
   const state = getState();
   let moleculesAction = orderedActionList.filter(
     action => action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION
   );
 
   if (moleculesAction) {
-    dispatch(addNewType(moleculesAction, actionType.LIGAND_TURNED_ON, 'ligand', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
-    dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.LIGAND_TURNED_ON, 'ligand', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
   }
 
-  let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
-  if (vectorAction) {
-    dispatch(setCurrentVector(vectorAction.object_name));
-  }
-
-  dispatch(restoreCartActions(moleculesAction));
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
   dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, true));
   dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
-const restoreCartActions = moleculesAction => (dispatch, getState) => {
-  let shoppingCartActions = moleculesAction.filter(
+const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
+  let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
+  if (vectorAction) {
+    await dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
+  }
+
+  let shoppingCartAllaction = orderedActionList.find(
+    action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART_ALL
+  );
+
+  let shoppingCartItems = [];
+
+  if (shoppingCartAllaction) {
+    let allItems = shoppingCartAllaction.items;
+    if (allItems) {
+      allItems.forEach(i => {
+        shoppingCartItems.push(i);
+      });
+    }
+  }
+
+  let shoppingCartActions = orderedActionList.filter(
     action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART
   );
   if (shoppingCartActions) {
     shoppingCartActions.forEach(action => {
+      shoppingCartItems.push(action.item);
+    });
+  }
+
+  shoppingCartItems.forEach(item => {
+    let data = item;
+    if (data) {
+      dispatch(handleBuyList({ isSelected: true, data }));
+    }
+  });
+
+  let classSelectedAction = orderedActionList.find(action => action.type === actionType.CLASS_SELECTED);
+  if (classSelectedAction) {
+    dispatch(setCurrentCompoundClass(classSelectedAction.value, classSelectedAction.oldValue));
+  }
+
+  let classUpdatedAction = orderedActionList.find(action => action.type === actionType.CLASS_UPDATED);
+  if (classUpdatedAction) {
+    let id = classUpdatedAction.object_id;
+    let newValue = classUpdatedAction.newCompoundClasses;
+    let oldValue = classUpdatedAction.oldCompoundClasses;
+    let value = classUpdatedAction.object_name;
+    value = value !== undefined ? value : '';
+    dispatch(setCompoundClasses(newValue, oldValue, value, id));
+  }
+
+  let vectorCompoundActions = orderedActionList.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
+  if (vectorCompoundActions) {
+    vectorCompoundActions.forEach(action => {
       let data = action.item;
-      if (data) {
-        dispatch(appendToBuyList(data));
-      }
+      let compoundId = action.compoundId;
+      dispatch(handleShowVectorCompound({ isSelected: true, data, index: compoundId, majorViewStage: majorViewStage }));
     });
   }
 };
@@ -1147,21 +1219,21 @@ const addTypeCompound = {
   surface: addDatasetSurface
 };
 
-const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => dispatch => {
+const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => async dispatch => {
   let actions = moleculesAction.filter(action => action.type === actionType);
   if (actions) {
-    actions.forEach(action => {
+    for (const action of actions) {
       let data = getMolecule(action.object_name, state);
       if (data) {
         if (type === 'ligand') {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
         } else if (type === 'vector') {
-          dispatch(addType[type](stage, data, true));
+          await dispatch(addType[type](stage, data, true));
         } else {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
       }
-    });
+    }
   }
 };
 
@@ -1940,10 +2012,8 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
 const handleShoppingCartAction = (action, isAdd) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let compoundId = action.compoundId;
-
     if (data) {
-      dispatch(handleBuyList({ isSelected: isAdd, data, compoundId }));
+      dispatch(handleBuyList({ isSelected: isAdd, data }));
     }
   }
 };
@@ -2361,9 +2431,9 @@ export const mergeActions = (trackAction, list) => {
     } else {
       newList.push(trackAction);
     }
-    return {merged: merged, list: newList};
+    return { merged: merged, list: newList };
   } else {
-    return {merged: merged, list: [...list, trackAction]};
+    return { merged: merged, list: [...list, trackAction] };
   }
   // return {merged: merged, list: [...list, trackAction]};
 };
