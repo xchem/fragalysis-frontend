@@ -485,20 +485,6 @@ export const DatasetMoleculeView = memo(
       });
     };
 
-    const getInspirationsForMol = (datasetId, molId) => {
-      let inspirations = [];
-
-      if (
-        allInspirations &&
-        allInspirations.hasOwnProperty(datasetId) &&
-        allInspirations[datasetId].hasOwnProperty(molId)
-      ) {
-        inspirations = allInspirations[datasetId][molId];
-      }
-
-      return inspirations;
-    };
-
     const handleClickOnDownArrow = () => {
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
