@@ -49,7 +49,7 @@ export const selectAllCompounds = () => (dispatch, getState) => {
             smiles: currentVectorCompoundsFiltered[key][index][indexOfCompound].end,
             vector: currentVectorCompoundsFiltered[key].vector.split('_')[0],
             mol: smiles,
-            class: parseInt(currentCompoundClass),
+            class: currentCompoundClass,
             compoundId: compoundId
           };
           items.push(thisObj);

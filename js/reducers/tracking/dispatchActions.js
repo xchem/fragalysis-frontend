@@ -297,7 +297,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions
     );
 
-    getCurrentActionList(
+    getCurrentActionListOfShoppingCart(
       orderedActionList,
       actionType.MOLECULE_ADDED_TO_SHOPPING_CART,
       getCollectionOfShoppingCart(currentBuyList),
@@ -568,13 +568,27 @@ const getCurrentActionListOfAllSelectionByTypeOfDataset = (
   }
 };
 
+const getCurrentActionListOfShoppingCart = (orderedActionList, type, collection, currentActions) => {
+  let actionList = orderedActionList.filter(action => action.type === type);
+
+  if (collection) {
+    collection.forEach(data => {
+      let action = actionList.find(action => action.object_id === data.id && action.compoundId === data.compoundId);
+
+      if (action) {
+        currentActions.push(Object.assign({ ...action }));
+      }
+    });
+  }
+};
+
 const getCurrentActionListOfAllShopingCart = (orderedActionList, type, collection, currentActions) => {
   let action = orderedActionList.find(action => action.type === type);
   if (action && collection) {
     let actionItems = action.items;
     let items = [];
     collection.forEach(data => {
-      let item = actionItems.find(action => action.vector === data.id);
+      let item = actionItems.find(i => i.vector === data.id && i.compoundId === data.compoundId);
       if (item) {
         items.push(item);
       }
@@ -613,7 +627,7 @@ const getCollectionOfShoppingCart = dataList => {
     dataList.forEach(data => {
       let value = data.vector;
       if (value) {
-        list.push({ id: value });
+        list.push({ id: value, compoundId: data.compoundId });
       }
     });
   }
