@@ -2,6 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useEffect, useContext, useState } from 'react';
+import { Grid, Tooltip, makeStyles } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { VIEWS } from '../../../constants/constants';
@@ -14,8 +15,32 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
+const useStyles = makeStyles(theme => ({
+  container: {
+    height: '100%',
+    width: 'inherit',
+    color: theme.palette.black
+  },
+  gridItemList: {
+    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+  },
+
+  moleculeTitleLabel: {
+    ...theme.typography.button,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis'
+  },
+  compundItem: {
+    marginRight: `${theme.spacing(1)}px`,
+    marginTop: `${theme.spacing(1)}px`
+  }
+}));
+
 export const CompoundView = memo(({ height, width, data, index }) => {
   const dispatch = useDispatch();
+  const classes = useStyles();
+
   const highlightedCompoundId = useSelector(state => state.previewReducers.compounds.highlightedCompoundId);
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const selectedCompoundsClass = useSelector(state => state.previewReducers.compounds.selectedCompoundsClass);
@@ -40,6 +65,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
   };
   const showedStyle = { opacity: '0.25' };
   const highlightedStyle = { borderStyle: 'solid' };
+  const currentCompoundIds = data.compound_ids;
 
   let current_style = Object.assign({}, not_selected_style);
   if (showedCompoundList.find(item => item === index) !== undefined) {
@@ -59,15 +85,44 @@ export const CompoundView = memo(({ height, width, data, index }) => {
   });
 
   return (
-    <div
-      onClick={event => {
-        if (majorViewStage) {
-          dispatch(handleClickOnCompound({ event, data, majorViewStage, index }));
-        }
-      }}
-      style={current_style}
-    >
-      <SVGInline svg={image} />
+    <div>
+      <div
+        className={classes.compundItem}
+        onClick={event => {
+          if (majorViewStage) {
+            dispatch(handleClickOnCompound({ event, data, majorViewStage, index }));
+          }
+        }}
+        style={current_style}
+      >
+        <SVGInline svg={image} />
+        {currentCompoundIds.length > 0 && (
+          <Grid key={index} item className={classes.gridItemList}>
+            {currentCompoundIds.map((data, i, array) => {
+              return (
+                <div>
+                  <Grid
+                    key={i}
+                    container
+                    justify="flex-start"
+                    direction="row"
+                    className={classes.container}
+                    wrap="nowrap"
+                  >
+                    <Grid item container className={''} justify="flex-start" direction="row">
+                      <Grid item xs={12}>
+                        <Tooltip title={data} placement="bottom-start">
+                          <div className={classes.moleculeTitleLabel}>{data}</div>
+                        </Tooltip>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </div>
+              );
+            })}
+          </Grid>
+        )}
+      </div>
     </div>
   );
 });
