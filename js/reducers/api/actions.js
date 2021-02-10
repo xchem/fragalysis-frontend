@@ -59,11 +59,10 @@ export const setMolGroupOn = function(mol_group_id) {
   };
 };
 
-export const setMolGroupOff = function(mol_group_id, selectionGroups) {
+export const setMolGroupOff = function(mol_group_id) {
   return {
     type: constants.SET_MOL_GROUP_OFF,
-    mol_group_off: mol_group_id,
-    selectionGroups
+    mol_group_off: mol_group_id
   };
 };
 
