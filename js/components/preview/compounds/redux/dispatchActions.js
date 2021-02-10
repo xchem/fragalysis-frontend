@@ -49,7 +49,7 @@ export const selectAllCompounds = () => (dispatch, getState) => {
             smiles: currentVectorCompoundsFiltered[key][index][indexOfCompound].end,
             vector: currentVectorCompoundsFiltered[key].vector.split('_')[0],
             mol: smiles,
-            class: parseInt(currentCompoundClass),
+            class: currentCompoundClass,
             compoundId: compoundId
           };
           items.push(thisObj);
@@ -210,23 +210,21 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
       dispatch(removeFromToBuyList(data, index));
     } else {
       dispatch(addSelectedCompoundClass(currentCompoundClass, index));
-      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass }), index));
+      dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass, compoundId: index }), index));
     }
   }
 };
 
-export const handleBuyList = ({ isSelected, data, compoundId }) => (dispatch, getState) => {
-  const state = getState();
-  const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
-
+export const handleBuyList = ({ isSelected, data, skipTracking }) => (dispatch, getState) => {
+  let compoundId = data.compoundId;
   dispatch(setHighlightedCompoundId(compoundId));
 
   if (isSelected === false) {
     dispatch(removeSelectedCompoundClass(compoundId));
-    dispatch(removeFromToBuyList(data, compoundId, true));
+    dispatch(removeFromToBuyList(data, compoundId, skipTracking));
   } else {
-    dispatch(addSelectedCompoundClass(currentCompoundClass, compoundId));
-    dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass }), compoundId, true));
+    dispatch(addSelectedCompoundClass(data.class, compoundId));
+    dispatch(appendToBuyList(Object.assign({}, data), compoundId, skipTracking));
   }
 };
 

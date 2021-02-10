@@ -26,6 +26,17 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
+export const setSelectedDatasetIndex = (oldValue, tabValue, tabName, oldName, skipTracking = false) => ({
+  type: constants.SET_SELECTED_DATASET_INDEX,
+  payload: { oldValue: oldValue, value: tabValue, name: tabName, oldName: oldName },
+  skipTracking: skipTracking
+});
+
+export const setTabValue = (oldValue, tabValue, tabName, oldName) => ({
+  type: constants.SET_TAB_VALUE,
+  payload: { oldValue: oldValue, value: tabValue, name: tabName, oldName: oldName }
+});
+
 export const replaceAllMoleculeLists = allMoleculeLists => ({
   type: constants.REPLACE_ALL_MOLECULELISTS,
   payload: allMoleculeLists
@@ -39,6 +50,11 @@ export const setFilterSettings = (datasetID, filter) => ({
 export const setFilterProperties = (datasetID, properties) => ({
   type: constants.SET_FILTER_PROPERTIES,
   payload: { datasetID, properties }
+});
+
+export const setDatasetFilter = (datasetID, properties, settings, key) => ({
+  type: constants.SET_DATASET_FILTER,
+  payload: { datasetID, properties, settings, key }
 });
 
 export const setFilterDialogOpen = filterDialogOpen => ({
@@ -232,6 +248,11 @@ export const clearScoreCompoundMap = () => ({ type: constants.CLEAR_SCORE_COMPOU
 export const updateFilterShowedScoreProperties = ({ datasetID, scoreList = [] }) => ({
   type: constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES,
   payload: { datasetID, scoreList }
+});
+
+export const setFilterShowedScoreProperties = ({ datasetID, scoreList = [], oldScoreList, isChecked, scoreName }) => ({
+  type: constants.SET_FILTER_SHOWED_SCORE_PROPERTIES,
+  payload: { datasetID, scoreList, isChecked, scoreName, oldScoreList }
 });
 
 export const removeFromFilterShowedScoreProperties = datasetID => ({
