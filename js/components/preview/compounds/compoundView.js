@@ -2,13 +2,14 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useEffect, useContext, useState } from 'react';
-import { Grid, Tooltip, makeStyles } from '@material-ui/core';
+import { Tooltip, makeStyles } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import { compoundsColors } from './redux/constants';
 import { handleClickOnCompound, loadCompoundImageData } from './redux/dispatchActions';
+import { CompoundDataView } from './CompoundDataView';
 
 export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100px" height="100px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -16,21 +17,6 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
   </circle>  '</svg>`;
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    height: '100%',
-    width: 'inherit',
-    color: theme.palette.black
-  },
-  gridItemList: {
-    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
-  },
-
-  moleculeTitleLabel: {
-    ...theme.typography.button,
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
-  },
   compundItem: {
     marginRight: `${theme.spacing(1)}px`,
     marginTop: `${theme.spacing(1)}px`
@@ -95,33 +81,10 @@ export const CompoundView = memo(({ height, width, data, index }) => {
         }}
         style={current_style}
       >
-        <SVGInline svg={image} />
-        {currentCompoundIds.length > 0 && (
-          <Grid key={index} item className={classes.gridItemList}>
-            {currentCompoundIds.map((data, i, array) => {
-              return (
-                <div>
-                  <Grid
-                    key={i}
-                    container
-                    justify="flex-start"
-                    direction="row"
-                    className={classes.container}
-                    wrap="nowrap"
-                  >
-                    <Grid item container className={''} justify="flex-start" direction="row">
-                      <Grid item xs={12}>
-                        <Tooltip title={data} placement="bottom-start">
-                          <div className={classes.moleculeTitleLabel}>{data}</div>
-                        </Tooltip>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </div>
-              );
-            })}
-          </Grid>
-        )}
+        <Tooltip title={<CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={true} index={index} />}>
+          <SVGInline svg={image} />
+        </Tooltip>
+        <CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={false} index={index} />
       </div>
     </div>
   );
