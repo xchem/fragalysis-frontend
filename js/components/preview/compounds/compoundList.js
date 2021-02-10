@@ -60,6 +60,10 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     overflow: 'auto',
     padding: theme.spacing(1)
+  },
+  compoundList: {
+    display: 'flex',
+    flexWrap: 'wrap'
   }
 }));
 
@@ -119,7 +123,7 @@ export const CompoundList = memo(({ height }) => {
               </Grid>
             ))}
           </Grid>
-          <Grid container justify="flex-start" className={classes.infinityContainer}>
+          <Grid container justify="space-between" className={classes.infinityContainer}>
             <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
               <InfiniteScroll
                 pageStart={0}
@@ -133,6 +137,7 @@ export const CompoundList = memo(({ height }) => {
                   </div>
                 }
                 useWindow={false}
+                className={classes.compoundList}
               >
                 {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
                   return <CompoundView key={index} height={100} width={100} data={data} index={index} />;
