@@ -31,7 +31,7 @@ export const CompoundDataView = memo(({ currentCompoundIds, isTooltip, index }) 
   const classes = useStyles();
 
   return (
-    currentCompoundIds.length > 0 && (
+    currentCompoundIds && currentCompoundIds.length > 0 && (
       <Grid item className={classes.gridItemList}>
         {currentCompoundIds.map((data, i, array) => {
           return (
