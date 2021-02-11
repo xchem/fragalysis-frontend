@@ -13,6 +13,7 @@ import {
   appendToScoreDatasetMap,
   appendToScoreCompoundMapByScoreCategory,
   updateFilterShowedScoreProperties,
+  setFilterShowedScoreProperties,
   setFilterProperties,
   setIsLoadingInspirationListOfMolecules,
   appendToInspirationMoleculeDataList,
@@ -339,6 +340,8 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreName }) => (dis
   const state = getState();
   const filteredScorePropertiesOfDataset = state.datasetsReducers.filteredScoreProperties[datasetID];
   const scoreDatasetMap = state.datasetsReducers.scoreDatasetMap[datasetID];
+  let scoreList = [];
+  let oldScoreList = [...filteredScorePropertiesOfDataset];
 
   if (isChecked === true) {
     if (filteredScorePropertiesOfDataset.length === COUNT_OF_VISIBLE_SCORES) {
@@ -348,6 +351,7 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreName }) => (dis
     // 2. select new property
     const selectedProperty = scoreDatasetMap[scoreName];
     filteredScorePropertiesOfDataset.push(selectedProperty);
+    scoreList = filteredScorePropertiesOfDataset;
     dispatch(
       updateFilterShowedScoreProperties({
         datasetID,
@@ -355,6 +359,7 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreName }) => (dis
       })
     );
   } else {
+    scoreList = filteredScorePropertiesOfDataset.filter(item => item.name !== scoreName);
     dispatch(
       updateFilterShowedScoreProperties({
         datasetID,
@@ -362,6 +367,8 @@ export const selectScoreProperty = ({ isChecked, datasetID, scoreName }) => (dis
       })
     );
   }
+
+  dispatch(setFilterShowedScoreProperties({ datasetID, scoreList, oldScoreList, isChecked, scoreName }));
 };
 
 export const loadInspirationMoleculesDataList = (inspirationList = []) => (dispatch, getState) => {
