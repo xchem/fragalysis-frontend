@@ -40,7 +40,11 @@ export const selectAllCompounds = () => (dispatch, getState) => {
   const moleculeOfVector = getMoleculeOfCurrentVector(state);
   const smiles = moleculeOfVector && moleculeOfVector.smiles;
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
+  const selectedCompounds = state.previewReducers.compounds.allSelectedCompounds;
+
   let items = [];
+
+  let selectedCompoundsAux = {...selectedCompounds};
 
   for (let key in currentVectorCompoundsFiltered) {
     for (let index in currentVectorCompoundsFiltered[key]) {
@@ -54,15 +58,20 @@ export const selectAllCompounds = () => (dispatch, getState) => {
             class: currentCompoundClass,
             compoundId: compoundId
           };
+
+          thisObj['index'] = indexOfCompound;
+          thisObj['compoundClass'] = currentCompoundClass;
           items.push(thisObj);
           dispatch(appendToBuyList(thisObj, compoundId, true));
           dispatch(addSelectedCompoundClass(currentCompoundClass, compoundId));
-          dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, compoundId, ''));
+          dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, thisObj.smiles, ''));
+          selectedCompoundsAux[thisObj.smiles] = thisObj;
         }
       }
     }
   }
 
+  dispatch(setSelectedCompounds(selectedCompoundsAux));
   dispatch(appendToBuyListAll(items));
 };
 
@@ -161,11 +170,21 @@ export const clearAllSelectedCompounds = majorViewStage => (dispatch, getState) 
 const clearCompounds = (items, majorViewStage) => (dispatch, getState) => {
   const state = getState();
 
+  const selectedCompounds = state.previewReducers.compounds.allSelectedCompounds;
+
+  let selectedCompoundsAux = {...selectedCompounds};
+
   dispatch(removeFromToBuyListAll(items));
   dispatch(setToBuyList([]));
   items.forEach(item => {
-    dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, item.id, ''));
+    dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, item.smiles, ''));
+    if (selectedCompoundsAux[item.smiles]) {
+      delete selectedCompoundsAux[item.smiles];
+    }
   });
+
+  dispatch(setSelectedCompounds(selectedCompoundsAux));
+
   // reset objects from nglView and showedCompoundList
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
