@@ -30,6 +30,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
   const highlightedCompoundId = useSelector(state => state.previewReducers.compounds.highlightedCompoundId);
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const selectedCompoundsClass = useSelector(state => state.previewReducers.compounds.selectedCompoundsClass);
+  const allSelectedCompounds = useSelector(state => state.previewReducers.compounds.allSelectedCompounds);
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const [image, setImage] = useState(loadingCompoundImage);
@@ -62,13 +63,26 @@ export const CompoundView = memo(({ height, width, data, index }) => {
     current_style = Object.assign(current_style, highlightedStyle);
   }
 
+  let classFound = false;
   Object.keys(selectedCompoundsClass).forEach(classKey => {
     if (selectedCompoundsClass[classKey].find(item => item === index) !== undefined) {
+      classFound = true;
       current_style = Object.assign(current_style, {
         backgroundColor: compoundsColors[classKey].color
       });
     }
   });
+
+  if (!classFound) {
+    if (allSelectedCompounds[data.smiles]) {
+      const foundData = allSelectedCompounds[data.smiles];
+      if (foundData['compoundClass']) {
+        current_style = Object.assign(current_style, {
+          backgroundColor: compoundsColors[foundData['compoundClass']].color
+        });
+      }
+    }
+  }
 
   return (
     <div>

@@ -265,6 +265,7 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
       dispatch(setSelectedCompounds(selectedCompoundsCopy));
     } else {
       data['index'] = index;
+      data['compoundClass'] = currentCompoundClass;
       dispatch(addSelectedCompoundClass(currentCompoundClass, index));
       dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass, compoundId: index }), index));
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.smiles, ''));
