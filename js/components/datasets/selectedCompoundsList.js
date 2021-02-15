@@ -89,6 +89,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
 
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
+  const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
 
   const removeOfAllSelectedTypes = () => {
     Object.keys(ligandListAllDatasets).forEach(datasetKey => {
@@ -152,10 +153,153 @@ export const SelectedCompoundList = memo(({ height }) => {
     };
   }, [dispatch]);
 
+  const getSetOfProps = () => {
+    const unionOfProps = new Set();
+
+    Object.keys(filteredScoreProperties).forEach(datasetName => {
+      const dataset = filteredScoreProperties[datasetName];
+      dataset.forEach(prop => {
+        if (prop.hasOwnProperty('computed_set')) {
+          unionOfProps.add(prop);
+        }
+      });
+    });
+
+    return [...unionOfProps];
+  };
+
+  const prepareHeader = (props, maxIdsCount) => {
+    let header = getIdsHeader(maxIdsCount);
+    
+    if (props.length > 0) {
+      header += ',';
+    }
+
+    for (let i = 0; i < props.length; i++) {
+      const prop = props[i];
+      if (i < props.length - 1) {
+        header += `${encodeURIComponent(prop.name)},`;
+      } else {
+        header += `${encodeURIComponent(prop.name)}`;
+      }
+    }
+
+    return header;
+  };
+
+  const convertCompoundToCsvLine = (compound, props, maxIdsCount) => {
+    let line = '';
+
+    const molecule = compound.molecule;
+
+    line = prepareMolIds(compound, maxIdsCount);
+
+    if (props.length > 0) {
+      line += ',';
+    }
+
+    let value = '';
+    for (let i = 0; i < props.length; i++) {
+      value = '';
+      const prop = props[i];
+      if (molecule.hasOwnProperty(prop.name)) {
+        value = molecule[prop.name];
+      } else {
+        let mapOfNumScores = undefined;
+        let mapOfTextScores = undefined;
+        if (molecule.hasOwnProperty('numerical_scores')) {
+          mapOfNumScores = molecule['numerical_scores'];
+        }
+        if (molecule.hasOwnProperty('text_scores')) {
+          mapOfTextScores = molecule['text_scores'];
+        }
+        if (mapOfNumScores !== undefined) {
+          if (mapOfNumScores.hasOwnProperty(prop.name)) {
+            value = mapOfNumScores[prop.name];
+          }
+        }
+        if (mapOfTextScores !== undefined) {
+          if (mapOfTextScores.hasOwnProperty(prop.name)) {
+            value = mapOfTextScores[prop.name];
+          }
+        }
+      }
+
+      if (i < props.length - 1) {
+        line += `${encodeURIComponent(value)},`;
+      } else {
+        line += `${encodeURIComponent(value)}`;
+      }
+    };
+
+    return line;
+  };
+
+  const getMaxNumberOfCmpIds = (mols) => {
+    let maxLength = 0;
+
+    mols.forEach(mol => {
+      if (mol.molecule.hasOwnProperty('compound_ids')) {
+        const ids = mol.molecule['compound_ids'];
+        maxLength = maxLength < ids.length ? ids.length : maxLength;
+      }
+    });
+
+    return maxLength;
+  };
+
+  const getIdsHeader = (maxIdsCount) => {
+    let idsHeader = '';
+
+    for (let i = 0; i < maxIdsCount; i++) {
+      if (i < maxIdsCount - 1) {
+        idsHeader += `id${i},`;
+      } else {
+        idsHeader += `id${i}`;
+      }
+    }
+
+    return idsHeader;
+  };
+
+  const prepareMolIds = (compound, maxIdsCount) => {
+    let idsHeader = '';
+
+    if (compound.molecule.hasOwnProperty('compound_ids')) {
+      const ids = compound.molecule['compound_ids'];
+      for (let i = 0; i < maxIdsCount; i++) {
+        if (i <= ids.length - 1) {
+          const id = ids[i];
+          if (i < ids.length - 1) {
+            idsHeader += `${id},`;
+          } else {
+            idsHeader += `${id}`;
+          }
+        } else {
+          if (i < maxIdsCount) {
+            idsHeader += ',';
+          }
+        }
+      };
+    } else {
+      for (let i = 0; i < maxIdsCount; i++) {
+        if (i < maxIdsCount - 1) {
+          idsHeader += ',';
+        }
+      }
+    }
+
+    return idsHeader;
+  };
+
   const downloadAsCsv = () => {
-    let data = 'smiles,dataset';
+    const props = getSetOfProps();
+    let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
+    let data = prepareHeader(props, maxIdsCount);
+
     moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
-      data += `\n${compound.molecule.smiles},${compound.datasetID}`;
+      // data += `\n${compound.molecule.smiles},${compound.datasetID}`;
+      data += `\n${convertCompoundToCsvLine(compound, props, maxIdsCount)}`;
     });
     const dataBlob = new Blob([data], { type: 'text/csv;charset=utf-8' });
 
@@ -188,7 +332,7 @@ export const SelectedCompoundList = memo(({ height }) => {
       title="Selected Compounds"
       withTooltip
       headerActions={[
-        <Button color="inherit" variant="text" onClick={downloadAsCsv} startIcon={<CloudDownload />}>
+        <Button color="inherit" variant="text" onClick={downloadAsCsv} startIcon={<CloudDownload />} >    
           Download CSV
         </Button>,
         <Button
@@ -197,6 +341,7 @@ export const SelectedCompoundList = memo(({ height }) => {
           className={classes.sdfButton}
           onClick={downloadAsSdf}
           startIcon={<CloudDownload />}
+          disabled={true}
         >
           Download SDF
         </Button>

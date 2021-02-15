@@ -213,7 +213,7 @@ export const prepareFakeFilterData = () => (dispatch, getState) => {
       {id: 2, name: 'mol', description: 'mol', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
       {id: 3, name: 'vector', description: 'vector', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
       {id: 4, name: 'class', description: 'class', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
-      {id: 5, name: 'classColor', description: 'classColor', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID}]
+      {id: 5, name: 'compoundClass', description: 'compoundClass', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID}]
   }));
 }
 
@@ -258,8 +258,6 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const selectedCompoundsClass = state.previewReducers.compounds.selectedCompoundsClass;
   const selectedCompounds = state.previewReducers.compounds.allSelectedCompounds;
-
-  dispatch(prepareFakeFilterData());
 
   dispatch(setHighlightedCompoundId(index));
 
