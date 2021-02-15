@@ -18,6 +18,8 @@ const densityList = state => state.selectionReducers.densityList;
 const vectorOnList = state => state.selectionReducers.vectorOnList;
 const filteredScoreProperties = state => state.datasetsReducers.filteredScoreProperties;
 
+const selectedVectorCompounds = state => state.previewReducers.compounds.allSelectedCompounds;
+
 export const getInitialDatasetFilterSettings = createSelector(
   (_, datasetID) => datasetID,
   scoreDatasetMap,
@@ -259,7 +261,7 @@ export const getFilteredDatasetMoleculeList = createSelector(
       const defaultFilterProperties = getInitialDatasetFilterProperties(state, datasetID);
 
       let sortedAttributes = filterSettings.priorityOrder
-        .filter(attr => defaultFilterProperties[attr]?.order != 0 || false)
+        .filter(attr => defaultFilterProperties[attr]?.order !== 0 || false)
         .map(attr => attr);
 
       return filteredMolecules.sort((a, b) => {
@@ -304,7 +306,8 @@ export const getFilteredDatasetMoleculeList = createSelector(
 export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
   compoundsToBuyDatasetMap,
   moleculeLists,
-  (compoundsToBuyDatasetMap, moleculeLists) => {
+  selectedVectorCompounds,
+  (compoundsToBuyDatasetMap, moleculeLists, selectedVectorCompounds) => {
     let moleculeList = [];
     Object.keys(compoundsToBuyDatasetMap).forEach(datasetID => {
       compoundsToBuyDatasetMap[datasetID] &&
@@ -314,6 +317,9 @@ export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
             if (foundedMolecule) {
               moleculeList.push({ molecule: foundedMolecule, datasetID });
             }
+          } else if (selectedVectorCompounds[moleculeID]) {
+            const cmp = selectedVectorCompounds[moleculeID];
+            moleculeList.push({ molecule: {...cmp, name: cmp.smiles}, datasetID });
           }
         });
     });

@@ -275,12 +275,16 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { scoreCompoundMap: {} });
 
     case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
-      return {
-        ...state,
-        filteredScoreProperties: {
-          ...state.filteredScoreProperties,
-          [action.payload.datasetID]: action.payload.scoreList
-        }
+      if (state.filteredScoreProperties[action.payload.datasetID]) {
+        return {...state};
+      } else {
+        return {
+          ...state,
+          filteredScoreProperties: {
+            ...state.filteredScoreProperties,
+            [action.payload.datasetID]: action.payload.scoreList
+          }
+        };
       };
 
     case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:

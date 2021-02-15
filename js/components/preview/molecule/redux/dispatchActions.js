@@ -42,7 +42,7 @@ import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
-import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/redux/actions';
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
@@ -164,7 +164,7 @@ export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) 
   const moleculeOfCurrentVector = getMoleculeOfCurrentVector(state);
   if (moleculeOfCurrentVector && moleculeOfCurrentVector.smiles === currentMoleculeSmile) {
     dispatch(setCurrentVector(null));
-    dispatch(resetCurrentCompoundsSettings([]));
+    dispatch(resetCurrentCompoundSettingsWithoutSelection([]));
   }
 };
 

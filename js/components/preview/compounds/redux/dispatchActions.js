@@ -17,7 +17,8 @@ import {
   resetCompoundClasses,
   resetSelectedCompoundClass,
   resetConfiguration,
-  setCurrentCompoundClass
+  setCurrentCompoundClass,
+  setSelectedCompounds
 } from './actions';
 import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import { VIEWS } from '../../../../constants/constants';
@@ -30,7 +31,7 @@ import {
   getCurrentVectorCompoundsFiltered,
   getMoleculeOfCurrentVector
 } from '../../../../reducers/selection/selectors';
-import {appendMoleculeToCompoundsOfDatasetToBuy, removeMoleculeFromCompoundsOfDatasetToBuy} from '../../../datasets/redux/actions';
+import {appendMoleculeToCompoundsOfDatasetToBuy, removeMoleculeFromCompoundsOfDatasetToBuy, updateFilterShowedScoreProperties} from '../../../datasets/redux/actions';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
@@ -104,7 +105,7 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
   const configuration = state.previewReducers.compounds.configuration;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
 
-  if (showedCompoundList.find(item => item === index) !== undefined) {
+  if (showedCompoundList.find(item => item === data.smiles) !== undefined) {
     dispatch(
       deleteObject(
         Object.assign(
@@ -168,8 +169,9 @@ const clearCompounds = (items, majorViewStage) => (dispatch, getState) => {
   // reset objects from nglView and showedCompoundList
   const currentCompounds = state.previewReducers.compounds.currentCompounds;
   const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
-  showedCompoundList.forEach(index => {
-    const data = currentCompounds[index];
+  showedCompoundList.forEach(smiles => {
+    const data = currentCompounds.find(c => c.smiles = smiles);
+    const index = data.index
     dispatch(showCompoundNglView({ majorViewStage, data, index }));
     dispatch(removeShowedCompoundFromList(index));
   });
@@ -185,21 +187,65 @@ const clearCompounds = (items, majorViewStage) => (dispatch, getState) => {
   dispatch(dispatch(setCurrentCompoundClass(compoundsColors.blue.key, compoundsColors.blue.key, true)));
 };
 
+export const prepareFakeFilterData = () => (dispatch, getState) => {
+  dispatch(updateFilterShowedScoreProperties({
+    datasetID: AUX_VECTOR_SELECTOR_DATASET_ID,
+    scoreList: [{id: 1, name: 'smiles', description: 'smiles', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
+      {id: 2, name: 'mol', description: 'mol', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
+      {id: 3, name: 'vector', description: 'vector', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
+      {id: 4, name: 'class', description: 'class', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
+      {id: 5, name: 'classColor', description: 'classColor', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID}]
+  }));
+}
+
+export const isCompoundFromVectorSelector = (data) => {
+  if (data['index'] !== undefined) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export const deselectVectorCompound = (data) => (dispatch, getState) => {
+  if (isCompoundFromVectorSelector(data)) {
+    const index = data['index'];
+    
+    const state = getState();
+    const selectedCompounds = state.previewReducers.compounds.allSelectedCompounds;
+
+    dispatch(removeSelectedCompoundClass(index));
+    dispatch(removeFromToBuyList(data, index));
+    const selectedCompoundsCopy = {...selectedCompounds};
+    delete selectedCompoundsCopy[data.smiles];
+    dispatch(setSelectedCompounds(selectedCompoundsCopy));
+  }
+}
+
+export const showHideLigand = (data, majorViewStage) => async (dispatch, getState) => {
+  const state = getState();
+  const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
+
+  const index = data.index;
+  await dispatch(showCompoundNglView({ majorViewStage, data, index }));
+  if (showedCompoundList.find(item => item === data.smiles) !== undefined) {
+    dispatch(removeShowedCompoundFromList(index, data));
+  } else {
+    dispatch(addShowedCompoundToList(index, data));
+  }  
+}
+
 export const handleClickOnCompound = ({ event, data, majorViewStage, index }) => async (dispatch, getState) => {
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
-  const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
   const selectedCompoundsClass = state.previewReducers.compounds.selectedCompoundsClass;
+  const selectedCompounds = state.previewReducers.compounds.allSelectedCompounds;
+
+  dispatch(prepareFakeFilterData());
 
   dispatch(setHighlightedCompoundId(index));
 
   if (event.shiftKey) {
-    await dispatch(showCompoundNglView({ majorViewStage, data, index }));
-    if (showedCompoundList.find(item => item === index) !== undefined) {
-      dispatch(removeShowedCompoundFromList(index, data));
-    } else {
-      dispatch(addShowedCompoundToList(index, data));
-    }
+    dispatch(showHideLigand(data, majorViewStage));
   } else {
     let isSelectedID;
     for (const classKey of Object.keys(selectedCompoundsClass)) {
@@ -213,11 +259,18 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
     if (isSelectedID !== undefined) {
       dispatch(removeSelectedCompoundClass(index));
       dispatch(removeFromToBuyList(data, index));
-      dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.id, ''));
+      dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.smiles, ''));
+      const selectedCompoundsCopy = {...selectedCompounds};
+      delete selectedCompoundsCopy[data.smiles];
+      dispatch(setSelectedCompounds(selectedCompoundsCopy));
     } else {
+      data['index'] = index;
       dispatch(addSelectedCompoundClass(currentCompoundClass, index));
       dispatch(appendToBuyList(Object.assign({}, data, { class: currentCompoundClass, compoundId: index }), index));
-      dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.id, ''));
+      dispatch(appendMoleculeToCompoundsOfDatasetToBuy(AUX_VECTOR_SELECTOR_DATASET_ID, data.smiles, ''));
+      const selectedCompoundsCopy = {...selectedCompounds};
+      selectedCompoundsCopy[data.smiles] = data;
+      dispatch(setSelectedCompounds(selectedCompoundsCopy));
     }
   }
 };

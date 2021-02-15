@@ -27,6 +27,8 @@ import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
+import { isCompoundFromVectorSelector } from '../preview/compounds/redux/dispatchActions';
+
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -85,6 +87,8 @@ export const SelectedCompoundList = memo(({ height }) => {
   const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
   const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
   const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
+
+  const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
 
   const removeOfAllSelectedTypes = () => {
     Object.keys(ligandListAllDatasets).forEach(datasetKey => {
@@ -236,26 +240,38 @@ export const SelectedCompoundList = memo(({ height }) => {
               }
               useWindow={false}
             >
-              {currentMolecules.map((data, index, array) => (
-                <DatasetMoleculeView
-                  key={index}
-                  index={index}
-                  imageHeight={imgHeight}
-                  imageWidth={imgWidth}
-                  data={data.molecule}
-                  datasetID={data.datasetID}
-                  setRef={setSelectedMoleculeRef}
-                  showCrossReferenceModal
-                  previousItemData={index > 0 && array[index - 1]}
-                  nextItemData={index < array?.length && array[index + 1]}
-                  removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                  L={ligandList.includes(data.molecule.id)}
-                  P={proteinList.includes(data.molecule.id)}
-                  C={complexList.includes(data.molecule.id)}
-                  S={surfaceList.includes(data.molecule.id)}
-                  V={false}
-                />
-              ))}
+              {currentMolecules.map((data, index, array) => {
+                const isFromVectorSelector = isCompoundFromVectorSelector(data.molecule);
+                let isLigandOn = false;
+                if (isFromVectorSelector) {
+                  if (showedCompoundList.find(item => item === data.molecule.smiles) !== undefined) {
+                    isLigandOn = true;
+                  }
+                } else {
+                  isLigandOn = ligandList.includes(data.molecule.id);
+                }
+                return (
+                  <DatasetMoleculeView
+                    key={index}
+                    index={index}
+                    imageHeight={imgHeight}
+                    imageWidth={imgWidth}
+                    data={data.molecule}
+                    datasetID={data.datasetID}
+                    setRef={setSelectedMoleculeRef}
+                    showCrossReferenceModal
+                    previousItemData={index > 0 && array[index - 1]}
+                    nextItemData={index < array?.length && array[index + 1]}
+                    removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                    L={isLigandOn}
+                    P={proteinList.includes(data.molecule.id)}
+                    C={complexList.includes(data.molecule.id)}
+                    S={surfaceList.includes(data.molecule.id)}
+                    V={false}
+                    fromSelectedCompounds={true}
+                  />
+                )
+              })}
             </InfiniteScroll>
           </Grid>
         )}

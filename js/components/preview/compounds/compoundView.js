@@ -54,7 +54,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
   const currentCompoundIds = data.compound_ids;
 
   let current_style = Object.assign({}, not_selected_style);
-  if (showedCompoundList.find(item => item === index) !== undefined) {
+  if (showedCompoundList.find(item => item === data.smiles) !== undefined) {
     current_style = Object.assign(current_style, showedStyle);
   }
 
