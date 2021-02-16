@@ -46,7 +46,7 @@ export const CompoundDataView = memo(({ currentCompoundIds, isTooltip, index }) 
                   {isTooltip === true ? (
                     <div>{data}</div>
                   ) : (
-                    <Tooltip title={data} placement="bottom-start">
+                    <Tooltip title={data} placement="top" PopperProps={{ disablePortal: true }}>
                       <div className={classes.moleculeTitleLabel}>{data}</div>
                     </Tooltip>
                   )}
