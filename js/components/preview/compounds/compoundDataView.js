@@ -15,9 +15,6 @@ const useStyles = makeStyles(theme => ({
     width: 'inherit',
     color: theme.palette.white
   },
-  gridItemList: {
-    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
-  },
 
   moleculeTitleLabel: {
     ...theme.typography.button,
@@ -31,8 +28,9 @@ export const CompoundDataView = memo(({ currentCompoundIds, isTooltip, index }) 
   const classes = useStyles();
 
   return (
-    currentCompoundIds && currentCompoundIds.length > 0 && (
-      <Grid item className={classes.gridItemList}>
+    currentCompoundIds &&
+    currentCompoundIds.length > 0 && (
+      <Grid item className={''}>
         {currentCompoundIds.map((data, i, array) => {
           return (
             <Grid

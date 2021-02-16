@@ -18,8 +18,8 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
 
 const useStyles = makeStyles(theme => ({
   compundItem: {
-    marginRight: `${theme.spacing(1)}px`,
-    marginTop: `${theme.spacing(1)}px`
+    marginRight: theme.spacing(1) / 2,
+    marginTop: theme.spacing(1) / 2
   }
 }));
 
