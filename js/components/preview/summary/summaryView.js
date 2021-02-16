@@ -44,15 +44,6 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
       }}
       hasHeader
       headerActions={[
-        <Button
-          color="inherit"
-          variant="text"
-          className={classes.downloadButton}
-          onClick={() => dispatch(exportCsv())}
-          startIcon={<CloudDownload />}
-        >
-          Download CSV
-        </Button>
       ]}
       title="Summary Info"
     >

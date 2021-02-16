@@ -159,9 +159,9 @@ export const SelectedCompoundList = memo(({ height }) => {
     Object.keys(filteredScoreProperties).forEach(datasetName => {
       const dataset = filteredScoreProperties[datasetName];
       dataset.forEach(prop => {
-        if (prop.hasOwnProperty('computed_set')) {
+        // if (prop.hasOwnProperty('computed_set')) {
           unionOfProps.add(prop);
-        }
+        // }
       });
     });
 
