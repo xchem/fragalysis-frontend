@@ -95,7 +95,11 @@ export const CompoundView = memo(({ height, width, data, index }) => {
         }}
         style={current_style}
       >
-        <Tooltip title={<CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={true} index={index} />}>
+        <Tooltip
+          PopperProps={{ disablePortal: true }}
+          placement="top"
+          title={<CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={true} index={index} />}
+        >
           <SVGInline svg={image} />
         </Tooltip>
         <CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={false} index={index} />
