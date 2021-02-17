@@ -630,7 +630,7 @@ export const DatasetMoleculeView = memo(
                       onClick={() => {
                         dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
                       }}
-                      disabled={false || !isLigandOn}
+                      disabled={false || !isLigandOn || isCompoundFromVectorSelector(data)}
                     >
                       <MyLocation className={classes.myLocation} />
                     </Button>

@@ -153,16 +153,20 @@ export const SelectedCompoundList = memo(({ height }) => {
     };
   }, [dispatch]);
 
-  const getSetOfProps = () => {
+  const getSetOfProps = (usedDatasets) => {
     const unionOfProps = new Set();
 
+    unionOfProps.add('smiles');
+
     Object.keys(filteredScoreProperties).forEach(datasetName => {
-      const dataset = filteredScoreProperties[datasetName];
-      dataset.forEach(prop => {
-        // if (prop.hasOwnProperty('computed_set')) {
-          unionOfProps.add(prop);
-        // }
-      });
+      if (usedDatasets.hasOwnProperty(datasetName)){
+        const dataset = filteredScoreProperties[datasetName];
+        dataset.forEach(prop => {
+          if (prop.hasOwnProperty('computed_set')) {
+            unionOfProps.add(prop.name);
+          }
+        });
+      }
     });
 
     return [...unionOfProps];
@@ -171,16 +175,16 @@ export const SelectedCompoundList = memo(({ height }) => {
   const prepareHeader = (props, maxIdsCount) => {
     let header = getIdsHeader(maxIdsCount);
     
-    if (props.length > 0) {
+    if (header.length > 0 && props.length > 0) {
       header += ',';
     }
 
     for (let i = 0; i < props.length; i++) {
       const prop = props[i];
       if (i < props.length - 1) {
-        header += `${encodeURIComponent(prop.name)},`;
+        header += `${encodeURIComponent(prop)},`;
       } else {
-        header += `${encodeURIComponent(prop.name)}`;
+        header += `${encodeURIComponent(prop)}`;
       }
     }
 
@@ -194,7 +198,7 @@ export const SelectedCompoundList = memo(({ height }) => {
 
     line = prepareMolIds(compound, maxIdsCount);
 
-    if (props.length > 0) {
+    if (line.length > 0 && props.length > 0) {
       line += ',';
     }
 
@@ -202,8 +206,8 @@ export const SelectedCompoundList = memo(({ height }) => {
     for (let i = 0; i < props.length; i++) {
       value = '';
       const prop = props[i];
-      if (molecule.hasOwnProperty(prop.name)) {
-        value = molecule[prop.name];
+      if (molecule.hasOwnProperty(prop)) {
+        value = molecule[prop];
       } else {
         let mapOfNumScores = undefined;
         let mapOfTextScores = undefined;
@@ -214,13 +218,13 @@ export const SelectedCompoundList = memo(({ height }) => {
           mapOfTextScores = molecule['text_scores'];
         }
         if (mapOfNumScores !== undefined) {
-          if (mapOfNumScores.hasOwnProperty(prop.name)) {
-            value = mapOfNumScores[prop.name];
+          if (mapOfNumScores.hasOwnProperty(prop)) {
+            value = mapOfNumScores[prop];
           }
         }
         if (mapOfTextScores !== undefined) {
-          if (mapOfTextScores.hasOwnProperty(prop.name)) {
-            value = mapOfTextScores[prop.name];
+          if (mapOfTextScores.hasOwnProperty(prop)) {
+            value = mapOfTextScores[prop];
           }
         }
       }
@@ -292,8 +296,19 @@ export const SelectedCompoundList = memo(({ height }) => {
     return idsHeader;
   };
 
+  const getUsedDatasets = (mols) => {
+    const setOfDataSets = {};
+    mols.forEach(mol => {
+      if (!setOfDataSets.hasOwnProperty(mol.datasetID))
+      setOfDataSets[mol.datasetID] = mol.datasetID;
+    });
+
+    return setOfDataSets;
+  }
+
   const downloadAsCsv = () => {
-    const props = getSetOfProps();
+    const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
+    const props = getSetOfProps(usedDatasets);
     let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
     let data = prepareHeader(props, maxIdsCount);
 
