@@ -57,9 +57,7 @@ export const toggleMoleculeGroup = (molGroupId, summaryViewStage) => (dispatch, 
     ).catch(error => {
       throw new Error(error);
     });
-    dispatch(
-      clearAfterDeselectingMoleculeGroup()
-    );
+    dispatch(clearAfterDeselectingMoleculeGroup({ molGroupId }));
   }
 };
 

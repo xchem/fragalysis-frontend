@@ -2299,26 +2299,11 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const { selectionGroups, object_name } = action;
+    const { object_name } = action;
     let moleculeGroup = getMolGroup(object_name, state);
     if (moleculeGroup) {
       if (isSelected === true) {
         dispatch(selectMoleculeGroup(moleculeGroup, stageSummaryView));
-
-        for (const type in selectionGroups) {
-          if (selectionGroups.hasOwnProperty(type)) {
-            const typeGroup = selectionGroups[type];
-            for (const mol of typeGroup) {
-              if (type === 'ligand') {
-                dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true, true));
-              } else if (type === 'vector') {
-                dispatch(addType[type](majorViewStage, mol, true));
-              } else {
-                dispatch(addType[type](majorViewStage, mol, colourList[mol.id % colourList.length], true));
-              }
-            }
-          }
-        }
       } else {
         dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
       }

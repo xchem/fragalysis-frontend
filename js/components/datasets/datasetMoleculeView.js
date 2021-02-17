@@ -43,6 +43,7 @@ import { isString } from 'lodash';
 import { SvgTooltip } from '../common';
 import { getMolImage } from '../preview/molecule/redux/dispatchActions';
 import { MOL_TYPE } from '../preview/molecule/redux/constants';
+import { deselectVectorCompound, isCompoundFromVectorSelector, showHideLigand } from '../preview/compounds/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -264,10 +265,12 @@ export const DatasetMoleculeView = memo(
     P,
     C,
     S,
-    V
+    V,
+    fromSelectedCompounds = false
   }) => {
     const selectedAll = useRef(false);
-    const currentID = (data && data.id) || undefined;
+    const currentID = (data && data.id) || (data && data.smiles) || undefined;
+    const isFromVectorSelector = isCompoundFromVectorSelector(data);
     const classes = useStyles();
     const ref = useRef(null);
     const dispatch = useDispatch();
@@ -299,7 +302,11 @@ export const DatasetMoleculeView = memo(
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
-    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
+    let areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
+
+    if (fromSelectedCompounds) {
+      areArrowsVisible = false;
+    }
 
     // const disableUserInteraction = useDisableUserInteraction();
 
@@ -359,10 +366,14 @@ export const DatasetMoleculeView = memo(
       } else if (calledFromSelectAll && selectedAll.current === false) {
         removeSelectedLigand(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
-        if (isLigandOn === false) {
-          addNewLigand();
+        if (isFromVectorSelector) {
+          dispatch(showHideLigand(data, stage));
         } else {
-          removeSelectedLigand();
+          if (isLigandOn === false) {
+            addNewLigand();
+          } else {
+            removeSelectedLigand();
+          }
         }
       }
     };
@@ -558,6 +569,7 @@ export const DatasetMoleculeView = memo(
                     dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
                   } else {
                     dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
+                    dispatch(deselectVectorCompound(data));
                   }
                 }}
               />
@@ -618,7 +630,7 @@ export const DatasetMoleculeView = memo(
                       onClick={() => {
                         dispatch(centerOnLigandByMoleculeID(stage, getDatasetMoleculeID(datasetID, currentID)));
                       }}
-                      disabled={false || !isLigandOn}
+                      disabled={false || !isLigandOn || isCompoundFromVectorSelector(data)}
                     >
                       <MyLocation className={classes.myLocation} />
                     </Button>
@@ -646,7 +658,7 @@ export const DatasetMoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={false}
+                      disabled={isFromVectorSelector}
                     >
                       A
                     </Button>
@@ -674,7 +686,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={false}
+                      disabled={isFromVectorSelector}
                     >
                       P
                     </Button>
@@ -689,7 +701,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={false}
+                      disabled={isFromVectorSelector}
                     >
                       C
                     </Button>
@@ -703,7 +715,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={false}
+                      disabled={isFromVectorSelector}
                     >
                       S
                     </Button>
@@ -729,7 +741,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={false}
+                        disabled={isFromVectorSelector}
                       >
                         F
                       </Button>
@@ -751,7 +763,7 @@ export const DatasetMoleculeView = memo(
                             setRef(ref.current);
                           }
                         }}
-                        disabled={false}
+                        disabled={isFromVectorSelector}
                       >
                         X
                       </Button>
@@ -776,7 +788,10 @@ export const DatasetMoleculeView = memo(
                   filteredScoreProperties[datasetID] &&
                   filteredScoreProperties[datasetID].map(score => {
                     //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
-                    const value = allScores[score.name];
+                    let value = allScores[score.name];
+                    if (!value) {
+                      value = data[score.name];
+                    }
                     return (
                       <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
                         {(value && (

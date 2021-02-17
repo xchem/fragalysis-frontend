@@ -47,7 +47,7 @@ export const findTrackAction = (action, state) => {
         }
       }
     } else if (action.type === apiConstants.SET_MOL_GROUP_OFF) {
-      const { mol_group_off, selectionGroups } = action;
+      const { mol_group_off } = action;
       let molGroupName = getMolGroupName(mol_group_off, state);
       trackAction = {
         type: actionType.SITE_TURNED_OFF,
@@ -56,7 +56,6 @@ export const findTrackAction = (action, state) => {
         object_type: actionObjectType.SITE,
         object_name: molGroupName,
         object_id: mol_group_off,
-        selectionGroups,
         text: `${actionDescription.SITE} ${molGroupName} ${actionDescription.TURNED_OFF}`
       };
     } else if (action.type === selectionConstants.SET_OBJECT_SELECTION) {

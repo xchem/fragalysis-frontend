@@ -20,6 +20,16 @@ export const resetCurrentCompoundsSettings = (withCompoundClasses = false) => as
   }
 };
 
+export const resetCurrentCompoundSettingsWithoutSelection = (withCompoundClasses = false) => async dispatch => {
+  await dispatch({
+    type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS_WITHOUT_SELECTION
+  });
+
+  if (withCompoundClasses === true) {
+    dispatch(resetCompoundClasses());
+  }
+}
+
 export const updateCurrentCompound = ({ id, key, value }) => ({
   type: constants.UPDATE_COMPOUND,
   payload: {
@@ -91,4 +101,9 @@ export const resetSelectedCompoundClass = () => ({
 export const reloadCompoundsReducer = newState => ({
   type: constants.RELOAD_REDUCER,
   payload: newState
+});
+
+export const setSelectedCompounds = selectedCompounds => ({
+  type: constants.SET_SELECTED_COMPOUNDS,
+  payload: selectedCompounds
 });

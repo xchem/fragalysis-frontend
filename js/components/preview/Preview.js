@@ -37,6 +37,7 @@ import {
   setTabValue,
   setAllInspirations
 } from '../datasets/redux/actions';
+import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
 
 const hitNavigatorWidth = 504;
 
@@ -95,6 +96,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 
+  dispatch(prepareFakeFilterData());
+
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const selectedDatasetIndex = useSelector(state => state.datasetsReducers.selectedDatasetIndex);
   const currentDataset = customDatasets[selectedDatasetIndex];
@@ -105,6 +108,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
   const tabValue = useSelector(state => state.datasetsReducers.tabValue);
+
 
   /*
      Loading datasets
