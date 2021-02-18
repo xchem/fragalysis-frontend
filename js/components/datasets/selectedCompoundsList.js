@@ -200,6 +200,8 @@ export const SelectedCompoundList = memo(({ height }) => {
 
     if (line.length > 0 && props.length > 0) {
       line += ',';
+    } else if (line.length === 0 && maxIdsCount > 0) {
+      line += ',';
     }
 
     let value = '';
