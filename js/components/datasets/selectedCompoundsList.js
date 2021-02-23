@@ -241,6 +241,57 @@ export const SelectedCompoundList = memo(({ height }) => {
     return line;
   };
 
+  const populateMolObject = (molObj, compound, props) => {
+    const molecule = compound.molecule;
+
+    molObj = populateMolIds(molObj, compound);
+
+    let value = '';
+    for (let i = 0; i < props.length; i++) {
+      value = '';
+      const prop = props[i];
+      if (molecule.hasOwnProperty(prop)) {
+        value = molecule[prop];
+      } else {
+        let mapOfNumScores = undefined;
+        let mapOfTextScores = undefined;
+        if (molecule.hasOwnProperty('numerical_scores')) {
+          mapOfNumScores = molecule['numerical_scores'];
+        }
+        if (molecule.hasOwnProperty('text_scores')) {
+          mapOfTextScores = molecule['text_scores'];
+        }
+        if (mapOfNumScores !== undefined) {
+          if (mapOfNumScores.hasOwnProperty(prop)) {
+            value = mapOfNumScores[prop];
+          }
+        }
+        if (mapOfTextScores !== undefined) {
+          if (mapOfTextScores.hasOwnProperty(prop)) {
+            value = mapOfTextScores[prop];
+          }
+        }
+      }
+
+      molObj[prop] = value;
+
+    };
+
+    return molObj;
+  };
+
+  const populateMolIds = (molObj, compound) => {
+    if (compound.molecule.hasOwnProperty('compound_ids')) {
+      const ids = compound.molecule['compound_ids'];
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        molObj[`compound-id${i}`] = id;
+      };
+    }
+
+    return molObj;
+  };
+
   const getMaxNumberOfCmpIds = (mols) => {
     let maxLength = 0;
 
@@ -308,17 +359,37 @@ export const SelectedCompoundList = memo(({ height }) => {
     return setOfDataSets;
   }
 
+  const getEmptyMolObject = (props, maxIdsCount) => {
+    let molObj = {};
+
+    for (let i = 0; i < maxIdsCount; i++) {
+      molObj[`compound-id${i}`] = '';
+    };
+    props.forEach(prop => {
+      molObj[prop] = '';
+    });
+
+    return molObj;
+  }
+
   const downloadAsCsv = () => {
     const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
     const props = getSetOfProps(usedDatasets);
     let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
     let data = prepareHeader(props, maxIdsCount);
 
+    const listOfMols = [];
+
     moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
-      // data += `\n${compound.molecule.smiles},${compound.datasetID}`;
       data += `\n${convertCompoundToCsvLine(compound, props, maxIdsCount)}`;
+      let molObj = getEmptyMolObject(props, maxIdsCount);
+      molObj = populateMolObject(molObj, compound, props)
+      listOfMols.push(molObj);
     });
     const dataBlob = new Blob([data], { type: 'text/csv;charset=utf-8' });
+
+    const jsonString = JSON.stringify(listOfMols);
+    console.log(jsonString);
 
     FileSaver.saveAs(dataBlob, 'selectedCompounds.csv');
   };
