@@ -423,7 +423,7 @@ export const createNewSnapshotWithoutStateModification = ({
   });
 };
 
-export const saveAndShareSnapshot = nglViewList => async (dispatch, getState) => {
+export const saveAndShareSnapshot = ( nglViewList, showDialog = true ) => async (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
@@ -432,7 +432,9 @@ export const saveAndShareSnapshot = nglViewList => async (dispatch, getState) =>
 
   if (targetId) {
     dispatch(captureScreenOfSnapshot());
-    dispatch(setIsLoadingSnapshotDialog(true));
+    if (showDialog) {
+      dispatch(setIsLoadingSnapshotDialog(true));
+    }
     const data = {
       title: ProjectCreationType.READ_ONLY,
       description: ProjectCreationType.READ_ONLY,
@@ -465,10 +467,14 @@ export const saveAndShareSnapshot = nglViewList => async (dispatch, getState) =>
           nglViewList
         })
       );
-
-      dispatch(setIsLoadingSnapshotDialog(false));
+      
+      if (showDialog) {
+        dispatch(setIsLoadingSnapshotDialog(false));
+      }
     } catch (error) {
-      dispatch(setIsLoadingSnapshotDialog(false));
+      if (showDialog) {
+        dispatch(setIsLoadingSnapshotDialog(false));
+      }
       throw new Error(error);
     }
   }

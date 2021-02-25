@@ -22,7 +22,8 @@ export const INITIAL_STATE = {
   isOpenModalSaveSnapshotBeforeExit: false,
   selectedSnapshotToSwitch: null,
   disableRedirect: false,
-  snapshotJustSaved: false
+  snapshotJustSaved: false,
+  dontShowShareSnapshot: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -87,6 +88,11 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_DISABLE_REDIRECT:
       return Object.assign({}, state, {
         disableRedirect: action.payload
+      });
+    
+    case constants.SET_DONT_SHOW_SHARE_SNAPSHOT:
+      return Object.assign({}, state, {
+        dontShowShareSnapshot: action.payload
       });
 
     case constants.SET_SNAPSHOT_JUST_SAVED: {
