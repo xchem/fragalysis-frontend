@@ -28,6 +28,11 @@ import { VIEWS } from '../../constants/constants';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
 import { isCompoundFromVectorSelector } from '../preview/compounds/redux/dispatchActions';
+import { saveAndShareSnapshot } from '../snapshot/redux/dispatchActions';
+import { setDontShowShareSnapshot, setSharedSnapshot } from '../snapshot/redux/actions';
+import { initSharedSnapshot } from '../snapshot/redux/reducer';
+import { base_url } from '../routes/constants';
+import { api, METHOD } from '../../utils/api';
 
 
 const useStyles = makeStyles(theme => ({
@@ -67,7 +72,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   const crossReferenceDialogRef = useRef();
   const scrollBarRef = useRef();
 
-  const { getNglView } = useContext(NglContext);
+  const { getNglView, nglViewList } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const loadNextMolecules = () => {
@@ -172,75 +177,6 @@ export const SelectedCompoundList = memo(({ height }) => {
     return [...unionOfProps];
   };
 
-  const prepareHeader = (props, maxIdsCount) => {
-    let header = getIdsHeader(maxIdsCount);
-    
-    if (header.length > 0 && props.length > 0) {
-      header += ',';
-    }
-
-    for (let i = 0; i < props.length; i++) {
-      const prop = props[i];
-      if (i < props.length - 1) {
-        header += `${encodeURIComponent(prop)},`;
-      } else {
-        header += `${encodeURIComponent(prop)}`;
-      }
-    }
-
-    return header;
-  };
-
-  const convertCompoundToCsvLine = (compound, props, maxIdsCount) => {
-    let line = '';
-
-    const molecule = compound.molecule;
-
-    line = prepareMolIds(compound, maxIdsCount);
-
-    if (line.length > 0 && props.length > 0) {
-      line += ',';
-    } else if (line.length === 0 && maxIdsCount > 0) {
-      line += ',';
-    }
-
-    let value = '';
-    for (let i = 0; i < props.length; i++) {
-      value = '';
-      const prop = props[i];
-      if (molecule.hasOwnProperty(prop)) {
-        value = molecule[prop];
-      } else {
-        let mapOfNumScores = undefined;
-        let mapOfTextScores = undefined;
-        if (molecule.hasOwnProperty('numerical_scores')) {
-          mapOfNumScores = molecule['numerical_scores'];
-        }
-        if (molecule.hasOwnProperty('text_scores')) {
-          mapOfTextScores = molecule['text_scores'];
-        }
-        if (mapOfNumScores !== undefined) {
-          if (mapOfNumScores.hasOwnProperty(prop)) {
-            value = mapOfNumScores[prop];
-          }
-        }
-        if (mapOfTextScores !== undefined) {
-          if (mapOfTextScores.hasOwnProperty(prop)) {
-            value = mapOfTextScores[prop];
-          }
-        }
-      }
-
-      if (i < props.length - 1) {
-        line += `${encodeURIComponent(value)},`;
-      } else {
-        line += `${encodeURIComponent(value)}`;
-      }
-    };
-
-    return line;
-  };
-
   const populateMolObject = (molObj, compound, props) => {
     const molecule = compound.molecule;
 
@@ -305,50 +241,6 @@ export const SelectedCompoundList = memo(({ height }) => {
     return maxLength;
   };
 
-  const getIdsHeader = (maxIdsCount) => {
-    let idsHeader = '';
-
-    for (let i = 0; i < maxIdsCount; i++) {
-      if (i < maxIdsCount - 1) {
-        idsHeader += `id${i},`;
-      } else {
-        idsHeader += `id${i}`;
-      }
-    }
-
-    return idsHeader;
-  };
-
-  const prepareMolIds = (compound, maxIdsCount) => {
-    let idsHeader = '';
-
-    if (compound.molecule.hasOwnProperty('compound_ids')) {
-      const ids = compound.molecule['compound_ids'];
-      for (let i = 0; i < maxIdsCount; i++) {
-        if (i <= ids.length - 1) {
-          const id = ids[i];
-          if (i < ids.length - 1) {
-            idsHeader += `${id},`;
-          } else {
-            idsHeader += `${id}`;
-          }
-        } else {
-          if (i < maxIdsCount) {
-            idsHeader += ',';
-          }
-        }
-      };
-    } else {
-      for (let i = 0; i < maxIdsCount; i++) {
-        if (i < maxIdsCount - 1) {
-          idsHeader += ',';
-        }
-      }
-    }
-
-    return idsHeader;
-  };
-
   const getUsedDatasets = (mols) => {
     const setOfDataSets = {};
     mols.forEach(mol => {
@@ -372,26 +264,42 @@ export const SelectedCompoundList = memo(({ height }) => {
     return molObj;
   }
 
-  const downloadAsCsv = () => {
-    const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
-    const props = getSetOfProps(usedDatasets);
-    let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
-    let data = prepareHeader(props, maxIdsCount);
+  const downloadAsCsv = () => (dispatch, getState) => {
+    dispatch(setDontShowShareSnapshot(true));
+    dispatch(saveAndShareSnapshot(nglViewList, false)).then(() =>{
+      const state = getState();
+      const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
 
-    const listOfMols = [];
+      dispatch(setSharedSnapshot(initSharedSnapshot));
+      dispatch(setDontShowShareSnapshot(false));
 
-    moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
-      data += `\n${convertCompoundToCsvLine(compound, props, maxIdsCount)}`;
-      let molObj = getEmptyMolObject(props, maxIdsCount);
-      molObj = populateMolObject(molObj, compound, props)
-      listOfMols.push(molObj);
+      const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
+      const props = getSetOfProps(usedDatasets);
+      let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
+  
+      const listOfMols = [];
+  
+      moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
+        let molObj = getEmptyMolObject(props, maxIdsCount);
+        molObj = populateMolObject(molObj, compound, props);
+        listOfMols.push(molObj);
+      });
+      
+      const reqObj = {title: sharedSnapshot.url, dict: listOfMols};
+      const jsonString = JSON.stringify(reqObj);
+
+      api({
+        url: `${base_url}/api/dicttocsv/`,
+        method: METHOD.POST,
+        data: jsonString
+      }).then(resp => {
+        var anchor = document.createElement('a');
+        anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+        anchor.target = '_blank';
+        anchor.download = 'download';
+        anchor.click();
+      });
     });
-    const dataBlob = new Blob([data], { type: 'text/csv;charset=utf-8' });
-
-    const jsonString = JSON.stringify(listOfMols);
-    console.log(jsonString);
-
-    FileSaver.saveAs(dataBlob, 'selectedCompounds.csv');
   };
 
   const downloadAsSdf = async () => {
@@ -420,7 +328,7 @@ export const SelectedCompoundList = memo(({ height }) => {
       title="Selected Compounds"
       withTooltip
       headerActions={[
-        <Button color="inherit" variant="text" onClick={downloadAsCsv} startIcon={<CloudDownload />} >    
+        <Button color="inherit" variant="text" onClick={() => dispatch(downloadAsCsv())} startIcon={<CloudDownload />} >    
           Download CSV
         </Button>,
         <Button

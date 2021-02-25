@@ -50,3 +50,8 @@ export const setSnapshotJustSaved = (saved) => ({
   type: constants.SET_SNAPSHOT_JUST_SAVED,
   payload: saved
 });
+
+export const setDontShowShareSnapshot = (dontShow) => ({
+  type: constants.SET_DONT_SHOW_SHARE_SNAPSHOT,
+  payload: dontShow
+});
