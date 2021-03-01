@@ -8,6 +8,7 @@ import {
   setFilterDialogOpen,
   setFilterProperties,
   setFilterSettings,
+  setDatasetFilter,
   setFilterWithInspirations
 } from './redux/actions';
 import {
@@ -96,12 +97,17 @@ export const DatasetFilter = memo(
       return scoreDatasetList[Object.keys(scoreDatasetList).find(attrName => attrName === attr)];
     };
 
-    const handleFilterChange = (newFilterProperties, newFilterSettings) => {
+    const handleFilterChange = (newFilterProperties, newFilterSettings, key, prio, oldPrio) => {
       Object.keys(scoreDatasetList).forEach(attrKey => {
         if (newFilterProperties[attrKey].priority === undefined || newFilterProperties[attrKey].priority === '') {
           newFilterProperties[attrKey].priority = 0;
         }
+        if (attrKey === key && prio !== undefined && prio !== null) {
+          newFilterProperties[attrKey].newPrio = prio;
+          newFilterProperties[attrKey].oldPrio = oldPrio;
+        }
       });
+      dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key));
       dispatch(setFilterProperties(datasetID, newFilterProperties));
       dispatch(setFilterSettings(datasetID, newFilterSettings));
     };
@@ -109,7 +115,7 @@ export const DatasetFilter = memo(
     const handleItemChange = key => setting => {
       const newFilterSettings = createFilterSettingsObject({ active: true, predefined, priorityOrder });
       const newFilterProperties = { ...filterProperties, [key]: setting };
-      handleFilterChange(newFilterProperties, newFilterSettings);
+      handleFilterChange(newFilterProperties, newFilterSettings, key);
     };
 
     const handlePrioChange = key => inc => () => {
@@ -124,13 +130,16 @@ export const DatasetFilter = memo(
         newFilterSettings.priorityOrder = localPriorityOrder;
         newFilterSettings.active = true;
 
-        handleFilterChange(filterProperties, newFilterSettings);
+        let oldPrio = index;
+        let newPrio = index + inc;
+        let newFilterProperties = { ...filterProperties };
+        handleFilterChange(newFilterProperties, newFilterSettings, key, newPrio, oldPrio);
       }
     };
 
     const handleClear = () => {
       setPredefinedFilter('none');
-      handleFilterChange(defaultFilterProperties, defaultFilterSettings);
+      handleFilterChange(defaultFilterProperties, defaultFilterSettings, 'clear');
     };
 
     // Check for multiple attributes with same sorting priority

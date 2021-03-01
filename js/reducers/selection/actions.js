@@ -11,17 +11,35 @@ export const setToBuyList = function(to_buy_list) {
   };
 };
 
-export const appendToBuyList = function(item) {
+export const appendToBuyList = function(item, index, skipTracking = false) {
   return {
     type: constants.APPEND_TO_BUY_LIST,
-    item: item
+    item: item,
+    index: index,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromToBuyList = function(item) {
+export const removeFromToBuyList = function(item, index, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_TO_BUY_LIST,
-    item: item
+    item: item,
+    index: index,
+    skipTracking: skipTracking
+  };
+};
+
+export const appendToBuyListAll = function(items) {
+  return {
+    type: constants.APPEND_TO_BUY_LIST_ALL,
+    items: items
+  };
+};
+
+export const removeFromToBuyListAll = function(items) {
+  return {
+    type: constants.REMOVE_FROM_BUY_LIST_ALL,
+    items: items
   };
 };
 
@@ -39,86 +57,98 @@ export const setCurrentVector = vectorSmile => {
   };
 };
 
-export const setFragmentDisplayList = function(fragmentDisplayList) {
+export const setFragmentDisplayList = function(fragmentDisplayList, skipTracking = false) {
   return {
     type: constants.SET_FRAGMENT_DISPLAY_LIST,
-    fragmentDisplayList: fragmentDisplayList
+    fragmentDisplayList: fragmentDisplayList,
+    skipTracking
   };
 };
 
-export const appendFragmentDisplayList = function(item) {
+export const appendFragmentDisplayList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_FRAGMENT_DISPLAY_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromFragmentDisplayList = function(item) {
+export const removeFromFragmentDisplayList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const setProteinList = function(proteinList) {
+export const setProteinList = function(proteinList, skipTracking = false) {
   return {
     type: constants.SET_PROTEIN_LIST,
-    proteinList: proteinList
+    proteinList: proteinList,
+    skipTracking
   };
 };
 
-export const appendProteinList = function(item) {
+export const appendProteinList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_PROTEIN_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromProteinList = function(item) {
+export const removeFromProteinList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_PROTEIN_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
-export const setComplexList = function(complexList) {
+export const setComplexList = function(complexList, skipTracking = false) {
   return {
     type: constants.SET_COMPLEX_LIST,
-    complexList: complexList
+    complexList: complexList,
+    skipTracking
   };
 };
 
-export const appendComplexList = function(item) {
+export const appendComplexList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_COMPLEX_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromComplexList = function(item) {
+export const removeFromComplexList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_COMPLEX_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const setSurfaceList = function(surfaceList) {
+export const setSurfaceList = function(surfaceList, skipTracking = false) {
   return {
     type: constants.SET_SURFACE_LIST,
-    surfaceList: surfaceList
+    surfaceList: surfaceList,
+    skipTracking
   };
 };
 
-export const appendSurfaceList = function(item) {
+export const appendSurfaceList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_SURFACE_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromSurfaceList = function(item) {
+export const removeFromSurfaceList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_SURFACE_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
@@ -143,24 +173,27 @@ export const removeFromDensityList = function(item) {
   };
 };
 
-export const setVectorOnList = function(vectorOnList) {
+export const setVectorOnList = function(vectorOnList, skipTracking = false) {
   return {
     type: constants.SET_VECTOR_ON_LIST,
-    vectorOnList: vectorOnList
+    vectorOnList: vectorOnList,
+    skipTracking
   };
 };
 
-export const appendVectorOnList = function(item) {
+export const appendVectorOnList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_VECTOR_ON_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
-export const removeFromVectorOnList = function(item) {
+export const removeFromVectorOnList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_VECTOR_ON_LIST,
-    item: item
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
@@ -219,4 +252,46 @@ export const resetBondColorMapOfVectors = () => ({
 export const updateBondColorMapOfCompounds = (key, value) => ({
   type: constants.UPDATE_BOND_COLOR_MAP_OF_COMPOUNDS,
   payload: { key, value }
+});
+
+export const setSelectedAll = (item, isLigand, isProtein, isComplex) => ({
+  type: constants.SET_SELECTED_ALL,
+  item: item,
+  isLigand: isLigand,
+  isProtein: isProtein,
+  isComplex: isComplex
+});
+
+export const setDeselectedAll = (item, isLigand, isProtein, isComplex) => ({
+  type: constants.SET_DESELECTED_ALL,
+  item: item,
+  isLigand: isLigand,
+  isProtein: isProtein,
+  isComplex: isComplex
+});
+
+export const setSelectedAllByType = (type, items, isInspiration) => ({
+  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  payload: { type, items, isInspiration }
+});
+
+export const setDeselectedAllByType = (type, items, isInspiration) => ({
+  type: constants.SET_DESELECTED_ALL_BY_TYPE,
+  payload: { type, items, isInspiration }
+});
+
+export const setHideAll = (data, isHide = true) => ({
+  type: constants.SET_HIDE_ALL,
+  isHide: isHide,
+  data: data
+});
+
+export const setArrowUpDown = (item, newItem, arrowType, data) => ({
+  type: constants.SET_ARROW_UP_DOWN,
+  payload: {
+    item: item,
+    newItem: newItem,
+    arrowType: arrowType,
+    data
+  }
 });

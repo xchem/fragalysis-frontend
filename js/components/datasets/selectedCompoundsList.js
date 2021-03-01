@@ -3,7 +3,13 @@ import { Panel } from '../common/Surfaces/Panel';
 import { CircularProgress, Grid, makeStyles, Typography, Button } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMoleculesObjectIDListOfCompoundsToBuy } from './redux/selectors';
+import {
+  getMoleculesObjectIDListOfCompoundsToBuy,
+  getListOfSelectedComplexOfAllDatasets,
+  getListOfSelectedLigandOfAllDatasets,
+  getListOfSelectedProteinOfAllDatasets,
+  getListOfSelectedSurfaceOfAllDatasets
+} from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
 import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
@@ -11,17 +17,23 @@ import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import {
   autoHideDatasetDialogsOnScroll,
+  resetCrossReferenceDialog,
   removeDatasetComplex,
   removeDatasetHitProtein,
   removeDatasetLigand,
-  removeDatasetSurface,
-  resetCrossReferenceDialog
+  removeDatasetSurface
 } from './redux/dispatchActions';
-import MoleculeView from '../preview/molecule/moleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
+import { isCompoundFromVectorSelector } from '../preview/compounds/redux/dispatchActions';
+import { saveAndShareSnapshot } from '../snapshot/redux/dispatchActions';
+import { setDontShowShareSnapshot, setSharedSnapshot } from '../snapshot/redux/actions';
+import { initSharedSnapshot } from '../snapshot/redux/reducer';
+import { base_url } from '../routes/constants';
+import { api, METHOD } from '../../utils/api';
+
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -52,14 +64,15 @@ export const SelectedCompoundList = memo(({ height }) => {
   const moleculesPerPage = 5;
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(0);
-  const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+  const moleculesObjectIDListOfCompoundsToBuy = useSelector(getMoleculesObjectIDListOfCompoundsToBuy);
+  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
   const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
   const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
   const inspirationDialogRef = useRef();
   const crossReferenceDialogRef = useRef();
   const scrollBarRef = useRef();
 
-  const { getNglView } = useContext(NglContext);
+  const { getNglView, nglViewList } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const loadNextMolecules = () => {
@@ -70,10 +83,18 @@ export const SelectedCompoundList = memo(({ height }) => {
   const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
 
+  const ligandList = useSelector(state => getListOfSelectedLigandOfAllDatasets(state));
+  const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
+  const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
+  const surfaceList = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
+
   const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
   const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
   const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
   const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
+
+  const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
+  const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
 
   const removeOfAllSelectedTypes = () => {
     Object.keys(ligandListAllDatasets).forEach(datasetKey => {
@@ -137,14 +158,148 @@ export const SelectedCompoundList = memo(({ height }) => {
     };
   }, [dispatch]);
 
-  const downloadAsCsv = () => {
-    let data = 'smiles,dataset';
-    moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
-      data += `\n${compound.molecule.smiles},${compound.datasetID}`;
-    });
-    const dataBlob = new Blob([data], {type: 'text/csv;charset=utf-8'});
+  const getSetOfProps = (usedDatasets) => {
+    const unionOfProps = new Set();
 
-    FileSaver.saveAs(dataBlob, 'selectedCompounds.csv');
+    unionOfProps.add('smiles');
+
+    Object.keys(filteredScoreProperties).forEach(datasetName => {
+      if (usedDatasets.hasOwnProperty(datasetName)){
+        const dataset = filteredScoreProperties[datasetName];
+        dataset.forEach(prop => {
+          if (prop.hasOwnProperty('computed_set')) {
+            unionOfProps.add(prop.name);
+          }
+        });
+      }
+    });
+
+    return [...unionOfProps];
+  };
+
+  const populateMolObject = (molObj, compound, props) => {
+    const molecule = compound.molecule;
+
+    molObj = populateMolIds(molObj, compound);
+
+    let value = '';
+    for (let i = 0; i < props.length; i++) {
+      value = '';
+      const prop = props[i];
+      if (molecule.hasOwnProperty(prop)) {
+        value = molecule[prop];
+      } else {
+        let mapOfNumScores = undefined;
+        let mapOfTextScores = undefined;
+        if (molecule.hasOwnProperty('numerical_scores')) {
+          mapOfNumScores = molecule['numerical_scores'];
+        }
+        if (molecule.hasOwnProperty('text_scores')) {
+          mapOfTextScores = molecule['text_scores'];
+        }
+        if (mapOfNumScores !== undefined) {
+          if (mapOfNumScores.hasOwnProperty(prop)) {
+            value = mapOfNumScores[prop];
+          }
+        }
+        if (mapOfTextScores !== undefined) {
+          if (mapOfTextScores.hasOwnProperty(prop)) {
+            value = mapOfTextScores[prop];
+          }
+        }
+      }
+
+      molObj[prop] = value;
+
+    };
+
+    return molObj;
+  };
+
+  const populateMolIds = (molObj, compound) => {
+    if (compound.molecule.hasOwnProperty('compound_ids')) {
+      const ids = compound.molecule['compound_ids'];
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        molObj[`compound-id${i}`] = id;
+      };
+    }
+
+    return molObj;
+  };
+
+  const getMaxNumberOfCmpIds = (mols) => {
+    let maxLength = 0;
+
+    mols.forEach(mol => {
+      if (mol.molecule.hasOwnProperty('compound_ids')) {
+        const ids = mol.molecule['compound_ids'];
+        maxLength = maxLength < ids.length ? ids.length : maxLength;
+      }
+    });
+
+    return maxLength;
+  };
+
+  const getUsedDatasets = (mols) => {
+    const setOfDataSets = {};
+    mols.forEach(mol => {
+      if (!setOfDataSets.hasOwnProperty(mol.datasetID))
+      setOfDataSets[mol.datasetID] = mol.datasetID;
+    });
+
+    return setOfDataSets;
+  }
+
+  const getEmptyMolObject = (props, maxIdsCount) => {
+    let molObj = {};
+
+    for (let i = 0; i < maxIdsCount; i++) {
+      molObj[`compound-id${i}`] = '';
+    };
+    props.forEach(prop => {
+      molObj[prop] = '';
+    });
+
+    return molObj;
+  }
+
+  const downloadAsCsv = () => (dispatch, getState) => {
+    dispatch(setDontShowShareSnapshot(true));
+    dispatch(saveAndShareSnapshot(nglViewList, false)).then(() =>{
+      const state = getState();
+      const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
+
+      dispatch(setSharedSnapshot(initSharedSnapshot));
+      dispatch(setDontShowShareSnapshot(false));
+
+      const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
+      const props = getSetOfProps(usedDatasets);
+      let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
+  
+      const listOfMols = [];
+  
+      moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
+        let molObj = getEmptyMolObject(props, maxIdsCount);
+        molObj = populateMolObject(molObj, compound, props);
+        listOfMols.push(molObj);
+      });
+      
+      const reqObj = {title: sharedSnapshot.url, dict: listOfMols};
+      const jsonString = JSON.stringify(reqObj);
+
+      api({
+        url: `${base_url}/api/dicttocsv/`,
+        method: METHOD.POST,
+        data: jsonString
+      }).then(resp => {
+        var anchor = document.createElement('a');
+        anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+        anchor.target = '_blank';
+        anchor.download = 'download';
+        anchor.click();
+      });
+    });
   };
 
   const downloadAsSdf = async () => {
@@ -168,25 +323,26 @@ export const SelectedCompoundList = memo(({ height }) => {
   };
 
   return (
-    <Panel hasHeader title="Selected Compounds" withTooltip headerActions={[
-      <Button
-        color="inherit"
-        variant="text"
-        onClick={downloadAsCsv}
-        startIcon={<CloudDownload />}
-      >
-        Download CSV
-      </Button>,
-      <Button
-        color="inherit"
-        variant="text"
-        className={classes.sdfButton}
-        onClick={downloadAsSdf}
-        startIcon={<CloudDownload />}
-      >
-        Download SDF
-      </Button>
-    ]}>
+    <Panel
+      hasHeader
+      title="Selected Compounds"
+      withTooltip
+      headerActions={[
+        <Button color="inherit" variant="text" onClick={() => dispatch(downloadAsCsv())} startIcon={<CloudDownload />} >    
+          Download CSV
+        </Button>,
+        <Button
+          color="inherit"
+          variant="text"
+          className={classes.sdfButton}
+          onClick={downloadAsSdf}
+          startIcon={<CloudDownload />}
+          disabled={true}
+        >
+          Download SDF
+        </Button>
+      ]}
+    >
       {isOpenInspirationDialog && (
         <InspirationDialog
           open
@@ -225,21 +381,38 @@ export const SelectedCompoundList = memo(({ height }) => {
               }
               useWindow={false}
             >
-              {currentMolecules.map((data, index, array) => (
-                <DatasetMoleculeView
-                  key={index}
-                  index={index}
-                  imageHeight={imgHeight}
-                  imageWidth={imgWidth}
-                  data={data.molecule}
-                  datasetID={data.datasetID}
-                  setRef={setSelectedMoleculeRef}
-                  showCrossReferenceModal
-                  previousItemData={index > 0 && array[index - 1]}
-                  nextItemData={index < array?.length && array[index + 1]}
-                  removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                />
-              ))}
+              {currentMolecules.map((data, index, array) => {
+                const isFromVectorSelector = isCompoundFromVectorSelector(data.molecule);
+                let isLigandOn = false;
+                if (isFromVectorSelector) {
+                  if (showedCompoundList.find(item => item === data.molecule.smiles) !== undefined) {
+                    isLigandOn = true;
+                  }
+                } else {
+                  isLigandOn = ligandList.includes(data.molecule.id);
+                }
+                return (
+                  <DatasetMoleculeView
+                    key={index}
+                    index={index}
+                    imageHeight={imgHeight}
+                    imageWidth={imgWidth}
+                    data={data.molecule}
+                    datasetID={data.datasetID}
+                    setRef={setSelectedMoleculeRef}
+                    showCrossReferenceModal
+                    previousItemData={index > 0 && array[index - 1]}
+                    nextItemData={index < array?.length && array[index + 1]}
+                    removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                    L={isLigandOn}
+                    P={proteinList.includes(data.molecule.id)}
+                    C={complexList.includes(data.molecule.id)}
+                    S={surfaceList.includes(data.molecule.id)}
+                    V={false}
+                    fromSelectedCompounds={true}
+                  />
+                )
+              })}
             </InfiniteScroll>
           </Grid>
         )}

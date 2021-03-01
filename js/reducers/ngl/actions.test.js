@@ -297,35 +297,6 @@ describe("testing ngl reducer's actions", () => {
     expect(result.nglOrientations).toStrictEqual(defaultScene[SCENES.defaultScene].nglOrientations);
   });
 
-  /*
-  it('should reset current state to session scene', () => {
-    expect.hasAssertions();
-    const sessionScene = {
-      objectsInView: {
-        molecule_1: {
-          properties: [{ a: 'dfg' }],
-          representations: [
-            {
-              lastKnownID: 78904,
-              uuid: 9903,
-              other: 'fdjsdj'
-            },
-            {
-              lastKnownID: 178904,
-              uuid: 19903,
-              other: '1fdjsdj'
-            }
-          ]
-        }
-      },
-      nglOrientations: { a: [24, 566] }
-    };
-
-    let result = nglReducers(initialState, actions.setNglStateFromCurrentSnapshot(sessionScene));
-    expect(result.objectsInView).toStrictEqual(sessionScene.objectsInView);
-    expect(result.nglOrientations).toStrictEqual(sessionScene.nglOrientations);
-  });
-*/
   it('should remove all ngl view components', () => {
     expect.hasAssertions();
     let result = nglReducers(initialState, actions.removeAllNglComponents());

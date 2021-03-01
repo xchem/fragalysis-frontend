@@ -29,6 +29,7 @@ export const ModalShareSnapshot = memo(({}) => {
   const classes = useStyles();
   const sharedSnapshot = useSelector(state => state.snapshotReducers.sharedSnapshot);
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
+  const dontShowShareSnapshot = useSelector(state => state.snapshotReducers.dontShowShareSnapshot);
   const dispatch = useDispatch();
 
   const openInNewTab = () => {
@@ -46,7 +47,7 @@ export const ModalShareSnapshot = memo(({}) => {
   };
 
   return (
-    <Modal open={sharedSnapshot.url !== null}>
+    <Modal open={sharedSnapshot.url !== null && dontShowShareSnapshot === false}>
       {isLoadingSnapshotDialog === false ? (
         <>
           <DialogTitle id="form-dialog-title">{sharedSnapshot.title}</DialogTitle>

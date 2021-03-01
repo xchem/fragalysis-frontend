@@ -4,8 +4,10 @@ import { Drawer } from '../../common/Navigation/Drawer';
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { setNglViewParams } from '../../../reducers/ngl/actions';
+import { setNglBckGrndColor, setNglClipNear, setNglClipFar, setNglClipDist, setNglFogNear, setNglFogFar } from '../../../reducers/ngl/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,13 +35,17 @@ export const SettingControls = memo(({ open, onClose }) => {
 
   const handleStageColor = () => {
     if (viewParams[NGL_PARAMS.backgroundColor] === BACKGROUND_COLOR.white) {
-      dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.black, majorView));
-      dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.black, summaryView));
+      dispatch(setNglBckGrndColor(BACKGROUND_COLOR.black, majorView, summaryView));
+      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.black, majorView, VIEWS.MAJOR_VIEW));
+      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.black, summaryView, VIEWS.SUMMARY_VIEW));
     } else {
-      dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, majorView));
-      dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, summaryView));
+      dispatch(setNglBckGrndColor(BACKGROUND_COLOR.white, majorView, summaryView));
+      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, majorView, VIEWS.MAJOR_VIEW));
+      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, summaryView, VIEWS.SUMMARY_VIEW));
     }
   };
+
+
 
   return (
     <Drawer title="Settings" open={open} onClose={onClose}>
@@ -68,7 +74,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.clipNear, value, majorView))}
+              onChange={(e, value) => dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView))}
             />
           </Grid>
         </Grid>
@@ -83,7 +89,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.clipFar, value, majorView))}
+              onChange={(e, value) => dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorView))}
             />
           </Grid>
         </Grid>
@@ -95,7 +101,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             <TextField
               type="number"
               value={viewParams[NGL_PARAMS.clipDist]}
-              onChange={e => dispatch(setNglViewParams(NGL_PARAMS.clipDist, e.target.value, majorView))}
+              onChange={e => dispatch(setNglClipDist(e.target.value, viewParams[NGL_PARAMS.clipDist], majorView))}
               className={classes.textField}
             />
           </Grid>
@@ -111,7 +117,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.fogNear, value, majorView))}
+              onChange={(e, value) => dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorView))}
             />
           </Grid>
         </Grid>
@@ -126,7 +132,7 @@ export const SettingControls = memo(({ open, onClose }) => {
               step={1}
               min={0}
               max={100}
-              onChange={(e, value) => dispatch(setNglViewParams(NGL_PARAMS.fogFar, value, majorView))}
+              onChange={(e, value) => dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorView))}
             />
           </Grid>
         </Grid>

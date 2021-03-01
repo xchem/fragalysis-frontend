@@ -7,6 +7,9 @@ export const INITIAL_STATE = {
   scoreDatasetMap: {}, // map of $datasetID and its $scoreList
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
+  selectedDatasetIndex: 0,
+  tabValue: 0,
+
   // filter
   filterDatasetMap: {}, // map of $datasetID and its $filterSettings
   filterPropertiesDatasetMap: {}, // map of $datasetID and its $filterProperties
@@ -21,6 +24,9 @@ export const INITIAL_STATE = {
   surfaceLists: {}, // map of $datasetID and its $list
   inspirationLists: {}, // map of $datasetID and its $list
 
+  moleculeAllSelection: {},
+  moleculeAllTypeSelection: {},
+
   // search
   searchString: null,
 
@@ -29,6 +35,8 @@ export const INITIAL_STATE = {
   inspirationFragmentList: [],
   isLoadingInspirationListOfMolecules: false,
   inspirationMoleculeDataList: [],
+  allInspirationMoleculeDataList: [],
+  allInspirations: {},
 
   // cross reference
   isOpenCrossReferenceDialog: false,
@@ -117,6 +125,7 @@ const initializeContainerLists = (state, datasetID) => {
   state.complexLists[datasetID] = state.complexLists[datasetID] || [];
   state.surfaceLists[datasetID] = state.surfaceLists[datasetID] || [];
   state.inspirationLists[datasetID] = state.inspirationLists[datasetID] || [];
+  state.moleculeAllSelection[datasetID] = state.moleculeAllSelection[datasetID] || [];
   return state;
 };
 
@@ -130,6 +139,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_DATASET:
       return Object.assign({}, state, { datasets: action.payload });
+
+    case constants.REPLACE_ALL_MOLECULELISTS:
+      return { ...state, moleculeLists: action.payload };
 
     case constants.ADD_MOLECULELIST:
       // initialize also control containers
@@ -151,6 +163,12 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
+
+    case constants.SET_SELECTED_DATASET_INDEX:
+      return Object.assign({}, state, { selectedDatasetIndex: action.payload.value });
+
+    case constants.SET_TAB_VALUE:
+      return Object.assign({}, state, { tabValue: action.payload.value });
 
     case constants.SET_FILTER_SETTINGS:
       const { datasetID, filter } = action.payload;
@@ -257,12 +275,16 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { scoreCompoundMap: {} });
 
     case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
-      return {
-        ...state,
-        filteredScoreProperties: {
-          ...state.filteredScoreProperties,
-          [action.payload.datasetID]: action.payload.scoreList
-        }
+      if (state.filteredScoreProperties[action.payload.datasetID]) {
+        return {...state};
+      } else {
+        return {
+          ...state,
+          filteredScoreProperties: {
+            ...state.filteredScoreProperties,
+            [action.payload.datasetID]: action.payload.scoreList
+          }
+        };
       };
 
     case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
@@ -291,10 +313,20 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_INSPIRATION_MOLECULE_DATA_LIST:
       return Object.assign({}, state, { inspirationMoleculeDataList: action.payload });
 
+    case constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST:
+      return Object.assign({}, state, { allInspirationMoleculeDataList: action.payload });
+
     case constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST:
       const extendedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
       extendedInspirationMoleculeDataList.add(action.payload);
       return Object.assign({}, state, { inspirationMoleculeDataList: [...extendedInspirationMoleculeDataList] });
+
+    case constants.APPEND_TO_ALL_INSPIRATION_MOLECULE_DATA_LIST:
+      const molecules = new Set(state.allInspirationMoleculeDataList);
+      if (!molecules.has(action.payload)) {
+        molecules.add(action.payload);
+      }
+      return Object.assign({}, state, { allInspirationMoleculeDataList: [...molecules] });
 
     case constants.REMOVE_FROM_INSPIRATION_MOLECULE_DATA_LIST:
       const diminishedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
@@ -326,6 +358,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         diminishedInspirationFragmentList.delete(foundtem);
       }
       return Object.assign({}, state, { inspirationFragmentList: [...diminishedInspirationFragmentList] });
+
+    case constants.SET_ALL_INSPIRATIONS:
+      return { ...state, allInspirations: action.payload };
 
     case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
       const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
@@ -363,8 +398,31 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, lists);
 
     case constants.RESET_DATASETS_STATE:
-      return INITIAL_STATE;
+      const datasetsLists = {
+        ligandLists: reloadLists([], 'ligandLists'),
+        proteinLists: reloadLists([], 'proteinLists'),
+        complexLists: reloadLists([], 'complexLists'),
+        surfaceLists: reloadLists([], 'surfaceLists'),
+        inspirationLists: reloadLists([], 'inspirationLists'),
+        compoundsToBuyDatasetMap: reloadLists([], 'compoundsToBuyDatasetMap')
+      };
+      return Object.assign({}, state, { ...INITIAL_STATE, ...datasetsLists });
 
+    case constants.SET_SELECTED_ALL:
+      return appendToList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
+
+    case constants.SET_DESELECTED_ALL:
+      return removeFromList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
+
+    case constants.SET_SELECTED_ALL_BY_TYPE:
+      return Object.assign({}, state, {
+        moleculeAllTypeSelection: action.payload.type
+      });
+
+    case constants.SET_DESELECTED_ALL_BY_TYPE:
+      return Object.assign({}, state, {
+        moleculeAllTypeSelection: action.payload.type
+      });
     default:
       return state;
   }

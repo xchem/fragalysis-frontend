@@ -5,6 +5,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
 import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
 
 export const ProjectPreview = memo(({}) => {
   const { setSnackBarTitle } = useContext(HeaderContext);
@@ -12,10 +13,13 @@ export const ProjectPreview = memo(({}) => {
   const isSnapshotLoaded = useRef(undefined);
   let match = useRouteMatch();
   const dispatch = useDispatch();
+
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
+  const isActionRestored = useSelector(state => state.trackingReducers.isActionRestored);
 
   useEffect(() => {
     if (!snapshotId && currentSnapshotID === null) {
@@ -31,28 +35,38 @@ export const ProjectPreview = memo(({}) => {
           throw new Error(error);
         });
     } else {
-      dispatch(loadCurrentSnapshotByID(snapshotId || currentSnapshotID))
-        .then(response => {
-          if (response !== false) {
-            if (response) {
-              if (response.session_project && `${response.session_project.id}` === projectId) {
-                isSnapshotLoaded.current = response.id;
-                setCanShow(true);
+      if (currentSnapshotID === null) {
+        dispatch(loadCurrentSnapshotByID(snapshotId))
+          .then(response => {
+            if (response !== false) {
+              if (response) {
+                if (response.session_project && `${response.session_project.id}` === projectId) {
+                  isSnapshotLoaded.current = response.id;
+                  setCanShow(true);
+                } else {
+                  setCanShow(false);
+                }
               } else {
+                isSnapshotLoaded.current = response;
                 setCanShow(false);
               }
-            } else {
-              isSnapshotLoaded.current = response;
-              setCanShow(false);
             }
-          }
-        })
-        .catch(error => {
-          setCanShow(false);
-          throw new Error(error);
-        });
+          })
+          .catch(error => {
+            setCanShow(false);
+            throw new Error(error);
+          });
+      } else {
+        if (isActionRestoring === false && isActionRestored === false) {
+          let snapshotID = currentSnapshotID;
+          isSnapshotLoaded.current = currentSnapshotID;
+          setCanShow(true);
+
+          dispatch(restoreCurrentActionsList(snapshotID));
+        }
+      }
     }
-  }, [currentSnapshotID, dispatch, projectId, snapshotId]);
+  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, canShow]);
 
   if (canShow === false) {
     setSnackBarTitle('Not valid snapshot!');

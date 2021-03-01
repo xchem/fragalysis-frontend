@@ -20,6 +20,16 @@ export const resetCurrentCompoundsSettings = (withCompoundClasses = false) => as
   }
 };
 
+export const resetCurrentCompoundSettingsWithoutSelection = (withCompoundClasses = false) => async dispatch => {
+  await dispatch({
+    type: constants.RESET_CURRENT_COMPOUNDS_SETTINGS_WITHOUT_SELECTION
+  });
+
+  if (withCompoundClasses === true) {
+    dispatch(resetCompoundClasses());
+  }
+}
+
 export const updateCurrentCompound = ({ id, key, value }) => ({
   type: constants.UPDATE_COMPOUND,
   payload: {
@@ -29,9 +39,12 @@ export const updateCurrentCompound = ({ id, key, value }) => ({
   }
 });
 
-export const setCompoundClasses = compoundClasses => ({
+export const setCompoundClasses = (compoundClasses, oldCompoundClasses, value, id) => ({
   type: constants.SET_COMPOUND_CLASSES,
-  payload: compoundClasses
+  payload: compoundClasses,
+  oldCompoundClasses: oldCompoundClasses,
+  value: value,
+  id: id
 });
 
 export const resetCompoundClasses = compoundClasses => ({
@@ -39,10 +52,12 @@ export const resetCompoundClasses = compoundClasses => ({
   payload: compoundClasses
 });
 
-export const setCurrentCompoundClass = currentCompoundClass => {
+export const setCurrentCompoundClass = (currentCompoundClass, oldCompoundClass, skipTracking) => {
   return {
     type: constants.SET_CURRENT_COMPOUND_CLASS,
-    payload: currentCompoundClass
+    payload: currentCompoundClass,
+    oldCompoundClass: oldCompoundClass,
+    skipTracking: skipTracking
   };
 };
 
@@ -57,14 +72,16 @@ export const setShowedCompoundList = compounds => ({
   payload: compounds
 });
 
-export const addShowedCompoundToList = compoundId => ({
+export const addShowedCompoundToList = (compoundId, item) => ({
   type: constants.APPEND_SHOWED_COMPOUND_LIST,
-  payload: compoundId
+  payload: compoundId,
+  item: item
 });
 
-export const removeShowedCompoundFromList = compoundId => ({
+export const removeShowedCompoundFromList = (compoundId, item) => ({
   type: constants.REMOVE_SHOWED_COMPOUND_LIST,
-  payload: compoundId
+  payload: compoundId,
+  item: item
 });
 
 export const addSelectedCompoundClass = (classID, compoundID) => ({
@@ -84,4 +101,9 @@ export const resetSelectedCompoundClass = () => ({
 export const reloadCompoundsReducer = newState => ({
   type: constants.RELOAD_REDUCER,
   payload: newState
+});
+
+export const setSelectedCompounds = selectedCompounds => ({
+  type: constants.SET_SELECTED_COMPOUNDS,
+  payload: selectedCompounds
 });

@@ -26,6 +26,22 @@ export const setMoleculeListIsLoading = isLoading => ({
   payload: isLoading
 });
 
+export const setSelectedDatasetIndex = (oldValue, tabValue, tabName, oldName, skipTracking = false) => ({
+  type: constants.SET_SELECTED_DATASET_INDEX,
+  payload: { oldValue: oldValue, value: tabValue, name: tabName, oldName: oldName },
+  skipTracking: skipTracking
+});
+
+export const setTabValue = (oldValue, tabValue, tabName, oldName) => ({
+  type: constants.SET_TAB_VALUE,
+  payload: { oldValue: oldValue, value: tabValue, name: tabName, oldName: oldName }
+});
+
+export const replaceAllMoleculeLists = allMoleculeLists => ({
+  type: constants.REPLACE_ALL_MOLECULELISTS,
+  payload: allMoleculeLists
+});
+
 export const setFilterSettings = (datasetID, filter) => ({
   type: constants.SET_FILTER_SETTINGS,
   payload: { datasetID, filter }
@@ -34,6 +50,11 @@ export const setFilterSettings = (datasetID, filter) => ({
 export const setFilterProperties = (datasetID, properties) => ({
   type: constants.SET_FILTER_PROPERTIES,
   payload: { datasetID, properties }
+});
+
+export const setDatasetFilter = (datasetID, properties, settings, key) => ({
+  type: constants.SET_DATASET_FILTER,
+  payload: { datasetID, properties, settings, key }
 });
 
 export const setFilterDialogOpen = filterDialogOpen => ({
@@ -50,22 +71,24 @@ export const setLigandList = function(datsetID, ligandList) {
     }
   };
 };
-export const appendLigandList = function(datsetID, item) {
+export const appendLigandList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.APPEND_LIGAND_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
-export const removeFromLigandList = function(datsetID, item) {
+export const removeFromLigandList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_LIGAND_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 
@@ -78,22 +101,24 @@ export const setProteinList = function(datsetID, proteinList) {
     }
   };
 };
-export const appendProteinList = function(datsetID, item) {
+export const appendProteinList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.APPEND_PROTEIN_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
-export const removeFromProteinList = function(datsetID, item) {
+export const removeFromProteinList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_PROTEIN_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 
@@ -106,22 +131,24 @@ export const setComplexList = function(datsetID, complexList) {
     }
   };
 };
-export const appendComplexList = function(datsetID, item) {
+export const appendComplexList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.APPEND_COMPLEX_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
-export const removeFromComplexList = function(datsetID, item) {
+export const removeFromComplexList = function(datsetID, item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_COMPLEX_LIST,
     payload: {
       datasetID: datsetID,
       item: item
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 
@@ -223,6 +250,11 @@ export const updateFilterShowedScoreProperties = ({ datasetID, scoreList = [] })
   payload: { datasetID, scoreList }
 });
 
+export const setFilterShowedScoreProperties = ({ datasetID, scoreList = [], oldScoreList, isChecked, scoreName }) => ({
+  type: constants.SET_FILTER_SHOWED_SCORE_PROPERTIES,
+  payload: { datasetID, scoreList, isChecked, scoreName, oldScoreList }
+});
+
 export const removeFromFilterShowedScoreProperties = datasetID => ({
   type: constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES,
   payload: datasetID
@@ -243,8 +275,23 @@ export const setInspirationMoleculeDataList = (moleculeList = []) => ({
   payload: moleculeList
 });
 
+export const setAllInspirations = allInspirationsMap => ({
+  type: constants.SET_ALL_INSPIRATIONS,
+  payload: allInspirationsMap
+});
+
+export const setAllInspirationMoleculeDataList = (moleculeList = []) => ({
+  type: constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: moleculeList
+});
+
 export const appendToInspirationMoleculeDataList = molecule => ({
   type: constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST,
+  payload: molecule
+});
+
+export const appendToAllInspirationMoleculeDataList = molecule => ({
+  type: constants.APPEND_TO_ALL_INSPIRATION_MOLECULE_DATA_LIST,
   payload: molecule
 });
 
@@ -278,14 +325,26 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
-export const appendMoleculeToCompoundsOfDatasetToBuy = (datasetID, moleculeID, moleculeTitle) => ({
+export const appendMoleculeToCompoundsOfDatasetToBuy = (
+  datasetID,
+  moleculeID,
+  moleculeTitle,
+  skipTracking = false
+) => ({
   type: constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET,
-  payload: { datasetID, moleculeID, moleculeTitle }
+  payload: { datasetID, moleculeID, moleculeTitle },
+  skipTracking: skipTracking
 });
 
-export const removeMoleculeFromCompoundsOfDatasetToBuy = (datasetID, moleculeID, moleculeTitle) => ({
+export const removeMoleculeFromCompoundsOfDatasetToBuy = (
+  datasetID,
+  moleculeID,
+  moleculeTitle,
+  skipTracking = false
+) => ({
   type: constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET,
-  payload: { datasetID, moleculeID, moleculeTitle }
+  payload: { datasetID, moleculeID, moleculeTitle },
+  skipTracking: skipTracking
 });
 
 export const reloadDatasetsReducer = savedDatasetsReducers => {
@@ -300,3 +359,56 @@ export const resetDatasetsState = () => {
     type: constants.RESET_DATASETS_STATE
   };
 };
+
+export const setSelectedAll = (datsetID, item, isLigand, isProtein, isComplex) => ({
+  type: constants.SET_SELECTED_ALL,
+  payload: {
+    datasetID: datsetID,
+    item: item,
+    isLigand: isLigand,
+    isProtein: isProtein,
+    isComplex: isComplex
+  }
+});
+
+export const setDeselectedAll = (datsetID, item, isLigand, isProtein, isComplex) => ({
+  type: constants.SET_DESELECTED_ALL,
+  payload: {
+    datasetID: datsetID,
+    item: item,
+    isLigand: isLigand,
+    isProtein: isProtein,
+    isComplex: isComplex
+  }
+});
+
+export const setSelectedAllByType = (type, datsetID, items, isCrossReference) => ({
+  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  payload: {
+    type: type,
+    datasetID: datsetID,
+    items: items,
+    isCrossReference: isCrossReference
+  }
+});
+
+export const setDeselectedAllByType = (type, datsetID, items, isCrossReference) => ({
+  type: constants.SET_DESELECTED_ALL_BY_TYPE,
+  payload: {
+    type: type,
+    datasetID: datsetID,
+    items: items,
+    isCrossReference: isCrossReference
+  }
+});
+
+export const setArrowUpDown = (datasetID, item, newItem, arrowType, data) => ({
+  type: constants.SET_ARROW_UP_DOWN,
+  payload: {
+    datasetID,
+    item: item,
+    newItem: newItem,
+    arrowType: arrowType,
+    data
+  }
+});

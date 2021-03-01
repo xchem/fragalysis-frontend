@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Grid, makeStyles, useTheme, ButtonGroup, Button } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
@@ -31,7 +31,13 @@ import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 import { DatasetSelectorMenuButton } from '../datasets/datasetSelectorMenuButton';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { setMoleculeListIsLoading } from '../datasets/redux/actions';
+import {
+  setMoleculeListIsLoading,
+  setSelectedDatasetIndex,
+  setTabValue,
+  setAllInspirations
+} from '../datasets/redux/actions';
+import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
 
 const hitNavigatorWidth = 504;
 
@@ -90,21 +96,31 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const nglViewerControlsRef = useRef(null);
   const dispatch = useDispatch();
 
+  dispatch(prepareFakeFilterData());
+
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
-  const [selectedDatasetIndex, setSelectedDatasetIndex] = useState();
+  const selectedDatasetIndex = useSelector(state => state.datasetsReducers.selectedDatasetIndex);
   const currentDataset = customDatasets[selectedDatasetIndex];
   const target_on = useSelector(state => state.apiReducers.target_on);
+  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
+
+  const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
+  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+  const tabValue = useSelector(state => state.datasetsReducers.tabValue);
+
 
   /*
      Loading datasets
    */
   useEffect(() => {
-    if (customDatasets.length === 0) {
+    if (customDatasets.length === 0 && isTrackingRestoring === false) {
       dispatch(setMoleculeListIsLoading(true));
       dispatch(loadDataSets(target_on))
         .then(results => {
           if (Array.isArray(results) && results.length > 0) {
-            setSelectedDatasetIndex(0);
+            let defaultDataset = results[0]?.unique_name;
+            dispatch(setSelectedDatasetIndex(0, 0, defaultDataset, defaultDataset, true));
           }
           return dispatch(loadDatasetCompoundsWithScores());
         })
@@ -115,7 +131,45 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           dispatch(setMoleculeListIsLoading(false));
         });
     }
-  }, [customDatasets.length, dispatch, target_on]);
+  }, [customDatasets.length, dispatch, target_on, isTrackingRestoring]);
+
+  useEffect(() => {
+    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
+    const moleculeListsCount = Object.keys(moleculeLists || {}).length;
+    if (allMolsGroupsCount > 0 && moleculeListsCount > 0 && !isLoadingMoleculeList) {
+      const allDatasets = {};
+      const allMolsMap = linearizeMoleculesLists();
+      const keys = Object.keys(moleculeLists);
+      keys.forEach(key => {
+        let dataset = moleculeLists[key];
+        let mols = {};
+        dataset.forEach(dsMol => {
+          let inspirations = [];
+          dsMol.computed_inspirations.forEach(id => {
+            let lhsMol = allMolsMap[id];
+            inspirations.push(lhsMol);
+          });
+          mols[dsMol.id] = inspirations;
+        });
+        allDatasets[key] = mols;
+      });
+      dispatch(setAllInspirations(allDatasets));
+    }
+  }, [all_mol_lists, moleculeLists, isLoadingMoleculeList, linearizeMoleculesLists, dispatch]);
+
+  const linearizeMoleculesLists = useCallback(() => {
+    const keys = Object.keys(all_mol_lists);
+    const allMolsMap = {};
+
+    keys.forEach(key => {
+      let molList = all_mol_lists[key];
+      molList.forEach(mol => {
+        allMolsMap[mol.id] = mol;
+      });
+    });
+
+    return allMolsMap;
+  }, [all_mol_lists]);
 
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
@@ -146,12 +200,24 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - ${TABS_HEADER_HEIGHT}px )`;
   const [showHistory, setShowHistory] = useState(false);
 
-  const [tabValue, setTabValue] = useState(0);
   const getTabValue = () => {
     if (tabValue === 2) {
       return tabValue + selectedDatasetIndex;
     }
     return tabValue;
+  };
+
+  const getTabName = () => {
+    if (tabValue === 0) {
+      return 'Vector selector';
+    }
+    if (tabValue === 1) {
+      return 'Selected compounds';
+    }
+    if (tabValue >= 2) {
+      return currentDataset?.title;
+    }
+    return '';
   };
 
   useEffect(() => {
@@ -210,13 +276,25 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
               aria-label="outlined primary button group"
               className={classes.tabButtonGroup}
             >
-              <Button size="small" variant={getTabValue() === 0 ? 'contained' : 'text'} onClick={() => setTabValue(0)}>
+              <Button
+                size="small"
+                variant={getTabValue() === 0 ? 'contained' : 'text'}
+                onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
+              >
                 Vector selector
               </Button>
-              <Button size="small" variant={getTabValue() === 1 ? 'contained' : 'text'} onClick={() => setTabValue(1)}>
+              <Button
+                size="small"
+                variant={getTabValue() === 1 ? 'contained' : 'text'}
+                onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
+              >
                 Selected compounds
               </Button>
-              <Button size="small" variant={getTabValue() >= 2 ? 'contained' : 'text'} onClick={() => setTabValue(2)}>
+              <Button
+                size="small"
+                variant={getTabValue() >= 2 ? 'contained' : 'text'}
+                onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
+              >
                 {currentDataset?.title}
               </Button>
               <Button

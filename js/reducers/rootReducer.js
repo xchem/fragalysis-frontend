@@ -4,14 +4,14 @@
 import { combineReducers } from 'redux';
 import apiReducers from './api/apiReducers';
 import nglReducers from './ngl/nglReducers';
-import selectionReducers from './selection/selectionReducers';
+import { selectionReducers } from './selection/selectionReducers';
 import { targetReducers } from '../components/target/redux/reducer';
 import { snapshotReducers } from '../components/snapshot/redux/reducer';
 import { previewReducers } from '../components/preview/redux';
 import { projectReducers } from '../components/projects/redux/reducer';
 import { issueReducers } from '../components/userFeedback/redux/reducer';
 import { datasetsReducers } from '../components/datasets/redux/reducer';
-import trackingReducers from './tracking/trackingReducers';
+import { trackingReducers, undoableTrackingReducers } from './tracking/trackingReducers';
 
 const rootReducer = combineReducers({
   apiReducers,
@@ -23,7 +23,8 @@ const rootReducer = combineReducers({
   projectReducers,
   issueReducers,
   datasetsReducers,
-  trackingReducers
+  trackingReducers,
+  undoableTrackingReducers
 });
 
 export { rootReducer };

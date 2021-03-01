@@ -4,12 +4,14 @@ import { loadObject, setOrientation } from '../../../reducers/ngl/dispatchAction
 import { reloadSummaryReducer } from '../summary/redux/actions';
 import { reloadCompoundsReducer, resetCurrentCompoundsSettings } from '../compounds/redux/actions';
 import { removeAllNglComponents, setProteinLoadingState } from '../../../reducers/ngl/actions';
-import { createInitialSnapshot, reloadSession } from '../../snapshot/redux/dispatchActions';
+import { createInitialSnapshot } from '../../snapshot/redux/dispatchActions';
 import { resetLoadedSnapshots, resetProjectsReducer } from '../../projects/redux/actions';
 import { resetSelectionState } from '../../../reducers/selection/actions';
 import { URLS } from '../../routes/constants';
 import { resetDatasetsState } from '../../datasets/redux/actions';
-// import { reloadMoleculeReducer } from '../molecule/redux/actions';
+import { restoreAfterTargetActions } from '../../../reducers/tracking/dispatchActions';
+import { resetTrackingState } from '../../../reducers/tracking/actions';
+import { setTargetOn } from '../../../reducers/api/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -46,8 +48,7 @@ export const shouldLoadProtein = ({
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
   const targetOnName = state.apiReducers.target_on_name;
-  const currentSnapshotData = state.projectReducers.currentSnapshot.data;
-  // const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
+  const isRestoring = state.trackingReducers.isActionRestoring;
   if (
     targetIdList &&
     targetIdList.length > 0 &&
@@ -55,7 +56,7 @@ export const shouldLoadProtein = ({
     nglViewList.length > 0 &&
     isLoadingCurrentSnapshot === false
   ) {
-    //  1. Generate new protein or skip this action and everything will be loaded from session
+    //  1. Generate new protein or skip this action and everything will be loaded from project actions
     if (!isStateLoaded && currentSnapshotID === null && !routeSnapshotID) {
       dispatch(setProteinLoadingState(false));
       Promise.all(
@@ -76,21 +77,36 @@ export const shouldLoadProtein = ({
           dispatch(setProteinLoadingState(false));
           throw new Error(error);
         });
-    }
-
-    // decide to load existing snapshot
-    else if (
+    } else if (
       currentSnapshotID !== null &&
       (!routeSnapshotID || routeSnapshotID === currentSnapshotID.toString()) &&
-      currentSnapshotData !== null
+      isRestoring === true
     ) {
-      dispatch(reloadSession(currentSnapshotData, nglViewList));
+      dispatch(restoreAfterTargetActions(nglViewList, routeProjectID));
     }
 
     if (targetOnName !== undefined) {
       document.title = targetOnName + ': Fragalysis';
     }
   }
+};
+
+export const loadProteinOfRestoringActions = ({ nglViewList }) => (dispatch, getState) => {
+  dispatch(setProteinLoadingState(false));
+  Promise.all(
+    nglViewList.map(nglView =>
+      dispatch(loadProtein(nglView)).finally(() => {
+        dispatch(setOrientation(nglView.id, nglView.stage.viewerControls.getOrientation()));
+      })
+    )
+  )
+    .then(() => {
+      dispatch(setProteinLoadingState(true));
+    })
+    .catch(error => {
+      dispatch(setProteinLoadingState(false));
+      throw new Error(error);
+    });
 };
 
 export const reloadPreviewReducer = newState => dispatch => {
@@ -105,9 +121,16 @@ export const unmountPreviewComponent = (stages = []) => dispatch => {
     }
   });
 
+  dispatch(resetTrackingState());
+
   dispatch(resetCurrentCompoundsSettings(true));
   dispatch(resetProjectsReducer());
 
+  dispatch(resetSelectionState());
+  dispatch(resetDatasetsState());
+};
+
+export const resetReducersForRestoringActions = () => dispatch => {
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
 };
@@ -122,6 +145,8 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
   dispatch(resetLoadedSnapshots());
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
+  dispatch(resetTrackingState());
+  dispatch(setTargetOn(undefined));
 };
 
 export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, history }) => (dispatch, getState) => {

@@ -4,12 +4,12 @@ import { Button } from '@material-ui/core';
 import { Save, Restore, Share } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
-import { useRouteMatch } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
-import { restoreFromCurrentSnapshot } from '../preview/moleculeGroups/redux/dispatchActions';
+import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -17,6 +17,7 @@ import { restoreFromCurrentSnapshot } from '../preview/moleculeGroups/redux/disp
 
 export const withSnapshotManagement = WrappedComponent => {
   return memo(({ ...rest }) => {
+    const history = useHistory();
     let match = useRouteMatch();
     const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
     const { nglViewList } = useContext(NglContext);
@@ -28,10 +29,15 @@ export const withSnapshotManagement = WrappedComponent => {
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
     const currentProject = useSelector(state => state.projectReducers.currentProject);
-    const projectId = match && match.params && match.params.projectId;
+    const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
     const directDisplay = useSelector(state => state.apiReducers.direct_access);
+
+    const projectId = currentProject.projectID;
+    const snapshotJustSaved = useSelector(state => state.snapshotReducers.snapshotJustSaved);
     let target = match && match.params && match.params.target;
-    const disableUserInteraction = useDisableUserInteraction();
+    // Check whether the snapshot was just saved
+    target = snapshotJustSaved ? undefined : target;
+    //const disableUserInteraction = useDisableUserInteraction();
 
     if (directDisplay && directDisplay.target) {
       target = directDisplay.target;
@@ -56,7 +62,7 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
           startIcon={<Save />}
-          disabled={!enableSaveButton || disableUserInteraction}
+          disabled={!enableSaveButton || false}
         >
           Save
         </Button>,
@@ -64,9 +70,9 @@ export const withSnapshotManagement = WrappedComponent => {
           <Button
             key="restoreSnapshot"
             color="primary"
-            onClick={() => dispatch(restoreFromCurrentSnapshot({ nglViewList }))}
+            onClick={() => dispatch(restoreSnapshotActions({ nglViewList, projectId, snapshotId: currentSnapshot.id, history }))}
             startIcon={<Restore />}
-            disabled={disableShareButton || disableUserInteraction}
+            disabled={disableShareButton || false}
           >
             Restore
           </Button>
@@ -76,9 +82,9 @@ export const withSnapshotManagement = WrappedComponent => {
           color="primary"
           size="small"
           startIcon={<Share />}
-          disabled={disableShareButton || disableUserInteraction}
+          disabled={disableShareButton || false}
           onClick={() => {
-            dispatch(saveAndShareSnapshot(target));
+            dispatch(saveAndShareSnapshot(nglViewList));
           }}
         >
           Share
@@ -91,25 +97,11 @@ export const withSnapshotManagement = WrappedComponent => {
         setSnackBarTitle(null);
         setHeaderNavbarTitle('');
       };
-    }, [
-      enableSaveButton,
-      dispatch,
-      sessionTitle,
-      setHeaderNavbarTitle,
-      setHeaderButtons,
-      setSnackBarTitle,
-      targetIdList,
-      targetName,
-      setSnackBarColor,
-      projectId,
-      disableUserInteraction,
-      currentSnapshotID,
-      currentProject,
-      disableShareButton,
-      target,
-      nglViewList
-    ]);
+    }, [enableSaveButton, dispatch, sessionTitle, setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, targetIdList, targetName, setSnackBarColor, projectId, currentSnapshotID, currentProject, disableShareButton, target, nglViewList, currentSnapshot.id, history]);
 
-    return <WrappedComponent {...rest} />;
+    return <WrappedComponent {...rest} hideProjects={
+      DJANGO_CONTEXT['pk'] === undefined ||
+      (DJANGO_CONTEXT['pk'] !== undefined && (currentProject.projectID === null || currentProject.authorID === null))
+    }/>;
   });
 };

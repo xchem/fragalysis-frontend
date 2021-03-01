@@ -5,7 +5,6 @@ import { DJANGO_CONTEXT } from './utils/djangoContext';
 // Sentry logging
 import { init, configureScope } from '@sentry/browser';
 // Setup log rocket logging
-import LogRocket from 'logrocket';
 import { Provider } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux';
 import { rootReducer } from './reducers/rootReducer';
@@ -15,27 +14,6 @@ import trackingMiddleware from './reducers/tracking/trackingMiddleware';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 require('react-hot-loader/patch');
-
-if (process.env.NODE_ENV === 'production') {
-  LogRocket.init('eoalzb/fragalysis');
-  // This is the log rocket setup
-
-  LogRocket.identify(DJANGO_CONTEXT['username'], {
-    pk: DJANGO_CONTEXT['pk'],
-    name: DJANGO_CONTEXT['name'],
-    email: DJANGO_CONTEXT['email']
-  });
-
-  init({
-    dsn: 'https://27fa0675f555431aa02ca552e93d8cfb@sentry.io/1298290'
-  });
-
-  LogRocket.getSessionURL(sessionURL => {
-    configureScope(scope => {
-      scope.setExtra('logRocketURL', sessionURL);
-    });
-  });
-}
 
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,

@@ -18,6 +18,8 @@ const densityList = state => state.selectionReducers.densityList;
 const vectorOnList = state => state.selectionReducers.vectorOnList;
 const filteredScoreProperties = state => state.datasetsReducers.filteredScoreProperties;
 
+const selectedVectorCompounds = state => state.previewReducers.compounds.allSelectedCompounds;
+
 export const getInitialDatasetFilterSettings = createSelector(
   (_, datasetID) => datasetID,
   scoreDatasetMap,
@@ -160,6 +162,18 @@ export const isAnyInspirationTurnedOn = createSelector(
   }
 );
 
+export const isAnyInspirationTurnedOnByType = (inspirations, data) => {
+  let typeLists = new Set(data);
+  let hasInspirationType = false;
+  inspirations.forEach(moleculeID => {
+    if (typeLists.has(moleculeID)) {
+      hasInspirationType = true;
+      return hasInspirationType;
+    }
+  });
+  return hasInspirationType;
+};
+
 export const getFilteredDatasetMoleculeList = createSelector(
   (_, datasetID) => datasetID,
   filterDatasetMap,
@@ -247,18 +261,18 @@ export const getFilteredDatasetMoleculeList = createSelector(
       const defaultFilterProperties = getInitialDatasetFilterProperties(state, datasetID);
 
       let sortedAttributes = filterSettings.priorityOrder
-        .filter(attr => defaultFilterProperties[attr]?.order != 0 || false)
+        .filter(attr => defaultFilterProperties[attr]?.order !== 0 || false)
         .map(attr => attr);
 
       return filteredMolecules.sort((a, b) => {
         for (let prioAttr of sortedAttributes) {
           const order = filterProperties[prioAttr].order;
 
-          const scoreValueOfA =
+          let scoreValueOfA =
             Object.keys(a.numerical_scores).find(key => key === prioAttr) && a.numerical_scores[prioAttr];
           scoreValueOfA =
             scoreValueOfA || (Object.keys(a.text_scores).find(key => key === prioAttr) && a.text_scores[prioAttr]);
-          const scoreValueOfB =
+          let scoreValueOfB =
             Object.keys(b.numerical_scores).find(key => key === prioAttr) && b.numerical_scores[prioAttr];
           scoreValueOfB =
             scoreValueOfB || (Object.keys(b.text_scores).find(key => key === prioAttr) && b.text_scores[prioAttr]);
@@ -284,7 +298,6 @@ export const getFilteredDatasetMoleculeList = createSelector(
           }
         }
       });
-      return filteredMolecules;
     }
     return datasetMoleculeList;
   }
@@ -293,7 +306,8 @@ export const getFilteredDatasetMoleculeList = createSelector(
 export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
   compoundsToBuyDatasetMap,
   moleculeLists,
-  (compoundsToBuyDatasetMap, moleculeLists) => {
+  selectedVectorCompounds,
+  (compoundsToBuyDatasetMap, moleculeLists, selectedVectorCompounds) => {
     let moleculeList = [];
     Object.keys(compoundsToBuyDatasetMap).forEach(datasetID => {
       compoundsToBuyDatasetMap[datasetID] &&
@@ -303,6 +317,9 @@ export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
             if (foundedMolecule) {
               moleculeList.push({ molecule: foundedMolecule, datasetID });
             }
+          } else if (selectedVectorCompounds[moleculeID]) {
+            const cmp = selectedVectorCompounds[moleculeID];
+            moleculeList.push({ molecule: {...cmp, name: cmp.smiles}, datasetID });
           }
         });
     });
@@ -357,6 +374,19 @@ export const getListOfSelectedProteinOfAllDatasets = state => {
 export const getListOfSelectedComplexOfAllDatasets = state => {
   let resultSet = new Set();
   const complexesDatasetMap = state.datasetsReducers.complexLists;
+  Object.keys(complexesDatasetMap).forEach(datasetID => {
+    const currentDatasetArray = complexesDatasetMap[datasetID];
+    if (currentDatasetArray) {
+      currentDatasetArray.forEach(moleculeID => resultSet.add(moleculeID));
+    }
+  });
+
+  return [...resultSet];
+};
+
+export const getListOfSelectedSurfaceOfAllDatasets = state => {
+  let resultSet = new Set();
+  const complexesDatasetMap = state.datasetsReducers.surfaceLists;
   Object.keys(complexesDatasetMap).forEach(datasetID => {
     const currentDatasetArray = complexesDatasetMap[datasetID];
     if (currentDatasetArray) {

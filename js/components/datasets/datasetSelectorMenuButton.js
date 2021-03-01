@@ -6,6 +6,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   dropDown: {
@@ -21,9 +22,12 @@ export const DatasetSelectorMenuButton = ({
   setSelectedDatasetIndex
 }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const handleMenuItemClick = (event, index) => {
-    setSelectedDatasetIndex(index);
+    let oldDataset = customDatasets[selectedDatasetIndex]?.title;
+    let newDataset = customDatasets[index]?.title;
+    dispatch(setSelectedDatasetIndex(selectedDatasetIndex, index, newDataset, oldDataset));
     setOpen(false);
     event.stopPropagation();
   };

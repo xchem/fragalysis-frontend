@@ -72,8 +72,8 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
   let match = useRouteMatch();
-  const projectID = match && match.params && match.params.projectId;
-  const snapshotId = match && match.params && match.params.snapshotId;
+  const projectID = useSelector(state => state.projectReducers.currentProject).projectID;
+  const snapshotId = useSelector(state => state.projectReducers.currentSnapshot).id;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);

@@ -12,6 +12,7 @@ export const INITIAL_STATE = {
   molecule_list: [],
   cached_mol_lists: {},
   all_mol_lists: {},
+  allMolecules: [],
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -115,6 +116,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_ALL_MOL_LISTS:
       return { ...state, all_mol_lists: action.all_mol_lists };
 
+    case constants.SET_ALL_MOLECULES:
+      return { ...state, allMolecules: action.allMolecules };
+
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {
         pandda_event_list: action.pandda_event_list
@@ -171,10 +175,10 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case constants.SET_DIRECT_ACCESS:
-      return {...state, direct_access: action.direct_access};
-    
+      return { ...state, direct_access: action.direct_access };
+
     case constants.SET_DIRECT_ACCESS_PROCESSED:
-      return {...state, direct_access_processed: action.direct_access_processed};
+      return { ...state, direct_access_processed: action.direct_access_processed };
 
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];

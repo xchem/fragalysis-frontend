@@ -89,6 +89,7 @@ export const getAllCompoundsList = createSelector(
           inputData.mol = moleculeOfVector && moleculeOfVector.smiles;
           inputData.class = currentCompoundClass;
           inputData.isShowed = false;
+          inputData.compound_ids = data_transfer.compound_ids;
           compoundsList.push(inputData);
         });
       });

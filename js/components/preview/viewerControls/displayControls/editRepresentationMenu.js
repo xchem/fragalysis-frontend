@@ -40,11 +40,15 @@ export const EditRepresentationMenu = memo(
     const handleRepresentationPropertyChange = throttle((key, value) => {
       const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
       if (r) {
+        let oldValue = oldRepresentation.params[key];
+        let change = { key, value, oldValue };
+
         // update in ngl
         r.setParameters({ [key]: value });
         //update in redux
         oldRepresentation.params[key] = value;
-        dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation));
+
+        dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation, change));
       }
     }, 250);
 

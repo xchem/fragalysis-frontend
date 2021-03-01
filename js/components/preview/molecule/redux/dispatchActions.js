@@ -19,7 +19,8 @@ import {
   updateVectorCompounds,
   updateBondColorMapOfCompounds,
   resetBondColorMapOfVectors,
-  setCurrentVector
+  setCurrentVector,
+  setHideAll
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -41,9 +42,13 @@ import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
-import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/redux/actions';
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
-import { setDirectAccess, setDirectAccessProcessed } from '../../../../reducers/api/actions';
+import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
+import { MOL_TYPE } from './constants';
+import { addImageToCache } from './actions';
+import { OBJECT_TYPE } from '../../../nglView/constants';
+import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -86,7 +91,8 @@ const generateBondColorMap = inputDict => {
 };
 
 const getViewUrl = (get_view, data) => {
-  return new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
+  const url = new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
+  return url;
 };
 
 const handleVector = (json, stage, data) => (dispatch, getState) => {
@@ -115,11 +121,11 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
-export const addVector = (stage, data) => async (dispatch, getState) => {
+export const addVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
   const currentVector = getState().selectionReducers.currentVector;
 
   dispatch(incrementCountOfPendingVectorLoadRequests());
-  dispatch(appendVectorOnList(generateMoleculeId(data)));
+  dispatch(appendVectorOnList(generateMoleculeId(data), skipTracking));
   dispatch(selectVectorAndResetCompounds(currentVector));
 
   return api({ url: getViewUrl('graph', data) })
@@ -158,11 +164,11 @@ export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) 
   const moleculeOfCurrentVector = getMoleculeOfCurrentVector(state);
   if (moleculeOfCurrentVector && moleculeOfCurrentVector.smiles === currentMoleculeSmile) {
     dispatch(setCurrentVector(null));
-    dispatch(resetCurrentCompoundsSettings([]));
+    dispatch(resetCurrentCompoundSettingsWithoutSelection([]));
   }
 };
 
-export const removeVector = (stage, data) => async (dispatch, getState) => {
+export const removeVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
   const state = getState();
   const vector_list = state.selectionReducers.vector_list;
   vector_list
@@ -173,90 +179,118 @@ export const removeVector = (stage, data) => async (dispatch, getState) => {
 
   dispatch(updateVectorCompounds(data.smiles, undefined));
   dispatch(updateBondColorMapOfCompounds(data.smiles, undefined));
-  dispatch(removeFromVectorOnList(generateMoleculeId(data)));
+  dispatch(removeFromVectorOnList(generateMoleculeId(data), skipTracking));
 
   dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
 };
 
-export const addHitProtein = (stage, data, colourToggle) => dispatch => {
+export const addHitProtein = (
+  stage,
+  data,
+  colourToggle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendProteinList(generateMoleculeId(data)));
+  dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
 };
 
-export const removeHitProtein = (stage, data, colourToggle) => dispatch => {
+export const removeHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
       stage
     )
   );
-  dispatch(removeFromProteinList(generateMoleculeId(data)));
+  dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
 };
 
-export const addComplex = (stage, data, colourToggle) => dispatch => {
+export const addComplex = (
+  stage,
+  data,
+  colourToggle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendComplexList(generateMoleculeId(data)));
+  dispatch(appendComplexList(generateMoleculeId(data), skipTracking));
 };
 
-export const removeComplex = (stage, data, colourToggle) => dispatch => {
+export const removeComplex = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage
     )
   );
-  dispatch(removeFromComplexList(generateMoleculeId(data)));
+  dispatch(removeFromComplexList(generateMoleculeId(data), skipTracking));
 };
 
-export const addSurface = (stage, data, colourToggle) => dispatch => {
+export const addSurface = (
+  stage,
+  data,
+  colourToggle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendSurfaceList(generateMoleculeId(data)));
+  dispatch(appendSurfaceList(generateMoleculeId(data), skipTracking));
 };
 
-export const removeSurface = (stage, data, colourToggle) => dispatch => {
+export const removeSurface = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   dispatch(
     deleteObject(
       Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage
     )
   );
-  dispatch(removeFromSurfaceList(generateMoleculeId(data)));
+  dispatch(removeFromSurfaceList(generateMoleculeId(data), skipTracking));
 };
 
-export const addDensity = (stage, data, colourToggle) => dispatch => {
+export const addDensity = (
+  stage,
+  data,
+  colourToggle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   console.log('TODO');
   return;
   dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
       stage,
+      previousRepresentations: representations,
       orientationMatrix: null
     })
   ).finally(() => {
@@ -266,7 +300,7 @@ export const addDensity = (stage, data, colourToggle) => dispatch => {
   dispatch(appendDensityList(generateMoleculeId(data)));
 };
 
-export const removeDensity = (stage, data, colourToggle) => dispatch => {
+export const removeDensity = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   console.log('TODO');
   return;
   dispatch(
@@ -278,14 +312,21 @@ export const removeDensity = (stage, data, colourToggle) => dispatch => {
   dispatch(removeFromDensityList(generateMoleculeId(data)));
 };
 
-export const addLigand = (stage, data, colourToggle, centerOn = false) => (dispatch, getState) => {
+export const addLigand = (
+  stage,
+  data,
+  colourToggle,
+  centerOn = false,
+  skipTracking = false,
+  representations = undefined
+) => (dispatch, getState) => {
   const currentOrientation = stage.viewerControls.getOrientation();
-  dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
+  dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
   return dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
       stage,
-      undefined
+      previousRepresentations: representations
     })
   ).finally(() => {
     const ligandOrientation = stage.viewerControls.getOrientation();
@@ -299,12 +340,14 @@ export const addLigand = (stage, data, colourToggle, centerOn = false) => (dispa
   });
 };
 
-export const removeLigand = (stage, data) => dispatch => {
+export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
-  dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
+  dispatch(removeFromFragmentDisplayList(generateMoleculeId(data), skipTracking));
 
-  // remove vector
-  dispatch(removeVector(stage, data));
+  if (withVector === true) {
+    // remove vector
+    dispatch(removeVector(stage, data, skipTracking));
+  }
 };
 
 /**
@@ -320,7 +363,7 @@ export const initializeMolecules = (majorView, moleculeList, first) => dispatch 
   }
 };
 
-export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, getState) => {
+export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, skipTracking) => (dispatch, getState) => {
   const state = getState();
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
   const complexList = state.selectionReducers.complexList;
@@ -328,22 +371,31 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
 
+  let ligandDataList = [];
+  let complexDataList = [];
+  let vectorOnDataList = [];
+  let surfaceDataList = [];
+  let proteinDataList = [];
+
   fragmentDisplayList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeLigand(stage, data));
+      ligandDataList.push(data);
+      dispatch(removeLigand(stage, data, skipTracking));
     }
   });
   complexList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeComplex(stage, data, colourList[0]));
+      complexDataList.push(data);
+      dispatch(removeComplex(stage, data, colourList[0], skipTracking));
     }
   });
   vectorOnList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeVector(stage, data));
+      vectorOnDataList.push(data);
+      dispatch(removeVector(stage, data, skipTracking));
     }
   });
 
@@ -351,7 +403,8 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   surfaceList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeSurface(stage, data));
+      surfaceDataList.push(data);
+      dispatch(removeSurface(stage, data, colourList[0], skipTracking));
     }
   });
 
@@ -359,7 +412,8 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   proteinList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
     if (data) {
-      dispatch(removeHitProtein(stage, data));
+      proteinDataList.push(data);
+      dispatch(removeHitProtein(stage, data, colourList[0], skipTracking));
     }
   });
 
@@ -368,23 +422,125 @@ export const hideAllSelectedMolecules = (stage, currentMolecules) => (dispatch, 
   dispatch(resetCompoundsOfVectors());
   dispatch(resetBondColorMapOfVectors());
   dispatch(setCompoundImage(noCompoundImage));
+
+  let data = {
+    ligandList: ligandDataList,
+    proteinList: proteinDataList,
+    complexList: complexDataList,
+    surfaceList: surfaceDataList,
+    vectorOnList: vectorOnDataList
+  };
+
+  if (isHideAll === true) {
+    dispatch(setHideAll(data));
+  }
 };
 
-export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>
-  api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` }).then(response => {
-    let resultMolGroupID = null;
-    const molGroupID = response?.data?.results[0]?.id;
-    const mol_group_list = getState().apiReducers.mol_group_list;
-
-    if (mol_group_list && Array.isArray(mol_group_list) && molGroupID) {
-      mol_group_list.forEach((item, index) => {
-        if (item.id === molGroupID) {
-          resultMolGroupID = index + 1;
-        }
+export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking) => (dispatch, getState) => {
+  if (newItem && data) {
+    if (data.isLigandOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND);
+      dispatch(addLigand(stage, newItem, data.colourToggle, false, skipTracking, representations));
+    }
+    if (data.isProteinOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);
+      dispatch(addHitProtein(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isComplexOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX);
+      dispatch(addComplex(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isSurfaceOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE);
+      dispatch(addSurface(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isVectorOn) {
+      dispatch(addVector(stage, newItem, skipTracking)).catch(error => {
+        throw new Error(error);
       });
     }
-    return Promise.resolve(resultMolGroupID);
+  }
+};
+
+export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTracking = false) => (dispatch, getState) => {
+  const state = getState();
+  const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
+  const complexList = state.selectionReducers.complexList;
+  const vectorOnList = state.selectionReducers.vectorOnList;
+  const surfaceList = state.selectionReducers.surfaceList;
+  const proteinList = state.selectionReducers.proteinList;
+  let joinedMoleculeLists = molecules;
+
+  proteinList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(
+      removeHitProtein(
+        majorViewStage,
+        foundedMolecule,
+        colourList[foundedMolecule.id % colourList.length],
+        skipTracking
+      )
+    );
   });
+  complexList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(
+      removeComplex(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
+  fragmentDisplayList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(removeLigand(majorViewStage, foundedMolecule, skipTracking));
+  });
+  surfaceList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(
+      removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
+  vectorOnList?.forEach(moleculeID => {
+    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    dispatch(removeVector(majorViewStage, foundedMolecule, skipTracking));
+  });
+};
+
+// export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>
+//   api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` }).then(response => {
+//     let resultMolGroupID = null;
+//     const molGroupID = response?.data?.results[0]?.id;
+//     const mol_group_list = getState().apiReducers.mol_group_list;
+
+//     if (mol_group_list && Array.isArray(mol_group_list) && molGroupID) {
+//       mol_group_list.forEach((item, index) => {
+//         if (item.id === molGroupID) {
+//           resultMolGroupID = index + 1;
+//         }
+//       });
+//     }
+//     return Promise.resolve(resultMolGroupID);
+//   });
+
+export const searchMoleculeGroupByMoleculeID = moleculeId => (dispatch, getState) => {
+  const state = getState();
+  const all_mol_lists = state.apiReducers.all_mol_lists;
+
+  let resultMolGroupID = null;
+  const molGroupIds = Object.keys(all_mol_lists);
+  for (let groupId of molGroupIds) {
+    const mols = all_mol_lists[groupId];
+    for (let mol of mols) {
+      if (mol.id === moleculeId) {
+        resultMolGroupID = groupId;
+        break;
+      }
+    }
+    if (resultMolGroupID != null) {
+      break;
+    }
+  }
+
+  return Promise.resolve(resultMolGroupID);
+};
 
 export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getState) => {
   const state = getState();
@@ -412,7 +568,11 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
         for (let molIndex = 0; molIndex < molCount; molIndex++) {
           let mol = molList[molIndex];
           let proteinCodeModded = mol.protein_code.toLowerCase();
-          if (m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)) {
+          if (
+            m.exact
+              ? proteinCodeModded === directProteinCodeModded
+              : proteinCodeModded.includes(directProteinNameModded)
+          ) {
             let molGroupId = groupId;
             // Has to be declared here because otherwise we read stale value
             const mol_group_selection = getState().selectionReducers.mol_group_selection;
@@ -442,4 +602,53 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
   }
+};
+
+export const getMolImage = (molId, molType, width, height) => (dispatch, getState) => {
+  const state = getState();
+
+  const imageCache = state.previewReducers.molecule.imageCache;
+
+  const molIdStr = molId.toString();
+  if (imageCache.hasOwnProperty(molIdStr)) {
+    return new Promise((resolve, reject) => {
+      resolve(imageCache[molIdStr]);
+    });
+  } else {
+    return loadMolImage(molId, molType, width, height).then(i => {
+      if (!imageCache.hasOwnProperty(molIdStr)) {
+        dispatch(addImageToCache(molId.toString(), i));
+      }
+      return i;
+    });
+  }
+};
+
+export const loadMolImage = (molId, molType, width, height) => {
+  let url = undefined;
+  if (molType === MOL_TYPE.HIT) {
+    url = new URL(`${base_url}/api/molimg/${molId}/`);
+    url.searchParams.append('width', width);
+    url.searchParams.append('height', height);
+  } else if (molType === MOL_TYPE.DATASET) {
+    url = new URL(`${base_url}/viewer/img_from_smiles/`);
+    url.searchParams.append('width', width);
+    url.searchParams.append('height', height);
+    url.searchParams.append('smiles', molId);
+  } else {
+    console.error('Trying to load image for unknown molecule type.');
+    return Promise.resolve();
+  }
+
+  let onCancel = () => {};
+  return api({
+    url,
+    onCancel
+  }).then(response => {
+    if (molType === MOL_TYPE.HIT) {
+      return response.data['mol_image'];
+    } else {
+      return response.data;
+    }
+  });
 };

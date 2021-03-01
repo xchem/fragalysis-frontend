@@ -12,9 +12,11 @@ export const SaveSnapshotBeforeExit = memo(() => {
   const { nglViewList } = useContext(NglContext);
   let history = useHistory();
   let match = useRouteMatch();
-  const projectID = match && match.params && match.params.projectId;
+  const paramsProjectID = match && match.params && match.params.projectId;
   const isOpen = useSelector(state => state.snapshotReducers.isOpenModalSaveSnapshotBeforeExit);
   const snapshotID = useSelector(state => state.snapshotReducers.selectedSnapshotToSwitch);
+  const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const currentProjectID = currentProject && currentProject.projectID;
 
   const dispatch = useDispatch();
 
@@ -23,6 +25,7 @@ export const SaveSnapshotBeforeExit = memo(() => {
   };
 
   const handleOnNo = () => {
+    let projectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentProjectID;
     dispatch(switchBetweenSnapshots({ nglViewList, projectID, snapshotID, history }));
     dispatch(setSelectedSnapshotToSwitch(null));
     handleCloseModal();

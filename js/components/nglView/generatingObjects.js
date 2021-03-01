@@ -220,3 +220,10 @@ export const getVectorWithColorByCountOfCompounds = (item, currentVectorCompound
   }
   return { ...item, colour: colour, radius: 0.3 };
 };
+
+export const getRepresentationsByType = (objectsInView, object, objectType, datasetId) => {
+  let parentItem = `${object.protein_code || object.name}_${objectType}${datasetId ? '_' + datasetId : ''}`;
+  let objectInView = objectsInView[parentItem];
+  var representations = (objectInView && objectInView.representations) || undefined;
+  return representations;
+};

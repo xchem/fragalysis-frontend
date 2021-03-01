@@ -9,3 +9,8 @@ export const reloadMoleculeReducer = newState => ({
   type: constants.SET_SORT_DIALOG_OPEN,
   payload: newState
 });
+
+export const addImageToCache = (molId, image) => ({
+  type: constants.ADD_IMAGE_TO_CACHE,
+  payload: {molId: molId, image: image}
+});

@@ -17,10 +17,11 @@ export const setDuckYankData = function(input_json) {
   };
 };
 
-export const setTargetOn = function(target_id) {
+export const setTargetOn = function(target_id, skipTracking = false) {
   return {
     type: constants.SET_TARGET_ON,
-    target_on: target_id
+    target_on: target_id,
+    skipTracking: skipTracking
   };
 };
 
@@ -58,6 +59,13 @@ export const setMolGroupOn = function(mol_group_id) {
   };
 };
 
+export const setMolGroupOff = function(mol_group_id) {
+  return {
+    type: constants.SET_MOL_GROUP_OFF,
+    mol_group_off: mol_group_id
+  };
+};
+
 export const setMolGroupList = function(mol_group_list) {
   return {
     type: constants.SET_MOL_GROUP_LIST,
@@ -83,6 +91,13 @@ export const setAllMolLists = all_mol_lists => {
   return {
     type: constants.SET_ALL_MOL_LISTS,
     all_mol_lists: all_mol_lists
+  };
+};
+
+export const setAllMolecules = molecules => {
+  return {
+    type: constants.SET_ALL_MOLECULES,
+    allMolecules: molecules
   };
 };
 
@@ -156,14 +171,14 @@ export const setUuid = function(uuid) {
   };
 };
 
-export const setDirectAccess = (directAccessParams) => {
+export const setDirectAccess = directAccessParams => {
   return {
     type: constants.SET_DIRECT_ACCESS,
     direct_access: directAccessParams
   };
 };
 
-export const setDirectAccessProcessed = (directAccessProcessedParams) => {
+export const setDirectAccessProcessed = directAccessProcessedParams => {
   return {
     type: constants.SET_DIRECT_ACCESS_PROCESSED,
     direct_access_processed: directAccessProcessedParams

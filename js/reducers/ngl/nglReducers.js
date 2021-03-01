@@ -1,6 +1,5 @@
-import { BACKGROUND_COLOR, NGL_PARAMS } from '../../components/nglView/constants';
+import { BACKGROUND_COLOR, NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
 import { CONSTANTS } from './constants';
-import NglView from '../../components/nglView/nglView';
 import { VIEWS } from '../../constants/constants';
 
 export const INITIAL_STATE = {
@@ -24,12 +23,13 @@ export const INITIAL_STATE = {
     [NGL_PARAMS.ambientColor]: 0xdddddd,
     [NGL_PARAMS.ambientIntensity]: 0.2,
     [NGL_PARAMS.hoverTimeout]: 0, */
-    [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
-    [NGL_PARAMS.clipNear]: 42,
-    [NGL_PARAMS.clipFar]: 100,
-    [NGL_PARAMS.clipDist]: 10,
-    [NGL_PARAMS.fogNear]: 50,
-    [NGL_PARAMS.fogFar]: 62
+    ...NGL_VIEW_DEFAULT_VALUES
+    // [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+    // [NGL_PARAMS.clipNear]: 42,
+    // [NGL_PARAMS.clipFar]: 100,
+    // [NGL_PARAMS.clipDist]: 10,
+    // [NGL_PARAMS.fogNear]: 50,
+    // [NGL_PARAMS.fogFar]: 62
   },
 
   // Helper variables for marking that protein and molecule groups are successful loaded
@@ -39,7 +39,8 @@ export const INITIAL_STATE = {
     [VIEWS.MAJOR_VIEW]: 0,
     [VIEWS.SUMMARY_VIEW]: 0
   },
-  moleculeOrientations: {}
+  moleculeOrientations: {},
+  pdbCache: {}
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -173,6 +174,11 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         delete diminishedMoleculeOrientations[action.payload];
       }
       return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
+
+    case CONSTANTS.ADD_TO_PDB_CACHE:
+      return {...state, pdbCache: {
+        ...state.pdbCache, [action.payload.name]: action.payload.cacheItem
+      }};
 
     default:
       return state;

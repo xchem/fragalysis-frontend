@@ -24,19 +24,19 @@ import {
   removeDensity,
   removeVector
 } from '../preview/molecule/redux/dispatchActions';
-import { loadInspirationMoleculesDataList } from './redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { debounce } from 'lodash';
-import { setInspirationMoleculeDataList, setIsOpenInspirationDialog } from './redux/actions';
+import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList } from './datasetMoleculeView';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
+import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -142,8 +142,6 @@ export const InspirationDialog = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const inspirationFragmentList = useSelector(state => state.datasetsReducers.inspirationFragmentList);
-
     const isLoadingInspirationListOfMolecules = useSelector(
       state => state.datasetsReducers.isLoadingInspirationListOfMolecules
     );
@@ -157,17 +155,7 @@ export const InspirationDialog = memo(
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
     const dispatch = useDispatch();
-    const disableUserInteraction = useDisableUserInteraction();
-
-    useEffect(() => {
-      if (inspirationFragmentList && inspirationFragmentList.length > 0) {
-        dispatch(loadInspirationMoleculesDataList(inspirationFragmentList)).catch(error => {
-          throw new Error(error);
-        });
-      } else {
-        dispatch(setInspirationMoleculeDataList([]));
-      }
-    }, [dispatch, inspirationFragmentList]);
+    // const disableUserInteraction = useDisableUserInteraction();
 
     let debouncedFn;
 
@@ -220,51 +208,72 @@ export const InspirationDialog = memo(
 
     const selectMoleculeSite = moleculeGroupSite => {};
 
-    const removeOfAllSelectedTypes = () => {
+    const removeOfAllSelectedTypes = (skipTracking = false) => {
       proteinList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
 
-        dispatch(removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       complexList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       ligandList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeLigand(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(removeLigand(stage, foundedMolecule, skipTracking));
       });
       surfaceList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       densityList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(
+          removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+        );
       });
       vectorOnList?.forEach(moleculeID => {
         let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
         foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeVector(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length]));
+        dispatch(removeVector(stage, foundedMolecule, skipTracking));
       });
     };
 
-    const removeSelectedType = type => {
-      moleculeList.forEach(molecule => {
-        dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID));
-      });
+    const removeSelectedType = (type, skipTracking = false) => {
+      if (type === 'ligand') {
+        moleculeList.forEach(molecule => {
+          dispatch(removeType[type](stage, molecule, skipTracking));
+        });
+      } else {
+        moleculeList.forEach(molecule => {
+          dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        });
+      }
+
       selectedAll.current = false;
     };
 
-    const addNewType = type => {
-      moleculeList.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length]));
-      });
+    const addNewType = (type, skipTracking = false) => {
+      if (type === 'ligand') {
+        moleculeList.forEach(molecule => {
+          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, skipTracking));
+        });
+      } else {
+        moleculeList.forEach(molecule => {
+          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        });
+      }
     };
 
     const ucfirst = string => {
@@ -281,12 +290,40 @@ export const InspirationDialog = memo(
         removeSelectedType(type);
       } else if (!calledFromSelectAll) {
         if (eval('is' + ucfirst(type) + 'On') === false) {
-          addNewType(type);
+          let molecules = getSelectedMoleculesByType(type, true);
+          dispatch(setSelectedAllByType(type, molecules, true));
+          addNewType(type, true);
         } else {
-          removeSelectedType(type);
+          let molecules = getSelectedMoleculesByType(type, false);
+          dispatch(setDeselectedAllByType(type, molecules, true));
+          removeSelectedType(type, true);
         }
       }
     };
+
+    const getSelectedMoleculesByType = (type, isAdd) => {
+      switch (type) {
+        case 'ligand':
+          return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
+        case 'protein':
+          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+        case 'complex':
+          return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+        default:
+          return null;
+      }
+    };
+
+    const getMoleculesToSelect = list => {
+      let molecules = moleculeList.filter(m => !list.includes(m.id));
+      return molecules;
+    };
+
+    const getMoleculesToDeselect = list => {
+      let molecules = moleculeList.filter(m => list.includes(m.id));
+      return molecules;
+    };
+
     //  TODO refactor to this line
 
     return (
@@ -351,7 +388,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               L
                             </Button>
@@ -366,7 +403,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               P
                             </Button>
@@ -382,7 +419,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={disableUserInteraction}
+                              disabled={false}
                             >
                               C
                             </Button>
@@ -412,6 +449,11 @@ export const InspirationDialog = memo(
                         nextItemData={nextData}
                         removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                         selectMoleculeSite={selectMoleculeSite}
+                        L={ligandList.includes(molecule.id)}
+                        P={proteinList.includes(molecule.id)}
+                        C={complexList.includes(molecule.id)}
+                        S={surfaceList.includes(molecule.id)}
+                        V={vectorOnList.includes(molecule.id)}
                       />
                     );
                   })}

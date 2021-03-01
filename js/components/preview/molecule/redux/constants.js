@@ -2,7 +2,8 @@ const prefix = 'PREVIEW_MOLECULE_';
 
 export const constants = {
   SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
-  RELOAD_REDUCER: prefix + 'RELOAD_REDUCER'
+  RELOAD_REDUCER: prefix + 'RELOAD_REDUCER',
+  ADD_IMAGE_TO_CACHE: prefix + 'ADD_IMAGE_TO_CACHE'
 };
 
 export const MOL_ATTR = {
@@ -88,3 +89,8 @@ export const MOL_ATTR = {
 };
 
 export const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
+
+export const MOL_TYPE = {
+  HIT: 'HIT',
+  DATASET: 'DATASET'
+};

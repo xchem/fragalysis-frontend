@@ -9,6 +9,7 @@ import { Autocomplete } from '@material-ui/lab';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { createProjectFromSnapshotDialog } from '../redux/dispatchActions';
+import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -34,6 +35,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
 
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
+  const projectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
 
   const [tags, setTags] = React.useState([]);
@@ -65,11 +67,17 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             author: DJANGO_CONTEXT['pk'] || null,
             tags: JSON.stringify(tags)
           };
-          dispatch(createProjectFromSnapshotDialog(data)).catch(error => {
-            setState(() => {
-              throw error;
+
+          const oldProjectID = projectID;
+          dispatch(createProjectFromSnapshotDialog(data))
+            .then(() => {
+              dispatch(manageSendTrackingActions(oldProjectID, true));
+            })
+            .catch(error => {
+              setState(() => {
+                throw error;
+              });
             });
-          });
         }}
       >
         {({ submitForm, isSubmitting }) => (

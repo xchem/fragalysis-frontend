@@ -35,6 +35,29 @@ export const INITIAL_STATE = {
   // configuration: {
   //  [id]: undefined
   // }
+  configuration: {},
+  allSelectedCompounds: {}
+};
+
+export const RESET_STATE = {
+  currentPage: -1,
+  compoundsPerPage: 20,
+  /* currentCompounds: [{
+      smiles:"Cc1cc(CN(C)C(C)C(N)=O)no1",
+      show_frag:"Cc1cc(CN(C)C(C)C(N)=O)no1",
+      vector:"CC1CCC([101Xe])C1",
+      mol:"CCNC(=O)Nc1cc(C)on1",
+   }] */
+  currentCompounds: [],
+  currentCompoundClass: compoundsColors.blue.key,
+  ...defaultCompoundsClasses,
+  selectedCompoundsClass: defaultSelectedCmpdsClass,
+  highlightedCompoundId: null,
+  showedCompoundList: [],
+
+  // configuration: {
+  //  [id]: undefined
+  // }
   configuration: {}
 };
 
@@ -55,6 +78,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.RESET_CURRENT_COMPOUNDS_SETTINGS:
       return Object.assign({}, INITIAL_STATE);
+
+    case constants.RESET_CURRENT_COMPOUNDS_SETTINGS_WITHOUT_SELECTION:
+      return Object.assign({}, state, RESET_STATE);
 
     case constants.SET_CURRENT_COMPOUND_CLASS:
       return Object.assign({}, state, {
@@ -84,7 +110,7 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.APPEND_SHOWED_COMPOUND_LIST:
       const cmpdsList = new Set(state.showedCompoundList);
-      cmpdsList.add(action.payload);
+      cmpdsList.add(action.item.smiles);
 
       return Object.assign({}, state, {
         showedCompoundList: [...cmpdsList]
@@ -92,7 +118,7 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
 
     case constants.REMOVE_SHOWED_COMPOUND_LIST:
       const diminishedCmpdsList = new Set(state.showedCompoundList);
-      diminishedCmpdsList.delete(action.payload);
+      diminishedCmpdsList.delete(action.item.smiles);
       return Object.assign({}, state, { showedCompoundList: [...diminishedCmpdsList] });
 
     case constants.APPEND_SELECTED_COMPOUND_CLASS:
@@ -129,6 +155,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         selectedCompoundsClass: defaultSelectedCmpdsClass
       });
+    
+      case constants.SET_SELECTED_COMPOUNDS:
+        return {...state, allSelectedCompounds: action.payload};
 
     case constants.RELOAD_REDUCER:
       return Object.assign({}, state, { ...action.payload });

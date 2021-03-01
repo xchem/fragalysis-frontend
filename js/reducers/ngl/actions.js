@@ -10,33 +10,130 @@ export const deleteNglObject = target => ({
   target
 });
 
-export const updateComponentRepresentation = (objectInViewID, representationID, newRepresentation) => ({
+export const updateComponentRepresentationVisibility = (
+  objectInViewID,
+  representationID,
+  representation,
+  newVisibility,
+  skipTracking = false
+) => ({
+  type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY,
+  representationID,
+  representation,
+  newVisibility,
+  objectInViewID,
+  skipTracking
+});
+
+export const updateComponentRepresentationVisibilityAll = (objectInViewID, newVisibility, skipTracking = false) => ({
+  type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY_ALL,
+  newVisibility,
+  objectInViewID,
+  skipTracking
+});
+
+export const updateComponentRepresentation = (
+  objectInViewID,
+  representationID,
+  newRepresentation,
+  change,
+  skipTracking = false
+) => ({
   type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION,
   representationID,
   newRepresentation,
-  objectInViewID
+  objectInViewID,
+  change,
+  skipTracking
 });
 
-export const addComponentRepresentation = (objectInViewID, newRepresentation) => ({
+export const addComponentRepresentation = (objectInViewID, newRepresentation, skipTracking = false) => ({
   type: CONSTANTS.ADD_COMPONENT_REPRESENTATION,
+  newRepresentation,
+  objectInViewID,
+  skipTracking
+});
+
+export const removeComponentRepresentation = (objectInViewID, representation, skipTracking = false) => ({
+  type: CONSTANTS.REMOVE_COMPONENT_REPRESENTATION,
+  representation,
+  objectInViewID,
+  skipTracking
+});
+
+export const changeComponentRepresentation = (objectInViewID, oldRepresentation, newRepresentation) => ({
+  type: CONSTANTS.CHANGE_COMPONENT_REPRESENTATION,
+  oldRepresentation,
   newRepresentation,
   objectInViewID
 });
 
-export const removeComponentRepresentation = (objectInViewID, representation) => ({
-  type: CONSTANTS.REMOVE_COMPONENT_REPRESENTATION,
-  representation,
-  objectInViewID
-});
-
-export const setNglViewParams = (key, value, stage = undefined) => {
+export const setNglViewParams = (key, value, stage = undefined, objectId = undefined) => {
   if (stage) {
     stage.setParameters({ [key]: value });
   }
   return {
     type: CONSTANTS.SET_NGL_VIEW_PARAMS,
     key,
-    value
+    value,
+    object_id: objectId
+  };
+};
+
+export const setBackgroundColor = color => {
+  return {
+    type: CONSTANTS.SET_BACKGROUND_COLOR,
+    payload: color
+  };
+};
+
+export const setNglClipNearAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_CLIP_NEAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglClipFarAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_CLIP_FAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglClipDistAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_CLIP_DIST,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglFogNearAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_FOG_NEAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
+export const setNglFogFarAction = (newValue, oldValue) => {
+  return {
+    type: CONSTANTS.SET_FOG_FAR,
+    payload: {
+      newValue: newValue,
+      oldValue: oldValue
+    }
   };
 };
 
@@ -84,4 +181,9 @@ export const setMoleculeOrientations = moleculeOrientations => ({
 export const removeMoleculeOrientation = moleculeGroupID => ({
   type: CONSTANTS.REMOVE_MOLECULE_ORIENTATION,
   payload: moleculeGroupID
+});
+
+export const addToPdbCache = (name, cacheItem) => ({
+  type: CONSTANTS.ADD_TO_PDB_CACHE,
+  payload: { name: name, cacheItem: cacheItem }
 });
