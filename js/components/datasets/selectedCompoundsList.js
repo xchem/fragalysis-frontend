@@ -177,10 +177,10 @@ export const SelectedCompoundList = memo(({ height }) => {
     return [...unionOfProps];
   };
 
-  const populateMolObject = (molObj, compound, props) => {
+  const populateMolObject = (molObj, compound, props, ids) => {
     const molecule = compound.molecule;
 
-    molObj = populateMolIds(molObj, compound);
+    molObj = populateMolIds(molObj, compound, ids);
 
     let value = '';
     for (let i = 0; i < props.length; i++) {
@@ -216,29 +216,41 @@ export const SelectedCompoundList = memo(({ height }) => {
     return molObj;
   };
 
-  const populateMolIds = (molObj, compound) => {
+  const populateMolIds = (molObj, compound, idsGlobal) => {
     if (compound.molecule.hasOwnProperty('compound_ids')) {
       const ids = compound.molecule['compound_ids'];
       for (let i = 0; i < ids.length; i++) {
         const id = ids[i];
-        molObj[`compound-id${i}`] = id;
+        const vendorId = id.split(':')[0];
+        const fieldName = idsGlobal.diffIds[vendorId];
+        molObj[fieldName] = id;
       };
     }
 
     return molObj;
   };
 
-  const getMaxNumberOfCmpIds = (mols) => {
-    let maxLength = 0;
+  const getCompoundIds = (mols) => {
+    let result = {diffIds: {}, namesToIds: {}, idsInOrder: new Set()};
 
+    let currentIdIndex = 0;
     mols.forEach(mol => {
       if (mol.molecule.hasOwnProperty('compound_ids')) {
         const ids = mol.molecule['compound_ids'];
-        maxLength = maxLength < ids.length ? ids.length : maxLength;
+        ids.forEach(id => {
+          let vendorId = id.split(':')[0];
+          if (!result.diffIds.hasOwnProperty(vendorId)) {
+            const idFieldName = `compound-id${currentIdIndex}`;
+            result.diffIds[vendorId] = idFieldName;
+            result.namesToIds[idFieldName] = vendorId;
+            result.idsInOrder.add(idFieldName);
+            currentIdIndex++;
+          }
+        });
       }
     });
 
-    return maxLength;
+    return result;
   };
 
   const getUsedDatasets = (mols) => {
@@ -251,12 +263,13 @@ export const SelectedCompoundList = memo(({ height }) => {
     return setOfDataSets;
   }
 
-  const getEmptyMolObject = (props, maxIdsCount) => {
+  const getEmptyMolObject = (props, ids) => {
     let molObj = {};
 
-    for (let i = 0; i < maxIdsCount; i++) {
-      molObj[`compound-id${i}`] = '';
-    };
+    ids.idsInOrder.forEach(id => {
+      molObj[id] = '';
+    });
+
     props.forEach(prop => {
       molObj[prop] = '';
     });
@@ -275,13 +288,13 @@ export const SelectedCompoundList = memo(({ height }) => {
 
       const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
       const props = getSetOfProps(usedDatasets);
-      let maxIdsCount = getMaxNumberOfCmpIds(moleculesObjectIDListOfCompoundsToBuy);
+      const ids = getCompoundIds(moleculesObjectIDListOfCompoundsToBuy);
   
       const listOfMols = [];
   
       moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
-        let molObj = getEmptyMolObject(props, maxIdsCount);
-        molObj = populateMolObject(molObj, compound, props);
+        let molObj = getEmptyMolObject(props, ids);
+        molObj = populateMolObject(molObj, compound, props, ids);
         listOfMols.push(molObj);
       });
       
