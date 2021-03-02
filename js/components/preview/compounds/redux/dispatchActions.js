@@ -60,7 +60,8 @@ export const selectAllCompounds = () => (dispatch, getState) => {
             vector: currentVectorCompoundsFiltered[key].vector.split('_')[0],
             mol: smiles,
             class: currentCompoundClass,
-            compoundId: compoundId
+            compoundId: compoundId,
+            compound_ids: [...currentVectorCompoundsFiltered[key][index][indexOfCompound].compound_ids]
           };
 
           thisObj['index'] = indexOfCompound;
