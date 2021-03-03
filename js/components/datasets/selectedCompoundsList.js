@@ -219,11 +219,19 @@ export const SelectedCompoundList = memo(({ height }) => {
   const populateMolIds = (molObj, compound, idsGlobal) => {
     if (compound.molecule.hasOwnProperty('compound_ids')) {
       const ids = compound.molecule['compound_ids'];
+      let vendorsPerMol = {};
       for (let i = 0; i < ids.length; i++) {
         const id = ids[i];
-        const vendorId = id.split(':')[0];
-        const fieldName = idsGlobal.diffIds[vendorId];
-        molObj[fieldName] = id;
+        const splitId = id.split(':');
+        const vendorId = splitId[0];
+        const idVal = splitId[1];
+        if (vendorsPerMol.hasOwnProperty(vendorId)) {
+          vendorsPerMol[vendorId] += 1;
+        } else {
+          vendorsPerMol[vendorId] = 0;
+        }
+
+        molObj[idsGlobal.diffIds[vendorId].fieldsArray[vendorsPerMol[vendorId]]] = idVal;
       };
     }
 
@@ -237,14 +245,35 @@ export const SelectedCompoundList = memo(({ height }) => {
     mols.forEach(mol => {
       if (mol.molecule.hasOwnProperty('compound_ids')) {
         const ids = mol.molecule['compound_ids'];
+        const perMolVendors = {};
         ids.forEach(id => {
           let vendorId = id.split(':')[0];
           if (!result.diffIds.hasOwnProperty(vendorId)) {
-            const idFieldName = `compound-id${currentIdIndex}`;
-            result.diffIds[vendorId] = idFieldName;
+            perMolVendors[vendorId] = 1;
+            const idFieldName = vendorId;
+            result.diffIds[vendorId] = { count: 1, name: vendorId, fields: {}, fieldsArray: []};
+            result.diffIds[vendorId].fields[idFieldName] = idFieldName;
+            result.diffIds[vendorId].fieldsArray.push(idFieldName);
             result.namesToIds[idFieldName] = vendorId;
             result.idsInOrder.add(idFieldName);
             currentIdIndex++;
+          } else {
+            if (perMolVendors.hasOwnProperty(vendorId)) {
+              const perMolVendorCount = perMolVendors[vendorId];
+              const globalVendor = result.diffIds[vendorId];
+              if (perMolVendorCount >= globalVendor.count) {
+                const idFieldName = `${vendorId}_${perMolVendorCount}`;
+                perMolVendors[vendorId] = perMolVendorCount + 1;
+                globalVendor.count = globalVendor.count + 1;
+                result.diffIds[vendorId].fields[idFieldName] = idFieldName;
+                result.diffIds[vendorId].fieldsArray.push(idFieldName);
+                result.namesToIds[idFieldName] = vendorId;
+                result.idsInOrder.add(idFieldName);
+                currentIdIndex++;
+              } 
+            } else {
+              perMolVendors[vendorId] = 1;
+            }
           }
         });
       }
