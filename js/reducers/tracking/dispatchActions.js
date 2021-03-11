@@ -1107,6 +1107,10 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
 };
 
 const restoreTabActions = moleculesAction => (dispatch, getState) => {
+  const state = getState();
+  const customDatasets = state.datasetsReducers.datasets;
+  let firstCustomDatasetTitle = (customDatasets && customDatasets[0] && customDatasets[0].title) || '';
+
   let action = moleculesAction.find(action => action.type === actionType.TAB);
   if (action) {
     dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name, action.oldObjectName));
@@ -1122,6 +1126,15 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
         indexAction.oldObjectName
       )
     );
+  } else {
+    if (action && action.object_id === 2 && action.object_name !== firstCustomDatasetTitle) {
+      let dataset = customDatasets.find(d => d.title === action.object_name);
+      var index = customDatasets.findIndex(d => d.title === action.object_name);
+
+      if (dataset) {
+        dispatch(setSelectedDatasetIndex(index, index, dataset.title, dataset.title, true));
+      }
+    }
   }
 
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
