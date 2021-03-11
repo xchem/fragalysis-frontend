@@ -13,9 +13,10 @@ import {
   FormControl,
   FormHelperText,
   FormControlLabel,
-  ListItemText
+  ListItemText,
+  Checkbox
 } from '@material-ui/core';
-import { Title, Description, Label, Link } from '@material-ui/icons';
+import { Title, Description, Label, Link, QuestionAnswer } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { useHistory } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
@@ -319,6 +320,25 @@ export const ProjectModal = memo(({}) => {
                           }}
                         />
                       )}
+                    />
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<QuestionAnswer />}
+                  field={
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={() => {
+                            return true;
+                          }}
+                          onChange={() => {}}
+                          name="createDisTopic"
+                        />
+                      }
+                      label="Create Discourse topic"
                     />
                   }
                 />

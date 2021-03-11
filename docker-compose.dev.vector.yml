@@ -44,6 +44,7 @@ services:
       POSTGRESQL_HOST: database
       POSTGRESQL_PORT: 5432
       NEO4J_AUTH: neo4j/test123
+      OIDC_RP_CLIENT_SECRET: c6245428-04c7-466f-9c4f-58c340e981c2
     depends_on:
       - database
       - graph

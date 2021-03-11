@@ -16,7 +16,7 @@ import {
   Tooltip,
   Zoom
 } from '@material-ui/core';
-import { Delete, Add, Search } from '@material-ui/icons';
+import { Delete, Add, Search, QuestionAnswer } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { URLS } from '../routes/constants';
@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject, searchInProjects } from './redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { isDiscourseAvailable, getProjectUrl } from '../../utils/discourse';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -174,6 +175,14 @@ export const Projects = memo(({}) => {
                         }
                       >
                         <Delete />
+                      </IconButton>
+                      <IconButton
+                        disabled={!isDiscourseAvailable()}
+                        onClick={() => {
+                          window.open(getProjectUrl(project.description), '_blank');
+                        }}
+                      >
+                        <QuestionAnswer />
                       </IconButton>
                     </TableCell>
                   </TableRow>
