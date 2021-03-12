@@ -467,7 +467,7 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
 
   if (collection) {
     collection.forEach(data => {
-      let action = actionList.find(action => action.object_id === data.id && action.dataset_id === data.datasetId);
+      let action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
 
       if (action) {
         currentActions.push(Object.assign({ ...action }));
@@ -972,8 +972,7 @@ const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatc
   if (vectorCompoundActions) {
     vectorCompoundActions.forEach(action => {
       let data = action.item;
-      let compoundId = action.compoundId;
-      dispatch(handleShowVectorCompound({ isSelected: true, data, index: compoundId, majorViewStage: majorViewStage }));
+      dispatch(handleShowVectorCompound({ isSelected: true, data, majorViewStage: majorViewStage }));
     });
   }
 };
@@ -1936,8 +1935,7 @@ const handleVectorAction = (action, isSelected) => (dispatch, getState) => {
 const handleVectorCompoundAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let compoundId = action.compoundId;
-    dispatch(handleShowVectorCompound({ isSelected, data, index: compoundId, majorViewStage: majorViewStage }));
+    dispatch(handleShowVectorCompound({ isSelected, data, majorViewStage: majorViewStage }));
   }
 };
 
