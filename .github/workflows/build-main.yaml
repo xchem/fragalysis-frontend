@@ -60,9 +60,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      production-tag: ${{ steps.vars.outputs.production-tag }}
-      tag: ${{ steps.vars.outputs.tag }}
     steps:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v3.x
@@ -120,7 +117,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '10'
-    - name: Install and build
-      run: >
-        yarn install
-        yarn run build
+    - name: Install
+      run: yarn
+    - name: Build
+      run: yarn run build
