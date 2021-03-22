@@ -111,8 +111,8 @@ jobs:
         # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM defined?
         TRIGGER_DOWNSTREAM=""
         if [ -n "${{ secrets.TRIGGER_DOWNSTREAM }}" ]; then TRIGGER_DOWNSTREAM="${{ secrets.TRIGGER_DOWNSTREAM }}"; fi
-        echo set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
-        echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
+        echo set-output name=trigger::${{ TRIGGER_DOWNSTREAM == 'yes' }}
+        echo ::set-output name=trigger::${{ TRIGGER_DOWNSTREAM == 'yes' }}
 
     - name: Checkout
       uses: actions/checkout@v2
