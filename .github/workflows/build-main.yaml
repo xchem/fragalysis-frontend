@@ -128,7 +128,7 @@ jobs:
         ci-owner: ${{ steps.vars.outputs.STACK_NAMESPACE }}
         ci-repository: fragalysis-stack
         ci-name: build main
-        ci-ref: refs/mains/${{ steps.vars.outputs.STACK_BRANCH }}
+        ci-ref: refs/heads/${{ steps.vars.outputs.STACK_BRANCH }}
         ci-inputs: >-
           be_namespace=${{ steps.vars.outputs.BE_NAMESPACE }}
           be_image_tag=${{ steps.vars.outputs.BE_IMAGE_TAG }}
