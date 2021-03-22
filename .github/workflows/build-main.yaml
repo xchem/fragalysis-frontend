@@ -69,8 +69,7 @@ jobs:
     - name: Initialise workflow variables
       id: vars
       env:
-        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        TRIGGER_AWX: ${{ secrets.TRIGGER_AWX }}
+        TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
       run: |
         # BE_IMAGE_TAG
         BE_IMAGE_TAG="${{ env.BE_IMAGE_TAG }}"
@@ -108,11 +107,9 @@ jobs:
         echo set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
         echo ::set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
 
-        # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM defined?
-        TRIGGER_DOWNSTREAM=""
-        if [ -n "${{ secrets.TRIGGER_DOWNSTREAM }}" ]; then TRIGGER_DOWNSTREAM="${{ secrets.TRIGGER_DOWNSTREAM }}"; fi
-        echo set-output name=trigger::${{ TRIGGER_DOWNSTREAM == 'yes' }}
-        echo ::set-output name=trigger::${{ TRIGGER_DOWNSTREAM == 'yes' }}
+        # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
+        echo set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
+        echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
 
     - name: Checkout
       uses: actions/checkout@v2
