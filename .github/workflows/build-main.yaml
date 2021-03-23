@@ -123,7 +123,7 @@ jobs:
       run: yarn run build
     - name: Trigger stack
       if: steps.vars.outputs.trigger == 'true'
-      uses: informaticsmatters/trigger-ci-action@master
+      uses: informaticsmatters/trigger-ci-action@v1
       with:
         ci-owner: ${{ steps.vars.outputs.STACK_NAMESPACE }}
         ci-repository: fragalysis-stack
