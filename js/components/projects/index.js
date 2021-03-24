@@ -21,12 +21,12 @@ import { Link } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
-import { setProjectModalOpen } from './redux/actions';
+import { setProjectModalOpen, setProjectDiscourseLinks } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject, searchInProjects } from './redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { isDiscourseAvailable, getProjectUrl } from '../../utils/discourse';
+import { isDiscourseAvailable, getExistingPost } from '../../utils/discourse';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -55,6 +55,7 @@ export const Projects = memo(({}) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const isLoadingListOfProjects = useSelector(state => state.projectReducers.isLoadingListOfProjects);
   const dispatch = useDispatch();
+  const projectDiscourseLinks = useSelector(state => state.projectReducers.projectDiscourseLinks);
 
   const listOfProjects = useSelector(state => state.projectReducers.listOfProjects).map(project => {
     return {
@@ -73,6 +74,21 @@ export const Projects = memo(({}) => {
       throw new Error(error);
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isDiscourseAvailable()) {
+      listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).forEach(project => {
+        if (!projectDiscourseLinks.hasOwnProperty(project.id)) {
+          getExistingPost(project.name).then(response => {
+            if (response.data['Post url']) {
+              projectDiscourseLinks[project.id] = response.data['Post url'];
+              dispatch(setProjectDiscourseLinks(projectDiscourseLinks));
+            }
+          });
+        }
+      });
+    }
+  });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -177,9 +193,9 @@ export const Projects = memo(({}) => {
                         <Delete />
                       </IconButton>
                       <IconButton
-                        disabled={!isDiscourseAvailable()}
+                        disabled={!isDiscourseAvailable() && !projectDiscourseLinks.hasOwnProperty(project.id)}
                         onClick={() => {
-                          window.open(getProjectUrl(project.description), '_blank');
+                          window.open(projectDiscourseLinks[project.id], '_blank');
                         }}
                       >
                         <QuestionAnswer />

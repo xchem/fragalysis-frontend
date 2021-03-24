@@ -11,7 +11,8 @@ import {
   setCurrentProject,
   setForceCreateProject,
   setForceProjectCreated,
-  setIsLoadingListOfProjects
+  setIsLoadingListOfProjects,
+  setCurrentProjectDiscourseLink
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -21,6 +22,7 @@ import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
 import { resetTrackingState } from '../../../reducers/tracking/actions';
+import { createProjectPost } from '../../../utils/discourse';
 
 import moment from 'moment';
 
@@ -272,6 +274,12 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
       dispatch(setForceProjectCreated(true));
       dispatch(setDialogCurrentStep(1));
     });
+};
+
+export const createProjectDiscoursePost = (projectName, targetName, msg, tags) => (dispatch, getState) => {
+  return createProjectPost(projectName, targetName, msg, tags).then(response => {
+    dispatch(setCurrentProjectDiscourseLink(response.data['Post url']));
+  });
 };
 
 export const createProject = ({ title, description, target, author, tags }) => dispatch => {

@@ -4,12 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
-import { Description, Title } from '@material-ui/icons';
+import { Description, Title, QuestionAnswer } from '@material-ui/icons';
 import { TextField } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
+import { isDiscourseAvailable } from '../../../utils/discourse';
 
 import moment from 'moment';
 
@@ -40,6 +41,9 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const dispatch = useDispatch();
   const { nglViewList } = useContext(NglContext);
   const [overwriteSnapshot, setoverwriteSnapshot] = useState(false);
+  const [createDiscourse, setCreateDiscourse] = useState(true);
+
+  const discourseAvailable = isDiscourseAvailable();
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
@@ -95,7 +99,8 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               parent,
               session_project,
               nglViewList,
-              overwriteSnapshot
+              overwriteSnapshot,
+              createDiscourse
             })
           ).catch(error => {
             setState(() => {
@@ -156,6 +161,24 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                   />
                 </Grid>
               )}
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<QuestionAnswer />}
+                  field={
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={createDiscourse}
+                          onChange={() => setCreateDiscourse(!createDiscourse)}
+                          disabled={!discourseAvailable}
+                          name="createDisTopic"
+                        />
+                      }
+                      label="Create Discourse topic"
+                    />
+                  }
+                />
+              </Grid>
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
