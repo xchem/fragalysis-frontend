@@ -27,7 +27,9 @@ import {
   Menu as MenuIcon,
   Work,
   Description,
-  Timeline
+  Timeline,
+  QuestionAnswer,
+  Chat
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -43,6 +45,11 @@ import { FundersModal } from '../funders/fundersModal';
 import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
+import { isDiscourseAvailable } from '../../utils/discourse';
+import { useSelector, useDispatch } from 'react-redux';
+import { setCurrentTargetLink } from '../target/redux/actions';
+import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
+import { setCurrentProjectDiscourseLink } from '../projects/redux/actions';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -89,6 +96,7 @@ const useStyles = makeStyles(theme => ({
 
 export default memo(
   forwardRef(({ headerHeight = 0, setHeaderHeight }, ref) => {
+    const dispatch = useDispatch();
     let history = useHistory();
     const classes = useStyles();
     const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
@@ -97,6 +105,47 @@ export default memo(
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
+
+    const currentProject = useSelector(state => state.projectReducers.currentProject);
+    const targetDiscourseLinks = useSelector(state => state.targetReducers.targetDiscourseLinks);
+    const targetId = useSelector(state => state.apiReducers.target_on);
+    const targetName = useSelector(state => state.apiReducers.target_on_name);
+    const targetDiscourseLink = useSelector(state => state.targetReducers.currentTargetLink);
+    const projectDiscourseLink = useSelector(state => state.projectReducers.currentProjectDiscourseLink);
+
+    const discourseAvailable = isDiscourseAvailable();
+    const targetDiscourseVisible = targetDiscourseLink && discourseAvailable;
+    const projectDiscourseVisible = discourseAvailable && projectDiscourseLink;
+
+    useEffect(() => {
+      if (targetId && targetDiscourseLinks && targetDiscourseLinks[targetId]) {
+        dispatch(setCurrentTargetLink(targetDiscourseLinks[targetId]));
+      } else if (targetName) {
+        generateDiscourseTargetURL(targetName)
+          .then(response => {
+            const url = response.data['Post url'];
+            if (url) {
+              dispatch(setCurrentTargetLink(url));
+            }
+          })
+          .catch(err => console.log(err));
+      }
+    }, [targetDiscourseLinks, targetId, dispatch, targetName]);
+
+    useEffect(() => {
+      if (currentProject) {
+        if (targetDiscourseLinks && targetDiscourseLinks[currentProject.projectID]) {
+          dispatch(setCurrentProjectDiscourseLink(targetDiscourseLinks[currentProject.projectID]));
+        } else if (currentProject.title && targetName) {
+          getExistingPost(currentProject.title).then(response => {
+            const url = response.data['Post url'];
+            if (url) {
+              dispatch(setCurrentProjectDiscourseLink(url));
+            }
+          });
+        }
+      }
+    }, [currentProject, targetDiscourseLinks, dispatch, targetName]);
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -121,6 +170,10 @@ export default memo(
     const openCovidMoonshot = () => {
       // window.location.href = 'https://covid.postera.ai/covid';
       window.open('https://covid.postera.ai/covid', '_blank');
+    };
+
+    const openDiscourseLink = url => {
+      window.open(url, '_blank');
     };
 
     let authListItem;
@@ -211,6 +264,28 @@ export default memo(
                 </Button>
                 {headerButtons && headerButtons.map(item => item)}
               </ButtonGroup>
+            </Grid>
+            <Grid item>
+              {discourseAvailable && (
+                <ButtonGroup variant="text" size="small">
+                  {targetDiscourseVisible && (
+                    <Button
+                      startIcon={<Chat />}
+                      variant="text"
+                      size="small"
+                      onClick={() => openDiscourseLink(targetDiscourseLink)}
+                    ></Button>
+                  )}
+                  {projectDiscourseVisible && (
+                    <Button
+                      startIcon={<QuestionAnswer />}
+                      variant="text"
+                      size="small"
+                      onClick={() => openDiscourseLink(projectDiscourseLink)}
+                    ></Button>
+                  )}
+                </ButtonGroup>
+              )}
             </Grid>
             <Grid item>
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>

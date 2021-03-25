@@ -40,6 +40,7 @@ import {
 } from '../../../reducers/tracking/dispatchActions';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 import { setCurrentProject } from '../../projects/redux/actions';
+import { createProjectPost } from '../../../utils/discourse';
 
 export const getListOfSnapshots = () => (dispatch, getState) => {
   const userID = DJANGO_CONTEXT['pk'] || null;
@@ -199,7 +200,8 @@ export const createNewSnapshot = ({
   parent,
   session_project,
   nglViewList,
-  overwriteSnapshot
+  overwriteSnapshot,
+  createDiscourse = false
 }) => (dispatch, getState) => {
   const state = getState();
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
@@ -294,6 +296,9 @@ export const createNewSnapshot = ({
                             data: '[]'
                           })
                         );
+                        if (createDiscourse) {
+                          dispatch(createSnapshotDiscoursePost());
+                        }
                         dispatch(
                           setCurrentProject({
                             projectID: projectResponse.data.id,
@@ -332,6 +337,16 @@ export const createNewSnapshot = ({
       })
     ]);
   }
+};
+
+export const createSnapshotDiscoursePost = () => (dispatch, getState) => {
+  const state = getState();
+  const currentProject = state.projectReducers.currentProject;
+  const currentSnapshot = state.projectReducers.currentSnapshot;
+  const targetName = state.apiReducers.target_on_name;
+  const url = `${base_url}${URLS.projects}${currentProject.projectID}/${currentSnapshot.id}`;
+  const msg = `${url}`;
+  return createProjectPost(currentProject.title, targetName, msg, []);
 };
 
 export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareSnapshot = false) => (
@@ -423,7 +438,7 @@ export const createNewSnapshotWithoutStateModification = ({
   });
 };
 
-export const saveAndShareSnapshot = ( nglViewList, showDialog = true ) => async (dispatch, getState) => {
+export const saveAndShareSnapshot = (nglViewList, showDialog = true) => async (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
@@ -467,7 +482,7 @@ export const saveAndShareSnapshot = ( nglViewList, showDialog = true ) => async 
           nglViewList
         })
       );
-      
+
       if (showDialog) {
         dispatch(setIsLoadingSnapshotDialog(false));
       }
