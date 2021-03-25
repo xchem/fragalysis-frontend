@@ -20,7 +20,14 @@ import {
   getRedoActionText,
   restoreNglViewSettings
 } from '../../../../js/reducers/tracking/dispatchActions';
+import {
+  undoAction as nglUndoAction,
+  redoAction as nglRedoAction,
+  getUndoActionText as nglGetUndoActionText,
+  getRedoActionText as nglGetRedoActionText
+} from '../../../../js/reducers/nglTracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
+import { nglTrackingRedo, nglTrackingUndo } from '../../../reducers/nglTracking/actions';
 
 const drawers = {
   settings: 'settings',
@@ -36,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   },
   buttonMargin: {
     padding: theme.spacing(1),
-    marginLeft: theme.spacing(8)
+    marginLeft: theme.spacing(1)
   }
 }));
 
@@ -49,7 +56,22 @@ export const ViewerControls = memo(({}) => {
   const [redoTooltip, setRedoTooltip] = useState('Redo');
   const [canUndo, setCanUndo] = useState(true);
   const [canRedo, setCanRedo] = useState(false);
+  const [nglUndoTooltip, nglSetUndoTooltip] = useState('Undo');
+  const [nglRedoTooltip, nglSetRedoTooltip] = useState('Redo');
   const isActionTracking = useSelector(state => state.trackingReducers.isActionTracking);
+
+  const nglUndoLength = useSelector(state => state.undoableNglTrackingReducers.past).length;
+  const nglRedoLength = useSelector(state => state.undoableNglTrackingReducers.future).length;
+  const nglCanUndo = nglUndoLength > 0;
+  const nglCanRedo = nglRedoLength > 0;
+
+  useEffect(() => {
+    nglSetUndoTooltip(dispatch(nglGetUndoActionText()));
+  }, [dispatch, nglUndoLength]);
+
+  useEffect(() => {
+    nglSetRedoTooltip(dispatch(nglGetRedoActionText()));
+  }, [dispatch, nglRedoLength]);
 
   const openDrawer = key => {
     //close all and open selected by key
@@ -71,6 +93,11 @@ export const ViewerControls = memo(({}) => {
     setRedoTooltip(dispatch(getRedoActionText()));
   };
 
+  const nglDoUndo = () => {
+    dispatch(nglTrackingUndo());
+    dispatch(nglUndoAction(nglViewList));
+  };
+
   const doRedo = () => {
     dispatch(UndoActionCreators.redo());
     setCanRedo(dispatch(getCanRedo()));
@@ -79,6 +106,11 @@ export const ViewerControls = memo(({}) => {
 
     setUndoTooltip(dispatch(getUndoActionText()));
     setRedoTooltip(dispatch(getRedoActionText()));
+  };
+
+  const nglDoRedo = () => {
+    dispatch(nglTrackingRedo());
+    dispatch(nglRedoAction(nglViewList));
   };
 
   const handleUserKeyPress = useCallback(e => {
@@ -107,6 +139,19 @@ export const ViewerControls = memo(({}) => {
       <Grid container justify="center">
         <Grid item>
           <ButtonGroup variant="contained" color="primary">
+            <Tooltip title={nglUndoTooltip}>
+              <Button
+                size="small"
+                color="secondary"
+                onClick={() => {
+                  nglDoUndo();
+                }}
+                className={classes.button}
+                disabled={!nglCanUndo}
+              >
+                <Undo />
+              </Button>
+            </Tooltip>
             <Tooltip title={undoTooltip}>
               <Button
                 size="small"
@@ -154,6 +199,19 @@ export const ViewerControls = memo(({}) => {
                 }}
                 className={classes.button}
                 disabled={!canRedo}
+              >
+                <Redo />
+              </Button>
+            </Tooltip>
+            <Tooltip title={nglRedoTooltip}>
+              <Button
+                size="small"
+                color="secondary"
+                onClick={() => {
+                  nglDoRedo();
+                }}
+                className={classes.button}
+                disabled={!nglCanRedo}
               >
                 <Redo />
               </Button>
