@@ -212,17 +212,21 @@ const clearCompounds = (items, majorViewStage) => (dispatch, getState) => {
 };
 
 export const prepareFakeFilterData = () => (dispatch, getState) => {
-  dispatch(updateFilterShowedScoreProperties({
-    datasetID: AUX_VECTOR_SELECTOR_DATASET_ID,
-    scoreList: [{id: 1, name: 'smiles', description: 'smiles', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
-      {id: 2, name: 'mol', description: 'mol', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
-      {id: 3, name: 'vector', description: 'vector', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
-      {id: 4, name: 'class', description: 'class', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID},
-      {id: 5, name: 'compoundClass', description: 'compoundClass', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID}]
-  }));
-}
+  dispatch(
+    updateFilterShowedScoreProperties({
+      datasetID: AUX_VECTOR_SELECTOR_DATASET_ID,
+      scoreList: [
+        { id: 1, name: 'smiles', description: 'smiles', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID },
+        { id: 2, name: 'mol', description: 'mol', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID },
+        { id: 3, name: 'vector', description: 'vector', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID },
+        { id: 4, name: 'class', description: 'class', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID },
+        { id: 5, name: 'compoundClass', description: 'compoundClass', computed_set: AUX_VECTOR_SELECTOR_DATASET_ID }
+      ]
+    })
+  );
+};
 
-export const isCompoundFromVectorSelector = (data) => {
+export const isCompoundFromVectorSelector = data => {
   if (data['index'] !== undefined) {
     return true;
   } else {
@@ -330,7 +334,8 @@ export const handleBuyListAll = ({ isSelected, items, majorViewStage }) => (disp
   }
 };
 
-export const handleShowVectorCompound = ({ isSelected, data, index, majorViewStage }) => async (dispatch, getState) => {
+export const handleShowVectorCompound = ({ isSelected, data, majorViewStage }) => async (dispatch, getState) => {
+  const index = data.index;
   await dispatch(showCompoundNglView({ majorViewStage, data, index }));
   if (isSelected === false) {
     dispatch(removeShowedCompoundFromList(index, data));
