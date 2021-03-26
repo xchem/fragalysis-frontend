@@ -574,7 +574,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const removeOfAllSelectedTypes = (skipTracking = false) => {
     let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking));
+    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking, false));
   };
 
   const selectMoleculeSite = moleculeGroupSite => {

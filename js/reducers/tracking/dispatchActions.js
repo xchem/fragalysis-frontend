@@ -34,7 +34,10 @@ import {
   removeVector,
   moveSelectedMolSettings,
   removeAllSelectedMolTypes,
-  hideAllSelectedMolecules
+  hideAllSelectedMolecules,
+  addDensity,
+  addDensityCustomView,
+  removeDensity
 } from '../../components/preview/molecule/redux/dispatchActions';
 import { setSortDialogOpen } from '../../components/preview/molecule/redux/actions';
 import {
@@ -164,6 +167,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     const currentProteins = state.selectionReducers.proteinList;
     const currentComplexes = state.selectionReducers.complexList;
     const currentSurfaces = state.selectionReducers.surfaceList;
+    const currentDensities = state.selectionReducers.densityList;
+    const currentDensitiesCustom = state.selectionReducers.densityListCustom;
     const currentVectors = state.selectionReducers.vectorOnList;
     const currentBuyList = state.selectionReducers.to_buy_list;
     const currentVector = state.selectionReducers.currentVector;
@@ -275,6 +280,18 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       orderedActionList,
       actionType.SURFACE_TURNED_ON,
       getCollection(currentSurfaces),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.DENSITY_TURNED_ON,
+      getCollection(currentDensities),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.DENSITY_CUSTOM_TURNED_ON,
+      getCollection(currentDensitiesCustom),
       currentActions
     );
     getCurrentActionList(
@@ -907,6 +924,8 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
     await dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.DENSITY_TURNED_ON, 'density', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.DENSITY_CUSTOM_TURNED_ON, 'densityCustom', stage, state));
   }
 
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
@@ -1225,7 +1244,9 @@ const addType = {
   protein: addHitProtein,
   complex: addComplex,
   surface: addSurface,
-  vector: addVector
+  vector: addVector,
+  density: addDensity,
+  densityCustom: addDensityCustomView
 };
 
 const addTypeCompound = {
@@ -1456,6 +1477,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
         break;
+      case actionType.DENSITY_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_CUSTOM_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'densityCustom', false, majorViewStage, state)); // TODO: density custom view
+        break;
       case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
         break;
@@ -1470,6 +1497,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.SURFACE_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TURNED_OFF:
+        dispatch(handleDensityMoleculeAction(action, 'densityCustom', true, majorViewStage, state));
         break;
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
@@ -1614,6 +1644,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
         break;
+      case actionType.DENSITY_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'density', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_CUSTOM_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'densityCustom', true, majorViewStage, state));
+        break;
       case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
@@ -1628,6 +1664,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.SURFACE_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TURNED_OFF:
+        dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
         break;
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
@@ -2224,9 +2263,10 @@ const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStag
     let molecules = state.apiReducers.allMolecules;
     let item = isSelected === true ? action.item : action.newItem;
     let newItem = isSelected === true ? action.newItem : action.item;
+    let isInspiration = newItem && newItem.isInspiration;
     let data = action.data;
 
-    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, true));
+    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, true, isInspiration));
     dispatch(moveSelectedMolSettings(majorViewStage, item, newItem, data, true));
     dispatch(setArrowUpDown(item, newItem, action.arrowType, data));
   }
@@ -2247,7 +2287,8 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
     const complexListMolecule = data.complexList;
     const fragmentDisplayListMolecule = data.fragmentDisplayList;
     const surfaceListMolecule = data.surfaceList;
-    const densityListMolecule = data.surfaceList;
+    const densityListMolecule = data.densityList;
+    const densityListCustomMolecule = data.densityListCustom;
     const vectorOnListMolecule = data.vectorOnList;
 
     dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
@@ -2272,6 +2313,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
           complexListMolecule,
           surfaceListMolecule,
           densityListMolecule,
+          densityListCustomMolecule,
           vectorOnListMolecule,
           true
         )
@@ -2285,6 +2327,8 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
           proteinListMolecule,
           complexListMolecule,
           surfaceListMolecule,
+          densityListMolecule,
+          densityListCustomMolecule,
           vectorOnListMolecule,
           true
         )
@@ -2306,6 +2350,21 @@ const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorVi
         dispatch(selectMoleculeGroup(moleculeGroup, stageSummaryView));
       } else {
         dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
+      }
+    }
+  }
+};
+
+const handleDensityMoleculeAction = (action, type, isAdd, stage, state, skipTracking) => (dispatch, getState) => {
+  if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
+    if (isAdd) {
+      dispatch(addNewTypeOfAction(action, type, stage, state, skipTracking));
+    } else {
+      if (type === 'densityCustom') {
+        dispatch(removeNewType(action, 'density', stage, state, skipTracking));
+        dispatch(addNewTypeOfAction(action, 'density', stage, state, skipTracking));
+      } else {
+        dispatch(removeNewType(action, type, stage, state, skipTracking));
       }
     }
   }
@@ -2335,6 +2394,7 @@ const removeType = {
   protein: removeHitProtein,
   complex: removeComplex,
   surface: removeSurface,
+  density: removeDensity,
   vector: removeVector
 };
 

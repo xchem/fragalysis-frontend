@@ -51,7 +51,8 @@ import {
   addComplex,
   addSurface,
   addLigand,
-  addDensity
+  addDensity,
+  addDensityCustomView
 } from '../../preview/molecule/redux/dispatchActions';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
@@ -724,6 +725,7 @@ export const moveMoleculeInspirationsSettings = (
   complexListMolecule,
   surfaceListMolecule,
   densityListMolecule,
+  densityCustomListMolecule,
   vectorOnListMolecule,
   skipTracking
 ) => (dispatch, getState) => {
@@ -735,6 +737,10 @@ export const moveMoleculeInspirationsSettings = (
     let isAnyInspirationComplexOn = isAnyInspirationTurnedOnByType(computed_inspirations, complexListMolecule);
     let isAnyInspirationSurfaceOn = isAnyInspirationTurnedOnByType(computed_inspirations, surfaceListMolecule);
     let isAnyInspirationDensityOn = isAnyInspirationTurnedOnByType(computed_inspirations, densityListMolecule);
+    let isAnyInspirationDensityOnCustom = isAnyInspirationTurnedOnByType(
+      computed_inspirations,
+      densityCustomListMolecule
+    );
     let isAnyInspirationVectorOn = isAnyInspirationTurnedOnByType(computed_inspirations, vectorOnListMolecule);
 
     if (
@@ -743,9 +749,9 @@ export const moveMoleculeInspirationsSettings = (
       isAnyInspirationComplexOn ||
       isAnyInspirationSurfaceOn ||
       isAnyInspirationDensityOn ||
+      isAnyInspirationDensityOnCustom ||
       isAnyInspirationVectorOn
     ) {
-      // dispatch(loadInspirationMoleculesDataList(newItemData.computed_inspirations)).then(() => {
       dispatch(
         moveInspirations(
           stage,
@@ -755,11 +761,11 @@ export const moveMoleculeInspirationsSettings = (
           isAnyInspirationComplexOn,
           isAnyInspirationSurfaceOn,
           isAnyInspirationDensityOn,
+          isAnyInspirationDensityOnCustom,
           isAnyInspirationVectorOn,
           skipTracking
         )
       );
-      // });
     }
   }
 };
@@ -772,6 +778,7 @@ const moveInspirations = (
   isAnyInspirationComplexOn,
   isAnyInspirationSurfaceOn,
   isAnyInspirationDensityOn,
+  isAnyInspirationDensityOnCustom,
   isAnyInspirationVectorOn,
   skipTracking
 ) => (dispatch, getState) => {
@@ -817,6 +824,18 @@ const moveInspirations = (
             addDensity(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
           );
         }
+        if (isAnyInspirationDensityOnCustom) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
+          dispatch(
+            addDensityCustomView(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              skipTracking,
+              representations
+            )
+          );
+        }
         if (isAnyInspirationVectorOn) {
           dispatch(addVector(stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
         }
@@ -832,6 +851,8 @@ export const moveSelectedInspirations = (
   proteinListMolecule,
   complexListMolecule,
   surfaceListMolecule,
+  densityListMolecule,
+  densityListCustomMolecule,
   vectorOnListMolecule,
   skipTracking
 ) => (dispatch, getState) => {
@@ -869,6 +890,24 @@ export const moveSelectedInspirations = (
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
           dispatch(
             addSurface(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (densityListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
+          dispatch(
+            addDensity(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (densityListCustomMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
+          dispatch(
+            addDensityCustomView(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              skipTracking,
+              representations
+            )
           );
         }
         if (vectorOnListMolecule.includes(molecule.id)) {

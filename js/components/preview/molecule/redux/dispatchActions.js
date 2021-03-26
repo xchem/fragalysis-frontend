@@ -307,6 +307,9 @@ export const addDensityCustomView = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
+  // delete object at first (removeDensity)
+  // load other object
+
   //dispatch(
   // loadObject({
   //   target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
@@ -322,7 +325,7 @@ export const addDensityCustomView = (
 };
 
 export const removeDensity = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  ////dispatch(
+  //dispatch(
   //  deleteObject(
   //   Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
   //   stage
@@ -390,12 +393,16 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   const vectorOnList = state.selectionReducers.vectorOnList;
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
+  const densityList = state.selectionReducers.densityList;
+  const densityListCustom = state.selectionReducers.densityListCustom;
 
   let ligandDataList = [];
   let complexDataList = [];
   let vectorOnDataList = [];
   let surfaceDataList = [];
   let proteinDataList = [];
+  let densityDataList = [];
+  let densityDataListCustom = [];
 
   fragmentDisplayList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
@@ -418,6 +425,13 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
       dispatch(removeVector(stage, data, skipTracking));
     }
   });
+  surfaceList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      surfaceDataList.push(data);
+      dispatch(removeSurface(stage, data, colourList[0], skipTracking));
+    }
+  });
 
   // remove Surface
   surfaceList.forEach(moleculeId => {
@@ -437,6 +451,22 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     }
   });
 
+  densityList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      densityDataList.push(data);
+      dispatch(removeDensity(stage, data, colourList[0], skipTracking));
+    }
+  });
+
+  densityListCustom.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      densityDataListCustom.push(data);
+      dispatch(removeDensity(stage, data, colourList[0], skipTracking));
+    }
+  });
+
   // vector_list
   dispatch(setVectorList([]));
   dispatch(resetCompoundsOfVectors());
@@ -448,7 +478,9 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     proteinList: proteinDataList,
     complexList: complexDataList,
     surfaceList: surfaceDataList,
-    vectorOnList: vectorOnDataList
+    vectorOnList: vectorOnDataList,
+    densityList: densityDataList,
+    densityListCustom: densityDataListCustom
   };
 
   if (isHideAll === true) {
@@ -474,6 +506,14 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE);
       dispatch(addSurface(stage, newItem, data.colourToggle, skipTracking, representations));
     }
+    if (data.isDensityOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
+      dispatch(addDensity(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isDensityCustomOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
+      dispatch(addDensityCustomView(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
     if (data.isVectorOn) {
       dispatch(addVector(stage, newItem, skipTracking)).catch(error => {
         throw new Error(error);
@@ -482,17 +522,24 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
   }
 };
 
-export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTracking = false) => (dispatch, getState) => {
+export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTracking, isInspiration) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
   const complexList = state.selectionReducers.complexList;
   const vectorOnList = state.selectionReducers.vectorOnList;
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
+  const densityList = state.selectionReducers.densityList;
+  const densityListCustom = state.selectionReducers.densityListCustom;
   let joinedMoleculeLists = molecules;
 
   proteinList?.forEach(moleculeID => {
-    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
+
     dispatch(
       removeHitProtein(
         majorViewStage,
@@ -503,23 +550,41 @@ export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTrackin
     );
   });
   complexList?.forEach(moleculeID => {
-    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
     dispatch(
       removeComplex(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
     );
   });
   fragmentDisplayList?.forEach(moleculeID => {
-    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
     dispatch(removeLigand(majorViewStage, foundedMolecule, skipTracking));
   });
   surfaceList?.forEach(moleculeID => {
-    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
     dispatch(
       removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
     );
   });
+  densityList?.forEach(moleculeID => {
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
+    dispatch(
+      removeDensity(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
+  densityListCustom?.forEach(moleculeID => {
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
+    dispatch(
+      removeDensity(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
   vectorOnList?.forEach(moleculeID => {
-    const foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
     dispatch(removeVector(majorViewStage, foundedMolecule, skipTracking));
   });
 };
