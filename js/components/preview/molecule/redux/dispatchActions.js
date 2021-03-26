@@ -4,6 +4,7 @@ import {
   appendComplexList,
   appendSurfaceList,
   appendDensityList,
+  appendDensityListCustom,
   appendFragmentDisplayList,
   appendVectorOnList,
   decrementCountOfPendingVectorLoadRequests,
@@ -12,6 +13,7 @@ import {
   removeFromComplexList,
   removeFromSurfaceList,
   removeFromDensityList,
+  removeFromDensityListCustom,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
   resetCompoundsOfVectors,
@@ -284,32 +286,50 @@ export const addDensity = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  console.log('TODO');
-  return;
-  dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
-    })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
-  dispatch(appendDensityList(generateMoleculeId(data)));
+  //dispatch(
+  // loadObject({
+  //   target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
+  //   stage,
+  //   previousRepresentations: representations,
+  //   orientationMatrix: null
+  // })
+  // ).finally(() => {
+  //   const currentOrientation = stage.viewerControls.getOrientation();
+  //   dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  // });
+  dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+};
+
+export const addDensityCustomView = (
+  stage,
+  data,
+  colourToggle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
+  //dispatch(
+  // loadObject({
+  //   target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
+  //   stage,
+  //   previousRepresentations: representations,
+  //   orientationMatrix: null
+  // })
+  // ).finally(() => {
+  //   const currentOrientation = stage.viewerControls.getOrientation();
+  //   dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  // });
+  dispatch(appendDensityListCustom(generateMoleculeId(data), skipTracking));
 };
 
 export const removeDensity = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  console.log('TODO');
-  return;
-  dispatch(
-    deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
-      stage
-    )
-  );
-  dispatch(removeFromDensityList(generateMoleculeId(data)));
+  ////dispatch(
+  //  deleteObject(
+  //   Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
+  //   stage
+  // )
+  // );
+  dispatch(removeFromDensityList(generateMoleculeId(data), skipTracking));
+  dispatch(removeFromDensityListCustom(generateMoleculeId(data), true));
 };
 
 export const addLigand = (

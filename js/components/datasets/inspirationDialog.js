@@ -152,6 +152,7 @@ export const InspirationDialog = memo(
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
+    const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
     const dispatch = useDispatch();
@@ -453,6 +454,8 @@ export const InspirationDialog = memo(
                         P={proteinList.includes(molecule.id)}
                         C={complexList.includes(molecule.id)}
                         S={surfaceList.includes(molecule.id)}
+                        D={densityList.includes(molecule.id)}
+                        D_C={densityListCustom.includes(data.id)}
                         V={vectorOnList.includes(molecule.id)}
                       />
                     );

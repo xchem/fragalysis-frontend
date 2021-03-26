@@ -44,6 +44,11 @@ services:
       POSTGRESQL_HOST: database
       POSTGRESQL_PORT: 5432
       NEO4J_AUTH: neo4j/test123
+      OIDC_RP_CLIENT_SECRET: c6245428-04c7-466f-9c4f-58c340e981c2
+      DISCOURSE_API_KEY: d6036de5e412123b77048c0b92d42fb108484ea1eef2918d67b236802fa8cd4f
+      FRAGALYSIS_BACKEND_SENTRY_DNS: https://27fa0675f555431aa02ca552e93d8cfb@o194333.ingest.sentry.io/1298290
+      ISPYB_FLAG: 'False'
+      DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
     depends_on:
       - database
       - graph

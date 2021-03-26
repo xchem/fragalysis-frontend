@@ -34,6 +34,10 @@ export const actionType = {
   INTERACTIONS_TURNED_OFF: 'INTERACTIONS_TURNED_OFF',
   SURFACE_TURNED_ON: 'SURFACE_TURNED_ON',
   SURFACE_TURNED_OFF: 'SURFACE_TURNED_OFF',
+  DENSITY_TURNED_ON: 'DENSITY_TURNED_ON',
+  DENSITY_TURNED_OFF: 'DENSITY_TURNED_OFF',
+  DENSITY_CUSTOM_TURNED_ON: 'DENSITY_CUSTOM_TURNED_ON',
+  DENSITY_CUSTOM_TURNED_OFF: 'DENSITY_CUSTOM_TURNED_OFF',
   VECTORS_TURNED_ON: 'VECTORS_TURNED_ON',
   VECTORS_TURNED_OFF: 'VECTORS_TURNED_OFF',
   CLASS_SELECTED: 'CLASS_SELECTED',
@@ -96,6 +100,7 @@ export const actionDescription = {
   LIGAND: 'Ligand',
   SIDECHAIN: 'Sidechain',
   INTERACTION: 'Interaction',
+  DENSITY: 'Density',
   VECTOR: 'Vector',
   COMPOUND: 'Compound',
   MOLECULE: 'Molecule',
@@ -109,7 +114,8 @@ export const actionDescription = {
   LIGANDS: 'Ligands',
   SIDECHAINS: 'Sidechains',
   TAB: 'Tab',
-  DATASET: 'Dataset'
+  DATASET: 'Dataset',
+  CUSTOM_VIEW: 'custom view'
 };
 
 export const actionObjectType = {

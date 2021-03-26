@@ -159,17 +159,35 @@ export const setDensityList = function(densityList) {
   };
 };
 
-export const appendDensityList = function(item) {
+export const appendDensityList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST,
-    item: item
+    item: item,
+    skipTracking
   };
 };
 
-export const removeFromDensityList = function(item) {
+export const removeFromDensityList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_DENSITY_LIST,
-    item: item
+    item: item,
+    skipTracking
+  };
+};
+
+export const appendDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
   };
 };
 

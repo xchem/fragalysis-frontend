@@ -11,6 +11,7 @@ export const INITIAL_STATE = {
   complexList: [],
   surfaceList: [],
   densityList: [],
+  densityListCustom: [],
   vectorOnList: [],
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
@@ -162,6 +163,16 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedDensityList = new Set(state.densityList);
       diminishedDensityList.delete(action.item.id);
       return Object.assign({}, state, { densityList: [...diminishedDensityList] });
+
+    case constants.APPEND_DENSITY_LIST_CUSTOM:
+      return Object.assign({}, state, {
+        densityListCustom: [...new Set([...state.densityListCustom, action.item.id])]
+      });
+
+    case constants.REMOVE_FROM_DENSITY_LIST_CUSTOM:
+      let diminishedDensityListCustom = new Set(state.densityListCustom);
+      diminishedDensityListCustom.delete(action.item.id);
+      return Object.assign({}, state, { densityListCustom: [...diminishedDensityListCustom] });
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();

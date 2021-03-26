@@ -245,6 +245,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
   const densityList = useSelector(state => state.selectionReducers.densityList);
+  const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
@@ -903,6 +904,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       P={proteinList.includes(data.id)}
                       C={complexList.includes(data.id)}
                       S={surfaceList.includes(data.id)}
+                      D={densityList.includes(data.id)}
+                      D_C={densityListCustom.includes(data.id)}
                       V={vectorOnList.includes(data.id)}
                       selectMoleculeSite={selectMoleculeSite}
                     />

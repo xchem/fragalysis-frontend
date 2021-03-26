@@ -6,7 +6,7 @@ import {
   defaultFocus
 } from './generatingObjects';
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
-import {addToPdbCache} from '../../reducers/ngl/actions';
+import { addToPdbCache } from '../../reducers/ngl/actions';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
@@ -81,52 +81,55 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const loadPdbFile = (url) => {
-  return fetch(url).then(response => response.text()).then(str => {
-    return new Blob([str], { type: 'text/plain' })
-  });
+const loadPdbFile = url => {
+  return fetch(url)
+    .then(response => response.text())
+    .then(str => {
+      return new Blob([str], { type: 'text/plain' });
+    });
 };
 
-const getNameOfPdb = (url) => {
+const getNameOfPdb = url => {
   const parts = url.split('/');
   const last = parts[parts.length - 1];
   return last;
 };
 
-const getPdb = (url) => (dispatch, getState) => {
+const getPdb = url => (dispatch, getState) => {
   const state = getState();
 
   const pdbCache = state.nglReducers.pdbCache;
   const pdbName = getNameOfPdb(url);
   if (pdbCache.hasOwnProperty(pdbName)) {
     return new Promise((resolve, reject) => {
-      resolve(pdbCache[pdbName])
+      resolve(pdbCache[pdbName]);
     });
   } else {
     return loadPdbFile(url).then(b => {
       dispatch(addToPdbCache(pdbName, b));
       return b;
     });
-  };
+  }
 };
 
 const showHitProtein = ({ stage, input_dict, object_name, representations, orientationMatrix, dispatch }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
-  return dispatch(getPdb(input_dict.prot_url)).then(pdbBlob => {
-    return Promise.all([
-      stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-      stage.loadFile(stringBlob, { ext: 'sdf' }),
-      stage,
-      defaultFocus,
-      object_name,
-      input_dict.colour
-    ]);
-  }).then(ol => {
-    renderHitProtein(ol, representations, orientationMatrix)
-  });
+  return dispatch(getPdb(input_dict.prot_url))
+    .then(pdbBlob => {
+      return Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+    })
+    .then(ol => {
+      renderHitProtein(ol, representations, orientationMatrix);
+    });
 };
-
 
 const renderComplex = (ol, representations, orientationMatrix) => {
   let cs = concatStructures(
@@ -380,6 +383,11 @@ const showHotspot = ({ stage, input_dict, object_name, representations }) => {
   }
 };
 
+// TODO:
+const showDensity = ({ stage, input_dict, object_name, representations }) => {
+  return {};
+};
+
 // Refactor this out into a utils directory
 export const nglObjectDictionary = {
   [OBJECT_TYPE.SPHERE]: showSphere,
@@ -391,5 +399,6 @@ export const nglObjectDictionary = {
   [OBJECT_TYPE.ARROW]: showArrow,
   [OBJECT_TYPE.PROTEIN]: showProtein,
   [OBJECT_TYPE.EVENTMAP]: showEvent,
-  [OBJECT_TYPE.HOTSPOT]: showHotspot
+  [OBJECT_TYPE.HOTSPOT]: showHotspot,
+  [OBJECT_TYPE.DENSITY]: showDensity
 };

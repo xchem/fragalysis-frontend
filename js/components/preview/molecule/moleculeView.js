@@ -20,6 +20,7 @@ import {
   addSurface,
   removeSurface,
   addDensity,
+  addDensityCustomView,
   removeDensity,
   addLigand,
   removeLigand,
@@ -211,6 +212,8 @@ const MoleculeView = memo(
     P,
     C,
     S,
+    D,
+    D_C,
     V,
     selectMoleculeSite
   }) => {
@@ -238,13 +241,14 @@ const MoleculeView = memo(
     const isProteinOn = P;
     const isComplexOn = C;
     const isSurfaceOn = S;
-    // const isDensityOn = false;
+    const isDensityOn = D;
+    const isDensityCustomOn = D_C;
     const isVectorOn = V;
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
-    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn;
+    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
 
     // const disableUserInteraction = useDisableUserInteraction();
 
@@ -319,7 +323,9 @@ const MoleculeView = memo(
     };
     const not_selected_style = {};
     const current_style =
-      isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
+      isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn
+        ? selected_style
+        : not_selected_style;
 
     const addNewLigand = (skipTracking = false) => {
       if (selectMoleculeSite) {
@@ -428,6 +434,10 @@ const MoleculeView = memo(
       dispatch(removeDensity(stage, data, colourToggle));
     };
 
+    const addNewDensityCustom = () => {
+      dispatch(addDensityCustomView(stage, data, colourToggle));
+    };
+
     const addNewDensity = () => {
       if (selectMoleculeSite) {
         selectMoleculeSite(data.site);
@@ -435,13 +445,15 @@ const MoleculeView = memo(
       dispatch(addDensity(stage, data, colourToggle));
     };
 
-    // const onDensity = () => {
-    //   if (isDensityOn === false) {
-    //     addNewDensity();
-    //   } else {
-    //     removeSelectedDensity();
-    //   }
-    // };
+    const onDensity = () => {
+      if (isDensityOn === false) {
+        addNewDensity();
+      } else if (isDensityCustomOn === false) {
+        addNewDensityCustom();
+      } else {
+        removeSelectedDensity();
+      }
+    };
 
     const removeSelectedVector = () => {
       dispatch(removeVector(stage, data));
@@ -516,6 +528,8 @@ const MoleculeView = memo(
         isProteinOn: isProteinOn,
         isComplexOn: isComplexOn,
         isSurfaceOn: isSurfaceOn,
+        isDensityOn: isDensityOn,
+        isDensityCustomOn: isDensityCustomOn,
         isVectorOn: isVectorOn,
         objectsInView: objectsInView,
         colourToggle: colourToggle
@@ -534,6 +548,8 @@ const MoleculeView = memo(
         isProteinOn: isProteinOn,
         isComplexOn: isComplexOn,
         isSurfaceOn: isSurfaceOn,
+        isDensityOn: isDensityOn,
+        isDensityCustomOn: isDensityCustomOn,
         isVectorOn: isVectorOn,
         objectsInView: objectsInView,
         colourToggle: colourToggle
@@ -675,14 +691,19 @@ const MoleculeView = memo(
                 </Tooltip>
                 <Tooltip title="electron density">
                   <Grid item>
-                    {/* TODO waiting for backend data */}
                     <Button
                       variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: false
-                      })}
-                      // onClick={() => onDensity()}
-                      disabled={true || false}
+                      className={classNames(
+                        classes.contColButton,
+                        {
+                          [classes.contColButtonHalfSelected]: isDensityOn && !isDensityCustomOn
+                        },
+                        {
+                          [classes.contColButtonSelected]: isDensityCustomOn
+                        }
+                      )}
+                      onClick={() => onDensity()}
+                      disabled={false}
                     >
                       D
                     </Button>
