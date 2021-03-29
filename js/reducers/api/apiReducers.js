@@ -38,7 +38,8 @@ export const INITIAL_STATE = {
   sessionTitle: undefined,
   user_id: undefined,
   direct_access: {},
-  direct_access_processed: false
+  direct_access_processed: false,
+  open_discourse_error_modal: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -70,12 +71,16 @@ export const RESET_TARGET_STATE = {
   sessionIdList: [],
   sessionTitle: undefined,
   user_id: undefined,
-  direct_access: {}
+  direct_access: {},
+  open_discourse_error_modal: false
   // direct_access_processed: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_OPEN_DISCOURSE_ERROR_MODAL:
+      return Object.assign({}, state, { open_discourse_error_modal: action.payload });
+
     case constants.SET_TARGET_ID_LIST:
       return Object.assign({}, state, {
         target_id_list: action.target_id_list

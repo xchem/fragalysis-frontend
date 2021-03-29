@@ -23,6 +23,7 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
 import { resetTrackingState } from '../../../reducers/tracking/actions';
 import { createProjectPost } from '../../../utils/discourse';
+import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
@@ -278,9 +279,14 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
 };
 
 export const createProjectDiscoursePost = (projectName, targetName, msg, tags) => (dispatch, getState) => {
-  return createProjectPost(projectName, targetName, msg, tags).then(response => {
-    dispatch(setCurrentProjectDiscourseLink(response.data['Post url']));
-  });
+  return createProjectPost(projectName, targetName, msg, tags)
+    .then(response => {
+      dispatch(setCurrentProjectDiscourseLink(response.data['Post url']));
+    })
+    .catch(err => {
+      console.log(err);
+      dispatch(setOpenDiscourseErrorModal(true));
+    });
 };
 
 export const createProject = ({ title, description, target, author, tags }) => dispatch => {

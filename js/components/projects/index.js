@@ -27,6 +27,7 @@ import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject, searchInProjects } from './redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { isDiscourseAvailable, getExistingPost } from '../../utils/discourse';
+import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -79,12 +80,17 @@ export const Projects = memo(({}) => {
     if (isDiscourseAvailable()) {
       listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).forEach(project => {
         if (!projectDiscourseLinks.hasOwnProperty(project.id)) {
-          getExistingPost(project.name).then(response => {
-            if (response.data['Post url']) {
-              projectDiscourseLinks[project.id] = response.data['Post url'];
-              dispatch(setProjectDiscourseLinks(projectDiscourseLinks));
-            }
-          });
+          getExistingPost(project.name)
+            .then(response => {
+              if (response.data['Post url']) {
+                projectDiscourseLinks[project.id] = response.data['Post url'];
+                dispatch(setProjectDiscourseLinks(projectDiscourseLinks));
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              dispatch(setOpenDiscourseErrorModal(true));
+            });
         }
       });
     }

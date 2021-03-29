@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import { isDiscourseAvailable, generateDiscourseTargetURL } from '../../utils/discourse';
 import { setTargetDiscourseLinks } from './redux/actions';
+import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
 export const TargetList = memo(() => {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ export const TargetList = memo(() => {
             })
             .catch(err => {
               console.log(err);
+              dispatch(setOpenDiscourseErrorModal(true));
             });
         }
       });
