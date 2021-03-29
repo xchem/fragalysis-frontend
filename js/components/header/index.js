@@ -50,6 +50,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentTargetLink } from '../target/redux/actions';
 import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
 import { setCurrentProjectDiscourseLink } from '../projects/redux/actions';
+import { DiscourseErrorModal } from './discourseErrorModal';
+import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -113,6 +115,8 @@ export default memo(
     const targetDiscourseLink = useSelector(state => state.targetReducers.currentTargetLink);
     const projectDiscourseLink = useSelector(state => state.projectReducers.currentProjectDiscourseLink);
 
+    const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
+
     const discourseAvailable = isDiscourseAvailable();
     const targetDiscourseVisible = targetDiscourseLink && discourseAvailable;
     const projectDiscourseVisible = discourseAvailable && projectDiscourseLink;
@@ -128,7 +132,10 @@ export default memo(
               dispatch(setCurrentTargetLink(url));
             }
           })
-          .catch(err => console.log(err));
+          .catch(err => {
+            console.log(err);
+            dispatch(setOpenDiscourseErrorModal(true));
+          });
       }
     }, [targetDiscourseLinks, targetId, dispatch, targetName]);
 
@@ -137,12 +144,17 @@ export default memo(
         if (targetDiscourseLinks && targetDiscourseLinks[currentProject.projectID]) {
           dispatch(setCurrentProjectDiscourseLink(targetDiscourseLinks[currentProject.projectID]));
         } else if (currentProject.title && targetName) {
-          getExistingPost(currentProject.title).then(response => {
-            const url = response.data['Post url'];
-            if (url) {
-              dispatch(setCurrentProjectDiscourseLink(url));
-            }
-          });
+          getExistingPost(currentProject.title)
+            .then(response => {
+              const url = response.data['Post url'];
+              if (url) {
+                dispatch(setCurrentProjectDiscourseLink(url));
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              dispatch(setOpenDiscourseErrorModal(true));
+            });
         }
       }
     }, [currentProject, targetDiscourseLinks, dispatch, targetName]);
@@ -362,6 +374,7 @@ export default memo(
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         <TrackingModal openModal={openTrackingModal} onModalClose={() => setOpenTrackingModal(false)} />
+        <DiscourseErrorModal openModal={openDiscourseError} />
         <Drawer
           anchor="left"
           open={openMenu}
