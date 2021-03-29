@@ -33,7 +33,7 @@ export const INITIAL_STATE = {
   currentSnapshotList: null,
   forceCreateProject: false,
   isForceProjectCreated: false,
-  projectDiscourseLinks: {}
+  projectDiscourseLinks: null
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {

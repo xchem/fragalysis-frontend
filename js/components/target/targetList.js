@@ -2,7 +2,7 @@
  * Created by abradley on 13/03/2018.
  */
 
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ListItemText, ListItemSecondaryAction, Grid } from '@material-ui/core';
 import { List, ListItem, Panel } from '../common';
@@ -19,22 +19,30 @@ export const TargetList = memo(() => {
   const targetDiscourseLinks = useSelector(state => state.targetReducers.targetDiscourseLinks);
 
   useEffect(() => {
-    if (isDiscourseAvailable()) {
-      target_id_list.forEach(data => {
-        if (!targetDiscourseLinks.hasOwnProperty(data.id)) {
-          generateDiscourseTargetURL(data.title)
-            .then(response => {
-              targetDiscourseLinks[data.id] = response.data['Post url'];
-              dispatch(setTargetDiscourseLinks(targetDiscourseLinks));
-            })
-            .catch(err => {
-              console.log(err);
-              dispatch(setOpenDiscourseErrorModal(true));
-            });
-        }
-      });
+    if (isDiscourseAvailable() && !targetDiscourseLinks) {
+      const tempLinks = {};
+      processTargetItem(tempLinks, target_id_list, 0);
     }
-  }, [target_id_list, targetDiscourseLinks, dispatch]);
+  }, [target_id_list, targetDiscourseLinks, dispatch, processTargetItem]);
+
+  const processTargetItem = useCallback(
+    (links, sourceData, index) => {
+      if (sourceData && sourceData.length >= index + 1) {
+        const data = sourceData[index];
+        generateDiscourseTargetURL(data.title)
+          .then(response => {
+            links[data.id] = response.data['Post url'];
+            dispatch(setTargetDiscourseLinks(links));
+            processTargetItem(links, sourceData, index + 1);
+          })
+          .catch(err => {
+            console.log(err);
+            dispatch(setOpenDiscourseErrorModal(true));
+          });
+      }
+    },
+    [dispatch]
+  );
 
   const render_method = data => {
     const preview = URLS.target + data.title;
@@ -55,7 +63,7 @@ export const TargetList = memo(() => {
                 Open SGC summary
               </a>
             )}
-            {discourseAvailable && targetDiscourseLinks.hasOwnProperty(data.id) && (
+            {discourseAvailable && targetDiscourseLinks?.hasOwnProperty(data.id) && (
               <a href={targetDiscourseLinks[data.id]} target="new">
                 Discourse
               </a>

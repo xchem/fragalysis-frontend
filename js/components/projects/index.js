@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useCallback } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
 import {
   Table,
@@ -77,24 +77,33 @@ export const Projects = memo(({}) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isDiscourseAvailable()) {
-      listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).forEach(project => {
-        if (!projectDiscourseLinks.hasOwnProperty(project.id)) {
-          getExistingPost(project.name)
-            .then(response => {
-              if (response.data['Post url']) {
-                projectDiscourseLinks[project.id] = response.data['Post url'];
-                dispatch(setProjectDiscourseLinks(projectDiscourseLinks));
-              }
-            })
-            .catch(err => {
-              console.log(err);
-              dispatch(setOpenDiscourseErrorModal(true));
-            });
-        }
-      });
+    if (isDiscourseAvailable() && !projectDiscourseLinks) {
+      const tempLinks = {};
+      const source = listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+      processProjectItem(tempLinks, source, 0);
     }
-  });
+  }, [listOfProjects, page, processProjectItem, projectDiscourseLinks, rowsPerPage]);
+
+  const processProjectItem = useCallback(
+    (links, sourceData, index) => {
+      if (sourceData && sourceData.length >= index + 1) {
+        const project = sourceData[index];
+        getExistingPost(project.name)
+          .then(response => {
+            if (response.data['Post url']) {
+              links[project.id] = response.data['Post url'];
+              dispatch(setProjectDiscourseLinks(links));
+              processProjectItem(links, sourceData, index + 1);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            dispatch(setOpenDiscourseErrorModal(true));
+          });
+      }
+    },
+    [dispatch]
+  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -199,7 +208,7 @@ export const Projects = memo(({}) => {
                         <Delete />
                       </IconButton>
                       <IconButton
-                        disabled={!isDiscourseAvailable() && !projectDiscourseLinks.hasOwnProperty(project.id)}
+                        disabled={!isDiscourseAvailable() && !projectDiscourseLinks?.hasOwnProperty(project.id)}
                         onClick={() => {
                           window.open(projectDiscourseLinks[project.id], '_blank');
                         }}
