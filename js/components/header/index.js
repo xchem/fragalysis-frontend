@@ -40,16 +40,13 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
-import { IdeaReport } from '../userFeedback/ideaReport';
 import { FundersModal } from '../funders/fundersModal';
 import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
 import { isDiscourseAvailable } from '../../utils/discourse';
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentTargetLink } from '../target/redux/actions';
 import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
-import { setCurrentProjectDiscourseLink } from '../projects/redux/actions';
 import { DiscourseErrorModal } from './discourseErrorModal';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
@@ -109,55 +106,13 @@ export default memo(
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
 
     const currentProject = useSelector(state => state.projectReducers.currentProject);
-    const targetDiscourseLinks = useSelector(state => state.targetReducers.targetDiscourseLinks);
-    const targetId = useSelector(state => state.apiReducers.target_on);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
-    const targetDiscourseLink = useSelector(state => state.targetReducers.currentTargetLink);
-    const projectDiscourseLink = useSelector(state => state.projectReducers.currentProjectDiscourseLink);
 
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
 
     const discourseAvailable = isDiscourseAvailable();
-    const targetDiscourseVisible = targetDiscourseLink && discourseAvailable;
-    const projectDiscourseVisible = discourseAvailable && projectDiscourseLink;
-
-    useEffect(() => {
-      if (targetId && targetDiscourseLinks && targetDiscourseLinks[targetId]) {
-        dispatch(setCurrentTargetLink(targetDiscourseLinks[targetId]));
-      } else if (targetName) {
-        generateDiscourseTargetURL(targetName)
-          .then(response => {
-            const url = response.data['Post url'];
-            if (url) {
-              dispatch(setCurrentTargetLink(url));
-            }
-          })
-          .catch(err => {
-            console.log(err);
-            dispatch(setOpenDiscourseErrorModal(true));
-          });
-      }
-    }, [targetDiscourseLinks, targetId, dispatch, targetName]);
-
-    useEffect(() => {
-      if (currentProject) {
-        if (targetDiscourseLinks && targetDiscourseLinks[currentProject.projectID]) {
-          dispatch(setCurrentProjectDiscourseLink(targetDiscourseLinks[currentProject.projectID]));
-        } else if (currentProject.title && targetName) {
-          getExistingPost(currentProject.title)
-            .then(response => {
-              const url = response.data['Post url'];
-              if (url) {
-                dispatch(setCurrentProjectDiscourseLink(url));
-              }
-            })
-            .catch(err => {
-              console.log(err);
-              dispatch(setOpenDiscourseErrorModal(true));
-            });
-        }
-      }
-    }, [currentProject, targetDiscourseLinks, dispatch, targetName]);
+    const targetDiscourseVisible = discourseAvailable;
+    const projectDiscourseVisible = discourseAvailable;
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -285,7 +240,19 @@ export default memo(
                       startIcon={<Chat />}
                       variant="text"
                       size="small"
-                      onClick={() => openDiscourseLink(targetDiscourseLink)}
+                      onClick={() => {
+                        generateDiscourseTargetURL(targetName)
+                          .then(response => {
+                            const url = response.data['Post url'];
+                            if (url) {
+                              openDiscourseLink(url);
+                            }
+                          })
+                          .catch(err => {
+                            console.log(err);
+                            dispatch(setOpenDiscourseErrorModal(true));
+                          });
+                      }}
                     ></Button>
                   )}
                   {projectDiscourseVisible && (
@@ -293,7 +260,19 @@ export default memo(
                       startIcon={<QuestionAnswer />}
                       variant="text"
                       size="small"
-                      onClick={() => openDiscourseLink(projectDiscourseLink)}
+                      onClick={() => {
+                        getExistingPost(currentProject.title)
+                          .then(response => {
+                            const url = response.data['Post url'];
+                            if (url) {
+                              openDiscourseLink(url);
+                            }
+                          })
+                          .catch(err => {
+                            console.log(err);
+                            dispatch(setOpenDiscourseErrorModal(true));
+                          });
+                      }}
                     ></Button>
                   )}
                 </ButtonGroup>
