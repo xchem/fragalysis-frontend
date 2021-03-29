@@ -24,7 +24,11 @@ export const NGL_PARAMS = {
   clipFar: 'clipFar',
   clipDist: 'clipDist',
   fogNear: 'fogNear',
-  fogFar: 'fogFar'
+  fogFar: 'fogFar',
+  isolevel: 'isolevel',
+  boxSize: 'boxSize',
+  opacity: 'opacity',
+  contour: 'contour'
 };
 
 // warning dont use underscore _ in constants!!!!!!
@@ -86,5 +90,9 @@ export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.clipFar]: 100,
   [NGL_PARAMS.clipDist]: 10,
   [NGL_PARAMS.fogNear]: 50,
-  [NGL_PARAMS.fogFar]: 62
+  [NGL_PARAMS.fogFar]: 62,
+  [NGL_PARAMS.isolevel]: 1,
+  [NGL_PARAMS.boxSize]: 0,
+  [NGL_PARAMS.opacity]: 1,
+  [NGL_PARAMS.contour]: false
 };

@@ -56,8 +56,8 @@ export const loadObject = ({
       dispatch
     })
       .then(representations => {
-         dispatch(loadNglObject(versionFixedTarget, representations))
-        })
+        dispatch(loadNglObject(versionFixedTarget, representations));
+      })
       .catch(error => {
         console.error(error);
       })
@@ -188,7 +188,7 @@ export const setNglBckGrndColor = (color, major, summary) => (dispatch, getState
 };
 
 export const setNglClipNear = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));  
+  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));
   dispatch(setNglClipNearAction(newValue, oldValue));
 };
 
@@ -210,4 +210,37 @@ export const setNglFogNear = (newValue, oldValue, major) => (dispatch, getState)
 export const setNglFogFar = (newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(setNglViewParams(NGL_PARAMS.fogFar, newValue, major, VIEWS.MAJOR_VIEW));
   dispatch(setNglFogFarAction(newValue, oldValue));
+};
+
+export const setIsoLevel = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.isolevel, newValue));
+  dispatch(setNglViewParams(NGL_PARAMS.isolevel, newValue, major, VIEWS.MAJOR_VIEW));
+  //dispatch(setIsoLevelAction(newValue, oldValue));
+};
+
+export const setBoxSize = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.boxSize, newValue));
+  dispatch(setNglViewParams(NGL_PARAMS.boxSize, newValue, major, VIEWS.MAJOR_VIEW));
+  //dispatch(setBoxSizeAction(newValue, oldValue));
+};
+
+export const setOpacity = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.opacity, newValue));
+  dispatch(setNglViewParams(NGL_PARAMS.opacity, newValue, major, VIEWS.MAJOR_VIEW));
+  //dispatch(setOpacityFarAction(newValue, oldValue));
+};
+
+export const setContour = (newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.contour, newValue));
+  dispatch(setNglViewParams(NGL_PARAMS.contour, newValue, major, VIEWS.MAJOR_VIEW));
+  //dispatch(setContourAction(newValue, oldValue));
+};
+
+const updateRepresentationsByType = (type, stage, key, newValue) => (dispatch, getState) => {
+  if (stage) {
+    let reprList = stage.compList.flatMap(a => a.reprList.filter(a => a.repr.type === type));
+    reprList.forEach(r => {
+      r.setParameters({ [key]: newValue });
+    });
+  }
 };

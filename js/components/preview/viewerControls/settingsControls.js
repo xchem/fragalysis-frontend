@@ -3,11 +3,21 @@ import { Grid, makeStyles, Slider, Switch, TextField, Typography } from '@materi
 import { Drawer } from '../../common/Navigation/Drawer';
 import { BACKGROUND_COLOR, NGL_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { setNglViewParams } from '../../../reducers/ngl/actions';
-import { setNglBckGrndColor, setNglClipNear, setNglClipFar, setNglClipDist, setNglFogNear, setNglFogFar } from '../../../reducers/ngl/dispatchActions';
+import {
+  setNglBckGrndColor,
+  setNglClipNear,
+  setNglClipFar,
+  setNglClipDist,
+  setNglFogNear,
+  setNglFogFar,
+  setIsoLevel,
+  setBoxSize,
+  setOpacity,
+  setContour
+} from '../../../reducers/ngl/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
-
+import palette from '../../../theme/palette';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,6 +31,10 @@ const useStyles = makeStyles(theme => ({
   },
   textField: {
     width: 208
+  },
+  divider: {
+    borderTop: '1px dashed ' + palette.divider,
+    paddingTop: '10px'
   }
 }));
 
@@ -45,7 +59,13 @@ export const SettingControls = memo(({ open, onClose }) => {
     }
   };
 
-
+  const handleRepresentation = () => {
+    if (viewParams[NGL_PARAMS.contour] === false) {
+      dispatch(setContour(true, viewParams[NGL_PARAMS.contour], majorView));
+    } else {
+      dispatch(setContour(false, viewParams[NGL_PARAMS.contour], majorView));
+    }
+  };
 
   return (
     <Drawer title="Settings" open={open} onClose={onClose}>
@@ -136,6 +156,66 @@ export const SettingControls = memo(({ open, onClose }) => {
             />
           </Grid>
         </Grid>
+        <div className={classes.divider}>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">ISO</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.isolevel]}
+                valueLabelDisplay="auto"
+                step={2}
+                min={1000}
+                max={-1000}
+                onChange={(e, value) => dispatch(setIsoLevel(value, viewParams[NGL_PARAMS.isolevel], majorView))}
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Box size</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.boxSize]}
+                valueLabelDisplay="auto"
+                step={1}
+                min={0}
+                max={100}
+                onChange={(e, value) => dispatch(setBoxSize(value, viewParams[NGL_PARAMS.boxSize], majorView))}
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Opacity</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.opacity]}
+                valueLabelDisplay="auto"
+                step={0.01}
+                min={0}
+                max={1}
+                onChange={(e, value) => dispatch(setOpacity(value, viewParams[NGL_PARAMS.opacity], majorView))}
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Surface/wireframe toggle</Typography>
+            </Grid>
+            <Grid item>
+              <Switch
+                size="small"
+                color="primary"
+                checked={viewParams[NGL_PARAMS.contour] === true}
+                onChange={handleRepresentation}
+              />
+            </Grid>
+          </Grid>
+        </div>
       </Grid>
     </Drawer>
   );
