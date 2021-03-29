@@ -21,7 +21,7 @@ import { Link } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
-import { setProjectModalOpen, setProjectDiscourseLinks } from './redux/actions';
+import { setProjectModalOpen } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject, searchInProjects } from './redux/dispatchActions';
@@ -75,35 +75,6 @@ export const Projects = memo(({}) => {
       throw new Error(error);
     });
   }, [dispatch]);
-
-  useEffect(() => {
-    if (isDiscourseAvailable() && !projectDiscourseLinks) {
-      const tempLinks = {};
-      const source = listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-      processProjectItem(tempLinks, source, 0);
-    }
-  }, [listOfProjects, page, processProjectItem, projectDiscourseLinks, rowsPerPage]);
-
-  const processProjectItem = useCallback(
-    (links, sourceData, index) => {
-      if (sourceData && sourceData.length >= index + 1) {
-        const project = sourceData[index];
-        getExistingPost(project.name)
-          .then(response => {
-            if (response.data['Post url']) {
-              links[project.id] = response.data['Post url'];
-              dispatch(setProjectDiscourseLinks(links));
-              processProjectItem(links, sourceData, index + 1);
-            }
-          })
-          .catch(err => {
-            console.log(err);
-            dispatch(setOpenDiscourseErrorModal(true));
-          });
-      }
-    },
-    [dispatch]
-  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -210,7 +181,17 @@ export const Projects = memo(({}) => {
                       <IconButton
                         disabled={!isDiscourseAvailable() && !projectDiscourseLinks?.hasOwnProperty(project.id)}
                         onClick={() => {
-                          window.open(projectDiscourseLinks[project.id], '_blank');
+                          getExistingPost(project.name)
+                            .then(response => {
+                              if (response.data['Post url']) {
+                                const link = response.data['Post url'];
+                                window.open(link, '_blank');
+                              }
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              dispatch(setOpenDiscourseErrorModal(true));
+                            });
                         }}
                       >
                         <QuestionAnswer />

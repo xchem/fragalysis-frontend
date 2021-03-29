@@ -9,40 +9,12 @@ import { List, ListItem, Panel } from '../common';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import { isDiscourseAvailable, generateDiscourseTargetURL } from '../../utils/discourse';
-import { setTargetDiscourseLinks } from './redux/actions';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
 export const TargetList = memo(() => {
   const dispatch = useDispatch();
   const isTargetLoading = useSelector(state => state.targetReducers.isTargetLoading);
   const target_id_list = useSelector(state => state.apiReducers.target_id_list);
-  const targetDiscourseLinks = useSelector(state => state.targetReducers.targetDiscourseLinks);
-
-  useEffect(() => {
-    if (isDiscourseAvailable() && !targetDiscourseLinks) {
-      const tempLinks = {};
-      processTargetItem(tempLinks, target_id_list, 0);
-    }
-  }, [target_id_list, targetDiscourseLinks, dispatch, processTargetItem]);
-
-  const processTargetItem = useCallback(
-    (links, sourceData, index) => {
-      if (sourceData && sourceData.length >= index + 1) {
-        const data = sourceData[index];
-        generateDiscourseTargetURL(data.title)
-          .then(response => {
-            links[data.id] = response.data['Post url'];
-            dispatch(setTargetDiscourseLinks(links));
-            processTargetItem(links, sourceData, index + 1);
-          })
-          .catch(err => {
-            console.log(err);
-            dispatch(setOpenDiscourseErrorModal(true));
-          });
-      }
-    },
-    [dispatch]
-  );
 
   const render_method = data => {
     const preview = URLS.target + data.title;
@@ -63,8 +35,22 @@ export const TargetList = memo(() => {
                 Open SGC summary
               </a>
             )}
-            {discourseAvailable && targetDiscourseLinks?.hasOwnProperty(data.id) && (
-              <a href={targetDiscourseLinks[data.id]} target="new">
+            {discourseAvailable && (
+              <a
+                href=""
+                target="new"
+                onClick={() => {
+                  generateDiscourseTargetURL(data.title)
+                    .then(response => {
+                      const link = response.data['Post url'];
+                      window.open(link, '_blank');
+                    })
+                    .catch(err => {
+                      console.log(err);
+                      dispatch(setOpenDiscourseErrorModal(true));
+                    });
+                }}
+              >
                 Discourse
               </a>
             )}
