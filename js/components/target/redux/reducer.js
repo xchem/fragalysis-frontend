@@ -3,7 +3,7 @@ import { constants } from './constatnts';
 export const INITIAL_STATE = {
   oldUrl: '',
   isTargetLoading: false,
-  targetDiscourseLinks: {},
+  targetDiscourseLinks: null,
   currentTargetLink: null
 };
 
