@@ -283,9 +283,12 @@ export const addDensity = (
   stage,
   data,
   colourToggle,
+  isWireframeStyle,
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
+  // add default style by isWireframeStyle
+
   //dispatch(
   // loadObject({
   //   target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
@@ -304,11 +307,13 @@ export const addDensityCustomView = (
   stage,
   data,
   colourToggle,
+  isWireframeStyle,
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
   // delete object at first (removeDensity)
   // load other object
+  // swap other style by isWireframeStyle
 
   //dispatch(
   // loadObject({

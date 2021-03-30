@@ -34,7 +34,11 @@ export const CONSTANTS = {
   SET_CLIP_FAR: prefix + 'SET_CLIP_FAR',
   SET_CLIP_DIST: prefix + 'SET_CLIP_DIST',
   SET_FOG_NEAR: prefix + 'SET_FOG_NEAR',
-  SET_FOG_FAR: prefix + 'SET_FOG_FAR'
+  SET_FOG_FAR: prefix + 'SET_FOG_FAR',
+  SET_ISO_LEVEL: prefix + 'SET_ISO_LEVEL',
+  SET_BOX_SIZE: prefix + 'SET_BOX_SIZE',
+  SET_OPACITY: prefix + 'SET_OPACITY',
+  SET_CONTOUR: prefix + 'SET_CONTOUR'
 };
 
 export const SCENES = {

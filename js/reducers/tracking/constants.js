@@ -77,7 +77,11 @@ export const actionType = {
   CLIP_FAR: 'CLIP_FAR',
   CLIP_DIST: 'CLIP_DIST',
   FOG_NEAR: 'FOG_NEAR',
-  FOG_FAR: 'FOG_FAR'
+  FOG_FAR: 'FOG_FAR',
+  ISO_LEVEL: 'ISO_LEVEL',
+  BOX_SIZE: 'BOX_SIZE',
+  OPACITY: 'OPACITY',
+  CONTOUR: 'CONTOUR'
 };
 
 export const actionDescription = {

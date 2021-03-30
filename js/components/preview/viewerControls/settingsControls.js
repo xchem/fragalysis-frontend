@@ -166,8 +166,8 @@ export const SettingControls = memo(({ open, onClose }) => {
                 value={viewParams[NGL_PARAMS.isolevel]}
                 valueLabelDisplay="auto"
                 step={2}
-                min={1000}
-                max={-1000}
+                min={-1000}
+                max={1000}
                 onChange={(e, value) => dispatch(setIsoLevel(value, viewParams[NGL_PARAMS.isolevel], majorView))}
               />
             </Grid>

@@ -1246,6 +1246,113 @@ export const findTrackAction = (action, state) => {
         },
         text: `Fog far of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
+    } else if (action.type === nglConstants.SET_ISO_LEVEL) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.ISO_LEVEL,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'ISO of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
+        },
+        text: `ISO of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (action.type === nglConstants.SET_BOX_SIZE) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.BOX_SIZE,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Box size of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
+        },
+        text: `Boz size of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (action.type === nglConstants.SET_OPACITY) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.OPACITY,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Opacity of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
+        },
+        text: `Opacity of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (action.type === nglConstants.SET_CONTOUR) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      let oldSettingDescription = getContourChangeDescription(oldSetting);
+      let newSettingDescription = getContourChangeDescription(newSetting);
+
+      trackAction = {
+        type: actionType.CONTOUR,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Surface/wireframe of NGL ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            oldSettingDescription +
+            ' to value: ' +
+            newSettingDescription
+          );
+        },
+        text: `Surface/wireframe of NGL ${actionDescription.CHANGED} to value: ${newSettingDescription}`
+      };
     }
   }
   return trackAction;
@@ -1392,6 +1499,16 @@ const getBooleanDescription = value => {
     return 'true';
   }
   return description;
+};
+
+const getContourChangeDescription = value => {
+  if (value === true) {
+    return 'wireframe';
+  } else if (value === false) {
+    return 'surface';
+  } else {
+    return '';
+  }
 };
 
 export const createInitAction = target_on => (dispatch, getState) => {

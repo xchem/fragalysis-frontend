@@ -9,6 +9,7 @@ import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
+import { NGL_PARAMS } from '../../nglView/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import {
   addVector,
@@ -232,6 +233,7 @@ const MoleculeView = memo(
     const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
 
+    const viewParams = useSelector(state => state.nglReducers.viewParams);
     const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
 
     const { getNglView } = useContext(NglContext);
@@ -434,22 +436,23 @@ const MoleculeView = memo(
       dispatch(removeDensity(stage, data, colourToggle));
     };
 
-    const addNewDensityCustom = () => {
-      dispatch(addDensityCustomView(stage, data, colourToggle));
+    const addNewDensityCustom = isWireframeStyle => {
+      dispatch(addDensityCustomView(stage, data, colourToggle, isWireframeStyle));
     };
 
-    const addNewDensity = () => {
+    const addNewDensity = isWireframeStyle => {
       if (selectMoleculeSite) {
         selectMoleculeSite(data.site);
       }
-      dispatch(addDensity(stage, data, colourToggle));
+      dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
     };
 
     const onDensity = () => {
+      let isWireframeStyle = viewParams[NGL_PARAMS.contour];
       if (isDensityOn === false) {
-        addNewDensity();
+        addNewDensity(isWireframeStyle);
       } else if (isDensityCustomOn === false) {
-        addNewDensityCustom();
+        addNewDensityCustom(isWireframeStyle);
       } else {
         removeSelectedDensity();
       }

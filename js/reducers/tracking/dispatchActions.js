@@ -98,7 +98,11 @@ import {
   setNglClipFar,
   setNglClipDist,
   setNglFogNear,
-  setNglFogFar
+  setNglFogFar,
+  setIsoLevel,
+  setBoxSize,
+  setOpacity,
+  setContour
 } from '../../../js/reducers/ngl/dispatchActions';
 import {
   setSendActionsList,
@@ -774,7 +778,6 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreProject(projectId));
     dispatch(restoreTabActions(orderedActionList));
     await dispatch(restoreCartActions(orderedActionList, majorView.stage));
-
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(setIsActionsRestoring(false, true));
@@ -783,60 +786,106 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
   const state = getState();
-  const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
-  const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
-
-  const viewParams = state.nglReducers.viewParams;
+  const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
+  const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
 
   const currentActionList = state.trackingReducers.track_actions_list;
   const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
+  dispatch(restoreNglSettingsAction(orderedActionList, majorViewStage, summaryViewStage));
+};
+
+const restoreNglSettingsAction = (orderedActionList, majorViewStage, summaryViewStage) => (dispatch, getState) => {
+  const state = getState();
+  const viewParams = state.nglReducers.viewParams;
 
   let backgroundAction = orderedActionList.find(action => action.type === actionType.BACKGROUND_COLOR_CHANGED);
   if (backgroundAction && backgroundAction.newSetting !== undefined) {
     let value = backgroundAction.newSetting;
-    dispatch(setNglBckGrndColor(value, majorView, summaryView));
+    dispatch(setNglBckGrndColor(value, majorViewStage, summaryViewStage));
   } else {
-    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorView, summaryView));
+    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorViewStage, summaryViewStage));
   }
 
   let clipNearAction = orderedActionList.find(action => action.type === actionType.CLIP_NEAR);
   if (clipNearAction && clipNearAction.newSetting !== undefined) {
     let value = clipNearAction.newSetting;
-    dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView));
+    dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorViewStage));
   } else {
-    dispatch(setNglClipNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipNear], viewParams[NGL_PARAMS.clipNear], majorView));
+    dispatch(
+      setNglClipNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipNear], viewParams[NGL_PARAMS.clipNear], majorViewStage)
+    );
   }
 
   let clipFarAction = orderedActionList.find(action => action.type === actionType.CLIP_FAR);
   if (clipFarAction && clipFarAction.newSetting !== undefined) {
     let value = clipFarAction.newSetting;
-    dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorView));
+    dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorViewStage));
   } else {
-    dispatch(setNglClipFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipFar], viewParams[NGL_PARAMS.clipFar], majorView));
+    dispatch(
+      setNglClipFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipFar], viewParams[NGL_PARAMS.clipFar], majorViewStage)
+    );
   }
 
   let clipDistAction = orderedActionList.find(action => action.type === actionType.CLIP_DIST);
   if (clipDistAction && clipDistAction.newSetting !== undefined) {
     let value = clipDistAction.newSetting;
-    dispatch(setNglClipDist(value, viewParams[NGL_PARAMS.clipDist], majorView));
+    dispatch(setNglClipDist(value, viewParams[NGL_PARAMS.clipDist], majorViewStage));
   } else {
-    dispatch(setNglClipDist(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipDist], viewParams[NGL_PARAMS.clipDist], majorView));
+    dispatch(
+      setNglClipDist(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipDist], viewParams[NGL_PARAMS.clipDist], majorViewStage)
+    );
   }
 
   let fogNearAction = orderedActionList.find(action => action.type === actionType.FOG_NEAR);
   if (fogNearAction && fogNearAction.newSetting !== undefined) {
     let value = fogNearAction.newSetting;
-    dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorView));
+    dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorViewStage));
   } else {
-    dispatch(setNglFogNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogNear], viewParams[NGL_PARAMS.fogNear], majorView));
+    dispatch(
+      setNglFogNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogNear], viewParams[NGL_PARAMS.fogNear], majorViewStage)
+    );
   }
 
   let fogFarAction = orderedActionList.find(action => action.type === actionType.FOG_FAR);
   if (fogFarAction && fogFarAction.newSetting !== undefined) {
     let value = fogFarAction.newSetting;
-    dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorView));
+    dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorViewStage));
   } else {
-    dispatch(setNglFogFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogFar], viewParams[NGL_PARAMS.fogFar], majorView));
+    dispatch(setNglFogFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogFar], viewParams[NGL_PARAMS.fogFar], majorViewStage));
+  }
+
+  let isoLevelAction = orderedActionList.find(action => action.type === actionType.ISO_LEVEL);
+  if (isoLevelAction && isoLevelAction.newSetting !== undefined) {
+    let value = isoLevelAction.newSetting;
+    dispatch(setIsoLevel(value, viewParams[NGL_PARAMS.isolevel], majorViewStage));
+  } else {
+    dispatch(
+      setIsoLevel(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel], viewParams[NGL_PARAMS.isolevel], majorViewStage)
+    );
+  }
+
+  let boxSizeAction = orderedActionList.find(action => action.type === actionType.BOX_SIZE);
+  if (boxSizeAction && boxSizeAction.newSetting !== undefined) {
+    let value = boxSizeAction.newSetting;
+    dispatch(setBoxSize(value, viewParams[NGL_PARAMS.boxSize], majorViewStage));
+  } else {
+    dispatch(setBoxSize(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize], viewParams[NGL_PARAMS.boxSize], majorViewStage));
+  }
+
+  let opacityAction = orderedActionList.find(action => action.type === actionType.OPACITY);
+  if (opacityAction && opacityAction.newSetting !== undefined) {
+    let value = opacityAction.newSetting;
+    dispatch(setOpacity(value, viewParams[NGL_PARAMS.opacity], majorViewStage));
+  } else {
+    dispatch(setOpacity(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity], viewParams[NGL_PARAMS.opacity], majorViewStage));
+  }
+
+  let contourAction = orderedActionList.find(action => action.type === actionType.CONTOUR);
+  if (contourAction && contourAction.newSetting !== undefined) {
+    let value = contourAction.newSetting;
+    dispatch(setContour(value, viewParams[NGL_PARAMS.contour], majorViewStage));
+  } else {
+    dispatch(setContour(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour], viewParams[NGL_PARAMS.contour], majorViewStage));
   }
 };
 
@@ -1600,6 +1649,18 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.FOG_FAR:
         dispatch(setNglFogFar(action.oldSetting, action.newSetting, majorViewStage));
         break;
+      case actionType.ISO_LEVEL:
+        dispatch(setIsoLevel(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE:
+        dispatch(setBoxSize(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.OPACITY:
+        dispatch(setOpacity(action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR:
+        dispatch(setContour(action.oldSetting, action.newSetting, majorViewStage));
+        break;
       default:
         break;
     }
@@ -1766,6 +1827,18 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.FOG_FAR:
         dispatch(setNglFogFar(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.ISO_LEVEL:
+        dispatch(setIsoLevel(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE:
+        dispatch(setBoxSize(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.OPACITY:
+        dispatch(setOpacity(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR:
+        dispatch(setContour(action.newSetting, action.oldSetting, majorViewStage));
         break;
       default:
         break;
