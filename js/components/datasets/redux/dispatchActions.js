@@ -50,6 +50,7 @@ import {
   addHitProtein,
   addComplex,
   addSurface,
+  addQuality,
   addLigand,
   addDensity,
   addDensityCustomView
@@ -727,6 +728,7 @@ export const moveMoleculeInspirationsSettings = (
   densityListMolecule,
   densityCustomListMolecule,
   vectorOnListMolecule,
+  qualityListMolecule,
   skipTracking
 ) => (dispatch, getState) => {
   dispatch(clearAllInspirationsOfDataset());
@@ -742,6 +744,7 @@ export const moveMoleculeInspirationsSettings = (
       densityCustomListMolecule
     );
     let isAnyInspirationVectorOn = isAnyInspirationTurnedOnByType(computed_inspirations, vectorOnListMolecule);
+    let isAnyInspirationQualityOn = isAnyInspirationTurnedOnByType(computed_inspirations, qualityListMolecule);
 
     if (
       isAnyInspirationLigandOn ||
@@ -750,7 +753,8 @@ export const moveMoleculeInspirationsSettings = (
       isAnyInspirationSurfaceOn ||
       isAnyInspirationDensityOn ||
       isAnyInspirationDensityOnCustom ||
-      isAnyInspirationVectorOn
+      isAnyInspirationVectorOn ||
+      isAnyInspirationQualityOn
     ) {
       dispatch(
         moveInspirations(
@@ -763,6 +767,7 @@ export const moveMoleculeInspirationsSettings = (
           isAnyInspirationDensityOn,
           isAnyInspirationDensityOnCustom,
           isAnyInspirationVectorOn,
+          isAnyInspirationQualityOn,
           skipTracking
         )
       );
@@ -780,6 +785,7 @@ const moveInspirations = (
   isAnyInspirationDensityOn,
   isAnyInspirationDensityOnCustom,
   isAnyInspirationVectorOn,
+  isAnyInspirationQualityOn,
   skipTracking
 ) => (dispatch, getState) => {
   const state = getState();
@@ -818,6 +824,12 @@ const moveInspirations = (
             addSurface(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
           );
         }
+        if (isAnyInspirationQualityOn) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.QUALITY);
+          dispatch(
+            addQuality(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
         if (isAnyInspirationDensityOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
           dispatch(
@@ -854,6 +866,7 @@ export const moveSelectedInspirations = (
   densityListMolecule,
   densityListCustomMolecule,
   vectorOnListMolecule,
+  qualityListMolecule,
   skipTracking
 ) => (dispatch, getState) => {
   const state = getState();
@@ -890,6 +903,12 @@ export const moveSelectedInspirations = (
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.SURFACE);
           dispatch(
             addSurface(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+          );
+        }
+        if (qualityListMolecule.includes(molecule.id)) {
+          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.QUALITY);
+          dispatch(
+            addQuality(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
           );
         }
         if (densityListMolecule.includes(molecule.id)) {

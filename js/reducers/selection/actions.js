@@ -191,6 +191,44 @@ export const removeFromDensityListCustom = function(item, skipTracking = false) 
   };
 };
 
+export const setQualityList = function(qualityList, skipTracking = false) {
+  return {
+    type: constants.SET_QUALITY_LIST,
+    qualityList: qualityList,
+    skipTracking
+  };
+};
+
+export const appendInformationList = function(item) {
+  return {
+    type: constants.APPEND_INFORMATION_LIST,
+    item: item
+  };
+};
+
+export const removeFromInformationList = function(item) {
+  return {
+    type: constants.REMOVE_FROM_INFORMATION_LIST,
+    item: item
+  };
+};
+
+export const appendQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
 export const setVectorOnList = function(vectorOnList, skipTracking = false) {
   return {
     type: constants.SET_VECTOR_ON_LIST,

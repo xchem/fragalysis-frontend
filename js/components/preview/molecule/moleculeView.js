@@ -27,7 +27,9 @@ import {
   removeLigand,
   searchMoleculeGroupByMoleculeID,
   getMolImage,
-  moveSelectedMolSettings
+  moveSelectedMolSettings,
+  removeQuality,
+  addQuality
 } from './redux/dispatchActions';
 import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
@@ -43,7 +45,8 @@ const useStyles = makeStyles(theme => ({
     height: 54
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 2
+    margin: theme.spacing(1) / 2,
+    width: 'inherit'
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -84,7 +87,8 @@ const useStyles = makeStyles(theme => ({
   detailsCol: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid none solid solid'
+    borderStyle: 'solid none solid solid',
+    width: 'inherit'
   },
   image: {
     border: 'solid 1px',
@@ -215,7 +219,9 @@ const MoleculeView = memo(
     S,
     D,
     D_C,
+    Q,
     V,
+    I,
     selectMoleculeSite
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
@@ -245,7 +251,9 @@ const MoleculeView = memo(
     const isSurfaceOn = S;
     const isDensityOn = D;
     const isDensityCustomOn = D_C;
+    const isQualityOn = Q;
     const isVectorOn = V;
+    const hasAdditionalInformation = I;
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
@@ -458,6 +466,22 @@ const MoleculeView = memo(
       }
     };
 
+    const removeSelectedQuality = () => {
+      dispatch(removeQuality(stage, data, colourToggle));
+    };
+
+    const addNewQuality = () => {
+      dispatch(addQuality(stage, data, colourToggle));
+    };
+
+    const onQuality = () => {
+      if (isQualityOn === false) {
+        addNewQuality();
+      } else {
+        removeSelectedQuality();
+      }
+    };
+
     const removeSelectedVector = () => {
       dispatch(removeVector(stage, data));
     };
@@ -531,6 +555,7 @@ const MoleculeView = memo(
         isProteinOn: isProteinOn,
         isComplexOn: isComplexOn,
         isSurfaceOn: isSurfaceOn,
+        isQualityOn: isQualityOn,
         isDensityOn: isDensityOn,
         isDensityCustomOn: isDensityCustomOn,
         isVectorOn: isVectorOn,
@@ -551,6 +576,7 @@ const MoleculeView = memo(
         isProteinOn: isProteinOn,
         isComplexOn: isComplexOn,
         isSurfaceOn: isSurfaceOn,
+        isQualityOn: isQualityOn,
         isDensityOn: isDensityOn,
         isDensityCustomOn: isDensityCustomOn,
         isVectorOn: isVectorOn,
@@ -578,17 +604,17 @@ const MoleculeView = memo(
           </Grid>
           <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
             {/* Title label */}
-            <Grid item xs={7}>
+            <Grid item xs={6}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
               </Tooltip>
             </Grid>
             {/* Control Buttons A, L, C, V */}
-            <Grid item xs={5}>
+            <Grid item xs={6}>
               <Grid
                 container
                 direction="row"
-                justify="flex-start"
+                justify="flex-end"
                 alignItems="center"
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
@@ -709,6 +735,20 @@ const MoleculeView = memo(
                       disabled={false}
                     >
                       D
+                    </Button>
+                  </Grid>
+                </Tooltip>
+                <Tooltip title="atom quality">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isQualityOn
+                      })}
+                      onClick={() => onQuality()}
+                      disabled={!hasAdditionalInformation}
+                    >
+                      Q
                     </Button>
                   </Grid>
                 </Tooltip>

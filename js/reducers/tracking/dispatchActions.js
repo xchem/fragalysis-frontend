@@ -26,11 +26,13 @@ import {
   addLigand,
   addHitProtein,
   addSurface,
+  addQuality,
   addVector,
   removeComplex,
   removeLigand,
   removeHitProtein,
   removeSurface,
+  removeQuality,
   removeVector,
   moveSelectedMolSettings,
   removeAllSelectedMolTypes,
@@ -171,6 +173,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     const currentProteins = state.selectionReducers.proteinList;
     const currentComplexes = state.selectionReducers.complexList;
     const currentSurfaces = state.selectionReducers.surfaceList;
+    const currentQualities = state.selectionReducers.qualityList;
     const currentDensities = state.selectionReducers.densityList;
     const currentDensitiesCustom = state.selectionReducers.densityListCustom;
     const currentVectors = state.selectionReducers.vectorOnList;
@@ -284,6 +287,12 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       orderedActionList,
       actionType.SURFACE_TURNED_ON,
       getCollection(currentSurfaces),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.QUALITY_TURNED_ON,
+      getCollection(currentQualities),
       currentActions
     );
     getCurrentActionList(
@@ -972,6 +981,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
     await dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.QUALITY_TURNED_ON, 'quality', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_TURNED_ON, 'density', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_CUSTOM_TURNED_ON, 'densityCustom', stage, state));
@@ -1293,6 +1303,7 @@ const addType = {
   protein: addHitProtein,
   complex: addComplex,
   surface: addSurface,
+  quality: addQuality,
   vector: addVector,
   density: addDensity,
   densityCustom: addDensityCustomView
@@ -1526,11 +1537,14 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
         break;
+      case actionType.QUALITY_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'quality', false, majorViewStage, state));
+        break;
       case actionType.DENSITY_TURNED_ON:
         dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
         break;
       case actionType.DENSITY_CUSTOM_TURNED_ON:
-        dispatch(handleDensityMoleculeAction(action, 'densityCustom', false, majorViewStage, state)); // TODO: density custom view
+        dispatch(handleDensityMoleculeAction(action, 'densityCustom', false, majorViewStage, state));
         break;
       case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
@@ -1546,6 +1560,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.SURFACE_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
+        break;
+      case actionType.QUALITY_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'quality', true, majorViewStage, state));
         break;
       case actionType.DENSITY_TURNED_OFF:
         dispatch(handleDensityMoleculeAction(action, 'densityCustom', true, majorViewStage, state));
@@ -1705,6 +1722,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
         break;
+      case actionType.QUALITY_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'quality', true, majorViewStage, state));
+        break;
       case actionType.DENSITY_TURNED_ON:
         dispatch(handleDensityMoleculeAction(action, 'density', true, majorViewStage, state));
         break;
@@ -1725,6 +1745,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.SURFACE_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
+        break;
+      case actionType.QUALITY_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'quality', false, majorViewStage, state));
         break;
       case actionType.DENSITY_TURNED_OFF:
         dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
@@ -2363,6 +2386,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
     const densityListMolecule = data.densityList;
     const densityListCustomMolecule = data.densityListCustom;
     const vectorOnListMolecule = data.vectorOnList;
+    const qualityListMolecule = data.qualityList;
 
     dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
     dispatch(removeAllSelectedDatasetMolecules(majorViewStage, true));
@@ -2388,6 +2412,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
           densityListMolecule,
           densityListCustomMolecule,
           vectorOnListMolecule,
+          qualityListMolecule,
           true
         )
       );
@@ -2403,6 +2428,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
           densityListMolecule,
           densityListCustomMolecule,
           vectorOnListMolecule,
+          qualityListMolecule,
           true
         )
       );
@@ -2468,6 +2494,7 @@ const removeType = {
   complex: removeComplex,
   surface: removeSurface,
   density: removeDensity,
+  quality: removeQuality,
   vector: removeVector
 };
 

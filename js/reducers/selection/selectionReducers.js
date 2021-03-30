@@ -12,6 +12,8 @@ export const INITIAL_STATE = {
   surfaceList: [],
   densityList: [],
   densityListCustom: [],
+  qualityList: [],
+  informationList: [],
   vectorOnList: [],
   countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
@@ -173,6 +175,29 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedDensityListCustom = new Set(state.densityListCustom);
       diminishedDensityListCustom.delete(action.item.id);
       return Object.assign({}, state, { densityListCustom: [...diminishedDensityListCustom] });
+
+    case constants.SET_QUALITY_LIST:
+      let newQualityList = new Set();
+      action.qualityList.forEach(f => {
+        newQualityList.add(f);
+      });
+      return Object.assign({}, state, { qualityList: [...newQualityList] });
+
+    case constants.APPEND_QUALITY_LIST:
+      return Object.assign({}, state, { qualityList: [...new Set([...state.qualityList, action.item.id])] });
+
+    case constants.REMOVE_FROM_QUALITY_LIST:
+      let diminishedQualityList = new Set(state.qualityList);
+      diminishedQualityList.delete(action.item.id);
+      return Object.assign({}, state, { qualityList: [...diminishedQualityList] });
+
+    case constants.APPEND_INFORMATION_LIST:
+      return Object.assign({}, state, { informationList: [...new Set([...state.informationList, action.item.id])] });
+
+    case constants.REMOVE_FROM_INFORMATION_LIST:
+      let diminishedInformationList = new Set(state.informationList);
+      diminishedInformationList.delete(action.item.id);
+      return Object.assign({}, state, { informationList: [...diminishedInformationList] });
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();

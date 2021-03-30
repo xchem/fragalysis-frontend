@@ -394,6 +394,44 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
+    } else if (action.type === selectionConstants.APPEND_QUALITY_LIST) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.QUALITY_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.QUALITY} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_QUALITY_LIST) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.QUALITY_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.QUALITY} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
     } else if (action.type === selectionConstants.APPEND_VECTOR_ON_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;

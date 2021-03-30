@@ -6,7 +6,9 @@ import {
   appendDensityList,
   appendDensityListCustom,
   appendFragmentDisplayList,
+  appendQualityList,
   appendVectorOnList,
+  appendInformationList,
   decrementCountOfPendingVectorLoadRequests,
   incrementCountOfPendingVectorLoadRequests,
   removeFromProteinList,
@@ -15,6 +17,7 @@ import {
   removeFromDensityList,
   removeFromDensityListCustom,
   removeFromFragmentDisplayList,
+  removeFromQualityList,
   removeFromVectorOnList,
   resetCompoundsOfVectors,
   setVectorList,
@@ -22,7 +25,8 @@ import {
   updateBondColorMapOfCompounds,
   resetBondColorMapOfVectors,
   setCurrentVector,
-  setHideAll
+  setHideAll,
+  removeFromInformationList
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -365,6 +369,13 @@ export const addLigand = (
       // keep current orientation of NGL View
       stage.viewerControls.orient(currentOrientation);
     }
+
+    // TODO: check additional information available
+    let hasAdditionalInformation = true;
+    if (hasAdditionalInformation) {
+      dispatch(addInformation(data));
+      dispatch(addQuality(stage, data, colourToggle, true));
+    }
   });
 };
 
@@ -376,6 +387,30 @@ export const removeLigand = (stage, data, skipTracking = false, withVector = tru
     // remove vector
     dispatch(removeVector(stage, data, skipTracking));
   }
+
+  dispatch(removeInformation(data));
+  dispatch(removeQuality(stage, data, true));
+};
+
+export const addQuality = (stage, data, colourToggle, skipTracking = false, representations = undefined) => (
+  dispatch,
+  getState
+) => {
+  // TODO change to stripy bonds + spiky atoms
+  dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
+};
+
+export const removeQuality = (stage, data, skipTracking = false) => dispatch => {
+  // TODO remove stripy bonds + spiky atoms
+  dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
+};
+
+export const addInformation = data => dispatch => {
+  dispatch(appendInformationList(generateMoleculeId(data)));
+};
+
+export const removeInformation = data => dispatch => {
+  dispatch(removeFromInformationList(generateMoleculeId(data)));
 };
 
 /**
@@ -400,6 +435,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   const proteinList = state.selectionReducers.proteinList;
   const densityList = state.selectionReducers.densityList;
   const densityListCustom = state.selectionReducers.densityListCustom;
+  const qualityList = state.selectionReducers.qualityList;
 
   let ligandDataList = [];
   let complexDataList = [];
@@ -408,6 +444,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   let proteinDataList = [];
   let densityDataList = [];
   let densityDataListCustom = [];
+  let qualityDataList = [];
 
   fragmentDisplayList.forEach(moleculeId => {
     const data = currentMolecules.find(molecule => molecule.id === moleculeId);
@@ -428,13 +465,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     if (data) {
       vectorOnDataList.push(data);
       dispatch(removeVector(stage, data, skipTracking));
-    }
-  });
-  surfaceList.forEach(moleculeId => {
-    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
-    if (data) {
-      surfaceDataList.push(data);
-      dispatch(removeSurface(stage, data, colourList[0], skipTracking));
     }
   });
 
@@ -472,6 +502,14 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     }
   });
 
+  qualityList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      qualityList.push(data);
+      dispatch(removeQuality(stage, data, colourList[0], skipTracking));
+    }
+  });
+
   // vector_list
   dispatch(setVectorList([]));
   dispatch(resetCompoundsOfVectors());
@@ -484,6 +522,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     complexList: complexDataList,
     surfaceList: surfaceDataList,
     vectorOnList: vectorOnDataList,
+    qualityList: qualityDataList,
     densityList: densityDataList,
     densityListCustom: densityDataListCustom
   };
@@ -510,6 +549,10 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
     if (data.isSurfaceOn) {
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE);
       dispatch(addSurface(stage, newItem, data.colourToggle, skipTracking, representations));
+    }
+    if (data.isQualityOn) {
+      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.QUALITY);
+      dispatch(addQuality(stage, newItem, data.colourToggle, skipTracking, representations));
     }
     if (data.isDensityOn) {
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
@@ -539,6 +582,7 @@ export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTrackin
   const proteinList = state.selectionReducers.proteinList;
   const densityList = state.selectionReducers.densityList;
   const densityListCustom = state.selectionReducers.densityListCustom;
+  const qualityList = state.selectionReducers.qualityList;
   let joinedMoleculeLists = molecules;
 
   proteinList?.forEach(moleculeID => {
@@ -571,6 +615,13 @@ export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTrackin
     foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
     dispatch(
       removeSurface(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
+    );
+  });
+  qualityList?.forEach(moleculeID => {
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+    foundedMolecule = foundedMolecule && Object.assign({ isInspiration: isInspiration }, foundedMolecule);
+    dispatch(
+      removeQuality(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
     );
   });
   densityList?.forEach(moleculeID => {

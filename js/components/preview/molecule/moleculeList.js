@@ -46,7 +46,9 @@ import {
   hideAllSelectedMolecules,
   initializeMolecules,
   applyDirectSelection,
-  removeAllSelectedMolTypes
+  removeAllSelectedMolTypes,
+  addQuality,
+  removeQuality
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
@@ -246,7 +248,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
   const densityList = useSelector(state => state.selectionReducers.densityList);
   const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
+  const qualityList = useSelector(state => state.selectionReducers.qualityList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+  const informationList = useSelector(state => state.selectionReducers.informationList);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
@@ -541,6 +545,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     protein: addHitProtein,
     complex: addComplex,
     surface: addSurface,
+    quality: addQuality,
     density: addDensity,
     vector: addVector
   };
@@ -550,6 +555,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     protein: removeHitProtein,
     complex: removeComplex,
     surface: removeSurface,
+    quality: removeQuality,
     density: removeDensity,
     vector: removeVector
   };
@@ -906,7 +912,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       S={surfaceList.includes(data.id)}
                       D={densityList.includes(data.id)}
                       D_C={densityListCustom.includes(data.id)}
+                      Q={qualityList.includes(data.id)}
                       V={vectorOnList.includes(data.id)}
+                      I={informationList.includes(data.id)}
                       selectMoleculeSite={selectMoleculeSite}
                     />
                   ))}

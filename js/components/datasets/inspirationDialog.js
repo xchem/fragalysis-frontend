@@ -152,7 +152,9 @@ export const InspirationDialog = memo(
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
     const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
+    const qualityList = useSelector(state => state.selectionReducers.qualityList);
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+    const informationList = useSelector(state => state.selectionReducers.informationList);
 
     const dispatch = useDispatch();
     // const disableUserInteraction = useDisableUserInteraction();
@@ -417,7 +419,9 @@ export const InspirationDialog = memo(
                         S={surfaceList.includes(molecule.id)}
                         D={densityList.includes(molecule.id)}
                         D_C={densityListCustom.includes(data.id)}
+                        Q={qualityList.includes(molecule.id)}
                         V={vectorOnList.includes(molecule.id)}
+                        I={informationList.includes(data.id)}
                       />
                     );
                   })}
