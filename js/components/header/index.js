@@ -111,8 +111,8 @@ export default memo(
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
 
     const discourseAvailable = isDiscourseAvailable();
-    const targetDiscourseVisible = discourseAvailable;
-    const projectDiscourseVisible = discourseAvailable;
+    const targetDiscourseVisible = discourseAvailable && targetName;
+    const projectDiscourseVisible = discourseAvailable && currentProject && currentProject.title;
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
