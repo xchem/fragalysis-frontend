@@ -269,6 +269,7 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
     .then(response => {
       const projectID = response.data.id;
       dispatch(setCurrentProjectProperty('projectID', projectID));
+      dispatch(setCurrentProjectProperty('title', response.data.title));
     })
     .finally(() => {
       dispatch(setForceCreateProject(false));
