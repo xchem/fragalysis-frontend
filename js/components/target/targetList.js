@@ -2,14 +2,15 @@
  * Created by abradley on 13/03/2018.
  */
 
-import React, { memo, useEffect, useCallback } from 'react';
+import React, { memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { ListItemText, ListItemSecondaryAction, Grid } from '@material-ui/core';
+import { ListItemText, ListItemSecondaryAction, Grid, IconButton } from '@material-ui/core';
 import { List, ListItem, Panel } from '../common';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import { isDiscourseAvailable, generateDiscourseTargetURL } from '../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
+import { Chat } from '@material-ui/icons';
 
 export const TargetList = memo(() => {
   const dispatch = useDispatch();
@@ -36,9 +37,8 @@ export const TargetList = memo(() => {
               </a>
             )}
             {discourseAvailable && (
-              <a
-                href=""
-                target="new"
+              <IconButton
+                disabled={!isDiscourseAvailable()}
                 onClick={() => {
                   generateDiscourseTargetURL(data.title)
                     .then(response => {
@@ -51,8 +51,8 @@ export const TargetList = memo(() => {
                     });
                 }}
               >
-                Discourse
-              </a>
+                <Chat />
+              </IconButton>
             )}
           </Grid>
         </ListItemSecondaryAction>
