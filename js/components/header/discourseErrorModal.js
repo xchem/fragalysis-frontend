@@ -24,7 +24,9 @@ export const DiscourseErrorModal = memo(({ openModal }) => {
         </Grid>
         <Grid item>
           <Typography variant="body1">
-            Most likely there already is topic with same name as is this project name.
+            Most likely there already is topic with same name as is this project name or your discourse user name
+            doesn't match your fragalysis user name. Also please check if descriptions you provided are not just random
+            letters because they also tend to dismissed by the Discourse server.
           </Typography>
         </Grid>
       </Grid>
