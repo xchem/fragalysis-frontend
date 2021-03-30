@@ -174,7 +174,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                           name="createDisTopic"
                         />
                       }
-                      label="Create Discourse topic"
+                      label="Create Discourse post"
                     />
                   }
                 />
