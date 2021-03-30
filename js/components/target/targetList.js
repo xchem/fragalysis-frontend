@@ -30,7 +30,7 @@ export const TargetList = memo(() => {
           <ListItemText primary={data.title} />
         </Link>
         <ListItemSecondaryAction>
-          <Grid container direction="column" justify="center" alignItems="flex-start">
+          <Grid container direction="row" justify="center" alignItems="flex-start">
             {sgcUploaded.includes(data.title) && (
               <a href={sgcUrl} target="new">
                 Open SGC summary
