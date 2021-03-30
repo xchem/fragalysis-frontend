@@ -33,8 +33,9 @@ const useStyles = makeStyles(theme => ({
     width: 208
   },
   divider: {
-    borderTop: '1px dashed ' + palette.divider,
-    paddingTop: '10px'
+    borderTop: '1px dashed ' + palette.dividerDark,
+    paddingTop: '15px',
+    marginTop: '10px'
   }
 }));
 
