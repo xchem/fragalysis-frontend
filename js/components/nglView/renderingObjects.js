@@ -5,7 +5,7 @@ import {
   createRepresentationStructure,
   defaultFocus
 } from './generatingObjects';
-import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
+import { concatStructures, Selection, Shape, Matrix4, MeshBuffer } from 'ngl';
 import { addToPdbCache } from '../../reducers/ngl/actions';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
@@ -23,7 +23,13 @@ const showSphere = ({ stage, input_dict, object_name, representations }) => {
 
 const showLigand = ({ stage, input_dict, object_name, representations, orientationMatrix, markAsRightSideLigand }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-  return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
+
+  let badids = '';
+  let badcomments = '';
+
+  return loadBadAtomsFromFile(stage, stringBlob, input_dict.sdf_info, badids, badcomments, object_name);
+
+  /*   return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
     const reprArray =
       representations ||
       createRepresentationsArray([
@@ -47,7 +53,7 @@ const showLigand = ({ stage, input_dict, object_name, representations, orientati
       comp.autoView('ligand');
     }
     return assignRepresentationArrayToComp(reprArray, comp);
-  });
+  }); */
 };
 
 const renderHitProtein = (ol, representations, orientationMatrix) => {
@@ -402,3 +408,141 @@ export const nglObjectDictionary = {
   [OBJECT_TYPE.HOTSPOT]: showHotspot,
   [OBJECT_TYPE.DENSITY]: showDensity
 };
+
+let ElementColors = {
+  H: [255, 255, 255],
+  HE: [217, 255, 255],
+  LI: [204, 128, 255],
+  BE: [194, 255, 0],
+  B: [255, 181, 181],
+  C: [144, 144, 144],
+  N: [48, 80, 248],
+  O: [255, 13, 13],
+  F: [144, 224, 80],
+  NE: [179, 227, 245],
+  NA: [171, 92, 242],
+  MG: [138, 255, 0],
+  AL: [191, 166, 166],
+  SI: [240, 200, 160],
+  P: [255, 128, 0],
+  S: [255, 255, 48],
+  CL: [31, 240, 31]
+};
+
+function readGoodAtomsFromFile(text, badids) {
+  var regexp = /[CSONF]/g;
+  var match,
+    matches = [];
+  while ((match = regexp.exec(text)) != null) {
+    matches.push(match[0]);
+  }
+  var idx = [...Array(matches.length).keys()];
+  let diff = idx.filter(x => !badids.includes(x));
+  return diff;
+}
+
+function loadBadAtomsFromFile(stage, file, text, badidsValue, badcommentsValue, object_name) {
+  let badids = badidsValue.split(';').map(x => parseInt(x));
+  let badcomments = badcommentsValue.split(';');
+  let diff = readGoodAtomsFromFile(text, badids);
+
+  return stage.loadFile(file, { name: object_name, ext: 'sdf' }).then(function(o) {
+    let representationStructures = [];
+
+    // Create Frame, balls don't render, nor do bonds
+    const repr1 = createRepresentationStructure('ball+stick', { aspectRatio: 0, radius: 0, multipleBond: 'symmetric' });
+    representationStructures.push(repr1);
+    //o.addRepresentation(repr1);
+
+    let atom_info = o.object.atomMap.dict;
+    let atom_info_array = [];
+    for (var key in atom_info) {
+      atom_info_array.push(key.split('|')[0]);
+    }
+    console.log(atom_info);
+    console.log(atom_info_array);
+    o.autoView();
+
+    // Draw Good Atoms + Bonds
+    const repr2 = createRepresentationStructure('ball+stick', {
+      aspectRatio: 2,
+      sele: '@'.concat(diff),
+      multipleBond: 'symmetric'
+    });
+    representationStructures.push(repr2);
+    // o.addRepresentation(repr2);
+
+    let shape = new Shape('shape', { dashedCylinder: true });
+    let bonds = o.object.bondStore;
+    let n = bonds.atomIndex1;
+    let m = bonds.atomIndex2;
+
+    n.forEach((num1, index) => {
+      const num2 = m[index];
+      if (badids.includes(num1) || badids.includes(num2)) {
+        let acoord = [o.object.atomStore.x[num1], o.object.atomStore.y[num1], o.object.atomStore.z[num1]];
+        let bcoord = [o.object.atomStore.x[num2], o.object.atomStore.y[num2], o.object.atomStore.z[num2]];
+        var sx = bcoord[0] - acoord[0];
+        var sy = bcoord[1] - acoord[1];
+        var sz = bcoord[2] - acoord[2];
+
+        let length = (sx ** 2 + sy ** 2 + sz ** 2) ** 0.5;
+        var unitSlopeX = sx / length;
+        var unitSlopeY = sy / length;
+        var unitSlopeZ = sz / length;
+
+        let a2coord = [acoord[0] + unitSlopeX * 0.1, acoord[1] + unitSlopeY * 0.1, acoord[2] + unitSlopeZ * 0.1];
+        let b2coord = [bcoord[0] - unitSlopeX * 0.1, bcoord[1] - unitSlopeY * 0.1, bcoord[2] - unitSlopeZ * 0.1];
+        // Create handle for count is exceeded!
+        // order is startxyz, endxyz, colour, radius, name
+        let a1c = ElementColors[o.object.atomMap.list[num1].element];
+        let a2c = ElementColors[o.object.atomMap.list[num2].element];
+
+        let bond_label = 'bond: '.concat(atom_info_array[num1], '-', atom_info_array[num2]);
+
+        shape.addCylinder(acoord, bcoord, [a1c[0] / 255, a1c[1] / 255, a1c[2] / 255], 0.1, bond_label);
+
+        if (o.object.atomMap.list[num1].element === o.object.atomMap.list[num2].element) {
+          shape.addCylinder(a2coord, b2coord, [208 / 255, 208 / 255, 224 / 255], 0.1, bond_label);
+        } else {
+          shape.addCylinder(a2coord, b2coord, [a2c[0] / 255, a2c[1] / 255, a2c[2] / 255], 0.1, bond_label);
+        }
+      }
+    });
+    stage.addComponentFromObject(shape);
+    for (let badIndex in badids) {
+      let id = badids[badIndex];
+      let origin = [o.object.atomStore.x[id], o.object.atomStore.y[id], o.object.atomStore.z[id]];
+      let atom_label = 'atom: '.concat(atom_info_array[id], ' | ', badcomments[badIndex]);
+
+      let m = refmesh.map(function(v, i) {
+        return origin[i % 3] + v;
+      });
+
+      let element = o.object.atomMap.list[id]?.element && 'H';
+      let eleC = ElementColors[element];
+      let col2 = Array(m.length)
+        .fill(1)
+        .map(function(v, i) {
+          return eleC[i % 3] / 255;
+        });
+      let col = new Float32Array(col2);
+
+      shape.addSphere(origin, [0, 0, 0, 0], 0.2, atom_label);
+      // Probably need to create a new shape constructor, with minimum opacity and then render it as needed...
+      var meshBuffer = new MeshBuffer({
+        position: new Float32Array(m),
+        color: col
+      });
+      shape.addBuffer(meshBuffer);
+      var shapeComp = stage.addComponentFromObject(shape);
+      shapeComp.addRepresentation('buffer');
+    }
+
+    const reprArray = createRepresentationsArray(representationStructures);
+
+    return assignRepresentationArrayToComp(reprArray, o);
+  });
+}
+
+let refmesh = [];
