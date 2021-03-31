@@ -4,7 +4,7 @@
 
 import React, { memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { ListItemText, ListItemSecondaryAction, Grid, IconButton } from '@material-ui/core';
+import { ListItemText, ListItemSecondaryAction, Grid, IconButton, Tooltip } from '@material-ui/core';
 import { List, ListItem, Panel } from '../common';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
@@ -30,29 +30,31 @@ export const TargetList = memo(() => {
           <ListItemText primary={data.title} />
         </Link>
         <ListItemSecondaryAction>
-          <Grid container direction="row" justify="center" alignItems="flex-start">
+          <Grid container direction="row" justify="center" alignItems="center">
             {sgcUploaded.includes(data.title) && (
               <a href={sgcUrl} target="new">
                 Open SGC summary
               </a>
             )}
             {discourseAvailable && (
-              <IconButton
-                disabled={!isDiscourseAvailable()}
-                onClick={() => {
-                  generateDiscourseTargetURL(data.title)
-                    .then(response => {
-                      const link = response.data['Post url'];
-                      window.open(link, '_blank');
-                    })
-                    .catch(err => {
-                      console.log(err);
-                      dispatch(setOpenDiscourseErrorModal(true));
-                    });
-                }}
-              >
-                <Chat />
-              </IconButton>
+              <Tooltip title="Go to Discourse">
+                <IconButton
+                  disabled={!isDiscourseAvailable()}
+                  onClick={() => {
+                    generateDiscourseTargetURL(data.title)
+                      .then(response => {
+                        const link = response.data['Post url'];
+                        window.open(link, '_blank');
+                      })
+                      .catch(err => {
+                        console.log(err);
+                        dispatch(setOpenDiscourseErrorModal(true));
+                      });
+                  }}
+                >
+                  <Chat />
+                </IconButton>
+              </Tooltip>
             )}
           </Grid>
         </ListItemSecondaryAction>

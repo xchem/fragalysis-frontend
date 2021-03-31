@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useCallback } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
 import {
   Table,
@@ -56,7 +56,6 @@ export const Projects = memo(({}) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const isLoadingListOfProjects = useSelector(state => state.projectReducers.isLoadingListOfProjects);
   const dispatch = useDispatch();
-  const projectDiscourseLinks = useSelector(state => state.projectReducers.projectDiscourseLinks);
 
   const listOfProjects = useSelector(state => state.projectReducers.listOfProjects).map(project => {
     return {
@@ -86,6 +85,8 @@ export const Projects = memo(({}) => {
   };
 
   let debouncedFn;
+
+  const discourseAvailable = isDiscourseAvailable();
 
   const handleSearch = event => {
     /* signal to React not to nullify the event object */
@@ -145,29 +146,25 @@ export const Projects = memo(({}) => {
             </TableHead>
             <TableBody>
               {listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(project => (
-                <Tooltip
-                  title={project.description}
-                  key={project.id}
-                  placement="bottom-start"
-                  TransitionProps={{ timeout: 600 }}
-                  TransitionComponent={Zoom}
-                >
-                  <TableRow hover>
+                <TableRow hover>
+                  <Tooltip title={`${project.description}`}>
                     <TableCell component="th" scope="row">
                       <Link to={`${URLS.projects}${project.id}`}>{project.name}</Link>
                     </TableCell>
-                    <TableCell align="left">
-                      <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
-                    </TableCell>
-                    <TableCell align="left">
-                      {project.tags &&
-                        project.tags.map((tag, index) => (
-                          <Chip key={index} label={tag} size="small" className={classes.chip} />
-                        ))}
-                    </TableCell>
-                    <TableCell align="left">{project.author}</TableCell>
-                    <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
-                    <TableCell align="right">
+                  </Tooltip>
+                  <TableCell align="left">
+                    <Link to={`${URLS.target}${project.target}`}>{project.target}</Link>
+                  </TableCell>
+                  <TableCell align="left">
+                    {project.tags &&
+                      project.tags.map((tag, index) => (
+                        <Chip key={index} label={tag} size="small" className={classes.chip} />
+                      ))}
+                  </TableCell>
+                  <TableCell align="left">{project.author}</TableCell>
+                  <TableCell align="left">{moment(project.createdAt).format('LLL')}</TableCell>
+                  <TableCell align="right">
+                    <Tooltip title="Delete project">
                       <IconButton
                         disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
                         onClick={() =>
@@ -178,27 +175,30 @@ export const Projects = memo(({}) => {
                       >
                         <Delete />
                       </IconButton>
-                      <IconButton
-                        disabled={!isDiscourseAvailable() && !projectDiscourseLinks?.hasOwnProperty(project.id)}
-                        onClick={() => {
-                          getExistingPost(project.name)
-                            .then(response => {
-                              if (response.data['Post url']) {
-                                const link = response.data['Post url'];
-                                window.open(link, '_blank');
-                              }
-                            })
-                            .catch(err => {
-                              console.log(err);
-                              dispatch(setOpenDiscourseErrorModal(true));
-                            });
-                        }}
-                      >
-                        <QuestionAnswer />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                </Tooltip>
+                    </Tooltip>
+                    {discourseAvailable && (
+                      <Tooltip title="Go to Discourse">
+                        <IconButton
+                          onClick={() => {
+                            getExistingPost(project.name)
+                              .then(response => {
+                                if (response.data['Post url']) {
+                                  const link = response.data['Post url'];
+                                  window.open(link, '_blank');
+                                }
+                              })
+                              .catch(err => {
+                                console.log(err);
+                                dispatch(setOpenDiscourseErrorModal(true));
+                              });
+                          }}
+                        >
+                          <QuestionAnswer />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </TableCell>
+                </TableRow>
               ))}
             </TableBody>
             <TableFooter>

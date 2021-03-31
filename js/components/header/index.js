@@ -16,7 +16,8 @@ import {
   Avatar,
   Box,
   ButtonGroup,
-  LinearProgress
+  LinearProgress,
+  Tooltip
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -236,44 +237,48 @@ export default memo(
               {discourseAvailable && (
                 <ButtonGroup variant="text" size="small">
                   {targetDiscourseVisible && (
-                    <Button
-                      startIcon={<Chat />}
-                      variant="text"
-                      size="small"
-                      onClick={() => {
-                        generateDiscourseTargetURL(targetName)
-                          .then(response => {
-                            const url = response.data['Post url'];
-                            if (url) {
-                              openDiscourseLink(url);
-                            }
-                          })
-                          .catch(err => {
-                            console.log(err);
-                            dispatch(setOpenDiscourseErrorModal(true));
-                          });
-                      }}
-                    ></Button>
+                    <Tooltip title="Go to target category on Discourse">
+                      <Button
+                        startIcon={<Chat />}
+                        variant="text"
+                        size="small"
+                        onClick={() => {
+                          generateDiscourseTargetURL(targetName)
+                            .then(response => {
+                              const url = response.data['Post url'];
+                              if (url) {
+                                openDiscourseLink(url);
+                              }
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              dispatch(setOpenDiscourseErrorModal(true));
+                            });
+                        }}
+                      ></Button>
+                    </Tooltip>
                   )}
                   {projectDiscourseVisible && (
-                    <Button
-                      startIcon={<QuestionAnswer />}
-                      variant="text"
-                      size="small"
-                      onClick={() => {
-                        getExistingPost(currentProject.title)
-                          .then(response => {
-                            const url = response.data['Post url'];
-                            if (url) {
-                              openDiscourseLink(url);
-                            }
-                          })
-                          .catch(err => {
-                            console.log(err);
-                            dispatch(setOpenDiscourseErrorModal(true));
-                          });
-                      }}
-                    ></Button>
+                    <Tooltip title="Go to project topic on Discourse">
+                      <Button
+                        startIcon={<QuestionAnswer />}
+                        variant="text"
+                        size="small"
+                        onClick={() => {
+                          getExistingPost(currentProject.title)
+                            .then(response => {
+                              const url = response.data['Post url'];
+                              if (url) {
+                                openDiscourseLink(url);
+                              }
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              dispatch(setOpenDiscourseErrorModal(true));
+                            });
+                        }}
+                      ></Button>
+                    </Tooltip>
                   )}
                 </ButtonGroup>
               )}
