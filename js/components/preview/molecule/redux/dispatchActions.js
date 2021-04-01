@@ -55,6 +55,7 @@ import { MOL_TYPE } from './constants';
 import { addImageToCache } from './actions';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
+import { readQualityInformation } from '../../../nglView/renderingHelpers';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -349,16 +350,31 @@ export const addLigand = (
   data,
   colourToggle,
   centerOn = false,
+  withQuality = false,
   skipTracking = false,
   representations = undefined
 ) => (dispatch, getState) => {
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
+
+  let moleculeObject = generateMoleculeObject(data, colourToggle);
+  let qualityInformation = readQualityInformation(moleculeObject.sdf_info);
+
+  let hasAdditionalInformation =
+    withQuality === true && qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
+  if (hasAdditionalInformation) {
+    dispatch(addInformation(data));
+    dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
+  }
+
   return dispatch(
     loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, colourToggle)),
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, moleculeObject),
       stage,
-      previousRepresentations: representations
+      previousRepresentations: representations,
+      loadQuality: hasAdditionalInformation,
+      badids: qualityInformation.badids,
+      badcomments: qualityInformation.badcomments
     })
   ).finally(() => {
     const ligandOrientation = stage.viewerControls.getOrientation();
@@ -369,19 +385,13 @@ export const addLigand = (
       // keep current orientation of NGL View
       stage.viewerControls.orient(currentOrientation);
     }
-
-    // TODO: check additional information available
-    let hasAdditionalInformation = true;
-    if (hasAdditionalInformation) {
-      dispatch(addInformation(data));
-      dispatch(addQuality(stage, data, colourToggle, true));
-    }
   });
 };
 
 export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data), skipTracking));
+  dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
 
   if (withVector === true) {
     // remove vector
@@ -389,19 +399,20 @@ export const removeLigand = (stage, data, skipTracking = false, withVector = tru
   }
 
   dispatch(removeInformation(data));
-  dispatch(removeQuality(stage, data, true));
 };
 
 export const addQuality = (stage, data, colourToggle, skipTracking = false, representations = undefined) => (
   dispatch,
   getState
 ) => {
-  // TODO change to stripy bonds + spiky atoms
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+  dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking, representations));
   dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
 };
 
-export const removeQuality = (stage, data, skipTracking = false) => dispatch => {
-  // TODO remove stripy bonds + spiky atoms
+export const removeQuality = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+  dispatch(addLigand(stage, data, colourToggle, false, false, skipTracking));
   dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
 };
 
@@ -421,7 +432,7 @@ export const initializeMolecules = (majorView, moleculeList, first) => dispatch 
     const firstMolecule = first || moleculeList[0];
     if (firstMolecule) {
       dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true));
+      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
     }
   }
 };
@@ -536,7 +547,7 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
   if (newItem && data) {
     if (data.isLigandOn) {
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND);
-      dispatch(addLigand(stage, newItem, data.colourToggle, false, skipTracking, representations));
+      dispatch(addLigand(stage, newItem, data.colourToggle, false, data.isQualityOn, skipTracking, representations));
     }
     if (data.isProteinOn) {
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);

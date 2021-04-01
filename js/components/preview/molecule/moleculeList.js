@@ -593,7 +593,14 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       joinedMoleculeLists.forEach(molecule => {
         selectMoleculeSite(molecule.site);
         dispatch(
-          addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], false, skipTracking)
+          addType[type](
+            majorViewStage,
+            molecule,
+            colourList[molecule.id % colourList.length],
+            false,
+            true,
+            skipTracking
+          )
         );
       });
     } else {

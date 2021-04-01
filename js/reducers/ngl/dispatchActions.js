@@ -40,7 +40,10 @@ export const loadObject = ({
   stage,
   previousRepresentations,
   orientationMatrix,
-  markAsRightSideLigand
+  markAsRightSideLigand,
+  loadQuality,
+  badids,
+  badcomments
 }) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
@@ -57,6 +60,9 @@ export const loadObject = ({
       representations: previousRepresentations,
       orientationMatrix,
       markAsRightSideLigand,
+      loadQuality,
+      badids,
+      badcomments,
       dispatch
     })
       .then(representations => {

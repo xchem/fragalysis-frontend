@@ -801,6 +801,7 @@ const moveInspirations = (
               molecule,
               colourList[molecule.id % colourList.length],
               false,
+              isAnyInspirationQualityOn,
               skipTracking,
               representations
             )
@@ -882,6 +883,7 @@ export const moveSelectedInspirations = (
               molecule,
               colourList[molecule.id % colourList.length],
               false,
+              true,
               skipTracking,
               representations
             )

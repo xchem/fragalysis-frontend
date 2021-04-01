@@ -1127,7 +1127,7 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
           actionItems.forEach(data => {
             if (data) {
               if (type === 'ligand') {
-                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, true));
               } else if (type === 'vector') {
                 dispatch(addType[type](stage, data, true));
               } else {
@@ -1323,7 +1323,7 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
       let data = getMolecule(action.object_name, state);
       if (data) {
         if (type === 'ligand') {
-          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
         } else if (type === 'vector') {
           await dispatch(addType[type](stage, data, true));
         } else {
@@ -1339,7 +1339,7 @@ const addNewTypeOfAction = (action, type, stage, state, skipTracking = false) =>
     let data = getMolecule(action.object_name, state);
     if (data) {
       if (type === 'ligand') {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
       } else if (type === 'vector') {
         dispatch(addType[type](stage, data, true));
       } else {
@@ -1879,7 +1879,7 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
       actionItems.forEach(data => {
         if (data) {
           if (type === 'ligand') {
-            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, true));
           } else if (type === 'vector') {
             dispatch(addType[type](stage, data, true));
           } else {
@@ -1967,7 +1967,7 @@ const handleAllHideAction = (action, isAdd, stage) => (dispatch, getState) => {
   if (isAdd) {
     ligandDataList.forEach(data => {
       if (data) {
-        dispatch(addType['ligand'](stage, data, colourList[data.id % colourList.length], true, true));
+        dispatch(addType['ligand'](stage, data, colourList[data.id % colourList.length], true, true, true));
       }
     });
 

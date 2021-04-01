@@ -231,7 +231,9 @@ export const InspirationDialog = memo(
     const addNewType = (type, skipTracking = false) => {
       if (type === 'ligand') {
         moleculeList.forEach(molecule => {
-          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, skipTracking));
+          dispatch(
+            addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, true, skipTracking)
+          );
         });
       } else {
         moleculeList.forEach(molecule => {
