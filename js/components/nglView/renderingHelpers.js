@@ -36,6 +36,7 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
 
     // Draw Good Atoms + Bonds
     const repr2 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
+      withQuality: true,
       colorScheme: 'element',
       colorValue: color,
       multipleBond: true,
@@ -92,7 +93,7 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
         }
       }
     });
-    stage.addComponentFromObject(shape);
+    stage.addComponentFromObject(shape, { isShape: true });
     for (let badIndex in badids) {
       let id = badids[badIndex];
       let comment = badcomments[badIndex];
@@ -121,7 +122,7 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
       });
       shape.addBuffer(meshBuffer);
       var shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER);
+      shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER, { isShape: true });
     }
 
     if (orientationMatrix && orientationMatrix.elements) {
@@ -152,8 +153,8 @@ function readGoodAtomsFromFile(text, badids) {
 
 export function readQualityInformation(text) {
   let badidsValue = '2;4;6;9';
-  //let badidsValue = '';
-  let badcommentsValue = `This Atom is Garbage; lorem ipsum dolor sit amet; I am not really convinced by the electron density.`;
+  //badidsValue = '';
+  let badcommentsValue = `This Atom is Garbage; lorem ipsum dolor sit amet; I am not really convinced by the electron density.;Test badcomments`;
   let badids = badidsValue === '' ? [] : badidsValue.split(';').map(x => parseInt(x));
   let badcomments = badcommentsValue === '' ? [] : badcommentsValue.split(';');
   return { badids, badcomments };

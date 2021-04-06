@@ -364,7 +364,7 @@ export const addLigand = (
     withQuality === true && qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
   if (hasAdditionalInformation) {
     dispatch(addInformation(data));
-    dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
+    dispatch(appendQualityList(generateMoleculeId(data), true));
   }
 
   return dispatch(
@@ -391,7 +391,7 @@ export const addLigand = (
 export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data), skipTracking));
-  dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
+  dispatch(removeFromQualityList(generateMoleculeId(data), true));
 
   if (withVector === true) {
     // remove vector

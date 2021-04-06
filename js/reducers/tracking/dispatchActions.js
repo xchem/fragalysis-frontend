@@ -143,6 +143,7 @@ import {
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
 import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
+import { hideShapeRepresentations } from '../../components/nglView/redux/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -2229,6 +2230,7 @@ const removeRepresentation = (action, parentKey, representation, nglView, skipTr
     if (comp.reprList.length === 0) {
       dispatch(deleteObject(nglView, nglView.stage, true));
     } else {
+      hideShapeRepresentations(foundedRepresentation, nglView, parentKey);
       dispatch(removeComponentRepresentation(parentKey, foundedRepresentation, skipTracking));
     }
   } else {
@@ -2240,10 +2242,12 @@ const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (
   if (action) {
     let parentKey = action.object_id;
     let representation = action.representation;
+    let representationElement = null;
 
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     comp.eachRepresentation(r => {
       if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+        representationElement = r;
         const newVisibility = isAdd ? action.value : !action.value;
         // update in redux
         representation.params.visible = newVisibility;
@@ -2255,6 +2259,8 @@ const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (
         r.setVisibility(newVisibility);
       }
     });
+
+    hideShapeRepresentations(representationElement, nglView, parentKey);
   }
 };
 
@@ -2270,8 +2276,10 @@ const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) =
 
     if (representations) {
       representations.forEach((representation, index) => {
+        let representationElement = null;
         comp.eachRepresentation(r => {
           if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+            representationElement = r;
             representation.params.visible = newVisibility;
             // update in nglView
             r.setVisibility(newVisibility);
@@ -2279,6 +2287,7 @@ const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) =
             dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
           }
         });
+        hideShapeRepresentations(representationElement, nglView, parentKey);
       });
 
       dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
