@@ -30,22 +30,12 @@ const showLigand = ({
   orientationMatrix,
   markAsRightSideLigand,
   loadQuality,
-  badids,
-  badcomments
+  quality
 }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
   if (loadQuality === true) {
-    return loadQualityFromFile(
-      stage,
-      stringBlob,
-      input_dict.sdf_info,
-      badids,
-      badcomments,
-      object_name,
-      orientationMatrix,
-      input_dict.colour
-    );
+    return loadQualityFromFile(stage, stringBlob, quality, object_name, orientationMatrix, input_dict.colour);
   } else {
     return loadLigandFromFile(
       stage,

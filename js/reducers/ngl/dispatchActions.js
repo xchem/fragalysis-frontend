@@ -42,8 +42,7 @@ export const loadObject = ({
   orientationMatrix,
   markAsRightSideLigand,
   loadQuality,
-  badids,
-  badcomments
+  quality
 }) => dispatch => {
   if (stage) {
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
@@ -61,8 +60,7 @@ export const loadObject = ({
       orientationMatrix,
       markAsRightSideLigand,
       loadQuality,
-      badids,
-      badcomments,
+      quality,
       dispatch
     })
       .then(representations => {

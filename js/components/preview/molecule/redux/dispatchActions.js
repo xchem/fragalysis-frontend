@@ -358,7 +358,7 @@ export const addLigand = (
   dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
 
   let moleculeObject = generateMoleculeObject(data, colourToggle);
-  let qualityInformation = readQualityInformation(moleculeObject.sdf_info);
+  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, moleculeObject.sdf_info));
 
   let hasAdditionalInformation =
     withQuality === true && qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
@@ -373,8 +373,7 @@ export const addLigand = (
       stage,
       previousRepresentations: representations,
       loadQuality: hasAdditionalInformation,
-      badids: qualityInformation.badids,
-      badcomments: qualityInformation.badcomments
+      quality: qualityInformation
     })
   ).finally(() => {
     const ligandOrientation = stage.viewerControls.getOrientation();

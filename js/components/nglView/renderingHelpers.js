@@ -6,9 +6,12 @@ import {
 } from './generatingObjects';
 import { Shape, Matrix4, MeshBuffer } from 'ngl';
 import { refmesh } from './constants/mesh';
+import { addToQualityCache } from '../../reducers/ngl/actions';
 
-export function loadQualityFromFile(stage, file, text, badids, badcomments, object_name, orientationMatrix, color) {
-  let diff = readGoodAtomsFromFile(text, badids);
+export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color) {
+  let goodids = (quality && quality.goodids) || [];
+  let badids = (quality && quality.badids) || [];
+  let badcomments = (quality && quality.badcomments) || [];
 
   return stage.loadFile(file, { name: object_name, ext: 'sdf' }).then(function(comp) {
     let representationStructures = [];
@@ -41,7 +44,7 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
       colorValue: color,
       multipleBond: true,
       aspectRatio: 2,
-      sele: '@'.concat(diff)
+      sele: '@'.concat(goodids)
       //multipleBond: 'symmetric'
     });
     representationStructures.push(repr2);
@@ -96,7 +99,7 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
     stage.addComponentFromObject(shape, { isShape: true });
     for (let badIndex in badids) {
       let id = badids[badIndex];
-      let comment = badcomments[badIndex];
+      let comment = badcomments.length > badIndex ? badcomments[badIndex] : '';
       let origin = [comp.object.atomStore.x[id], comp.object.atomStore.y[id], comp.object.atomStore.z[id]];
       let atom_label = 'atom: '.concat(atom_info_array[id], ' | ', (comment && comment) || '');
 
@@ -114,7 +117,7 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
         });
       let col = new Float32Array(col2);
 
-      shape.addSphere(origin, [0, 0, 0, 0], 0.2, atom_label);
+      shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], 0.2, atom_label);
       // Probably need to create a new shape constructor, with minimum opacity and then render it as needed...
       var meshBuffer = new MeshBuffer({
         position: new Float32Array(m),
@@ -139,25 +142,53 @@ export function loadQualityFromFile(stage, file, text, badids, badcomments, obje
   });
 }
 
-function readGoodAtomsFromFile(text, badids) {
-  var regexp = /[CSONF]/g;
-  var match,
-    matches = [];
-  while ((match = regexp.exec(text)) != null) {
-    matches.push(match[0]);
-  }
-  var idx = [...Array(matches.length).keys()];
-  let diff = idx.filter(x => !badids.includes(x));
-  return diff;
-}
+export const readQualityInformation = (name, text) => (dispatch, getState) => {
+  const state = getState();
+  const qualityCache = state.nglReducers.qualityCache;
+  let qualityInformation = {};
 
-export function readQualityInformation(text) {
-  let badidsValue = '2;4;6;9';
-  //badidsValue = '';
-  let badcommentsValue = `This Atom is Garbage; lorem ipsum dolor sit amet; I am not really convinced by the electron density.;Test badcomments`;
+  if (qualityCache.hasOwnProperty(name)) {
+    qualityInformation = qualityCache[name];
+  } else {
+    qualityInformation = loadQualityInformation(text);
+    dispatch(addToQualityCache(name, qualityInformation));
+  }
+  return qualityInformation;
+};
+
+const loadQualityInformation = text => {
+  let badidsRegex = /[\n\r].*<BADATOMS>\s*([^\n\r]*)/;
+  let badcommentsRegex = /[\n\r].*<BADCOMMENTS>\s*([^\n\r]*)/;
+  let badidsRegexResult = badidsRegex.exec(text);
+  let badcommentsRegexResult = badcommentsRegex.exec(text);
+
+  let badidsValue =
+    badidsRegexResult != null && badidsRegexResult && badidsRegexResult.length > 1 ? badidsRegexResult[1] : '';
+  let badcommentsValue =
+    badcommentsRegexResult != null && badcommentsRegexResult && badcommentsRegexResult.length > 1
+      ? badcommentsRegexResult[1]
+      : '';
   let badids = badidsValue === '' ? [] : badidsValue.split(';').map(x => parseInt(x));
   let badcomments = badcommentsValue === '' ? [] : badcommentsValue.split(';');
-  return { badids, badcomments };
+
+  let goodids = readGoodAtomsFromFile(text, badids);
+  return { goodids, badids, badcomments };
+};
+
+function readGoodAtomsFromFile(text, badids) {
+  if (badids && badids.length > 0) {
+    var regexp = /[CSONF]/g;
+    var match,
+      matches = [];
+    while ((match = regexp.exec(text)) != null) {
+      matches.push(match[0]);
+    }
+    var idx = [...Array(matches.length).keys()];
+    let diff = idx.filter(x => !badids.includes(x));
+    return diff;
+  } else {
+    return [];
+  }
 }
 
 function hexToRgb(hex) {

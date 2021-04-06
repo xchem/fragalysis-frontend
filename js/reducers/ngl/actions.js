@@ -227,3 +227,8 @@ export const addToPdbCache = (name, cacheItem) => ({
   type: CONSTANTS.ADD_TO_PDB_CACHE,
   payload: { name: name, cacheItem: cacheItem }
 });
+
+export const addToQualityCache = (name, cacheItem) => ({
+  type: CONSTANTS.ADD_TO_QUALITY_CACHE,
+  payload: { name: name, cacheItem: cacheItem }
+});
