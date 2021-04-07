@@ -83,6 +83,10 @@ export const MOL_REPRESENTATION = {
   validation: 'validation'
 };
 
+export const COMMON_PARAMS = {
+  warningIcon: false
+};
+
 export const MOL_REPRESENTATION_BUFFER = 'buffer';
 
 export const NGL_VIEW_DEFAULT_VALUES = {
@@ -95,7 +99,8 @@ export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.isolevel]: 1,
   [NGL_PARAMS.boxSize]: 0,
   [NGL_PARAMS.opacity]: 1,
-  [NGL_PARAMS.contour]: false
+  [NGL_PARAMS.contour]: false,
+  [COMMON_PARAMS.warningIcon]: false
 };
 
 export const ELEMENT_COLORS = {

@@ -1391,6 +1391,27 @@ export const findTrackAction = (action, state) => {
         },
         text: `Surface/wireframe of NGL ${actionDescription.CHANGED} to value: ${newSettingDescription}`
       };
+    } else if (action.type === nglConstants.SET_WARNING_ICON) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.WARNING_ICON,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Warning icon showing ' + (newSetting === true ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF)
+          );
+        },
+        text: `Warning icon showing ${newSetting === true ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF}`
+      };
     }
   }
   return trackAction;

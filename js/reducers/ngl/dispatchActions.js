@@ -17,11 +17,12 @@ import {
   setIsoLevelAction,
   setBoxSizeAction,
   setOpacityAction,
-  setContourAction
+  setContourAction,
+  setWarningIconAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
-import { OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
+import { COMMON_PARAMS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
@@ -242,6 +243,11 @@ export const setContour = (newValue, oldValue, major) => (dispatch, getState) =>
   dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.contour, newValue));
   dispatch(setNglViewParams(NGL_PARAMS.contour, newValue, major, VIEWS.MAJOR_VIEW));
   dispatch(setContourAction(newValue, oldValue));
+};
+
+export const setWarningIcon = (newValue, oldValue) => (dispatch, getState) => {
+  dispatch(setNglViewParams(COMMON_PARAMS.warningIcon, newValue));
+  dispatch(setWarningIconAction(newValue, oldValue));
 };
 
 const updateRepresentationsByType = (type, stage, key, newValue) => (dispatch, getState) => {

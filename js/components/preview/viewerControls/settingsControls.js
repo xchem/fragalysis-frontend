@@ -1,7 +1,7 @@
 import React, { useContext, memo } from 'react';
 import { Grid, makeStyles, Slider, Switch, TextField, Typography } from '@material-ui/core';
 import { Drawer } from '../../common/Navigation/Drawer';
-import { BACKGROUND_COLOR, NGL_PARAMS } from '../../nglView/constants';
+import { BACKGROUND_COLOR, NGL_PARAMS, COMMON_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setNglBckGrndColor,
@@ -13,7 +13,8 @@ import {
   setIsoLevel,
   setBoxSize,
   setOpacity,
-  setContour
+  setContour,
+  setWarningIcon
 } from '../../../reducers/ngl/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
@@ -65,6 +66,14 @@ export const SettingControls = memo(({ open, onClose }) => {
       dispatch(setContour(true, viewParams[NGL_PARAMS.contour], majorView));
     } else {
       dispatch(setContour(false, viewParams[NGL_PARAMS.contour], majorView));
+    }
+  };
+
+  const handleWarningIcon = () => {
+    if (viewParams[COMMON_PARAMS.warningIcon] === false) {
+      dispatch(setWarningIcon(true, viewParams[COMMON_PARAMS.warningIcon]));
+    } else {
+      dispatch(setWarningIcon(false, viewParams[COMMON_PARAMS.warningIcon]));
     }
   };
 
@@ -213,6 +222,21 @@ export const SettingControls = memo(({ open, onClose }) => {
                 color="primary"
                 checked={viewParams[NGL_PARAMS.contour] === true}
                 onChange={handleRepresentation}
+              />
+            </Grid>
+          </Grid>
+        </div>
+        <div className={classes.divider}>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Warning icon toggle</Typography>
+            </Grid>
+            <Grid item>
+              <Switch
+                size="small"
+                color="primary"
+                checked={viewParams[COMMON_PARAMS.warningIcon] === true}
+                onChange={handleWarningIcon}
               />
             </Grid>
           </Grid>

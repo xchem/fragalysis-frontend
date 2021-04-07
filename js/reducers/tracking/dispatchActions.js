@@ -89,7 +89,7 @@ import {
   updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
-import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
+import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES, COMMON_PARAMS } from '../../components/nglView/constants';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import {
@@ -104,7 +104,8 @@ import {
   setIsoLevel,
   setBoxSize,
   setOpacity,
-  setContour
+  setContour,
+  setWarningIcon
 } from '../../../js/reducers/ngl/dispatchActions';
 import {
   setSendActionsList,
@@ -897,6 +898,14 @@ const restoreNglSettingsAction = (orderedActionList, majorViewStage, summaryView
   } else {
     dispatch(setContour(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour], viewParams[NGL_PARAMS.contour], majorViewStage));
   }
+
+  let warningIconAction = orderedActionList.find(action => action.type === actionType.WARNING_ICON);
+  if (warningIconAction && warningIconAction.newSetting !== undefined) {
+    let value = warningIconAction.newSetting;
+    dispatch(setWarningIcon(value, viewParams[COMMON_PARAMS.warningIcon]));
+  } else {
+    dispatch(setWarningIcon(NGL_VIEW_DEFAULT_VALUES[COMMON_PARAMS.warningIcon], viewParams[COMMON_PARAMS.warningIcon]));
+  }
 };
 
 const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
@@ -1679,6 +1688,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.CONTOUR:
         dispatch(setContour(action.oldSetting, action.newSetting, majorViewStage));
         break;
+      case actionType.WARNING_ICON:
+        dispatch(setWarningIcon(action.oldSetting, action.newSetting));
+        break;
       default:
         break;
     }
@@ -1863,6 +1875,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.CONTOUR:
         dispatch(setContour(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.WARNING_ICON:
+        dispatch(setWarningIcon(action.newSetting, action.oldSetting));
         break;
       default:
         break;

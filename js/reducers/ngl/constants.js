@@ -39,7 +39,8 @@ export const CONSTANTS = {
   SET_ISO_LEVEL: prefix + 'SET_ISO_LEVEL',
   SET_BOX_SIZE: prefix + 'SET_BOX_SIZE',
   SET_OPACITY: prefix + 'SET_OPACITY',
-  SET_CONTOUR: prefix + 'SET_CONTOUR'
+  SET_CONTOUR: prefix + 'SET_CONTOUR',
+  SET_WARNING_ICON: prefix + 'SET_WARNING_ICON'
 };
 
 export const SCENES = {

@@ -83,7 +83,8 @@ export const actionType = {
   ISO_LEVEL: 'ISO_LEVEL',
   BOX_SIZE: 'BOX_SIZE',
   OPACITY: 'OPACITY',
-  CONTOUR: 'CONTOUR'
+  CONTOUR: 'CONTOUR',
+  WARNING_ICON: 'WARNING_ICON'
 };
 
 export const actionDescription = {
