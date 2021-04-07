@@ -398,6 +398,11 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER_SCORE, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.CLASS_SELECTED, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.CLASS_UPDATED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.ISO_LEVEL, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BOX_SIZE, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.OPACITY, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CONTOUR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.WARNING_ICON, currentActions);
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -791,6 +796,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreCartActions(orderedActionList, majorView.stage));
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
+    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage, summaryView.stage));
     dispatch(setIsActionsRestoring(false, true));
   }
 };

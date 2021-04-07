@@ -405,13 +405,13 @@ export const addQuality = (stage, data, colourToggle, skipTracking = false, repr
   getState
 ) => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
-  dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking, representations));
+  dispatch(addLigand(stage, data, colourToggle, false, true, true, representations));
   dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
 };
 
 export const removeQuality = (stage, data, colourToggle, skipTracking = false) => dispatch => {
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
-  dispatch(addLigand(stage, data, colourToggle, false, false, skipTracking));
+  dispatch(addLigand(stage, data, colourToggle, false, false, true));
   dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
 };
 

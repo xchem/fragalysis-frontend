@@ -84,7 +84,7 @@ export const MOL_REPRESENTATION = {
 };
 
 export const COMMON_PARAMS = {
-  warningIcon: false
+  warningIcon: true
 };
 
 export const MOL_REPRESENTATION_BUFFER = 'buffer';

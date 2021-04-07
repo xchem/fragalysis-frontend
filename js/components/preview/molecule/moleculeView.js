@@ -5,11 +5,11 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward, Warning } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
-import { NGL_PARAMS } from '../../nglView/constants';
+import { NGL_PARAMS, COMMON_PARAMS } from '../../nglView/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import {
   addVector,
@@ -180,6 +180,13 @@ const useStyles = makeStyles(theme => ({
     width: 12,
     height: 15,
     visibility: 'hidden'
+  },
+  warningIcon: {
+    padding: '0px',
+    color: theme.palette.warning.dark,
+    '&:hover': {
+      color: theme.palette.warning.main
+    }
   }
 }));
 
@@ -259,6 +266,8 @@ const MoleculeView = memo(
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
     const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
+
+    let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
 
     // const disableUserInteraction = useDisableUserInteraction();
 
@@ -834,7 +843,18 @@ const MoleculeView = memo(
             onMouseLeave={closeMoleculeTooltip}
             ref={moleculeImgRef}
           >
-            <Grid item>{svg_image}</Grid>
+            <Grid item xs={warningIconVisible === true ? 10 : 12}>
+              {svg_image}
+            </Grid>
+            {warningIconVisible === true && (
+              <Grid item xs={2}>
+                <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
+                  <Tooltip title="Warning">
+                    <Warning />
+                  </Tooltip>
+                </IconButton>
+              </Grid>
+            )}
           </Grid>
         </Grid>
         <SvgTooltip
