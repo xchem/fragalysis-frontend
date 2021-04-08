@@ -100,7 +100,7 @@ export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.boxSize]: 0,
   [NGL_PARAMS.opacity]: 1,
   [NGL_PARAMS.contour]: false,
-  [COMMON_PARAMS.warningIcon]: false
+  [COMMON_PARAMS.warningIcon]: true
 };
 
 export const ELEMENT_COLORS = {

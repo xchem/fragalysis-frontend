@@ -363,7 +363,6 @@ export const addLigand = (
   let hasAdditionalInformation =
     withQuality === true && qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
   if (hasAdditionalInformation) {
-    dispatch(addInformation(data));
     dispatch(appendQualityList(generateMoleculeId(data), true));
   }
 
@@ -396,8 +395,6 @@ export const removeLigand = (stage, data, skipTracking = false, withVector = tru
     // remove vector
     dispatch(removeVector(stage, data, skipTracking));
   }
-
-  dispatch(removeInformation(data));
 };
 
 export const addQuality = (stage, data, colourToggle, skipTracking = false, representations = undefined) => (
@@ -752,6 +749,17 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
     });
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
+  }
+};
+
+export const getQualityInformation = (data, molType, width, height) => (dispatch, getState) => {
+  let moleculeObject = generateMoleculeObject(data);
+  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.sdf_info));
+
+  let hasAdditionalInformation =
+    qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
+  if (hasAdditionalInformation) {
+    dispatch(addInformation(data));
   }
 };
 

@@ -29,7 +29,8 @@ import {
   getMolImage,
   moveSelectedMolSettings,
   removeQuality,
-  addQuality
+  addQuality,
+  getQualityInformation
 } from './redux/dispatchActions';
 import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
@@ -311,6 +312,10 @@ const MoleculeView = memo(
         setImg_data(i);
       });
     }, [data.id, data.smiles, imageHeight, url, imageWidth, dispatch]);
+
+    useEffect(() => {
+      dispatch(getQualityInformation(data));
+    }, [data, dispatch]);
 
     useEffect(() => {
       if (searchMoleculeGroup) {
