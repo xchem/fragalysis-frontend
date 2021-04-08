@@ -281,9 +281,9 @@ export const createNewSnapshot = ({
                         dispatch(resetCurrentSnapshot());
                       } else if (response.data.results[length - 1] !== undefined) {
                         // If the tree fails to load, bail out first without modifying the store
-                        dispatch(loadSnapshotTree(projectResponse.data.id));
+                        await dispatch(loadSnapshotTree(projectResponse.data.id));
                         // Pick the latest snapshot which should be the last one
-                        dispatch(
+                        await dispatch(
                           setCurrentSnapshot({
                             id: response.data.results[length - 1].id,
                             type: response.data.results[length - 1].type,
@@ -296,10 +296,7 @@ export const createNewSnapshot = ({
                             data: '[]'
                           })
                         );
-                        if (createDiscourse) {
-                          dispatch(createSnapshotDiscoursePost());
-                        }
-                        dispatch(
+                        await dispatch(
                           setCurrentProject({
                             projectID: projectResponse.data.id,
                             authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
@@ -309,6 +306,9 @@ export const createNewSnapshot = ({
                             tags: JSON.parse(projectResponse.data.tags)
                           })
                         );
+                        if (createDiscourse) {
+                          dispatch(createSnapshotDiscoursePost());
+                        }
                         dispatch(setOpenSnapshotSavingDialog(false));
                         dispatch(setIsLoadingSnapshotDialog(false));
                         dispatch(setSnapshotJustSaved(projectResponse.data.id));
@@ -318,6 +318,7 @@ export const createNewSnapshot = ({
                     .catch(error => {
                       dispatch(resetCurrentSnapshot());
                       dispatch(setIsLoadingSnapshotDialog(false));
+                      console.log(`Error while saving snapshot: ${error}`);
                     });
                 }
               } else {
