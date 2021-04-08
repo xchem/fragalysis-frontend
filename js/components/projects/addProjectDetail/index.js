@@ -90,20 +90,26 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
           };
 
           const oldProjectID = projectID;
-          dispatch(createProjectFromSnapshotDialog(data))
-            .then(() => {
-              dispatch(manageSendTrackingActions(oldProjectID, true));
-            })
-            .then(() => {
-              if (createDiscourse) {
-                dispatch(createProjectDiscoursePost(values.title, targetName, values.description, tags));
-              }
-            })
-            .catch(error => {
-              setState(() => {
-                throw error;
+          if (createDiscourse) {
+            dispatch(createProjectDiscoursePost(values.title, targetName, values.description, tags))
+              .then(() => dispatch(createProjectFromSnapshotDialog(data)))
+              .then(() => dispatch(manageSendTrackingActions(oldProjectID, true)))
+              .catch(error => {
+                setState(() => {
+                  throw error;
+                });
               });
-            });
+          } else {
+            dispatch(createProjectFromSnapshotDialog(data))
+              .then(() => {
+                dispatch(manageSendTrackingActions(oldProjectID, true));
+              })
+              .catch(error => {
+                setState(() => {
+                  throw error;
+                });
+              });
+          }
         }}
       >
         {({ submitForm, isSubmitting }) => (
