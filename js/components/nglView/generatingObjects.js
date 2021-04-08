@@ -152,8 +152,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
   };
 };
 
-// Density TODO not implemented
-export const generateDensityObject = (data, colourToggle, base_url) => {
+export const generateDensityObject = (data, colourToggle, base_url, isWireframeStyle) => {
   let prot_url;
 
   if (data && data.molecule_protein) {
@@ -170,9 +169,11 @@ export const generateDensityObject = (data, colourToggle, base_url) => {
     name: `${data.protein_code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: data.sdf_info,
+    map_info: data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
+    wireframe: isWireframeStyle,
     selectionType: SELECTION_TYPE.DENSITY
   };
 };

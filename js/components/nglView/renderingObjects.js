@@ -387,9 +387,31 @@ const showHotspot = ({ stage, input_dict, object_name, representations }) => {
   }
 };
 
-// TODO:
 const showDensity = ({ stage, input_dict, object_name, representations }) => {
-  return {};
+  let densityParams = {
+    color: input_dict.coluor,
+    isolevel: input_dict.isoLevel || 3,
+    smooth: input_dict.smooth || 0,
+    boxSize: input_dict.boxSize || 0,
+    contour: input_dict.wireframe || false,
+    wrap: true,
+    opacity: input_dict.opacity || 1,
+    opaqueBack: false
+  };
+
+  return Promise.all([
+    stage.loadFile(input_dict.map_info, { name: object_name, ext: 'map' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return assignRepresentationArrayToComp(reprArray, comp);
+    }),
+
+    stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return assignRepresentationArrayToComp(reprArray, comp);
+    })
+  ]).then(values => [...values]);
 };
 
 // Refactor this out into a utils directory

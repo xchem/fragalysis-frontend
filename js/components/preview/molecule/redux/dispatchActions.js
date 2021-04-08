@@ -292,19 +292,20 @@ export const addDensity = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  // add default style by isWireframeStyle
-
-  //dispatch(
-  // loadObject({
-  //   target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
-  //   stage,
-  //   previousRepresentations: representations,
-  //   orientationMatrix: null
-  // })
-  // ).finally(() => {
-  //   const currentOrientation = stage.viewerControls.getOrientation();
-  //   dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  // });
+  dispatch(
+    loadObject({
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
+      ),
+      stage,
+      previousRepresentations: representations,
+      orientationMatrix: null
+    })
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
   dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
 };
 
@@ -316,31 +317,40 @@ export const addDensityCustomView = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  // delete object at first (removeDensity)
-  // load other object
-  // swap other style by isWireframeStyle
+  const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
 
-  //dispatch(
-  // loadObject({
-  //   target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
-  //   stage,
-  //   previousRepresentations: representations,
-  //   orientationMatrix: null
-  // })
-  // ).finally(() => {
-  //   const currentOrientation = stage.viewerControls.getOrientation();
-  //   dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  // });
+  dispatch(
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject),
+      stage,
+      previousRepresentations: representations,
+      orientationMatrix: null
+    })
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
   dispatch(appendDensityListCustom(generateMoleculeId(data), skipTracking));
 };
 
-export const removeDensity = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  //dispatch(
-  //  deleteObject(
-  //   Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateDensityObject(data, colourToggle, base_url)),
-  //   stage
-  // )
-  // );
+export const removeDensity = (
+  stage,
+  data,
+  colourToggle,
+  isWireframeStyle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
+  dispatch(
+    deleteObject(
+      Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
+      ),
+      stage
+    )
+  );
   dispatch(removeFromDensityList(generateMoleculeId(data), skipTracking));
   dispatch(removeFromDensityListCustom(generateMoleculeId(data), true));
 };
