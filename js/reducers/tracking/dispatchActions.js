@@ -2684,7 +2684,7 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         actions: JSON.stringify(actions)
       };
       return api({
-        url: `${base_url}/api/session-actions/${actionID}`,
+        url: `${base_url}/api/session-actions/${actionID}/`,
         method: METHOD.PUT,
         data: JSON.stringify(dataToSend)
       })

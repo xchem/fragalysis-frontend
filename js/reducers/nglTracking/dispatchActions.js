@@ -1,10 +1,10 @@
 import {
-    setCurrentActionsList,
-    setIsTrackingMoleculesRestoring,
-    setIsTrackingCompoundsRestoring,
-    setIsUndoRedoAction,
-    nglClearHistory
-  } from './actions';
+  setCurrentActionsList,
+  setIsTrackingMoleculesRestoring,
+  setIsTrackingCompoundsRestoring,
+  setIsUndoRedoAction,
+  nglClearHistory
+} from './actions';
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
@@ -51,9 +51,7 @@ import {
 } from '../../components/datasets/redux/actions';
 import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
-import {
-  addComponentRepresentation,
-  updateComponentRepresentation  } from '../../../js/reducers/ngl/actions';
+import { addComponentRepresentation, updateComponentRepresentation } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import { setOrientation, restoreNglOrientation } from '../../../js/reducers/ngl/dispatchActions';
@@ -77,21 +75,20 @@ import {
   resetTrackingState,
   setIsActionTracking
 } from './actions';
-import {
-  setSelectedAll,
-  setSelectedAllByType  } from '../../../js/reducers/selection/actions';
+import { setSelectedAll, setSelectedAllByType } from '../../../js/reducers/selection/actions';
 import {
   setSelectedAll as setSelectedAllOfDataset,
-  setSelectedAllByType as setSelectedAllByTypeOfDataset  } from '../../components/datasets/redux/actions';
+  setSelectedAllByType as setSelectedAllByTypeOfDataset
+} from '../../components/datasets/redux/actions';
 
-export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch) => {
+export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async dispatch => {
   let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
 
   await dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, true));
 };
 
-export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async (dispatch) => {
+export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async dispatch => {
   let projectID = project && project.projectID;
   let actionList = await dispatch(getTrackingActions(projectID));
 
@@ -375,8 +372,14 @@ const saveSnapshotAction = (snapshot, project, currentActions) => async (dispatc
   await dispatch(sendTrackingActions(sendActions, project));
 };
 
-const setSnapshotToActions = (actionList, snapshot, projectID, project, nglViewList, addToSnapshot) => async (
-  dispatch  ) => {
+const setSnapshotToActions = (
+  actionList,
+  snapshot,
+  projectID,
+  project,
+  nglViewList,
+  addToSnapshot
+) => async dispatch => {
   if (actionList && snapshot) {
     let actionsWithoutSnapshot = actionList.filter(a => a.snapshotId === null || a.snapshotId === undefined);
     let updatedActions = actionsWithoutSnapshot.map(obj => ({ ...obj, snapshotId: snapshot.id }));
@@ -388,7 +391,7 @@ const setSnapshotToActions = (actionList, snapshot, projectID, project, nglViewL
   }
 };
 
-const setSnapshotToAllActions = (actionList, snapshot, projectID) => async (dispatch) => {
+const setSnapshotToAllActions = (actionList, snapshot, projectID) => async dispatch => {
   if (actionList && snapshot) {
     let updatedActions = actionList.map(obj => ({ ...obj, snapshotId: snapshot.id }));
     dispatch(setAndUpdateTrackingActions(updatedActions, projectID));
@@ -578,7 +581,7 @@ const getCollectionOfDatasetOfRepresentation = dataList => {
   return list;
 };
 
-export const resetRestoringState = () => (dispatch) => {
+export const resetRestoringState = () => dispatch => {
   dispatch(setActionsList([]));
   dispatch(setProjectActionList([]));
   dispatch(setSendActionsList([]));
@@ -587,7 +590,7 @@ export const resetRestoringState = () => (dispatch) => {
   dispatch(setIsActionsRestoring(false, false));
 };
 
-export const restoreCurrentActionsList = snapshotID => async (dispatch) => {
+export const restoreCurrentActionsList = snapshotID => async dispatch => {
   dispatch(resetTrackingState());
   dispatch(setIsActionsRestoring(true, false));
 
@@ -599,7 +602,7 @@ export const restoreCurrentActionsList = snapshotID => async (dispatch) => {
   dispatch(restoreStateBySavedActionList());
 };
 
-const restoreTrackingActions = snapshotID => async (dispatch) => {
+const restoreTrackingActions = snapshotID => async dispatch => {
   if (snapshotID) {
     try {
       const response = await api({
@@ -688,7 +691,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
   }
 };
 
-const restoreNglStateAction = (orderedActionList, stages) => (dispatch) => {
+const restoreNglStateAction = (orderedActionList, stages) => dispatch => {
   let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
   let action = [...actions].pop();
   if (action && action.nglStateList) {
@@ -702,16 +705,16 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch) => {
   }
 };
 
-const restoreActions = (orderedActionList, stage) => (dispatch) => {
+const restoreActions = (orderedActionList, stage) => dispatch => {
   dispatch(restoreMoleculesActions(orderedActionList, stage));
 };
 
-const loadData = (orderedActionList, targetId, majorView) => async (dispatch) => {
+const loadData = (orderedActionList, targetId, majorView) => async dispatch => {
   await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
 };
 
-const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch) => {
+const loadAllDatasets = (orderedActionList, target_on, stage) => async dispatch => {
   dispatch(setMoleculeListIsLoading(true));
 
   await dispatch(loadDataSets(target_on));
@@ -789,7 +792,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getStat
   dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
-const restoreCartActions = moleculesAction => (dispatch) => {
+const restoreCartActions = moleculesAction => dispatch => {
   let shoppingCartActions = moleculesAction.filter(
     action => action.type === actionType.MOLECULE_ADDED_TO_SHOPPING_CART
   );
@@ -847,7 +850,7 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
   }
 };
 
-const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch) => {
+const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => dispatch => {
   let actions =
     isSelection === true
       ? moleculesAction.filter(
@@ -909,7 +912,7 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   }
 };
 
-const restoreRepresentationActions = (moleculesAction, stages) => (dispatch) => {
+const restoreRepresentationActions = (moleculesAction, stages) => dispatch => {
   const nglView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
 
   let representationsActions = moleculesAction.filter(action => action.type === actionType.REPRESENTATION_ADDED);
@@ -929,7 +932,7 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch) => 
   }
 };
 
-const restoreSnapshotImageActions = projectID => async (dispatch) => {
+const restoreSnapshotImageActions = projectID => async dispatch => {
   let actionList = await dispatch(getTrackingActions(projectID));
 
   let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
@@ -943,7 +946,7 @@ const restoreSnapshotImageActions = projectID => async (dispatch) => {
   }
 };
 
-const restoreProject = projectId => (dispatch) => {
+const restoreProject = projectId => dispatch => {
   if (projectId !== undefined) {
     return api({ url: `${base_url}/api/session-projects/${projectId}/` }).then(response => {
       let promises = [];
@@ -1106,7 +1109,7 @@ const getCompound = (action, state) => {
   return molecule;
 };
 
-export const undoAction = (stages = []) => (dispatch) => {
+export const undoAction = (stages = []) => dispatch => {
   dispatch(setIsUndoRedoAction(true));
   let action = dispatch(getUndoAction());
   if (action) {
@@ -1177,7 +1180,7 @@ const getNextRedoAction = () => (dispatch, getState) => {
   return action;
 };
 
-export const redoAction = (stages = []) => (dispatch) => {
+export const redoAction = (stages = []) => dispatch => {
   dispatch(setIsUndoRedoAction(true));
   let action = dispatch(getRedoAction());
   if (action) {
@@ -1213,8 +1216,7 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
   }
 };
 
-const addRepresentation = (action, parentKey, representation, nglView, update, skipTracking = false) => (
-  dispatch  ) => {
+const addRepresentation = (action, parentKey, representation, nglView, update, skipTracking = false) => dispatch => {
   const oldRepresentation = representation;
   const newRepresentationType = oldRepresentation.type;
   const comp = nglView.stage.getComponentsByName(parentKey).first;
@@ -1233,7 +1235,7 @@ const addRepresentation = (action, parentKey, representation, nglView, update, s
   dispatch(addComponentRepresentation(parentKey, newRepresentation, skipTracking));
 };
 
-const updateRepresentation = (isAdd, change, parentKey, representation, nglView) => (dispatch) => {
+const updateRepresentation = (isAdd, change, parentKey, representation, nglView) => dispatch => {
   const comp = nglView.stage.getComponentsByName(parentKey).first;
   const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
   if (r && change) {
@@ -1246,8 +1248,8 @@ const updateRepresentation = (isAdd, change, parentKey, representation, nglView)
     dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation));
   }
 };
-  
-const handleMoleculeAction = (action, type, isAdd, stage, state, skipTracking) => (dispatch) => {
+
+const handleMoleculeAction = (action, type, isAdd, stage, state, skipTracking) => dispatch => {
   if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
     if (isAdd) {
       dispatch(addNewTypeOfAction(action, type, stage, state, skipTracking));
@@ -1305,12 +1307,12 @@ const removeNewTypeCompound = (action, type, stage, state, skipTracking) => disp
   }
 };
 
-export const getUndoActionText = () => (dispatch) => {
+export const getUndoActionText = () => dispatch => {
   let action = dispatch(getNextUndoAction());
   return action?.text ?? '';
 };
 
-export const getRedoActionText = () => (dispatch) => {
+export const getRedoActionText = () => dispatch => {
   let action = dispatch(getNextRedoAction());
   return action?.text ?? '';
 };
@@ -1342,7 +1344,7 @@ export const mergeActions = (trackAction, list) => {
   return [...list, trackAction];
 };
 
-export const manageSendTrackingActions = (projectID, copy) => (dispatch) => {
+export const manageSendTrackingActions = (projectID, copy) => dispatch => {
   if (copy) {
     dispatch(checkActionsProject(projectID));
   } else {
@@ -1361,7 +1363,7 @@ export const checkSendTrackingActions = (save = false) => (dispatch, getState) =
   }
 };
 
-const sendTrackingActions = (sendActions, project, clear = true) => async (dispatch) => {
+const sendTrackingActions = (sendActions, project, clear = true) => async dispatch => {
   if (project) {
     const projectID = project && project.projectID;
 
@@ -1561,7 +1563,7 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         actions: JSON.stringify(actions)
       };
       return api({
-        url: `${base_url}/api/session-actions/${actionID}`,
+        url: `${base_url}/api/session-actions/${actionID}/`,
         method: METHOD.PUT,
         data: JSON.stringify(dataToSend)
       })
@@ -1600,7 +1602,7 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => () => {
           actions: JSON.stringify(actions)
         };
         return api({
-          url: `${base_url}/api/session-actions/${actionID}`,
+          url: `${base_url}/api/session-actions/${actionID}/`,
           method: METHOD.PUT,
           data: JSON.stringify(dataToSend)
         })
