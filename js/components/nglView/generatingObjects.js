@@ -152,6 +152,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
   };
 };
 
+// Density
 export const generateDensityObject = (data, colourToggle, base_url, isWireframeStyle) => {
   let prot_url;
 
@@ -169,7 +170,10 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
     name: `${data.protein_code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: data.sdf_info,
-    map_info: data.sdf_info,
+    map_info: data.map_info,
+    event_info: data.event_info,
+    sigmaa_info: data.sigmaa_info,
+    diff_info: data.diff_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,

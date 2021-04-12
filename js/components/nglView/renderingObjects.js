@@ -400,13 +400,17 @@ const showDensity = ({ stage, input_dict, object_name, representations }) => {
   };
 
   return Promise.all([
-    stage.loadFile(input_dict.map_info, { name: object_name, ext: 'map' }).then(comp => {
+    stage.loadFile(input_dict.sigmaa_info, { name: object_name, ext: 'map' }).then(comp => {
       const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
       const reprArray = representations || createRepresentationsArray([repr]);
       return assignRepresentationArrayToComp(reprArray, comp);
     }),
-
-    stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
+    stage.loadFile(input_dict.diff_info, { name: object_name, ext: 'map' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return assignRepresentationArrayToComp(reprArray, comp);
+    }),
+    stage.loadFile(input_dict.event_info, { name: object_name, ext: 'ccp4' }).then(comp => {
       const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
       const reprArray = representations || createRepresentationsArray([repr]);
       return assignRepresentationArrayToComp(reprArray, comp);

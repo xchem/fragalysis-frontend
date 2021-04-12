@@ -16,25 +16,12 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
   return stage.loadFile(file, { name: object_name, ext: 'sdf' }).then(function(comp) {
     let representationStructures = [];
     let rgbColor = hexToRgb(color);
-    // Create Frame, balls don't render, nor do bonds
-    const repr1 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
-      colorScheme: 'element',
-      colorValue: color,
-      multipleBond: true,
-      aspectRatio: 0,
-      radius: 0
-      //multipleBond: 'symmetric'
-    });
-    //representationStructures.push(repr1);
-    //o.addRepresentation(repr1);
 
     let atom_info = comp.object.atomMap.dict;
     let atom_info_array = [];
     for (var key in atom_info) {
       atom_info_array.push(key.split('|')[0]);
     }
-    console.log(atom_info);
-    console.log(atom_info_array);
     comp.autoView();
 
     // Draw Good Atoms + Bonds
@@ -48,7 +35,6 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
       //multipleBond: 'symmetric'
     });
     representationStructures.push(repr2);
-    // o.addRepresentation(repr2);
 
     let shape = new Shape(object_name, { dashedCylinder: true });
     let bonds = comp.object.bondStore;
@@ -96,6 +82,7 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
         }
       }
     });
+
     stage.addComponentFromObject(shape, { isShape: true });
     for (let badIndex in badids) {
       let id = badids[badIndex];
@@ -115,14 +102,16 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
         .map(function(v, i) {
           return eleC[i % 3] / 255;
         });
+
       let col = new Float32Array(col2);
 
       shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], 0.2, atom_label);
-      // Probably need to create a new shape constructor, with minimum opacity and then render it as needed...
+
       var meshBuffer = new MeshBuffer({
         position: new Float32Array(m),
         color: col
       });
+
       shape.addBuffer(meshBuffer);
       var shapeComp = stage.addComponentFromObject(shape);
       shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER, { isShape: true });
