@@ -284,7 +284,7 @@ export const createNewSnapshot = ({
                       } else {
                         const createdSnapshot =
                           response.data.results && response.data.results.find(r => r.id === res.data.id);
-                        console.log('created snapshot: ' + JSON.stringify(createdSnapshot));
+                        console.log('new snapshot id: ' + JSON.stringify(createdSnapshot?.id));
 
                         if (createdSnapshot !== undefined && createdSnapshot !== null) {
                           // If the tree fails to load, bail out first without modifying the store
