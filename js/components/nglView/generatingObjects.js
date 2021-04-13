@@ -154,7 +154,12 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
 
 // Density
 export const generateDensityObject = (data, colourToggle, base_url, isWireframeStyle) => {
+  const proteinData = data && data.proteinData;
+
   let prot_url;
+  let sigmaa_url;
+  let diff_url;
+  let event_url;
 
   if (data && data.molecule_protein) {
     prot_url = base_url + data.molecule_protein;
@@ -166,16 +171,39 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
     }
   }
 
+  if (proteinData && proteinData.event_info) {
+    if (location.protocol === 'https:') {
+      event_url = proteinData.event_info.replace('http://', 'https://');
+    } else {
+      event_url = proteinData.event_info;
+    }
+  }
+
+  if (proteinData && proteinData.sigmaa_info) {
+    if (location.protocol === 'https:') {
+      sigmaa_url = proteinData.sigmaa_info.replace('http://', 'https://');
+    } else {
+      sigmaa_url = proteinData.sigmaa_info;
+    }
+  }
+
+  if (proteinData && proteinData.diff_info) {
+    if (location.protocol === 'https:') {
+      diff_url = proteinData.diff_info.replace('http://', 'https://');
+    } else {
+      diff_url = proteinData.diff_info;
+    }
+  }
+
   return {
     name: `${data.protein_code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: data.sdf_info,
-    map_info: data.map_info,
-    event_info: data.event_info,
-    sigmaa_info: data.sigmaa_info,
-    diff_info: data.diff_info,
-    colour: colourToggle,
+    event_url,
+    sigmaa_url,
+    diff_url,
     prot_url,
+    colour: colourToggle,
     moleculeId: data.id,
     wireframe: isWireframeStyle,
     selectionType: SELECTION_TYPE.DENSITY

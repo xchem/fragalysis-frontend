@@ -292,21 +292,28 @@ export const addDensity = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  dispatch(
-    loadObject({
-      target: Object.assign(
-        { display_div: VIEWS.MAJOR_VIEW },
-        generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
-      ),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
-    })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  dispatch(getProteinData(data)).then(i => {
+    if (i && i.length > 0) {
+      data.protein_data = i[0];
+
+      dispatch(
+        loadObject({
+          target: Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
+          ),
+          stage,
+          previousRepresentations: representations,
+          orientationMatrix: null
+        })
+      ).finally(() => {
+        const currentOrientation = stage.viewerControls.getOrientation();
+        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      });
+    }
+
+    dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
   });
-  dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
 };
 
 export const addDensityCustomView = (
@@ -770,6 +777,44 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
     qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
   if (hasAdditionalInformation) {
     dispatch(addInformation(data));
+  }
+};
+
+export const getProteinData = molecule => (dispatch, getState) => {
+  const state = getState();
+
+  const proteindDataCache = state.previewReducers.molecule.proteinDataCache;
+
+  const code = molecule.protein_code;
+  const molId = molecule.id;
+  const molIdStr = molId.toString();
+  if (proteindDataCache.hasOwnProperty(molIdStr)) {
+    return new Promise((resolve, reject) => {
+      resolve(proteindDataCache[molIdStr]);
+    });
+  } else {
+    return loadProteinData(code).then(i => {
+      if (!proteindDataCache.hasOwnProperty(molIdStr)) {
+        dispatch(addImageToCache(molId.toString(), i));
+      }
+      return i;
+    });
+  }
+};
+
+const loadProteinData = code => {
+  if (code) {
+    let url = new URL(`${base_url}/api/proteins/?code=${code}`);
+    let onCancel = () => {};
+    return api({
+      url,
+      onCancel
+    }).then(response => {
+      return response.data.results;
+    });
+  } else {
+    console.error('Trying to load protein data for unknown molecule protein code.');
+    return Promise.resolve();
   }
 };
 
