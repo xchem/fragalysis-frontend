@@ -17,5 +17,5 @@ export const addImageToCache = (molId, image) => ({
 
 export const addProteindDataToCache = (molId, proteinData) => ({
   type: constants.ADD_PROTEIN_DATA_TO_CACHE,
-  payload: { molId: molId, image: proteinData }
+  payload: { molId: molId, proteinData: proteinData }
 });

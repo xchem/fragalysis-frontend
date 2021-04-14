@@ -65,7 +65,9 @@ export const loadObject = ({
       dispatch
     })
       .then(representations => {
-        dispatch(loadNglObject(versionFixedTarget, representations));
+        if (representations && representations.length > 0) {
+          dispatch(loadNglObject(versionFixedTarget, representations));
+        }
       })
       .catch(error => {
         console.error(error);

@@ -398,6 +398,7 @@ const showDensity = ({ stage, input_dict, object_name, representations, dispatch
     opacity: input_dict.opacity || 1,
     opaqueBack: false
   };
+
   return Promise.all([
     input_dict.sigmaa_url &&
       stage.loadFile(input_dict.sigmaa_url, { ext: 'map' }).then(comp => {
@@ -419,7 +420,8 @@ const showDensity = ({ stage, input_dict, object_name, representations, dispatch
         return assignRepresentationArrayToComp(reprArray, comp);
       })
   ]).then(values => {
-    let val = [...values];
+    let val = [...values].filter(v => v !== undefined);
+    return val;
   });
 };
 

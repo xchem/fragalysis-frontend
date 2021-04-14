@@ -52,7 +52,7 @@ import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/re
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
-import { addImageToCache } from './actions';
+import { addImageToCache, addProteindDataToCache } from './actions';
 import { OBJECT_TYPE } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
@@ -294,7 +294,7 @@ export const addDensity = (
 ) => dispatch => {
   dispatch(getProteinData(data)).then(i => {
     if (i && i.length > 0) {
-      data.protein_data = i[0];
+      data.proteinData = i[0];
 
       dispatch(
         loadObject({
@@ -795,7 +795,7 @@ export const getProteinData = molecule => (dispatch, getState) => {
   } else {
     return loadProteinData(code).then(i => {
       if (!proteindDataCache.hasOwnProperty(molIdStr)) {
-        dispatch(addImageToCache(molId.toString(), i));
+        dispatch(addProteindDataToCache(molId.toString(), i));
       }
       return i;
     });
