@@ -32,7 +32,8 @@ import {
   createProjectFromSnapshot,
   createProjectDiscoursePost
 } from '../redux/dispatchActions';
-import { isDiscourseAvailable, getExistingPost } from '../../../utils/discourse';
+import { isDiscourseAvailable, getExistingPost, isDiscourseUserAvailable } from '../../../utils/discourse';
+import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -57,6 +58,8 @@ export const ProjectModal = memo(({}) => {
   const [state, setState] = useState();
   const [createDiscourse, setCreateDiscourse] = useState(true);
   let history = useHistory();
+
+  const dicourseUserAvailable = isDiscourseUserAvailable();
 
   const dispatch = useDispatch();
   const isProjectModalOpen = useSelector(state => state.projectReducers.isProjectModalOpen);
@@ -208,7 +211,7 @@ export const ProjectModal = memo(({}) => {
           }
         }}
       >
-        {({ submitForm, errors, values }) => (
+        {({ submitForm, isSubmitting, errors, values }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
@@ -384,7 +387,9 @@ export const ProjectModal = memo(({}) => {
                             setCreateDiscourse(!createDiscourse);
                           }}
                           name="createDisTopic"
-                          disabled={!discourseAvailable}
+                          disabled={
+                            !discourseAvailable || !dicourseUserAvailable || isProjectModalLoading || isSubmitting
+                          }
                         />
                       }
                       label="Create Discourse topic"
@@ -392,6 +397,11 @@ export const ProjectModal = memo(({}) => {
                   }
                 />
               </Grid>
+              {!dicourseUserAvailable && (
+                <Grid item>
+                  <RegisterNotice></RegisterNotice>
+                </Grid>
+              )}
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>

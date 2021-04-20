@@ -10,7 +10,8 @@ import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
-import { isDiscourseAvailable } from '../../../utils/discourse';
+import { isDiscourseAvailable, isDiscourseUserAvailable } from '../../../utils/discourse';
+import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 import moment from 'moment';
 
@@ -44,6 +45,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const [createDiscourse, setCreateDiscourse] = useState(true);
 
   const discourseAvailable = isDiscourseAvailable();
+  const dicourseUserAvailable = isDiscourseUserAvailable();
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
@@ -172,7 +174,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                         <Checkbox
                           checked={createDiscourse}
                           onChange={() => setCreateDiscourse(!createDiscourse)}
-                          disabled={!discourseAvailable || isSubmitting}
+                          disabled={!discourseAvailable || isSubmitting || !dicourseUserAvailable}
                           name="createDisTopic"
                         />
                       }
@@ -181,6 +183,11 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                   }
                 />
               </Grid>
+              {!dicourseUserAvailable && (
+                <Grid item>
+                  <RegisterNotice></RegisterNotice>
+                </Grid>
+              )}
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>

@@ -2,7 +2,6 @@ import { DJANGO_CONTEXT } from './djangoContext';
 import { api, METHOD } from './api';
 import { base_url } from '../components/routes/constants';
 
-const DISCOURSE_BASE_URL = 'https://discourse.xchem-dev.diamond.ac.uk/';
 const DEFAULT_PARENT_CATEGORY_NAME = 'Fragalysis targets';
 const DEFAULT_CATEGORY_COLOUR = '0088CC';
 const DEFAULT_TEXT_COLOUR = 'FFFFFF';
@@ -23,6 +22,14 @@ const getDiscourseRequestObject = (params = {}) => {
 
 export const isDiscourseAvailable = () => {
   return DJANGO_CONTEXT && DJANGO_CONTEXT['authenticated'] && DJANGO_CONTEXT['discourse_available'];
+};
+
+export const isDiscourseUserAvailable = () => {
+  return DJANGO_CONTEXT && DJANGO_CONTEXT['user_present_on_discourse'];
+};
+
+export const getDiscourseURL = () => {
+  return DJANGO_CONTEXT && DJANGO_CONTEXT['discourse_host'];
 };
 
 export const generateDiscourseTargetURL = targetName => {
