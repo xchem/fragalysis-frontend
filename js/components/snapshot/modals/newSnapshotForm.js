@@ -42,10 +42,11 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const dispatch = useDispatch();
   const { nglViewList } = useContext(NglContext);
   const [overwriteSnapshot, setoverwriteSnapshot] = useState(false);
-  const [createDiscourse, setCreateDiscourse] = useState(true);
+  let [createDiscourse, setCreateDiscourse] = useState(true);
 
   const discourseAvailable = isDiscourseAvailable();
   const dicourseUserAvailable = isDiscourseUserAvailable();
+  createDiscourse &= dicourseUserAvailable;
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);

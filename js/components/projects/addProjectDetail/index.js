@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
 export const AddProjectDetail = memo(({ handleCloseModal }) => {
   const classes = useStyles();
   const [state, setState] = useState();
-  const [createDiscourse, setCreateDiscourse] = useState(true);
+  let [createDiscourse, setCreateDiscourse] = useState(true);
 
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
@@ -46,6 +46,8 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
 
   const discourseAvailable = isDiscourseAvailable();
   const dicourseUserAvailable = isDiscourseUserAvailable();
+
+  createDiscourse &= dicourseUserAvailable;
 
   const validateProjectName = async value => {
     let error;
@@ -209,12 +211,12 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isProjectModalLoading} onClick={handleCloseModal}>
+                <Button color="secondary" disabled={isProjectModalLoading || isSubmitting} onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} loading={isProjectModalLoading}>
+                <Button color="primary" onClick={submitForm} disabled={isSubmitting} loading={isProjectModalLoading}>
                   Create
                 </Button>
               </Grid>
