@@ -9,7 +9,10 @@ export const RegisterNotice = () => {
         <Typography variant="body1">Your Discourse account doesn't exist. You can register </Typography>
       </Grid>
       <Grid item>
-        <Link href={`${getDiscourseURL()}`}> here</Link>
+        <Link href={`${getDiscourseURL()}`} target="_blank">
+          {' '}
+          here
+        </Link>
       </Grid>
     </Grid>
   );
