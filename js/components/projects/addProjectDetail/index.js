@@ -10,7 +10,8 @@ import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { createProjectFromSnapshotDialog, createProjectDiscoursePost } from '../redux/dispatchActions';
 import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
-import { isDiscourseAvailable, getExistingPost } from '../../../utils/discourse';
+import { isDiscourseAvailable, getExistingPost, isDiscourseUserAvailable } from '../../../utils/discourse';
+import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -44,6 +45,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
   const [tags, setTags] = React.useState([]);
 
   const discourseAvailable = isDiscourseAvailable();
+  const dicourseUserAvailable = isDiscourseUserAvailable();
 
   const validateProjectName = async value => {
     let error;
@@ -188,7 +190,9 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                         <Checkbox
                           checked={createDiscourse}
                           onChange={() => setCreateDiscourse(!createDiscourse)}
-                          disabled={!discourseAvailable}
+                          disabled={
+                            !discourseAvailable || !dicourseUserAvailable || isProjectModalLoading || isSubmitting
+                          }
                           name="createDisTopic"
                         />
                       }
@@ -197,6 +201,11 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                   }
                 />
               </Grid>
+              {!dicourseUserAvailable && (
+                <Grid item>
+                  <RegisterNotice></RegisterNotice>
+                </Grid>
+              )}
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>

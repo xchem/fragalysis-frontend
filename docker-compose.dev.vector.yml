@@ -49,6 +49,7 @@ services:
       FRAGALYSIS_BACKEND_SENTRY_DNS: https://27fa0675f555431aa02ca552e93d8cfb@o194333.ingest.sentry.io/1298290
       ISPYB_FLAG: 'False'
       DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
+      DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
     depends_on:
       - database
       - graph
