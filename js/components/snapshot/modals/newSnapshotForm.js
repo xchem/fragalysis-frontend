@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
-import { Description, Title, QuestionAnswer } from '@material-ui/icons';
+import { Description, Title, QuestionAnswer, FindReplace } from '@material-ui/icons';
 import { TextField } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
@@ -144,20 +144,22 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               </Grid>
               {currentSnapshotId && (
                 <Grid item>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="overwrite"
-                        color="primary"
-                        onChange={() => {
-                          toggleoverwriteSnapshot();
-                        }}
+                  <InputFieldAvatar
+                    icon={<FindReplace />}
+                    field={
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            onChange={() => {
+                              toggleoverwriteSnapshot();
+                            }}
+                            disabled={isLoadingSnapshotDialog || isSubmitting}
+                            name="overwrite"
+                          />
+                        }
+                        label="Overwrite current snapshot"
                       />
                     }
-                    label="Overwrite current snapshot"
-                    labelPlacement="end"
-                    className={classes.checkbox}
-                    disabled={isLoadingSnapshotDialog || isSubmitting}
                   />
                 </Grid>
               )}
@@ -170,7 +172,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                         <Checkbox
                           checked={createDiscourse}
                           onChange={() => setCreateDiscourse(!createDiscourse)}
-                          disabled={!discourseAvailable}
+                          disabled={!discourseAvailable || isSubmitting}
                           name="createDisTopic"
                         />
                       }

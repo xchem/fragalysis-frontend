@@ -257,6 +257,7 @@ export const createNewSnapshot = ({
           if (res.data.id && session_project) {
             let snapshot = { id: res.data.id, title: title };
             let project = { projectID: session_project, authorID: author };
+            console.log('created snapshot id: ' + res.data.id);
 
             Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
               if (disableRedirect === false) {
@@ -276,43 +277,49 @@ export const createNewSnapshot = ({
                       const response = await api({
                         url: `${base_url}/api/snapshots/?session_project=${session_project}`
                       });
+
                       const length = response.data.results.length;
                       if (length === 0) {
                         dispatch(resetCurrentSnapshot());
-                      } else if (response.data.results[length - 1] !== undefined) {
-                        // If the tree fails to load, bail out first without modifying the store
-                        await dispatch(loadSnapshotTree(projectResponse.data.id));
-                        // Pick the latest snapshot which should be the last one
-                        await dispatch(
-                          setCurrentSnapshot({
-                            id: response.data.results[length - 1].id,
-                            type: response.data.results[length - 1].type,
-                            title: response.data.results[length - 1].title,
-                            author: response.data.results[length - 1].author,
-                            description: response.data.results[length - 1].description,
-                            created: response.data.results[length - 1].created,
-                            children: response.data.results[length - 1].children,
-                            parent: response.data.results[length - 1].parent,
-                            data: '[]'
-                          })
-                        );
-                        await dispatch(
-                          setCurrentProject({
-                            projectID: projectResponse.data.id,
-                            authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
-                            title: projectResponse.data.title,
-                            description: projectResponse.data.description,
-                            targetID: projectResponse.data.target.id,
-                            tags: JSON.parse(projectResponse.data.tags)
-                          })
-                        );
-                        if (createDiscourse) {
-                          dispatch(createSnapshotDiscoursePost());
+                      } else {
+                        const createdSnapshot =
+                          response.data.results && response.data.results.find(r => r.id === res.data.id);
+                        console.log('new snapshot id: ' + JSON.stringify(createdSnapshot?.id));
+
+                        if (createdSnapshot !== undefined && createdSnapshot !== null) {
+                          // If the tree fails to load, bail out first without modifying the store
+                          await dispatch(loadSnapshotTree(projectResponse.data.id));
+                          await dispatch(
+                            setCurrentSnapshot({
+                              id: createdSnapshot.id,
+                              type: createdSnapshot.type,
+                              title: createdSnapshot.title,
+                              author: createdSnapshot.author,
+                              description: createdSnapshot.description,
+                              created: createdSnapshot.created,
+                              children: createdSnapshot.children,
+                              parent: createdSnapshot.parent,
+                              data: '[]'
+                            })
+                          );
+                          await dispatch(
+                            setCurrentProject({
+                              projectID: projectResponse.data.id,
+                              authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
+                              title: projectResponse.data.title,
+                              description: projectResponse.data.description,
+                              targetID: projectResponse.data.target.id,
+                              tags: JSON.parse(projectResponse.data.tags)
+                            })
+                          );
+                          if (createDiscourse) {
+                            dispatch(createSnapshotDiscoursePost());
+                          }
+                          dispatch(setOpenSnapshotSavingDialog(false));
+                          dispatch(setIsLoadingSnapshotDialog(false));
+                          dispatch(setSnapshotJustSaved(projectResponse.data.id));
+                          dispatch(setDialogCurrentStep());
                         }
-                        dispatch(setOpenSnapshotSavingDialog(false));
-                        dispatch(setIsLoadingSnapshotDialog(false));
-                        dispatch(setSnapshotJustSaved(projectResponse.data.id));
-                        dispatch(setDialogCurrentStep());
                       }
                     })
                     .catch(error => {
