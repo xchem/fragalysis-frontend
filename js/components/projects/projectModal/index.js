@@ -56,10 +56,11 @@ const useStyles = makeStyles(theme => ({
 export const ProjectModal = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
-  const [createDiscourse, setCreateDiscourse] = useState(true);
+  let [createDiscourse, setCreateDiscourse] = useState(true);
   let history = useHistory();
 
   const dicourseUserAvailable = isDiscourseUserAvailable();
+  createDiscourse &= dicourseUserAvailable;
 
   const dispatch = useDispatch();
   const isProjectModalOpen = useSelector(state => state.projectReducers.isProjectModalOpen);
@@ -405,12 +406,12 @@ export const ProjectModal = memo(({}) => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isProjectModalLoading} onClick={handleCloseModal}>
+                <Button color="secondary" disabled={isProjectModalLoading || isSubmitting} onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} loading={isProjectModalLoading}>
+                <Button color="primary" onClick={submitForm} disabled={isSubmitting} loading={isProjectModalLoading}>
                   Create
                 </Button>
               </Grid>
