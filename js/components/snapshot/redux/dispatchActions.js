@@ -262,6 +262,9 @@ export const createNewSnapshot = ({
             Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
               if (disableRedirect === false) {
                 if (selectedSnapshotToSwitch != null) {
+                  if (createDiscourse) {
+                    dispatch(createSnapshotDiscoursePost(res.data.id));
+                  }
                   window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
                 } else {
                   // A hacky way of changing the URL without triggering react-router
@@ -347,12 +350,12 @@ export const createNewSnapshot = ({
   }
 };
 
-export const createSnapshotDiscoursePost = () => (dispatch, getState) => {
+export const createSnapshotDiscoursePost = (snapshotId = undefined) => (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
-  const currentSnapshot = state.projectReducers.currentSnapshot;
+  const currentSnapshotId = snapshotId === undefined ? state.projectReducers.currentSnapshot.id : snapshotId;
   const targetName = state.apiReducers.target_on_name;
-  const url = `${base_url}${URLS.projects}${currentProject.projectID}/${currentSnapshot.id}`;
+  const url = `${base_url}${URLS.projects}${currentProject.projectID}/${currentSnapshotId}`;
   const msg = `${url}`;
   return createProjectPost(currentProject.title, targetName, msg, []);
 };
