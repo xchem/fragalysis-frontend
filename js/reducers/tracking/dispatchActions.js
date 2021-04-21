@@ -467,7 +467,7 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
 
   if (collection) {
     collection.forEach(data => {
-      let action = actionList.find(action => action.object_id === data.id && action.dataset_id === data.datasetId);
+      let action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
 
       if (action) {
         currentActions.push(Object.assign({ ...action }));
@@ -972,8 +972,7 @@ const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatc
   if (vectorCompoundActions) {
     vectorCompoundActions.forEach(action => {
       let data = action.item;
-      let compoundId = action.compoundId;
-      dispatch(handleShowVectorCompound({ isSelected: true, data, index: compoundId, majorViewStage: majorViewStage }));
+      dispatch(handleShowVectorCompound({ isSelected: true, data, majorViewStage: majorViewStage }));
     });
   }
 };
@@ -1107,6 +1106,10 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
 };
 
 const restoreTabActions = moleculesAction => (dispatch, getState) => {
+  const state = getState();
+  const customDatasets = state.datasetsReducers.datasets;
+  let firstCustomDatasetTitle = (customDatasets && customDatasets[0] && customDatasets[0].title) || '';
+
   let action = moleculesAction.find(action => action.type === actionType.TAB);
   if (action) {
     dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name, action.oldObjectName));
@@ -1122,6 +1125,15 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
         indexAction.oldObjectName
       )
     );
+  } else {
+    if (action && action.object_id === 2 && action.object_name !== firstCustomDatasetTitle) {
+      let dataset = customDatasets.find(d => d.title === action.object_name);
+      var index = customDatasets.findIndex(d => d.title === action.object_name);
+
+      if (dataset) {
+        dispatch(setSelectedDatasetIndex(index, index, dataset.title, dataset.title, true));
+      }
+    }
   }
 
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
@@ -1936,8 +1948,7 @@ const handleVectorAction = (action, isSelected) => (dispatch, getState) => {
 const handleVectorCompoundAction = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   if (action) {
     let data = action.item;
-    let compoundId = action.compoundId;
-    dispatch(handleShowVectorCompound({ isSelected, data, index: compoundId, majorViewStage: majorViewStage }));
+    dispatch(handleShowVectorCompound({ isSelected, data, majorViewStage: majorViewStage }));
   }
 };
 
@@ -2673,7 +2684,7 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         actions: JSON.stringify(actions)
       };
       return api({
-        url: `${base_url}/api/session-actions/${actionID}`,
+        url: `${base_url}/api/session-actions/${actionID}/`,
         method: METHOD.PUT,
         data: JSON.stringify(dataToSend)
       })
@@ -2712,7 +2723,7 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
           actions: JSON.stringify(actions)
         };
         return api({
-          url: `${base_url}/api/session-actions/${actionID}`,
+          url: `${base_url}/api/session-actions/${actionID}/`,
           method: METHOD.PUT,
           data: JSON.stringify(dataToSend)
         })

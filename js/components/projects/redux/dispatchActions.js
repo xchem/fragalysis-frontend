@@ -11,7 +11,8 @@ import {
   setCurrentProject,
   setForceCreateProject,
   setForceProjectCreated,
-  setIsLoadingListOfProjects
+  setIsLoadingListOfProjects,
+  setCurrentProjectDiscourseLink
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -21,8 +22,11 @@ import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
 import { resetTrackingState } from '../../../reducers/tracking/actions';
+import { createProjectPost } from '../../../utils/discourse';
+import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
+import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -266,11 +270,23 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
     .then(response => {
       const projectID = response.data.id;
       dispatch(setCurrentProjectProperty('projectID', projectID));
+      dispatch(setCurrentProjectProperty('title', response.data.title));
     })
     .finally(() => {
       dispatch(setForceCreateProject(false));
       dispatch(setForceProjectCreated(true));
       dispatch(setDialogCurrentStep(1));
+    });
+};
+
+export const createProjectDiscoursePost = (projectName, targetName, msg, tags) => (dispatch, getState) => {
+  return createProjectPost(projectName, targetName, msg, tags)
+    .then(response => {
+      dispatch(setCurrentProjectDiscourseLink(response.data['Post url']));
+    })
+    .catch(err => {
+      console.log(err);
+      dispatch(setOpenDiscourseErrorModal(true));
     });
 };
 
@@ -323,6 +339,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
 
   dispatch(setProjectModalIsLoading(true));
   dispatch(resetTrackingState());
+  dispatch(resetNglTrackingState());
   return dispatch(
     createProject({
       title,
@@ -369,6 +386,7 @@ export const createProjectFromScratch = ({ title, description, target, author, t
 ) => {
   dispatch(setProjectModalIsLoading(true));
   dispatch(resetTrackingState());
+  dispatch(resetNglTrackingState());
   return api({
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,

@@ -21,6 +21,7 @@ export const INITIAL_STATE = {
     tags: [],
     type: null
   },
+  currentProjectDiscourseLink: null,
   isLoadingCurrentSnapshot: false,
   currentSnapshot: initCurrentSnapshot,
   isProjectModalOpen: false,
@@ -31,7 +32,8 @@ export const INITIAL_STATE = {
   currentSnapshotTree: null,
   currentSnapshotList: null,
   forceCreateProject: false,
-  isForceProjectCreated: false
+  isForceProjectCreated: false,
+  projectDiscourseLinks: null
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -40,6 +42,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         currentProject: action.payload
       });
+
+    case constants.SET_PROJECT_DISCOURSE_LINKS:
+      return { ...state, projectDiscourseLinks: { ...action.payload } };
 
     case constants.SET_CURRENT_PROJECT_PROPERTY:
       const currProject = JSON.parse(JSON.stringify(state.currentProject));
@@ -90,6 +95,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_FORCE_PROJECT_CREATED:
       return Object.assign({}, state, { isForceProjectCreated: action.payload });
+
+    case constants.SET_CURRENT_PROJECT_DISCOURSE_LINK:
+      return Object.assign({}, state, { currentProjectDiscourseLink: action.payload });
 
     case constants.RESET_PROJECTS_REDUCER:
       return Object.assign({}, INITIAL_STATE);

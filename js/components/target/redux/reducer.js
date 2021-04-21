@@ -2,7 +2,9 @@ import { constants } from './constatnts';
 
 export const INITIAL_STATE = {
   oldUrl: '',
-  isTargetLoading: false
+  isTargetLoading: false,
+  targetDiscourseLinks: null,
+  currentTargetLink: null
 };
 
 export const targetReducers = (state = INITIAL_STATE, action = {}) => {
@@ -16,6 +18,12 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         isTargetLoading: action.payload
       });
+
+    case constants.SET_TARGET_DISCOURSE_LINKS:
+      return { ...state, targetDiscourseLinks: { ...action.payload } };
+
+    case constants.SET_CURRENT_TARGET_LINK:
+      return { ...state, currentTargetLink: action.payload };
 
     default:
       return state;

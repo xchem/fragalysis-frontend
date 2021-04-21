@@ -449,6 +449,7 @@ export const findTrackAction = (action, state) => {
     } else if (action.type === previewCompoundConstants.APPEND_SHOWED_COMPOUND_LIST) {
       let objectType = actionObjectType.COMPOUND;
       let objectName = action.item && action.item.vector;
+      let objectId = action.item && action.item.smiles;
 
       trackAction = {
         type: actionType.VECTOR_COUMPOUND_ADDED,
@@ -457,7 +458,7 @@ export const findTrackAction = (action, state) => {
         username: username,
         object_type: objectType,
         object_name: objectName,
-        object_id: action.payload,
+        object_id: objectId,
         item: action.item,
         compoundId: action.payload,
         text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.ADDED}`
@@ -465,6 +466,7 @@ export const findTrackAction = (action, state) => {
     } else if (action.type === previewCompoundConstants.REMOVE_SHOWED_COMPOUND_LIST) {
       let objectType = actionObjectType.COMPOUND;
       let objectName = action.item && action.item.vector;
+      let objectId = action.item && action.item.smiles;
 
       trackAction = {
         type: actionType.VECTOR_COUMPOUND_REMOVED,
@@ -473,7 +475,7 @@ export const findTrackAction = (action, state) => {
         username: username,
         object_type: objectType,
         object_name: objectName,
-        object_id: action.payload,
+        object_id: objectId,
         item: action.item,
         compoundId: action.payload,
         text: `${actionDescription.COMPOUND} ${objectName} ${actionDescription.REMOVED}`

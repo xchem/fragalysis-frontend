@@ -1,15 +1,17 @@
 import React, { memo, useState } from 'react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography, FormControlLabel, Checkbox } from '@material-ui/core';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { InputFieldAvatar } from '../projectModal/inputFieldAvatar';
-import { Description, Label, Title } from '@material-ui/icons';
+import { Description, Label, Title, QuestionAnswer } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { createProjectFromSnapshotDialog } from '../redux/dispatchActions';
+import { createProjectFromSnapshotDialog, createProjectDiscoursePost } from '../redux/dispatchActions';
 import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import { isDiscourseAvailable, getExistingPost, isDiscourseUserAvailable } from '../../../utils/discourse';
+import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -32,13 +34,37 @@ const useStyles = makeStyles(theme => ({
 export const AddProjectDetail = memo(({ handleCloseModal }) => {
   const classes = useStyles();
   const [state, setState] = useState();
+  let [createDiscourse, setCreateDiscourse] = useState(true);
 
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
+  const targetName = useSelector(state => state.apiReducers.target_on_name);
   const projectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
 
   const [tags, setTags] = React.useState([]);
+
+  const discourseAvailable = isDiscourseAvailable();
+  const dicourseUserAvailable = isDiscourseUserAvailable();
+
+  createDiscourse &= dicourseUserAvailable;
+
+  const validateProjectName = async value => {
+    let error;
+    // console.log(`Project title validating and value is: ${value}`);
+
+    if (!value) {
+      error = 'Required!';
+    } else if (createDiscourse) {
+      const response = await getExistingPost(value);
+      // console.log(response);
+      if (response.data['Post url']) {
+        error = 'Already exists!';
+      }
+    }
+
+    return error;
+  };
 
   return (
     <>
@@ -51,11 +77,10 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
         }}
         validate={values => {
           const errors = {};
-          if (!values.title) {
-            errors.title = 'Required!';
-          }
           if (!values.description) {
             errors.description = 'Required!';
+          } else if (values.description.length < 20) {
+            errors.description = 'Description must be at least 20 characters long!';
           }
           return errors;
         }}
@@ -69,15 +94,26 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
           };
 
           const oldProjectID = projectID;
-          dispatch(createProjectFromSnapshotDialog(data))
-            .then(() => {
-              dispatch(manageSendTrackingActions(oldProjectID, true));
-            })
-            .catch(error => {
-              setState(() => {
-                throw error;
+          if (createDiscourse) {
+            dispatch(createProjectDiscoursePost(values.title, targetName, values.description, tags))
+              .then(() => dispatch(createProjectFromSnapshotDialog(data)))
+              .then(() => dispatch(manageSendTrackingActions(oldProjectID, true)))
+              .catch(error => {
+                setState(() => {
+                  throw error;
+                });
               });
-            });
+          } else {
+            dispatch(createProjectFromSnapshotDialog(data))
+              .then(() => {
+                dispatch(manageSendTrackingActions(oldProjectID, true));
+              })
+              .catch(error => {
+                setState(() => {
+                  throw error;
+                });
+              });
+          }
         }}
       >
         {({ submitForm, isSubmitting }) => (
@@ -94,6 +130,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       label="Title"
                       required
                       disabled={isProjectModalLoading || isSubmitting}
+                      validate={validateProjectName}
                     />
                   }
                 />
@@ -146,15 +183,40 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                   }
                 />
               </Grid>
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<QuestionAnswer />}
+                  field={
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={createDiscourse}
+                          onChange={() => setCreateDiscourse(!createDiscourse)}
+                          disabled={
+                            !discourseAvailable || !dicourseUserAvailable || isProjectModalLoading || isSubmitting
+                          }
+                          name="createDisTopic"
+                        />
+                      }
+                      label="Create Discourse topic"
+                    />
+                  }
+                />
+              </Grid>
+              {!dicourseUserAvailable && (
+                <Grid item>
+                  <RegisterNotice></RegisterNotice>
+                </Grid>
+              )}
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isProjectModalLoading} onClick={handleCloseModal}>
+                <Button color="secondary" disabled={isProjectModalLoading || isSubmitting} onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} loading={isProjectModalLoading}>
+                <Button color="primary" onClick={submitForm} disabled={isSubmitting} loading={isProjectModalLoading}>
                   Create
                 </Button>
               </Grid>

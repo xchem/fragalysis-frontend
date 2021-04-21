@@ -241,7 +241,6 @@ export const SelectedCompoundList = memo(({ height }) => {
   const getCompoundIds = (mols) => {
     let result = {diffIds: {}, namesToIds: {}, idsInOrder: new Set()};
 
-    let currentIdIndex = 0;
     mols.forEach(mol => {
       if (mol.molecule.hasOwnProperty('compound_ids')) {
         const ids = mol.molecule['compound_ids'];
@@ -256,7 +255,6 @@ export const SelectedCompoundList = memo(({ height }) => {
             result.diffIds[vendorId].fieldsArray.push(idFieldName);
             result.namesToIds[idFieldName] = vendorId;
             result.idsInOrder.add(idFieldName);
-            currentIdIndex++;
           } else {
             if (perMolVendors.hasOwnProperty(vendorId)) {
               const perMolVendorCount = perMolVendors[vendorId];
@@ -269,7 +267,6 @@ export const SelectedCompoundList = memo(({ height }) => {
                 result.diffIds[vendorId].fieldsArray.push(idFieldName);
                 result.namesToIds[idFieldName] = vendorId;
                 result.idsInOrder.add(idFieldName);
-                currentIdIndex++;
               } 
             } else {
               perMolVendors[vendorId] = 1;
