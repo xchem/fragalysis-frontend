@@ -127,12 +127,11 @@ export const checkRemoveFromDensityList = (target, objectsInView) => () => {
 
   let targetNameDiff = name + DENSITY_MAPS.DIFF;
   let targetNameSigma = name + DENSITY_MAPS.SIGMAA;
-  let targetNameEvent = name + DENSITY_MAPS.EVENT;
 
   let existOtherMap =
     (targetName !== targetNameDiff && objectsInView[targetNameDiff] !== undefined) ||
     (targetName !== targetNameSigma && objectsInView[targetNameSigma] !== undefined) ||
-    (targetName !== targetNameEvent && objectsInView[targetNameEvent] !== undefined);
+    (targetName !== name && objectsInView[name] !== undefined);
 
   let canRemove = !existOtherMap;
   return canRemove;

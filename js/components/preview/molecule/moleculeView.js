@@ -30,7 +30,8 @@ import {
   moveSelectedMolSettings,
   removeQuality,
   addQuality,
-  getQualityInformation
+  getQualityInformation,
+  getDensityMapData
 } from './redux/dispatchActions';
 import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
@@ -38,6 +39,7 @@ import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
 import { MOL_TYPE } from './redux/constants';
+import { DensityMapsModal } from './modals/densityMapsModal';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -269,6 +271,7 @@ const MoleculeView = memo(
     const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
 
     let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
+    let isWireframeStyle = viewParams[NGL_PARAMS.contour];
 
     // const disableUserInteraction = useDisableUserInteraction();
 
@@ -297,6 +300,7 @@ const MoleculeView = memo(
       [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
     );
 
+    const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const moleculeImgRef = useRef(null);
     const openMoleculeTooltip = () => {
@@ -458,11 +462,11 @@ const MoleculeView = memo(
       dispatch(removeDensity(stage, data, colourToggle));
     };
 
-    const addNewDensityCustom = isWireframeStyle => {
+    const addNewDensityCustom = () => {
       dispatch(addDensityCustomView(stage, data, colourToggle, isWireframeStyle));
     };
 
-    const addNewDensity = isWireframeStyle => {
+    const addNewDensity = () => {
       if (selectMoleculeSite) {
         selectMoleculeSite(data.site);
       }
@@ -470,11 +474,16 @@ const MoleculeView = memo(
     };
 
     const onDensity = () => {
-      let isWireframeStyle = viewParams[NGL_PARAMS.contour];
       if (isDensityOn === false) {
-        addNewDensity(isWireframeStyle);
+        dispatch(getDensityMapData(data)).then(r => {
+          if (r) {
+            dispatch(setDensityModalOpen(true));
+          } else {
+            addNewDensity();
+          }
+        });
       } else if (isDensityCustomOn === false) {
-        addNewDensityCustom(!isWireframeStyle);
+        addNewDensityCustom();
       } else {
         removeSelectedDensity();
       }
@@ -868,6 +877,12 @@ const MoleculeView = memo(
           imgData={img_data}
           width={imageWidth}
           height={imageHeight}
+        />
+        <DensityMapsModal
+          openDialog={densityModalOpen}
+          setOpenDialog={setDensityModalOpen}
+          data={data}
+          setDensity={addNewDensity}
         />
       </>
     );

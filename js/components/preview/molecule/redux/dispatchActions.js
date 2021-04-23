@@ -284,6 +284,24 @@ export const removeSurface = (stage, data, colourToggle, skipTracking = false) =
   dispatch(removeFromSurfaceList(generateMoleculeId(data), skipTracking));
 };
 
+export const getDensityMapData = data => dispatch => {
+  return dispatch(getProteinData(data))
+    .then(i => {
+      if (i && i.length > 0) {
+        let proteinData = i[0];
+        data.proteinData = proteinData;
+        if (proteinData.sigmaa_info || proteinData.diff_info) {
+          return true;
+        }
+      }
+
+      return false;
+    })
+    .catch(error => {
+      throw new Error(error);
+    });
+};
+
 export const addDensity = (
   stage,
   data,
@@ -291,29 +309,40 @@ export const addDensity = (
   isWireframeStyle,
   skipTracking = false,
   representations = undefined
+) => (dispatch, getState) => {
+  if (data.proteinData) {
+    dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+  } else {
+    dispatch(getDensityMapData(data)).then(() => {
+      dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+    });
+  }
+};
+
+const setDensity = (
+  stage,
+  data,
+  colourToggle,
+  isWireframeStyle,
+  skipTracking = false,
+  representations = undefined
 ) => dispatch => {
-  dispatch(getProteinData(data)).then(i => {
-    if (i && i.length > 0) {
-      data.proteinData = i[0];
-
-      dispatch(
-        loadObject({
-          target: Object.assign(
-            { display_div: VIEWS.MAJOR_VIEW },
-            generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
-          ),
-          stage,
-          previousRepresentations: representations,
-          orientationMatrix: null
-        })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-      });
-    }
-
-    dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+  dispatch(
+    loadObject({
+      target: Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
+      ),
+      stage,
+      previousRepresentations: representations,
+      orientationMatrix: null
+    })
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
+
+  dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
 };
 
 export const addDensityCustomView = (
@@ -324,7 +353,24 @@ export const addDensityCustomView = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  const densityObject = dispatch(deleteDensityObject(data, colourToggle, stage, isWireframeStyle));
+  if (data.proteinData) {
+    dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+  } else {
+    dispatch(getDensityMapData(data)).then(() => {
+      dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+    });
+  }
+};
+
+const setDensityCustom = (
+  stage,
+  data,
+  colourToggle,
+  isWireframeStyle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
+  const densityObject = dispatch(deleteDensityObject(data, colourToggle, stage, !isWireframeStyle));
 
   dispatch(
     loadObject({
@@ -363,9 +409,6 @@ const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dis
 
   let diffDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.DIFF });
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, diffDensityObject), stage));
-
-  let eventDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.EVENT });
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, eventDensityObject), stage));
 
   return densityObject;
 };
@@ -588,11 +631,11 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
     }
     if (data.isDensityOn) {
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
-      dispatch(addDensity(stage, newItem, data.colourToggle, skipTracking, representations));
+      dispatch(addDensity(stage, newItem, data.colourToggle, false, skipTracking, representations));
     }
     if (data.isDensityCustomOn) {
       let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
-      dispatch(addDensityCustomView(stage, newItem, data.colourToggle, skipTracking, representations));
+      dispatch(addDensityCustomView(stage, newItem, data.colourToggle, false, skipTracking, representations));
     }
     if (data.isVectorOn) {
       dispatch(addVector(stage, newItem, skipTracking)).catch(error => {

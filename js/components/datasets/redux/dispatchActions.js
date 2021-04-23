@@ -834,7 +834,14 @@ const moveInspirations = (
         if (isAnyInspirationDensityOn) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
           dispatch(
-            addDensity(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+            addDensity(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              false,
+              skipTracking,
+              representations
+            )
           );
         }
         if (isAnyInspirationDensityOnCustom) {
@@ -844,6 +851,7 @@ const moveInspirations = (
               stage,
               molecule,
               colourList[molecule.id % colourList.length],
+              false,
               skipTracking,
               representations
             )
@@ -916,7 +924,14 @@ export const moveSelectedInspirations = (
         if (densityListMolecule.includes(molecule.id)) {
           let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
           dispatch(
-            addDensity(stage, molecule, colourList[molecule.id % colourList.length], skipTracking, representations)
+            addDensity(
+              stage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              false,
+              skipTracking,
+              representations
+            )
           );
         }
         if (densityListCustomMolecule.includes(molecule.id)) {
@@ -926,6 +941,7 @@ export const moveSelectedInspirations = (
               stage,
               molecule,
               colourList[molecule.id % colourList.length],
+              false,
               skipTracking,
               representations
             )

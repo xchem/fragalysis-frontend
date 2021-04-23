@@ -401,12 +401,14 @@ const showDensity = ({ stage, input_dict, object_name, representations, dispatch
 
   return Promise.all([
     input_dict.sigmaa_url &&
+      input_dict.render_sigmaa &&
       stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
       }),
     input_dict.diff_url &&
+      input_dict.render_diff &&
       stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
@@ -414,10 +416,10 @@ const showDensity = ({ stage, input_dict, object_name, representations, dispatch
       }),
 
     input_dict.event_url &&
-      stage.loadFile(input_dict.event_url, { name: object_name + DENSITY_MAPS.EVENT, ext: 'ccp4' }).then(comp => {
+      stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.EVENT };
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
       })
   ]).then(values => {
     let val = [...values].filter(v => v !== undefined);

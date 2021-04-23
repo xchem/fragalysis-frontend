@@ -126,6 +126,5 @@ export const ELEMENT_COLORS = {
 
 export const DENSITY_MAPS = {
   SIGMAA: '_MAP_sigmaa',
-  DIFF: '_MAP_diff',
-  EVENT: '_EVENT'
+  DIFF: '_MAP_diff'
 };

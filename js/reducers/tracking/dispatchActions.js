@@ -1146,6 +1146,8 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, true));
               } else if (type === 'vector') {
                 dispatch(addType[type](stage, data, true));
+              } else if (type === 'density' || type === 'densityCustom') {
+                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], false, true));
               } else {
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
               }
@@ -1342,6 +1344,8 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
         } else if (type === 'vector') {
           await dispatch(addType[type](stage, data, true));
+        } else if (type === 'density' || type === 'densityCustom') {
+          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], false, skipTracking));
         } else {
           dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
@@ -1358,6 +1362,8 @@ const addNewTypeOfAction = (action, type, stage, state, skipTracking = false) =>
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
       } else if (type === 'vector') {
         dispatch(addType[type](stage, data, true));
+      } else if (type === 'density' || type === 'densityCustom') {
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], false, skipTracking));
       } else {
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
@@ -1904,6 +1910,8 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, true));
           } else if (type === 'vector') {
             dispatch(addType[type](stage, data, true));
+          } else if (type === 'density' || type === 'densityCustom') {
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], false, true));
           } else {
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
           }
