@@ -22,14 +22,15 @@ import {
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
-import { COMMON_PARAMS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
+import { COMMON_PARAMS, DENSITY_MAPS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
   removeFromProteinList,
   removeFromSurfaceList,
-  removeFromDensityList
+  removeFromDensityList,
+  removeFromDensityListCustom
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
@@ -66,7 +67,18 @@ export const loadObject = ({
     })
       .then(representations => {
         if (representations && representations.length > 0) {
-          dispatch(loadNglObject(versionFixedTarget, representations));
+          if (versionFixedTarget.OBJECT_TYPE === OBJECT_TYPE.DENSITY && representations.length > 1) {
+            representations.forEach(repr => {
+              let newTarget = Object.assign({
+                ...versionFixedTarget,
+                name: repr.name,
+                defaultName: versionFixedTarget.name
+              });
+              dispatch(loadNglObject(newTarget, repr.repr));
+            });
+          } else {
+            dispatch(loadNglObject(versionFixedTarget, representations));
+          }
         }
       })
       .catch(error => {
@@ -98,6 +110,7 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
         break;
       case SELECTION_TYPE.DENSITY:
         dispatch(removeFromDensityList(objectId));
+        dispatch(removeFromDensityListCustom(objectId, true));
         break;
       case SELECTION_TYPE.VECTOR:
         dispatch(removeFromVectorOnList(objectId));
@@ -106,6 +119,23 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
   }
 
   dispatch(deleteNglObject(target));
+};
+
+export const checkRemoveFromDensityList = (target, objectsInView) => () => {
+  let name = target.defaultName;
+  let targetName = target.name;
+
+  let targetNameDiff = name + DENSITY_MAPS.DIFF;
+  let targetNameSigma = name + DENSITY_MAPS.SIGMAA;
+  let targetNameEvent = name + DENSITY_MAPS.EVENT;
+
+  let existOtherMap =
+    (targetName !== targetNameDiff && objectsInView[targetNameDiff] !== undefined) ||
+    (targetName !== targetNameSigma && objectsInView[targetNameSigma] !== undefined) ||
+    (targetName !== targetNameEvent && objectsInView[targetNameEvent] !== undefined);
+
+  let canRemove = !existOtherMap;
+  return canRemove;
 };
 
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = (projectId, summaryView) => (

@@ -474,7 +474,7 @@ const MoleculeView = memo(
       if (isDensityOn === false) {
         addNewDensity(isWireframeStyle);
       } else if (isDensityCustomOn === false) {
-        addNewDensityCustom(isWireframeStyle);
+        addNewDensityCustom(!isWireframeStyle);
       } else {
         removeSelectedDensity();
       }

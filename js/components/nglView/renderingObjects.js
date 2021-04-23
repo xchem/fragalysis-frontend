@@ -1,4 +1,4 @@
-import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE } from './constants';
+import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE, DENSITY_MAPS } from './constants';
 import {
   assignRepresentationArrayToComp,
   createRepresentationsArray,
@@ -389,7 +389,7 @@ const showHotspot = ({ stage, input_dict, object_name, representations }) => {
 
 const showDensity = ({ stage, input_dict, object_name, representations, dispatch }) => {
   let densityParams = {
-    color: input_dict.coluor,
+    color: input_dict.colour,
     isolevel: input_dict.isoLevel || 3,
     smooth: input_dict.smooth || 0,
     boxSize: input_dict.boxSize || 0,
@@ -401,23 +401,23 @@ const showDensity = ({ stage, input_dict, object_name, representations, dispatch
 
   return Promise.all([
     input_dict.sigmaa_url &&
-      stage.loadFile(input_dict.sigmaa_url, { ext: 'map' }).then(comp => {
+      stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
-        return assignRepresentationArrayToComp(reprArray, comp);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
       }),
     input_dict.diff_url &&
-      stage.loadFile(input_dict.diff_url, { name: object_name, ext: 'map' }).then(comp => {
+      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
-        return assignRepresentationArrayToComp(reprArray, comp);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
       }),
 
     input_dict.event_url &&
-      stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
+      stage.loadFile(input_dict.event_url, { name: object_name + DENSITY_MAPS.EVENT, ext: 'ccp4' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
-        return assignRepresentationArrayToComp(reprArray, comp);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.EVENT };
       })
   ]).then(values => {
     let val = [...values].filter(v => v !== undefined);

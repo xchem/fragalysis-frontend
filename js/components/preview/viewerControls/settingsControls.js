@@ -175,9 +175,9 @@ export const SettingControls = memo(({ open, onClose }) => {
               <Slider
                 value={viewParams[NGL_PARAMS.isolevel]}
                 valueLabelDisplay="auto"
-                step={2}
-                min={-1000}
-                max={1000}
+                step={1}
+                min={-100}
+                max={100}
                 onChange={(e, value) => dispatch(setIsoLevel(value, viewParams[NGL_PARAMS.isolevel], majorView))}
               />
             </Grid>

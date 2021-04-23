@@ -123,3 +123,9 @@ export const ELEMENT_COLORS = {
   CL: [31, 240, 31],
   ALTERNATIVE: [208, 208, 224]
 };
+
+export const DENSITY_MAPS = {
+  SIGMAA: '_MAP_sigmaa',
+  DIFF: '_MAP_diff',
+  EVENT: '_EVENT'
+};

@@ -53,7 +53,7 @@ import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions'
 import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
 import { addImageToCache, addProteindDataToCache } from './actions';
-import { OBJECT_TYPE } from '../../../nglView/constants';
+import { OBJECT_TYPE, DENSITY_MAPS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
 
@@ -324,8 +324,7 @@ export const addDensityCustomView = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
+  const densityObject = dispatch(deleteDensityObject(data, colourToggle, stage, isWireframeStyle));
 
   dispatch(
     loadObject({
@@ -349,17 +348,26 @@ export const removeDensity = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  dispatch(
-    deleteObject(
-      Object.assign(
-        { display_div: VIEWS.MAJOR_VIEW },
-        generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
-      ),
-      stage
-    )
-  );
+  dispatch(deleteDensityObject(data, colourToggle, stage, isWireframeStyle));
+
   dispatch(removeFromDensityList(generateMoleculeId(data), skipTracking));
   dispatch(removeFromDensityListCustom(generateMoleculeId(data), true));
+};
+
+const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dispatch => {
+  const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
+
+  let sigmaDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.SIGMAA });
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, sigmaDensityObject), stage));
+
+  let diffDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.DIFF });
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, diffDensityObject), stage));
+
+  let eventDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.EVENT });
+  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, eventDensityObject), stage));
+
+  return densityObject;
 };
 
 export const addLigand = (

@@ -14,7 +14,7 @@ import {
   updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../../reducers/ngl/actions';
-import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
+import { deleteObject, checkRemoveFromDensityList } from '../../../../reducers/ngl/dispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
 import { assignRepresentationToComp } from '../../../nglView/generatingObjects';
@@ -135,8 +135,12 @@ export default memo(({ open, onClose }) => {
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation, true)));
 
+    let deleteFromSelections =
+      targetObject.selectionType !== SELECTION_TYPE.DENSITY ||
+      dispatch(checkRemoveFromDensityList(targetObject, objectsInView));
+
     // remove from nglReducer and selectionReducer
-    dispatch(deleteObject(targetObject, nglView.stage, true));
+    dispatch(deleteObject(targetObject, nglView.stage, deleteFromSelections));
   };
 
   // ChangeVisibility with cascade
@@ -174,7 +178,7 @@ export default memo(({ open, onClose }) => {
     let countOfNonVisibled = 0;
 
     representations.forEach(r => {
-      if (r.params.visible === false) {
+      if (r.params && r.params.visible === false) {
         countOfNonVisibled++;
       }
     });
