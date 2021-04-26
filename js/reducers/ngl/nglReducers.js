@@ -40,7 +40,8 @@ export const INITIAL_STATE = {
     [VIEWS.SUMMARY_VIEW]: 0
   },
   moleculeOrientations: {},
-  pdbCache: {}
+  pdbCache: {},
+  qualityCache: {}
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -186,10 +187,22 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
 
     case CONSTANTS.ADD_TO_PDB_CACHE:
-      return {...state, pdbCache: {
-        ...state.pdbCache, [action.payload.name]: action.payload.cacheItem
-      }};
+      return {
+        ...state,
+        pdbCache: {
+          ...state.pdbCache,
+          [action.payload.name]: action.payload.cacheItem
+        }
+      };
 
+    case CONSTANTS.ADD_TO_QUALITY_CACHE:
+      return {
+        ...state,
+        qualityCache: {
+          ...state.qualityCache,
+          [action.payload.name]: action.payload.cacheItem
+        }
+      };
     default:
       return state;
   }

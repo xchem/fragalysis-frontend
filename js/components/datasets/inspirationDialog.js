@@ -21,8 +21,7 @@ import {
   removeLigand,
   removeHitProtein,
   removeSurface,
-  removeDensity,
-  removeVector
+  removeAllSelectedMolTypes
 } from '../preview/molecule/redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
@@ -152,7 +151,10 @@ export const InspirationDialog = memo(
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
+    const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
+    const qualityList = useSelector(state => state.selectionReducers.qualityList);
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+    const informationList = useSelector(state => state.selectionReducers.informationList);
 
     const dispatch = useDispatch();
     // const disableUserInteraction = useDisableUserInteraction();
@@ -209,45 +211,7 @@ export const InspirationDialog = memo(
     const selectMoleculeSite = moleculeGroupSite => {};
 
     const removeOfAllSelectedTypes = (skipTracking = false) => {
-      proteinList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-
-        dispatch(
-          removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      complexList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(
-          removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      ligandList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeLigand(stage, foundedMolecule, skipTracking));
-      });
-      surfaceList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(
-          removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      densityList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(
-          removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      vectorOnList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeVector(stage, foundedMolecule, skipTracking));
-      });
+      dispatch(removeAllSelectedMolTypes(stage, moleculeList, skipTracking, true));
     };
 
     const removeSelectedType = (type, skipTracking = false) => {
@@ -267,7 +231,9 @@ export const InspirationDialog = memo(
     const addNewType = (type, skipTracking = false) => {
       if (type === 'ligand') {
         moleculeList.forEach(molecule => {
-          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, skipTracking));
+          dispatch(
+            addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, true, skipTracking)
+          );
         });
       } else {
         moleculeList.forEach(molecule => {
@@ -453,7 +419,11 @@ export const InspirationDialog = memo(
                         P={proteinList.includes(molecule.id)}
                         C={complexList.includes(molecule.id)}
                         S={surfaceList.includes(molecule.id)}
+                        D={densityList.includes(molecule.id)}
+                        D_C={densityListCustom.includes(data.id)}
+                        Q={qualityList.includes(molecule.id)}
                         V={vectorOnList.includes(molecule.id)}
+                        I={informationList.includes(data.id)}
                       />
                     );
                   })}

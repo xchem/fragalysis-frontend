@@ -57,5 +57,6 @@ export default {
     divider: '#CECECE'
   },
   icon: colors.blueGrey[600],
-  divider: colors.grey[200]
+  divider: colors.grey[200],
+  dividerDark: colors.grey[500]
 };

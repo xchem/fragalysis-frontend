@@ -1,4 +1,4 @@
-import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE } from './constants';
+import { MOL_REPRESENTATION, MOL_REPRESENTATION_BUFFER, OBJECT_TYPE, DENSITY_MAPS } from './constants';
 import {
   assignRepresentationArrayToComp,
   createRepresentationsArray,
@@ -6,7 +6,8 @@ import {
   defaultFocus
 } from './generatingObjects';
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
-import {addToPdbCache} from '../../reducers/ngl/actions';
+import { loadQualityFromFile } from './renderingHelpers';
+import { getPdb } from './renderingFile';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
@@ -21,8 +22,42 @@ const showSphere = ({ stage, input_dict, object_name, representations }) => {
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showLigand = ({ stage, input_dict, object_name, representations, orientationMatrix, markAsRightSideLigand }) => {
+const showLigand = ({
+  stage,
+  input_dict,
+  object_name,
+  representations,
+  orientationMatrix,
+  markAsRightSideLigand,
+  loadQuality,
+  quality
+}) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
+
+  if (loadQuality === true) {
+    return loadQualityFromFile(stage, stringBlob, quality, object_name, orientationMatrix, input_dict.colour);
+  } else {
+    return loadLigandFromFile(
+      stage,
+      stringBlob,
+      object_name,
+      representations,
+      markAsRightSideLigand,
+      input_dict,
+      orientationMatrix
+    );
+  }
+};
+
+const loadLigandFromFile = (
+  stage,
+  stringBlob,
+  object_name,
+  representations,
+  markAsRightSideLigand,
+  input_dict,
+  orientationMatrix
+) => {
   return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
     const reprArray =
       representations ||
@@ -81,52 +116,24 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const loadPdbFile = (url) => {
-  return fetch(url).then(response => response.text()).then(str => {
-    return new Blob([str], { type: 'text/plain' })
-  });
-};
-
-const getNameOfPdb = (url) => {
-  const parts = url.split('/');
-  const last = parts[parts.length - 1];
-  return last;
-};
-
-const getPdb = (url) => (dispatch, getState) => {
-  const state = getState();
-
-  const pdbCache = state.nglReducers.pdbCache;
-  const pdbName = getNameOfPdb(url);
-  if (pdbCache.hasOwnProperty(pdbName)) {
-    return new Promise((resolve, reject) => {
-      resolve(pdbCache[pdbName])
-    });
-  } else {
-    return loadPdbFile(url).then(b => {
-      dispatch(addToPdbCache(pdbName, b));
-      return b;
-    });
-  };
-};
-
 const showHitProtein = ({ stage, input_dict, object_name, representations, orientationMatrix, dispatch }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
-  return dispatch(getPdb(input_dict.prot_url)).then(pdbBlob => {
-    return Promise.all([
-      stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-      stage.loadFile(stringBlob, { ext: 'sdf' }),
-      stage,
-      defaultFocus,
-      object_name,
-      input_dict.colour
-    ]);
-  }).then(ol => {
-    renderHitProtein(ol, representations, orientationMatrix)
-  });
+  return dispatch(getPdb(input_dict.prot_url))
+    .then(pdbBlob => {
+      return Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+    })
+    .then(ol => {
+      renderHitProtein(ol, representations, orientationMatrix);
+    });
 };
-
 
 const renderComplex = (ol, representations, orientationMatrix) => {
   let cs = concatStructures(
@@ -380,6 +387,46 @@ const showHotspot = ({ stage, input_dict, object_name, representations }) => {
   }
 };
 
+const showDensity = ({ stage, input_dict, object_name, representations, dispatch }) => {
+  let densityParams = {
+    color: input_dict.colour,
+    isolevel: input_dict.isoLevel || 3,
+    smooth: input_dict.smooth || 0,
+    boxSize: input_dict.boxSize || 0,
+    contour: input_dict.wireframe || false,
+    wrap: true,
+    opacity: input_dict.opacity || 1,
+    opaqueBack: false
+  };
+
+  return Promise.all([
+    input_dict.sigmaa_url &&
+      input_dict.render_sigmaa &&
+      stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+        const reprArray = representations || createRepresentationsArray([repr]);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
+      }),
+    input_dict.diff_url &&
+      input_dict.render_diff &&
+      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+        const reprArray = representations || createRepresentationsArray([repr]);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
+      }),
+
+    input_dict.event_url &&
+      stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+        const reprArray = representations || createRepresentationsArray([repr]);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
+      })
+  ]).then(values => {
+    let val = [...values].filter(v => v !== undefined);
+    return val;
+  });
+};
+
 // Refactor this out into a utils directory
 export const nglObjectDictionary = {
   [OBJECT_TYPE.SPHERE]: showSphere,
@@ -391,5 +438,6 @@ export const nglObjectDictionary = {
   [OBJECT_TYPE.ARROW]: showArrow,
   [OBJECT_TYPE.PROTEIN]: showProtein,
   [OBJECT_TYPE.EVENTMAP]: showEvent,
-  [OBJECT_TYPE.HOTSPOT]: showHotspot
+  [OBJECT_TYPE.HOTSPOT]: showHotspot,
+  [OBJECT_TYPE.DENSITY]: showDensity
 };

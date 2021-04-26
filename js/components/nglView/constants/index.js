@@ -24,7 +24,11 @@ export const NGL_PARAMS = {
   clipFar: 'clipFar',
   clipDist: 'clipDist',
   fogNear: 'fogNear',
-  fogFar: 'fogFar'
+  fogFar: 'fogFar',
+  isolevel: 'isolevel',
+  boxSize: 'boxSize',
+  opacity: 'opacity',
+  contour: 'contour'
 };
 
 // warning dont use underscore _ in constants!!!!!!
@@ -41,7 +45,8 @@ export const OBJECT_TYPE = {
   EVENTMAP: 'EVENTMAP',
   HOTSPOT: 'HOTSPOT',
   MOLECULE_GROUP: 'MOLECULE-GROUP',
-  LIGAND: 'LIGAND'
+  LIGAND: 'LIGAND',
+  QUALITY: 'QUALITY'
 };
 
 export const SELECTION_TYPE = {
@@ -78,6 +83,10 @@ export const MOL_REPRESENTATION = {
   validation: 'validation'
 };
 
+export const COMMON_PARAMS = {
+  warningIcon: true
+};
+
 export const MOL_REPRESENTATION_BUFFER = 'buffer';
 
 export const NGL_VIEW_DEFAULT_VALUES = {
@@ -86,5 +95,36 @@ export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.clipFar]: 100,
   [NGL_PARAMS.clipDist]: 10,
   [NGL_PARAMS.fogNear]: 50,
-  [NGL_PARAMS.fogFar]: 62
+  [NGL_PARAMS.fogFar]: 62,
+  [NGL_PARAMS.isolevel]: 1,
+  [NGL_PARAMS.boxSize]: 0,
+  [NGL_PARAMS.opacity]: 1,
+  [NGL_PARAMS.contour]: false,
+  [COMMON_PARAMS.warningIcon]: true
+};
+
+export const ELEMENT_COLORS = {
+  H: [255, 255, 255],
+  HE: [217, 255, 255],
+  LI: [204, 128, 255],
+  BE: [194, 255, 0],
+  B: [255, 181, 181],
+  C: [144, 144, 144],
+  N: [48, 80, 248],
+  O: [255, 13, 13],
+  F: [144, 224, 80],
+  NE: [179, 227, 245],
+  NA: [171, 92, 242],
+  MG: [138, 255, 0],
+  AL: [191, 166, 166],
+  SI: [240, 200, 160],
+  P: [255, 128, 0],
+  S: [255, 255, 48],
+  CL: [31, 240, 31],
+  ALTERNATIVE: [208, 208, 224]
+};
+
+export const DENSITY_MAPS = {
+  SIGMAA: '_MAP_sigmaa',
+  DIFF: '_MAP_diff'
 };
