@@ -474,7 +474,7 @@ const MoleculeView = memo(
     };
 
     const onDensity = () => {
-      if (isDensityOn === false) {
+      if (isDensityOn === false && isDensityCustomOn === false) {
         dispatch(getDensityMapData(data)).then(r => {
           if (r) {
             dispatch(setDensityModalOpen(true));

@@ -67,7 +67,7 @@ export const loadObject = ({
     })
       .then(representations => {
         if (representations && representations.length > 0) {
-          if (versionFixedTarget.OBJECT_TYPE === OBJECT_TYPE.DENSITY && representations.length > 1) {
+          if (versionFixedTarget.OBJECT_TYPE === OBJECT_TYPE.DENSITY) {
             representations.forEach(repr => {
               let newTarget = Object.assign({
                 ...versionFixedTarget,

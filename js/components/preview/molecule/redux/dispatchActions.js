@@ -371,6 +371,7 @@ const setDensityCustom = (
   representations = undefined
 ) => dispatch => {
   const densityObject = dispatch(deleteDensityObject(data, colourToggle, stage, !isWireframeStyle));
+  dispatch(removeFromDensityList(generateMoleculeId(data), true));
 
   dispatch(
     loadObject({
