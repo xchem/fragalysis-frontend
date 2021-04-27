@@ -1,4 +1,4 @@
-[![build main](https://github.com/InformaticsMatters/fragalysis-frontend/actions/workflows/build-main.yaml/badge.svg)](https://github.com/InformaticsMatters/fragalysis-frontend/actions/workflows/build-main.yaml)
+[![build main](https://github.com/xchem/fragalysis-frontend/actions/workflows/build-main.yaml/badge.svg)](https://github.com/xchem/fragalysis-frontend/actions/workflows/build-main.yaml)
 
 [![Version](http://img.shields.io/badge/version-0.1.0-blue.svg?style=flat)](https://github.com/xchem/fragalysis-frontend)
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
