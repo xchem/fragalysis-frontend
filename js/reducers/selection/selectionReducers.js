@@ -22,6 +22,10 @@ export const INITIAL_STATE = {
   moleculeAllSelection: [],
   moleculeAllTypeSelection: [],
 
+  categoryList: [],
+  tagList: [],
+  selectedTagList: [],
+
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
   //   [vectorID] :{}  // this object replaces to_select, based on vector smile
@@ -338,6 +342,51 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_HIDE_ALL:
       return state;
+
+    case constants.SET_CATEGORY_LIST:
+      let newCategoryList = new Set();
+      action.categoryList.forEach(f => {
+        newCategoryList.add(f);
+      });
+      return Object.assign({}, state, { categoryList: [...newCategoryList] });
+
+    case constants.APPEND_CATEGORY_LIST:
+      return Object.assign({}, state, { categoryList: [...new Set([...state.categoryList, action.item])] });
+
+    case constants.REMOVE_FROM_CATEGORY_LIST:
+      let diminishedCategoryList = new Set(state.categoryList);
+      diminishedCategoryList.delete(action.item);
+      return Object.assign({}, state, { categoryList: [...diminishedCategoryList] });
+
+    case constants.SET_TAG_LIST:
+      let newTagList = new Set();
+      action.tagList.forEach(f => {
+        newTagList.add(f);
+      });
+      return Object.assign({}, state, { tagList: [...newTagList] });
+
+    case constants.APPEND_TAG_LIST:
+      return Object.assign({}, state, { tagList: [...new Set([...state.tagList, action.item])] });
+
+    case constants.REMOVE_FROM_TAG_LIST:
+      let diminishedTagList = new Set(state.tagList);
+      diminishedTagList.delete(action.item);
+      return Object.assign({}, state, { tagList: [...diminishedTagList] });
+
+    case constants.SET_SELECTED_TAG_LIST:
+      let newSelectedTagList = new Set();
+      action.selectedTagList.forEach(f => {
+        newSelectedTagList.add(f);
+      });
+      return Object.assign({}, state, { selectedTagList: [...newSelectedTagList] });
+
+    case constants.APPEND_SELECTED_TAG_LIST:
+      return Object.assign({}, state, { selectedTagList: [...new Set([...state.selectedTagList, action.item])] });
+
+    case constants.REMOVE_FROM_SELECTED_TAG_LIST:
+      let diminishedSelectedTagList = new Set(state.selectedTagList);
+      diminishedSelectedTagList.delete(action.item);
+      return Object.assign({}, state, { selectedTagList: [...diminishedSelectedTagList] });
 
     // Cases like: @@redux/INIT
     default:

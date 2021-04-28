@@ -8,6 +8,7 @@ import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
 import { CustomDatasetList } from '../datasets/customDatasetList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
+import TagSelector from './tags/tagSelector';
 import { SummaryView } from './summary/summaryView';
 import { CompoundList } from './compounds/compoundList';
 import { ViewerControls } from './viewerControls';
@@ -38,6 +39,7 @@ import {
   setAllInspirations
 } from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
+import { setTagSelectorData } from './tags/redux/dispatchActions';
 
 const hitNavigatorWidth = 504;
 
@@ -108,6 +110,10 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
   const tabValue = useSelector(state => state.datasetsReducers.tabValue);
+
+  useEffect(() => {
+    dispatch(setTagSelectorData());
+  }, [dispatch]);
 
   /*
      Loading datasets
@@ -235,11 +241,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
           <Grid item>
-            <MolGroupSelector
-              isStateLoaded={isStateLoaded}
-              hideProjects={hideProjects}
-              handleHeightChange={setMolGroupsHeight}
-            />
+            <TagSelector handleHeightChange={setMolGroupsHeight} />
           </Grid>
           {/* Hit navigator */}
           <Grid item>

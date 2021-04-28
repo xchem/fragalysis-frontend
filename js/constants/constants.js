@@ -30,3 +30,15 @@ export const ARROW_TYPE = {
   UP: 'UP',
   DOWN: 'DOWN'
 };
+
+export const CATEGORY_TYPE = {
+  SITE: 'Site',
+  SERIES: 'Series',
+  FORUM: 'Forum',
+  OTHER: 'Other'
+};
+
+export const TAG_TYPE = {
+  ALL: 'ALL',
+  UNTAGGED: 'UNTAGGED'
+};

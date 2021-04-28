@@ -351,3 +351,43 @@ export const setArrowUpDown = (item, newItem, arrowType, data) => ({
     data
   }
 });
+
+export const setSelectedTagList = function(selectedTagList, skipTracking = false) {
+  return {
+    type: constants.SET_SELECTED_TAG_LIST,
+    selectedTagList: selectedTagList,
+    skipTracking
+  };
+};
+
+export const appendSelectedTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_SELECTED_TAG_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromSelectedTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_SELECTED_TAG_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const setCategoryList = function(categoryList, skipTracking = false) {
+  return {
+    type: constants.SET_CATEGORY_LIST,
+    categoryList: categoryList,
+    skipTracking
+  };
+};
+
+export const setTagList = function(tagList, skipTracking = false) {
+  return {
+    type: constants.SET_TAG_LIST,
+    tagList: tagList,
+    skipTracking
+  };
+};
