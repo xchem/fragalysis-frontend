@@ -14,7 +14,6 @@ const useStyles = makeStyles(theme => ({
     height: heightOfBody,
     display: 'flex',
     flexDirection: 'column'
-    //overflow: 'auto'
   },
   containerCollapsed: {
     height: 0

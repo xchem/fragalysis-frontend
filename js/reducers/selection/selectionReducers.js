@@ -171,6 +171,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       diminishedDensityList.delete(action.item.id);
       return Object.assign({}, state, { densityList: [...diminishedDensityList] });
 
+    case constants.SET_DENSITY_LIST_CUSTOM:
+      let newDensityListCustom = new Set();
+      action.densityListCustom.forEach(f => {
+        newDensityListCustom.add(f);
+      });
+      return Object.assign({}, state, { densityListCustom: [...newDensityListCustom] });
+
     case constants.APPEND_DENSITY_LIST_CUSTOM:
       return Object.assign({}, state, {
         densityListCustom: [...new Set([...state.densityListCustom, action.item.id])]

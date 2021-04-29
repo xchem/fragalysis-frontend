@@ -175,6 +175,13 @@ export const removeFromDensityList = function(item, skipTracking = false) {
   };
 };
 
+export const setDensityListCustom = function(densityListCustom) {
+  return {
+    type: constants.SET_DENSITY_LIST_CUSTOM,
+    densityListCustom: densityListCustom
+  };
+};
+
 export const appendDensityListCustom = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST_CUSTOM,

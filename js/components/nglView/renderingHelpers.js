@@ -7,6 +7,7 @@ import {
 import { Shape, Matrix4, MeshBuffer } from 'ngl';
 import { refmesh } from './constants/mesh';
 import { addToQualityCache } from '../../reducers/ngl/actions';
+import { hexToRgb } from '../../utils/colors';
 
 export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color) {
   let goodids = (quality && quality.goodids) || [];
@@ -178,15 +179,4 @@ function readGoodAtomsFromFile(text, badids) {
   } else {
     return [];
   }
-}
-
-function hexToRgb(hex) {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      }
-    : null;
 }

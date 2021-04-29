@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { Grid, makeStyles, Chip, Tooltip } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { addSelectedTag, removeSelectedTag } from './redux/dispatchActions';
+import { getFontColorByBackgroundColor } from '../../../utils/colors';
 
 const useStyles = makeStyles(theme => ({
   tagItem: {
@@ -20,8 +21,9 @@ const TagView = memo(({ tag, selected, allTags }) => {
   const dispatch = useDispatch();
 
   const tagColor = selected ? 'primary' : 'default';
-  const color = selected ? tagColor : (tag.color && tag.color) || tagColor;
-  const style = selected ? {} : { backgroundColor: color };
+  const bgColor = selected ? tagColor : (tag.color && tag.color) || tagColor;
+  const color = getFontColorByBackgroundColor(bgColor);
+  const style = selected ? {} : { backgroundColor: bgColor, color: color };
 
   const handleClick = () => {
     if (selected) {
