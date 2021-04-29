@@ -25,6 +25,7 @@ export const INITIAL_STATE = {
   categoryList: [],
   tagList: [],
   selectedTagList: [],
+  specialTagList: [],
 
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
@@ -357,6 +358,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedCategoryList = new Set(state.categoryList);
       diminishedCategoryList.delete(action.item);
       return Object.assign({}, state, { categoryList: [...diminishedCategoryList] });
+
+    case constants.SET_SPECIAL_TAG_LIST:
+      let newSpecialTagList = new Set();
+      action.tagList.forEach(f => {
+        newSpecialTagList.add(f);
+      });
+      return Object.assign({}, state, { specialTagList: [...newSpecialTagList] });
 
     case constants.SET_TAG_LIST:
       let newTagList = new Set();

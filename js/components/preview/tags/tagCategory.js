@@ -1,12 +1,16 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import TagCategoryView from './tagCategoryView';
 import { CATEGORY_TYPE } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
-  categoryItem: {
-    paddingRight: '5px'
+  category: {
+    display: 'flex'
+  },
+  categoryScrollable: {
+    display: 'flex',
+    overflow: 'auto'
   }
 }));
 
@@ -15,6 +19,7 @@ const TagCategory = memo(({}) => {
 
   const categoryList = useSelector(state => state.selectionReducers.categoryList);
   const tagList = useSelector(state => state.selectionReducers.tagList);
+  const specialTagList = useSelector(state => state.selectionReducers.specialTagList);
 
   const siteCategory = categoryList.find(c => c.text === CATEGORY_TYPE.SITE);
   const seriesCategory = categoryList.find(c => c.text === CATEGORY_TYPE.SERIES);
@@ -29,42 +34,18 @@ const TagCategory = memo(({}) => {
 
   return (
     <>
-      <Grid container>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <Typography variant="h6" noWrap>
-            {CATEGORY_TYPE.SITE}
-          </Typography>
-        </Grid>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <Typography variant="h6" noWrap>
-            {CATEGORY_TYPE.SERIES}
-          </Typography>
-        </Grid>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <Typography variant="h6" noWrap>
-            {CATEGORY_TYPE.FORUM}
-          </Typography>
-        </Grid>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <Typography variant="h6" noWrap>
-            {CATEGORY_TYPE.OTHER}
-          </Typography>
-        </Grid>
+      <Grid className={classes.category}>
+        <TagCategoryView name={CATEGORY_TYPE.SITE} />
+        <TagCategoryView name={CATEGORY_TYPE.SERIES} />
+        <TagCategoryView name={CATEGORY_TYPE.FORUM} />
+        <TagCategoryView name={CATEGORY_TYPE.OTHER} />
       </Grid>
 
-      <Grid container>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <TagCategoryView name={CATEGORY_TYPE.SITE} tags={siteTags} />
-        </Grid>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <TagCategoryView name={CATEGORY_TYPE.SERIES} tags={seriesTags} />
-        </Grid>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <TagCategoryView name={CATEGORY_TYPE.FORUM} tags={forumTags} />
-        </Grid>
-        <Grid item className={classes.categoryItem} xs={3}>
-          <TagCategoryView name={CATEGORY_TYPE.OTHER} tags={otherTags} />
-        </Grid>
+      <Grid className={classes.categoryScrollable}>
+        <TagCategoryView tags={siteTags} specialTags={specialTagList} />
+        <TagCategoryView tags={seriesTags} />
+        <TagCategoryView tags={forumTags} />
+        <TagCategoryView tags={otherTags} />
       </Grid>
     </>
   );

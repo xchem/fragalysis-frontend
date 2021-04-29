@@ -5,14 +5,15 @@ import TagView from './tagView';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
+    flexDirection: 'column',
+    display: 'flex',
     height: '100%',
     width: '100%',
     paddingTop: theme.spacing(1) / 2
   },
-  divScrollable: {
-    //height: '100%',
-    //width: '100%',
-    //overflow: 'auto'
+  categoryItem: {
+    paddingRight: theme.spacing(1),
+    textAlign: 'center'
   }
 }));
 
@@ -21,22 +22,30 @@ const TagCategoryView = memo(({ name, tags, specialTags }) => {
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
 
   return (
-    <div className={classes.divContainer}>
-      <div className={classes.divScrollable}>
-        <Grid container direction="column">
-          {specialTags &&
-            specialTags.map((tag, idx) => {
-              let selected = selectedTagList.some(i => i.id === tag.id);
-              return <TagView key={`tag-special-item-${idx}`} tag={tag} selected={selected}></TagView>;
-            })}
-          {tags &&
-            tags.map((tag, idx) => {
-              let selected = selectedTagList.some(i => i.id === tag.id);
-              return <TagView key={`tag-item-${idx}`} tag={tag} selected={selected}></TagView>;
-            })}
-        </Grid>
-      </div>
-    </div>
+    <>
+      <Grid item className={classes.categoryItem} xs={3}>
+        {name && (
+          <Typography variant="h6" noWrap>
+            {name}
+          </Typography>
+        )}
+
+        {(tags || specialTags) && (
+          <Grid className={classes.divContainer}>
+            {specialTags &&
+              specialTags.map((tag, idx) => {
+                let selected = selectedTagList.some(i => i.id === tag.id);
+                return <TagView key={`tag-special-item-${idx}`} tag={tag} selected={selected} allTags={tags}></TagView>;
+              })}
+            {tags &&
+              tags.map((tag, idx) => {
+                let selected = selectedTagList.some(i => i.id === tag.id);
+                return <TagView key={`tag-item-${idx}`} tag={tag} selected={selected}></TagView>;
+              })}
+          </Grid>
+        )}
+      </Grid>
+    </>
   );
 });
 

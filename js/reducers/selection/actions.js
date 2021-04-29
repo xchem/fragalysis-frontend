@@ -391,3 +391,11 @@ export const setTagList = function(tagList, skipTracking = false) {
     skipTracking
   };
 };
+
+export const setSpecialTagList = function(tagList, skipTracking = false) {
+  return {
+    type: constants.SET_SPECIAL_TAG_LIST,
+    tagList: tagList,
+    skipTracking
+  };
+};

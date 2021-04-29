@@ -11,7 +11,10 @@ export const heightOfBody = '164px';
 
 const useStyles = makeStyles(theme => ({
   containerExpanded: {
-    height: heightOfBody
+    height: heightOfBody,
+    display: 'flex',
+    flexDirection: 'column'
+    //overflow: 'auto'
   },
   containerCollapsed: {
     height: 0
@@ -59,7 +62,7 @@ const TagSelector = memo(({ handleHeightChange }) => {
         }
       }}
     >
-      <Grid container justify="space-between" className={classes.containerExpanded}>
+      <Grid className={classes.containerExpanded}>
         <TagCategory />
       </Grid>
     </Panel>

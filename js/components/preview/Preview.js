@@ -57,6 +57,9 @@ const useStyles = makeStyles(theme => ({
     // padding: 0,
     width: 'inherit'
   },
+  hitSelectorWidth: {
+    width: '100%'
+  },
   hitColumn: {
     minWidth: hitNavigatorWidth,
     [theme.breakpoints.up('md')]: {
@@ -240,7 +243,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
-          <Grid item>
+          <Grid item className={classes.hitSelectorWidth}>
             <TagSelector handleHeightChange={setMolGroupsHeight} />
           </Grid>
           {/* Hit navigator */}
