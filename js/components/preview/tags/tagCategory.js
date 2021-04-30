@@ -11,7 +11,6 @@ const useStyles = makeStyles(theme => ({
   categoryScrollable: {
     display: 'flex',
     overflow: 'auto'
-    //resize: 'vertical'
   }
 }));
 
