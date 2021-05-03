@@ -37,6 +37,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
   const [tags, setTags] = useState([]);
 
   const tagList = useSelector(state => state.selectionReducers.tagList);
+  let moleculeTags = molecule.tags || [];
 
   const handleCloseModal = () => {
     dispatch(setOpenDialog(false));
@@ -44,32 +45,32 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
 
   const handleTagChange = (e, data) => {
     if (e.key === 'Enter') {
-      handleTagNewChange(e, data);
+      handleTagNewChange(e, e.target.value);
     } else {
       setTags(data);
     }
   };
 
   const handleTagNewChange = (e, data) => {
-    let newTag = { id: null, text: data };
+    let newTag = { id: null, text: data, category: 0, color: 'defult' };
     setTags([...tags, newTag]);
   };
 
   return (
     <Modal open={openDialog} onClose={handleCloseModal}>
-      <Typography variant="h4">Add tags to molecule</Typography>
+      <Typography variant="h4">Add tag</Typography>
       <Typography variant="subtitle1" gutterBottom className={classes.marginTop}>
         {molecule.protein_code}
       </Typography>
       <Formik
-        initialValues={{ tags: '' }}
+        initialValues={{ tags: [] }}
         validate={values => {
           const errors = {};
           return errors;
         }}
         onSubmit={values => {
           const data = {
-            tags: JSON.stringify(tags)
+            tags: tags
           };
           dispatch(
             addTag({
@@ -96,6 +97,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
                   icon={<Label />}
                   field={
                     <Autocomplete
+                      defaultValue={moleculeTags}
                       multiple
                       freeSolo
                       id="tags-standard"

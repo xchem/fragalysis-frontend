@@ -60,6 +60,8 @@ export const editTag = ({ tag, data }) => (dispatch, getState) => {
 };
 
 export const addTag = ({ molecule, data }) => (dispatch, getState) => {
+  let tags = data.tags;
+  molecule.tags = tags;
   return Promise.resolve(null);
 };
 
