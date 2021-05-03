@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TagView = memo(({ tag, selected, allTags }) => {
+const TagView = memo(({ tag, selected, allTags, isSpecialTag }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
@@ -59,7 +59,7 @@ const TagView = memo(({ tag, selected, allTags }) => {
         <Tooltip title={tag.text}>
           <Chip
             size="small"
-            className={`${classes.chip} ${selected ? classes.chipSelected : null}`}
+            className={`${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`}
             label={tag.text}
             clickable
             color={tagColor}

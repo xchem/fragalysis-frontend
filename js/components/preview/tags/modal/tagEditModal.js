@@ -1,8 +1,9 @@
 import React, { memo, useState } from 'react';
 import Modal from '../../../common/Modal';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Grid, Typography } from '@material-ui/core';
-import { Title, Description, ColorLens } from '@material-ui/icons';
+import { Title, Description, Class, ColorLens } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
 import { InputFieldAvatar } from '../../../projects/projectModal/inputFieldAvatar';
 import { Formik, Form, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
@@ -12,19 +13,18 @@ import { ColorPicker } from '../../../common/Components/ColorPicker';
 
 const useStyles = makeStyles(theme => ({
   body: {
-    width: '100%',
+    width: '450px',
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1)
   },
   input: {
-    width: 400
+    width: '100%'
+  },
+  inputHeight: {
+    height: '1.2876em'
   },
   margin: {
     margin: theme.spacing(1)
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    width: 400
   }
 }));
 
@@ -34,6 +34,11 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
   const [state, setState] = useState();
   const [tagColor, setTagColor] = useState(tag.color);
 
+  const categoryList = useSelector(state => state.selectionReducers.categoryList);
+
+  let tagCategory = categoryList.find(c => c.id === tag.category);
+  const [selectedCategory, setSelectedCategory] = useState(tagCategory);
+
   const handleCloseModal = () => {
     dispatch(setOpenDialog(false));
   };
@@ -42,15 +47,27 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
     setTagColor(color);
   };
 
+  const handleCategoryChange = (e, data) => {
+    if (e.key === 'Enter') {
+      handleCategoryNewChange(e, data);
+    } else {
+      setSelectedCategory(data);
+    }
+  };
+
+  const handleCategoryNewChange = (e, data) => {
+    let newCategory = { id: null, text: data };
+    setSelectedCategory(newCategory);
+  };
+
   return (
     <Modal open={openDialog} onClose={handleCloseModal}>
-      <Typography variant="h4">
-        Edit tag: {tag.text} {tagColor}
-      </Typography>
+      <Typography variant="h4">Edit tag: {tag.text}</Typography>
       <Formik
         initialValues={{
           text: tag.text,
           color: tagColor,
+          category: tagCategory,
           forumPost: ''
         }}
         validate={values => {
@@ -61,12 +78,16 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
           if (!values.color) {
             errors.color = 'Required!';
           }
+          if (!selectedCategory) {
+            errors.category = 'Required!';
+          }
           return errors;
         }}
         onSubmit={values => {
           const data = {
             text: values.text,
-            color: values.color,
+            color: tagColor,
+            category: selectedCategory,
             forumPost: values.forumPost
           };
           dispatch(
@@ -89,44 +110,83 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
         {({ submitForm, isSubmitting, errors, values }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
-              <Grid item>
+              <Grid item xs={12} className={classes.input}>
                 <InputFieldAvatar
                   icon={<Title />}
                   field={<Field component={TextField} className={classes.input} name="text" label="Name" required />}
                 />
               </Grid>
-              <Grid item>
+              <Grid
+                container
+                direction="row"
+                alignItems="flex-end"
+                wrap="nowrap"
+                item
+                xs={12}
+                className={classes.input}
+                justify="flex-end"
+              >
+                <Grid item xs={10} className={classes.input}>
+                  <InputFieldAvatar
+                    icon={<ColorLens />}
+                    field={
+                      <Field
+                        component={TextField}
+                        className={classes.input}
+                        name="color"
+                        label="Color"
+                        required
+                        inputProps={{
+                          readOnly: true,
+                          value: tagColor,
+                          className: classes.inputHeight
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid item xs={2} className={classes.input}>
+                  <ColorPicker selectedColor={tag.color} setSelectedColor={handleColorChange} />
+                </Grid>
+              </Grid>
+
+              <Grid item xs={12} className={classes.input}>
                 <InputFieldAvatar
-                  icon={<ColorLens />}
+                  icon={<Class />}
                   field={
-                    <Field
-                      component={TextField}
-                      value={tagColor}
-                      className={classes.input}
-                      name="color"
-                      label="Color"
-                      required
-                      inputProps={{
-                        readOnly: true,
-                        value: tagColor
+                    <Autocomplete
+                      defaultValue={tagCategory}
+                      freeSolo
+                      id="category-standard"
+                      options={categoryList}
+                      getOptionLabel={option => (option.text && option.text) || option}
+                      onChange={(e, data) => {
+                        handleCategoryChange(e, data);
                       }}
+                      renderInput={params => (
+                        <Field
+                          required
+                          component={TextField}
+                          {...params}
+                          className={classes.input}
+                          label="Category"
+                          name="category"
+                          fullWidth
+                          onKeyPress={e => {
+                            if (e.key === 'Enter') {
+                              handleCategoryNewChange(e, e.target.value);
+                            }
+                          }}
+                        />
+                      )}
                     />
                   }
                 />
               </Grid>
-              <ColorPicker selectedColor={tag.color} setSelectedColor={handleColorChange} />
-              <Grid item>
+              <Grid item xs={12} className={classes.input}>
                 <InputFieldAvatar
                   icon={<Description />}
-                  field={
-                    <Field
-                      component={TextField}
-                      className={classes.input}
-                      name="forumPost"
-                      label="Forum post"
-                      required
-                    />
-                  }
+                  field={<Field component={TextField} className={classes.input} name="forumPost" label="Forum post" />}
                 />
               </Grid>
             </Grid>

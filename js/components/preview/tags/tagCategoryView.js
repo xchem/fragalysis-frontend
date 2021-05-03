@@ -35,7 +35,15 @@ const TagCategoryView = memo(({ name, tags, specialTags }) => {
             {specialTags &&
               specialTags.map((tag, idx) => {
                 let selected = selectedTagList.some(i => i.id === tag.id);
-                return <TagView key={`tag-special-item-${idx}`} tag={tag} selected={selected} allTags={tags}></TagView>;
+                return (
+                  <TagView
+                    key={`tag-special-item-${idx}`}
+                    tag={tag}
+                    isSpecialTag={true}
+                    selected={selected}
+                    allTags={tags}
+                  ></TagView>
+                );
               })}
             {tags &&
               tags.map((tag, idx) => {
