@@ -25,6 +25,9 @@ const useStyles = makeStyles(theme => ({
   },
   margin: {
     margin: theme.spacing(1)
+  },
+  marginTop: {
+    marginTop: theme.spacing(1)
   }
 }));
 
@@ -62,7 +65,7 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
 
   return (
     <Modal open={openDialog} onClose={handleCloseModal}>
-      <Typography variant="h4">Edit tag: {tag.text}</Typography>
+      <Typography variant="h4">Edit tag</Typography>
       <Formik
         initialValues={{
           text: tag.text,

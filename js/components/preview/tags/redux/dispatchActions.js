@@ -59,6 +59,10 @@ export const editTag = ({ tag, data }) => (dispatch, getState) => {
   return Promise.resolve(null);
 };
 
+export const addTag = ({ molecule, data }) => (dispatch, getState) => {
+  return Promise.resolve(null);
+};
+
 export const clearTagSelection = () => (dispatch, getState) => {
   dispatch(setSelectedTagList([]));
   dispatch(clearSelectionState());
