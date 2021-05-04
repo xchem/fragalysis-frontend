@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TagCategory = memo(({}) => {
+const TagCategory = memo(({ headerPadding = 0 }) => {
   const classes = useStyles();
 
   const categoryList = useSelector(state => state.selectionReducers.categoryList);
@@ -34,7 +34,7 @@ const TagCategory = memo(({}) => {
 
   return (
     <>
-      <Grid className={classes.category}>
+      <Grid className={classes.category} style={{ paddingRight: headerPadding + 'px' }}>
         <TagCategoryView name={CATEGORY_TYPE.SITE} />
         <TagCategoryView name={CATEGORY_TYPE.SERIES} />
         <TagCategoryView name={CATEGORY_TYPE.FORUM} />

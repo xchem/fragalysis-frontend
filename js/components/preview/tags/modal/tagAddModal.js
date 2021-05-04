@@ -99,6 +99,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
                   icon={<Label />}
                   field={
                     <Autocomplete
+                      disabled={isSubmitting}
                       defaultValue={moleculeTags}
                       value={tags}
                       multiple

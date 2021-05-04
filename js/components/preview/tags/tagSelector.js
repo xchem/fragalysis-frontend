@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect, useCallback } from 'react';
+import React, { memo, useRef, useEffect, useCallback, useState } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import { Panel } from '../../common/Surfaces/Panel';
@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { clearTagSelection } from './redux/dispatchActions';
 
 export const heightOfBody = '164px';
+export const defaultHeaderPadding = 15;
 
 const useStyles = makeStyles(theme => ({
   containerExpanded: {
@@ -33,21 +34,16 @@ const TagSelector = memo(({ handleHeightChange }) => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const ref = useRef(null);
+  const elementRef = useRef(null);
+  const [headerPadding, setheaderPadding] = useState(0);
+  const [elementHeight, setElementHeight] = useState(0);
 
   const handleClearButton = () => {
     dispatch(clearTagSelection());
   };
 
-  const handleResize = useCallback(
-    event => {
-      handleHeightChange(ref.current.offsetHeight);
-    },
-    [handleHeightChange]
-  );
-
   useEffect(() => {
-    const element = ref.current?.childNodes[1]?.childNodes[0];
-
+    const element = elementRef.current;
     if (element) {
       element.addEventListener('resize', handleResize);
       const observer = new MutationObserver(checkResize);
@@ -59,23 +55,49 @@ const TagSelector = memo(({ handleHeightChange }) => {
         element.removeEventListener('resize', handleResize);
       }
     };
-  }, [ref, handleResize]);
+  }, [elementRef, handleResize, checkResize, headerPadding]);
 
-  function checkResize(mutations) {
-    const el = mutations[0].target;
-    const w = el.clientWidth;
-    const h = el.clientHeight;
+  const handleResize = useCallback(
+    event => {
+      handleHeightChange(ref.current.offsetHeight);
+    },
+    [handleHeightChange]
+  );
 
-    const isChange = mutations
-      .map(m => `${m.oldValue}`)
-      .some(prev => prev.indexOf(`width: ${w}px`) === -1 || prev.indexOf(`height: ${h}px`) === -1);
+  const handleScroll = useCallback(
+    (el, h) => {
+      if (el) {
+        const hasVerticalScrollbar = el.scrollHeight > el.clientHeight;
+        if (!hasVerticalScrollbar) {
+          if (h !== 0) {
+            setheaderPadding(0);
+          }
+        } else {
+          if (h !== defaultHeaderPadding) {
+            setheaderPadding(defaultHeaderPadding);
+          }
+        }
+      }
+    },
+    [setheaderPadding]
+  );
 
-    if (!isChange) {
-      return;
-    }
-    const event = new CustomEvent('resize', { detail: { width: w, height: h } });
-    el.dispatchEvent(event);
-  }
+  const checkResize = useCallback(
+    mutations => {
+      const el = mutations[0].target;
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+
+      if (elementHeight !== h) {
+        setElementHeight(h);
+        handleScroll(elementRef.current?.childNodes[1], headerPadding);
+
+        const event = new CustomEvent('resize', { detail: { width: w, height: h } });
+        el.dispatchEvent(event);
+      }
+    },
+    [elementHeight, headerPadding, handleScroll]
+  );
 
   return (
     <Panel
@@ -103,8 +125,8 @@ const TagSelector = memo(({ handleHeightChange }) => {
         }
       }}
     >
-      <Grid className={classes.containerExpanded}>
-        <TagCategory />
+      <Grid ref={elementRef} className={classes.containerExpanded}>
+        <TagCategory headerPadding={headerPadding} />
       </Grid>
     </Panel>
   );

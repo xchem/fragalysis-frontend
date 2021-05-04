@@ -116,7 +116,16 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
               <Grid item xs={12} className={classes.input}>
                 <InputFieldAvatar
                   icon={<Title />}
-                  field={<Field component={TextField} className={classes.input} name="text" label="Name" required />}
+                  field={
+                    <Field
+                      component={TextField}
+                      className={classes.input}
+                      name="text"
+                      label="Name"
+                      required
+                      disabled={isSubmitting}
+                    />
+                  }
                 />
               </Grid>
               <Grid
@@ -139,6 +148,7 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
                         name="color"
                         label="Color"
                         required
+                        disabled={isSubmitting}
                         inputProps={{
                           readOnly: true,
                           value: tagColor,
@@ -158,6 +168,7 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
                   icon={<Class />}
                   field={
                     <Autocomplete
+                      disabled={isSubmitting}
                       defaultValue={tagCategory}
                       value={selectedCategory}
                       freeSolo
@@ -190,7 +201,15 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
               <Grid item xs={12} className={classes.input}>
                 <InputFieldAvatar
                   icon={<Description />}
-                  field={<Field component={TextField} className={classes.input} name="forumPost" label="Forum post" />}
+                  field={
+                    <Field
+                      component={TextField}
+                      className={classes.input}
+                      name="forumPost"
+                      label="Forum post"
+                      disabled={isSubmitting}
+                    />
+                  }
                 />
               </Grid>
             </Grid>
