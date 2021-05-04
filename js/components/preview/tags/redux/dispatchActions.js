@@ -4,7 +4,8 @@ import {
   removeFromSelectedTagList,
   setCategoryList,
   setTagList,
-  setSpecialTagList
+  setSpecialTagList,
+  appendTagList
 } from '../../../../reducers/selection/actions';
 import { TAG_TYPE } from '../../../../constants/constants';
 import { categories, tags } from './tempData';
@@ -56,12 +57,19 @@ export const editTag = ({ tag, data }) => (dispatch, getState) => {
   tag.color = data.color;
   tag.forumPost = data.forumPost;
   tag.category = data.category?.id;
+  let newCategory = data.category?.id === null ? data.category : null;
   return Promise.resolve(null);
 };
 
 export const addTag = ({ molecule, data }) => (dispatch, getState) => {
   let tags = data.tags;
   molecule.tags = tags;
+  let newTags = tags.filter(t => t.id === null);
+  if (newTags) {
+    newTags.forEach(tag => {
+      dispatch(appendTagList(tag));
+    });
+  }
   return Promise.resolve(null);
 };
 

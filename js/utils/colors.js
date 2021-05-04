@@ -1,10 +1,7 @@
-export const colors = {
-  BLACK: '#000000de',
-  WHITE: '#ffffff'
-};
+import palette from '../theme/palette';
 
 export const getFontColorByBackgroundColor = backgroundColorHex => {
-  let color = colors.BLACK;
+  let color = palette.darkBlack;
 
   let rgbColor = hexToRgb(backgroundColorHex);
   if (rgbColor && rgbColor !== null) {
@@ -14,7 +11,7 @@ export const getFontColorByBackgroundColor = backgroundColorHex => {
 
     //http://www.w3.org/TR/AERT#color-contrast
     var o = Math.round((parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1000);
-    color = o > 125 ? colors.BLACK : colors.WHITE;
+    color = o > 125 ? palette.darkBlack : palette.white;
   }
   return color;
 };

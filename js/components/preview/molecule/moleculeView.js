@@ -187,9 +187,9 @@ const useStyles = makeStyles(theme => ({
   },
   warningIcon: {
     padding: '0px',
-    color: theme.palette.warning.dark,
+    color: theme.palette.warning.darkLight,
     '&:hover': {
-      color: theme.palette.warning.main
+      color: theme.palette.warning.dark
     }
   },
   tagIcon: {
@@ -866,9 +866,29 @@ const MoleculeView = memo(
             onMouseLeave={closeMoleculeTooltip}
             ref={moleculeImgRef}
           >
-            <Grid item xs={warningIconVisible === true ? 8 : 10}>
+            <Grid
+              item
+              xs={
+                warningIconVisible === true
+                  ? moleculeTooltipOpen === true
+                    ? 8
+                    : 10
+                  : moleculeTooltipOpen === true
+                  ? 10
+                  : 12
+              }
+            >
               {svg_image}
             </Grid>
+            {moleculeTooltipOpen === true && (
+              <Grid item xs={2}>
+                <IconButton color="primary" className={classes.tagIcon} onClick={() => setTagAddModalOpen(true)}>
+                  <Tooltip title="Add tag">
+                    <Label />
+                  </Tooltip>
+                </IconButton>
+              </Grid>
+            )}
             {warningIconVisible === true && (
               <Grid item xs={2}>
                 <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
@@ -878,13 +898,6 @@ const MoleculeView = memo(
                 </IconButton>
               </Grid>
             )}
-            <Grid item xs={2}>
-              <IconButton color="primary" className={classes.tagIcon} onClick={() => setTagAddModalOpen(true)}>
-                <Tooltip title="Add tags">
-                  <Label />
-                </Tooltip>
-              </IconButton>
-            </Grid>
           </Grid>
         </Grid>
         <SvgTooltip

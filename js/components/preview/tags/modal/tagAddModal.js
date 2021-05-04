@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import Modal from '../../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles, Grid, Typography } from '@material-ui/core';
+import { makeStyles, Grid, Typography, Chip } from '@material-ui/core';
 import { Label } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { InputFieldAvatar } from '../../../projects/projectModal/inputFieldAvatar';
@@ -9,6 +9,8 @@ import { Formik, Form, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { Button } from '../../../common/Inputs/Button';
 import { addTag } from '../redux/dispatchActions';
+import palette from '../../../../theme/palette';
+import { getFontColorByBackgroundColor } from '../../../../utils/colors';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -52,7 +54,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
   };
 
   const handleTagNewChange = (e, data) => {
-    let newTag = { id: null, text: data, category: 0, color: 'defult' };
+    let newTag = { id: null, text: data, category: 0, color: palette.tag.default };
     setTags([...tags, newTag]);
   };
 
@@ -98,13 +100,25 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
                   field={
                     <Autocomplete
                       defaultValue={moleculeTags}
+                      value={tags}
                       multiple
                       freeSolo
-                      id="tags-standard"
+                      id="tags-add"
                       options={tagList}
                       getOptionLabel={option => (option.text && option.text) || option}
                       onChange={(e, data) => {
                         handleTagChange(e, data);
+                      }}
+                      renderTags={(value, props) => {
+                        return value.map((option, index) => {
+                          let bgColor = option.color;
+                          let color = getFontColorByBackgroundColor(bgColor);
+                          let style = { backgroundColor: bgColor, color: color };
+                          return <Chip style={style} label={option.text} size="small" {...props({ index })} />;
+                        });
+                      }}
+                      renderOption={(option, { selected }) => {
+                        return <span>{option.text}</span>;
                       }}
                       renderInput={params => (
                         <Field

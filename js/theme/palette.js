@@ -2,8 +2,10 @@ import { colors } from '@material-ui/core';
 
 const white = '#FFFFFF';
 const black = '#000000';
+const darkBlack = '#000000de';
 
 export default {
+  darkBlack,
   black,
   white,
   primary: {
@@ -35,6 +37,7 @@ export default {
   warning: {
     contrastText: white,
     dark: colors.orange[900],
+    darkLight: colors.orange[800],
     main: colors.orange[600],
     light: colors.orange[400]
   },
@@ -55,6 +58,9 @@ export default {
     default: '#F4F6F8',
     paper: white,
     divider: '#CECECE'
+  },
+  tag: {
+    default: colors.grey[300]
   },
   icon: colors.blueGrey[600],
   divider: colors.grey[200],

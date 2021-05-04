@@ -159,6 +159,7 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
                   field={
                     <Autocomplete
                       defaultValue={tagCategory}
+                      value={selectedCategory}
                       freeSolo
                       id="category-standard"
                       options={categoryList}

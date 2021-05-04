@@ -399,6 +399,14 @@ export const setTagList = function(tagList, skipTracking = false) {
   };
 };
 
+export const appendTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setSpecialTagList = function(tagList, skipTracking = false) {
   return {
     type: constants.SET_SPECIAL_TAG_LIST,

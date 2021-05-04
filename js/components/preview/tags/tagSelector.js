@@ -40,7 +40,6 @@ const TagSelector = memo(({ handleHeightChange }) => {
 
   const handleResize = useCallback(
     event => {
-      console.log('resize');
       handleHeightChange(ref.current.offsetHeight);
     },
     [handleHeightChange]
