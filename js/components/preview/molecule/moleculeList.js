@@ -68,6 +68,7 @@ import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/
 
 const useStyles = makeStyles(theme => ({
   container: {
+    minHeight: '100px',
     height: '100%',
     width: 'inherit',
     color: theme.palette.black
