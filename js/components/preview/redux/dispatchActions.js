@@ -12,6 +12,7 @@ import { resetDatasetsState } from '../../datasets/redux/actions';
 import { restoreAfterTargetActions } from '../../../reducers/tracking/dispatchActions';
 import { resetTrackingState } from '../../../reducers/tracking/actions';
 import { setTargetOn } from '../../../reducers/api/actions';
+import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -122,6 +123,7 @@ export const unmountPreviewComponent = (stages = []) => dispatch => {
   });
 
   dispatch(resetTrackingState());
+  dispatch(resetNglTrackingState());
 
   dispatch(resetCurrentCompoundsSettings(true));
   dispatch(resetProjectsReducer());
@@ -146,6 +148,7 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
   dispatch(resetTrackingState());
+  dispatch(resetNglTrackingState());
   dispatch(setTargetOn(undefined));
 };
 

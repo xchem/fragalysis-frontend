@@ -106,9 +106,19 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.SET_ORIENTATION:
-      const div_id = action.div_id;
-      const orientation = action.orientation;
-      const toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
+      let div_id = action.div_id;
+      let orientation = action.orientation;
+      let toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
+      toSetDiv[div_id] = orientation;
+
+      return Object.assign({}, state, {
+        nglOrientations: toSetDiv
+      });
+
+    case CONSTANTS.SET_ORIENTATION_BY_INTERACTION:
+      div_id = action.div_id;
+      orientation = action.orientation;
+      toSetDiv = JSON.parse(JSON.stringify(state.nglOrientations));
       toSetDiv[div_id] = orientation;
 
       return Object.assign({}, state, {

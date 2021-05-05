@@ -3,6 +3,10 @@
  */
 import { constants } from './constants';
 
+export const setOpenDiscourseErrorModal = open => {
+  return { type: constants.SET_OPEN_DISCOURSE_ERROR_MODAL, payload: open };
+};
+
 export const setTargetIdList = function(input_json) {
   return {
     type: constants.SET_TARGET_ID_LIST,

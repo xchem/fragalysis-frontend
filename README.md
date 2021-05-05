@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.com/xchem/fragalysis-frontend.svg?branch=master)](https://travis-ci.com/xchem/fragalysis-frontend)
+[![build main](https://github.com/xchem/fragalysis-frontend/actions/workflows/build-main.yaml/badge.svg)](https://github.com/xchem/fragalysis-frontend/actions/workflows/build-main.yaml)
+
 [![Version](http://img.shields.io/badge/version-0.1.0-blue.svg?style=flat)](https://github.com/xchem/fragalysis-frontend)
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 

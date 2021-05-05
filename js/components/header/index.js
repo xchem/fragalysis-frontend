@@ -16,7 +16,8 @@ import {
   Avatar,
   Box,
   ButtonGroup,
-  LinearProgress
+  LinearProgress,
+  Tooltip
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -27,7 +28,9 @@ import {
   Menu as MenuIcon,
   Work,
   Description,
-  Timeline
+  Timeline,
+  QuestionAnswer,
+  Chat
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -38,11 +41,15 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
-import { IdeaReport } from '../userFeedback/ideaReport';
 import { FundersModal } from '../funders/fundersModal';
 import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
+import { isDiscourseAvailable } from '../../utils/discourse';
+import { useSelector, useDispatch } from 'react-redux';
+import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
+import { DiscourseErrorModal } from './discourseErrorModal';
+import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -89,6 +96,7 @@ const useStyles = makeStyles(theme => ({
 
 export default memo(
   forwardRef(({ headerHeight = 0, setHeaderHeight }, ref) => {
+    const dispatch = useDispatch();
     let history = useHistory();
     const classes = useStyles();
     const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
@@ -97,6 +105,15 @@ export default memo(
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
+
+    const currentProject = useSelector(state => state.projectReducers.currentProject);
+    const targetName = useSelector(state => state.apiReducers.target_on_name);
+
+    const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
+
+    const discourseAvailable = isDiscourseAvailable();
+    const targetDiscourseVisible = discourseAvailable && targetName;
+    const projectDiscourseVisible = discourseAvailable && currentProject && currentProject.title;
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -121,6 +138,10 @@ export default memo(
     const openCovidMoonshot = () => {
       // window.location.href = 'https://covid.postera.ai/covid';
       window.open('https://covid.postera.ai/covid', '_blank');
+    };
+
+    const openDiscourseLink = url => {
+      window.open(url, '_blank');
     };
 
     let authListItem;
@@ -213,6 +234,56 @@ export default memo(
               </ButtonGroup>
             </Grid>
             <Grid item>
+              {discourseAvailable && (
+                <ButtonGroup variant="text" size="small">
+                  {targetDiscourseVisible && (
+                    <Tooltip title="Go to target category on Discourse">
+                      <Button
+                        startIcon={<Chat />}
+                        variant="text"
+                        size="small"
+                        onClick={() => {
+                          generateDiscourseTargetURL(targetName)
+                            .then(response => {
+                              const url = response.data['Post url'];
+                              if (url) {
+                                openDiscourseLink(url);
+                              }
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              dispatch(setOpenDiscourseErrorModal(true));
+                            });
+                        }}
+                      ></Button>
+                    </Tooltip>
+                  )}
+                  {projectDiscourseVisible && (
+                    <Tooltip title="Go to project topic on Discourse">
+                      <Button
+                        startIcon={<QuestionAnswer />}
+                        variant="text"
+                        size="small"
+                        onClick={() => {
+                          getExistingPost(currentProject.title)
+                            .then(response => {
+                              const url = response.data['Post url'];
+                              if (url) {
+                                openDiscourseLink(url);
+                              }
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              dispatch(setOpenDiscourseErrorModal(true));
+                            });
+                        }}
+                      ></Button>
+                    </Tooltip>
+                  )}
+                </ButtonGroup>
+              )}
+            </Grid>
+            <Grid item>
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
                 <Grid item>
                   <Button
@@ -287,6 +358,7 @@ export default memo(
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         <TrackingModal openModal={openTrackingModal} onModalClose={() => setOpenTrackingModal(false)} />
+        <DiscourseErrorModal openModal={openDiscourseError} />
         <Drawer
           anchor="left"
           open={openMenu}

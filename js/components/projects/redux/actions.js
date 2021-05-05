@@ -79,3 +79,13 @@ export const setForceProjectCreated = isCreated => ({
   type: constants.SET_FORCE_PROJECT_CREATED,
   payload: isCreated
 });
+
+export const setProjectDiscourseLinks = links => ({
+  type: constants.SET_PROJECT_DISCOURSE_LINKS,
+  payload: links
+});
+
+export const setCurrentProjectDiscourseLink = link => ({
+  type: constants.SET_CURRENT_PROJECT_DISCOURSE_LINK,
+  payload: link
+});

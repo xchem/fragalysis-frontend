@@ -4,12 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
-import { Description, Title } from '@material-ui/icons';
+import { Description, Title, QuestionAnswer, FindReplace } from '@material-ui/icons';
 import { TextField } from 'formik-material-ui';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
+import { isDiscourseAvailable, isDiscourseUserAvailable } from '../../../utils/discourse';
+import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 import moment from 'moment';
 
@@ -40,6 +42,11 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const dispatch = useDispatch();
   const { nglViewList } = useContext(NglContext);
   const [overwriteSnapshot, setoverwriteSnapshot] = useState(false);
+  let [createDiscourse, setCreateDiscourse] = useState(true);
+
+  const discourseAvailable = isDiscourseAvailable();
+  const dicourseUserAvailable = isDiscourseUserAvailable();
+  createDiscourse &= dicourseUserAvailable;
 
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
   const currentProject = useSelector(state => state.projectReducers.currentProject);
@@ -95,7 +102,8 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               parent,
               session_project,
               nglViewList,
-              overwriteSnapshot
+              overwriteSnapshot,
+              createDiscourse
             })
           ).catch(error => {
             setState(() => {
@@ -139,21 +147,46 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               </Grid>
               {currentSnapshotId && (
                 <Grid item>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="overwrite"
-                        color="primary"
-                        onChange={() => {
-                          toggleoverwriteSnapshot();
-                        }}
+                  <InputFieldAvatar
+                    icon={<FindReplace />}
+                    field={
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            onChange={() => {
+                              toggleoverwriteSnapshot();
+                            }}
+                            disabled={isLoadingSnapshotDialog || isSubmitting}
+                            name="overwrite"
+                          />
+                        }
+                        label="Overwrite current snapshot"
                       />
                     }
-                    label="Overwrite current snapshot"
-                    labelPlacement="end"
-                    className={classes.checkbox}
-                    disabled={isLoadingSnapshotDialog || isSubmitting}
                   />
+                </Grid>
+              )}
+              <Grid item>
+                <InputFieldAvatar
+                  icon={<QuestionAnswer />}
+                  field={
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={createDiscourse}
+                          onChange={() => setCreateDiscourse(!createDiscourse)}
+                          disabled={!discourseAvailable || isSubmitting || !dicourseUserAvailable}
+                          name="createDisTopic"
+                        />
+                      }
+                      label="Create Discourse post"
+                    />
+                  }
+                />
+              </Grid>
+              {!dicourseUserAvailable && (
+                <Grid item>
+                  <RegisterNotice></RegisterNotice>
                 </Grid>
               )}
             </Grid>
