@@ -35,7 +35,7 @@ const TagSelector = memo(({ handleHeightChange }) => {
   const classes = useStyles();
   const ref = useRef(null);
   const elementRef = useRef(null);
-  const [headerPadding, setheaderPadding] = useState(0);
+  const [headerPadding, setheaderPadding] = useState(defaultHeaderPadding);
   const [elementHeight, setElementHeight] = useState(0);
 
   const handleClearButton = () => {
@@ -55,10 +55,15 @@ const TagSelector = memo(({ handleHeightChange }) => {
         element.removeEventListener('resize', handleResize);
       }
     };
-  }, [elementRef, handleResize, checkResize, headerPadding]);
+  }, [elementRef, handleResize, checkResize]);
+
+  useEffect(() => {
+    handleScroll(elementRef.current?.childNodes[1], headerPadding);
+  }, [elementRef, handleScroll, headerPadding, elementHeight]);
 
   const handleResize = useCallback(
     event => {
+      //console.log('resize ' + ref.current.clientHeight);
       handleHeightChange(ref.current.offsetHeight);
     },
     [handleHeightChange]
@@ -90,13 +95,12 @@ const TagSelector = memo(({ handleHeightChange }) => {
 
       if (elementHeight !== h) {
         setElementHeight(h);
-        handleScroll(elementRef.current?.childNodes[1], headerPadding);
 
         const event = new CustomEvent('resize', { detail: { width: w, height: h } });
         el.dispatchEvent(event);
       }
     },
-    [elementHeight, headerPadding, handleScroll]
+    [elementHeight]
   );
 
   return (
