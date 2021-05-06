@@ -21,6 +21,7 @@ name: build main
 # FE_BRANCH               optional - default master
 # FE_NAMESPACE            optional - default xchem
 # STACK_BRANCH            optional - default master
+# STACK_GITHUB_NAMESPACE  optional - default xchem
 # STACK_NAMESPACE         optional - default xchem
 #
 # TRIGGER_DOWNSTREAM      optional - set to 'yes'
@@ -58,6 +59,7 @@ env:
   FE_BRANCH: master
   FE_NAMESPACE: xchem
   STACK_BRANCH: master
+  STACK_GITHUB_NAMESPACE: xchem
   STACK_NAMESPACE: xchem
 
 jobs:
@@ -101,6 +103,12 @@ jobs:
         echo set-output name=STACK_BRANCH::${STACK_BRANCH}
         echo ::set-output name=STACK_BRANCH::${STACK_BRANCH}
 
+        # STACK_GITHUB_NAMESPACE
+        STACK_GITHUB_NAMESPACE="${{ env.STACK_GITHUB_NAMESPACE }}"
+        if [ -n "${{ secrets.STACK_GITHUB_NAMESPACE }}" ]; then STACK_GITHUB_NAMESPACE="${{ secrets.STACK_GITHUB_NAMESPACE }}"; fi
+        echo set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
+        echo ::set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
+
         # STACK_NAMESPACE
         STACK_NAMESPACE="${{ env.STACK_NAMESPACE }}"
         if [ -n "${{ secrets.STACK_NAMESPACE }}" ]; then STACK_NAMESPACE="${{ secrets.STACK_NAMESPACE }}"; fi
@@ -121,11 +129,12 @@ jobs:
       run: yarn
     - name: Build
       run: yarn run build
+
     - name: Trigger stack
       if: steps.vars.outputs.trigger == 'true'
       uses: informaticsmatters/trigger-ci-action@v1
       with:
-        ci-owner: ${{ steps.vars.outputs.STACK_NAMESPACE }}
+        ci-owner: ${{ steps.vars.outputs.STACK_GITHUB_NAMESPACE }}
         ci-repository: fragalysis-stack
         ci-name: build main
         ci-ref: refs/heads/${{ steps.vars.outputs.STACK_BRANCH }}
