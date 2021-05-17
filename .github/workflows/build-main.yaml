@@ -42,9 +42,6 @@ on:
     - '**'
     tags:
     - '**'
-  schedule:
-  # Build every Sunday (0) at 3:45pm
-  - cron: '45 15 * * 0'
 
 env:
   # The following 'defaults' are used in the 'Initialise workflow variables' step,
