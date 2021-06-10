@@ -41,10 +41,17 @@ export const CONSTANTS = {
   SET_BOX_SIZE: prefix + 'SET_BOX_SIZE',
   SET_OPACITY: prefix + 'SET_OPACITY',
   SET_CONTOUR: prefix + 'SET_CONTOUR',
-  SET_WARNING_ICON: prefix + 'SET_WARNING_ICON'
+  SET_WARNING_ICON: prefix + 'SET_WARNING_ICON',
+  SET_ELECTRON_DENSITY_COLOR: prefix + 'SET_ELECTRON_DENSITY_COLOR'
 };
 
 export const SCENES = {
   defaultScene: 'defaultScene',
   sessionScene: 'sessionScene'
+};
+
+export const MAP_TYPE = {
+  event: '_DENSITY',
+  sigmaa: '_DENSITY_MAP_sigmaa',
+  diff: '_DENSITY_MAP_diff'
 };

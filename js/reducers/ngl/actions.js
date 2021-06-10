@@ -189,7 +189,12 @@ export const setWarningIconAction = (newValue, oldValue) => {
 
 export const setNglOrientation = (orientation, div_id) => ({ type: CONSTANTS.SET_ORIENTATION, orientation, div_id });
 
-export const setNglOrientationByInteraction = (orientation, oldOrientation, div_id) => ({ type: CONSTANTS.SET_ORIENTATION_BY_INTERACTION, orientation, oldOrientation, div_id });
+export const setNglOrientationByInteraction = (orientation, oldOrientation, div_id) => ({
+  type: CONSTANTS.SET_ORIENTATION_BY_INTERACTION,
+  orientation,
+  oldOrientation,
+  div_id
+});
 
 export const setProteinLoadingState = hasLoaded => ({ type: CONSTANTS.SET_PROTEINS_HAS_LOADED, payload: hasLoaded });
 
@@ -243,4 +248,9 @@ export const addToPdbCache = (name, cacheItem) => ({
 export const addToQualityCache = (name, cacheItem) => ({
   type: CONSTANTS.ADD_TO_QUALITY_CACHE,
   payload: { name: name, cacheItem: cacheItem }
+});
+
+export const setElectronDensityColor = color => ({
+  type: CONSTANTS.SET_ELECTRON_DENSITY_COLOR,
+  payload: color
 });

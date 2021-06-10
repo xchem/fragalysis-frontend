@@ -41,7 +41,8 @@ export const INITIAL_STATE = {
   },
   moleculeOrientations: {},
   pdbCache: {},
-  qualityCache: {}
+  qualityCache: {},
+  electronDensityColor: 'blue'
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -193,6 +194,12 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
           ...state.pdbCache,
           [action.payload.name]: action.payload.cacheItem
         }
+      };
+
+    case CONSTANTS.SET_ELECTRON_DENSITY_COLOR:
+      return {
+        ...state,
+        electronDensityColor: action.payload
       };
 
     case CONSTANTS.ADD_TO_QUALITY_CACHE:

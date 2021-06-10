@@ -1,5 +1,6 @@
 import React, { useContext, memo } from 'react';
 import { Grid, makeStyles, Slider, Switch, TextField, Typography } from '@material-ui/core';
+import { ColorLens } from '@material-ui/icons';
 import { Drawer } from '../../common/Navigation/Drawer';
 import { BACKGROUND_COLOR, NGL_PARAMS, COMMON_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,6 +20,11 @@ import {
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import palette from '../../../theme/palette';
+import { ColorPicker } from '../../common/Components/ColorPicker';
+import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
+import { Field } from 'formik';
+import { setElectronDensityColor } from '../../../reducers/ngl/actions';
+import { MAP_TYPE } from '../../../reducers/ngl/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -37,11 +43,15 @@ const useStyles = makeStyles(theme => ({
     borderTop: '1px dashed ' + palette.dividerDark,
     paddingTop: '15px',
     marginTop: '10px'
+  },
+  mapType: {
+    textAlign: 'center'
   }
 }));
 
 export const SettingControls = memo(({ open, onClose }) => {
   const viewParams = useSelector(state => state.nglReducers.viewParams);
+  const electronDensityColor = useSelector(state => state.nglReducers.electronDensityColor);
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -61,11 +71,11 @@ export const SettingControls = memo(({ open, onClose }) => {
     }
   };
 
-  const handleRepresentation = () => {
+  const handleRepresentation = mapType => {
     if (viewParams[NGL_PARAMS.contour] === false) {
-      dispatch(setContour(true, viewParams[NGL_PARAMS.contour], majorView));
+      dispatch(setContour(mapType, true, viewParams[NGL_PARAMS.contour + mapType], majorView));
     } else {
-      dispatch(setContour(false, viewParams[NGL_PARAMS.contour], majorView));
+      dispatch(setContour(mapType, false, viewParams[NGL_PARAMS.contour + mapType], majorView));
     }
   };
 
@@ -75,6 +85,10 @@ export const SettingControls = memo(({ open, onClose }) => {
     } else {
       dispatch(setWarningIcon(false, viewParams[COMMON_PARAMS.warningIcon]));
     }
+  };
+
+  const handleColorChange = (mapType, color) => {
+    setElectronDensityColor(color);
   };
 
   return (
@@ -167,18 +181,27 @@ export const SettingControls = memo(({ open, onClose }) => {
           </Grid>
         </Grid>
         <div className={classes.divider}>
+          <Grid item container>
+            <Grid item xs={12}>
+              <Typography variant="body1" className={classes.mapType}>
+                EVENT MAP
+              </Typography>
+            </Grid>
+          </Grid>
           <Grid item container direction="row" justify="space-between">
             <Grid item>
               <Typography variant="body1">ISO</Typography>
             </Grid>
             <Grid item className={classes.value}>
               <Slider
-                value={viewParams[NGL_PARAMS.isolevel]}
+                value={viewParams[NGL_PARAMS.isolevel_DENSITY]}
                 valueLabelDisplay="auto"
                 step={1}
                 min={-100}
                 max={100}
-                onChange={(e, value) => dispatch(setIsoLevel(value, viewParams[NGL_PARAMS.isolevel], majorView))}
+                onChange={(e, value) =>
+                  dispatch(setIsoLevel(MAP_TYPE.event, value, viewParams[NGL_PARAMS.isolevel_DENSITY], majorView))
+                }
               />
             </Grid>
           </Grid>
@@ -188,12 +211,14 @@ export const SettingControls = memo(({ open, onClose }) => {
             </Grid>
             <Grid item className={classes.value}>
               <Slider
-                value={viewParams[NGL_PARAMS.boxSize]}
+                value={viewParams[NGL_PARAMS.boxSize_DENSITY]}
                 valueLabelDisplay="auto"
                 step={1}
                 min={0}
                 max={100}
-                onChange={(e, value) => dispatch(setBoxSize(value, viewParams[NGL_PARAMS.boxSize], majorView))}
+                onChange={(e, value) =>
+                  dispatch(setBoxSize(MAP_TYPE.event, value, viewParams[NGL_PARAMS.boxSize_DENSITY], majorView))
+                }
               />
             </Grid>
           </Grid>
@@ -203,12 +228,14 @@ export const SettingControls = memo(({ open, onClose }) => {
             </Grid>
             <Grid item className={classes.value}>
               <Slider
-                value={viewParams[NGL_PARAMS.opacity]}
+                value={viewParams[NGL_PARAMS.opacity_DENSITY]}
                 valueLabelDisplay="auto"
                 step={0.01}
                 min={0}
                 max={1}
-                onChange={(e, value) => dispatch(setOpacity(value, viewParams[NGL_PARAMS.opacity], majorView))}
+                onChange={(e, value) =>
+                  dispatch(setOpacity(MAP_TYPE.event, value, viewParams[NGL_PARAMS.opacity_DENSITY], majorView))
+                }
               />
             </Grid>
           </Grid>
@@ -220,9 +247,202 @@ export const SettingControls = memo(({ open, onClose }) => {
               <Switch
                 size="small"
                 color="primary"
-                checked={viewParams[NGL_PARAMS.contour] === true}
-                onChange={handleRepresentation}
+                checked={viewParams[NGL_PARAMS.contour_DENSITY] === true}
+                onChange={(e, value) => handleRepresentation(MAP_TYPE.event)}
               />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Colour</Typography>
+            </Grid>
+            <Grid item>
+              <Grid item xs={10} className={classes.input}></Grid>
+              <Grid item xs={2} className={classes.input}>
+                <ColorPicker
+                  selectedColor={electronDensityColor}
+                  setSelectedColor={handleColorChange(MAP_TYPE.event)}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </div>
+        <div className={classes.divider}>
+          <Grid item container>
+            <Grid item xs={12}>
+              <Typography variant="body1" className={classes.mapType}>
+                SIGMAA MAP
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">ISO</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa]}
+                valueLabelDisplay="auto"
+                step={1}
+                min={-100}
+                max={100}
+                onChange={(e, value) =>
+                  dispatch(
+                    setIsoLevel(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa], majorView)
+                  )
+                }
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Box size</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa]}
+                valueLabelDisplay="auto"
+                step={1}
+                min={0}
+                max={100}
+                onChange={(e, value) =>
+                  dispatch(
+                    setBoxSize(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa], majorView)
+                  )
+                }
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Opacity</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa]}
+                valueLabelDisplay="auto"
+                step={0.01}
+                min={0}
+                max={1}
+                onChange={(e, value) =>
+                  dispatch(
+                    setOpacity(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa], majorView)
+                  )
+                }
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Surface/wireframe toggle</Typography>
+            </Grid>
+            <Grid item>
+              <Switch
+                size="small"
+                color="primary"
+                checked={viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa] === true}
+                onChange={(e, value) => handleRepresentation(MAP_TYPE.sigmaa)}
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Colour</Typography>
+            </Grid>
+            <Grid item>
+              <Grid item xs={10} className={classes.input}></Grid>
+              <Grid item xs={2} className={classes.input}>
+                <ColorPicker
+                  selectedColor={electronDensityColor}
+                  setSelectedColor={handleColorChange(MAP_TYPE.sigmaa)}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </div>
+        <div className={classes.divider}>
+          <Grid item container>
+            <Grid item xs={12}>
+              <Typography variant="body1" className={classes.mapType}>
+                DIFF MAP
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">ISO</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff]}
+                valueLabelDisplay="auto"
+                step={1}
+                min={-100}
+                max={100}
+                onChange={(e, value) =>
+                  dispatch(
+                    setIsoLevel(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff], majorView)
+                  )
+                }
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Box size</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff]}
+                valueLabelDisplay="auto"
+                step={1}
+                min={0}
+                max={100}
+                onChange={(e, value) =>
+                  dispatch(setBoxSize(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff], majorView))
+                }
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Opacity</Typography>
+            </Grid>
+            <Grid item className={classes.value}>
+              <Slider
+                value={viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff]}
+                valueLabelDisplay="auto"
+                step={0.01}
+                min={0}
+                max={1}
+                onChange={(e, value) =>
+                  dispatch(setOpacity(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff], majorView))
+                }
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Surface/wireframe toggle</Typography>
+            </Grid>
+            <Grid item>
+              <Switch
+                size="small"
+                color="primary"
+                checked={viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff] === true}
+                onChange={(e, value) => handleRepresentation(MAP_TYPE.diff)}
+              />
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justify="space-between">
+            <Grid item>
+              <Typography variant="body1">Colour</Typography>
+            </Grid>
+            <Grid item>
+              <Grid item xs={10} className={classes.input}></Grid>
+              <Grid item xs={2} className={classes.input}>
+                <ColorPicker selectedColor={electronDensityColor} setSelectedColor={handleColorChange(MAP_TYPE.diff)} />
+              </Grid>
             </Grid>
           </Grid>
         </div>

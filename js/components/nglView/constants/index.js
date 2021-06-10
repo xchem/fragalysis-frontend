@@ -1,3 +1,5 @@
+import { MAP_TYPE } from '../../../reducers/ngl/constants';
+
 export const BACKGROUND_COLOR = {
   black: 'black',
   white: 'white'
@@ -25,10 +27,18 @@ export const NGL_PARAMS = {
   clipDist: 'clipDist',
   fogNear: 'fogNear',
   fogFar: 'fogFar',
-  isolevel: 'isolevel',
-  boxSize: 'boxSize',
-  opacity: 'opacity',
-  contour: 'contour'
+  isolevel_DENSITY: 'isolevel' + MAP_TYPE.event,
+  boxSize_DENSITY: 'boxSize' + MAP_TYPE.event,
+  opacity_DENSITY: 'opacity' + MAP_TYPE.event,
+  contour_DENSITY: 'contour' + MAP_TYPE.event,
+  isolevel_DENSITY_MAP_sigmaa: 'isolevel' + MAP_TYPE.sigmaa,
+  boxSize_DENSITY_MAP_sigmaa: 'boxSize' + MAP_TYPE.sigmaa,
+  opacity_DENSITY_MAP_sigmaa: 'opacity' + MAP_TYPE.sigmaa,
+  contour_DENSITY_MAP_sigmaa: 'contour' + MAP_TYPE.sigmaa,
+  isolevel_DENSITY_MAP_diff: 'isolevel' + MAP_TYPE.diff,
+  boxSize_DENSITY_MAP_diff: 'boxSize' + MAP_TYPE.diff,
+  opacity_DENSITY_MAP_diff: 'opacity' + MAP_TYPE.diff,
+  contour_DENSITY_MAP_diff: 'contour' + MAP_TYPE.diff
 };
 
 // warning dont use underscore _ in constants!!!!!!
@@ -91,15 +101,23 @@ export const MOL_REPRESENTATION_BUFFER = 'buffer';
 
 export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
-  [NGL_PARAMS.clipNear]: 42,
+  [NGL_PARAMS.clipNear]: 45,
   [NGL_PARAMS.clipFar]: 100,
   [NGL_PARAMS.clipDist]: 10,
-  [NGL_PARAMS.fogNear]: 50,
-  [NGL_PARAMS.fogFar]: 62,
-  [NGL_PARAMS.isolevel]: 1,
-  [NGL_PARAMS.boxSize]: 0,
-  [NGL_PARAMS.opacity]: 1,
-  [NGL_PARAMS.contour]: false,
+  [NGL_PARAMS.fogNear]: 47,
+  [NGL_PARAMS.fogFar]: 55,
+  [NGL_PARAMS.isolevel_DENSITY]: 1,
+  [NGL_PARAMS.boxSize_DENSITY]: 0,
+  [NGL_PARAMS.opacity_DENSITY]: 1,
+  [NGL_PARAMS.contour_DENSITY]: false,
+  [NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa]: 1,
+  [NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa]: 0,
+  [NGL_PARAMS.opacity_DENSITY_MAP_sigmaa]: 1,
+  [NGL_PARAMS.contour_DENSITY_MAP_sigmaa]: false,
+  [NGL_PARAMS.isolevel_DENSITY_MAP_diff]: 1,
+  [NGL_PARAMS.boxSize_DENSITY_MAP_diff]: 0,
+  [NGL_PARAMS.opacity_DENSITY_MAP_diff]: 1,
+  [NGL_PARAMS.contour_DENSITY_MAP_diff]: false,
   [COMMON_PARAMS.warningIcon]: true
 };
 
