@@ -267,27 +267,27 @@ export const setNglFogFar = (newValue, oldValue, major) => (dispatch, getState) 
 };
 
 export const setIsoLevel = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateDensityMapByType(mapType, major, NGL_PARAMS.isolevel, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.isolevel, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setIsoLevelAction(newValue, oldValue));
+  dispatch(updateDensityMapByType(mapType, major, 'isolevel', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`isolevel${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setIsoLevelAction(mapType, newValue, oldValue));
 };
 
 export const setBoxSize = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateDensityMapByType(mapType, major, NGL_PARAMS.boxSize, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.boxSize, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setBoxSizeAction(newValue, oldValue));
+  dispatch(updateDensityMapByType(mapType, major, 'boxSize', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`boxSize${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setBoxSizeAction(mapType, newValue, oldValue));
 };
 
 export const setOpacity = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateDensityMapByType(mapType, major, NGL_PARAMS.opacity, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.opacity, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setOpacityAction(newValue, oldValue));
+  dispatch(updateDensityMapByType(mapType, major, 'opacity', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`opacity${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setOpacityAction(mapType, newValue, oldValue));
 };
 
 export const setContour = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateDensityMapByType(mapType, major, NGL_PARAMS.contour, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.contour, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setContourAction(newValue, oldValue));
+  dispatch(updateDensityMapByType(mapType, major, 'contour', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`contour${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setContourAction(mapType, newValue, oldValue));
 };
 
 export const setWarningIcon = (newValue, oldValue) => (dispatch, getState) => {

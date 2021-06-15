@@ -137,40 +137,44 @@ export const setNglFogFarAction = (newValue, oldValue) => {
   };
 };
 
-export const setIsoLevelAction = (newValue, oldValue) => {
+export const setIsoLevelAction = (mapType, newValue, oldValue) => {
   return {
-    type: CONSTANTS.SET_ISO_LEVEL,
+    type: CONSTANTS[`SET_ISO_LEVEL${mapType}`],
     payload: {
+      mapType: mapType,
       newValue: newValue,
       oldValue: oldValue
     }
   };
 };
 
-export const setBoxSizeAction = (newValue, oldValue) => {
+export const setBoxSizeAction = (mapType, newValue, oldValue) => {
   return {
-    type: CONSTANTS.SET_BOX_SIZE,
+    type: CONSTANTS[`SET_BOX_SIZE${mapType}`],
     payload: {
+      mapType: mapType,
       newValue: newValue,
       oldValue: oldValue
     }
   };
 };
 
-export const setOpacityAction = (newValue, oldValue) => {
+export const setOpacityAction = (mapType, newValue, oldValue) => {
   return {
-    type: CONSTANTS.SET_OPACITY,
+    type: CONSTANTS[`SET_OPACITY${mapType}`],
     payload: {
+      mapType: mapType,
       newValue: newValue,
       oldValue: oldValue
     }
   };
 };
 
-export const setContourAction = (newValue, oldValue) => {
+export const setContourAction = (mapType, newValue, oldValue) => {
   return {
-    type: CONSTANTS.SET_CONTOUR,
+    type: CONSTANTS[`SET_CONTOUR${mapType}`],
     payload: {
+      mapType: mapType,
       newValue: newValue,
       oldValue: oldValue
     }

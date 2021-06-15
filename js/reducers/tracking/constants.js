@@ -145,4 +145,10 @@ export const actionAnnotation = {
   STAR: 'STAR'
 };
 
+export const mapTypesStrings = {
+  EVENT: 'EVENT MAP',
+  DIFF: 'DIFF MAP',
+  SIGMAA: 'SIGMAA MAP'
+};
+
 export const NUM_OF_SECONDS_TO_IGNORE_MERGE = 2;

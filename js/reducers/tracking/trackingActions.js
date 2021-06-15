@@ -1,4 +1,4 @@
-import { actionType, actionObjectType, actionDescription, actionAnnotation } from './constants';
+import { actionType, actionObjectType, actionDescription, actionAnnotation, mapTypesStrings } from './constants';
 import { constants as apiConstants } from '../api/constants';
 import { CONSTANTS as nglConstants } from '../ngl/constants';
 import { constants as previewCompoundConstants } from '../../components/preview/compounds/redux/constants';
@@ -1286,7 +1286,20 @@ export const findTrackAction = (action, state) => {
         },
         text: `Fog far of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
-    } else if (action.type === nglConstants.SET_ISO_LEVEL) {
+    } else if (
+      action.type === nglConstants.SET_ISO_LEVEL_DENSITY ||
+      action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+      } else if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+      } else if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+      }
+
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -1297,7 +1310,7 @@ export const findTrackAction = (action, state) => {
         timestamp: Date.now(),
         username: username,
         object_type: 'NGL',
-        object_name: 'NGL',
+        object_name: objectName,
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
@@ -1312,7 +1325,20 @@ export const findTrackAction = (action, state) => {
         },
         text: `ISO of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
-    } else if (action.type === nglConstants.SET_BOX_SIZE) {
+    } else if (
+      action.type === nglConstants.SET_BOX_SIZE_DENSITY ||
+      action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      if (action.type === nglConstants.SET_BOX_SIZE_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+      } else if (action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+      } else if (action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+      }
+
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -1323,7 +1349,7 @@ export const findTrackAction = (action, state) => {
         timestamp: Date.now(),
         username: username,
         object_type: 'NGL',
-        object_name: 'NGL',
+        object_name: objectName,
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
@@ -1338,7 +1364,20 @@ export const findTrackAction = (action, state) => {
         },
         text: `Boz size of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
-    } else if (action.type === nglConstants.SET_OPACITY) {
+    } else if (
+      action.type === nglConstants.SET_OPACITY_DENSITY ||
+      action.type === nglConstants.SET_OPACITY_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_OPACITY_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      if (action.type === nglConstants.SET_OPACITY_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+      } else if (action.type === nglConstants.SET_OPACITY_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+      } else if (action.type === nglConstants.SET_OPACITY_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+      }
+
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -1349,7 +1388,7 @@ export const findTrackAction = (action, state) => {
         timestamp: Date.now(),
         username: username,
         object_type: 'NGL',
-        object_name: 'NGL',
+        object_name: objectName,
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {
@@ -1364,7 +1403,20 @@ export const findTrackAction = (action, state) => {
         },
         text: `Opacity of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
-    } else if (action.type === nglConstants.SET_CONTOUR) {
+    } else if (
+      action.type === nglConstants.SET_CONTOUR_DENSITY ||
+      action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      if (action.type === nglConstants.SET_CONTOUR_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+      } else if (action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+      } else if (action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+      }
+
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
@@ -1378,7 +1430,7 @@ export const findTrackAction = (action, state) => {
         timestamp: Date.now(),
         username: username,
         object_type: 'NGL',
-        object_name: 'NGL',
+        object_name: objectName,
         oldSetting: oldSetting,
         newSetting: newSetting,
         getText: function() {

@@ -5,7 +5,7 @@ import {
   setIsUndoRedoAction
 } from './actions';
 import { createInitAction } from './trackingActions';
-import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
+import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
 import { setHideAll, setArrowUpDown } from '../selection/actions';
 import {
@@ -145,6 +145,7 @@ import {
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
 import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
 import { hideShapeRepresentations } from '../../components/nglView/redux/dispatchActions';
+import { MAP_TYPE } from '../ngl/constants';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -874,35 +875,165 @@ const restoreNglSettingsAction = (orderedActionList, majorViewStage, summaryView
   let isoLevelAction = orderedActionList.find(action => action.type === actionType.ISO_LEVEL);
   if (isoLevelAction && isoLevelAction.newSetting !== undefined) {
     let value = isoLevelAction.newSetting;
-    dispatch(setIsoLevel(value, viewParams[NGL_PARAMS.isolevel], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(setIsoLevel(MAP_TYPE.event, value, viewParams[NGL_PARAMS.isolevel_DENSITY], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(setIsoLevel(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(setIsoLevel(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa], majorViewStage));
+    }
   } else {
-    dispatch(
-      setIsoLevel(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel], viewParams[NGL_PARAMS.isolevel], majorViewStage)
-    );
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(
+        setIsoLevel(
+          MAP_TYPE.event,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel_DENSITY],
+          viewParams[NGL_PARAMS.isolevel_DENSITY],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(
+        setIsoLevel(
+          MAP_TYPE.diff,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
+          viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(
+        setIsoLevel(
+          MAP_TYPE.sigmaa,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
+          viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
+          majorViewStage
+        )
+      );
+    }
   }
 
   let boxSizeAction = orderedActionList.find(action => action.type === actionType.BOX_SIZE);
   if (boxSizeAction && boxSizeAction.newSetting !== undefined) {
     let value = boxSizeAction.newSetting;
-    dispatch(setBoxSize(value, viewParams[NGL_PARAMS.boxSize], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(setBoxSize(MAP_TYPE.event, value, viewParams[NGL_PARAMS.boxSize_DENSITY], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(setBoxSize(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(setBoxSize(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa], majorViewStage));
+    }
   } else {
-    dispatch(setBoxSize(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize], viewParams[NGL_PARAMS.boxSize], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(
+        setBoxSize(
+          MAP_TYPE.event,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize_DENSITY],
+          viewParams[NGL_PARAMS.boxSize_DENSITY],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(
+        setBoxSize(
+          MAP_TYPE.diff,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize_DENSITY_MAP_diff],
+          viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(
+        setBoxSize(
+          MAP_TYPE.sigmaa,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa],
+          viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa],
+          majorViewStage
+        )
+      );
+    }
   }
 
   let opacityAction = orderedActionList.find(action => action.type === actionType.OPACITY);
   if (opacityAction && opacityAction.newSetting !== undefined) {
     let value = opacityAction.newSetting;
-    dispatch(setOpacity(value, viewParams[NGL_PARAMS.opacity], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(setOpacity(MAP_TYPE.event, value, viewParams[NGL_PARAMS.opacity_DENSITY], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(setOpacity(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(setOpacity(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa], majorViewStage));
+    }
   } else {
-    dispatch(setOpacity(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity], viewParams[NGL_PARAMS.opacity], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(
+        setOpacity(
+          MAP_TYPE.event,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity_DENSITY],
+          viewParams[NGL_PARAMS.opacity_DENSITY],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(
+        setOpacity(
+          MAP_TYPE.diff,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity_DENSITY_MAP_diff],
+          viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(
+        setOpacity(
+          MAP_TYPE.sigmaa,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa],
+          viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa],
+          majorViewStage
+        )
+      );
+    }
   }
 
   let contourAction = orderedActionList.find(action => action.type === actionType.CONTOUR);
   if (contourAction && contourAction.newSetting !== undefined) {
     let value = contourAction.newSetting;
-    dispatch(setContour(value, viewParams[NGL_PARAMS.contour], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(setContour(MAP_TYPE.event, value, viewParams[NGL_PARAMS.contour_DENSITY], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(setContour(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff], majorViewStage));
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(setContour(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa], majorViewStage));
+    }
   } else {
-    dispatch(setContour(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour], viewParams[NGL_PARAMS.contour], majorViewStage));
+    if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+      dispatch(
+        setContour(
+          MAP_TYPE.event,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour_DENSITY],
+          viewParams[NGL_PARAMS.contour_DENSITY],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+      dispatch(
+        setContour(
+          MAP_TYPE.diff,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour_DENSITY_MAP_diff],
+          viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+          majorViewStage
+        )
+      );
+    } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+      dispatch(
+        setContour(
+          MAP_TYPE.sigmaa,
+          NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+          viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+          majorViewStage
+        )
+      );
+    }
   }
 
   let warningIconAction = orderedActionList.find(action => action.type === actionType.WARNING_ICON);
