@@ -8,6 +8,10 @@ import {
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
+import { setNglViewParams } from '../../reducers/ngl/actions';
+import { NGL_PARAMS } from './constants/index';
+import { VIEWS } from '../../constants/constants';
+import { MAP_TYPE } from '../../reducers/ngl/constants';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
@@ -406,21 +410,25 @@ const showDensity = ({ stage, input_dict, object_name, representations, dispatch
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
-      }),
+      }) &&
+      dispatch(setNglViewParams(NGL_PARAMS[`color${MAP_TYPE.sigmaa}`], input_dict.colour, undefined, VIEWS.MAJOR_VIEW)),
     input_dict.diff_url &&
       input_dict.render_diff &&
       stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
-      }),
+      }) &&
+      dispatch(setNglViewParams(NGL_PARAMS[`color${MAP_TYPE.diff}`], input_dict.colour, undefined, VIEWS.MAJOR_VIEW)),
 
     input_dict.event_url &&
+      input_dict.render_event &&
       stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
         const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
-      })
+      }) &&
+      dispatch(setNglViewParams(NGL_PARAMS[`color${MAP_TYPE.event}`], input_dict.colour, undefined, VIEWS.MAJOR_VIEW))
   ]).then(values => {
     let val = [...values].filter(v => v !== undefined);
     return val;

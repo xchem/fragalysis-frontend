@@ -19,7 +19,8 @@ import {
   setOpacityAction,
   setContourAction,
   setWarningIconAction,
-  setNglOrientationByInteraction
+  setNglOrientationByInteraction,
+  setColorAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
@@ -288,6 +289,12 @@ export const setContour = (mapType, newValue, oldValue, major) => (dispatch, get
   dispatch(updateDensityMapByType(mapType, major, 'contour', newValue));
   dispatch(setNglViewParams(NGL_PARAMS[`contour${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
   dispatch(setContourAction(mapType, newValue, oldValue));
+};
+
+export const setElectronDesityMapColor = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'color', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`color${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setColorAction(mapType, newValue, oldValue));
 };
 
 export const setWarningIcon = (newValue, oldValue) => (dispatch, getState) => {

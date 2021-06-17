@@ -1315,7 +1315,9 @@ export const findTrackAction = (action, state) => {
         newSetting: newSetting,
         getText: function() {
           return (
-            'ISO of NGL ' +
+            'ISO of ' +
+            objectName +
+            ' ' +
             actionDescription.CHANGED +
             ' from value: ' +
             this.oldSetting +
@@ -1323,7 +1325,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `ISO of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
+        text: `ISO of ${objectName} ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (
       action.type === nglConstants.SET_BOX_SIZE_DENSITY ||
@@ -1354,7 +1356,9 @@ export const findTrackAction = (action, state) => {
         newSetting: newSetting,
         getText: function() {
           return (
-            'Box size of NGL ' +
+            'Box size of ' +
+            objectName +
+            ' ' +
             actionDescription.CHANGED +
             ' from value: ' +
             this.oldSetting +
@@ -1362,7 +1366,7 @@ export const findTrackAction = (action, state) => {
             this.newSetting
           );
         },
-        text: `Boz size of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
+        text: `Boz size of ${objectName} ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (
       action.type === nglConstants.SET_OPACITY_DENSITY ||
@@ -1393,7 +1397,9 @@ export const findTrackAction = (action, state) => {
         newSetting: newSetting,
         getText: function() {
           return (
-            'Opacity of NGL ' +
+            'Opacity of ' +
+            objectName +
+            ' ' +
             actionDescription.CHANGED +
             ' from value: ' +
             this.oldSetting +
@@ -1435,7 +1441,9 @@ export const findTrackAction = (action, state) => {
         newSetting: newSetting,
         getText: function() {
           return (
-            'Surface/wireframe of NGL ' +
+            'Surface/wireframe of ' +
+            objectName +
+            ' ' +
             actionDescription.CHANGED +
             ' from value: ' +
             oldSettingDescription +
@@ -1443,7 +1451,48 @@ export const findTrackAction = (action, state) => {
             newSettingDescription
           );
         },
-        text: `Surface/wireframe of NGL ${actionDescription.CHANGED} to value: ${newSettingDescription}`
+        text: `Surface/wireframe of ${objectName} ${actionDescription.CHANGED} to value: ${newSettingDescription}`
+      };
+    } else if (
+      action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY ||
+      action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY_MAP_sigmaa ||
+      action.type === nglConstants.SET_ELECTRON_COLOR__DENSITY_MAP_diff
+    ) {
+      let objectName = null;
+      if (action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+      } else if (action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.DIFF;
+      } else if (action.type === nglConstants.SET_ELECTRON_COLOR__DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.SIGMAA;
+      }
+
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.COLOR,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: objectName,
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Color of  ' +
+            objectName +
+            ' ' +
+            actionDescription.CHANGED +
+            ' from color: ' +
+            this.oldSetting +
+            ' to color: ' +
+            this.newSetting
+          );
+        },
+        text: `Color of ${objectName} ${actionDescription.CHANGED} to value: ${newSetting}`
       };
     } else if (action.type === nglConstants.SET_WARNING_ICON) {
       let oldSetting = action.payload.oldValue;

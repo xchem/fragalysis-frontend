@@ -205,6 +205,7 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
     prot_url,
     render_sigmaa: proteinData?.render_sigmaa,
     render_diff: proteinData?.render_diff,
+    render_event: proteinData?.render_event,
     colour: colourToggle,
     moleculeId: data.id,
     wireframe: isWireframeStyle,

@@ -38,7 +38,10 @@ export const NGL_PARAMS = {
   isolevel_DENSITY_MAP_diff: 'isolevel' + MAP_TYPE.diff,
   boxSize_DENSITY_MAP_diff: 'boxSize' + MAP_TYPE.diff,
   opacity_DENSITY_MAP_diff: 'opacity' + MAP_TYPE.diff,
-  contour_DENSITY_MAP_diff: 'contour' + MAP_TYPE.diff
+  contour_DENSITY_MAP_diff: 'contour' + MAP_TYPE.diff,
+  color_DENSITY: 'color' + MAP_TYPE.event,
+  color_DENSITY_MAP_sigmaa: 'color' + MAP_TYPE.sigmaa,
+  color_DENSITY_MAP_diff: 'color' + MAP_TYPE.diff
 };
 
 // warning dont use underscore _ in constants!!!!!!

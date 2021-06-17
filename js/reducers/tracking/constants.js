@@ -84,6 +84,7 @@ export const actionType = {
   BOX_SIZE: 'BOX_SIZE',
   OPACITY: 'OPACITY',
   CONTOUR: 'CONTOUR',
+  COLOR: 'COLOR',
   WARNING_ICON: 'WARNING_ICON'
 };
 

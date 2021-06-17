@@ -23,6 +23,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
   const classes = useStyles();
   const [valueSigmaa, setValueSigmaa] = useState(false);
   const [valueDiff, setValueDiff] = useState(false);
+  const [valueEvent, setValueEvent] = useState(false);
   const proteinData = data.proteinData;
 
   const toggleRenderSigmaaMap = () => {
@@ -35,6 +36,12 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
     let render = (proteinData.render_diff && proteinData.render_diff) || false;
     proteinData.render_diff = !render;
     setValueDiff(!valueDiff);
+  };
+
+  const toggleRenderEventMap = () => {
+    let render = (proteinData.render_event && proteinData.render_event) || false;
+    proteinData.render_event = !render;
+    setValueEvent(!valueEvent);
   };
 
   const handleCloseModal = () => {
@@ -58,6 +65,23 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
             <FormControlLabel
               control={
                 <Checkbox
+                  checked={valueEvent}
+                  name="event"
+                  color="primary"
+                  onChange={() => {
+                    toggleRenderEventMap();
+                  }}
+                />
+              }
+              label="Render map event"
+              labelPlacement="end"
+              className={classes.checkbox}
+            />
+          </Grid>
+          <Grid item>
+            <FormControlLabel
+              control={
+                <Checkbox
                   checked={valueSigmaa}
                   name="sigma"
                   color="primary"
@@ -66,7 +90,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
                   }}
                 />
               }
-              label="Render map sigma"
+              label="Render map sigmaa"
               labelPlacement="end"
               className={classes.checkbox}
             />

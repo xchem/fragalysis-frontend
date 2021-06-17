@@ -181,6 +181,17 @@ export const setContourAction = (mapType, newValue, oldValue) => {
   };
 };
 
+export const setColorAction = (mapType, newValue, oldValue) => {
+  return {
+    type: CONSTANTS[`SET_ELECTRON_COLOR${mapType}`],
+    payload: {
+      mapType: mapType,
+      newValue: newValue,
+      oldValue: oldValue
+    }
+  };
+};
+
 export const setWarningIconAction = (newValue, oldValue) => {
   return {
     type: CONSTANTS.SET_WARNING_ICON,
@@ -252,9 +263,4 @@ export const addToPdbCache = (name, cacheItem) => ({
 export const addToQualityCache = (name, cacheItem) => ({
   type: CONSTANTS.ADD_TO_QUALITY_CACHE,
   payload: { name: name, cacheItem: cacheItem }
-});
-
-export const setElectronDensityColor = color => ({
-  type: CONSTANTS.SET_ELECTRON_DENSITY_COLOR,
-  payload: color
 });

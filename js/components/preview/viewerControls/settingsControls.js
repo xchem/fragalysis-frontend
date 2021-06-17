@@ -15,7 +15,8 @@ import {
   setBoxSize,
   setOpacity,
   setContour,
-  setWarningIcon
+  setWarningIcon,
+  setElectronDesityMapColor
 } from '../../../reducers/ngl/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
@@ -23,7 +24,6 @@ import palette from '../../../theme/palette';
 import { ColorPicker } from '../../common/Components/ColorPicker';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
 import { Field } from 'formik';
-import { setElectronDensityColor } from '../../../reducers/ngl/actions';
 import { MAP_TYPE } from '../../../reducers/ngl/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -51,7 +51,6 @@ const useStyles = makeStyles(theme => ({
 
 export const SettingControls = memo(({ open, onClose }) => {
   const viewParams = useSelector(state => state.nglReducers.viewParams);
-  const electronDensityColor = useSelector(state => state.nglReducers.electronDensityColor);
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -85,10 +84,6 @@ export const SettingControls = memo(({ open, onClose }) => {
     } else {
       dispatch(setWarningIcon(false, viewParams[COMMON_PARAMS.warningIcon]));
     }
-  };
-
-  const handleColorChange = (mapType, color) => {
-    setElectronDensityColor(color);
   };
 
   return (
@@ -260,8 +255,12 @@ export const SettingControls = memo(({ open, onClose }) => {
               <Grid item xs={10} className={classes.input}></Grid>
               <Grid item xs={2} className={classes.input}>
                 <ColorPicker
-                  selectedColor={electronDensityColor}
-                  setSelectedColor={handleColorChange(MAP_TYPE.event)}
+                  selectedColor={viewParams[NGL_PARAMS.color_DENSITY]}
+                  setSelectedColor={value =>
+                    dispatch(
+                      setElectronDesityMapColor(MAP_TYPE.event, value, viewParams[NGL_PARAMS.color_DENSITY], majorView)
+                    )
+                  }
                 />
               </Grid>
             </Grid>
@@ -353,8 +352,17 @@ export const SettingControls = memo(({ open, onClose }) => {
               <Grid item xs={10} className={classes.input}></Grid>
               <Grid item xs={2} className={classes.input}>
                 <ColorPicker
-                  selectedColor={electronDensityColor}
-                  setSelectedColor={handleColorChange(MAP_TYPE.sigmaa)}
+                  selectedColor={viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa]}
+                  setSelectedColor={value =>
+                    dispatch(
+                      setElectronDesityMapColor(
+                        MAP_TYPE.sigmaa,
+                        value,
+                        viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+                        majorView
+                      )
+                    )
+                  }
                 />
               </Grid>
             </Grid>
@@ -432,17 +440,6 @@ export const SettingControls = memo(({ open, onClose }) => {
                 checked={viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff] === true}
                 onChange={(e, value) => handleRepresentation(MAP_TYPE.diff)}
               />
-            </Grid>
-          </Grid>
-          <Grid item container direction="row" justify="space-between">
-            <Grid item>
-              <Typography variant="body1">Colour</Typography>
-            </Grid>
-            <Grid item>
-              <Grid item xs={10} className={classes.input}></Grid>
-              <Grid item xs={2} className={classes.input}>
-                <ColorPicker selectedColor={electronDensityColor} setSelectedColor={handleColorChange(MAP_TYPE.diff)} />
-              </Grid>
             </Grid>
           </Grid>
         </div>
