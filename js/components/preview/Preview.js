@@ -109,7 +109,6 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
   const tabValue = useSelector(state => state.datasetsReducers.tabValue);
 
-
   /*
      Loading datasets
    */

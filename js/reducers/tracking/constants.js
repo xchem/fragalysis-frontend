@@ -34,6 +34,12 @@ export const actionType = {
   INTERACTIONS_TURNED_OFF: 'INTERACTIONS_TURNED_OFF',
   SURFACE_TURNED_ON: 'SURFACE_TURNED_ON',
   SURFACE_TURNED_OFF: 'SURFACE_TURNED_OFF',
+  DENSITY_TURNED_ON: 'DENSITY_TURNED_ON',
+  DENSITY_TURNED_OFF: 'DENSITY_TURNED_OFF',
+  DENSITY_CUSTOM_TURNED_ON: 'DENSITY_CUSTOM_TURNED_ON',
+  DENSITY_CUSTOM_TURNED_OFF: 'DENSITY_CUSTOM_TURNED_OFF',
+  QUALITY_TURNED_ON: 'QUALITY_TURNED_ON',
+  QUALITY_TURNED_OFF: 'QUALITY_TURNED_OFF',
   VECTORS_TURNED_ON: 'VECTORS_TURNED_ON',
   VECTORS_TURNED_OFF: 'VECTORS_TURNED_OFF',
   CLASS_SELECTED: 'CLASS_SELECTED',
@@ -73,7 +79,13 @@ export const actionType = {
   CLIP_FAR: 'CLIP_FAR',
   CLIP_DIST: 'CLIP_DIST',
   FOG_NEAR: 'FOG_NEAR',
-  FOG_FAR: 'FOG_FAR'
+  FOG_FAR: 'FOG_FAR',
+  ISO_LEVEL: 'ISO_LEVEL',
+  BOX_SIZE: 'BOX_SIZE',
+  OPACITY: 'OPACITY',
+  CONTOUR: 'CONTOUR',
+  COLOR: 'COLOR',
+  WARNING_ICON: 'WARNING_ICON'
 };
 
 export const actionDescription = {
@@ -96,6 +108,7 @@ export const actionDescription = {
   LIGAND: 'Ligand',
   SIDECHAIN: 'Sidechain',
   INTERACTION: 'Interaction',
+  DENSITY: 'Density',
   VECTOR: 'Vector',
   COMPOUND: 'Compound',
   MOLECULE: 'Molecule',
@@ -103,13 +116,15 @@ export const actionDescription = {
   CROSS_REFERENCE: 'Cross reference',
   CLASS: 'Compound colour',
   SURFACE: 'Surface',
+  QUALITY: 'Quality',
   SITE: 'Site',
   TARGET: 'Target',
   ALL: 'All',
   LIGANDS: 'Ligands',
   SIDECHAINS: 'Sidechains',
   TAB: 'Tab',
-  DATASET: 'Dataset'
+  DATASET: 'Dataset',
+  CUSTOM_VIEW: 'custom view'
 };
 
 export const actionObjectType = {
@@ -129,6 +144,12 @@ export const actionAnnotation = {
   WARNING: 'WARNING',
   FAVORITE: 'FAVORITE',
   STAR: 'STAR'
+};
+
+export const mapTypesStrings = {
+  EVENT: 'EVENT MAP',
+  DIFF: 'DIFF MAP',
+  SIGMAA: 'SIGMAA MAP'
 };
 
 export const NUM_OF_SECONDS_TO_IGNORE_MERGE = 2;

@@ -1,5 +1,11 @@
 const prefix = 'REDUCERS_NGL_';
 
+export const MAP_TYPE = {
+  event: '_DENSITY',
+  sigmaa: '_DENSITY_MAP_sigmaa',
+  diff: '_DENSITY_MAP_diff'
+};
+
 export const CONSTANTS = {
   LOAD_OBJECT: prefix + 'LOAD_OBJECT',
   DELETE_OBJECT: prefix + 'DELETE_OBJECT',
@@ -29,13 +35,30 @@ export const CONSTANTS = {
   REMOVE_MOLECULE_ORIENTATION: prefix + 'REMOVE_MOLECULE_ORIENTATION',
 
   ADD_TO_PDB_CACHE: prefix + 'ADD_TO_PDB_CACHE',
+  ADD_TO_QUALITY_CACHE: prefix + 'ADD_TO_QUALITY_CACHE',
 
   SET_BACKGROUND_COLOR: prefix + 'SET_BACKGROUND_COLOR',
   SET_CLIP_NEAR: prefix + 'SET_CLIP_NEAR',
   SET_CLIP_FAR: prefix + 'SET_CLIP_FAR',
   SET_CLIP_DIST: prefix + 'SET_CLIP_DIST',
   SET_FOG_NEAR: prefix + 'SET_FOG_NEAR',
-  SET_FOG_FAR: prefix + 'SET_FOG_FAR'
+  SET_FOG_FAR: prefix + 'SET_FOG_FAR',
+  SET_ISO_LEVEL_DENSITY_MAP_sigmaa: prefix + 'SET_ISO_LEVEL' + MAP_TYPE.sigmaa,
+  SET_BOX_SIZE_DENSITY_MAP_sigmaa: prefix + 'SET_BOX_SIZE' + MAP_TYPE.sigmaa,
+  SET_OPACITY_DENSITY_MAP_sigmaa: prefix + 'SET_OPACITY' + MAP_TYPE.sigmaa,
+  SET_CONTOUR_DENSITY_MAP_sigmaa: prefix + 'SET_CONTOUR' + MAP_TYPE.sigmaa,
+  SET_ISO_LEVEL_DENSITY: prefix + 'SET_ISO_LEVEL' + MAP_TYPE.event,
+  SET_BOX_SIZE_DENSITY: prefix + 'SET_BOX_SIZE' + MAP_TYPE.event,
+  SET_OPACITY_DENSITY: prefix + 'SET_OPACITY' + MAP_TYPE.event,
+  SET_CONTOUR_DENSITY: prefix + 'SET_CONTOUR' + MAP_TYPE.event,
+  SET_ISO_LEVEL_DENSITY_MAP_diff: prefix + 'SET_ISO_LEVEL' + MAP_TYPE.diff,
+  SET_BOX_SIZE_DENSITY_MAP_diff: prefix + 'SET_BOX_SIZE' + MAP_TYPE.diff,
+  SET_OPACITY_DENSITY_MAP_diff: prefix + 'SET_OPACITY' + MAP_TYPE.diff,
+  SET_CONTOUR_DENSITY_MAP_diff: prefix + 'SET_CONTOUR' + MAP_TYPE.diff,
+  SET_WARNING_ICON: prefix + 'SET_WARNING_ICON',
+  SET_ELECTRON_COLOR_DENSITY: prefix + 'SET_ELECTRON_COLOR' + MAP_TYPE.event,
+  SET_ELECTRON_COLOR_DENSITY_MAP_sigmaa: prefix + 'SET_ELECTRON_COLOR' + MAP_TYPE.sigmaa,
+  SET_ELECTRON_COLOR__DENSITY_MAP_diff: prefix + 'SET_ELECTRONCOLOR' + MAP_TYPE.diff
 };
 
 export const SCENES = {

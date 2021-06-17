@@ -159,17 +159,73 @@ export const setDensityList = function(densityList) {
   };
 };
 
-export const appendDensityList = function(item) {
+export const appendDensityList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const appendDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setQualityList = function(qualityList, skipTracking = false) {
+  return {
+    type: constants.SET_QUALITY_LIST,
+    qualityList: qualityList,
+    skipTracking
+  };
+};
+
+export const appendInformationList = function(item) {
+  return {
+    type: constants.APPEND_INFORMATION_LIST,
     item: item
   };
 };
 
-export const removeFromDensityList = function(item) {
+export const removeFromInformationList = function(item) {
   return {
-    type: constants.REMOVE_FROM_DENSITY_LIST,
+    type: constants.REMOVE_FROM_INFORMATION_LIST,
     item: item
+  };
+};
+
+export const appendQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
   };
 };
 

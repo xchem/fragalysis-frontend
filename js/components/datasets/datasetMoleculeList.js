@@ -272,7 +272,9 @@ export const DatasetMoleculeList = memo(
     const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
     const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
+    const densityListCustomMolecule = useSelector(state => state.selectionReducers.densityListCustom);
     const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
+    const qualityListMolecule = useSelector(state => state.selectionReducers.qualityList);
 
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
@@ -317,7 +319,9 @@ export const DatasetMoleculeList = memo(
           complexListMolecule,
           surfaceListMolecule,
           densityListMolecule,
+          densityListCustomMolecule,
           vectorOnListMolecule,
+          qualityListMolecule,
           skipTracking
         )
       );

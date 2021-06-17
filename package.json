@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.10.17",
+  "version": "0.10.20",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -58,7 +58,7 @@
     "ngl": "2.0.0-dev.37",
     "react": "^16.11.0",
     "react-canvas-draw": "^1.1.0",
-    "react-color": "^2.17.3",
+    "react-color": "^2.19.3",
     "react-dom": "^16.12.0",
     "react-event-timeline": "^1.6.3",
     "react-grid-gallery": "^0.5.5",

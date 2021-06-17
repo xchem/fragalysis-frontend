@@ -2,7 +2,8 @@ import { constants } from './constants';
 
 export const INITIAL_STATE = {
   sortDialogOpen: false,
-  imageCache: {}
+  imageCache: {},
+  proteinDataCache: {}
 };
 
 export const molecule = (state = INITIAL_STATE, action = {}) => {
@@ -16,9 +17,22 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { ...action.payload });
 
     case constants.ADD_IMAGE_TO_CACHE:
-      return {...state, imageCache: {
-        ...state.imageCache, [action.payload.molId]: action.payload.image
-      }};
+      return {
+        ...state,
+        imageCache: {
+          ...state.imageCache,
+          [action.payload.molId]: action.payload.image
+        }
+      };
+
+    case constants.ADD_PROTEIN_DATA_TO_CACHE:
+      return {
+        ...state,
+        proteinDataCache: {
+          ...state.proteinDataCache,
+          [action.payload.molId]: action.payload.proteinData
+        }
+      };
 
     default:
       return state;

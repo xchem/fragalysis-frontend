@@ -3,7 +3,8 @@ const prefix = 'PREVIEW_MOLECULE_';
 export const constants = {
   SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
   RELOAD_REDUCER: prefix + 'RELOAD_REDUCER',
-  ADD_IMAGE_TO_CACHE: prefix + 'ADD_IMAGE_TO_CACHE'
+  ADD_IMAGE_TO_CACHE: prefix + 'ADD_IMAGE_TO_CACHE',
+  ADD_PROTEIN_DATA_TO_CACHE: prefix + 'ADD_PROTEIN_DATA_TO_CACHE'
 };
 
 export const MOL_ATTR = {
