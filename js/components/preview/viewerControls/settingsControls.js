@@ -71,10 +71,10 @@ export const SettingControls = memo(({ open, onClose }) => {
   };
 
   const handleRepresentation = mapType => {
-    if (viewParams[NGL_PARAMS.contour] === false) {
-      dispatch(setContour(mapType, true, viewParams[NGL_PARAMS.contour + mapType], majorView));
+    if (viewParams[NGL_PARAMS[`contour${mapType}`]] === false) {
+      dispatch(setContour(mapType, true, viewParams[NGL_PARAMS[`contour${mapType}`]], majorView));
     } else {
-      dispatch(setContour(mapType, false, viewParams[NGL_PARAMS.contour + mapType], majorView));
+      dispatch(setContour(mapType, false, viewParams[NGL_PARAMS[`contour${mapType}`]], majorView));
     }
   };
 
