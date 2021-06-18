@@ -317,3 +317,4 @@ export const restoreNglOrientation = (orientation, oldOrientation, div_id, stage
   view.stage.viewerControls.orient(orientation);
   dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
 };
+
