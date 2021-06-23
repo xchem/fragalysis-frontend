@@ -26,7 +26,9 @@ import {
   resetBondColorMapOfVectors,
   setCurrentVector,
   setHideAll,
-  removeFromInformationList
+  removeFromInformationList,
+  appendToDensityListType,
+  removeFromDensityListType
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -44,7 +46,7 @@ import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../moleculeView';
-import { appendMoleculeOrientation } from '../../../../reducers/ngl/actions';
+import { appendMoleculeOrientation, setNglViewParams } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
@@ -53,7 +55,7 @@ import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions'
 import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
 import { addImageToCache, addProteindDataToCache } from './actions';
-import { OBJECT_TYPE, DENSITY_MAPS } from '../../../nglView/constants';
+import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
 
@@ -319,20 +321,16 @@ export const addDensity = (
   }
 };
 
-const setDensity = (
-  stage,
-  data,
-  colourToggle,
-  isWireframeStyle,
-  skipTracking = false,
-  representations = undefined
-) => dispatch => {
+const setDensity = (stage, data, colourToggle, isWireframeStyle, skipTracking = false, representations = undefined) => (
+  dispatch,
+  getState
+) => {
+  const prepParams = dispatch(getDensityChangedParams(isWireframeStyle));
+  const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
+  const combinedObject = { ...prepParams, ...densityObject };
   dispatch(
     loadObject({
-      target: Object.assign(
-        { display_div: VIEWS.MAJOR_VIEW },
-        generateDensityObject(data, colourToggle, base_url, isWireframeStyle)
-      ),
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, combinedObject),
       stage,
       previousRepresentations: representations,
       orientationMatrix: null
@@ -340,9 +338,41 @@ const setDensity = (
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+    let molDataId = generateMoleculeId(data);
+    if (data.proteinData) {
+      molDataId['render_event'] = data.proteinData.render_event;
+      molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
+      molDataId['render_diff'] = data.proteinData.render_diff;
+    }
+    dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+    dispatch(appendToDensityListType(molDataId, skipTracking));
   });
+};
 
-  dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+const getDensityChangedParams = (isWireframeStyle = undefined) => (dispatch, getState) => {
+  const state = getState();
+  const viewParams = state.nglReducers.viewParams;
+
+  return {
+    isolevel_DENSITY: viewParams[NGL_PARAMS.isolevel_DENSITY],
+    boxSize_DENSITY: viewParams[NGL_PARAMS.boxSize_DENSITY],
+    opacity_DENSITY: viewParams[NGL_PARAMS.opacity_DENSITY],
+    contour_DENSITY: isWireframeStyle !== undefined ? isWireframeStyle : viewParams[NGL_PARAMS.contour_DENSITY],
+    color_DENSITY: viewParams[NGL_PARAMS.color_DENSITY],
+    isolevel_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
+    boxSize_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa],
+    opacity_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa],
+    contour_DENSITY_MAP_sigmaa:
+      isWireframeStyle !== undefined ? isWireframeStyle : viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+    color_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+    isolevel_DENSITY_MAP_diff: viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
+    boxSize_DENSITY_MAP_diff: viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff],
+    opacity_DENSITY_MAP_diff: viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff],
+    contour_DENSITY_MAP_diff:
+      isWireframeStyle !== undefined ? isWireframeStyle : viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff],
+    color_DENSITY_MAP_diff: viewParams[NGL_PARAMS.color_DENSITY_MAP_diff],
+    color_DENSITY_MAP_diff_negate: viewParams[NGL_PARAMS.color_DENSITY_MAP_diff_negate]
+  };
 };
 
 export const addDensityCustomView = (
@@ -362,6 +392,23 @@ export const addDensityCustomView = (
   }
 };
 
+export const toggleDensityWireframe = (currentWireframeSetting, densityData) => dispatch => {
+  const invertedWireframe = !currentWireframeSetting;
+  dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
+  dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
+  dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
+
+  if (densityData) {
+    densityData.contour_DENSITY = invertedWireframe;
+    densityData.contour_DENSITY_MAP_sigmaa = invertedWireframe;
+    densityData.contour_DENSITY_MAP_diff = invertedWireframe;
+  } else {
+    densityData = {};
+  }
+
+  return { ...densityData };
+};
+
 const setDensityCustom = (
   stage,
   data,
@@ -369,9 +416,14 @@ const setDensityCustom = (
   isWireframeStyle,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
-  const densityObject = dispatch(deleteDensityObject(data, colourToggle, stage, !isWireframeStyle));
-  dispatch(removeFromDensityList(generateMoleculeId(data), true));
+) => (dispatch, getState) => {
+  let densityObject = dispatch(getDensityChangedParams());
+  densityObject = dispatch(toggleDensityWireframe(isWireframeStyle, densityObject));
+  const oldDensityData = dispatch(deleteDensityObject(data, colourToggle, stage, !isWireframeStyle));
+  densityObject = { ...densityObject, ...oldDensityData };
+  const molId = generateMoleculeId(data);
+  dispatch(removeFromDensityList(molId, true));
+  // dispatch(removeFromDensityListType(molId, true));
 
   dispatch(
     loadObject({
@@ -395,10 +447,13 @@ export const removeDensity = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
+  dispatch(toggleDensityWireframe(isWireframeStyle));
   dispatch(deleteDensityObject(data, colourToggle, stage, isWireframeStyle));
 
-  dispatch(removeFromDensityList(generateMoleculeId(data), skipTracking));
-  dispatch(removeFromDensityListCustom(generateMoleculeId(data), true));
+  const molId = generateMoleculeId(data);
+  dispatch(removeFromDensityList(molId, skipTracking));
+  dispatch(removeFromDensityListCustom(molId, true));
+  dispatch(removeFromDensityListType(molId, skipTracking));
 };
 
 const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dispatch => {

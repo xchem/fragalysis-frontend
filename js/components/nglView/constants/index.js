@@ -41,7 +41,8 @@ export const NGL_PARAMS = {
   contour_DENSITY_MAP_diff: 'contour' + MAP_TYPE.diff,
   color_DENSITY: 'color' + MAP_TYPE.event,
   color_DENSITY_MAP_sigmaa: 'color' + MAP_TYPE.sigmaa,
-  color_DENSITY_MAP_diff: 'color' + MAP_TYPE.diff
+  color_DENSITY_MAP_diff: 'color' + MAP_TYPE.diff,
+  color_DENSITY_MAP_diff_negate: 'color' + MAP_TYPE.diff + '_negate'
 };
 
 // warning dont use underscore _ in constants!!!!!!
@@ -112,15 +113,19 @@ export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.isolevel_DENSITY]: 1,
   [NGL_PARAMS.boxSize_DENSITY]: 0,
   [NGL_PARAMS.opacity_DENSITY]: 1,
-  [NGL_PARAMS.contour_DENSITY]: false,
+  [NGL_PARAMS.contour_DENSITY]: true,
+  [NGL_PARAMS.color_DENSITY]: 'orange',
   [NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa]: 1,
   [NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa]: 0,
   [NGL_PARAMS.opacity_DENSITY_MAP_sigmaa]: 1,
-  [NGL_PARAMS.contour_DENSITY_MAP_sigmaa]: false,
-  [NGL_PARAMS.isolevel_DENSITY_MAP_diff]: 1,
+  [NGL_PARAMS.contour_DENSITY_MAP_sigmaa]: true,
+  [NGL_PARAMS.color_DENSITY_MAP_sigmaa]: 'blue',
+  [NGL_PARAMS.isolevel_DENSITY_MAP_diff]: 3,
   [NGL_PARAMS.boxSize_DENSITY_MAP_diff]: 0,
   [NGL_PARAMS.opacity_DENSITY_MAP_diff]: 1,
-  [NGL_PARAMS.contour_DENSITY_MAP_diff]: false,
+  [NGL_PARAMS.contour_DENSITY_MAP_diff]: true,
+  [NGL_PARAMS.color_DENSITY_MAP_diff]: 'lightgreen',
+  [NGL_PARAMS.color_DENSITY_MAP_diff_negate]: 'tomato',
   [COMMON_PARAMS.warningIcon]: true
 };
 

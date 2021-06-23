@@ -31,7 +31,8 @@ import {
   removeQuality,
   addQuality,
   getQualityInformation,
-  getDensityMapData
+  getDensityMapData,
+  getProteinData
 } from './redux/dispatchActions';
 import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
@@ -265,13 +266,15 @@ const MoleculeView = memo(
     const isVectorOn = V;
     const hasAdditionalInformation = I;
 
+    const [hasMap, setHasMap] = useState();
+
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
     const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
 
     let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
-    let isWireframeStyle = viewParams[NGL_PARAMS.contour];
+    let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
     // const disableUserInteraction = useDisableUserInteraction();
 
@@ -309,6 +312,23 @@ const MoleculeView = memo(
     const closeMoleculeTooltip = () => {
       setMoleculeTooltipOpen(false);
     };
+
+    const proteinData = data?.proteinData;
+
+    useEffect(() => {
+      if (!proteinData) {
+        dispatch(getProteinData(data)).then(i => {
+          if (i && i.length > 0) {
+            const proteinData = i[0];
+            data.proteinData = proteinData;
+            const result =
+              data.proteinData &&
+              (data.proteinData.diff_info || data.proteinData.event_info || data.proteinData.sigmaa_info);
+            setHasMap(result);
+          }
+        });
+      }
+    }, [data, dispatch, proteinData]);
 
     // componentDidMount
     useEffect(() => {
@@ -459,7 +479,7 @@ const MoleculeView = memo(
     };
 
     const removeSelectedDensity = () => {
-      dispatch(removeDensity(stage, data, colourToggle));
+      dispatch(removeDensity(stage, data, colourToggle, false));
     };
 
     const addNewDensityCustom = () => {
@@ -755,7 +775,7 @@ const MoleculeView = memo(
                         }
                       )}
                       onClick={() => onDensity()}
-                      disabled={false}
+                      disabled={!hasMap}
                     >
                       D
                     </Button>
