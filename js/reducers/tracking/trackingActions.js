@@ -244,6 +244,43 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
+    } else if (action.type === selectionConstants.APPEND_DENSITY_TYPE) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+      trackAction = {
+        type: actionType.DENSITY_TYPE_ON,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.item.id,
+        render_event: action.item.render_event,
+        render_sigmaa: action.item.render_sigmaa,
+        render_diff: action.item.render_diff,
+        text: `${actionDescription.DENSITY} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
+      };
+    } else if (action.type === selectionConstants.REMOVE_DENSITY_TYPE) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+      trackAction = {
+        type: actionType.DENSITY_TYPE_OFF,
+        annotation: actionAnnotation.CLEAR,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.item.id,
+        text: `${actionDescription.DENSITY} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
+      };
     } else if (action.type === selectionConstants.APPEND_DENSITY_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
@@ -1292,19 +1329,23 @@ export const findTrackAction = (action, state) => {
       action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_sigmaa
     ) {
       let objectName = null;
+      let actionTypeMap = null;
       if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY) {
         objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.ISO_LEVEL_EVENT;
       } else if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_diff) {
         objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.ISO_LEVEL_DIFF;
       } else if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_sigmaa) {
         objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.ISO_LEVEL_SIGMAA;
       }
 
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
       trackAction = {
-        type: actionType.ISO_LEVEL,
+        type: actionTypeMap,
         merge: true,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
@@ -1333,19 +1374,23 @@ export const findTrackAction = (action, state) => {
       action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_sigmaa
     ) {
       let objectName = null;
+      let actionTypeMap = null;
       if (action.type === nglConstants.SET_BOX_SIZE_DENSITY) {
         objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.BOX_SIZE_EVENT;
       } else if (action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_diff) {
         objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.BOX_SIZE_DIFF;
       } else if (action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_sigmaa) {
         objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.BOX_SIZE_SIGMAA;
       }
 
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
       trackAction = {
-        type: actionType.BOX_SIZE,
+        type: actionTypeMap,
         merge: true,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
@@ -1374,19 +1419,23 @@ export const findTrackAction = (action, state) => {
       action.type === nglConstants.SET_OPACITY_DENSITY_MAP_sigmaa
     ) {
       let objectName = null;
+      let actionTypeMap = null;
       if (action.type === nglConstants.SET_OPACITY_DENSITY) {
         objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.OPACITY_EVENT;
       } else if (action.type === nglConstants.SET_OPACITY_DENSITY_MAP_diff) {
         objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.OPACITY_DIFF;
       } else if (action.type === nglConstants.SET_OPACITY_DENSITY_MAP_sigmaa) {
         objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.OPACITY_SIGMAA;
       }
 
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
       trackAction = {
-        type: actionType.OPACITY,
+        type: actionTypeMap,
         merge: true,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
@@ -1415,12 +1464,16 @@ export const findTrackAction = (action, state) => {
       action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_sigmaa
     ) {
       let objectName = null;
+      let actionTypeMap = null;
       if (action.type === nglConstants.SET_CONTOUR_DENSITY) {
         objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.CONTOUR_EVENT;
       } else if (action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_diff) {
         objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.CONTOUR_DIFF;
       } else if (action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_sigmaa) {
         objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.CONTOUR_SIGMAA;
       }
 
       let oldSetting = action.payload.oldValue;
@@ -1430,8 +1483,8 @@ export const findTrackAction = (action, state) => {
       let newSettingDescription = getContourChangeDescription(newSetting);
 
       trackAction = {
-        type: actionType.CONTOUR,
-        merge: true,
+        type: actionTypeMap,
+        merge: false,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
         username: username,
@@ -1459,20 +1512,24 @@ export const findTrackAction = (action, state) => {
       action.type === nglConstants.SET_ELECTRON_COLOR__DENSITY_MAP_diff
     ) {
       let objectName = null;
+      let actionTypeMap = null;
       if (action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY) {
         objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.COLOR_EVENT;
       } else if (action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY_MAP_sigmaa) {
         objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.COLOR_SIGMAA;
       } else if (action.type === nglConstants.SET_ELECTRON_COLOR__DENSITY_MAP_diff) {
         objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.COLOR_DIFF;
       }
 
       let oldSetting = action.payload.oldValue;
       let newSetting = action.payload.newValue;
 
       trackAction = {
-        type: actionType.COLOR,
-        merge: true,
+        type: actionTypeMap,
+        merge: false,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
         username: username,

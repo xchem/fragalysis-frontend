@@ -56,7 +56,7 @@ import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
 import { addImageToCache, addProteindDataToCache } from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
-import { getRepresentationsByType } from '../../../nglView/generatingObjects';
+import { getRepresentationsByType, getRepresentationsForDensities } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
 
 /**
@@ -313,10 +313,10 @@ export const addDensity = (
   representations = undefined
 ) => (dispatch, getState) => {
   if (data.proteinData) {
-    dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+    return dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
   } else {
     dispatch(getDensityMapData(data)).then(() => {
-      dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+      return dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
     });
   }
 };
@@ -328,25 +328,40 @@ const setDensity = (stage, data, colourToggle, isWireframeStyle, skipTracking = 
   const prepParams = dispatch(getDensityChangedParams(isWireframeStyle));
   const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
   const combinedObject = { ...prepParams, ...densityObject };
-  dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, combinedObject),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
+  return Promise.resolve(
+    dispatch(
+      loadObject({
+        target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, combinedObject),
+        stage,
+        previousRepresentations: representations,
+        orientationMatrix: null
+      })
+    ).finally(() => {
+      const currentOrientation = stage.viewerControls.getOrientation();
+      dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      let molDataId = generateMoleculeId(data);
+      if (!data.proteinData) {
+        dispatch(getProteinData(data)).then(i => {
+          if (i && i.length > 0) {
+            const proteinData = i[0];
+            data.proteinData = proteinData;
+
+            molDataId['render_event'] = data.proteinData.render_event;
+            molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
+            molDataId['render_diff'] = data.proteinData.render_diff;
+            dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+            dispatch(appendToDensityListType(molDataId, skipTracking));
+          }
+        });
+      } else {
+        molDataId['render_event'] = data.proteinData.render_event;
+        molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
+        molDataId['render_diff'] = data.proteinData.render_diff;
+        dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+        dispatch(appendToDensityListType(molDataId, skipTracking));
+      }
     })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-    let molDataId = generateMoleculeId(data);
-    if (data.proteinData) {
-      molDataId['render_event'] = data.proteinData.render_event;
-      molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
-      molDataId['render_diff'] = data.proteinData.render_diff;
-    }
-    dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
-    dispatch(appendToDensityListType(molDataId, skipTracking));
-  });
+  );
 };
 
 const getDensityChangedParams = (isWireframeStyle = undefined) => (dispatch, getState) => {
@@ -382,12 +397,23 @@ export const addDensityCustomView = (
   isWireframeStyle,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => (dispatch, getState) => {
+  const state = getState();
+  const viewParams = state.nglReducers.viewParams;
+  // const contour_DENSITY = viewParams[NGL_PARAMS.contour_DENSITY];
+  // const contour_DENSITY_MAP_sigmaa = viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa];
+  // const contour_DENSITY_MAP_diff = viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff];
   if (data.proteinData) {
     dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
+    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
+    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
   } else {
     dispatch(getDensityMapData(data)).then(() => {
       dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+      // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
+      // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
+      // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
     });
   }
 };
@@ -666,32 +692,39 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
 export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking) => (dispatch, getState) => {
   if (newItem && data) {
     if (data.isLigandOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND);
-      dispatch(addLigand(stage, newItem, data.colourToggle, false, data.isQualityOn, skipTracking, representations));
+      const ligandRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND);
+      dispatch(
+        addLigand(stage, newItem, data.colourToggle, false, data.isQualityOn, skipTracking, ligandRepresentations)
+      );
     }
     if (data.isProteinOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);
-      dispatch(addHitProtein(stage, newItem, data.colourToggle, skipTracking, representations));
+      const proteinRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);
+      dispatch(addHitProtein(stage, newItem, data.colourToggle, skipTracking, proteinRepresentations));
     }
     if (data.isComplexOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX);
-      dispatch(addComplex(stage, newItem, data.colourToggle, skipTracking, representations));
+      const complaxRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX);
+      dispatch(addComplex(stage, newItem, data.colourToggle, skipTracking, complaxRepresentations));
     }
     if (data.isSurfaceOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE);
-      dispatch(addSurface(stage, newItem, data.colourToggle, skipTracking, representations));
+      const surfaceRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE);
+      dispatch(addSurface(stage, newItem, data.colourToggle, skipTracking, surfaceRepresentations));
     }
     if (data.isQualityOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.QUALITY);
-      dispatch(addQuality(stage, newItem, data.colourToggle, skipTracking, representations));
+      const qualityRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.QUALITY);
+      dispatch(addQuality(stage, newItem, data.colourToggle, skipTracking, qualityRepresentations));
     }
     if (data.isDensityOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
-      dispatch(addDensity(stage, newItem, data.colourToggle, false, skipTracking, representations));
+      // const densityRepresentations = getRepresentationsForDensities(data.objectsInView, item, OBJECT_TYPE.DENSITY);
+      // newItem.proteinData.render_event = item.proteinData.render_event;
+      // newItem.proteinData.render_sigmaa = item.proteinData.render_sigmaa;
+      // newItem.proteinData.render_diff = item.proteinData.render_diff;
+      // dispatch(addDensity(stage, newItem, data.colourToggle, false, skipTracking, densityRepresentations));
     }
     if (data.isDensityCustomOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
-      dispatch(addDensityCustomView(stage, newItem, data.colourToggle, false, skipTracking, representations));
+      // const densityCustomRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
+      // dispatch(
+      //   addDensityCustomView(stage, newItem, data.colourToggle, false, skipTracking, densityCustomRepresentations)
+      // );
     }
     if (data.isVectorOn) {
       dispatch(addVector(stage, newItem, skipTracking)).catch(error => {

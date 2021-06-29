@@ -262,3 +262,17 @@ export const getRepresentationsByType = (objectsInView, object, objectType, data
   var representations = (objectInView && objectInView.representations) || undefined;
   return representations;
 };
+
+export const getRepresentationsForDensities = (objectsInView, object, objectType, datasetId) => {
+  const densKeys = Object.keys(objectsInView).filter(
+    i => i.includes(`${object.protein_code || object.name}`) && i.includes('DENSITY')
+  );
+  let representations = [];
+  densKeys.forEach(key => {
+    let obj = objectsInView[key];
+    // representations = [...representations, ...obj.representations];
+    representations.push(...obj.representations);
+  });
+
+  return representations;
+};

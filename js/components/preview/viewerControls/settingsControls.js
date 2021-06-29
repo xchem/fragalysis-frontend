@@ -199,9 +199,9 @@ export const SettingControls = memo(({ open, onClose }) => {
                 <Slider
                   value={viewParams[NGL_PARAMS.isolevel_DENSITY]}
                   valueLabelDisplay="auto"
-                  step={1}
-                  min={-100}
-                  max={100}
+                  step={0.1}
+                  min={0}
+                  max={3}
                   onChange={(e, value) =>
                     dispatch(setIsoLevel(MAP_TYPE.event, value, viewParams[NGL_PARAMS.isolevel_DENSITY], majorView))
                   }
@@ -297,9 +297,9 @@ export const SettingControls = memo(({ open, onClose }) => {
                 <Slider
                   value={viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa]}
                   valueLabelDisplay="auto"
-                  step={1}
-                  min={-100}
-                  max={100}
+                  step={0.1}
+                  min={0}
+                  max={5}
                   onChange={(e, value) =>
                     dispatch(
                       setIsoLevel(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa], majorView)
@@ -401,9 +401,9 @@ export const SettingControls = memo(({ open, onClose }) => {
                 <Slider
                   value={viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff]}
                   valueLabelDisplay="auto"
-                  step={1}
-                  min={-100}
-                  max={100}
+                  step={0.1}
+                  min={2}
+                  max={4}
                   onChange={(e, value) =>
                     dispatch(
                       setIsoLevel(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff], majorView)

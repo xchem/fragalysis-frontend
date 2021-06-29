@@ -115,7 +115,7 @@ export const NGL_VIEW_DEFAULT_VALUES = {
   [NGL_PARAMS.opacity_DENSITY]: 1,
   [NGL_PARAMS.contour_DENSITY]: true,
   [NGL_PARAMS.color_DENSITY]: 'orange',
-  [NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa]: 1,
+  [NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa]: 1.2,
   [NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa]: 0,
   [NGL_PARAMS.opacity_DENSITY_MAP_sigmaa]: 1,
   [NGL_PARAMS.contour_DENSITY_MAP_sigmaa]: true,
