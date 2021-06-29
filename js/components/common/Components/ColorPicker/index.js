@@ -66,7 +66,7 @@ export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl }) 
         <div className={classes.cover} onClick={handleClose} />
         <SketchPicker color={color} onChange={handleChange} />
       </Popper>
-      <div className={classes.swatch} onClick={handleClick}>
+      <div className={classes.swatch} onClick={handleClick} style={bgStyle}>
         <div className={classes.color} style={bgStyle} />
       </div>
     </div>

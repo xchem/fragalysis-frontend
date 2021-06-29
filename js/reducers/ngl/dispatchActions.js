@@ -32,7 +32,8 @@ import {
   removeFromProteinList,
   removeFromSurfaceList,
   removeFromDensityList,
-  removeFromDensityListCustom
+  removeFromDensityListCustom,
+  removeFromDensityListType
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
@@ -113,6 +114,7 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
       case SELECTION_TYPE.DENSITY:
         dispatch(removeFromDensityList(objectId));
         dispatch(removeFromDensityListCustom(objectId, true));
+        dispatch(removeFromDensityListType({ id: objectId }));
         break;
       case SELECTION_TYPE.VECTOR:
         dispatch(removeFromVectorOnList(objectId));
@@ -312,9 +314,22 @@ const updateDensityMapByType = (type, stage, key, newValue) => (dispatch, getSta
   }
 };
 
+export const isDensityMapVisible = (type, stage) => {
+  let result = false;
+  if (stage) {
+    const filteredComps = stage.compList.filter(a => a.name.endsWith(type));
+    if (filteredComps && filteredComps.length > 0) {
+      const reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
+      if (reprList && reprList.length > 0) {
+        result = true;
+      }
+    }
+  }
+  return result;
+};
+
 export const restoreNglOrientation = (orientation, oldOrientation, div_id, stages) => (dispatch, getState) => {
   const view = stages.find(view => view.id === div_id);
   view.stage.viewerControls.orient(orientation);
   dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
 };
-
