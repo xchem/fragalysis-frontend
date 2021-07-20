@@ -5,7 +5,7 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward, Warning, Label } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward, Warning, Label, Edit } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
@@ -280,6 +280,8 @@ const MoleculeView = memo(
 
     let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
     let isWireframeStyle = viewParams[NGL_PARAMS.contour];
+
+    let tagEditIconVisible = true;
 
     // const disableUserInteraction = useDisableUserInteraction();
 
@@ -894,6 +896,15 @@ const MoleculeView = memo(
                 <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
                   <Tooltip title="Warning">
                     <Warning />
+                  </Tooltip>
+                </IconButton>
+              </Grid>
+            )}
+            {tagEditIconVisible === true && (
+              <Grid item xs={2}>
+                <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
+                  <Tooltip title="Edit tags">
+                    <Edit />
                   </Tooltip>
                 </IconButton>
               </Grid>
