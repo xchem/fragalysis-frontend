@@ -886,15 +886,6 @@ const MoleculeView = memo(
                 </IconButton>
               </Grid>
             )}
-            {tagEditIconVisible === true && (
-              <Grid item xs={2}>
-                <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
-                  <Tooltip title="Edit tags">
-                    <Edit />
-                  </Tooltip>
-                </IconButton>
-              </Grid>
-            )}
           </Grid>
         </Grid>
         <SvgTooltip
