@@ -40,6 +40,7 @@ import {
 } from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
 import { setTagSelectorData } from './tags/redux/dispatchActions';
+import { withLoadingMolecules } from './tags/withLoadingMolecules';
 
 const hitNavigatorWidth = 504;
 
@@ -114,10 +115,6 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
   const tabValue = useSelector(state => state.datasetsReducers.tabValue);
 
-  useEffect(() => {
-    dispatch(setTagSelectorData());
-  }, [dispatch]);
-
   /*
      Loading datasets
    */
@@ -142,9 +139,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   }, [customDatasets.length, dispatch, target_on, isTrackingRestoring]);
 
   useEffect(() => {
-    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
     const moleculeListsCount = Object.keys(moleculeLists || {}).length;
-    if (allMolsGroupsCount > 0 && moleculeListsCount > 0 && !isLoadingMoleculeList) {
+    if (moleculeListsCount > 0 && !isLoadingMoleculeList) {
       const allDatasets = {};
       const allMolsMap = linearizeMoleculesLists();
       const keys = Object.keys(moleculeLists);
@@ -166,15 +162,13 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   }, [all_mol_lists, moleculeLists, isLoadingMoleculeList, linearizeMoleculesLists, dispatch]);
 
   const linearizeMoleculesLists = useCallback(() => {
-    const keys = Object.keys(all_mol_lists);
     const allMolsMap = {};
 
-    keys.forEach(key => {
-      let molList = all_mol_lists[key];
-      molList.forEach(mol => {
+    if (all_mol_lists && all_mol_lists.length > 0) {
+      all_mol_lists.forEach(mol => {
         allMolsMap[mol.id] = mol;
       });
-    });
+    }
 
     return allMolsMap;
   }, [all_mol_lists]);
@@ -374,4 +368,4 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   );
 });
 
-export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview)));
+export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(withLoadingMolecules(Preview))));

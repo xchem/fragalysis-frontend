@@ -32,12 +32,13 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TagView = memo(({ tag, selected, allTags, isSpecialTag }) => {
+  const tagData = tag;
   const classes = useStyles();
   const dispatch = useDispatch();
   const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
 
   const tagColor = selected ? 'primary' : 'default';
-  const bgColor = selected ? tagColor : (tag.color && tag.color) || tagColor;
+  const bgColor = selected ? tagColor : (tagData.colour && tagData.colour) || tagColor;
   const color = getFontColorByBackgroundColor(bgColor);
   const style = selected ? {} : { backgroundColor: bgColor, color: color };
 
@@ -56,11 +57,11 @@ const TagView = memo(({ tag, selected, allTags, isSpecialTag }) => {
   return (
     <>
       <Grid className={classes.tagItem}>
-        <Tooltip title={tag.text}>
+        <Tooltip title={tagData.tag}>
           <Chip
             size="small"
             className={`${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`}
-            label={tag.text}
+            label={tagData.tag}
             clickable
             color={tagColor}
             style={style}

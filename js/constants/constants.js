@@ -32,7 +32,7 @@ export const ARROW_TYPE = {
 };
 
 export const CATEGORY_TYPE = {
-  SITE: 'Site',
+  SITE: 'Sites',
   SERIES: 'Series',
   FORUM: 'Forum',
   OTHER: 'Other'

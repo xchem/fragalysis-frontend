@@ -56,6 +56,8 @@ import { addImageToCache, addProteindDataToCache } from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
+import { addSelectedTag } from '../../tags/redux/dispatchActions';
+import { CATEGORY_TYPE } from '../../../../constants/constants';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -492,13 +494,56 @@ export const removeInformation = data => dispatch => {
 /**
  * Turn on the complex of the first ligand of the site
  */
-export const initializeMolecules = (majorView, moleculeList, first) => dispatch => {
-  if (moleculeList && majorView) {
-    const firstMolecule = first || moleculeList[0];
-    if (firstMolecule) {
-      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+export const initializeMolecules = majorView => (dispatch, getState) => {
+  if (majorView) {
+    const firstTag = dispatch(getFirstTag());
+    if (firstTag) {
+      const state = getState();
+      const allTags = state.selectionReducers.tagList;
+      dispatch(addSelectedTag(firstTag, allTags));
+      const firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
+      if (firstMolecule) {
+        dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+        dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+      }
     }
+  }
+};
+
+export const getFirstTag = () => (dispatch, getState) => {
+  const siteCategoryId = dispatch(getSiteCategoryId());
+  if (siteCategoryId) {
+    const state = getState();
+    const tagsList = state.selectionReducers.tagList;
+    const foundTags = tagsList.filter(t => t.category_id === siteCategoryId);
+    return foundTags && foundTags.length > 0 ? tagsList[0] : null;
+  } else {
+    return null;
+  }
+};
+
+export const getFirstMoleculeForTag = tagId => (dispatch, getState) => {
+  const state = getState();
+  const molList = state.apiReducers.all_mol_lists;
+  const molsForTag = molList.filter(mol => {
+    const tags = mol.tags_set.filter(id => id === tagId);
+    if (tags && tags.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  return molsForTag && molsForTag.length > 0 ? molsForTag[0] : null;
+};
+
+export const getSiteCategoryId = () => (dispatch, getState) => {
+  const state = getState();
+  const categoriesList = state.selectionReducers.categoryList;
+  const foundCategories = categoriesList.filter(c => c.category === CATEGORY_TYPE.SITE);
+  if (foundCategories && foundCategories.length > 0) {
+    return foundCategories[0].id;
+  } else {
+    return null;
   }
 };
 
@@ -737,28 +782,6 @@ export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTrackin
 //     return Promise.resolve(resultMolGroupID);
 //   });
 
-export const searchMoleculeGroupByMoleculeID = moleculeId => (dispatch, getState) => {
-  const state = getState();
-  const all_mol_lists = state.apiReducers.all_mol_lists;
-
-  let resultMolGroupID = null;
-  const molGroupIds = Object.keys(all_mol_lists);
-  for (let groupId of molGroupIds) {
-    const mols = all_mol_lists[groupId];
-    for (let mol of mols) {
-      if (mol.id === moleculeId) {
-        resultMolGroupID = groupId;
-        break;
-      }
-    }
-    if (resultMolGroupID != null) {
-      break;
-    }
-  }
-
-  return Promise.resolve(resultMolGroupID);
-};
-
 export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getState) => {
   const state = getState();
 
@@ -768,50 +791,35 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
   const complexList = state.selectionReducers.complexList;
   const surfaceList = state.selectionReducers.surfaceList;
   const vectorOnList = state.selectionReducers.vectorOnList;
-  const mol_group_list = state.apiReducers.mol_group_list;
   const directAccessProcessed = state.apiReducers.direct_access_processed;
 
   if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
     const allMols = state.apiReducers.all_mol_lists;
-    //const molGroupMap = getMolGroupNameToId();
     directDisplay.molecules.forEach(m => {
       let keys = Object.keys(allMols);
       let directProteinNameModded = m.name.toLowerCase();
       let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
-      for (let groupIndex = 0; groupIndex < keys.length; groupIndex++) {
-        let groupId = keys[groupIndex];
-        let molList = allMols[groupId];
-        let molCount = molList.length;
-        for (let molIndex = 0; molIndex < molCount; molIndex++) {
-          let mol = molList[molIndex];
-          let proteinCodeModded = mol.protein_code.toLowerCase();
-          if (
-            m.exact
-              ? proteinCodeModded === directProteinCodeModded
-              : proteinCodeModded.includes(directProteinNameModded)
-          ) {
-            let molGroupId = groupId;
-            // Has to be declared here because otherwise we read stale value
-            const mol_group_selection = getState().selectionReducers.mol_group_selection;
-            if (!mol_group_selection.includes(parseInt(molGroupId))) {
-              let molGroup = mol_group_list.find(g => g.id === parseInt(molGroupId));
-              dispatch(selectMoleculeGroup(molGroup, stageSummaryView));
-            }
-            if (m.L && !fragmentDisplayList.includes(mol.id)) {
-              dispatch(addLigand(stage, mol, colourList[mol.id % colourList.length], true));
-            }
-            if (m.P && !proteinList.includes(mol.id)) {
-              dispatch(addHitProtein(stage, mol, colourList[mol.id % colourList.length]));
-            }
-            if (m.C && !complexList.includes(mol.id)) {
-              dispatch(addComplex(stage, mol, colourList[mol.id % colourList.length]));
-            }
-            if (m.S && !surfaceList.includes(mol.id)) {
-              dispatch(addSurface(stage, mol, colourList[mol.id % colourList.length]));
-            }
-            if (m.V && !vectorOnList.includes(mol.id)) {
-              dispatch(addVector(stage, mol, colourList[mol.id % colourList.length]));
-            }
+      for (let molIndex = 0; molIndex < keys.length; molIndex++) {
+        let molList = allMols;
+        let mol = molList[molIndex];
+        let proteinCodeModded = mol.protein_code.toLowerCase();
+        if (
+          m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)
+        ) {
+          if (m.L && !fragmentDisplayList.includes(mol.id)) {
+            dispatch(addLigand(stage, mol, colourList[mol.id % colourList.length], true));
+          }
+          if (m.P && !proteinList.includes(mol.id)) {
+            dispatch(addHitProtein(stage, mol, colourList[mol.id % colourList.length]));
+          }
+          if (m.C && !complexList.includes(mol.id)) {
+            dispatch(addComplex(stage, mol, colourList[mol.id % colourList.length]));
+          }
+          if (m.S && !surfaceList.includes(mol.id)) {
+            dispatch(addSurface(stage, mol, colourList[mol.id % colourList.length]));
+          }
+          if (m.V && !vectorOnList.includes(mol.id)) {
+            dispatch(addVector(stage, mol, colourList[mol.id % colourList.length]));
           }
         }
       }

@@ -21,15 +21,16 @@ const TagCategory = memo(({ headerPadding = 0 }) => {
   const tagList = useSelector(state => state.selectionReducers.tagList);
   const specialTagList = useSelector(state => state.selectionReducers.specialTagList);
 
-  const siteCategory = categoryList.find(c => c.text === CATEGORY_TYPE.SITE);
-  const seriesCategory = categoryList.find(c => c.text === CATEGORY_TYPE.SERIES);
-  const forumCategory = categoryList.find(c => c.text === CATEGORY_TYPE.FORUM);
+  const siteCategory = categoryList.find(c => c.category === CATEGORY_TYPE.SITE);
+  const seriesCategory = categoryList.find(c => c.category === CATEGORY_TYPE.SERIES);
+  const forumCategory = categoryList.find(c => c.category === CATEGORY_TYPE.FORUM);
 
-  const siteTags = tagList.filter(c => c.category === siteCategory?.id);
-  const seriesTags = tagList.filter(c => c.category === seriesCategory?.id);
-  const forumTags = tagList.filter(c => c.category === forumCategory?.id);
+  const siteTags = tagList.filter(c => c.category_id === siteCategory?.id);
+  const seriesTags = tagList.filter(c => c.category_id === seriesCategory?.id);
+  const forumTags = tagList.filter(c => c.category_id === forumCategory?.id);
   const otherTags = tagList.filter(
-    c => c.category !== siteCategory?.id && c.category !== seriesCategory?.id && c.category !== forumCategory?.id
+    c =>
+      c.category_id !== siteCategory?.id && c.category_id !== seriesCategory?.id && c.category_id !== forumCategory?.id
   );
 
   return (

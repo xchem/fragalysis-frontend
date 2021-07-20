@@ -265,6 +265,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
   const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingMoleculesRestoring);
+  const tags = useSelector(state => state.selectionReducers.tagList);
+  const categories = useSelector(state => state.selectionReducers.categoryList);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
@@ -301,17 +303,20 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const addSelectedMoleculesFromUnselectedSites = useCallback(
     (joinedMoleculeLists, list) => {
-      const result = [...joinedMoleculeLists];
+      const addedMols = [...joinedMoleculeLists];
+      const onlyAlreadySelected = [];
       list?.forEach(moleculeID => {
-        const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
+        const foundJoinedMolecule = addedMols.find(mol => mol.id === moleculeID);
         if (!foundJoinedMolecule) {
           const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
           if (molecule) {
-            result.push(molecule);
+            addedMols.push(molecule);
+            onlyAlreadySelected.push(molecule);
           }
         }
       });
 
+      const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
       return result;
     },
     [getAllMoleculeList]
@@ -363,66 +368,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
   const wereMoleculesInitialized = useRef(false);
-  const firstInitializationMolecule = useRef(null);
-
-  let first = joinedMoleculeLists && joinedMoleculeLists[0];
-  if (wereMoleculesInitialized.current === false && first) {
-    firstInitializationMolecule.current = first;
-  }
-
-  const loadAllMolecules = useCallback(() => {
-    if (
-      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-      target_on &&
-      mol_group_list &&
-      mol_group_list.length > 0 &&
-      Object.keys(all_mol_lists).length <= 0 &&
-      isTrackingRestoring === false
-    ) {
-      let promises = [];
-      mol_group_list.forEach(molGroup => {
-        let id = molGroup.id;
-        let url = getUrl({ list_type, target_on, mol_group_on: id });
-        promises.push(
-          loadAllMolsFromMolGroup({
-            url,
-            mol_group: id
-          })
-        );
-      });
-      Promise.all(promises)
-        .then(results => {
-          let listToSet = {};
-          let allMolecules = [];
-          results.forEach(molResult => {
-            listToSet[molResult.mol_group] = molResult.molecules;
-            allMolecules.push(...molResult.molecules);
-          });
-          dispatch(setAllMolLists(listToSet));
-          dispatch(setAllMolecules(allMolecules));
-        })
-        .catch(err => console.log(err));
-    }
-  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists, isTrackingRestoring]);
 
   useEffect(() => {
-    loadAllMolecules();
-  }, [proteinsHasLoaded, target_on, mol_group_list, loadAllMolecules]);
-
-  const getMolGroupNameToId = useCallback(() => {
-    const molGroupMap = {};
-    if (mol_group_list && mol_group_list.length > 0) {
-      mol_group_list.forEach(mg => {
-        molGroupMap[mg.description] = mg.id;
-      });
-      return molGroupMap;
-    }
-  }, [mol_group_list]);
-
-  useEffect(() => {
-    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
-    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && allMolsGroupsCount > 0) {
-      dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
+    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && all_mol_lists.length > 0) {
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(majorViewStage, stageSummaryView));
         wereMoleculesInitialized.current = true;
@@ -430,35 +378,34 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       if (
         majorViewStage &&
         all_mol_lists &&
-        all_mol_lists[mol_group_on] &&
         hideProjects &&
         target !== undefined &&
-        wereMoleculesInitialized.current === false
+        wereMoleculesInitialized.current === false &&
+        tags &&
+        tags.length > 0 &&
+        categories &&
+        categories.length > 0
       ) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
-        let moleculeList = all_mol_lists[mol_group_on];
-        dispatch(initializeMolecules(majorViewStage, moleculeList, firstInitializationMolecule.current));
+        dispatch(initializeMolecules(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
     }
   }, [
     list_type,
-    mol_group_on,
     majorViewStage,
-    firstLoad,
-    target_on,
     dispatch,
     hideProjects,
     target,
     proteinsHasLoaded,
     joinedMoleculeLists,
     all_mol_lists,
-    loadAllMolecules,
-    getMolGroupNameToId,
     directDisplay,
     directAccessProcessed,
     stageSummaryView,
-    object_selection
+    object_selection,
+    tags,
+    categories
   ]);
 
   useEffect(() => {

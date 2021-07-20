@@ -28,14 +28,14 @@ import { setMolGroupOn } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 
-export const setTagSelectorData = () => dispatch => {
+export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
   dispatch(setTagList(tags));
   dispatch(setSpecialTagList(specialTags));
 };
 
 export const addSelectedTag = (tagItem, tags) => dispatch => {
-  if (tagItem.text === TAG_TYPE.ALL && tags) {
+  if (tagItem.tag === TAG_TYPE.ALL && tags) {
     tags.forEach(tag => {
       dispatch(appendSelectedTagList(tag));
     });
@@ -44,7 +44,7 @@ export const addSelectedTag = (tagItem, tags) => dispatch => {
 };
 
 export const removeSelectedTag = tagItem => dispatch => {
-  if (tagItem.text === TAG_TYPE.ALL && tags) {
+  if (tagItem.tag === TAG_TYPE.ALL && tags) {
     tags.forEach(tag => {
       dispatch(removeFromSelectedTagList(tag));
     });
@@ -95,4 +95,14 @@ const clearSelectionState = () => (dispatch, getState) => {
   dispatch(setFilter(undefined));
   dispatch(setSortDialogOpen(false));
   dispatch(resetCurrentCompoundsSettings(true));
+};
+
+export const storeData = data => (dispatch, getState) => {
+  const categories = data.tag_categories;
+  const tags = data.tags_info;
+
+  dispatch(setTagSelectorData(categories, tags));
+
+  let allMolecules = [];
+  data.molecules.forEach(mol => {});
 };

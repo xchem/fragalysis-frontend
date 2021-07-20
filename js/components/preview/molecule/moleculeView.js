@@ -25,7 +25,6 @@ import {
   removeDensity,
   addLigand,
   removeLigand,
-  searchMoleculeGroupByMoleculeID,
   getMolImage,
   moveSelectedMolSettings,
   removeQuality,
@@ -249,7 +248,6 @@ const MoleculeView = memo(
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
-    const [moleculeGroupID, setMoleculeGroupID] = useState();
 
     const dispatch = useDispatch();
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
@@ -332,18 +330,6 @@ const MoleculeView = memo(
       dispatch(getQualityInformation(data));
     }, [data, dispatch]);
 
-    useEffect(() => {
-      if (searchMoleculeGroup) {
-        dispatch(searchMoleculeGroupByMoleculeID(currentID))
-          .then(molGroupID => {
-            setMoleculeGroupID(molGroupID);
-          })
-          .catch(error => {
-            throw new Error(error);
-          });
-      }
-    }, [currentID, dispatch, searchMoleculeGroup]);
-
     const svg_image = (
       <SVGInline
         component="div"
@@ -367,9 +353,9 @@ const MoleculeView = memo(
         : not_selected_style;
 
     const addNewLigand = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
     };
 
@@ -400,9 +386,9 @@ const MoleculeView = memo(
     };
 
     const addNewProtein = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
     };
 
@@ -428,9 +414,9 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addComplex(stage, data, colourToggle, skipTracking));
     };
 
@@ -455,9 +441,9 @@ const MoleculeView = memo(
     };
 
     const addNewSurface = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addSurface(stage, data, colourToggle));
     };
 
@@ -478,9 +464,9 @@ const MoleculeView = memo(
     };
 
     const addNewDensity = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
     };
 
@@ -521,9 +507,9 @@ const MoleculeView = memo(
     };
 
     const addNewVector = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addVector(stage, data)).catch(error => {
         throw new Error(error);
       });
@@ -630,7 +616,7 @@ const MoleculeView = memo(
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
-              <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
+              <Typography variant="subtitle2">{data.site}</Typography>
             </Grid>
             <Grid item className={classes.rank}>
               {index + 1}.
