@@ -7,6 +7,28 @@ import {
 import { Shape, Matrix4, MeshBuffer } from 'ngl';
 import { refmesh } from './constants/mesh';
 import { addToQualityCache } from '../../reducers/ngl/actions';
+import * as THREE from 'three';
+
+const drawStripyBond = (atom_a, atom_b, color_a, color_b, label, size = 0.1, shape, alt) => {
+  const sx = atom_b[0] - atom_a[0];
+  const sy = atom_b[1] - atom_a[1];
+  const sz = atom_b[2] - atom_a[2];
+  const length = (sx ** 2 + sy ** 2 + sz ** 2) ** 0.5;
+  const unitSlopeX = sx / length;
+  const unitSlopeY = sy / length;
+  const unitSlopeZ = sz / length;
+  const atom_a2 = [atom_a[0] + unitSlopeX * 0.1, atom_a[1] + unitSlopeY * 0.1, atom_a[2] + unitSlopeZ * 0.1];
+  const atom_b2 = [atom_b[0] - unitSlopeX * 0.1, atom_b[1] - unitSlopeY * 0.1, atom_b[2] - unitSlopeZ * 0.1];
+  const a1c = color_a;
+  const a2c = color_b;
+  const bond_label = label;
+  shape.addCylinder(atom_a, atom_b, [a1c[0] / 255, a1c[1] / 255, a1c[2] / 255], size, bond_label); // bond comment goes here! ,'this is bad'
+  if (alt) {
+    shape.addCylinder(atom_a2, atom_b2, [208 / 255, 208 / 255, 224 / 255], size, bond_label); // bond comment goes here! ,'this is bad'
+  } else {
+    shape.addCylinder(atom_a2, atom_b2, [a2c[0] / 255, a2c[1] / 255, a2c[2] / 255], size, bond_label); // bond comment goes here! ,'this is bad'
+  }
+};
 
 export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color) {
   let goodids = (quality && quality.goodids) || [];
@@ -40,45 +62,47 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
     let bonds = comp.object.bondStore;
     let n = bonds.atomIndex1;
     let m = bonds.atomIndex2;
+    let order = bonds.bondOrder;
+
+    const vShift = new THREE.Vector3();
+    const absOffset = (1 - 0.4) * 0.3; // .2 works swell - this needs better defining
+    comp.object.getBondProxy().calculateShiftDir(vShift);
+    vShift.multiplyScalar(absOffset);
 
     n.forEach((num1, index) => {
       const num2 = m[index];
+      const bondorder = order[index];
       if (badids.includes(num1) || badids.includes(num2)) {
         let acoord = [comp.object.atomStore.x[num1], comp.object.atomStore.y[num1], comp.object.atomStore.z[num1]];
         let bcoord = [comp.object.atomStore.x[num2], comp.object.atomStore.y[num2], comp.object.atomStore.z[num2]];
-        var sx = bcoord[0] - acoord[0];
-        var sy = bcoord[1] - acoord[1];
-        var sz = bcoord[2] - acoord[2];
-
-        let length = (sx ** 2 + sy ** 2 + sz ** 2) ** 0.5;
-        var unitSlopeX = sx / length;
-        var unitSlopeY = sy / length;
-        var unitSlopeZ = sz / length;
-
-        let a2coord = [acoord[0] + unitSlopeX * 0.1, acoord[1] + unitSlopeY * 0.1, acoord[2] + unitSlopeZ * 0.1];
-        let b2coord = [bcoord[0] - unitSlopeX * 0.1, bcoord[1] - unitSlopeY * 0.1, bcoord[2] - unitSlopeZ * 0.1];
 
         let element1 = comp.object.atomMap.list[num1].element;
         let element2 = comp.object.atomMap.list[num2].element;
         let a1c = element1 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element1];
         let a2c = element2 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element2];
         let alternativeColor = ELEMENT_COLORS.ALTERNATIVE;
-
         let bond_label = 'bond: '.concat(atom_info_array[num1], '-', atom_info_array[num2]);
 
-        // order is startxyz, endxyz, colour, radius, name
-        shape.addCylinder(acoord, bcoord, [a1c[0] / 255, a1c[1] / 255, a1c[2] / 255], 0.1, bond_label);
-
-        if (comp.object.atomMap.list[num1].element === comp.object.atomMap.list[num2].element) {
-          shape.addCylinder(
-            a2coord,
-            b2coord,
-            [alternativeColor[0] / 255, alternativeColor[1] / 255, alternativeColor[2] / 255],
-            0.1,
-            bond_label
-          );
-        } else {
-          shape.addCylinder(a2coord, b2coord, [a2c[0] / 255, a2c[1] / 255, a2c[2] / 255], 0.1, bond_label);
+        let bond_size = 0.05 / (0.5 * bondorder);
+        if (bondorder === 1) {
+          drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+        } else if (bondorder === 2) {
+          let acoord1 = [acoord[0] - vShift.x, acoord[1] - vShift.y, acoord[2] - vShift.z];
+          let bcoord1 = [bcoord[0] - vShift.x, bcoord[1] - vShift.y, bcoord[2] - vShift.z];
+          let acoord2 = [acoord[0] + vShift.x, acoord[1] + vShift.y, acoord[2] + vShift.z];
+          let bcoord2 = [bcoord[0] + vShift.x, bcoord[1] + vShift.y, bcoord[2] + vShift.z];
+          // draw bonds
+          drawStripyBond(acoord1, bcoord1, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          drawStripyBond(acoord2, bcoord2, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+        } else if (bondorder === 3) {
+          let acoord1 = [acoord[0] - vShift.x, acoord[1] - vShift.y, acoord[2] - vShift.z];
+          let bcoord1 = [bcoord[0] - vShift.x, bcoord[1] - vShift.y, bcoord[2] - vShift.z];
+          let acoord2 = [acoord[0] + vShift.x, acoord[1] + vShift.y, acoord[2] + vShift.z];
+          let bcoord2 = [bcoord[0] + vShift.x, bcoord[1] + vShift.y, bcoord[2] + vShift.z];
+          // draw bonds
+          drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          drawStripyBond(acoord1, bcoord1, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          drawStripyBond(acoord2, bcoord2, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
         }
       }
     });

@@ -147,6 +147,7 @@ export const ELEMENT_COLORS = {
   P: [255, 128, 0],
   S: [255, 255, 48],
   CL: [31, 240, 31],
+  BR: [105, 35, 31],
   ALTERNATIVE: [208, 208, 224]
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.10.25",
+  "version": "0.10.26",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -74,6 +74,7 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "style-loader": "^1.0.0",
+    "three.js": "^0.77.1",
     "typeface-roboto": "^0.0.75",
     "url-loader": "^2.2.0",
     "uuid": "^3.2.1",
