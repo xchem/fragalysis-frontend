@@ -78,31 +78,33 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
 
         let element1 = comp.object.atomMap.list[num1].element;
         let element2 = comp.object.atomMap.list[num2].element;
-        let a1c = element1 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element1];
-        let a2c = element2 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element2];
-        let alternativeColor = ELEMENT_COLORS.ALTERNATIVE;
-        let bond_label = 'bond: '.concat(atom_info_array[num1], '-', atom_info_array[num2]);
+        if (element1 && element2) {
+          let a1c = element1 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element1];
+          let a2c = element2 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element2];
+          let alternativeColor = ELEMENT_COLORS.ALTERNATIVE;
+          let bond_label = 'bond: '.concat(atom_info_array[num1], '-', atom_info_array[num2]);
 
-        let bond_size = 0.05 / (0.5 * bondorder);
-        if (bondorder === 1) {
-          drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
-        } else if (bondorder === 2) {
-          let acoord1 = [acoord[0] - vShift.x, acoord[1] - vShift.y, acoord[2] - vShift.z];
-          let bcoord1 = [bcoord[0] - vShift.x, bcoord[1] - vShift.y, bcoord[2] - vShift.z];
-          let acoord2 = [acoord[0] + vShift.x, acoord[1] + vShift.y, acoord[2] + vShift.z];
-          let bcoord2 = [bcoord[0] + vShift.x, bcoord[1] + vShift.y, bcoord[2] + vShift.z];
-          // draw bonds
-          drawStripyBond(acoord1, bcoord1, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
-          drawStripyBond(acoord2, bcoord2, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
-        } else if (bondorder === 3) {
-          let acoord1 = [acoord[0] - vShift.x, acoord[1] - vShift.y, acoord[2] - vShift.z];
-          let bcoord1 = [bcoord[0] - vShift.x, bcoord[1] - vShift.y, bcoord[2] - vShift.z];
-          let acoord2 = [acoord[0] + vShift.x, acoord[1] + vShift.y, acoord[2] + vShift.z];
-          let bcoord2 = [bcoord[0] + vShift.x, bcoord[1] + vShift.y, bcoord[2] + vShift.z];
-          // draw bonds
-          drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
-          drawStripyBond(acoord1, bcoord1, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
-          drawStripyBond(acoord2, bcoord2, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          let bond_size = 0.05 / (0.5 * bondorder);
+          if (bondorder === 1) {
+            drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          } else if (bondorder === 2) {
+            let acoord1 = [acoord[0] - vShift.x, acoord[1] - vShift.y, acoord[2] - vShift.z];
+            let bcoord1 = [bcoord[0] - vShift.x, bcoord[1] - vShift.y, bcoord[2] - vShift.z];
+            let acoord2 = [acoord[0] + vShift.x, acoord[1] + vShift.y, acoord[2] + vShift.z];
+            let bcoord2 = [bcoord[0] + vShift.x, bcoord[1] + vShift.y, bcoord[2] + vShift.z];
+            // draw bonds
+            drawStripyBond(acoord1, bcoord1, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+            drawStripyBond(acoord2, bcoord2, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          } else if (bondorder === 3) {
+            let acoord1 = [acoord[0] - vShift.x, acoord[1] - vShift.y, acoord[2] - vShift.z];
+            let bcoord1 = [bcoord[0] - vShift.x, bcoord[1] - vShift.y, bcoord[2] - vShift.z];
+            let acoord2 = [acoord[0] + vShift.x, acoord[1] + vShift.y, acoord[2] + vShift.z];
+            let bcoord2 = [bcoord[0] + vShift.x, bcoord[1] + vShift.y, bcoord[2] + vShift.z];
+            // draw bonds
+            drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+            drawStripyBond(acoord1, bcoord1, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+            drawStripyBond(acoord2, bcoord2, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
+          }
         }
       }
     });
@@ -119,26 +121,28 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
       });
 
       let element = comp.object.atomMap.list[id]?.element;
-      let eleC = element === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element];
+      if (element) {
+        let eleC = element === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element];
 
-      let col2 = Array(m.length)
-        .fill(1)
-        .map(function(v, i) {
-          return eleC[i % 3] / 255;
+        let col2 = Array(m.length)
+          .fill(1)
+          .map(function(v, i) {
+            return eleC[i % 3] / 255;
+          });
+
+        let col = new Float32Array(col2);
+
+        shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], 0.2, atom_label);
+
+        var meshBuffer = new MeshBuffer({
+          position: new Float32Array(m),
+          color: col
         });
 
-      let col = new Float32Array(col2);
-
-      shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], 0.2, atom_label);
-
-      var meshBuffer = new MeshBuffer({
-        position: new Float32Array(m),
-        color: col
-      });
-
-      shape.addBuffer(meshBuffer);
-      var shapeComp = stage.addComponentFromObject(shape);
-      shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER, { isShape: true });
+        shape.addBuffer(meshBuffer);
+        var shapeComp = stage.addComponentFromObject(shape);
+        shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER, { isShape: true });
+      }
     }
 
     if (orientationMatrix && orientationMatrix.elements) {
