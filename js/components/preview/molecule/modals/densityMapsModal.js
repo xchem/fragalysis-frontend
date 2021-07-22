@@ -23,6 +23,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
   const classes = useStyles();
   const [valueSigmaa, setValueSigmaa] = useState(false);
   const [valueDiff, setValueDiff] = useState(false);
+  const [valueEvent, setValueEvent] = useState(false);
   const proteinData = data.proteinData;
 
   const toggleRenderSigmaaMap = () => {
@@ -35,6 +36,12 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
     let render = (proteinData.render_diff && proteinData.render_diff) || false;
     proteinData.render_diff = !render;
     setValueDiff(!valueDiff);
+  };
+
+  const toggleRenderEventMap = () => {
+    let render = (proteinData.render_event && proteinData.render_event) || false;
+    proteinData.render_event = !render;
+    setValueEvent(!valueEvent);
   };
 
   const handleCloseModal = () => {
@@ -55,38 +62,61 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
         </Typography>
         <Grid container direction="column" className={classes.body}>
           <Grid item>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={valueSigmaa}
-                  name="sigma"
-                  color="primary"
-                  onChange={() => {
-                    toggleRenderSigmaaMap();
-                  }}
-                />
-              }
-              label="Render map sigma"
-              labelPlacement="end"
-              className={classes.checkbox}
-            />
+            {proteinData && proteinData.event_info && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={valueEvent}
+                    name="event"
+                    color="primary"
+                    onChange={() => {
+                      toggleRenderEventMap();
+                    }}
+                  />
+                }
+                label="Render map event"
+                labelPlacement="end"
+                className={classes.checkbox}
+              />
+            )}
           </Grid>
           <Grid item>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={valueDiff}
-                  name="diff"
-                  color="primary"
-                  onChange={() => {
-                    toggleRenderDiffMap();
-                  }}
-                />
-              }
-              label="Render map diff"
-              labelPlacement="end"
-              className={classes.checkbox}
-            />
+            {proteinData && proteinData.sigmaa_info && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={valueSigmaa}
+                    name="sigma"
+                    color="primary"
+                    onChange={() => {
+                      toggleRenderSigmaaMap();
+                    }}
+                  />
+                }
+                label="Render map sigmaa"
+                labelPlacement="end"
+                className={classes.checkbox}
+              />
+            )}
+          </Grid>
+          <Grid item>
+            {proteinData && proteinData.diff_info && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={valueDiff}
+                    name="diff"
+                    color="primary"
+                    onChange={() => {
+                      toggleRenderDiffMap();
+                    }}
+                  />
+                }
+                label="Render map diff"
+                labelPlacement="end"
+                className={classes.checkbox}
+              />
+            )}
           </Grid>
         </Grid>
         <Grid container justify="flex-end" direction="row">

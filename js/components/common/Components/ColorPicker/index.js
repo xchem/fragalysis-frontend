@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Popper } from '@material-ui/core';
 import { SketchPicker } from 'react-color';
 
 const useStyles = makeStyles(theme => ({
@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   },
   popover: {
     position: 'absolute',
-    zIndex: '2'
+    zIndex: '10000'
   },
   cover: {
     position: 'fixed',
@@ -30,12 +30,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ColorPicker = memo(({ selectedColor, setSelectedColor }) => {
+export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl }) => {
   const classes = useStyles();
   const [displayColorPicker, setDisplayColorPicker] = useState(false);
   const [color, setColor] = useState(selectedColor);
+  const [anchorE1, setAnchorE1] = useState(null);
 
-  const handleClick = () => {
+  const handleClick = event => {
+    setAnchorE1(event.currentTarget);
     setDisplayColorPicker(!displayColorPicker);
   };
 
@@ -54,15 +56,19 @@ export const ColorPicker = memo(({ selectedColor, setSelectedColor }) => {
 
   return (
     <div>
-      <div className={classes.swatch} onClick={handleClick}>
+      <Popper
+        id="electron-density-color-popper"
+        open={displayColorPicker}
+        anchorEl={anchorE1}
+        placement="left-start"
+        className={classes.popover}
+      >
+        <div className={classes.cover} onClick={handleClose} />
+        <SketchPicker color={color} onChange={handleChange} />
+      </Popper>
+      <div className={classes.swatch} onClick={handleClick} style={bgStyle}>
         <div className={classes.color} style={bgStyle} />
       </div>
-      {displayColorPicker ? (
-        <div className={classes.popover}>
-          <div className={classes.cover} onClick={handleClose} />
-          <SketchPicker color={color} onChange={handleChange} />
-        </div>
-      ) : null}
     </div>
   );
 });

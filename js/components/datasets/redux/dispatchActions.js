@@ -236,18 +236,20 @@ export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
         );
 
         return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
-          const scores = res?.data?.results;
-          let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
-          scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
-          dispatch(
-            updateFilterShowedScoreProperties({
-              datasetID: dataset.id,
-              scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
-            })
-          );
-          scores?.map(item => {
-            dispatch(appendToScoreDatasetMap(dataset.id, item));
-          });
+          if (res && res.data && res.data.results && res.data.results.length > 0) {
+            const scores = res?.data?.results;
+            let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
+            scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
+            dispatch(
+              updateFilterShowedScoreProperties({
+                datasetID: dataset.id,
+                scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
+              })
+            );
+            scores?.map(item => {
+              dispatch(appendToScoreDatasetMap(dataset.id, item));
+            });
+          }
         });
       })
     )

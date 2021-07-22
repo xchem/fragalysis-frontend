@@ -152,6 +152,22 @@ export const removeFromSurfaceList = function(item, skipTracking = false) {
   };
 };
 
+export const appendToDensityListType = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_DENSITY_TYPE,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListType = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_DENSITY_TYPE,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setDensityList = function(densityList) {
   return {
     type: constants.SET_DENSITY_LIST,

@@ -205,7 +205,7 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
     prot_url,
     render_sigmaa: proteinData?.render_sigmaa,
     render_diff: proteinData?.render_diff,
-    colour: colourToggle,
+    render_event: proteinData?.render_event,
     moleculeId: data.id,
     wireframe: isWireframeStyle,
     selectionType: SELECTION_TYPE.DENSITY
@@ -260,5 +260,19 @@ export const getRepresentationsByType = (objectsInView, object, objectType, data
   let parentItem = `${object.protein_code || object.name}_${objectType}${datasetId ? '_' + datasetId : ''}`;
   let objectInView = objectsInView[parentItem];
   var representations = (objectInView && objectInView.representations) || undefined;
+  return representations;
+};
+
+export const getRepresentationsForDensities = (objectsInView, object, objectType, datasetId) => {
+  const densKeys = Object.keys(objectsInView).filter(
+    i => i.includes(`${object.protein_code || object.name}`) && i.includes('DENSITY')
+  );
+  let representations = [];
+  densKeys.forEach(key => {
+    let obj = objectsInView[key];
+    // representations = [...representations, ...obj.representations];
+    representations.push(...obj.representations);
+  });
+
   return representations;
 };

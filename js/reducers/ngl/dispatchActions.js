@@ -19,7 +19,8 @@ import {
   setOpacityAction,
   setContourAction,
   setWarningIconAction,
-  setNglOrientationByInteraction
+  setNglOrientationByInteraction,
+  setColorAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
@@ -31,7 +32,8 @@ import {
   removeFromProteinList,
   removeFromSurfaceList,
   removeFromDensityList,
-  removeFromDensityListCustom
+  removeFromDensityListCustom,
+  removeFromDensityListType
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
@@ -112,6 +114,7 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
       case SELECTION_TYPE.DENSITY:
         dispatch(removeFromDensityList(objectId));
         dispatch(removeFromDensityListCustom(objectId, true));
+        dispatch(removeFromDensityListType({ id: objectId }));
         break;
       case SELECTION_TYPE.VECTOR:
         dispatch(removeFromVectorOnList(objectId));
@@ -266,28 +269,34 @@ export const setNglFogFar = (newValue, oldValue, major) => (dispatch, getState) 
   dispatch(setNglFogFarAction(newValue, oldValue));
 };
 
-export const setIsoLevel = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.isolevel, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.isolevel, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setIsoLevelAction(newValue, oldValue));
+export const setIsoLevel = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'isolevel', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`isolevel${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setIsoLevelAction(mapType, newValue, oldValue));
 };
 
-export const setBoxSize = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.boxSize, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.boxSize, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setBoxSizeAction(newValue, oldValue));
+export const setBoxSize = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'boxSize', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`boxSize${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setBoxSizeAction(mapType, newValue, oldValue));
 };
 
-export const setOpacity = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.opacity, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.opacity, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setOpacityAction(newValue, oldValue));
+export const setOpacity = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'opacity', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`opacity${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setOpacityAction(mapType, newValue, oldValue));
 };
 
-export const setContour = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(updateRepresentationsByType('surface', major, NGL_PARAMS.contour, newValue));
-  dispatch(setNglViewParams(NGL_PARAMS.contour, newValue, major, VIEWS.MAJOR_VIEW));
-  dispatch(setContourAction(newValue, oldValue));
+export const setContour = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'contour', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`contour${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setContourAction(mapType, newValue, oldValue));
+};
+
+export const setElectronDesityMapColor = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'color', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`color${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setColorAction(mapType, newValue, oldValue));
 };
 
 export const setWarningIcon = (newValue, oldValue) => (dispatch, getState) => {
@@ -295,13 +304,28 @@ export const setWarningIcon = (newValue, oldValue) => (dispatch, getState) => {
   dispatch(setWarningIconAction(newValue, oldValue));
 };
 
-const updateRepresentationsByType = (type, stage, key, newValue) => (dispatch, getState) => {
+const updateDensityMapByType = (type, stage, key, newValue) => (dispatch, getState) => {
   if (stage) {
-    let reprList = stage.compList.flatMap(a => a.reprList.filter(a => a.repr.type === type));
+    let filteredComps = stage.compList.filter(a => a.name.endsWith(type));
+    let reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
     reprList.forEach(r => {
       r.setParameters({ [key]: newValue });
     });
   }
+};
+
+export const isDensityMapVisible = (type, stage) => {
+  let result = false;
+  if (stage) {
+    const filteredComps = stage.compList.filter(a => a.name.endsWith(type));
+    if (filteredComps && filteredComps.length > 0) {
+      const reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
+      if (reprList && reprList.length > 0) {
+        result = true;
+      }
+    }
+  }
+  return result;
 };
 
 export const restoreNglOrientation = (orientation, oldOrientation, div_id, stages) => (dispatch, getState) => {

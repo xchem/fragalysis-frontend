@@ -1,6 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
+import { constant } from 'lodash-es';
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
@@ -12,6 +13,7 @@ export const INITIAL_STATE = {
   surfaceList: [],
   densityList: [],
   densityListCustom: [],
+  densityListType: [],
   qualityList: [],
   informationList: [],
   vectorOnList: [],
@@ -155,6 +157,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedSurfaceList = new Set(state.surfaceList);
       diminishedSurfaceList.delete(action.item.id);
       return Object.assign({}, state, { surfaceList: [...diminishedSurfaceList] });
+
+    case constants.APPEND_DENSITY_TYPE:
+      return { ...state, densityListType: [...state.densityListType, action.item] };
+
+    case constants.REMOVE_DENSITY_TYPE:
+      let filteredList = state.densityListType.filter(d => d.id !== action.item.id);
+      return { ...state, densityListType: [...filteredList] };
 
     case constants.SET_DENSITY_LIST:
       let newDensityList = new Set();

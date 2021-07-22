@@ -8,6 +8,10 @@ import {
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
+import { setNglViewParams } from '../../reducers/ngl/actions';
+import { NGL_PARAMS } from './constants/index';
+import { VIEWS } from '../../constants/constants';
+import { MAP_TYPE } from '../../reducers/ngl/constants';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
@@ -388,36 +392,73 @@ const showHotspot = ({ stage, input_dict, object_name, representations }) => {
 };
 
 const showDensity = ({ stage, input_dict, object_name, representations, dispatch }) => {
-  let densityParams = {
-    color: input_dict.colour,
-    isolevel: input_dict.isoLevel || 3,
+  let densityParams_event = {
+    color: input_dict.color_DENSITY,
+    isolevel: input_dict.isolevel_DENSITY,
     smooth: input_dict.smooth || 0,
-    boxSize: input_dict.boxSize || 0,
-    contour: input_dict.wireframe || false,
+    boxSize: input_dict.boxSize_DENSITY,
+    contour: input_dict.contour_DENSITY,
     wrap: true,
-    opacity: input_dict.opacity || 1,
+    opacity: input_dict.opacity_DENSITY,
     opaqueBack: false
+  };
+  let densityParams_sigmaa = {
+    color: input_dict.color_DENSITY_MAP_sigmaa,
+    isolevel: input_dict.isolevel_DENSITY_MAP_sigmaa,
+    smooth: input_dict.smooth || 0,
+    boxSize: input_dict.boxSize_DENSITY_MAP_sigmaa,
+    contour: input_dict.contour_DENSITY_MAP_sigmaa,
+    wrap: true,
+    opacity: input_dict.opacity_DENSITY_MAP_sigmaa,
+    opaqueBack: false
+  };
+  let densityParams_diff = {
+    color: input_dict.color_DENSITY_MAP_diff,
+    isolevel: input_dict.isolevel_DENSITY_MAP_diff,
+    smooth: input_dict.smooth || 0,
+    boxSize: input_dict.boxSize_DENSITY_MAP_diff,
+    contour: input_dict.contour_DENSITY_MAP_diff,
+    wrap: true,
+    opacity: input_dict.opacity_DENSITY_MAP_diff,
+    opaqueBack: false,
+    negateIsolevel: false
+  };
+  let densityParams_diff_negate = {
+    color: input_dict.color_DENSITY_MAP_diff_negate,
+    isolevel: input_dict.isolevel_DENSITY_MAP_diff,
+    smooth: input_dict.smooth || 0,
+    boxSize: input_dict.boxSize_DENSITY_MAP_diff,
+    contour: input_dict.contour_DENSITY_MAP_diff,
+    wrap: true,
+    opacity: input_dict.opacity_DENSITY_MAP_diff,
+    opaqueBack: false,
+    negateIsolevel: true
   };
 
   return Promise.all([
     input_dict.sigmaa_url &&
       input_dict.render_sigmaa &&
       stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_sigmaa);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
       }),
     input_dict.diff_url &&
       input_dict.render_diff &&
       stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff);
+        const reprArray = representations || createRepresentationsArray([repr]);
+        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
+      }) &&
+      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff_negate);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
       }),
-
     input_dict.event_url &&
+      input_dict.render_event &&
       stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams);
+        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_event);
         const reprArray = representations || createRepresentationsArray([repr]);
         return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
       })

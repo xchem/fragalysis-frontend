@@ -48,7 +48,8 @@ import {
   applyDirectSelection,
   removeAllSelectedMolTypes,
   addQuality,
-  removeQuality
+  removeQuality,
+  getProteinData
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
@@ -871,6 +872,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       V={vectorOnList.includes(data.id)}
                       I={informationList.includes(data.id)}
                       selectMoleculeSite={selectMoleculeSite}
+                      eventInfo={data?.proteinData?.event_info}
+                      sigmaaInfo={data?.proteinData?.sigmaa_info}
+                      diffInfo={data?.proteinData?.diff_info}
                     />
                   ))}
                 </InfiniteScroll>
