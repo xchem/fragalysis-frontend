@@ -61,11 +61,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
     const content = await zip.generateAsync({ type: 'blob' });*/
     //ileSaver.saveAs(content, fName + '.zip');
     var anchor = document.createElement('a');
-    if (data.results[0].title == 'Mpro') {
-      anchor.href = 'https://zenodo.org/record/5128438/files/Mpro.zip?download=1'
-    } else {
-      anchor.href = data.results[0].zip_archive;
-    }
+    anchor.href = data.results[0].zip_archive;
     anchor.target = '_blank';
     //anchor.download = data.fileName;
     anchor.click();
