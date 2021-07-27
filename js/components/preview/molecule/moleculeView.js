@@ -41,6 +41,7 @@ import { SvgTooltip } from '../../common';
 import { MOL_TYPE } from './redux/constants';
 import { DensityMapsModal } from './modals/densityMapsModal';
 import { TagAddModal } from '../tags/modal/tagAddModal';
+import { TagEditor } from '../tags/modal/tagEditor';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -922,6 +923,7 @@ const MoleculeView = memo(
           setDensity={addNewDensity}
         />
         <TagAddModal openDialog={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} molecule={data} />
+        <TagEditor open={tagAddModalOpen} anchorEl={ref.current} />
       </>
     );
   }
