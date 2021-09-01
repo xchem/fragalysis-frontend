@@ -62,7 +62,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
     //ileSaver.saveAs(content, fName + '.zip');
     var anchor = document.createElement('a');
     if (data.results[0].title == 'Mpro') {
-      anchor.href = 'https://zenodo.org/record/5128438/files/Mpro.zip?download=1'
+      anchor.href = 'https://zenodo.org/record/5226381/files/Mpro.zip?download=1'
     } else {
       anchor.href = data.results[0].zip_archive;
     }
