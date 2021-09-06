@@ -30,9 +30,12 @@ import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    width: 700,
-    height: 294,
+    height: 343,
     overflowY: 'hidden'
+  },
+  content: {
+    overflow: 'auto',
+    height: 300
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -250,167 +253,177 @@ export const TagEditor = memo(
             </Tooltip>
           ]}
         >
-          <Grid container direction="column" spacing={1}>
-            <Grid container item className={classes.divContainer} spacing={1} alignItems="flex-end" xs={12}>
-              <Grid item xs={4}>
-                <TextField
-                  id="tag-editor-tag-name"
-                  placeholder="Name"
-                  size="small"
-                  onChange={onNameForNewTagChange}
-                  fullWidth
-                />
+          <div className={classes.content}>
+            <Grid container direction="column" spacing={1}>
+              <Grid container item className={classes.divContainer} spacing={1} alignItems="flex-end" xs={12}>
+                <Grid item xs={4}>
+                  <TextField
+                    id="tag-editor-tag-name"
+                    placeholder="Name"
+                    size="small"
+                    onChange={onNameForNewTagChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <ColorPicker
+                    id="tag-editor-tag-color"
+                    selectedColor={newTagColor}
+                    setSelectedColor={value => {
+                      setNewTagColor(value);
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <Select className={classes.select} value={newTagCategory} onChange={onCategoryForNewTagChange}>
+                    {Object.keys(CATEGORY_TYPE).map(c => (
+                      <MenuItem
+                        key={`tag-editor-new-category-${CATEGORY_ID[CATEGORY_TYPE[c]]}`}
+                        value={CATEGORY_ID[CATEGORY_TYPE[c]]}
+                      >
+                        {CATEGORY_TYPE[c]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    id="tag-editor-tag-post"
+                    placeholder="Post"
+                    size="small"
+                    onChange={onLinkForNewTagChange}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Button onClick={createTag} color="primary">
+                    Save Tag
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={1}>
-                <ColorPicker
-                  id="tag-editor-tag-color"
-                  selectedColor={newTagColor}
-                  setSelectedColor={value => {
-                    setNewTagColor(value);
-                  }}
-                />
-              </Grid>
-              <Grid item xs={1}>
-                <Select className={classes.select} value={newTagCategory} onChange={onCategoryForNewTagChange}>
-                  {Object.keys(CATEGORY_TYPE).map(c => (
-                    <MenuItem
-                      key={`tag-editor-new-category-${CATEGORY_ID[CATEGORY_TYPE[c]]}`}
-                      value={CATEGORY_ID[CATEGORY_TYPE[c]]}
+              {filteredTags &&
+                filteredTags.map((tag, idx) => {
+                  return (
+                    <Grid
+                      container
+                      item
+                      className={classes.divContainer}
+                      spacing={1}
+                      wrap="nowrap"
+                      alignItems="flex-end"
                     >
-                      {CATEGORY_TYPE[c]}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Grid>
-              <Grid item xs={2}>
-                <TextField id="tag-editor-tag-post" placeholder="Post" size="small" onChange={onLinkForNewTagChange} />
-              </Grid>
-              <Grid item>
-                <Button onClick={createTag} color="primary">
-                  Save Tag
-                </Button>
-              </Grid>
-            </Grid>
-            {filteredTags &&
-              filteredTags.map((tag, idx) => {
-                return (
-                  <Grid container item className={classes.divContainer} spacing={1} wrap="nowrap" xs={12}>
-                    <Grid item xs={8}>
-                      <Grid container xs={12} alignItems="flex-end" className={classes.divContainer} spacing={1}>
-                        <Grid item xs={3}>
-                          <TagView
-                            key={`tag-item-editor${tag.id}`}
-                            tag={tag}
-                            selected={isTagSelected(tag)}
-                            handleClick={handleTagClick}
-                          ></TagView>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <TextField
-                            id={`tag-editor-tag-name-edit-${tag.id}`}
-                            placeholder="Name"
-                            size="small"
-                            onChange={event => {
-                              onUpdateTag(tag, event.target.value, 'tag');
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={2}>
-                          <ColorPicker
-                            id={`tag-editor-tag-color-edit-${tag.id}`}
-                            selectedColor={newTagColor}
-                            setSelectedColor={value => {
-                              onUpdateTag(tag, value, 'colour');
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={1}>
-                          <Select
-                            className={classes.select}
-                            value={newTagCategory}
-                            onChange={event => {
-                              onUpdateTag(tag, event.target.value, 'category_id');
-                            }}
-                          >
-                            {Object.keys(CATEGORY_TYPE).map(c => (
-                              <MenuItem
-                                key={`tag-editor-new-category-${CATEGORY_ID[CATEGORY_TYPE[c]]}`}
-                                value={CATEGORY_ID[CATEGORY_TYPE[c]]}
+                      <Grid item xs={2}>
+                        <TagView
+                          key={`tag-item-editor${tag.id}`}
+                          tag={tag}
+                          selected={isTagSelected(tag)}
+                          handleClick={handleTagClick}
+                        ></TagView>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <TextField
+                          id={`tag-editor-tag-name-edit-${tag.id}`}
+                          placeholder="Name"
+                          size="small"
+                          onChange={event => {
+                            onUpdateTag(tag, event.target.value, 'tag');
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={1}>
+                        <ColorPicker
+                          id={`tag-editor-tag-color-edit-${tag.id}`}
+                          selectedColor={newTagColor}
+                          setSelectedColor={value => {
+                            onUpdateTag(tag, value, 'colour');
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={1}>
+                        <Select
+                          className={classes.select}
+                          value={newTagCategory}
+                          onChange={event => {
+                            onUpdateTag(tag, event.target.value, 'category_id');
+                          }}
+                        >
+                          {Object.keys(CATEGORY_TYPE).map(c => (
+                            <MenuItem
+                              key={`tag-editor-new-category-${CATEGORY_ID[CATEGORY_TYPE[c]]}`}
+                              value={CATEGORY_ID[CATEGORY_TYPE[c]]}
+                            >
+                              {CATEGORY_TYPE[c]}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <TextField
+                          id={`tag-editor-tag-post-edit-${tag.id}`}
+                          placeholder="Post"
+                          size="small"
+                          onChange={event => {
+                            onUpdateTag(tag, event.target.value, 'discourse_url');
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Grid container item direction="row" spacing={0} alignItems="center">
+                          <Tooltip title="Display all in list">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isTagDislayedInList(tag),
+                                  [classes.contColButtonHalfSelected]: false
+                                })}
+                                onClick={() => handleDisplayAllInList(tag)}
+                                disabled={false}
                               >
-                                {CATEGORY_TYPE[c]}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <TextField
-                            id={`tag-editor-tag-post-edit-${tag.id}`}
-                            placeholder="Post"
-                            size="small"
-                            onChange={event => {
-                              onUpdateTag(tag, event.target.value, 'discourse_url');
-                            }}
-                          />
+                                A
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                          <Tooltip title="Display all in 3D">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: isTagDisplayedInNGL(tag),
+                                  [classes.contColButtonHalfSelected]: false
+                                })}
+                                onClick={() => {
+                                  handleDisplayAllInNGL(tag);
+                                }}
+                                disabled={false}
+                              >
+                                V
+                              </Button>
+                            </Grid>
+                          </Tooltip>
+                          <Tooltip title="Discourse link">
+                            <Grid item>
+                              <Button
+                                variant="outlined"
+                                className={classNames(classes.contColButton, {
+                                  [classes.contColButtonSelected]: false,
+                                  [classes.contColButtonHalfSelected]: false
+                                })}
+                                onClick={() => {
+                                  window.open(tag.discourse_url, '_blank');
+                                }}
+                                disabled={!tag.discourse_url}
+                              >
+                                D
+                              </Button>
+                            </Grid>
+                          </Tooltip>
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={4}>
-                      <Grid container item direction="row" spacing={0} alignItems="center">
-                        <Tooltip title="Display all in list">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isTagDislayedInList(tag),
-                                [classes.contColButtonHalfSelected]: false
-                              })}
-                              onClick={() => handleDisplayAllInList(tag)}
-                              disabled={false}
-                            >
-                              A
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="Display all in 3D">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isTagDisplayedInNGL(tag),
-                                [classes.contColButtonHalfSelected]: false
-                              })}
-                              onClick={() => {
-                                handleDisplayAllInNGL(tag);
-                              }}
-                              disabled={false}
-                            >
-                              V
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="Discourse link">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: false,
-                                [classes.contColButtonHalfSelected]: false
-                              })}
-                              onClick={() => {
-                                window.open(tag.discourse_url, '_blank');
-                              }}
-                              disabled={!tag.discourse_url}
-                            >
-                              D
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                );
-              })}
-          </Grid>
+                  );
+                })}
+            </Grid>
+          </div>
         </Panel>
       </Popper>
     );
