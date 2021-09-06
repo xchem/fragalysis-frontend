@@ -32,7 +32,7 @@ import {
   removeSurface,
   removeVector
 } from '../../components/preview/molecule/redux/dispatchActions';
-import { colourList } from '../../components/preview/molecule/moleculeView';
+import { colourList } from '../../components/preview/molecule/utils/color';
 import {
   addDatasetComplex,
   addDatasetLigand,

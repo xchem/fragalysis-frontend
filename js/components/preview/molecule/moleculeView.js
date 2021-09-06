@@ -42,6 +42,7 @@ import { MOL_TYPE } from './redux/constants';
 import { DensityMapsModal } from './modals/densityMapsModal';
 import { TagAddModal } from '../tags/modal/tagAddModal';
 import { TagEditor } from '../tags/modal/tagEditor';
+import { getRandomColor } from './utils/color';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -202,21 +203,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const colourList = [
-  '#EFCDB8',
-  '#CC6666',
-  '#FF6E4A',
-  '#78DBE2',
-  '#1F75FE',
-  '#FAE7B5',
-  '#FDBCB4',
-  '#C5E384',
-  '#95918C',
-  '#F75394',
-  '#80DAEB',
-  '#ADADD6'
-];
-
 export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
@@ -292,8 +278,8 @@ const MoleculeView = memo(
       oldUrl.current = url;
     };
     const refOnCancel = useRef();
-    const getRandomColor = () => colourList[data.id % colourList.length];
-    const colourToggle = getRandomColor();
+
+    const colourToggle = getRandomColor(data);
 
     const getCalculatedProps = useCallback(
       () => [
@@ -922,8 +908,8 @@ const MoleculeView = memo(
           data={data}
           setDensity={addNewDensity}
         />
-        <TagAddModal openDialog={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} molecule={data} />
-        <TagEditor open={tagAddModalOpen} anchorEl={ref.current} />
+        {/* <TagAddModal openDialog={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} molecule={data} /> */}
+        <TagEditor open={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} anchorEl={ref.current} mol={data} />
       </>
     );
   }

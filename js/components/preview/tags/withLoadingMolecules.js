@@ -1,7 +1,7 @@
 import React, { memo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllData } from './api/tagsApi';
-import { setAllMolecules, setAllMolLists } from '../../../reducers/api/actions';
+import { setAllMolLists } from '../../../reducers/api/actions';
 import { setTagSelectorData } from '../tags/redux/dispatchActions';
 
 export const withLoadingMolecules = WrappedComponent => {
@@ -23,7 +23,6 @@ export const withLoadingMolecules = WrappedComponent => {
 
             allMolecules.push(newObject);
           });
-          dispatch(setAllMolecules([...allMolecules]));
           dispatch(setAllMolLists([...allMolecules]));
 
           let tags_info = [];

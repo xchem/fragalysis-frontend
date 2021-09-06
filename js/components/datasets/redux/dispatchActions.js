@@ -42,7 +42,7 @@ import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
 import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
-import { colourList } from '../../preview/molecule/moleculeView';
+import { colourList } from '../../preview/molecule/utils/color';
 import { appendMoleculeOrientation } from '../../../reducers/ngl/actions';
 import { isAnyInspirationTurnedOnByType } from './selectors';
 import {

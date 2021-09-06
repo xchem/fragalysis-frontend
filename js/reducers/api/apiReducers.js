@@ -121,8 +121,15 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_ALL_MOL_LISTS:
       return { ...state, all_mol_lists: action.all_mol_lists };
 
-    case constants.SET_ALL_MOLECULES:
-      return { ...state, allMolecules: action.allMolecules };
+    case constants.UPDATE_MOL_IN_ALL_MOL_LISTS:
+      let newList = [...state.all_mol_lists];
+      const indexOfMol = newList.findIndex(m => m.id === action.mol.id);
+      if (indexOfMol > 0) {
+        newList[indexOfMol] = { ...action.mol };
+        return { ...state, all_mol_lists: newList };
+      } else {
+        return { state };
+      }
 
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {

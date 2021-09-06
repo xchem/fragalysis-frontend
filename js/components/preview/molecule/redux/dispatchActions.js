@@ -45,7 +45,7 @@ import {
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
 import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
-import { colourList } from '../moleculeView';
+import { colourList } from '../utils/color';
 import { appendMoleculeOrientation, setNglViewParams } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';

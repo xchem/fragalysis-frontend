@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import TagView from './tagView';
+import { removeSelectedTag, addSelectedTag } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -20,7 +22,15 @@ const useStyles = makeStyles(theme => ({
 const TagCategoryView = memo(({ name, tags, specialTags }) => {
   const classes = useStyles();
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
+  const dispatch = useDispatch();
 
+  const handleTagClick = (selected, tag, allTags) => {
+    if (selected) {
+      dispatch(removeSelectedTag(tag, allTags));
+    } else {
+      dispatch(addSelectedTag(tag, allTags));
+    }
+  };
   return (
     <>
       <Grid item className={classes.categoryItem} xs={3}>
@@ -42,13 +52,16 @@ const TagCategoryView = memo(({ name, tags, specialTags }) => {
                     isSpecialTag={true}
                     selected={selected}
                     allTags={tags}
+                    handleClick={handleTagClick}
                   ></TagView>
                 );
               })}
             {tags &&
               tags.map((tag, idx) => {
                 let selected = selectedTagList.some(i => i.id === tag.id);
-                return <TagView key={`tag-item-${idx}`} tag={tag} selected={selected}></TagView>;
+                return (
+                  <TagView key={`tag-item-${idx}`} tag={tag} selected={selected} handleClick={handleTagClick}></TagView>
+                );
               })}
           </Grid>
         )}

@@ -214,6 +214,54 @@ export const removeFromDensityListCustom = function(item, skipTracking = false) 
   };
 };
 
+export const setListAllForTagList = (listAll, skipTracking = false) => {
+  return {
+    type: constants.SET_LIST_ALL_FOR_TAG_LIST,
+    listAll: listAll,
+    skipTracking
+  };
+};
+
+export const appendToListAllForTagList = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_TO_LIST_ALL_FOR_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromListAllForTagList = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_FROM_LIST_ALL_FOR_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setDisplayAllNGLList = (displayAllInNGLList, skipTracking = false) => {
+  return {
+    type: constants.SET_DISPLAY_ALL_NGL_LIST,
+    displayAllInNGLList: displayAllInNGLList,
+    skipTracking
+  };
+};
+
+export const appendToDisplayAllNGLList = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_TO_DISPLAY_ALL_NGL_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDisplayAllNGLList = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_FROM_DISPLAY_ALL_NGL_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setQualityList = function(qualityList, skipTracking = false) {
   return {
     type: constants.SET_QUALITY_LIST,
@@ -418,6 +466,14 @@ export const setTagList = function(tagList, skipTracking = false) {
 export const appendTagList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const updateTag = (item, skipTracking = false) => {
+  return {
+    type: constants.UPDATE_TAG,
     item: item,
     skipTracking
   };

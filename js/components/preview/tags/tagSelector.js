@@ -109,7 +109,7 @@ const TagSelector = memo(({ handleHeightChange }) => {
       hasHeader
       hasExpansion
       defaultExpanded
-      title="Hit cluster selector"
+      title="Tag selector"
       headerActions={[
         <Button
           onClick={() => handleClearButton()}

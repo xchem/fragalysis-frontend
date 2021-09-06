@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import { Grid, makeStyles, Chip, Tooltip } from '@material-ui/core';
 import { Edit } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
-import { addSelectedTag, removeSelectedTag } from './redux/dispatchActions';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
 
@@ -31,7 +30,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TagView = memo(({ tag, selected, allTags, isSpecialTag }) => {
+const TagView = memo(({ tag, selected, allTags, isSpecialTag, handleClick }) => {
   const tagData = tag;
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -41,14 +40,6 @@ const TagView = memo(({ tag, selected, allTags, isSpecialTag }) => {
   const bgColor = selected ? tagColor : (tagData.colour && tagData.colour) || tagColor;
   const color = getFontColorByBackgroundColor(bgColor);
   const style = selected ? {} : { backgroundColor: bgColor, color: color };
-
-  const handleClick = () => {
-    if (selected) {
-      dispatch(removeSelectedTag(tag, allTags));
-    } else {
-      dispatch(addSelectedTag(tag, allTags));
-    }
-  };
 
   const handleDelete = () => {
     setTagEditModalOpen(true);
@@ -65,9 +56,9 @@ const TagView = memo(({ tag, selected, allTags, isSpecialTag }) => {
             clickable
             color={tagColor}
             style={style}
-            onClick={handleClick}
-            deleteIcon={<Edit onClick={handleDelete} />}
-            onDelete={handleDelete}
+            onClick={() => handleClick && handleClick(selected, tag, allTags)}
+            deleteIcon={<Edit onClick={() => handleClick && handleClick(selected, tag, allTags)} />}
+            onDelete={() => handleDelete && handleDelete(selected, tag, allTags)}
           />
         </Tooltip>
       </Grid>

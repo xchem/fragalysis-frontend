@@ -38,6 +38,13 @@ export const CATEGORY_TYPE = {
   OTHER: 'Other'
 };
 
+export const CATEGORY_ID = {
+  [CATEGORY_TYPE.SITE]: 1,
+  [CATEGORY_TYPE.SERIES]: 2,
+  [CATEGORY_TYPE.FORUM]: 3,
+  [CATEGORY_TYPE.OTHER]: 4
+};
+
 export const TAG_TYPE = {
   ALL: 'ALL',
   UNTAGGED: 'UNTAGGED'

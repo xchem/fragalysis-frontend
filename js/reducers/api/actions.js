@@ -98,10 +98,10 @@ export const setAllMolLists = all_mol_lists => {
   };
 };
 
-export const setAllMolecules = molecules => {
+export const updateMoleculeInMolLists = mol => {
   return {
-    type: constants.SET_ALL_MOLECULES,
-    allMolecules: molecules
+    type: constants.UPDATE_MOL_IN_ALL_MOL_LISTS,
+    mol: mol
   };
 };
 

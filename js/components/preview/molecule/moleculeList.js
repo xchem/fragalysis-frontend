@@ -19,7 +19,8 @@ import {
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import MoleculeView, { colourList } from './moleculeView';
+import MoleculeView from './moleculeView';
+import { colourList } from './utils/color';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';

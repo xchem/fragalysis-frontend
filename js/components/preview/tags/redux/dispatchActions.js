@@ -5,11 +5,16 @@ import {
   setCategoryList,
   setTagList,
   setSpecialTagList,
-  appendTagList
+  appendTagList,
+  appendToDisplayAllNGLList,
+  removeFromDisplayAllNGLList,
+  appendToListAllForTagList,
+  removeFromListAllForTagList
 } from '../../../../reducers/selection/actions';
 import { TAG_TYPE } from '../../../../constants/constants';
 import { categories, tags } from './tempData';
 import { specialTags } from './data';
+import { addLigand, removeLigand } from '../../molecule/redux/dispatchActions';
 
 import {
   setProteinList,
@@ -27,6 +32,7 @@ import {
 import { setMolGroupOn } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
+import { getRandomColor } from '../../molecule/utils/color';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -105,4 +111,33 @@ export const storeData = data => (dispatch, getState) => {
 
   let allMolecules = [];
   data.molecules.forEach(mol => {});
+};
+
+export const displayAllMolsInNGL = (stage, tag) => (dispatch, getState) => {
+  const state = getState();
+  const allMolecules = state.apiReducers.all_mol_lists;
+  const taggedMolecules = allMolecules.filter(mol => mol.tags_set.some(id => id === tag.id));
+  taggedMolecules.forEach(mol => {
+    const color = getRandomColor(mol);
+    dispatch(addLigand(stage, mol, color, false, true, true));
+  });
+  dispatch(appendToDisplayAllNGLList(tag));
+};
+
+export const hideAllMolsInNGL = (stage, tag) => (dispatch, getState) => {
+  const state = getState();
+  const allMolecules = state.apiReducers.all_mol_lists;
+  const taggedMolecules = allMolecules.filter(mol => mol.tags_set.some(id => id === tag.id));
+  taggedMolecules.forEach(mol => {
+    dispatch(removeLigand(stage, mol, true));
+  });
+  dispatch(removeFromDisplayAllNGLList(tag));
+};
+
+export const displayInListForTag = tag => dispatch => {
+  dispatch(appendToListAllForTagList(tag));
+};
+
+export const hideInListForTag = tag => dispatch => {
+  dispatch(removeFromListAllForTagList(tag));
 };
