@@ -34,7 +34,8 @@ const useStyles = makeStyles(theme => ({
     overflowY: 'hidden'
   },
   content: {
-    overflow: 'auto',
+    overflowY: 'auto',
+    overflowX: 'hidden',
     height: 300
   },
   contColButton: {
