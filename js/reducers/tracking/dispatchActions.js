@@ -49,7 +49,7 @@ import {
   handleShowVectorCompound
 } from '../../components/preview/compounds/redux/dispatchActions';
 import { setCurrentCompoundClass, setCompoundClasses } from '../../components/preview/compounds/redux/actions';
-import { colourList } from '../../components/preview/molecule/moleculeView';
+import { colourList } from '../../components/preview/molecule/utils/color';
 import {
   addDatasetComplex,
   addDatasetLigand,
@@ -2726,7 +2726,7 @@ const handleArrowNavigationAction = (action, isSelected, majorViewStage) => (dis
 const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    let molecules = state.apiReducers.allMolecules;
+    let molecules = state.apiReducers.all_mol_lists;
     let item = isSelected === true ? action.item : action.newItem;
     let newItem = isSelected === true ? action.newItem : action.item;
     let isInspiration = newItem && newItem.isInspiration;
@@ -2741,7 +2741,7 @@ const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStag
 const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const molecules = state.apiReducers.allMolecules;
+    const molecules = state.apiReducers.all_mol_lists;
     const allInspirations = state.datasetsReducers.allInspirations;
 
     let data = action.data;

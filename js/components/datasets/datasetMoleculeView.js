@@ -43,7 +43,12 @@ import { isString } from 'lodash';
 import { SvgTooltip } from '../common';
 import { getMolImage } from '../preview/molecule/redux/dispatchActions';
 import { MOL_TYPE } from '../preview/molecule/redux/constants';
-import { deselectVectorCompound, isCompoundFromVectorSelector, showHideLigand } from '../preview/compounds/redux/dispatchActions';
+import {
+  deselectVectorCompound,
+  isCompoundFromVectorSelector,
+  showHideLigand
+} from '../preview/compounds/redux/dispatchActions';
+import { colourList } from '../preview/molecule/utils/color';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -224,21 +229,6 @@ const useStyles = makeStyles(theme => ({
     height: theme.spacing(2)
   }
 }));
-
-export const colourList = [
-  '#EFCDB8',
-  '#CC6666',
-  '#FF6E4A',
-  '#78DBE2',
-  '#1F75FE',
-  '#FAE7B5',
-  '#FDBCB4',
-  '#C5E384',
-  '#95918C',
-  '#F75394',
-  '#80DAEB',
-  '#ADADD6'
-];
 
 export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">

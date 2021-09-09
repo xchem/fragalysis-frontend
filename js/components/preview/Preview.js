@@ -8,6 +8,7 @@ import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
 import { CustomDatasetList } from '../datasets/customDatasetList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
+import TagSelector from './tags/tagSelector';
 import { SummaryView } from './summary/summaryView';
 import { CompoundList } from './compounds/compoundList';
 import { ViewerControls } from './viewerControls';
@@ -38,6 +39,8 @@ import {
   setAllInspirations
 } from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
+import { setTagSelectorData } from './tags/redux/dispatchActions';
+import { withLoadingMolecules } from './tags/withLoadingMolecules';
 
 const hitNavigatorWidth = 504;
 
@@ -54,6 +57,9 @@ const useStyles = makeStyles(theme => ({
   nglViewWidth: {
     // padding: 0,
     width: 'inherit'
+  },
+  hitSelectorWidth: {
+    width: '100%'
   },
   hitColumn: {
     minWidth: hitNavigatorWidth,
@@ -133,9 +139,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   }, [customDatasets.length, dispatch, target_on, isTrackingRestoring]);
 
   useEffect(() => {
-    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
     const moleculeListsCount = Object.keys(moleculeLists || {}).length;
-    if (allMolsGroupsCount > 0 && moleculeListsCount > 0 && !isLoadingMoleculeList) {
+    if (moleculeListsCount > 0 && !isLoadingMoleculeList) {
       const allDatasets = {};
       const allMolsMap = linearizeMoleculesLists();
       const keys = Object.keys(moleculeLists);
@@ -157,15 +162,13 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   }, [all_mol_lists, moleculeLists, isLoadingMoleculeList, linearizeMoleculesLists, dispatch]);
 
   const linearizeMoleculesLists = useCallback(() => {
-    const keys = Object.keys(all_mol_lists);
     const allMolsMap = {};
 
-    keys.forEach(key => {
-      let molList = all_mol_lists[key];
-      molList.forEach(mol => {
+    if (all_mol_lists && all_mol_lists.length > 0) {
+      all_mol_lists.forEach(mol => {
         allMolsMap[mol.id] = mol;
       });
-    });
+    }
 
     return allMolsMap;
   }, [all_mol_lists]);
@@ -234,12 +237,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
           {/* Hit cluster selector */}
-          <Grid item>
-            <MolGroupSelector
-              isStateLoaded={isStateLoaded}
-              hideProjects={hideProjects}
-              handleHeightChange={setMolGroupsHeight}
-            />
+          <Grid item className={classes.hitSelectorWidth}>
+            <TagSelector handleHeightChange={setMolGroupsHeight} />
           </Grid>
           {/* Hit navigator */}
           <Grid item>
@@ -369,4 +368,4 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   );
 });
 
-export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview)));
+export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(withLoadingMolecules(Preview))));

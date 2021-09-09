@@ -30,15 +30,17 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl }) => {
+export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl, disabled = false }) => {
   const classes = useStyles();
   const [displayColorPicker, setDisplayColorPicker] = useState(false);
   const [color, setColor] = useState(selectedColor);
   const [anchorE1, setAnchorE1] = useState(null);
 
   const handleClick = event => {
-    setAnchorE1(event.currentTarget);
-    setDisplayColorPicker(!displayColorPicker);
+    if (!disabled) {
+      setAnchorE1(event.currentTarget);
+      setDisplayColorPicker(!displayColorPicker);
+    }
   };
 
   const handleClose = () => {

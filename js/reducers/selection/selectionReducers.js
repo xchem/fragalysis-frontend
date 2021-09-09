@@ -24,6 +24,14 @@ export const INITIAL_STATE = {
   moleculeAllSelection: [],
   moleculeAllTypeSelection: [],
 
+  categoryList: [],
+  tagList: [],
+  selectedTagList: [],
+  specialTagList: [],
+
+  listAllList: [],
+  displayAllInNGLList: [],
+
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
   //   [vectorID] :{}  // this object replaces to_select, based on vector smile
@@ -175,6 +183,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       diminishedDensityList.delete(action.item.id);
       return Object.assign({}, state, { densityList: [...diminishedDensityList] });
 
+    case constants.SET_DENSITY_LIST_CUSTOM:
+      let newDensityListCustom = new Set();
+      action.densityListCustom.forEach(f => {
+        newDensityListCustom.add(f);
+      });
+      return Object.assign({}, state, { densityListCustom: [...newDensityListCustom] });
+
     case constants.APPEND_DENSITY_LIST_CUSTOM:
       return Object.assign({}, state, {
         densityListCustom: [...new Set([...state.densityListCustom, action.item.id])]
@@ -199,6 +214,38 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedQualityList = new Set(state.qualityList);
       diminishedQualityList.delete(action.item.id);
       return Object.assign({}, state, { qualityList: [...diminishedQualityList] });
+
+    case constants.SET_LIST_ALL_FOR_TAG_LIST:
+      let newListAllForTag = new Set();
+      action.listAll.forEach(f => {
+        newListAllForTag.add(f);
+      });
+      return Object.assign({}, state, { listAllList: [...newListAllForTag] });
+
+    case constants.APPEND_TO_LIST_ALL_FOR_TAG_LIST:
+      return Object.assign({}, state, { listAllList: [...new Set([...state.listAllList, action.item.id])] });
+
+    case constants.REMOVE_FROM_LIST_ALL_FOR_TAG_LIST:
+      let diminishedListAllList = new Set(state.listAllList);
+      diminishedListAllList.delete(action.item.id);
+      return Object.assign({}, state, { listAllList: [...diminishedListAllList] });
+
+    case constants.SET_DISPLAY_ALL_NGL_LIST:
+      let newDisplayAllInNGLList = new Set();
+      action.displayAllInNGLList.forEach(f => {
+        newDisplayAllInNGLList.add(f);
+      });
+      return Object.assign({}, state, { displayAllInNGLList: [...newDisplayAllInNGLList] });
+
+    case constants.APPEND_TO_DISPLAY_ALL_NGL_LIST:
+      return Object.assign({}, state, {
+        displayAllInNGLList: [...new Set([...state.displayAllInNGLList, action.item.id])]
+      });
+
+    case constants.REMOVE_FROM_DISPLAY_ALL_NGL_LIST:
+      let diminishedDisplayAllInNGLList = new Set(state.displayAllInNGLList);
+      diminishedDisplayAllInNGLList.delete(action.item.id);
+      return Object.assign({}, state, { displayAllInNGLList: [...diminishedDisplayAllInNGLList] });
 
     case constants.APPEND_INFORMATION_LIST:
       return Object.assign({}, state, { informationList: [...new Set([...state.informationList, action.item.id])] });
@@ -347,6 +394,73 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_HIDE_ALL:
       return state;
+
+    case constants.SET_CATEGORY_LIST:
+      let newCategoryList = new Set();
+      action.categoryList.forEach(f => {
+        newCategoryList.add(f);
+      });
+      return Object.assign({}, state, { categoryList: [...newCategoryList] });
+
+    case constants.APPEND_CATEGORY_LIST:
+      return Object.assign({}, state, { categoryList: [...new Set([...state.categoryList, action.item])] });
+
+    case constants.REMOVE_FROM_CATEGORY_LIST:
+      let diminishedCategoryList = new Set(state.categoryList);
+      diminishedCategoryList.delete(action.item);
+      return Object.assign({}, state, { categoryList: [...diminishedCategoryList] });
+
+    case constants.SET_SPECIAL_TAG_LIST:
+      let newSpecialTagList = new Set();
+      action.tagList.forEach(f => {
+        newSpecialTagList.add(f);
+      });
+      return Object.assign({}, state, { specialTagList: [...newSpecialTagList] });
+
+    case constants.SET_TAG_LIST:
+      let newTagList = new Set();
+      action.tagList.forEach(f => {
+        newTagList.add(f);
+      });
+      return Object.assign({}, state, { tagList: [...newTagList] });
+
+    case constants.UPDATE_TAG:
+      let listWithUpdatedTag = [...state.tagList];
+      let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
+      if (foundTags && foundTags.length > 0) {
+        let foundTag = foundTags[0];
+        foundTag.tag = action.item.tag;
+        foundTag.colour = action.item.colour;
+        foundTag.category_id = action.item.category_id;
+        foundTag.discourse_url = action.item.discourse_url;
+
+        return { ...state, tagList: [...listWithUpdatedTag] };
+      } else {
+        return state;
+      }
+
+    case constants.APPEND_TAG_LIST:
+      return Object.assign({}, state, { tagList: [...new Set([...state.tagList, action.item])] });
+
+    case constants.REMOVE_FROM_TAG_LIST:
+      let diminishedTagList = new Set(state.tagList);
+      diminishedTagList.delete(action.item);
+      return Object.assign({}, state, { tagList: [...diminishedTagList] });
+
+    case constants.SET_SELECTED_TAG_LIST:
+      let newSelectedTagList = new Set();
+      action.selectedTagList.forEach(f => {
+        newSelectedTagList.add(f);
+      });
+      return Object.assign({}, state, { selectedTagList: [...newSelectedTagList] });
+
+    case constants.APPEND_SELECTED_TAG_LIST:
+      return Object.assign({}, state, { selectedTagList: [...new Set([...state.selectedTagList, action.item])] });
+
+    case constants.REMOVE_FROM_SELECTED_TAG_LIST:
+      let diminishedSelectedTagList = new Set(state.selectedTagList);
+      diminishedSelectedTagList.delete(action.item);
+      return Object.assign({}, state, { selectedTagList: [...diminishedSelectedTagList] });
 
     // Cases like: @@redux/INIT
     default:

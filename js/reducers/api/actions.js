@@ -98,10 +98,31 @@ export const setAllMolLists = all_mol_lists => {
   };
 };
 
-export const setAllMolecules = molecules => {
+export const setMoleculeTags = moleculeTags => {
   return {
-    type: constants.SET_ALL_MOLECULES,
-    allMolecules: molecules
+    type: constants.SET_MOLECULE_TAGS,
+    moleculeTags: moleculeTags
+  };
+};
+
+export const appendMoleculeTag = moleculeTag => {
+  return {
+    type: constants.APPEND_MOLECULE_TAG,
+    moleculeTag: moleculeTag
+  };
+};
+
+export const updateMoleculeTag = tag => {
+  return {
+    type: constants.UPDATE_MOLECULE_TAG,
+    tag: tag
+  };
+};
+
+export const updateMoleculeInMolLists = mol => {
+  return {
+    type: constants.UPDATE_MOL_IN_ALL_MOL_LISTS,
+    mol: mol
   };
 };
 

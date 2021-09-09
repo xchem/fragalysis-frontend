@@ -5,7 +5,7 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward, Warning } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward, Warning, Label, Edit } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
@@ -25,7 +25,6 @@ import {
   removeDensity,
   addLigand,
   removeLigand,
-  searchMoleculeGroupByMoleculeID,
   getMolImage,
   moveSelectedMolSettings,
   removeQuality,
@@ -41,6 +40,9 @@ import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchAction
 import { SvgTooltip } from '../../common';
 import { MOL_TYPE } from './redux/constants';
 import { DensityMapsModal } from './modals/densityMapsModal';
+import { TagAddModal } from '../tags/modal/tagAddModal';
+import { TagEditor } from '../tags/modal/tagEditor';
+import { getRandomColor } from './utils/color';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -187,27 +189,19 @@ const useStyles = makeStyles(theme => ({
   },
   warningIcon: {
     padding: '0px',
-    color: theme.palette.warning.dark,
+    color: theme.palette.warning.darkLight,
     '&:hover': {
-      color: theme.palette.warning.main
+      color: theme.palette.warning.dark
+    }
+  },
+  tagIcon: {
+    padding: '0px',
+    color: theme.palette.primary.main,
+    '&:hover': {
+      color: theme.palette.primary.dark
     }
   }
 }));
-
-export const colourList = [
-  '#EFCDB8',
-  '#CC6666',
-  '#FF6E4A',
-  '#78DBE2',
-  '#1F75FE',
-  '#FAE7B5',
-  '#FDBCB4',
-  '#C5E384',
-  '#95918C',
-  '#F75394',
-  '#80DAEB',
-  '#ADADD6'
-];
 
 export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -242,7 +236,6 @@ const MoleculeView = memo(
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
     const key = 'mol_image';
-    const [moleculeGroupID, setMoleculeGroupID] = useState();
 
     const dispatch = useDispatch();
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
@@ -276,6 +269,8 @@ const MoleculeView = memo(
     let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
     let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
+    let tagEditIconVisible = true;
+
     // const disableUserInteraction = useDisableUserInteraction();
 
     const oldUrl = useRef('');
@@ -283,8 +278,8 @@ const MoleculeView = memo(
       oldUrl.current = url;
     };
     const refOnCancel = useRef();
-    const getRandomColor = () => colourList[data.id % colourList.length];
-    const colourToggle = getRandomColor();
+
+    const colourToggle = getRandomColor(data);
 
     const getCalculatedProps = useCallback(
       () => [
@@ -304,6 +299,7 @@ const MoleculeView = memo(
     );
 
     const [densityModalOpen, setDensityModalOpen] = useState(false);
+    const [tagAddModalOpen, setTagAddModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const moleculeImgRef = useRef(null);
     const openMoleculeTooltip = () => {
@@ -341,18 +337,6 @@ const MoleculeView = memo(
       dispatch(getQualityInformation(data));
     }, [data, dispatch]);
 
-    useEffect(() => {
-      if (searchMoleculeGroup) {
-        dispatch(searchMoleculeGroupByMoleculeID(currentID))
-          .then(molGroupID => {
-            setMoleculeGroupID(molGroupID);
-          })
-          .catch(error => {
-            throw new Error(error);
-          });
-      }
-    }, [currentID, dispatch, searchMoleculeGroup]);
-
     const svg_image = (
       <SVGInline
         component="div"
@@ -376,9 +360,10 @@ const MoleculeView = memo(
         : not_selected_style;
 
     const addNewLigand = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
+
       dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
     };
 
@@ -409,9 +394,9 @@ const MoleculeView = memo(
     };
 
     const addNewProtein = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
     };
 
@@ -437,9 +422,9 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addComplex(stage, data, colourToggle, skipTracking));
     };
 
@@ -464,9 +449,9 @@ const MoleculeView = memo(
     };
 
     const addNewSurface = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addSurface(stage, data, colourToggle));
     };
 
@@ -487,9 +472,9 @@ const MoleculeView = memo(
     };
 
     const addNewDensity = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
     };
 
@@ -530,9 +515,9 @@ const MoleculeView = memo(
     };
 
     const addNewVector = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
       dispatch(addVector(stage, data)).catch(error => {
         throw new Error(error);
       });
@@ -639,7 +624,7 @@ const MoleculeView = memo(
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
-              <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
+              <Typography variant="subtitle2">{data.site}</Typography>
             </Grid>
             <Grid item className={classes.rank}>
               {index + 1}.
@@ -877,9 +862,29 @@ const MoleculeView = memo(
             onMouseLeave={closeMoleculeTooltip}
             ref={moleculeImgRef}
           >
-            <Grid item xs={warningIconVisible === true ? 10 : 12}>
+            <Grid
+              item
+              xs={
+                warningIconVisible === true
+                  ? moleculeTooltipOpen === true
+                    ? 8
+                    : 10
+                  : moleculeTooltipOpen === true
+                  ? 10
+                  : 12
+              }
+            >
               {svg_image}
             </Grid>
+            {moleculeTooltipOpen === true && (
+              <Grid item xs={2}>
+                <IconButton color="primary" className={classes.tagIcon} onClick={() => setTagAddModalOpen(true)}>
+                  <Tooltip title="Add tag">
+                    <Label />
+                  </Tooltip>
+                </IconButton>
+              </Grid>
+            )}
             {warningIconVisible === true && (
               <Grid item xs={2}>
                 <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
@@ -904,6 +909,8 @@ const MoleculeView = memo(
           data={data}
           setDensity={addNewDensity}
         />
+        {/* <TagAddModal openDialog={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} molecule={data} /> */}
+        <TagEditor open={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} anchorEl={ref.current} mol={data} />
       </>
     );
   }

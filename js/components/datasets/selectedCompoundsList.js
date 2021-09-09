@@ -11,7 +11,8 @@ import {
   getListOfSelectedSurfaceOfAllDatasets
 } from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
+import { DatasetMoleculeView } from './datasetMoleculeView';
+import { colourList } from '../preview/molecule/utils/color';
 import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
@@ -33,7 +34,6 @@ import { setDontShowShareSnapshot, setSharedSnapshot } from '../snapshot/redux/a
 import { initSharedSnapshot } from '../snapshot/redux/reducer';
 import { base_url } from '../routes/constants';
 import { api, METHOD } from '../../utils/api';
-
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -158,13 +158,13 @@ export const SelectedCompoundList = memo(({ height }) => {
     };
   }, [dispatch]);
 
-  const getSetOfProps = (usedDatasets) => {
+  const getSetOfProps = usedDatasets => {
     const unionOfProps = new Set();
 
     unionOfProps.add('smiles');
 
     Object.keys(filteredScoreProperties).forEach(datasetName => {
-      if (usedDatasets.hasOwnProperty(datasetName)){
+      if (usedDatasets.hasOwnProperty(datasetName)) {
         const dataset = filteredScoreProperties[datasetName];
         dataset.forEach(prop => {
           if (prop.hasOwnProperty('computed_set')) {
@@ -210,8 +210,7 @@ export const SelectedCompoundList = memo(({ height }) => {
       }
 
       molObj[prop] = value;
-
-    };
+    }
 
     return molObj;
   };
@@ -232,14 +231,14 @@ export const SelectedCompoundList = memo(({ height }) => {
         }
 
         molObj[idsGlobal.diffIds[vendorId].fieldsArray[vendorsPerMol[vendorId]]] = idVal;
-      };
+      }
     }
 
     return molObj;
   };
 
-  const getCompoundIds = (mols) => {
-    let result = {diffIds: {}, namesToIds: {}, idsInOrder: new Set()};
+  const getCompoundIds = mols => {
+    let result = { diffIds: {}, namesToIds: {}, idsInOrder: new Set() };
 
     mols.forEach(mol => {
       if (mol.molecule.hasOwnProperty('compound_ids')) {
@@ -250,7 +249,7 @@ export const SelectedCompoundList = memo(({ height }) => {
           if (!result.diffIds.hasOwnProperty(vendorId)) {
             perMolVendors[vendorId] = 1;
             const idFieldName = vendorId;
-            result.diffIds[vendorId] = { count: 1, name: vendorId, fields: {}, fieldsArray: []};
+            result.diffIds[vendorId] = { count: 1, name: vendorId, fields: {}, fieldsArray: [] };
             result.diffIds[vendorId].fields[idFieldName] = idFieldName;
             result.diffIds[vendorId].fieldsArray.push(idFieldName);
             result.namesToIds[idFieldName] = vendorId;
@@ -267,7 +266,7 @@ export const SelectedCompoundList = memo(({ height }) => {
                 result.diffIds[vendorId].fieldsArray.push(idFieldName);
                 result.namesToIds[idFieldName] = vendorId;
                 result.idsInOrder.add(idFieldName);
-              } 
+              }
             } else {
               perMolVendors[vendorId] = 1;
             }
@@ -279,15 +278,14 @@ export const SelectedCompoundList = memo(({ height }) => {
     return result;
   };
 
-  const getUsedDatasets = (mols) => {
+  const getUsedDatasets = mols => {
     const setOfDataSets = {};
     mols.forEach(mol => {
-      if (!setOfDataSets.hasOwnProperty(mol.datasetID))
-      setOfDataSets[mol.datasetID] = mol.datasetID;
+      if (!setOfDataSets.hasOwnProperty(mol.datasetID)) setOfDataSets[mol.datasetID] = mol.datasetID;
     });
 
     return setOfDataSets;
-  }
+  };
 
   const getEmptyMolObject = (props, ids) => {
     let molObj = {};
@@ -301,11 +299,11 @@ export const SelectedCompoundList = memo(({ height }) => {
     });
 
     return molObj;
-  }
+  };
 
   const downloadAsCsv = () => (dispatch, getState) => {
     dispatch(setDontShowShareSnapshot(true));
-    dispatch(saveAndShareSnapshot(nglViewList, false)).then(() =>{
+    dispatch(saveAndShareSnapshot(nglViewList, false)).then(() => {
       const state = getState();
       const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
 
@@ -315,16 +313,16 @@ export const SelectedCompoundList = memo(({ height }) => {
       const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
       const props = getSetOfProps(usedDatasets);
       const ids = getCompoundIds(moleculesObjectIDListOfCompoundsToBuy);
-  
+
       const listOfMols = [];
-  
+
       moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
         let molObj = getEmptyMolObject(props, ids);
         molObj = populateMolObject(molObj, compound, props, ids);
         listOfMols.push(molObj);
       });
-      
-      const reqObj = {title: sharedSnapshot.url, dict: listOfMols};
+
+      const reqObj = { title: sharedSnapshot.url, dict: listOfMols };
       const jsonString = JSON.stringify(reqObj);
 
       api({
@@ -367,7 +365,7 @@ export const SelectedCompoundList = memo(({ height }) => {
       title="Selected Compounds"
       withTooltip
       headerActions={[
-        <Button color="inherit" variant="text" onClick={() => dispatch(downloadAsCsv())} startIcon={<CloudDownload />} >    
+        <Button color="inherit" variant="text" onClick={() => dispatch(downloadAsCsv())} startIcon={<CloudDownload />}>
           Download CSV
         </Button>,
         <Button
@@ -450,7 +448,7 @@ export const SelectedCompoundList = memo(({ height }) => {
                     V={false}
                     fromSelectedCompounds={true}
                   />
-                )
+                );
               })}
             </InfiniteScroll>
           </Grid>
