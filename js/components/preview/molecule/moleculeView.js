@@ -363,6 +363,7 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
+
       dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
     };
 

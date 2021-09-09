@@ -56,8 +56,7 @@ Clone repositories
 _Note: You might want to work on `frontend` fork._
 
 ```
-# git clone https://github.com/xchem/fragalysis-frontend.git
-git clone https://github.com/pavol-brunclik-m2ms/fragalysis-frontend.git
+git clone https://github.com/xchem/fragalysis-frontend.git
 ```
 
 _Note: Fork if any work is expected._
