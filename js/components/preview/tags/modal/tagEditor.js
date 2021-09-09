@@ -1,9 +1,8 @@
-import React, { forwardRef, memo, useState, useCallback, useContext } from 'react';
+import React, { forwardRef, memo, useState, useCallback, useContext, useEffect } from 'react';
 import {
   Grid,
   Popper,
   IconButton,
-  Typography,
   InputAdornment,
   TextField,
   Tooltip,
@@ -11,22 +10,36 @@ import {
   Button,
   useTheme,
   Select,
-  MenuItem
+  MenuItem,
+  Box
 } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
-import { Close, Satellite, Search } from '@material-ui/icons';
+import { Close, Search } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import classNames from 'classnames';
 import TagView from '../tagView';
-import { updateMoleculeInMolLists } from '../../../../reducers/api/actions';
-import { displayAllMolsInNGL, hideAllMolsInNGL, displayInListForTag, hideInListForTag } from '../redux/dispatchActions';
+import { updateMoleculeInMolLists, updateMoleculeTag, appendMoleculeTag } from '../../../../reducers/api/actions';
+import {
+  displayAllMolsInNGL,
+  hideAllMolsInNGL,
+  displayInListForTag,
+  hideInListForTag,
+  updateTagProp
+} from '../redux/dispatchActions';
 import { NglContext } from '../../../nglView/nglProvider';
 import { VIEWS, CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
 import { appendTagList, updateTag } from '../../../../reducers/selection/actions';
-import { createNewTag } from '../api/tagsApi';
+import { createNewTag, updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import {
+  compareTagsAsc,
+  DEFAULT_TAG_COLOR,
+  augumentTagObjectWithId,
+  createMoleculeTagObject,
+  getMoleculeTagForTag
+} from '../utils/tagUtils';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -63,7 +76,9 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     height: '100%',
     width: '100%',
-    paddingTop: theme.spacing(1) / 2
+    paddingTop: theme.spacing(1) / 2,
+    marginRight: '1px',
+    marginLeft: '1px'
   },
   contColButtonSelected: {
     backgroundColor: theme.palette.primary.main,
@@ -104,14 +119,25 @@ export const TagEditor = memo(
     const dispatch = useDispatch();
     const [searchString, setSearchString] = useState(null);
     const [newTagCategory, setNewTagCategory] = useState(1);
-    const [newTagColor, setNewTagColor] = useState(theme.palette.primary.main);
+    const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
     const [newTagName, setNewTagName] = useState(null);
     const [newTagLink, setNewTagLink] = useState(null);
-    const tagList = useSelector(state => state.selectionReducers.tagList);
+    let tagList = useSelector(state => state.selectionReducers.tagList);
+    let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
     const displayAllInNGLList = useSelector(state => state.selectionReducers.displayAllInNGLList);
     const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+
+    tagList = tagList.sort(compareTagsAsc);
+    moleculeTags = moleculeTags.sort(compareTagsAsc);
+
+    const resetNewTagFields = () => {
+      setNewTagCategory(1);
+      setNewTagColor(DEFAULT_TAG_COLOR);
+      setNewTagName(null);
+      setNewTagLink(null);
+    };
 
     const handleCloseModal = () => {
       dispatch(setOpenDialog(false));
@@ -135,17 +161,49 @@ export const TagEditor = memo(
       return tagsForMolecule && tagsForMolecule.some(t => t.id === tag.id);
     };
 
-    const handleTagClick = (selected, tag, allTags) => {
+    const handleTagClick = (selected, tag) => {
+      let molTagObject = undefined;
       if (selected) {
         let newMol = { ...mol };
         newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
         dispatch(updateMoleculeInMolLists(newMol));
+        const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
+        let newMolList = [...moleculeTag.molecules];
+        newMolList = newMolList.filter(id => id !== tag.id);
+        molTagObject = createMoleculeTagObject(
+          tag.tag,
+          newMol.proteinData.target_id,
+          tag.category_id,
+          DJANGO_CONTEXT.pk,
+          tag.colour,
+          tag.discourse_url,
+          newMolList,
+          tag.create_date,
+          tag.additional_info
+        );
       } else {
         if (!mol.tags_set.some(id => id === tag.id)) {
           let newMol = { ...mol };
           newMol.tags_set.push(tag.id);
           dispatch(updateMoleculeInMolLists(newMol));
+          const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
+          molTagObject = createMoleculeTagObject(
+            tag.tag,
+            newMol.proteinData.target_id,
+            tag.category_id,
+            DJANGO_CONTEXT.pk,
+            tag.colour,
+            tag.discourse_url,
+            [...moleculeTag.molecules, newMol.id],
+            tag.create_date,
+            tag.additional_info
+          );
         }
+      }
+      if (molTagObject) {
+        let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
+        dispatch(updateMoleculeTag(augMolTagObject));
+        updateExistingTag(molTagObject, tag.id);
       }
     };
 
@@ -208,19 +266,27 @@ export const TagEditor = memo(
     const createTag = () => {
       if (newTagName) {
         const newTag = { tag: newTagName, colour: newTagColor, category_id: newTagCategory, discourse_url: newTagLink };
-        dispatch(appendTagList(newTag));
-        dispatch(
-          createNewTag(newTagName, mol.id, mol.target, newTagCategory, DJANGO_CONTEXT.username, newTagColor, newTagLink)
+        const tagObject = createMoleculeTagObject(
+          newTagName,
+          mol.proteinData.target_id,
+          newTagCategory,
+          DJANGO_CONTEXT.pk,
+          newTagColor,
+          newTagLink,
+          [mol.id]
         );
-        // handleTagClick(false, newTag);
+        createNewTag(tagObject).then(molTag => {
+          let augMolTagObject = augumentTagObjectWithId(newTag, molTag.id);
+          dispatch(appendTagList(augMolTagObject));
+          dispatch(appendMoleculeTag(molTag));
+        });
+        // resetNewTagFields();
       }
     };
 
     const onUpdateTag = (tag, value, prop) => {
       if (value) {
-        const newTag = { ...tag };
-        newTag[prop] = value;
-        dispatch(updateTag(newTag));
+        dispatch(updateTagProp(tag, value, prop));
       }
     };
 
@@ -255,8 +321,8 @@ export const TagEditor = memo(
           ]}
         >
           <div className={classes.content}>
-            <Grid container direction="column" spacing={1}>
-              <Grid container item className={classes.divContainer} spacing={1} alignItems="flex-end" xs={12}>
+            <Grid container direction="column">
+              <Grid container item className={classes.divContainer} spacing={5} alignItems="flex-end" xs={12}>
                 <Grid item xs={4}>
                   <TextField
                     id="tag-editor-tag-name"
@@ -264,6 +330,7 @@ export const TagEditor = memo(
                     size="small"
                     onChange={onNameForNewTagChange}
                     fullWidth
+                    disabled={!DJANGO_CONTEXT.pk}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -273,10 +340,16 @@ export const TagEditor = memo(
                     setSelectedColor={value => {
                       setNewTagColor(value);
                     }}
+                    disabled={!DJANGO_CONTEXT.pk}
                   />
                 </Grid>
                 <Grid item xs={1}>
-                  <Select className={classes.select} value={newTagCategory} onChange={onCategoryForNewTagChange}>
+                  <Select
+                    className={classes.select}
+                    value={newTagCategory}
+                    onChange={onCategoryForNewTagChange}
+                    disabled={!DJANGO_CONTEXT.pk}
+                  >
                     {Object.keys(CATEGORY_TYPE).map(c => (
                       <MenuItem
                         key={`tag-editor-new-category-${CATEGORY_ID[CATEGORY_TYPE[c]]}`}
@@ -293,10 +366,11 @@ export const TagEditor = memo(
                     placeholder="Post"
                     size="small"
                     onChange={onLinkForNewTagChange}
+                    disabled={!DJANGO_CONTEXT.pk}
                   />
                 </Grid>
                 <Grid item xs={2}>
-                  <Button onClick={createTag} color="primary">
+                  <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
                     Save Tag
                   </Button>
                 </Grid>
@@ -308,32 +382,26 @@ export const TagEditor = memo(
                       container
                       item
                       className={classes.divContainer}
-                      spacing={1}
+                      spacing={5}
                       wrap="nowrap"
                       alignItems="flex-end"
                     >
-                      <Grid item xs={2}>
+                      <Grid item xs={4}>
                         <TagView
                           key={`tag-item-editor${tag.id}`}
                           tag={tag}
                           selected={isTagSelected(tag)}
                           handleClick={handleTagClick}
+                          editable={true}
+                          disabled={!DJANGO_CONTEXT.pk}
+                          isEdit={true}
                         ></TagView>
-                      </Grid>
-                      <Grid item xs={2}>
-                        <TextField
-                          id={`tag-editor-tag-name-edit-${tag.id}`}
-                          placeholder="Name"
-                          size="small"
-                          onChange={event => {
-                            onUpdateTag(tag, event.target.value, 'tag');
-                          }}
-                        />
                       </Grid>
                       <Grid item xs={1}>
                         <ColorPicker
+                          disabled={!DJANGO_CONTEXT.pk}
                           id={`tag-editor-tag-color-edit-${tag.id}`}
-                          selectedColor={newTagColor}
+                          selectedColor={tag.colour ? tag.colour : DEFAULT_TAG_COLOR}
                           setSelectedColor={value => {
                             onUpdateTag(tag, value, 'colour');
                           }}
@@ -341,8 +409,9 @@ export const TagEditor = memo(
                       </Grid>
                       <Grid item xs={1}>
                         <Select
+                          disabled={!DJANGO_CONTEXT.pk}
                           className={classes.select}
-                          value={newTagCategory}
+                          value={tag.category_id}
                           onChange={event => {
                             onUpdateTag(tag, event.target.value, 'category_id');
                           }}
@@ -359,16 +428,20 @@ export const TagEditor = memo(
                       </Grid>
                       <Grid item xs={2}>
                         <TextField
+                          disabled={!DJANGO_CONTEXT.pk}
                           id={`tag-editor-tag-post-edit-${tag.id}`}
                           placeholder="Post"
                           size="small"
-                          onChange={event => {
-                            onUpdateTag(tag, event.target.value, 'discourse_url');
+                          value={tag.discourse_url ? tag.discourse_url : ''}
+                          onKeyPress={e => {
+                            if (e.key === 'Enter') {
+                              onUpdateTag(tag, e.target.value, 'discourse_url');
+                            }
                           }}
                         />
                       </Grid>
                       <Grid item xs={2}>
-                        <Grid container item direction="row" spacing={0} alignItems="center">
+                        <Grid container item direction="row" alignItems="center">
                           <Tooltip title="Display all in list">
                             <Grid item>
                               <Button

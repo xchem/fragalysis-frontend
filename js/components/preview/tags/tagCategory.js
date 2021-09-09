@@ -3,6 +3,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import TagCategoryView from './tagCategoryView';
 import { CATEGORY_TYPE } from '../../../constants/constants';
+import { compareTagsAsc } from './utils/tagUtils';
 
 const useStyles = makeStyles(theme => ({
   category: {
@@ -18,7 +19,8 @@ const TagCategory = memo(({ headerPadding = 0 }) => {
   const classes = useStyles();
 
   const categoryList = useSelector(state => state.selectionReducers.categoryList);
-  const tagList = useSelector(state => state.selectionReducers.tagList);
+  let tagList = useSelector(state => state.selectionReducers.tagList);
+  tagList = tagList.sort(compareTagsAsc);
   const specialTagList = useSelector(state => state.selectionReducers.specialTagList);
 
   const siteCategory = categoryList.find(c => c.category === CATEGORY_TYPE.SITE);

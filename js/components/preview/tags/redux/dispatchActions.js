@@ -15,7 +15,6 @@ import { TAG_TYPE } from '../../../../constants/constants';
 import { categories, tags } from './tempData';
 import { specialTags } from './data';
 import { addLigand, removeLigand } from '../../molecule/redux/dispatchActions';
-
 import {
   setProteinList,
   setDensityList,
@@ -27,12 +26,16 @@ import {
   setFragmentDisplayList,
   setMolGroupSelection,
   setVectorList,
-  setVectorOnList
+  setVectorOnList,
+  updateTag
 } from '../../../../reducers/selection/actions';
-import { setMolGroupOn } from '../../../../reducers/api/actions';
+import { setMolGroupOn, updateMoleculeTag } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { getRandomColor } from '../../molecule/utils/color';
+import { getMoleculeTagForTag, createMoleculeTagObject, augumentTagObjectWithId } from '../utils/tagUtils';
+import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import { updateExistingTag } from '../api/tagsApi';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -140,4 +143,31 @@ export const displayInListForTag = tag => dispatch => {
 
 export const hideInListForTag = tag => dispatch => {
   dispatch(removeFromListAllForTagList(tag));
+};
+
+export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
+  const state = getState();
+  const molTags = state.apiReducers.moleculeTags;
+
+  if (value) {
+    const newTag = { ...tag };
+    newTag[prop] = value;
+    dispatch(updateTag(newTag));
+    const moleculeTag = getMoleculeTagForTag(molTags, newTag.id);
+    let newMolTag = createMoleculeTagObject(
+      newTag.tag,
+      moleculeTag.target,
+      newTag.category_id,
+      DJANGO_CONTEXT.pk,
+      newTag.colour,
+      newTag.discourse_url,
+      [...moleculeTag.molecules],
+      newTag.create_date,
+      newTag.additional_info,
+      moleculeTag.mol_group
+    );
+    let augMolTagObject = augumentTagObjectWithId(newMolTag, tag.id);
+    dispatch(updateMoleculeTag(augMolTagObject));
+    return updateExistingTag(newMolTag, tag.id);
+  }
 };

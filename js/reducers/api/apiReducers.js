@@ -3,6 +3,7 @@
  */
 import { constants } from './constants';
 import { savingStateConst } from '../../components/snapshot/constants';
+import { tags } from '../../components/preview/tags/redux/tempData';
 
 export const INITIAL_STATE = {
   project_id: undefined,
@@ -13,6 +14,7 @@ export const INITIAL_STATE = {
   cached_mol_lists: {},
   all_mol_lists: {},
   allMolecules: [],
+  moleculeTags: [],
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -118,6 +120,23 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         cached_mol_lists: action.cached_mol_lists
       });
 
+    case constants.SET_MOLECULE_TAGS:
+      return { ...state, moleculeTags: [...action.moleculeTags] };
+
+    case constants.APPEND_MOLECULE_TAG:
+      state.moleculeTags.push(action.moleculeTag);
+      return { ...state };
+
+    case constants.UPDATE_MOLECULE_TAG:
+      let newMolTagsList = [...state.moleculeTags];
+      const indexOfTag = newMolTagsList.findIndex(t => t.id === action.tag.id);
+      if (indexOfTag > 0) {
+        newMolTagsList[indexOfTag] = { ...action.tag };
+        return { ...state, moleculeTags: newMolTagsList };
+      } else {
+        return state;
+      }
+
     case constants.SET_ALL_MOL_LISTS:
       return { ...state, all_mol_lists: action.all_mol_lists };
 
@@ -128,7 +147,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         newList[indexOfMol] = { ...action.mol };
         return { ...state, all_mol_lists: newList };
       } else {
-        return { state };
+        return state;
       }
 
     case constants.SET_PANNDA_EVENT_LIST:

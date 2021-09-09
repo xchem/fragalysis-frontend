@@ -8,7 +8,7 @@ import { InputFieldAvatar } from '../../../projects/projectModal/inputFieldAvata
 import { Formik, Form, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { Button } from '../../../common/Inputs/Button';
-import { editTag } from '../redux/dispatchActions';
+import { updateTagProp } from '../redux/dispatchActions';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
 
 const useStyles = makeStyles(theme => ({
@@ -34,33 +34,9 @@ const useStyles = makeStyles(theme => ({
 export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const [state, setState] = useState();
-  const [tagColor, setTagColor] = useState(tag.color);
-
-  const categoryList = useSelector(state => state.selectionReducers.categoryList);
-
-  let tagCategory = categoryList.find(c => c.id === tag.category);
-  const [selectedCategory, setSelectedCategory] = useState(tagCategory);
 
   const handleCloseModal = () => {
     dispatch(setOpenDialog(false));
-  };
-
-  const handleColorChange = color => {
-    setTagColor(color);
-  };
-
-  const handleCategoryChange = (e, data) => {
-    if (e.key === 'Enter') {
-      handleCategoryNewChange(e, data);
-    } else {
-      setSelectedCategory(data);
-    }
-  };
-
-  const handleCategoryNewChange = (e, data) => {
-    let newCategory = { id: null, text: data };
-    setSelectedCategory(newCategory);
   };
 
   return (
@@ -68,46 +44,21 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
       <Typography variant="h4">Edit tag</Typography>
       <Formik
         initialValues={{
-          text: tag.text,
-          color: tagColor,
-          category: tagCategory,
-          forumPost: ''
+          text: tag.tag
         }}
         validate={values => {
           const errors = {};
           if (!values.text) {
             errors.text = 'Required!';
           }
-          if (!values.color) {
-            errors.color = 'Required!';
-          }
-          if (!selectedCategory) {
-            errors.category = 'Required!';
-          }
           return errors;
         }}
         onSubmit={values => {
           const data = {
-            text: values.text,
-            color: tagColor,
-            category: selectedCategory,
-            forumPost: values.forumPost
+            text: values.text
           };
-          dispatch(
-            editTag({
-              tag,
-              data
-            })
-          )
-            .then(() => {})
-            .catch(error => {
-              setState(() => {
-                throw error;
-              });
-            })
-            .finally(() => {
-              handleCloseModal();
-            });
+          dispatch(updateTagProp(tag, data.text, 'tag'));
+          handleCloseModal();
         }}
       >
         {({ submitForm, isSubmitting, errors, values }) => (
@@ -123,90 +74,6 @@ export const TagEditModal = memo(({ openDialog, setOpenDialog, tag }) => {
                       name="text"
                       label="Name"
                       required
-                      disabled={isSubmitting}
-                    />
-                  }
-                />
-              </Grid>
-              <Grid
-                container
-                direction="row"
-                alignItems="flex-end"
-                wrap="nowrap"
-                item
-                xs={12}
-                className={classes.input}
-                justify="flex-end"
-              >
-                <Grid item xs={10} className={classes.input}>
-                  <InputFieldAvatar
-                    icon={<ColorLens />}
-                    field={
-                      <Field
-                        component={TextField}
-                        className={classes.input}
-                        name="color"
-                        label="Color"
-                        required
-                        disabled={isSubmitting}
-                        inputProps={{
-                          readOnly: true,
-                          value: tagColor,
-                          className: classes.inputHeight
-                        }}
-                      />
-                    }
-                  />
-                </Grid>
-                <Grid item xs={2} className={classes.input}>
-                  <ColorPicker selectedColor={tag.color} setSelectedColor={handleColorChange} />
-                </Grid>
-              </Grid>
-
-              <Grid item xs={12} className={classes.input}>
-                <InputFieldAvatar
-                  icon={<Class />}
-                  field={
-                    <Autocomplete
-                      disabled={isSubmitting}
-                      defaultValue={tagCategory}
-                      value={selectedCategory}
-                      freeSolo
-                      id="category-standard"
-                      options={categoryList}
-                      getOptionLabel={option => (option.text && option.text) || option}
-                      onChange={(e, data) => {
-                        handleCategoryChange(e, data);
-                      }}
-                      renderInput={params => (
-                        <Field
-                          required
-                          component={TextField}
-                          {...params}
-                          className={classes.input}
-                          label="Category"
-                          name="category"
-                          fullWidth
-                          onKeyPress={e => {
-                            if (e.key === 'Enter') {
-                              handleCategoryNewChange(e, e.target.value);
-                            }
-                          }}
-                        />
-                      )}
-                    />
-                  }
-                />
-              </Grid>
-              <Grid item xs={12} className={classes.input}>
-                <InputFieldAvatar
-                  icon={<Description />}
-                  field={
-                    <Field
-                      component={TextField}
-                      className={classes.input}
-                      name="forumPost"
-                      label="Forum post"
                       disabled={isSubmitting}
                     />
                   }

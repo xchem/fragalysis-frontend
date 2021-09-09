@@ -9,24 +9,38 @@ export const getAllData = targetId => {
   });
 };
 
-export const createNewTag = (tagName, moleculeId, targetId, tagCategoryId, userId, color, discourseUrl) => {
-  const requestObject = {
-    tag: tagName,
-    molecule_id: moleculeId,
-    target_id: targetId,
-    tagcategory_id: tagCategoryId,
-    user_id: userId,
-    colour: color,
-    discourse_url: discourseUrl
-  };
-  const jsonString = JSON.stringify(requestObject);
+export const getTagMolecules = targetId => {
+  return api({ url: `${base_url}/api/molecule_tag/?target=${targetId}` })
+    .then(response => {
+      return response.data;
+    })
+    .catch(err => console.log(err));
+};
+
+export const createNewTag = tag => {
+  const jsonString = JSON.stringify(tag);
+  let url = `${base_url}/api/molecule_tag/`;
   return api({
-    url: `${base_url}/api/tags`,
+    url: url,
     method: METHOD.POST,
     data: jsonString
   })
     .then(resp => {
-      console.log(resp);
+      return resp.data;
+    })
+    .catch(err => console.log(err));
+};
+
+export const updateExistingTag = (tag, tagId) => {
+  const jsonString = JSON.stringify(tag);
+  let url = `${base_url}/api/molecule_tag/${tagId}/`;
+  return api({
+    url: url,
+    method: METHOD.PUT,
+    data: jsonString
+  })
+    .then(resp => {
+      return resp.data;
     })
     .catch(err => console.log(err));
 };
