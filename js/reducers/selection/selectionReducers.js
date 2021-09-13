@@ -23,6 +23,7 @@ export const INITIAL_STATE = {
   filter: undefined,
   moleculeAllSelection: [],
   moleculeAllTypeSelection: [],
+  tagEditorOpened: false,
 
   categoryList: [],
   tagList: [],
@@ -254,6 +255,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedInformationList = new Set(state.informationList);
       diminishedInformationList.delete(action.item.id);
       return Object.assign({}, state, { informationList: [...diminishedInformationList] });
+
+    case constants.SET_TAG_EDITOR_OPEN:
+      return { ...state, tagEditorOpened: action.isOpen };
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();

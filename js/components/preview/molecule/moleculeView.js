@@ -877,8 +877,12 @@ const MoleculeView = memo(
             </Grid>
             {moleculeTooltipOpen === true && (
               <Grid item xs={2}>
-                <IconButton color="primary" className={classes.tagIcon} onClick={() => setTagAddModalOpen(true)}>
-                  <Tooltip title="Add tag">
+                <IconButton
+                  color="primary"
+                  className={classes.tagIcon}
+                  onClick={() => setTagAddModalOpen(!tagAddModalOpen)}
+                >
+                  <Tooltip title="Edit tags">
                     <Label />
                   </Tooltip>
                 </IconButton>

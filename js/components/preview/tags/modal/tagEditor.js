@@ -140,6 +140,7 @@ export const TagEditor = memo(
     };
 
     const handleCloseModal = () => {
+      setSearchString(null);
       dispatch(setOpenDialog(false));
     };
 
@@ -369,7 +370,7 @@ export const TagEditor = memo(
                     disabled={!DJANGO_CONTEXT.pk}
                   />
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item>
                   <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
                     Save Tag
                   </Button>
@@ -440,7 +441,7 @@ export const TagEditor = memo(
                           }}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item>
                         <Grid container item direction="row" alignItems="center">
                           <Tooltip title="Display all in list">
                             <Grid item>
@@ -453,11 +454,11 @@ export const TagEditor = memo(
                                 onClick={() => handleDisplayAllInList(tag)}
                                 disabled={false}
                               >
-                                A
+                                Display all in list
                               </Button>
                             </Grid>
                           </Tooltip>
-                          <Tooltip title="Display all in 3D">
+                          {/* <Tooltip title="Display all in 3D">
                             <Grid item>
                               <Button
                                 variant="outlined"
@@ -473,7 +474,7 @@ export const TagEditor = memo(
                                 V
                               </Button>
                             </Grid>
-                          </Tooltip>
+                          </Tooltip> */}
                           <Tooltip title="Discourse link">
                             <Grid item>
                               <Button
@@ -487,7 +488,7 @@ export const TagEditor = memo(
                                 }}
                                 disabled={!tag.discourse_url}
                               >
-                                D
+                                Discourse link
                               </Button>
                             </Grid>
                           </Tooltip>

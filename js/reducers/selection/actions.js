@@ -471,6 +471,13 @@ export const appendTagList = function(item, skipTracking = false) {
   };
 };
 
+export const setTagEditorOpen = isOpen => {
+  return {
+    type: constants.SET_TAG_EDITOR_OPEN,
+    isOpen: isOpen
+  };
+};
+
 export const updateTag = (item, skipTracking = false) => {
   return {
     type: constants.UPDATE_TAG,
