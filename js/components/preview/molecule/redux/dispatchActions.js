@@ -61,6 +61,7 @@ import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
 
+
 /**
  * Convert the JSON into a list of arrow objects
  */
