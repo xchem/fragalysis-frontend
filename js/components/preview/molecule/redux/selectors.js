@@ -8,6 +8,7 @@ const getTagsToList = state => state.selectionReducers.listAllList;
 const getAllTags = state => state.selectionReducers.tagList;
 const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
 
+
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
   getAllSelectedTags,
@@ -61,7 +62,7 @@ export const selectJoinedMoleculeList = createSelector(
         }
       });
     }
-
+    
     return allMoleculesList;
   }
 );

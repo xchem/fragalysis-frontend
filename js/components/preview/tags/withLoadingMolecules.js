@@ -5,6 +5,7 @@ import { setAllMolLists, setMoleculeTags } from '../../../reducers/api/actions';
 import { setTagSelectorData } from '../tags/redux/dispatchActions';
 import { compareTagsAsc, getCategoryIds } from '../tags/utils/tagUtils';
 
+
 export const withLoadingMolecules = WrappedComponent => {
   return memo(({ ...rest }) => {
     const dispatch = useDispatch();
