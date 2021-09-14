@@ -39,6 +39,7 @@ import {
   setAllInspirations
 } from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
+import { withLoadingMolecules } from './tags/withLoadingMolecules';
 
 const hitNavigatorWidth = 504;
 
