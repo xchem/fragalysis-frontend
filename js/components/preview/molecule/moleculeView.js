@@ -33,16 +33,21 @@ import {
   getDensityMapData,
   getProteinData
 } from './redux/dispatchActions';
-import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
+import {
+  setSelectedAll,
+  setDeselectedAll,
+  setArrowUpDown,
+  setMoleculeForTagEdit,
+  setTagEditorOpen
+} from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../common';
 import { MOL_TYPE } from './redux/constants';
 import { DensityMapsModal } from './modals/densityMapsModal';
-import { TagAddModal } from '../tags/modal/tagAddModal';
-import { TagEditor } from '../tags/modal/tagEditor';
 import { getRandomColor } from './utils/color';
+import { getAllTagsForMol } from '../tags/utils/tagUtils';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -217,6 +222,7 @@ const MoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
+    setRef,
     removeOfAllSelectedTypes,
     L,
     P,
@@ -245,6 +251,9 @@ const MoleculeView = memo(
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
+    const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+    const molIdForTagEditor = useSelector(state => state.selectionReducers.molForTagEdit);
+    const tagList = useSelector(state => state.selectionReducers.tagList);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -270,7 +279,6 @@ const MoleculeView = memo(
     let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
     let tagEditIconVisible = true;
-
     // const disableUserInteraction = useDisableUserInteraction();
 
     const oldUrl = useRef('');
@@ -310,6 +318,30 @@ const MoleculeView = memo(
     };
 
     const proteinData = data?.proteinData;
+
+    const getDataForTagsTooltip = () => {
+      const assignedTags = getAllTagsForMol(data, tagList);
+      const dataForTooltip = [];
+      assignedTags &&
+        assignedTags.forEach(tag => {
+          dataForTooltip.push(tag.tag);
+        });
+
+      return dataForTooltip;
+    };
+
+    const generateTooltip = () => {
+      const data = getDataForTagsTooltip();
+      return (
+        <React.Fragment>
+          <Typography color="inherit">{'Edit tags'}</Typography>
+          <hr />
+          {data.map(t => (
+            <Typography color="inherit">{t}</Typography>
+          ))}
+        </React.Fragment>
+      );
+    };
 
     useEffect(() => {
       if (!proteinData) {
@@ -881,9 +913,20 @@ const MoleculeView = memo(
                 <IconButton
                   color="primary"
                   className={classes.tagIcon}
-                  onClick={() => setTagAddModalOpen(!tagAddModalOpen)}
+                  onClick={() => {
+                    // setTagAddModalOpen(!tagAddModalOpen);
+                    if (molIdForTagEditor === data.id) {
+                      dispatch(setTagEditorOpen(!isTagEditorOpen));
+                    } else {
+                      dispatch(setMoleculeForTagEdit(data.id));
+                      dispatch(setTagEditorOpen(true));
+                      if (setRef) {
+                        setRef(ref.current);
+                      }
+                    }
+                  }}
                 >
-                  <Tooltip title="Edit tags">
+                  <Tooltip title={generateTooltip()}>
                     <Label />
                   </Tooltip>
                 </IconButton>
@@ -913,8 +956,6 @@ const MoleculeView = memo(
           data={data}
           setDensity={addNewDensity}
         />
-        {/* <TagAddModal openDialog={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} molecule={data} /> */}
-        <TagEditor open={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} anchorEl={ref.current} mol={data} />
       </>
     );
   }
