@@ -1,5 +1,3 @@
-import { CATEGORY_ID, CATEGORY_TYPE } from '../../../../constants/constants';
-
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
 
 export const createMoleculeTagObject = (
@@ -45,54 +43,4 @@ export const getMoleculeTagForTag = (tagList, tagId) => {
 
 export const augumentTagObjectWithId = (tag, tagId) => {
   return { ...tag, id: tagId };
-};
-
-export const getAllTagsForMol = (mol, tagList) => {
-  const result = [];
-  mol.tags_set &&
-    mol.tags_set.forEach(tagId => {
-      let tag = tagList.filter(t => t.id === tagId);
-      if (tag && tag.length > 0) {
-        result.push(tag[0]);
-      }
-    });
-  return result;
-};
-
-export const getCategoryIds = () => {
-  const result = [];
-
-  let categoryObject = {
-    id: CATEGORY_ID[CATEGORY_TYPE.SITE],
-    category: CATEGORY_TYPE['SITE'],
-    colour: '00CC00',
-    description: null
-  };
-  result.push({ ...categoryObject });
-
-  categoryObject = {
-    id: CATEGORY_ID[CATEGORY_TYPE.SERIES],
-    category: CATEGORY_TYPE['SERIES'],
-    colour: '00CC00',
-    description: null
-  };
-  result.push({ ...categoryObject });
-
-  categoryObject = {
-    id: CATEGORY_ID[CATEGORY_TYPE.FORUM],
-    category: CATEGORY_TYPE['FORUM'],
-    colour: '00CC00',
-    description: null
-  };
-  result.push({ ...categoryObject });
-
-  categoryObject = {
-    id: CATEGORY_ID[CATEGORY_TYPE.OTHER],
-    category: CATEGORY_TYPE['OTHER'],
-    colour: '00CC00',
-    description: null
-  };
-  result.push({ ...categoryObject });
-
-  return result;
 };

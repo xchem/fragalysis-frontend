@@ -1,14 +1,11 @@
 import React, { memo, useRef, useEffect, useCallback, useState } from 'react';
-import { Grid, makeStyles, Switch, FormControlLabel } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
 import TagCategory from './tagCategory';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { clearTagSelection } from './redux/dispatchActions';
-import { setTagFilteringMode } from '../../../reducers/selection/actions';
-import { withStyles } from '@material-ui/core/styles';
-import { blue } from '@material-ui/core/colors';
 
 export const heightOfBody = '164px';
 export const defaultHeaderPadding = 15;
@@ -40,7 +37,6 @@ const TagSelector = memo(({ handleHeightChange }) => {
   const elementRef = useRef(null);
   const [headerPadding, setheaderPadding] = useState(defaultHeaderPadding);
   const [elementHeight, setElementHeight] = useState(0);
-  const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
 
   const handleClearButton = () => {
     dispatch(clearTagSelection());
@@ -107,23 +103,6 @@ const TagSelector = memo(({ handleHeightChange }) => {
     [elementHeight]
   );
 
-  const filteringModeSwitched = () => {
-    dispatch(setTagFilteringMode(!tagMode));
-  };
-  const TagModeSwitch = withStyles({
-    switchBase: {
-      color: blue[300],
-      '&$checked': {
-        color: blue[500]
-      },
-      '&$checked + $track': {
-        backgroundColor: blue[500]
-      }
-    },
-    checked: {},
-    track: {}
-  })(Switch);
-
   return (
     <Panel
       ref={ref}
@@ -132,10 +111,6 @@ const TagSelector = memo(({ handleHeightChange }) => {
       defaultExpanded
       title="Tag selector"
       headerActions={[
-        <FormControlLabel
-          control={<TagModeSwitch checked={tagMode} onChange={filteringModeSwitched} name="tag-filtering-mode" />}
-          label={tagMode ? 'Exclusive' : 'Inclusive'}
-        />,
         <Button
           onClick={() => handleClearButton()}
           disabled={false}

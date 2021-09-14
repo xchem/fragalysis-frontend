@@ -171,9 +171,3 @@ export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
     return updateExistingTag(newMolTag, tag.id);
   }
 };
-
-export const getMoleculeForId = molId => (dispatch, getState) => {
-  const state = getState();
-  const molList = state.apiReducers.all_mol_lists;
-  return molList.find(m => m.id === molId);
-};

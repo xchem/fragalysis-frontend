@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllData, getTagMolecules } from './api/tagsApi';
 import { setAllMolLists, setMoleculeTags } from '../../../reducers/api/actions';
 import { setTagSelectorData } from '../tags/redux/dispatchActions';
-import { compareTagsAsc, getCategoryIds } from '../tags/utils/tagUtils';
-
+import { compareTagsAsc } from '../tags/utils/tagUtils';
 
 export const withLoadingMolecules = WrappedComponent => {
   return memo(({ ...rest }) => {
@@ -44,9 +43,7 @@ export const withLoadingMolecules = WrappedComponent => {
             tags_info.push(newObject);
           });
 
-          // const categories = data.tag_categories;
-          //need to do this this way because only categories which have at least one tag assigned are sent from backend
-          const categories = getCategoryIds();
+          const categories = data.tag_categories;
           tags_info = tags_info.sort(compareTagsAsc);
           dispatch(setTagSelectorData(categories, tags_info));
         });

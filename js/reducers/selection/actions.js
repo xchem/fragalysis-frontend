@@ -191,12 +191,14 @@ export const removeFromDensityList = function(item, skipTracking = false) {
   };
 };
 
+
 export const setDensityListCustom = function(densityListCustom) {
   return {
     type: constants.SET_DENSITY_LIST_CUSTOM,
     densityListCustom: densityListCustom
   };
 };
+
 
 export const appendDensityListCustom = function(item, skipTracking = false) {
   return {
@@ -213,6 +215,7 @@ export const removeFromDensityListCustom = function(item, skipTracking = false) 
     skipTracking
   };
 };
+
 
 export const setListAllForTagList = (listAll, skipTracking = false) => {
   return {
@@ -261,6 +264,7 @@ export const removeFromDisplayAllNGLList = (item, skipTracking = false) => {
     skipTracking
   };
 };
+
 
 export const setQualityList = function(qualityList, skipTracking = false) {
   return {
@@ -468,27 +472,6 @@ export const appendTagList = function(item, skipTracking = false) {
     type: constants.APPEND_TAG_LIST,
     item: item,
     skipTracking
-  };
-};
-
-export const setTagEditorOpen = isOpen => {
-  return {
-    type: constants.SET_TAG_EDITOR_OPEN,
-    isOpen: isOpen
-  };
-};
-
-export const setMoleculeForTagEdit = molId => {
-  return {
-    type: constants.SET_MOLECULE_FOR_TAG_EDIT,
-    molId: molId
-  };
-};
-
-export const setTagFilteringMode = isExclusive => {
-  return {
-    type: constants.SWITCH_TAG_FILTERING_MODE,
-    mode: isExclusive
   };
 };
 
