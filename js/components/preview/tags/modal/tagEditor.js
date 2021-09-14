@@ -26,7 +26,8 @@ import {
   hideAllMolsInNGL,
   displayInListForTag,
   hideInListForTag,
-  updateTagProp
+  updateTagProp,
+  getMoleculeForId
 } from '../redux/dispatchActions';
 import { NglContext } from '../../../nglView/nglProvider';
 import { VIEWS, CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
@@ -38,7 +39,8 @@ import {
   DEFAULT_TAG_COLOR,
   augumentTagObjectWithId,
   createMoleculeTagObject,
-  getMoleculeTagForTag
+  getMoleculeTagForTag,
+  getAllTagsForMol
 } from '../utils/tagUtils';
 
 const useStyles = makeStyles(theme => ({
@@ -112,7 +114,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const TagEditor = memo(
-  forwardRef(({ open = false, anchorEl, mol, setOpenDialog }, ref) => {
+  forwardRef(({ open = false, anchorEl, setOpenDialog }, ref) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
     const theme = useTheme();
@@ -128,6 +130,8 @@ export const TagEditor = memo(
     const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const molId = useSelector(state => state.selectionReducers.molForTagEdit);
+    const mol = dispatch(getMoleculeForId(molId));
 
     tagList = tagList.sort(compareTagsAsc);
     moleculeTags = moleculeTags.sort(compareTagsAsc);
@@ -140,22 +144,11 @@ export const TagEditor = memo(
     };
 
     const handleCloseModal = () => {
+      setSearchString(null);
       dispatch(setOpenDialog(false));
     };
 
-    const getAllTagsForMol = useCallback(() => {
-      const result = [];
-      mol.tags_set &&
-        mol.tags_set.forEach(tagId => {
-          let tag = tagList.filter(t => t.id === tagId);
-          if (tag && tag.length > 0) {
-            result.push(tag[0]);
-          }
-        });
-      return result;
-    }, [mol, tagList]);
-
-    let tagsForMolecule = getAllTagsForMol();
+    let tagsForMolecule = getAllTagsForMol(mol, tagList);
 
     const isTagSelected = tag => {
       return tagsForMolecule && tagsForMolecule.some(t => t.id === tag.id);
@@ -369,7 +362,7 @@ export const TagEditor = memo(
                     disabled={!DJANGO_CONTEXT.pk}
                   />
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item>
                   <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
                     Save Tag
                   </Button>
@@ -440,7 +433,7 @@ export const TagEditor = memo(
                           }}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item>
                         <Grid container item direction="row" alignItems="center">
                           <Tooltip title="Display all in list">
                             <Grid item>
@@ -453,11 +446,11 @@ export const TagEditor = memo(
                                 onClick={() => handleDisplayAllInList(tag)}
                                 disabled={false}
                               >
-                                A
+                                Display all in list
                               </Button>
                             </Grid>
                           </Tooltip>
-                          <Tooltip title="Display all in 3D">
+                          {/* <Tooltip title="Display all in 3D">
                             <Grid item>
                               <Button
                                 variant="outlined"
@@ -473,7 +466,7 @@ export const TagEditor = memo(
                                 V
                               </Button>
                             </Grid>
-                          </Tooltip>
+                          </Tooltip> */}
                           <Tooltip title="Discourse link">
                             <Grid item>
                               <Button
@@ -487,7 +480,7 @@ export const TagEditor = memo(
                                 }}
                                 disabled={!tag.discourse_url}
                               >
-                                D
+                                Discourse link
                               </Button>
                             </Grid>
                           </Tooltip>

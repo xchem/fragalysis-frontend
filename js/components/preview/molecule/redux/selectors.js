@@ -6,13 +6,16 @@ const getAllMolecules = state => state.apiReducers.all_mol_lists;
 const getAllSelectedTags = state => state.selectionReducers.selectedTagList;
 const getTagsToList = state => state.selectionReducers.listAllList;
 const getAllTags = state => state.selectionReducers.tagList;
+const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
+
 
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
   getAllSelectedTags,
   getTagsToList,
   getAllTags,
-  (all_mol_lists, selectedTagList, listAllList, allTags) => {
+  getTagFilteringMode,
+  (all_mol_lists, selectedTagList, listAllList, allTags, filteringMode) => {
     let tagListToUse = [];
     if (listAllList && listAllList.length > 0) {
       tagListToUse = allTags.filter(tag => {
@@ -22,23 +25,44 @@ export const selectJoinedMoleculeList = createSelector(
       tagListToUse = selectedTagList;
     }
     const allMoleculesList = [];
-    tagListToUse.forEach(tag => {
-      let filteredMols = all_mol_lists.filter(mol => {
-        let foundTag = mol.tags_set.filter(t => t === tag.id);
-        if (foundTag && foundTag.length > 0) {
-          return true;
-        } else {
-          return false;
-        }
+    if (!filteringMode) {
+      //inclusive mode - i.e. if molecule has at least one of the selected tags then molecule is displayed
+      tagListToUse.forEach(tag => {
+        let filteredMols = all_mol_lists.filter(mol => {
+          let foundTag = mol.tags_set.filter(t => t === tag.id);
+          if (foundTag && foundTag.length > 0) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        filteredMols.forEach(mol => {
+          let found = allMoleculesList.filter(addedMol => addedMol.id === mol.id);
+          if (!found || found.length === 0) {
+            allMoleculesList.push(mol);
+          }
+        });
       });
-      filteredMols.forEach(mol => {
-        let found = allMoleculesList.filter(addedMol => addedMol.id === mol.id);
-        if (!found || found.length === 0) {
+    } else {
+      //exclusive mode - i.e. molecule has to have all selected tags attached to it
+      all_mol_lists.forEach(mol => {
+        let foundAllTags = false;
+        for (let i = 0; i < selectedTagList.length; i++) {
+          let tag = selectedTagList[i];
+          let foundTagId = mol.tags_set.find(tid => tid === tag.id);
+          if (!foundTagId) {
+            break;
+          }
+          if (i === selectedTagList.length - 1 && foundTagId) {
+            foundAllTags = true;
+          }
+        }
+        if (foundAllTags) {
           allMoleculesList.push(mol);
         }
       });
-    });
-
+    }
+    
     return allMoleculesList;
   }
 );
