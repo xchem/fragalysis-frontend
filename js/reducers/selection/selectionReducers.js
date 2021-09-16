@@ -35,14 +35,6 @@ export const INITIAL_STATE = {
   listAllList: [],
   displayAllInNGLList: [],
 
-  categoryList: [],
-  tagList: [],
-  selectedTagList: [],
-  specialTagList: [],
-
-  listAllList: [],
-  displayAllInNGLList: [],
-
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
   //   [vectorID] :{}  // this object replaces to_select, based on vector smile

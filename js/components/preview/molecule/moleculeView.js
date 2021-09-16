@@ -49,7 +49,6 @@ import { DensityMapsModal } from './modals/densityMapsModal';
 import { getRandomColor } from './utils/color';
 import { getAllTagsForMol } from '../tags/utils/tagUtils';
 
-
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -280,7 +279,6 @@ const MoleculeView = memo(
     let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
     let tagEditIconVisible = true;
-
     // const disableUserInteraction = useDisableUserInteraction();
 
     const oldUrl = useRef('');
@@ -958,8 +956,6 @@ const MoleculeView = memo(
           data={data}
           setDensity={addNewDensity}
         />
-        {/* <TagAddModal openDialog={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} molecule={data} /> */}
-        <TagEditor open={tagAddModalOpen} setOpenDialog={setTagAddModalOpen} anchorEl={ref.current} mol={data} />
       </>
     );
   }
