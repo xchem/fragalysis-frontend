@@ -66,7 +66,8 @@ import { setSortDialogOpen } from './redux/actions';
 import { setMoleculeList, setAllMolLists, setAllMolecules } from '../../../reducers/api/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
-import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/selection/actions';
+import { setSelectedAllByType, setDeselectedAllByType, setTagEditorOpen } from '../../../reducers/selection/actions';
+import { TagEditor } from '../tags/modal/tagEditor';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -254,6 +255,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const qualityList = useSelector(state => state.selectionReducers.qualityList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   const informationList = useSelector(state => state.selectionReducers.informationList);
+  const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
   const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
@@ -281,6 +283,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const filterRef = useRef();
+  const tagEditorRef = useRef();
+  const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
   // const disableUserInteraction = useDisableUserInteraction();
 
@@ -708,6 +712,14 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             setIsOpenAlert(false);
           }}
         />
+        {isTagEditorOpen && (
+          <TagEditor
+            open={isTagEditorOpen}
+            setOpenDialog={setTagEditorOpen}
+            anchorEl={selectedMoleculeRef}
+            ref={tagEditorRef}
+          />
+        )}
         {sortDialogOpen && (
           <MoleculeListSortFilterDialog
             open={sortDialogOpen}
@@ -862,6 +874,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       data={data}
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
+                      setRef={setSelectedMoleculeRef}
                       removeOfAllSelectedTypes={removeOfAllSelectedTypes}
                       L={fragmentDisplayList.includes(data.id)}
                       P={proteinList.includes(data.id)}

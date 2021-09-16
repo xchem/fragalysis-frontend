@@ -42,11 +42,17 @@ const TagView = memo(
     const dispatch = useDispatch();
     const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
 
+    // console.log(`Tag: ${tagData.tag}`);
     const tagColor = selected ? 'primary' : 'default';
+    // console.log(`tagColor: ${tagColor}`);
     const bgColor = selected ? tagColor : (tagData.colour && tagData.colour) || tagColor;
+    // console.log(`bgColor: ${bgColor}`);
     const color = getFontColorByBackgroundColor(bgColor);
+    // console.log(`font color: ${color}`);
     const style = selected ? {} : { backgroundColor: bgColor, color: color };
+    // console.log(`style: ${style}`);
 
+    // console.log('-------------------------------');
     const isTagDisabled = false;
 
     const determineDisabled = () => {
