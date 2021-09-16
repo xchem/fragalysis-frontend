@@ -162,7 +162,7 @@ export const TagEditor = memo(
         dispatch(updateMoleculeInMolLists(newMol));
         const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
         let newMolList = [...moleculeTag.molecules];
-        newMolList = newMolList.filter(id => id !== tag.id);
+        newMolList = newMolList.filter(id => id !== mol.id);
         molTagObject = createMoleculeTagObject(
           tag.tag,
           newMol.proteinData.target_id,
