@@ -175,3 +175,19 @@ export const getMoleculeForId = molId => (dispatch, getState) => {
   const molList = state.apiReducers.all_mol_lists;
   return molList.find(m => m.id === molId);
 };
+
+export const selectTag = tag => (dispatch, getState) => {
+  const state = getState();
+  const selectedTagList = state.selectionReducers.selectedTagList;
+  if (!selectedTagList.some(i => i.id === tag.id)) {
+    dispatch(addSelectedTag(tag));
+  }
+};
+
+export const unselectTag = tag => (dispatch, getState) => {
+  const state = getState();
+  const selectedTagList = state.selectionReducers.selectedTagList;
+  if (selectedTagList.some(i => i.id === tag.id)) {
+    dispatch(removeSelectedTag(tag));
+  }
+};

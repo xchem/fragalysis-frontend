@@ -20,7 +20,14 @@ import { debounce } from 'lodash';
 import classNames from 'classnames';
 import TagView from '../tagView';
 import { updateMoleculeInMolLists, updateMoleculeTag, appendMoleculeTag } from '../../../../reducers/api/actions';
-import { displayInListForTag, hideInListForTag, updateTagProp, getMoleculeForId } from '../redux/dispatchActions';
+import {
+  displayInListForTag,
+  hideInListForTag,
+  updateTagProp,
+  getMoleculeForId,
+  selectTag,
+  unselectTag
+} from '../redux/dispatchActions';
 import { CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
 import { appendTagList, setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
 import { createNewTag, updateExistingTag } from '../api/tagsApi';
@@ -250,8 +257,10 @@ export const TagEditor = memo(
     const handleDisplayAllInList = tag => {
       if (isTagDislayedInList(tag)) {
         dispatch(hideInListForTag(tag));
+        dispatch(unselectTag(tag));
       } else {
         dispatch(displayInListForTag(tag));
+        dispatch(selectTag(tag));
       }
     };
 
