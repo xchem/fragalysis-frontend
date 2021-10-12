@@ -500,10 +500,38 @@ export const updateTag = (item, skipTracking = false) => {
   };
 };
 
-export const setSpecialTagList = function(tagList, skipTracking = false) {
+export const setDisplayedMoleculesInHitNav = (list, skipTracking = true) => {
   return {
-    type: constants.SET_SPECIAL_TAG_LIST,
-    tagList: tagList,
+    type: constants.SET_DISPLAYED_MOLECULES_HIT_NAV,
+    list: list,
     skipTracking
+  };
+};
+
+export const setIsTagGlobalEdit = isGlobalEdit => {
+  return {
+    type: constants.SET_IS_TAG_GLOBAL_EDIT,
+    isGlobalEdit: isGlobalEdit
+  };
+};
+
+export const setMolListToEdit = list => {
+  return {
+    type: constants.SET_MOL_LIST_TO_EDIT,
+    list: list
+  };
+};
+
+export const appendToMolListToEdit = molId => {
+  return {
+    type: constants.APPEND_TO_MOL_LIST_TO_EDIT,
+    molId: molId
+  };
+};
+
+export const removeFromMolListToEdit = molId => {
+  return {
+    type: constants.REMOVE_FROM_MOL_LIST_TO_EDIT,
+    molId: molId
   };
 };

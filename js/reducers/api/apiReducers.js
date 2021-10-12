@@ -130,7 +130,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.UPDATE_MOLECULE_TAG:
       let newMolTagsList = [...state.moleculeTags];
       const indexOfTag = newMolTagsList.findIndex(t => t.id === action.tag.id);
-      if (indexOfTag > 0) {
+      if (indexOfTag >= 0) {
         newMolTagsList[indexOfTag] = { ...action.tag };
         return { ...state, moleculeTags: newMolTagsList };
       } else {
@@ -143,7 +143,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.UPDATE_MOL_IN_ALL_MOL_LISTS:
       let newList = [...state.all_mol_lists];
       const indexOfMol = newList.findIndex(m => m.id === action.mol.id);
-      if (indexOfMol > 0) {
+      if (indexOfMol >= 0) {
         newList[indexOfMol] = { ...action.mol };
         return { ...state, all_mol_lists: newList };
       } else {

@@ -31,7 +31,12 @@ import {
 } from '../redux/dispatchActions';
 import { NglContext } from '../../../nglView/nglProvider';
 import { VIEWS, CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
-import { appendTagList, updateTag } from '../../../../reducers/selection/actions';
+import {
+  appendTagList,
+  updateTag,
+  setMoleculeForTagEdit,
+  setIsTagGlobalEdit
+} from '../../../../reducers/selection/actions';
 import { createNewTag, updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
@@ -126,12 +131,16 @@ export const TagEditor = memo(
     const [newTagLink, setNewTagLink] = useState(null);
     let tagList = useSelector(state => state.selectionReducers.tagList);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
-    const displayAllInNGLList = useSelector(state => state.selectionReducers.displayAllInNGLList);
     const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
-    const { getNglView } = useContext(NglContext);
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
-    const mol = dispatch(getMoleculeForId(molId));
+    // const mol = dispatch(getMoleculeForId(molId));
+    let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    if (!isTagGlobalEdit) {
+      moleculesToEditIds = [];
+      moleculesToEditIds.push(molId);
+    }
+    const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
 
     tagList = tagList.sort(compareTagsAsc);
     moleculeTags = moleculeTags.sort(compareTagsAsc);
@@ -145,58 +154,78 @@ export const TagEditor = memo(
 
     const handleCloseModal = () => {
       setSearchString(null);
-      dispatch(setOpenDialog(false));
+      if (open) {
+        dispatch(setOpenDialog(false));
+        dispatch(setMoleculeForTagEdit(null));
+        dispatch(setIsTagGlobalEdit(false));
+      }
     };
 
-    let tagsForMolecule = getAllTagsForMol(mol, tagList);
-
     const isTagSelected = tag => {
-      return tagsForMolecule && tagsForMolecule.some(t => t.id === tag.id);
+      let result = false;
+      for (let i = 0; i < moleculesToEdit.length; i++) {
+        const m = moleculesToEdit[i];
+        const tagsForMol = getAllTagsForMol(m, tagList);
+        if (tagsForMol && tagsForMol.some(t => t.id === tag.id)) {
+          result = true;
+          break;
+        }
+      }
+      return result;
     };
 
     const handleTagClick = (selected, tag) => {
-      let molTagObject = undefined;
+      let molTagObjects = [];
       if (selected) {
-        let newMol = { ...mol };
-        newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
-        dispatch(updateMoleculeInMolLists(newMol));
-        const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-        let newMolList = [...moleculeTag.molecules];
-        newMolList = newMolList.filter(id => id !== mol.id);
-        molTagObject = createMoleculeTagObject(
-          tag.tag,
-          newMol.proteinData.target_id,
-          tag.category_id,
-          DJANGO_CONTEXT.pk,
-          tag.colour,
-          tag.discourse_url,
-          newMolList,
-          tag.create_date,
-          tag.additional_info
-        );
-      } else {
-        if (!mol.tags_set.some(id => id === tag.id)) {
-          let newMol = { ...mol };
-          newMol.tags_set.push(tag.id);
+        moleculesToEdit.forEach(m => {
+          let newMol = { ...m };
+          newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
           dispatch(updateMoleculeInMolLists(newMol));
           const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-          molTagObject = createMoleculeTagObject(
+          let newMolList = [...moleculeTag.molecules];
+          newMolList = newMolList.filter(id => id !== m.id);
+          const mtObject = createMoleculeTagObject(
             tag.tag,
             newMol.proteinData.target_id,
             tag.category_id,
             DJANGO_CONTEXT.pk,
             tag.colour,
             tag.discourse_url,
-            [...moleculeTag.molecules, newMol.id],
+            newMolList,
             tag.create_date,
             tag.additional_info
           );
-        }
+          molTagObjects.push(mtObject);
+        });
+      } else {
+        moleculesToEdit.forEach(m => {
+          if (!m.tags_set.some(id => id === tag.id)) {
+            let newMol = { ...m };
+            newMol.tags_set.push(tag.id);
+            dispatch(updateMoleculeInMolLists(newMol));
+            const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
+            const mtObject = createMoleculeTagObject(
+              tag.tag,
+              newMol.proteinData.target_id,
+              tag.category_id,
+              DJANGO_CONTEXT.pk,
+              tag.colour,
+              tag.discourse_url,
+              [...moleculeTag.molecules, newMol.id],
+              tag.create_date,
+              tag.additional_info
+            );
+            molTagObjects.push(mtObject);
+          }
+        });
       }
-      if (molTagObject) {
-        let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
-        dispatch(updateMoleculeTag(augMolTagObject));
-        updateExistingTag(molTagObject, tag.id);
+      if (molTagObjects) {
+        molTagObjects.forEach(mto => {
+          let molTagObject = { ...mto };
+          let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
+          dispatch(updateMoleculeTag(augMolTagObject));
+          updateExistingTag(molTagObject, tag.id);
+        });
       }
     };
 
@@ -220,24 +249,12 @@ export const TagEditor = memo(
       debouncedFn();
     };
 
-    const handleDisplayAllInNGL = tag => {
-      if (isTagDisplayedInNGL(tag)) {
-        dispatch(hideAllMolsInNGL(stage, tag));
-      } else {
-        dispatch(displayAllMolsInNGL(stage, tag));
-      }
-    };
-
     const handleDisplayAllInList = tag => {
       if (isTagDislayedInList(tag)) {
         dispatch(hideInListForTag(tag));
       } else {
         dispatch(displayInListForTag(tag));
       }
-    };
-
-    const isTagDisplayedInNGL = tag => {
-      return displayAllInNGLList.includes(tag.id);
     };
 
     const isTagDislayedInList = tag => {
@@ -261,12 +278,12 @@ export const TagEditor = memo(
         const newTag = { tag: newTagName, colour: newTagColor, category_id: newTagCategory, discourse_url: newTagLink };
         const tagObject = createMoleculeTagObject(
           newTagName,
-          mol.proteinData.target_id,
+          moleculesToEdit[0].proteinData.target_id,
           newTagCategory,
           DJANGO_CONTEXT.pk,
           newTagColor,
           newTagLink,
-          [mol.id]
+          [...moleculesToEditIds]
         );
         createNewTag(tagObject).then(molTag => {
           let augMolTagObject = augumentTagObjectWithId(newTag, molTag.id);
@@ -388,6 +405,7 @@ export const TagEditor = memo(
                           editable={true}
                           disabled={!DJANGO_CONTEXT.pk}
                           isEdit={true}
+                          isTagEditor={true}
                         ></TagView>
                       </Grid>
                       <Grid item xs={1}>

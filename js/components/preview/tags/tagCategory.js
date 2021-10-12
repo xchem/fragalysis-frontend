@@ -21,7 +21,6 @@ const TagCategory = memo(({ headerPadding = 0 }) => {
   const categoryList = useSelector(state => state.selectionReducers.categoryList);
   let tagList = useSelector(state => state.selectionReducers.tagList);
   tagList = tagList.sort(compareTagsAsc);
-  const specialTagList = useSelector(state => state.selectionReducers.specialTagList);
 
   const siteCategory = categoryList.find(c => c.category === CATEGORY_TYPE.SITE);
   const seriesCategory = categoryList.find(c => c.category === CATEGORY_TYPE.SERIES);
@@ -45,7 +44,7 @@ const TagCategory = memo(({ headerPadding = 0 }) => {
       </Grid>
 
       <Grid className={classes.categoryScrollable}>
-        <TagCategoryView tags={siteTags} specialTags={specialTagList} />
+        <TagCategoryView tags={siteTags} />
         <TagCategoryView tags={seriesTags} />
         <TagCategoryView tags={forumTags} />
         <TagCategoryView tags={otherTags} />

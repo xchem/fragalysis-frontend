@@ -62,6 +62,15 @@ export const selectJoinedMoleculeList = createSelector(
       });
     }
 
+    allMoleculesList.sort((a, b) => {
+      if (a.protein_code < b.protein_code) {
+        return -1;
+      }
+      if (a.protein_code > b.protein_code) {
+        return 1;
+      }
+      return 0;
+    });
     return allMoleculesList;
   }
 );

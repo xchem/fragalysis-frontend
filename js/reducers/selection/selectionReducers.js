@@ -30,7 +30,7 @@ export const INITIAL_STATE = {
   categoryList: [],
   tagList: [],
   selectedTagList: [],
-  specialTagList: [],
+  isGlobalEdit: false,
 
   listAllList: [],
   displayAllInNGLList: [],
@@ -43,7 +43,9 @@ export const INITIAL_STATE = {
   // bondColorMapOfVectors: {
   //   [vectorID] :{}  // based on currentVector  (smile)
   // }
-  currentVector: null // selected vector smile (ID) of compoundsOfVectors
+  currentVector: null, // selected vector smile (ID) of compoundsOfVectors
+  displayedMoleculesInHitNav: [],
+  moleculesToEdit: []
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -422,13 +424,6 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       diminishedCategoryList.delete(action.item);
       return Object.assign({}, state, { categoryList: [...diminishedCategoryList] });
 
-    case constants.SET_SPECIAL_TAG_LIST:
-      let newSpecialTagList = new Set();
-      action.tagList.forEach(f => {
-        newSpecialTagList.add(f);
-      });
-      return Object.assign({}, state, { specialTagList: [...newSpecialTagList] });
-
     case constants.SET_TAG_LIST:
       let newTagList = new Set();
       action.tagList.forEach(f => {
@@ -473,6 +468,22 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedSelectedTagList = new Set(state.selectedTagList);
       diminishedSelectedTagList.delete(action.item);
       return Object.assign({}, state, { selectedTagList: [...diminishedSelectedTagList] });
+
+    case constants.SET_DISPLAYED_MOLECULES_HIT_NAV:
+      return { ...state, displayedMoleculesInHitNav: [...action.list] };
+
+    case constants.SET_IS_TAG_GLOBAL_EDIT:
+      return { ...state, isGlobalEdit: action.isGlobalEdit };
+
+    case constants.SET_MOL_LIST_TO_EDIT:
+      return { ...state, moleculesToEdit: [...action.list] };
+
+    case constants.APPEND_TO_MOL_LIST_TO_EDIT:
+      return { ...state, moleculesToEdit: [...state.moleculesToEdit, action.molId] };
+
+    case constants.REMOVE_FROM_MOL_LIST_TO_EDIT:
+      let reducedMolListToEdit = state.moleculesToEdit.filter(mid => mid !== action.molId);
+      return { ...state, moleculesToEdit: [...reducedMolListToEdit] };
 
     // Cases like: @@redux/INIT
     default:
