@@ -61,7 +61,6 @@ import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
 
-
 /**
  * Convert the JSON into a list of arrow objects
  */
@@ -580,9 +579,7 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
   if (majorView) {
     const firstTag = dispatch(getFirstTag());
     if (firstTag) {
-      const state = getState();
-      const allTags = state.selectionReducers.tagList;
-      dispatch(addSelectedTag(firstTag, allTags));
+      dispatch(addSelectedTag(firstTag));
       const firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
       if (firstMolecule) {
         dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));

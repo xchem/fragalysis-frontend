@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState, useCallback, useContext, useEffect } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import {
   Grid,
   Popper,
@@ -10,8 +10,7 @@ import {
   Button,
   useTheme,
   Select,
-  MenuItem,
-  Box
+  MenuItem
 } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
@@ -22,16 +21,15 @@ import classNames from 'classnames';
 import TagView from '../tagView';
 import { updateMoleculeInMolLists, updateMoleculeTag, appendMoleculeTag } from '../../../../reducers/api/actions';
 import {
-  displayAllMolsInNGL,
-  hideAllMolsInNGL,
   displayInListForTag,
   hideInListForTag,
   updateTagProp,
-  getMoleculeForId
+  getMoleculeForId,
+  selectTag,
+  unselectTag
 } from '../redux/dispatchActions';
-import { NglContext } from '../../../nglView/nglProvider';
-import { VIEWS, CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
-import { appendTagList, updateTag } from '../../../../reducers/selection/actions';
+import { CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
+import { appendTagList, setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
 import { createNewTag, updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
@@ -110,6 +108,19 @@ const useStyles = makeStyles(theme => ({
     '&:not(.Mui-disabled)': {
       fill: theme.palette.white
     }
+  },
+  search: {
+    margin: theme.spacing(1),
+    width: 116,
+    '& .MuiInputBase-root': {
+      color: 'inherit'
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: 'inherit'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'inherit'
+    }
   }
 }));
 
@@ -117,21 +128,24 @@ export const TagEditor = memo(
   forwardRef(({ open = false, anchorEl, setOpenDialog }, ref) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
-    const theme = useTheme();
     const dispatch = useDispatch();
     const [searchString, setSearchString] = useState(null);
     const [newTagCategory, setNewTagCategory] = useState(1);
     const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
     const [newTagName, setNewTagName] = useState(null);
-    const [newTagLink, setNewTagLink] = useState(null);
+    const [newTagLink, setNewTagLink] = useState('');
     let tagList = useSelector(state => state.selectionReducers.tagList);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
-    const displayAllInNGLList = useSelector(state => state.selectionReducers.displayAllInNGLList);
     const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
-    const { getNglView } = useContext(NglContext);
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+    const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
-    const mol = dispatch(getMoleculeForId(molId));
+    // const mol = dispatch(getMoleculeForId(molId));
+    let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    if (!isTagGlobalEdit) {
+      moleculesToEditIds = [];
+      moleculesToEditIds.push(molId);
+    }
+    const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
 
     tagList = tagList.sort(compareTagsAsc);
     moleculeTags = moleculeTags.sort(compareTagsAsc);
@@ -140,63 +154,83 @@ export const TagEditor = memo(
       setNewTagCategory(1);
       setNewTagColor(DEFAULT_TAG_COLOR);
       setNewTagName(null);
-      setNewTagLink(null);
+      setNewTagLink('');
     };
 
     const handleCloseModal = () => {
       setSearchString(null);
-      dispatch(setOpenDialog(false));
+      if (open) {
+        dispatch(setOpenDialog(false));
+        dispatch(setMoleculeForTagEdit(null));
+        dispatch(setIsTagGlobalEdit(false));
+      }
     };
 
-    let tagsForMolecule = getAllTagsForMol(mol, tagList);
-
     const isTagSelected = tag => {
-      return tagsForMolecule && tagsForMolecule.some(t => t.id === tag.id);
+      let result = false;
+      for (let i = 0; i < moleculesToEdit.length; i++) {
+        const m = moleculesToEdit[i];
+        const tagsForMol = getAllTagsForMol(m, tagList);
+        if (tagsForMol && tagsForMol.some(t => t.id === tag.id)) {
+          result = true;
+          break;
+        }
+      }
+      return result;
     };
 
     const handleTagClick = (selected, tag) => {
-      let molTagObject = undefined;
+      let molTagObjects = [];
       if (selected) {
-        let newMol = { ...mol };
-        newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
-        dispatch(updateMoleculeInMolLists(newMol));
-        const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-        let newMolList = [...moleculeTag.molecules];
-        newMolList = newMolList.filter(id => id !== mol.id);
-        molTagObject = createMoleculeTagObject(
-          tag.tag,
-          newMol.proteinData.target_id,
-          tag.category_id,
-          DJANGO_CONTEXT.pk,
-          tag.colour,
-          tag.discourse_url,
-          newMolList,
-          tag.create_date,
-          tag.additional_info
-        );
-      } else {
-        if (!mol.tags_set.some(id => id === tag.id)) {
-          let newMol = { ...mol };
-          newMol.tags_set.push(tag.id);
+        moleculesToEdit.forEach(m => {
+          let newMol = { ...m };
+          newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
           dispatch(updateMoleculeInMolLists(newMol));
           const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-          molTagObject = createMoleculeTagObject(
+          let newMolList = [...moleculeTag.molecules];
+          newMolList = newMolList.filter(id => id !== m.id);
+          const mtObject = createMoleculeTagObject(
             tag.tag,
             newMol.proteinData.target_id,
             tag.category_id,
             DJANGO_CONTEXT.pk,
             tag.colour,
             tag.discourse_url,
-            [...moleculeTag.molecules, newMol.id],
+            newMolList,
             tag.create_date,
             tag.additional_info
           );
-        }
+          molTagObjects.push(mtObject);
+        });
+      } else {
+        moleculesToEdit.forEach(m => {
+          if (!m.tags_set.some(id => id === tag.id)) {
+            let newMol = { ...m };
+            newMol.tags_set.push(tag.id);
+            dispatch(updateMoleculeInMolLists(newMol));
+            const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
+            const mtObject = createMoleculeTagObject(
+              tag.tag,
+              newMol.proteinData.target_id,
+              tag.category_id,
+              DJANGO_CONTEXT.pk,
+              tag.colour,
+              tag.discourse_url,
+              [...moleculeTag.molecules, newMol.id],
+              tag.create_date,
+              tag.additional_info
+            );
+            molTagObjects.push(mtObject);
+          }
+        });
       }
-      if (molTagObject) {
-        let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
-        dispatch(updateMoleculeTag(augMolTagObject));
-        updateExistingTag(molTagObject, tag.id);
+      if (molTagObjects) {
+        molTagObjects.forEach(mto => {
+          let molTagObject = { ...mto };
+          let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
+          dispatch(updateMoleculeTag(augMolTagObject));
+          updateExistingTag(molTagObject, tag.id);
+        });
       }
     };
 
@@ -220,24 +254,14 @@ export const TagEditor = memo(
       debouncedFn();
     };
 
-    const handleDisplayAllInNGL = tag => {
-      if (isTagDisplayedInNGL(tag)) {
-        dispatch(hideAllMolsInNGL(stage, tag));
-      } else {
-        dispatch(displayAllMolsInNGL(stage, tag));
-      }
-    };
-
     const handleDisplayAllInList = tag => {
       if (isTagDislayedInList(tag)) {
         dispatch(hideInListForTag(tag));
+        dispatch(unselectTag(tag));
       } else {
         dispatch(displayInListForTag(tag));
+        dispatch(selectTag(tag));
       }
-    };
-
-    const isTagDisplayedInNGL = tag => {
-      return displayAllInNGLList.includes(tag.id);
     };
 
     const isTagDislayedInList = tag => {
@@ -252,21 +276,17 @@ export const TagEditor = memo(
       setNewTagName(event.target.value);
     };
 
-    const onLinkForNewTagChange = event => {
-      setNewTagLink(event.target.value);
-    };
-
     const createTag = () => {
       if (newTagName) {
         const newTag = { tag: newTagName, colour: newTagColor, category_id: newTagCategory, discourse_url: newTagLink };
         const tagObject = createMoleculeTagObject(
           newTagName,
-          mol.proteinData.target_id,
+          moleculesToEdit[0].proteinData.target_id,
           newTagCategory,
           DJANGO_CONTEXT.pk,
           newTagColor,
           newTagLink,
-          [mol.id]
+          [...moleculesToEditIds]
         );
         createNewTag(tagObject).then(molTag => {
           let augMolTagObject = augumentTagObjectWithId(newTag, molTag.id);
@@ -353,19 +373,12 @@ export const TagEditor = memo(
                     ))}
                   </Select>
                 </Grid>
-                <Grid item xs={2}>
-                  <TextField
-                    id="tag-editor-tag-post"
-                    placeholder="Post"
-                    size="small"
-                    onChange={onLinkForNewTagChange}
-                    disabled={!DJANGO_CONTEXT.pk}
-                  />
-                </Grid>
-                <Grid item>
-                  <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
-                    Save Tag
-                  </Button>
+                <Grid item xs={6}>
+                  <Grid container item direction="row" alignItems="center" justify="center">
+                    <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
+                      Save Tag
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
               {filteredTags &&
@@ -388,6 +401,7 @@ export const TagEditor = memo(
                           editable={true}
                           disabled={!DJANGO_CONTEXT.pk}
                           isEdit={true}
+                          isTagEditor={true}
                         ></TagView>
                       </Grid>
                       <Grid item xs={1}>
@@ -419,22 +433,8 @@ export const TagEditor = memo(
                           ))}
                         </Select>
                       </Grid>
-                      <Grid item xs={2}>
-                        <TextField
-                          disabled={!DJANGO_CONTEXT.pk}
-                          id={`tag-editor-tag-post-edit-${tag.id}`}
-                          placeholder="Post"
-                          size="small"
-                          value={tag.discourse_url ? tag.discourse_url : ''}
-                          onKeyPress={e => {
-                            if (e.key === 'Enter') {
-                              onUpdateTag(tag, e.target.value, 'discourse_url');
-                            }
-                          }}
-                        />
-                      </Grid>
-                      <Grid item>
-                        <Grid container item direction="row" alignItems="center">
+                      <Grid item xs={6}>
+                        <Grid container item direction="row" alignItems="center" justify="center">
                           <Tooltip title="Display all in list">
                             <Grid item>
                               <Button
@@ -450,23 +450,6 @@ export const TagEditor = memo(
                               </Button>
                             </Grid>
                           </Tooltip>
-                          {/* <Tooltip title="Display all in 3D">
-                            <Grid item>
-                              <Button
-                                variant="outlined"
-                                className={classNames(classes.contColButton, {
-                                  [classes.contColButtonSelected]: isTagDisplayedInNGL(tag),
-                                  [classes.contColButtonHalfSelected]: false
-                                })}
-                                onClick={() => {
-                                  handleDisplayAllInNGL(tag);
-                                }}
-                                disabled={false}
-                              >
-                                V
-                              </Button>
-                            </Grid>
-                          </Tooltip> */}
                           <Tooltip title="Discourse link">
                             <Grid item>
                               <Button

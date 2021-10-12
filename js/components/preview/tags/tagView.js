@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { Grid, makeStyles, Chip, Tooltip } from '@material-ui/core';
-import { Edit } from '@material-ui/icons';
+import { Edit, Check } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
@@ -36,7 +36,17 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TagView = memo(
-  ({ tag, selected, allTags, isSpecialTag, handleClick, editable = false, disabled = false, isEdit = false }) => {
+  ({
+    tag,
+    selected,
+    allTags,
+    isSpecialTag,
+    handleClick,
+    editable = false,
+    disabled = false,
+    isEdit = false,
+    isTagEditor = false
+  }) => {
     const tagData = tag;
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -45,11 +55,19 @@ const TagView = memo(
     // console.log(`Tag: ${tagData.tag}`);
     const tagColor = selected ? 'primary' : 'default';
     // console.log(`tagColor: ${tagColor}`);
-    const bgColor = selected ? tagColor : (tagData.colour && tagData.colour) || tagColor;
+    const bgColor = isTagEditor
+      ? tagData.colour || tagColor
+      : selected
+      ? tagColor
+      : (tagData.colour && tagData.colour) || tagColor;
     // console.log(`bgColor: ${bgColor}`);
     const color = getFontColorByBackgroundColor(bgColor);
     // console.log(`font color: ${color}`);
-    const style = selected ? {} : { backgroundColor: bgColor, color: color };
+    const style = isTagEditor
+      ? { backgroundColor: bgColor, color: color }
+      : selected
+      ? {}
+      : { backgroundColor: bgColor, color: color };
     // console.log(`style: ${style}`);
 
     // console.log('-------------------------------');
@@ -85,22 +103,46 @@ const TagView = memo(
       }
     };
 
+    const generateProps = () => {
+      if (selected && isTagEditor) {
+        return {
+          size: 'small',
+          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+          label: tagData.tag,
+          clickable: true,
+          color: tagColor,
+          style: style,
+          onClick: () => {
+            handleClick && handleClick(selected, tag, allTags);
+          },
+          deleteIcon: getDeleteIcon(),
+          onDelete: getDeleteAction(),
+          disabled: determineDisabled(),
+          icon: <Check />
+        };
+      } else {
+        return {
+          size: 'small',
+          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+          label: tagData.tag,
+          clickable: true,
+          color: tagColor,
+          style: style,
+          onClick: () => {
+            handleClick && handleClick(selected, tag, allTags);
+          },
+          deleteIcon: getDeleteIcon(),
+          onDelete: getDeleteAction(),
+          disabled: determineDisabled()
+        };
+      }
+    };
+
     return (
       <>
         <Grid className={classes.tagItem}>
           <Tooltip title={tagData.tag}>
-            <Chip
-              size="small"
-              className={`${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`}
-              label={tagData.tag}
-              clickable
-              color={tagColor}
-              style={style}
-              onClick={() => handleClick && handleClick(selected, tag, allTags)}
-              deleteIcon={getDeleteIcon()}
-              onDelete={getDeleteAction()}
-              disabled={determineDisabled()}
-            />
+            <Chip {...generateProps()} />
           </Tooltip>
         </Grid>
         <TagEditModal openDialog={tagEditModalOpen} setOpenDialog={setTagEditModalOpen} tag={tag} />

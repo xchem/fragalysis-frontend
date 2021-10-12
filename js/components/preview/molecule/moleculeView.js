@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip, IconButton, Checkbox } from '@material-ui/core';
 import { MyLocation, ArrowDownward, ArrowUpward, Warning, Label, Edit } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
@@ -38,7 +38,9 @@ import {
   setDeselectedAll,
   setArrowUpDown,
   setMoleculeForTagEdit,
-  setTagEditorOpen
+  setTagEditorOpen,
+  appendToMolListToEdit,
+  removeFromMolListToEdit
 } from '../../../reducers/selection/actions';
 import { base_url } from '../../routes/constants';
 import { moleculeProperty } from './helperConstants';
@@ -152,6 +154,9 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
   },
+  checkbox: {
+    padding: 0
+  },
   rank: {
     fontStyle: 'italic',
     fontSize: 7
@@ -254,6 +259,7 @@ const MoleculeView = memo(
     const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
     const molIdForTagEditor = useSelector(state => state.selectionReducers.molForTagEdit);
     const tagList = useSelector(state => state.selectionReducers.tagList);
+    const moleculesToEdit = useSelector(state => state.selectionReducers.moleculesToEdit);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -318,6 +324,7 @@ const MoleculeView = memo(
     };
 
     const proteinData = data?.proteinData;
+    const isMolSelectedForEdit = moleculesToEdit.some(mid => mid === currentID);
 
     const getDataForTagsTooltip = () => {
       const assignedTags = getAllTagsForMol(data, tagList);
@@ -656,7 +663,20 @@ const MoleculeView = memo(
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
-              <Typography variant="subtitle2">{data.site}</Typography>
+              <Checkbox
+                checked={isMolSelectedForEdit}
+                className={classes.checkbox}
+                size="small"
+                color="primary"
+                onChange={e => {
+                  const result = e.target.checked;
+                  if (result) {
+                    dispatch(appendToMolListToEdit(currentID));
+                  } else {
+                    dispatch(removeFromMolListToEdit(currentID));
+                  }
+                }}
+              />
             </Grid>
             <Grid item className={classes.rank}>
               {index + 1}.

@@ -4,16 +4,13 @@ import {
   removeFromSelectedTagList,
   setCategoryList,
   setTagList,
-  setSpecialTagList,
   appendTagList,
   appendToDisplayAllNGLList,
   removeFromDisplayAllNGLList,
   appendToListAllForTagList,
   removeFromListAllForTagList
 } from '../../../../reducers/selection/actions';
-import { TAG_TYPE } from '../../../../constants/constants';
-import { categories, tags } from './tempData';
-import { specialTags } from './data';
+import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { addLigand, removeLigand } from '../../molecule/redux/dispatchActions';
 import {
   setProteinList,
@@ -40,25 +37,26 @@ import { updateExistingTag } from '../api/tagsApi';
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
   dispatch(setTagList(tags));
-  dispatch(setSpecialTagList(specialTags));
 };
 
-export const addSelectedTag = (tagItem, tags) => dispatch => {
-  if (tagItem.tag === TAG_TYPE.ALL && tags) {
-    tags.forEach(tag => {
-      dispatch(appendSelectedTagList(tag));
-    });
-  }
+export const addSelectedTag = tagItem => dispatch => {
   dispatch(appendSelectedTagList(tagItem));
 };
 
 export const removeSelectedTag = tagItem => dispatch => {
-  if (tagItem.tag === TAG_TYPE.ALL && tags) {
-    tags.forEach(tag => {
-      dispatch(removeFromSelectedTagList(tag));
-    });
-  }
   dispatch(removeFromSelectedTagList(tagItem));
+};
+
+export const selectAllTags = () => (dispatch, getState) => {
+  const state = getState();
+  let tagList = state.selectionReducers.tagList;
+  tagList.forEach(t => dispatch(appendSelectedTagList(t)));
+};
+
+export const clearAllTags = () => (dispatch, getState) => {
+  const state = getState();
+  let tagList = state.selectionReducers.tagList;
+  tagList.forEach(t => dispatch(removeFromSelectedTagList(t)));
 };
 
 export const editTag = ({ tag, data }) => (dispatch, getState) => {
@@ -176,4 +174,20 @@ export const getMoleculeForId = molId => (dispatch, getState) => {
   const state = getState();
   const molList = state.apiReducers.all_mol_lists;
   return molList.find(m => m.id === molId);
+};
+
+export const selectTag = tag => (dispatch, getState) => {
+  const state = getState();
+  const selectedTagList = state.selectionReducers.selectedTagList;
+  if (!selectedTagList.some(i => i.id === tag.id)) {
+    dispatch(addSelectedTag(tag));
+  }
+};
+
+export const unselectTag = tag => (dispatch, getState) => {
+  const state = getState();
+  const selectedTagList = state.selectionReducers.selectedTagList;
+  if (selectedTagList.some(i => i.id === tag.id)) {
+    dispatch(removeSelectedTag(tag));
+  }
 };

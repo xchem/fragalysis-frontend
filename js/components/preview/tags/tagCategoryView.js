@@ -26,9 +26,9 @@ const TagCategoryView = memo(({ name, tags, specialTags }) => {
 
   const handleTagClick = (selected, tag, allTags) => {
     if (selected) {
-      dispatch(removeSelectedTag(tag, allTags));
+      dispatch(removeSelectedTag(tag));
     } else {
-      dispatch(addSelectedTag(tag, allTags));
+      dispatch(addSelectedTag(tag));
     }
   };
   return (
@@ -42,20 +42,6 @@ const TagCategoryView = memo(({ name, tags, specialTags }) => {
 
         {(tags || specialTags) && (
           <Grid className={classes.divContainer}>
-            {specialTags &&
-              specialTags.map((tag, idx) => {
-                let selected = selectedTagList.some(i => i.id === tag.id);
-                return (
-                  <TagView
-                    key={`tag-special-item-${idx}`}
-                    tag={tag}
-                    isSpecialTag={true}
-                    selected={selected}
-                    allTags={tags}
-                    handleClick={handleTagClick}
-                  ></TagView>
-                );
-              })}
             {tags &&
               tags.map((tag, idx) => {
                 let selected = selectedTagList.some(i => i.id === tag.id);

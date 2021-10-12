@@ -16,13 +16,13 @@ export const selectJoinedMoleculeList = createSelector(
   getTagFilteringMode,
   (all_mol_lists, selectedTagList, listAllList, allTags, filteringMode) => {
     let tagListToUse = [];
-    if (listAllList && listAllList.length > 0) {
-      tagListToUse = allTags.filter(tag => {
-        return listAllList.includes(tag.id);
-      });
-    } else {
-      tagListToUse = selectedTagList;
-    }
+    // if (listAllList && listAllList.length > 0) {
+    //   tagListToUse = allTags.filter(tag => {
+    //     return listAllList.includes(tag.id);
+    //   });
+    // } else {
+    tagListToUse = selectedTagList;
+    // }
     const allMoleculesList = [];
     if (!filteringMode) {
       //inclusive mode - i.e. if molecule has at least one of the selected tags then molecule is displayed
@@ -62,6 +62,15 @@ export const selectJoinedMoleculeList = createSelector(
       });
     }
 
+    allMoleculesList.sort((a, b) => {
+      if (a.protein_code < b.protein_code) {
+        return -1;
+      }
+      if (a.protein_code > b.protein_code) {
+        return 1;
+      }
+      return 0;
+    });
     return allMoleculesList;
   }
 );

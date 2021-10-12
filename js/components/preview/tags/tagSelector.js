@@ -1,11 +1,11 @@
 import React, { memo, useRef, useEffect, useCallback, useState } from 'react';
 import { Grid, makeStyles, Switch, FormControlLabel } from '@material-ui/core';
-import { Delete } from '@material-ui/icons';
+import { Delete, DoneAll } from '@material-ui/icons';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
 import TagCategory from './tagCategory';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearTagSelection } from './redux/dispatchActions';
+import { selectAllTags, clearAllTags } from './redux/dispatchActions';
 import { setTagFilteringMode } from '../../../reducers/selection/actions';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
@@ -41,9 +41,15 @@ const TagSelector = memo(({ handleHeightChange }) => {
   const [headerPadding, setheaderPadding] = useState(defaultHeaderPadding);
   const [elementHeight, setElementHeight] = useState(0);
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
+  const [selectAll, setSelectAll] = useState(true);
 
-  const handleClearButton = () => {
-    dispatch(clearTagSelection());
+  const handleSelectionButton = () => {
+    if (selectAll) {
+      dispatch(selectAllTags());
+    } else {
+      dispatch(clearAllTags());
+    }
+    setSelectAll(!selectAll);
   };
 
   useEffect(() => {
@@ -137,15 +143,15 @@ const TagSelector = memo(({ handleHeightChange }) => {
           label={tagMode ? 'Exclusive' : 'Inclusive'}
         />,
         <Button
-          onClick={() => handleClearButton()}
+          onClick={() => handleSelectionButton()}
           disabled={false}
           color="inherit"
           variant="text"
           size="small"
-          startIcon={<Delete />}
-          data-id="clearTagSelectionButton"
+          startIcon={selectAll ? <DoneAll /> : <Delete />}
+          data-id="tagSelectionButton"
         >
-          Clear selection
+          {selectAll ? 'Select all tags' : 'Clear selection'}
         </Button>
       ]}
       onExpandChange={expand => {
