@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState, useCallback, useContext, useEffect } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import {
   Grid,
   Popper,
@@ -10,8 +10,7 @@ import {
   Button,
   useTheme,
   Select,
-  MenuItem,
-  Box
+  MenuItem
 } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
@@ -21,22 +20,9 @@ import { debounce } from 'lodash';
 import classNames from 'classnames';
 import TagView from '../tagView';
 import { updateMoleculeInMolLists, updateMoleculeTag, appendMoleculeTag } from '../../../../reducers/api/actions';
-import {
-  displayAllMolsInNGL,
-  hideAllMolsInNGL,
-  displayInListForTag,
-  hideInListForTag,
-  updateTagProp,
-  getMoleculeForId
-} from '../redux/dispatchActions';
-import { NglContext } from '../../../nglView/nglProvider';
-import { VIEWS, CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
-import {
-  appendTagList,
-  updateTag,
-  setMoleculeForTagEdit,
-  setIsTagGlobalEdit
-} from '../../../../reducers/selection/actions';
+import { displayInListForTag, hideInListForTag, updateTagProp, getMoleculeForId } from '../redux/dispatchActions';
+import { CATEGORY_TYPE, CATEGORY_ID } from '../../../../constants/constants';
+import { appendTagList, setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
 import { createNewTag, updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
@@ -115,6 +101,19 @@ const useStyles = makeStyles(theme => ({
     '&:not(.Mui-disabled)': {
       fill: theme.palette.white
     }
+  },
+  search: {
+    margin: theme.spacing(1),
+    width: 116,
+    '& .MuiInputBase-root': {
+      color: 'inherit'
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: 'inherit'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'inherit'
+    }
   }
 }));
 
@@ -122,13 +121,12 @@ export const TagEditor = memo(
   forwardRef(({ open = false, anchorEl, setOpenDialog }, ref) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
-    const theme = useTheme();
     const dispatch = useDispatch();
     const [searchString, setSearchString] = useState(null);
     const [newTagCategory, setNewTagCategory] = useState(1);
     const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
     const [newTagName, setNewTagName] = useState(null);
-    const [newTagLink, setNewTagLink] = useState(null);
+    const [newTagLink, setNewTagLink] = useState('');
     let tagList = useSelector(state => state.selectionReducers.tagList);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
     const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
@@ -149,7 +147,7 @@ export const TagEditor = memo(
       setNewTagCategory(1);
       setNewTagColor(DEFAULT_TAG_COLOR);
       setNewTagName(null);
-      setNewTagLink(null);
+      setNewTagLink('');
     };
 
     const handleCloseModal = () => {
@@ -269,10 +267,6 @@ export const TagEditor = memo(
       setNewTagName(event.target.value);
     };
 
-    const onLinkForNewTagChange = event => {
-      setNewTagLink(event.target.value);
-    };
-
     const createTag = () => {
       if (newTagName) {
         const newTag = { tag: newTagName, colour: newTagColor, category_id: newTagCategory, discourse_url: newTagLink };
@@ -370,19 +364,12 @@ export const TagEditor = memo(
                     ))}
                   </Select>
                 </Grid>
-                <Grid item xs={2}>
-                  <TextField
-                    id="tag-editor-tag-post"
-                    placeholder="Post"
-                    size="small"
-                    onChange={onLinkForNewTagChange}
-                    disabled={!DJANGO_CONTEXT.pk}
-                  />
-                </Grid>
-                <Grid item>
-                  <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
-                    Save Tag
-                  </Button>
+                <Grid item xs={6}>
+                  <Grid container item direction="row" alignItems="center" justify="center">
+                    <Button onClick={createTag} color="primary" disabled={!DJANGO_CONTEXT.pk}>
+                      Save Tag
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
               {filteredTags &&
@@ -437,22 +424,8 @@ export const TagEditor = memo(
                           ))}
                         </Select>
                       </Grid>
-                      <Grid item xs={2}>
-                        <TextField
-                          disabled={!DJANGO_CONTEXT.pk}
-                          id={`tag-editor-tag-post-edit-${tag.id}`}
-                          placeholder="Post"
-                          size="small"
-                          value={tag.discourse_url ? tag.discourse_url : ''}
-                          onKeyPress={e => {
-                            if (e.key === 'Enter') {
-                              onUpdateTag(tag, e.target.value, 'discourse_url');
-                            }
-                          }}
-                        />
-                      </Grid>
-                      <Grid item>
-                        <Grid container item direction="row" alignItems="center">
+                      <Grid item xs={6}>
+                        <Grid container item direction="row" alignItems="center" justify="center">
                           <Tooltip title="Display all in list">
                             <Grid item>
                               <Button
@@ -468,23 +441,6 @@ export const TagEditor = memo(
                               </Button>
                             </Grid>
                           </Tooltip>
-                          {/* <Tooltip title="Display all in 3D">
-                            <Grid item>
-                              <Button
-                                variant="outlined"
-                                className={classNames(classes.contColButton, {
-                                  [classes.contColButtonSelected]: isTagDisplayedInNGL(tag),
-                                  [classes.contColButtonHalfSelected]: false
-                                })}
-                                onClick={() => {
-                                  handleDisplayAllInNGL(tag);
-                                }}
-                                disabled={false}
-                              >
-                                V
-                              </Button>
-                            </Grid>
-                          </Tooltip> */}
                           <Tooltip title="Discourse link">
                             <Grid item>
                               <Button
