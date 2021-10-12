@@ -324,7 +324,6 @@ const MoleculeView = memo(
     };
 
     const proteinData = data?.proteinData;
-
     const isMolSelectedForEdit = moleculesToEdit.some(mid => mid === currentID);
 
     const getDataForTagsTooltip = () => {
