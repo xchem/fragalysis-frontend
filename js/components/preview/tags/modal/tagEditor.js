@@ -42,7 +42,7 @@ import {
   getDefaultTagDiscoursePostText
 } from '../utils/tagUtils';
 import { isURL } from '../../../../utils/common';
-import { createTagPost } from '../../../../utils/discourse';
+import { createTagPost, isDiscourseAvailable } from '../../../../utils/discourse';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -473,7 +473,7 @@ export const TagEditor = memo(
                                     });
                                   }
                                 }}
-                                disabled={false}
+                                disabled={!isDiscourseAvailable()}
                               >
                                 Discourse link
                               </Button>
