@@ -56,6 +56,20 @@ export const createProjectPost = (projectName, targetName, msg, tags) => {
   });
 };
 
+export const createTagPost = (tag, targetName, msg) => {
+  let jsonData = getDiscourseRequestObject({
+    category_name: targetName,
+    post_title: tag.tag,
+    post_content: msg
+  });
+  console.log(JSON.stringify(jsonData));
+  return api({
+    url: `${base_url}/api/discourse_post/`,
+    method: METHOD.POST,
+    data: jsonData
+  });
+};
+
 export const getExistingPost = projectName => {
   let jsonData = getDiscourseRequestObject({
     post_title: projectName
