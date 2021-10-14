@@ -1,5 +1,7 @@
 import { api, METHOD } from '../../../../utils/api';
+import { createTagPost } from '../../../../utils/discourse';
 import { base_url } from '../../../routes/constants';
+import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 
 export const getAllData = targetId => {
   return api({ url: `${base_url}/api/target_molecules/${targetId}` }).then(response => {
@@ -17,16 +19,22 @@ export const getTagMolecules = targetId => {
     .catch(err => console.log(err));
 };
 
-export const createNewTag = tag => {
-  const jsonString = JSON.stringify(tag);
+export const createNewTag = (tag, targetName) => {
   let url = `${base_url}/api/molecule_tag/`;
-  return api({
-    url: url,
-    method: METHOD.POST,
-    data: jsonString
-  })
-    .then(resp => {
-      return resp.data;
+  return createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag))
+    .then(tagResp => {
+      const tagURL = tagResp.data['Post url'];
+      tag['discourse_url'] = tagURL;
+      const jsonString = JSON.stringify(tag);
+      return api({
+        url: url,
+        method: METHOD.POST,
+        data: jsonString
+      })
+        .then(resp => {
+          return resp.data;
+        })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 };

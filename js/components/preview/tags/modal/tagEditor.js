@@ -38,8 +38,11 @@ import {
   augumentTagObjectWithId,
   createMoleculeTagObject,
   getMoleculeTagForTag,
-  getAllTagsForMol
+  getAllTagsForMol,
+  getDefaultTagDiscoursePostText
 } from '../utils/tagUtils';
+import { isURL } from '../../../../utils/common';
+import { createTagPost } from '../../../../utils/discourse';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -139,7 +142,7 @@ export const TagEditor = memo(
     const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
     const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
-    // const mol = dispatch(getMoleculeForId(molId));
+    const targetName = useSelector(state => state.apiReducers.target_on_name);
     let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
     if (!isTagGlobalEdit) {
       moleculesToEditIds = [];
@@ -288,7 +291,7 @@ export const TagEditor = memo(
           newTagLink,
           [...moleculesToEditIds]
         );
-        createNewTag(tagObject).then(molTag => {
+        createNewTag(tagObject, targetName).then(molTag => {
           let augMolTagObject = augumentTagObjectWithId(newTag, molTag.id);
           dispatch(appendTagList(augMolTagObject));
           dispatch(appendMoleculeTag(molTag));
@@ -459,9 +462,18 @@ export const TagEditor = memo(
                                   [classes.contColButtonHalfSelected]: false
                                 })}
                                 onClick={() => {
-                                  window.open(tag.discourse_url, '_blank');
+                                  if (isURL(tag.discourse_url)) {
+                                    window.open(tag.discourse_url, '_blank');
+                                  } else {
+                                    createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
+                                      const tagURL = resp.data['Post url'];
+                                      tag['discourse_url'] = tagURL;
+                                      dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
+                                      window.open(tag.discourse_url, '_blank');
+                                    });
+                                  }
                                 }}
-                                disabled={!tag.discourse_url}
+                                disabled={false}
                               >
                                 Discourse link
                               </Button>

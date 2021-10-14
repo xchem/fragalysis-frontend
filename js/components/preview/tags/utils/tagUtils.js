@@ -96,3 +96,7 @@ export const getCategoryIds = () => {
 
   return result;
 };
+
+export const getDefaultTagDiscoursePostText = tag => {
+  return `This post for tag ${tag.tag} is here to discuss its contents.`;
+};
