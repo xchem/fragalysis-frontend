@@ -10,12 +10,20 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: 6
   },
   chip: {
-    maxWidth: '100%',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
+    // maxWidth: '100%',
+    margin: theme.spacing(1),
+    height: '100%',
+    // display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    '& .MuiChip-label': {
+      overflowWrap: 'break-word',
+      whiteSpace: 'normal',
+      textOverflow: 'clip'
+    },
     '& .MuiChip-deleteIcon': {
-      display: 'none'
+      display: 'none',
+      alignItems: ''
     },
     '&:hover': {
       '& .MuiChip-deleteIcon': {
@@ -53,21 +61,16 @@ const TagView = memo(
     const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
 
     // console.log(`Tag: ${tagData.tag}`);
-    const tagColor = selected ? 'primary' : 'default';
     // console.log(`tagColor: ${tagColor}`);
-    const bgColor = isTagEditor
-      ? tagData.colour || tagColor
-      : selected
-      ? tagColor
-      : (tagData.colour && tagData.colour) || tagColor;
+    const bgColor = tagData.colour || '#e0e0e0';
     // console.log(`bgColor: ${bgColor}`);
     const color = getFontColorByBackgroundColor(bgColor);
     // console.log(`font color: ${color}`);
     const style = isTagEditor
       ? { backgroundColor: bgColor, color: color }
       : selected
-      ? {}
-      : { backgroundColor: bgColor, color: color };
+      ? { backgroundColor: bgColor, color: color }
+      : { backgroundColor: 'white', color: 'black' };
     // console.log(`style: ${style}`);
 
     // console.log('-------------------------------');
@@ -89,7 +92,7 @@ const TagView = memo(
 
     const getDeleteIcon = () => {
       if (editable) {
-        return <Edit onClick={() => handleClick && handleClick(selected, tag, allTags)} />;
+        return <Edit onClick={() => handleClick && handleClick(selected, tag, allTags)} style={{ color: color }} />;
       } else {
         return null;
       }
@@ -110,7 +113,7 @@ const TagView = memo(
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
           label: tagData.tag,
           clickable: true,
-          color: tagColor,
+          color: bgColor,
           style: style,
           onClick: () => {
             handleClick && handleClick(selected, tag, allTags);
@@ -118,7 +121,7 @@ const TagView = memo(
           deleteIcon: getDeleteIcon(),
           onDelete: getDeleteAction(),
           disabled: determineDisabled(),
-          icon: <Check />
+          icon: <Check style={{ color: color, backgroundColor: bgColor }} />
         };
       } else {
         return {
@@ -126,14 +129,15 @@ const TagView = memo(
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
           label: tagData.tag,
           clickable: true,
-          color: tagColor,
+          color: bgColor,
           style: style,
           onClick: () => {
             handleClick && handleClick(selected, tag, allTags);
           },
           deleteIcon: getDeleteIcon(),
           onDelete: getDeleteAction(),
-          disabled: determineDisabled()
+          disabled: determineDisabled(),
+          icon: <Check style={{ color: bgColor, backgroundColor: bgColor }} />
         };
       }
     };
@@ -141,7 +145,7 @@ const TagView = memo(
     return (
       <>
         <Grid className={classes.tagItem}>
-          <Tooltip title={tagData.tag}>
+          <Tooltip title={tagData.tag} placement="top">
             <Chip {...generateProps()} />
           </Tooltip>
         </Grid>

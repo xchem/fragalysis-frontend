@@ -11,7 +11,8 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     height: '100%',
     width: '100%',
-    paddingTop: theme.spacing(1) / 2
+    paddingTop: theme.spacing(1) / 2,
+    textAlign: 'left'
   },
   categoryItem: {
     paddingRight: theme.spacing(1),
