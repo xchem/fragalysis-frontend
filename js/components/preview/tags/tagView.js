@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Grid, makeStyles, Chip, Tooltip } from '@material-ui/core';
+import { Grid, makeStyles, Chip, Tooltip, Avatar } from '@material-ui/core';
 import { Edit, Check } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
@@ -121,7 +121,11 @@ const TagView = memo(
           deleteIcon: getDeleteIcon(),
           onDelete: getDeleteAction(),
           disabled: determineDisabled(),
-          icon: <Check style={{ color: color, backgroundColor: bgColor }} />
+          icon: (
+            <Avatar style={{ backgroundColor: bgColor }}>
+              <Check style={{ color: color }} />
+            </Avatar>
+          )
         };
       } else {
         return {
@@ -137,7 +141,11 @@ const TagView = memo(
           deleteIcon: getDeleteIcon(),
           onDelete: getDeleteAction(),
           disabled: determineDisabled(),
-          icon: <Check style={{ color: bgColor, backgroundColor: bgColor }} />
+          icon: (
+            <Avatar style={{ backgroundColor: bgColor }}>
+              <Check style={{ color: bgColor }} />
+            </Avatar>
+          )
         };
       }
     };
