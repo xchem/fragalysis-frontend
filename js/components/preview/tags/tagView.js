@@ -128,7 +128,7 @@ const TagView = memo(
           )
         };
       } else {
-        if (selected) {
+        if (selected || isTagEditor) {
           return {
             size: 'small',
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
