@@ -16,7 +16,10 @@ const useStyles = makeStyles(theme => ({
   },
   categoryItem: {
     paddingRight: theme.spacing(1),
-    textAlign: 'center'
+    textAlign: 'left'
+  },
+  headerItem: {
+    paddingLeft: theme.spacing(2)
   }
 }));
 
@@ -36,9 +39,11 @@ const TagCategoryView = memo(({ name, tags, specialTags }) => {
     <>
       <Grid item className={classes.categoryItem} xs={3}>
         {name && (
-          <Typography variant="h6" noWrap>
-            {name}
-          </Typography>
+          <Grid className={classes.headerItem}>
+            <Typography variant="h6" noWrap>
+              {name}
+            </Typography>
+          </Grid>
         )}
 
         {(tags || specialTags) && (

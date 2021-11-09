@@ -70,7 +70,7 @@ const TagView = memo(
       ? { backgroundColor: bgColor, color: color }
       : selected
       ? { backgroundColor: bgColor, color: color }
-      : { backgroundColor: 'white', color: 'black' };
+      : { backgroundColor: 'white', color: 'black', borderColor: bgColor };
     // console.log(`style: ${style}`);
 
     // console.log('-------------------------------');
@@ -128,25 +128,50 @@ const TagView = memo(
           )
         };
       } else {
-        return {
-          size: 'small',
-          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
-          label: tagData.tag,
-          clickable: true,
-          color: bgColor,
-          style: style,
-          onClick: () => {
-            handleClick && handleClick(selected, tag, allTags);
-          },
-          deleteIcon: getDeleteIcon(),
-          onDelete: getDeleteAction(),
-          disabled: determineDisabled(),
-          icon: (
-            <Avatar style={{ backgroundColor: bgColor }}>
-              <Check style={{ color: bgColor }} />
-            </Avatar>
-          )
-        };
+        if (selected) {
+          return {
+            size: 'small',
+            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+            label: tagData.tag,
+            clickable: true,
+            color: bgColor,
+            borderColor: bgColor,
+            style: style,
+            onClick: () => {
+              handleClick && handleClick(selected, tag, allTags);
+            },
+            deleteIcon: getDeleteIcon(),
+            onDelete: getDeleteAction(),
+            disabled: determineDisabled(),
+            icon: (
+              <Avatar style={{ backgroundColor: bgColor }}>
+                <Check style={{ color: bgColor }} />
+              </Avatar>
+            )
+          };
+        } else {
+          return {
+            size: 'small',
+            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+            label: tagData.tag,
+            clickable: true,
+            color: bgColor,
+            borderColor: bgColor,
+            style: style,
+            variant: 'outlined',
+            onClick: () => {
+              handleClick && handleClick(selected, tag, allTags);
+            },
+            deleteIcon: getDeleteIcon(),
+            onDelete: getDeleteAction(),
+            disabled: determineDisabled(),
+            icon: (
+              <Avatar style={{ backgroundColor: bgColor }}>
+                <Check style={{ color: bgColor }} />
+              </Avatar>
+            )
+          };
+        }
       }
     };
 
