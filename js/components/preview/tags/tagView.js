@@ -11,15 +11,24 @@ const useStyles = makeStyles(theme => ({
   },
   chip: {
     // maxWidth: '100%',
-    margin: theme.spacing(1),
-    height: '100%',
+    margin: '2px', //theme.spacing(1),
+    height: '80%', //'100%'
     // display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    '& .MuiChip-label': {
+    borderRadius: '7px',
+    lineHeight: '1.1',
+    textAlign: 'center',
+    paddingBottom: '2px',
+    '& .MuiChip-labelSmall': {
       overflowWrap: 'break-word',
       whiteSpace: 'normal',
-      textOverflow: 'clip'
+      textOverflow: 'clip',
+      paddingLeft: '2px',
+      paddingRight: '2px',
+      fontWeight: '400',
+      fontStyle: 'normal',
+      letterSpacing: '0.144px'
     },
     '& .MuiChip-deleteIcon': {
       display: 'none',
@@ -29,6 +38,15 @@ const useStyles = makeStyles(theme => ({
       '& .MuiChip-deleteIcon': {
         display: 'block'
       }
+    },
+    '& .MuiChip-iconSmall': {
+      width: '9px',
+      height: '95%',
+      marginRight: '0px',
+      marginLeft: '0px'
+    },
+    '& .MuiChip-outlined': {
+      marginLeft: '0px'
     }
   },
   chipSelected: {
@@ -144,7 +162,7 @@ const TagView = memo(
             onDelete: getDeleteAction(),
             disabled: determineDisabled(),
             icon: (
-              <Avatar style={{ backgroundColor: bgColor }}>
+              <Avatar style={{ backgroundColor: bgColor, borderRadius: '9px' }}>
                 <Check style={{ color: bgColor }} />
               </Avatar>
             )
@@ -166,7 +184,7 @@ const TagView = memo(
             onDelete: getDeleteAction(),
             disabled: determineDisabled(),
             icon: (
-              <Avatar style={{ backgroundColor: bgColor }}>
+              <Avatar style={{ backgroundColor: bgColor, borderRadius: '9px' }}>
                 <Check style={{ color: bgColor }} />
               </Avatar>
             )
