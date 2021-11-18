@@ -824,7 +824,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
   const state = getState();
   const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
-  // const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
+  const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
 
   const currentActionList = state.trackingReducers.track_actions_list;
   const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
