@@ -148,6 +148,7 @@ import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/di
 import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
 import { hideShapeRepresentations } from '../../components/nglView/redux/dispatchActions';
 import { MAP_TYPE } from '../ngl/constants';
+import { removeSelectedTag, addSelectedTag } from '../../components/preview/tags/redux/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -174,6 +175,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
   if (snapshotID) {
     const currentTargetOn = state.apiReducers.target_on;
     const currentSites = state.selectionReducers.mol_group_selection;
+    const currentTags = state.selectionReducers.selectedTagList;
     const currentLigands = state.selectionReducers.fragmentDisplayList;
     const currentProteins = state.selectionReducers.proteinList;
     const currentComplexes = state.selectionReducers.complexList;
@@ -206,6 +208,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
     getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
+    getCurrentActionList(orderedActionList, actionType.TAG_SELECTED, getCollection(currentTags), currentActions);
     getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
     getCurrentActionListOfAllSelection(
@@ -803,7 +806,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       })
       .finally(() => {});
 
-    await dispatch(restoreSitesActions(orderedActionList, summaryView));
+    await dispatch(restoreSitesActions(orderedActionList));
+    await dispatch(restoreTagActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
@@ -820,7 +824,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
   const state = getState();
   const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
-  const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
+  // const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
 
   const currentActionList = state.trackingReducers.track_actions_list;
   const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
@@ -1198,15 +1202,29 @@ const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatc
   }
 };
 
-const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getState) => {
+const restoreSitesActions = orderedActionList => (dispatch, getState) => {
   const state = getState();
 
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
   if (sitesAction) {
     sitesAction.forEach(action => {
-      let molGroup = getMolGroup(action.object_name, state);
-      if (molGroup) {
-        dispatch(selectMoleculeGroup(molGroup, summaryView.stage));
+      const tag = getTag(action.object_name, state);
+      if (tag) {
+        dispatch(addSelectedTag(tag));
+      }
+    });
+  }
+};
+
+const restoreTagActions = orderedActionList => (dispatch, getState) => {
+  const state = getState();
+
+  let tagActions = orderedActionList.filter(action => action.type === actionType.TAG_SELECTED);
+  if (tagActions) {
+    tagActions.forEach(action => {
+      const tag = getTag(action.object_name, state);
+      if (tag) {
+        dispatch(addSelectedTag(tag));
       }
     });
   }
@@ -1663,6 +1681,12 @@ const getMolGroup = (molGroupName, state) => {
   return molGroup;
 };
 
+const getTag = (tagName, state) => {
+  const tagList = state.selectionReducers.tagList;
+  const tag = tagList.find(t => t.tag === tagName);
+  return tag;
+};
+
 const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
@@ -1781,8 +1805,8 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
 
   if (action) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
-    const stageSummaryView = summaryView.stage;
+    // const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    // const stageSummaryView = summaryView.stage;
     const majorViewStage = majorView.stage;
 
     const type = action.type;
@@ -1878,10 +1902,16 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleTargetAction(action, false));
         break;
       case actionType.SITE_TURNED_ON:
-        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, false));
         break;
       case actionType.SITE_TURNED_OFF:
-        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, true));
+        break;
+      case actionType.TAG_SELECTED:
+        dispatch(handleTagAction(action, false));
+        break;
+      case actionType.TAG_UNSELECTED:
+        dispatch(handleTagAction(action, true));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, false));
@@ -1932,7 +1962,7 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleChangeRepresentationAction(action, false, majorView));
         break;
       case actionType.BACKGROUND_COLOR_CHANGED:
-        dispatch(setNglBckGrndColor(action.oldSetting, majorViewStage, stageSummaryView));
+        dispatch(setNglBckGrndColor(action.oldSetting, majorViewStage));
         break;
       case actionType.CLIP_NEAR:
         dispatch(setNglClipNear(action.oldSetting, action.newSetting, majorViewStage));
@@ -2008,8 +2038,8 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
 
   if (action) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
-    const stageSummaryView = summaryView.stage;
+    // const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    // const stageSummaryView = summaryView.stage;
     const majorViewStage = majorView.stage;
 
     const type = action.type;
@@ -2105,10 +2135,16 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleTargetAction(action, true));
         break;
       case actionType.SITE_TURNED_ON:
-        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, true));
         break;
       case actionType.SITE_TURNED_OFF:
-        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, false));
+        break;
+      case actionType.TAG_SELECTED:
+        dispatch(handleTagAction(action, true));
+        break;
+      case actionType.TAG_UNSELECTED:
+        dispatch(handleTagAction(action, false));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, true));
@@ -2159,7 +2195,7 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleChangeRepresentationAction(action, true, majorView));
         break;
       case actionType.BACKGROUND_COLOR_CHANGED:
-        dispatch(setNglBckGrndColor(action.newSetting, majorViewStage, stageSummaryView));
+        dispatch(setNglBckGrndColor(action.newSetting, majorViewStage));
         break;
       case actionType.CLIP_NEAR:
         dispatch(setNglClipNear(action.newSetting, action.oldSetting, majorViewStage));
@@ -2812,13 +2848,26 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const { object_name } = action;
-    let moleculeGroup = getMolGroup(object_name, state);
-    if (moleculeGroup) {
+    const tag = getTag(action.object_name, state);
+    if (tag) {
       if (isSelected === true) {
-        dispatch(selectMoleculeGroup(moleculeGroup, stageSummaryView));
+        dispatch(addSelectedTag(tag));
       } else {
-        dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
+        dispatch(removeSelectedTag(tag));
+      }
+    }
+  }
+};
+
+const handleTagAction = (action, isSelected) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    const tag = getTag(action.object_name, state);
+    if (tag) {
+      if (isSelected === true) {
+        dispatch(addSelectedTag(tag));
+      } else {
+        dispatch(removeSelectedTag(tag));
       }
     }
   }
