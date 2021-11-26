@@ -40,7 +40,9 @@ export const withLoadingMolecules = WrappedComponent => {
             }
             newObject['coords'] = coords;
 
-            tags_info.push(newObject);
+            if (!newObject.additional_info) {
+              tags_info.push(newObject);
+            }
           });
 
           // const categories = data.tag_categories;

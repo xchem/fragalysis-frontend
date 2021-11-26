@@ -39,6 +39,20 @@ export const createNewTag = (tag, targetName) => {
     .catch(err => console.log(err));
 };
 
+export const createNewDownloadTag = tag => {
+  let url = `${base_url}/api/molecule_tag/`;
+  const jsonString = JSON.stringify(tag);
+  return api({
+    url: url,
+    method: METHOD.POST,
+    data: jsonString
+  })
+    .then(resp => {
+      return resp.data;
+    })
+    .catch(err => console.log(err));
+};
+
 export const updateExistingTag = (tag, tagId) => {
   const jsonString = JSON.stringify(tag);
   let url = `${base_url}/api/molecule_tag/${tagId}/`;

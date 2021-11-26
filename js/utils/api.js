@@ -17,7 +17,7 @@ const getCookie = name => {
 
 export const getCsrfToken = () => getCookie('csrftoken');
 
-export const METHOD = { GET: 'GET', POST: 'POST', PUT: 'PUT', DELETE: 'DELETE', PATCH: 'PATCH' };
+export const METHOD = { GET: 'GET', POST: 'POST', PUT: 'PUT', DELETE: 'DELETE', PATCH: 'PATCH', HEAD: 'HEAD' };
 
 export const api = ({ url, method, headers, data, cancel }) =>
   axios({
@@ -38,3 +38,34 @@ export const api = ({ url, method, headers, data, cancel }) =>
       cancel = c;
     })
   });
+
+export const getFileSize = fullUrl => {
+  return api({
+    url: fullUrl,
+    method: METHOD.HEAD
+  });
+};
+
+export const getFileSizeString = fileSizeInBytes => {
+  const stepSize = 1024;
+  let result = '';
+
+  if (fileSizeInBytes < stepSize) {
+    result = `${fileSizeInBytes}B`;
+  } else {
+    const fileSizeInKB = fileSizeInBytes / stepSize;
+    if (fileSizeInKB < stepSize) {
+      result = `${fileSizeInKB.toFixed(1)}KB`;
+    } else {
+      const fileSizeInMB = fileSizeInKB / stepSize;
+      if (fileSizeInMB < stepSize) {
+        result = `${fileSizeInMB.toFixed(1)}KB`;
+      } else {
+        const fileSizeInGB = fileSizeInMB / stepSize;
+        result = `${fileSizeInGB.toFixed(1)}KB`;
+      }
+    }
+  }
+
+  return result;
+};

@@ -26,6 +26,7 @@ import { unmountPreviewComponent } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExit';
 import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
+import { DownloadStructureDialog } from '../snapshot/modals/downloadStructuresDialog';
 //import HotspotList from '../hotspot/hotspotList';
 import { TabPanel } from '../common/Tabs';
 import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/dispatchActions';
@@ -362,6 +363,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       <NewSnapshotModal />
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />
+      <DownloadStructureDialog />
       {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );
