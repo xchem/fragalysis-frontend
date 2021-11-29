@@ -136,7 +136,7 @@ const TagSelector = memo(({ handleHeightChange }) => {
       hasHeader
       hasExpansion
       defaultExpanded
-      title="Tag selector"
+      title="Hit List Filter"
       headerActions={[
         <FormControlLabel
           control={<TagModeSwitch checked={tagMode} onChange={filteringModeSwitched} name="tag-filtering-mode" />}
@@ -148,10 +148,10 @@ const TagSelector = memo(({ handleHeightChange }) => {
           color="inherit"
           variant="text"
           size="small"
-          startIcon={selectAll ? <DoneAll /> : <Delete />}
+          startIcon={<DoneAll />}
           data-id="tagSelectionButton"
         >
-          {selectAll ? 'Select all tags' : 'Clear selection'}
+          {selectAll ? 'Select all tags' : 'Unselect'}
         </Button>
       ]}
       onExpandChange={expand => {
