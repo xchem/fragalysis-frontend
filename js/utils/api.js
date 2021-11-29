@@ -19,8 +19,10 @@ export const getCsrfToken = () => getCookie('csrftoken');
 
 export const METHOD = { GET: 'GET', POST: 'POST', PUT: 'PUT', DELETE: 'DELETE', PATCH: 'PATCH', HEAD: 'HEAD' };
 
-export const api = ({ url, method, headers, data, cancel }) =>
-  axios({
+export const api = ({ url, method, headers, data, cancel }) => {
+  // url && console.log(`${url}`);
+  // data && console.log(`${data}`);
+  return axios({
     url,
     method: method !== undefined ? method : METHOD.GET,
     headers:
@@ -38,6 +40,7 @@ export const api = ({ url, method, headers, data, cancel }) =>
       cancel = c;
     })
   });
+};
 
 export const getFileSize = fullUrl => {
   return api({

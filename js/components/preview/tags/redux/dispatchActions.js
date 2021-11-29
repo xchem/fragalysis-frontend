@@ -26,13 +26,19 @@ import {
   setVectorOnList,
   updateTag
 } from '../../../../reducers/selection/actions';
-import { setMolGroupOn, updateMoleculeTag } from '../../../../reducers/api/actions';
+import { setMolGroupOn, updateMoleculeTag, setAllMolLists, setMoleculeTags } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { getRandomColor } from '../../molecule/utils/color';
-import { getMoleculeTagForTag, createMoleculeTagObject, augumentTagObjectWithId } from '../utils/tagUtils';
+import { updateExistingTag, getAllData } from '../api/tagsApi';
+import {
+  getMoleculeTagForTag,
+  createMoleculeTagObject,
+  augumentTagObjectWithId,
+  compareTagsAsc,
+  getCategoryIds
+} from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
-import { updateExistingTag } from '../api/tagsApi';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -190,4 +196,46 @@ export const unselectTag = tag => (dispatch, getState) => {
   if (selectedTagList.some(i => i.id === tag.id)) {
     dispatch(removeSelectedTag(tag));
   }
+};
+
+export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
+  return getAllData(targetId).then(data => {
+    let allMolecules = [];
+    data.molecules.forEach(mol => {
+      let newObject = {};
+      Object.keys(mol.data).forEach(prop => {
+        newObject[`${prop}`] = mol.data[`${prop}`];
+      });
+      newObject['tags_set'] = mol.tags_set;
+
+      allMolecules.push(newObject);
+    });
+    dispatch(setAllMolLists([...allMolecules]));
+
+    let tags_info = [];
+    data.tags_info.forEach(tag => {
+      let newObject = {};
+      Object.keys(tag.data[0]).forEach(prop => {
+        newObject[`${prop}`] = tag.data[0][`${prop}`];
+      });
+      let coords = {};
+      if (tag.coords && tag.coords.length > 1) {
+        Object.keys(tag.coords[0]).forEach(prop => {
+          coords[`${prop}`] = tag.coords[0][`${prop}`];
+        });
+      }
+      newObject['coords'] = coords;
+
+      if (!newObject.additional_info) {
+        tags_info.push(newObject);
+      }
+    });
+
+    // const categories = data.tag_categories;
+    //need to do this this way because only categories which have at least one tag assigned are sent from backend
+    const categories = getCategoryIds();
+    tags_info = tags_info.sort(compareTagsAsc);
+    dispatch(setTagSelectorData(categories, tags_info));
+    console.log(tags_info);
+  });
 };

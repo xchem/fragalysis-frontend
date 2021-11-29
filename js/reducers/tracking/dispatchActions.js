@@ -80,7 +80,6 @@ import {
   updateFilterShowedScoreProperties,
   setFilterShowedScoreProperties
 } from '../../components/datasets/redux/actions';
-import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
   removeComponentRepresentation,
@@ -148,7 +147,11 @@ import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/di
 import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
 import { hideShapeRepresentations } from '../../components/nglView/redux/dispatchActions';
 import { MAP_TYPE } from '../ngl/constants';
-import { removeSelectedTag, addSelectedTag } from '../../components/preview/tags/redux/dispatchActions';
+import {
+  removeSelectedTag,
+  addSelectedTag,
+  loadMoleculesAndTags
+} from '../../components/preview/tags/redux/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -175,7 +178,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
   if (snapshotID) {
     const currentTargetOn = state.apiReducers.target_on;
     const currentSites = state.selectionReducers.mol_group_selection;
-    const currentTags = state.selectionReducers.selectedTagList;
+    const currentTags =
+      state.selectionReducers.selectedTagList && state.selectionReducers.selectedTagList.map(value => value.id);
     const currentLigands = state.selectionReducers.fragmentDisplayList;
     const currentProteins = state.selectionReducers.proteinList;
     const currentComplexes = state.selectionReducers.complexList;
@@ -518,6 +522,10 @@ export const saveTrackingActions = (currentActions, snapshotID) => async (dispat
   }
 };
 
+// const getCurrentActionListForTags = (orderedActionList, type, collection, currentActions) => {
+//   let actionList = orderedActionList.filter(action => action.type === type);
+// };
+
 const getCurrentActionList = (orderedActionList, type, collection, currentActions) => {
   let actionList = orderedActionList.filter(action => action.type === type);
 
@@ -789,13 +797,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
   if (targetId && stages && stages.length > 0) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
     await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
 
     await dispatch(
       loadMoleculeGroupsOfTarget({
-        summaryView: summaryView.stage,
         isStateLoaded: false,
         setOldUrl: url => {},
         target_on: targetId
@@ -807,8 +813,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList));
-    await dispatch(restoreTagActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
+    await dispatch(restoreTagActions(orderedActionList));
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
@@ -816,7 +822,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreCartActions(orderedActionList, majorView.stage));
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
-    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage, summaryView.stage));
+    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
   }
 };
@@ -824,23 +830,22 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
   const state = getState();
   const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
-  const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
 
   const currentActionList = state.trackingReducers.track_actions_list;
   const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
-  dispatch(restoreNglSettingsAction(orderedActionList, majorViewStage, summaryViewStage));
+  dispatch(restoreNglSettingsAction(orderedActionList, majorViewStage));
 };
 
-const restoreNglSettingsAction = (orderedActionList, majorViewStage, summaryViewStage) => (dispatch, getState) => {
+const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
 
   let backgroundAction = orderedActionList.find(action => action.type === actionType.BACKGROUND_COLOR_CHANGED);
   if (backgroundAction && backgroundAction.newSetting !== undefined) {
     let value = backgroundAction.newSetting;
-    dispatch(setNglBckGrndColor(value, majorViewStage, summaryViewStage));
+    dispatch(setNglBckGrndColor(value, majorViewStage));
   } else {
-    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorViewStage, summaryViewStage));
+    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorViewStage));
   }
 
   let clipNearAction = orderedActionList.find(action => action.type === actionType.CLIP_NEAR);
@@ -1159,7 +1164,7 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState
 };
 
 const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
-  await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+  await dispatch(loadAllMolecules(targetId));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
 };
 
@@ -1173,33 +1178,8 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch
   dispatch(restoreCompoundsActions(orderedActionList, stage));
 };
 
-const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
-  const state = getState();
-  const list_type = listType.MOLECULE;
-
-  let molGroupList = state.apiReducers.mol_group_list;
-
-  let promises = [];
-  molGroupList.forEach(molGroup => {
-    let id = molGroup.id;
-    let url = getUrl({ list_type, target_on, mol_group_on: id });
-    promises.push(
-      loadAllMolsFromMolGroup({
-        url,
-        mol_group: id
-      })
-    );
-  });
-  try {
-    const results = await Promise.all(promises);
-    let listToSet = {};
-    results.forEach(molResult => {
-      listToSet[molResult.mol_group] = molResult.molecules;
-    });
-    dispatch(setAllMolLists(listToSet));
-  } catch (error) {
-    throw new Error(error);
-  }
+const loadAllMolecules = target_on => async (dispatch, getState) => {
+  return dispatch(loadMoleculesAndTags(target_on));
 };
 
 const restoreSitesActions = orderedActionList => (dispatch, getState) => {
@@ -1691,15 +1671,8 @@ const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
-  if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-      molecule = molecules.find(m => m.protein_code === moleculeName);
-      if (molecule && molecule != null) {
-        break;
-      }
-    }
-  }
+  molecule = moleculeList.find(m => m.protein_code === moleculeName);
+
   return molecule;
 };
 

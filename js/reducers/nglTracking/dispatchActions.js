@@ -49,7 +49,6 @@ import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   setMoleculeListIsLoading
 } from '../../components/datasets/redux/actions';
-import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import { addComponentRepresentation, updateComponentRepresentation } from '../../../js/reducers/ngl/actions';
 import * as listType from '../../constants/listTypes';
@@ -80,6 +79,7 @@ import {
   setSelectedAll as setSelectedAllOfDataset,
   setSelectedAllByType as setSelectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
+import { loadMoleculesAndTags, addSelectedTag } from '../../components/preview/tags/redux/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async dispatch => {
   let projectID = project && project.projectID;
@@ -709,7 +709,7 @@ const restoreActions = (orderedActionList, stage) => dispatch => {
 };
 
 const loadData = (orderedActionList, targetId, majorView) => async dispatch => {
-  await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+  await dispatch(loadAllMolecules(targetId));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
 };
 
@@ -723,33 +723,8 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => async dispatch 
   dispatch(restoreCompoundsActions(orderedActionList, stage));
 };
 
-const loadAllMolecules = (orderedActionList, target_on) => async (dispatch, getState) => {
-  const state = getState();
-  const list_type = listType.MOLECULE;
-
-  let molGroupList = state.apiReducers.mol_group_list;
-
-  let promises = [];
-  molGroupList.forEach(molGroup => {
-    let id = molGroup.id;
-    let url = getUrl({ list_type, target_on, mol_group_on: id });
-    promises.push(
-      loadAllMolsFromMolGroup({
-        url,
-        mol_group: id
-      })
-    );
-  });
-  try {
-    const results = await Promise.all(promises);
-    let listToSet = {};
-    results.forEach(molResult => {
-      listToSet[molResult.mol_group] = molResult.molecules;
-    });
-    dispatch(setAllMolLists(listToSet));
-  } catch (error) {
-    throw new Error(error);
-  }
+const loadAllMolecules = target_on => async (dispatch, getState) => {
+  return dispatch(loadMoleculesAndTags(target_on));
 };
 
 const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getState) => {
@@ -758,12 +733,18 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
   if (sitesAction && summaryView) {
     sitesAction.forEach(action => {
-      let molGroup = getMolGroup(action.object_name, state);
-      if (molGroup) {
-        dispatch(selectMoleculeGroup(molGroup, summaryView.stage));
+      const tag = getTag(action.object_name, state);
+      if (tag) {
+        dispatch(addSelectedTag(tag));
       }
     });
   }
+};
+
+const getTag = (tagName, state) => {
+  const tagList = state.selectionReducers.tagList;
+  const tag = tagList.find(t => t.tag === tagName);
+  return tag;
 };
 
 const restoreMoleculesActions = (orderedActionList, stage) => (dispatch, getState) => {
@@ -1080,15 +1061,8 @@ const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
-  if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-      molecule = molecules.find(m => m.protein_code === moleculeName);
-      if (molecule && molecule != null) {
-        break;
-      }
-    }
-  }
+  molecule = moleculeList.find(m => m.protein_code === moleculeName);
+
   return molecule;
 };
 
