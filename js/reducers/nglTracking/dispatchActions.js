@@ -663,13 +663,12 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
   if (targetId && stages && stages.length > 0) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    // const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
     await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
 
     await dispatch(
       loadMoleculeGroupsOfTarget({
-        summaryView: summaryView.stage,
         isStateLoaded: false,
         setOldUrl: () => {},
         target_on: targetId
@@ -680,7 +679,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       })
       .finally(() => {});
 
-    await dispatch(restoreSitesActions(orderedActionList, summaryView));
+    await dispatch(restoreSitesActions(orderedActionList, null));
     await dispatch(loadData(orderedActionList, targetId, majorView));
     await dispatch(restoreActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
@@ -757,7 +756,7 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
   const state = getState();
 
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
-  if (sitesAction) {
+  if (sitesAction && summaryView) {
     sitesAction.forEach(action => {
       let molGroup = getMolGroup(action.object_name, state);
       if (molGroup) {

@@ -1,65 +1,64 @@
 import { createSelector } from 'reselect';
 
 const getMoleculeGroupLists = state => state.apiReducers.mol_group_list;
-//const getMoleculeGroupSelection = state => state.selectionReducers.mol_group_selection;
 const getAllMolecules = state => state.apiReducers.all_mol_lists;
 const getAllSelectedTags = state => state.selectionReducers.selectedTagList;
-const getTagsToList = state => state.selectionReducers.listAllList;
-const getAllTags = state => state.selectionReducers.tagList;
 const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
+const getNoTagsReceived = state => state.apiReducers.noTagsReceived;
 
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
   getAllSelectedTags,
-  getTagsToList,
-  getAllTags,
   getTagFilteringMode,
-  (all_mol_lists, selectedTagList, listAllList, allTags, filteringMode) => {
-    let tagListToUse = [];
-    // if (listAllList && listAllList.length > 0) {
-    //   tagListToUse = allTags.filter(tag => {
-    //     return listAllList.includes(tag.id);
-    //   });
-    // } else {
-    tagListToUse = selectedTagList;
-    // }
-    const allMoleculesList = [];
-    if (!filteringMode) {
-      //inclusive mode - i.e. if molecule has at least one of the selected tags then molecule is displayed
-      tagListToUse.forEach(tag => {
-        let filteredMols = all_mol_lists.filter(mol => {
-          let foundTag = mol.tags_set.filter(t => t === tag.id);
-          if (foundTag && foundTag.length > 0) {
-            return true;
-          } else {
-            return false;
-          }
+  getNoTagsReceived,
+  (all_mol_lists, selectedTagList, filteringMode, noTagsReceived) => {
+    let allMoleculesList = [];
+
+    if (!noTagsReceived) {
+      let tagListToUse = [];
+      tagListToUse = selectedTagList;
+
+      if (!filteringMode) {
+        //inclusive mode - i.e. if molecule has at least one of the selected tags then molecule is displayed
+        tagListToUse.forEach(tag => {
+          let filteredMols = all_mol_lists.filter(mol => {
+            let foundTag = mol.tags_set.filter(t => t === tag.id);
+            if (foundTag && foundTag.length > 0) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          filteredMols.forEach(mol => {
+            let found = allMoleculesList.filter(addedMol => addedMol.id === mol.id);
+            if (!found || found.length === 0) {
+              allMoleculesList.push(mol);
+            }
+          });
         });
-        filteredMols.forEach(mol => {
-          let found = allMoleculesList.filter(addedMol => addedMol.id === mol.id);
-          if (!found || found.length === 0) {
+      } else {
+        //exclusive mode - i.e. molecule has to have all selected tags attached to it
+        all_mol_lists.forEach(mol => {
+          let foundAllTags = false;
+          for (let i = 0; i < selectedTagList.length; i++) {
+            let tag = selectedTagList[i];
+            let foundTagId = mol.tags_set.find(tid => tid === tag.id);
+            if (!foundTagId) {
+              break;
+            }
+            if (i === selectedTagList.length - 1 && foundTagId) {
+              foundAllTags = true;
+            }
+          }
+          if (foundAllTags) {
             allMoleculesList.push(mol);
           }
         });
-      });
+      }
     } else {
-      //exclusive mode - i.e. molecule has to have all selected tags attached to it
-      all_mol_lists.forEach(mol => {
-        let foundAllTags = false;
-        for (let i = 0; i < selectedTagList.length; i++) {
-          let tag = selectedTagList[i];
-          let foundTagId = mol.tags_set.find(tid => tid === tag.id);
-          if (!foundTagId) {
-            break;
-          }
-          if (i === selectedTagList.length - 1 && foundTagId) {
-            foundAllTags = true;
-          }
-        }
-        if (foundAllTags) {
-          allMoleculesList.push(mol);
-        }
-      });
+      if (all_mol_lists) {
+        allMoleculesList = [...all_mol_lists];
+      }
     }
 
     allMoleculesList.sort((a, b) => {

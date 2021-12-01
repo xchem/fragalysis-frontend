@@ -97,7 +97,9 @@ export const actionType = {
   OPACITY_DIFF: 'OPACITY_DIFF',
   CONTOUR_DIFF: 'CONTOUR_DIFF',
   COLOR_DIFF: 'COLOR_DIFF',
-  WARNING_ICON: 'WARNING_ICON'
+  WARNING_ICON: 'WARNING_ICON',
+  TAG_SELECTED: 'TAG_SELECTED',
+  TAG_UNSELECTED: 'TAG_UNSELECTED'
 };
 
 export const actionDescription = {
@@ -136,7 +138,8 @@ export const actionDescription = {
   SIDECHAINS: 'Sidechains',
   TAB: 'Tab',
   DATASET: 'Dataset',
-  CUSTOM_VIEW: 'custom view'
+  CUSTOM_VIEW: 'custom view',
+  TAG: 'Tag'
 };
 
 export const actionObjectType = {
@@ -147,7 +150,8 @@ export const actionObjectType = {
   INSPIRATION: 'INSPIRATION',
   CROSS_REFERENCE: 'CROSS_REFERENCE',
   REPRESENTATION: 'REPRESENTATION',
-  VIEWER_SETTINGS: 'VIEWER_SETTINGS'
+  VIEWER_SETTINGS: 'VIEWER_SETTINGS',
+  TAG: 'TAG'
 };
 
 export const actionAnnotation = {

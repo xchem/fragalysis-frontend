@@ -111,10 +111,7 @@ export const loadMoleculeGroups = ({ summaryView, setOldUrl, oldUrl, onCancel, i
   return Promise.resolve();
 };
 
-export const loadMoleculeGroupsOfTarget = ({ summaryView, setOldUrl, isStateLoaded, target_on }) => (
-  dispatch,
-  getState
-) => {
+export const loadMoleculeGroupsOfTarget = ({ setOldUrl, isStateLoaded, target_on }) => (dispatch, getState) => {
   const state = getState();
   const group_type = state.apiReducers.group_type;
   const list_type = OBJECT_TYPE.MOLECULE_GROUP;
@@ -122,7 +119,7 @@ export const loadMoleculeGroupsOfTarget = ({ summaryView, setOldUrl, isStateLoad
   if (target_on && !isStateLoaded) {
     return loadFromServer({
       url: getUrl({ list_type, target_on, group_type }),
-      afterPush: data_list => dispatch(saveMoleculeGroupsToNglViewWithoutProject(data_list, summaryView)),
+      afterPush: undefined, //data_list => dispatch(saveMoleculeGroupsToNglViewWithoutProject(data_list, summaryView)),
       list_type,
       setOldUrl,
       setObjectList: mol_group_list => {

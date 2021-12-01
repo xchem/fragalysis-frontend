@@ -28,6 +28,32 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.TARGET} ${targetName} ${actionDescription.LOADED}`
         };
       }
+    } else if (action.type === selectionConstants.APPEND_SELECTED_TAG_LIST) {
+      if (action.item) {
+        trackAction = {
+          type: actionType.TAG_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: actionObjectType.TAG,
+          object_name: action.item.tag,
+          object_id: action.item.id,
+          text: `${actionDescription.TAG} ${action.item.tag} ${actionDescription.TURNED_ON}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_SELECTED_TAG_LIST) {
+      if (action.item) {
+        trackAction = {
+          type: actionType.TAG_UNSELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: actionObjectType.TAG,
+          object_name: action.item.tag,
+          object_id: action.item.id,
+          text: `${actionDescription.TAG} ${action.item.tag} ${actionDescription.TURNED_OFF}`
+        };
+      }
     } else if (action.type === apiConstants.SET_MOL_GROUP_ON) {
       if (action.mol_group_on) {
         let molGroupSelection = state.selectionReducers.mol_group_selection;

@@ -238,9 +238,9 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
   });
 };
 
-export const setNglBckGrndColor = (color, major, summary) => (dispatch, getState) => {
+export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {
   dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, major, VIEWS.MAJOR_VIEW));
-  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, summary, VIEWS.SUMMARY_VIEW));
+  // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, summary, VIEWS.SUMMARY_VIEW));
   dispatch(setBackgroundColor(color));
 };
 

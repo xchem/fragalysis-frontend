@@ -41,14 +41,15 @@ export const INITIAL_STATE = {
   user_id: undefined,
   direct_access: {},
   direct_access_processed: false,
-  open_discourse_error_modal: false
+  open_discourse_error_modal: false,
+  noTagsReceived: true
 };
 
 export const RESET_TARGET_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
-  all_mol_lists: {},
+  all_mol_lists: [],
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -194,6 +195,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         latestSession: action.latestSession
       });
+
+    case constants.SET_NO_TAGS_RECEIVED:
+      return { ...state, noTagsReceived: action.noTagsReceived };
 
     case constants.SET_SESSION_TITLE:
       return Object.assign({}, state, {

@@ -261,6 +261,8 @@ const MoleculeView = memo(
     const tagList = useSelector(state => state.selectionReducers.tagList);
     const moleculesToEdit = useSelector(state => state.selectionReducers.moleculesToEdit);
 
+    const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
+
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
@@ -932,6 +934,7 @@ const MoleculeView = memo(
               <Grid item xs={2}>
                 <IconButton
                   color="primary"
+                  disabled={noTagsReceived}
                   className={classes.tagIcon}
                   onClick={() => {
                     // setTagAddModalOpen(!tagAddModalOpen);

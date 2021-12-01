@@ -105,6 +105,13 @@ export const setMoleculeTags = moleculeTags => {
   };
 };
 
+export const setNoTagsReceived = noTagsReceived => {
+  return {
+    type: constants.SET_NO_TAGS_RECEIVED,
+    noTagsReceived: noTagsReceived
+  };
+};
+
 export const appendMoleculeTag = moleculeTag => {
   return {
     type: constants.APPEND_MOLECULE_TAG,
