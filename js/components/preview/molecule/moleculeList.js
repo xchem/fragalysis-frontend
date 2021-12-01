@@ -273,6 +273,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
   const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingMoleculesRestoring);
   const tags = useSelector(state => state.selectionReducers.tagList);
+  const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.selectionReducers.categoryList);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
@@ -703,7 +704,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
     <IconButton
       color={'inherit'}
-      disabled={!joinedMoleculeListsCopy.length}
+      disabled={!joinedMoleculeListsCopy.length || noTagsReceived}
       onClick={event => {
         if (isTagEditorOpen === false && moleculesToEditIds && moleculesToEditIds.length > 0) {
           setTagEditorAnchorEl(event.currentTarget);
