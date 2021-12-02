@@ -15,24 +15,24 @@ export const withLoadingMolecules = WrappedComponent => {
       if (target_on) {
         getAllData(target_on).then(data => {
           let tags_info = [];
-          // if (data.tags_info && data.tags_info.length > 0) {
-          //   dispatch(setNoTagsReceived(false));
-          //   data.tags_info.forEach(tag => {
-          //     let newObject = {};
-          //     Object.keys(tag.data[0]).forEach(prop => {
-          //       newObject[`${prop}`] = tag.data[0][`${prop}`];
-          //     });
-          //     let coords = {};
-          //     if (tag.coords && tag.coords.length > 1) {
-          //       Object.keys(tag.coords[0]).forEach(prop => {
-          //         coords[`${prop}`] = tag.coords[0][`${prop}`];
-          //       });
-          //     }
-          //     newObject['coords'] = coords;
+          if (data.tags_info && data.tags_info.length > 0) {
+            dispatch(setNoTagsReceived(false));
+            data.tags_info.forEach(tag => {
+              let newObject = {};
+              Object.keys(tag.data[0]).forEach(prop => {
+                newObject[`${prop}`] = tag.data[0][`${prop}`];
+              });
+              let coords = {};
+              if (tag.coords && tag.coords.length > 1) {
+                Object.keys(tag.coords[0]).forEach(prop => {
+                  coords[`${prop}`] = tag.coords[0][`${prop}`];
+                });
+              }
+              newObject['coords'] = coords;
 
-          //     tags_info.push(newObject);
-          //   });
-          // }
+              tags_info.push(newObject);
+            });
+          }
 
           let allMolecules = [];
           data.molecules.forEach(mol => {
