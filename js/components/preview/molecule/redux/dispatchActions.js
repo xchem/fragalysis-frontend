@@ -577,14 +577,20 @@ export const removeInformation = data => dispatch => {
  */
 export const initializeMolecules = majorView => (dispatch, getState) => {
   if (majorView) {
+    const state = getState();
+    const noTagsReceived = state.apiReducers.noTagsReceived;
+
     const firstTag = dispatch(getFirstTag());
+    let firstMolecule = null;
     if (firstTag) {
       dispatch(addSelectedTag(firstTag));
-      const firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
-      if (firstMolecule) {
-        dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-        dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
-      }
+      firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
+    } else if (noTagsReceived) {
+      firstMolecule = dispatch(getFirstMolecule());
+    }
+    if (firstMolecule) {
+      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
+      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
     }
   }
 };
@@ -613,6 +619,16 @@ export const getFirstMoleculeForTag = tagId => (dispatch, getState) => {
     }
   });
   return molsForTag && molsForTag.length > 0 ? molsForTag[0] : null;
+};
+
+export const getFirstMolecule = () => (dispatch, getState) => {
+  const state = getState();
+  const molList = state.apiReducers.all_mol_lists;
+  if (molList && molList.length > 0) {
+    return molList[0];
+  } else {
+    return null;
+  }
 };
 
 export const getSiteCategoryId = () => (dispatch, getState) => {

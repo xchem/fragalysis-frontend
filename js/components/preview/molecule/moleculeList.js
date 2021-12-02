@@ -434,6 +434,17 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         dispatch(initializeMolecules(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
+      if (
+        majorViewStage &&
+        all_mol_lists &&
+        target !== undefined &&
+        wereMoleculesInitialized.current === false &&
+        noTagsReceived
+      ) {
+        dispatch(initializeFilter(object_selection, joinedMoleculeLists));
+        dispatch(initializeMolecules(majorViewStage));
+        wereMoleculesInitialized.current = true;
+      }
     }
   }, [
     list_type,
@@ -449,7 +460,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     stageSummaryView,
     object_selection,
     tags,
-    categories
+    categories,
+    noTagsReceived
   ]);
 
   useEffect(() => {
