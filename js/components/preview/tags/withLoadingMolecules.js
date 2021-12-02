@@ -24,6 +24,15 @@ export const withLoadingMolecules = WrappedComponent => {
 
             allMolecules.push(newObject);
           });
+          allMolecules.sort((a, b) => {
+            if (a.protein_code < b.protein_code) {
+              return -1;
+            }
+            if (a.protein_code > b.protein_code) {
+              return 1;
+            }
+            return 0;
+          });
           dispatch(setAllMolLists([...allMolecules]));
 
           let tags_info = [];
