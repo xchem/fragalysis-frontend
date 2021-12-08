@@ -66,3 +66,12 @@ export const updateExistingTag = (tag, tagId) => {
     })
     .catch(err => console.log(err));
 };
+
+export const getTagByName = tagName => {
+  let url = `${base_url}/api/molecule_tag/?tag=${tagName}`;
+  return api({ url: url }).then(response => {
+    if (response?.data?.results?.length > 0) {
+      return response.data.results[0];
+    }
+  });
+};

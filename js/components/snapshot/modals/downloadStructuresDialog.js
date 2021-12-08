@@ -134,7 +134,7 @@ export const DownloadStructureDialog = memo(({}) => {
   };
 
   const generateUrl = tag => {
-    return `${base_url}/viewer/react/download/t/${tag.tag}`;
+    return `${base_url}/viewer/react/download/tag/${tag.tag}`;
   };
 
   const createDownloadTag = requestObject => {
@@ -148,7 +148,7 @@ export const DownloadStructureDialog = memo(({}) => {
       'something/something/something',
       [],
       new Date(),
-      requestObject
+      { requestObject: requestObject }
     );
 
     return createNewDownloadTag(tagObject);

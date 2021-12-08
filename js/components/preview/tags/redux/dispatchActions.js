@@ -200,18 +200,6 @@ export const unselectTag = tag => (dispatch, getState) => {
 
 export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
   return getAllData(targetId).then(data => {
-    let allMolecules = [];
-    data.molecules.forEach(mol => {
-      let newObject = {};
-      Object.keys(mol.data).forEach(prop => {
-        newObject[`${prop}`] = mol.data[`${prop}`];
-      });
-      newObject['tags_set'] = mol.tags_set;
-
-      allMolecules.push(newObject);
-    });
-    dispatch(setAllMolLists([...allMolecules]));
-
     let tags_info = [];
     data.tags_info.forEach(tag => {
       let newObject = {};
@@ -230,6 +218,27 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
         tags_info.push(newObject);
       }
     });
+
+    let allMolecules = [];
+    data.molecules.forEach(mol => {
+      let newObject = {};
+      Object.keys(mol.data).forEach(prop => {
+        newObject[`${prop}`] = mol.data[`${prop}`];
+      });
+      newObject['tags_set'] = mol.tags_set;
+
+      allMolecules.push(newObject);
+    });
+    allMolecules.sort((a, b) => {
+      if (a.protein_code < b.protein_code) {
+        return -1;
+      }
+      if (a.protein_code > b.protein_code) {
+        return 1;
+      }
+      return 0;
+    });
+    dispatch(setAllMolLists([...allMolecules]));
 
     // const categories = data.tag_categories;
     //need to do this this way because only categories which have at least one tag assigned are sent from backend
