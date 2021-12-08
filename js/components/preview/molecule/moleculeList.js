@@ -416,7 +416,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   useEffect(() => {
     if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && all_mol_lists.length > 0) {
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
-        dispatch(applyDirectSelection(majorViewStage, stageSummaryView));
+        dispatch(applyDirectSelection(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
       if (
@@ -457,7 +457,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     all_mol_lists,
     directDisplay,
     directAccessProcessed,
-    stageSummaryView,
     object_selection,
     tags,
     categories,

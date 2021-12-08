@@ -884,7 +884,7 @@ export const removeAllSelectedMolTypes = (majorViewStage, molecules, skipTrackin
 //     return Promise.resolve(resultMolGroupID);
 //   });
 
-export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getState) => {
+export const applyDirectSelection = stage => (dispatch, getState) => {
   const state = getState();
 
   const directDisplay = state.apiReducers.direct_access;
@@ -898,10 +898,9 @@ export const applyDirectSelection = (stage, stageSummaryView) => (dispatch, getS
   if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
     const allMols = state.apiReducers.all_mol_lists;
     directDisplay.molecules.forEach(m => {
-      let keys = Object.keys(allMols);
       let directProteinNameModded = m.name.toLowerCase();
       let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
-      for (let molIndex = 0; molIndex < keys.length; molIndex++) {
+      for (let molIndex = 0; molIndex < allMols.length; molIndex++) {
         let molList = allMols;
         let mol = molList[molIndex];
         let proteinCodeModded = mol.protein_code.toLowerCase();
