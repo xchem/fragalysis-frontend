@@ -1,8 +1,8 @@
-import { createTheme } from '@material-ui/core/styles';
+import { createMuiTheme } from '@material-ui/core/styles';
 import palette from './palette';
 
 export const getTheme = () => {
-  return createTheme({
+  return createMuiTheme({
     palette,
     zIndex: {
       appBar: 1200,
