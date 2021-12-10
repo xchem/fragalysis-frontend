@@ -245,6 +245,6 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
     const categories = getCategoryIds();
     tags_info = tags_info.sort(compareTagsAsc);
     dispatch(setTagSelectorData(categories, tags_info));
-    console.log(tags_info);
+    //console.log(tags_info);
   });
 };
