@@ -61,7 +61,6 @@ import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen } from './redux/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
 import {
   setSelectedAllByType,
   setDeselectedAllByType,
@@ -70,7 +69,7 @@ import {
   setIsTagGlobalEdit
 } from '../../../reducers/selection/actions';
 import { TagEditor } from '../tags/modal/tagEditor';
-import { getMoleculeForId } from '../tags/redux/dispatchActions';
+import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -267,7 +266,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
 
-  const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
@@ -586,15 +584,17 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking, false));
   };
 
-  const selectMoleculeSite = moleculeGroupSite => {
-    const moleculeGroup = mol_group_list[moleculeGroupSite - 1];
-    dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: true }));
+  const selectMoleculeTags = moleculeTagsSet => {
+    const moleculeTags = tags.filter((tag) => moleculeTagsSet.includes(tag.id));
+    moleculeTags.forEach((tag) => {
+      dispatch(selectTag(tag));
+    })
   };
 
   const addNewType = (type, skipTracking = false) => {
     if (type === 'ligand') {
       joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeSite(molecule.site);
+        selectMoleculeTags(molecule.tags_set);
         dispatch(
           addType[type](
             majorViewStage,
@@ -608,7 +608,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       });
     } else {
       joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeSite(molecule.site);
+        selectMoleculeTags(molecule.tags_set);
         dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
       });
     }
@@ -946,7 +946,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       Q={qualityList.includes(data.id)}
                       V={vectorOnList.includes(data.id)}
                       I={informationList.includes(data.id)}
-                      selectMoleculeSite={selectMoleculeSite}
+                      selectMoleculeSite={selectMoleculeTags}
                       eventInfo={data?.proteinData?.event_info}
                       sigmaaInfo={data?.proteinData?.sigmaa_info}
                       diffInfo={data?.proteinData?.diff_info}
