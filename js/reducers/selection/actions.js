@@ -471,6 +471,14 @@ export const appendTagList = function(item, skipTracking = false) {
   };
 };
 
+export const removeFromTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setTagEditorOpen = isOpen => {
   return {
     type: constants.SET_TAG_EDITOR_OPEN,

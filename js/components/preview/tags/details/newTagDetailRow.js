@@ -8,11 +8,7 @@ import {
   createMoleculeTagObject
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
-import {
-  getMoleculeForId,
-  updateTagProp,
-  removeSelectedTag
-} from '../redux/dispatchActions';
+import { updateTagProp, removeSelectedTag } from '../redux/dispatchActions';
 import {
   Grid,
   TextField,
@@ -21,9 +17,9 @@ import {
   Select,
   MenuItem
 } from '@material-ui/core';
-import { createNewTag } from '../api/tagsApi';
-import { appendTagList, setTagToEdit } from '../../../../reducers/selection/actions';
-import { appendMoleculeTag } from '../../../../reducers/api/actions';
+import { createNewTag, deleteExistingTag } from '../api/tagsApi';
+import { appendTagList, setTagToEdit, removeFromTagList } from '../../../../reducers/selection/actions';
+import { appendMoleculeTag, updateMoleculeInMolLists } from '../../../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -60,6 +56,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const targetName = useSelector(state => state.apiReducers.target_on_name);
   const targetId = useSelector(state => state.apiReducers.target_on);
   const tagToEdit = useSelector(state => state.selectionReducers.tagToEdit);
+  const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
 
   const [newTagCategory, setNewTagCategory] = useState(0);
   const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
@@ -141,20 +138,27 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         tag: newTagName,
         discourse_url: newTagLink
       }), newTagName, "tag"));
-      
-      /*dispatch(updateTagProp(tagToEdit, newTagCategory, "category_id"));
-      dispatch(updateTagProp(tagToEdit, newTagColor, "colour"));
-      dispatch(updateTagProp(tagToEdit, newTagName, "tag"));
-      dispatch(updateTagProp(tagToEdit, newTagLink, "discourse_url"));*/
-
       // reset tag/fields after updating selected one
       resetTagToEditState();
     }
   };
 
   const deleteTag = () => {
-    console.log("TODO delete tag", tagToEdit);
     dispatch(removeSelectedTag(tagToEdit));
+    dispatch(removeFromTagList(tagToEdit));
+    // remove from all molecules
+    const molsForTag = allMolList.filter(mol => {
+      const tags = mol.tags_set.filter(id => id === tagToEdit.id);
+      return tags && tags.length ? true : false;
+    });
+    if (molsForTag && molsForTag.length) {
+      molsForTag.forEach(m => {
+        let newMol = { ...m };
+        newMol.tags_set = newMol.tags_set.filter(id => id !== tagToEdit.id);
+        dispatch(updateMoleculeInMolLists(newMol));
+      });
+    }
+    deleteExistingTag(tagToEdit, tagToEdit.id);
     // reset tag/fields after removing selected tag
     resetTagToEditState();
   };

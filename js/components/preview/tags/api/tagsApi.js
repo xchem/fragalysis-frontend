@@ -52,3 +52,17 @@ export const updateExistingTag = (tag, tagId) => {
     })
     .catch(err => console.log(err));
 };
+
+export const deleteExistingTag = (tag, tagId) => {
+  const jsonString = JSON.stringify(tag);
+  let url = `${base_url}/api/molecule_tag/${tagId}/`;
+  return api({
+    url: url,
+    method: METHOD.DELETE,
+    data: jsonString
+  })
+    .then(resp => {
+      return resp.data;
+    })
+    .catch(err => console.log(err));
+};
