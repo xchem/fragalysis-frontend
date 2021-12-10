@@ -21,7 +21,7 @@ import {
   removeLigand,
   removeHitProtein,
   removeSurface,
-  removeAllSelectedMolTypes
+  removeSelectedMolTypes
 } from '../preview/molecule/redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
@@ -211,7 +211,7 @@ export const InspirationDialog = memo(
     const selectMoleculeSite = moleculeGroupSite => {};
 
     const removeOfAllSelectedTypes = (skipTracking = false) => {
-      dispatch(removeAllSelectedMolTypes(stage, moleculeList, skipTracking, true));
+      dispatch(removeSelectedMolTypes(stage, moleculeList, skipTracking, true));
     };
 
     const removeSelectedType = (type, skipTracking = false) => {

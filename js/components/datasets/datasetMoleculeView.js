@@ -248,8 +248,8 @@ export const DatasetMoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes,
-    removeOfAllSelectedTypesOfInspirations,
+    removeSelectedTypes,
+    removeSelectedTypesOfInspirations,
     moveSelectedMoleculeInspirationsSettings,
     L,
     P,
@@ -486,7 +486,7 @@ export const DatasetMoleculeView = memo(
       });
     };
 
-    const handleClickOnDownArrow = () => {
+    const handleClickOnDownArrow = async () => {
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
 
@@ -497,20 +497,22 @@ export const DatasetMoleculeView = memo(
       let dataValue = { objectsInView, colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
       dispatch(setArrowUpDown(datasetID, data, nextItem, ARROW_TYPE.DOWN, dataValue));
 
-      removeOfAllSelectedTypes(true);
-      removeOfAllSelectedTypesOfInspirations(true);
-
       const inspirations = getInspirationsForMol(allInspirations, datasetID, nextItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      dispatch(moveSelectedMoleculeSettings(stage, data, nextItem, nextDatasetID, datasetID, dataValue, true));
-      dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, true));
+      await Promise.all([
+        dispatch(moveSelectedMoleculeSettings(stage, data, nextItem, nextDatasetID, datasetID, dataValue, true)),
+        dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, true))
+      ]);
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
       }
+
+      removeSelectedTypes({ [nextDatasetID]: [nextItem] }, true);
+      removeSelectedTypesOfInspirations([nextItem], true);
     };
 
-    const handleClickOnUpArrow = () => {
+    const handleClickOnUpArrow = async () => {
       const refPrevious = ref.current.previousSibling;
       scrollToElement(refPrevious);
 
@@ -523,18 +525,22 @@ export const DatasetMoleculeView = memo(
       let dataValue = { objectsInView, colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
       dispatch(setArrowUpDown(datasetID, data, previousItem, ARROW_TYPE.UP, dataValue));
 
-      removeOfAllSelectedTypes(true);
-      removeOfAllSelectedTypesOfInspirations(true);
-
       const inspirations = getInspirationsForMol(allInspirations, datasetID, previousItem.id);
       dispatch(setInspirationMoleculeDataList(inspirations));
-      dispatch(moveSelectedMoleculeSettings(stage, data, previousItem, previousDatasetID, datasetID, dataValue, true));
+      await Promise.all([
+        dispatch(
+          moveSelectedMoleculeSettings(stage, data, previousItem, previousDatasetID, datasetID, dataValue, true)
+        ),
+        dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, true))
+      ]);
 
-      dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, true));
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);
       }
+
+      removeSelectedTypes({ [previousDatasetID]: [previousItem] }, true);
+      removeSelectedTypesOfInspirations([previousItem], true);
     };
 
     const moleculeTitle = data && data.name;

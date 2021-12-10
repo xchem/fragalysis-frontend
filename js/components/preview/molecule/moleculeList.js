@@ -46,7 +46,7 @@ import {
   removeLigand,
   initializeMolecules,
   applyDirectSelection,
-  removeAllSelectedMolTypes,
+  removeSelectedMolTypes,
   addQuality,
   removeQuality
 } from './redux/dispatchActions';
@@ -579,9 +579,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     selectedAll.current = false;
   };
 
-  const removeOfAllSelectedTypes = (skipTracking = false) => {
-    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking, false));
+  const removeSelectedTypes = (skipMolecules = [], skipTracking = false) => {
+    const molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList].filter(
+      molecule => !skipMolecules.includes(molecule)
+    );
+    dispatch(removeSelectedMolTypes(majorViewStage, molecules, skipTracking, false));
   };
 
   const selectMoleculeTags = moleculeTagsSet => {
@@ -936,7 +938,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
                       setRef={setTagEditorAnchorEl}
-                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                      removeSelectedTypes={removeSelectedTypes}
                       L={fragmentDisplayList.includes(data.id)}
                       P={proteinList.includes(data.id)}
                       C={complexList.includes(data.id)}

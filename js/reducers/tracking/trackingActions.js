@@ -1623,21 +1623,9 @@ const getTargetName = (targetId, state) => {
 };
 
 const getMoleculeName = (moleculeId, state) => {
-  let moleculeList = state.apiReducers.all_mol_lists;
-  let moleculeName = '';
-
-  if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-
-      let molecule = molecules.find(molecule => molecule.id === moleculeId);
-      if (molecule && molecule != null) {
-        moleculeName = molecule.protein_code;
-        break;
-      }
-    }
-  }
-  return moleculeName;
+  const moleculeList = state.apiReducers.all_mol_lists;
+  const molecule = moleculeList.find(molecule => molecule.id === moleculeId);
+  return molecule?.protein_code ?? '';
 };
 
 const getTypeDescriptionOfSelectedAllAction = type => {
