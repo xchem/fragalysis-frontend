@@ -1,4 +1,4 @@
-import { CATEGORY_ID, CATEGORY_TYPE } from '../../../../constants/constants';
+import { CATEGORY_ID, CATEGORY_TYPE, CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
 
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
 
@@ -34,6 +34,76 @@ export const compareTagsAsc = (a, b) => {
     return -1;
   }
   if (a.tag > b.tag) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsDesc = (a, b) => {
+  if (a.tag > b.tag) {
+    return -1;
+  }
+  if (a.tag < b.tag) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsByCategoryAsc = (a, b) => {
+  if (CATEGORY_TYPE_BY_ID[a.category_id] < CATEGORY_TYPE_BY_ID[b.category_id]) {
+    return -1;
+  }
+  if (CATEGORY_TYPE_BY_ID[a.category_id] > CATEGORY_TYPE_BY_ID[b.category_id]) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsByCategoryDesc = (a, b) => {
+  if (CATEGORY_TYPE_BY_ID[a.category_id] > CATEGORY_TYPE_BY_ID[b.category_id]) {
+    return -1;
+  }
+  if (CATEGORY_TYPE_BY_ID[a.category_id] < CATEGORY_TYPE_BY_ID[b.category_id]) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsByCreatorAsc = (a, b) => {
+  if (a.user_id < b.user_id) {
+    return -1;
+  }
+  if (a.user_id > b.user_id) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsByCreatorDesc = (a, b) => {
+  if (a.user_id > b.user_id) {
+    return -1;
+  }
+  if (a.user_id < b.user_id) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsByDateAsc = (a, b) => {
+  if (a.create_date < b.create_date) {
+    return -1;
+  }
+  if (a.create_date > b.create_date) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareTagsByDateDesc = (a, b) => {
+  if (a.create_date > b.create_date) {
+    return -1;
+  }
+  if (a.create_date < b.create_date) {
     return 1;
   }
   return 0;

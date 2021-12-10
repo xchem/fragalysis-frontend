@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { makeStyles, Popper } from '@material-ui/core';
 import { SketchPicker } from 'react-color';
 
@@ -35,6 +35,10 @@ export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl, di
   const [displayColorPicker, setDisplayColorPicker] = useState(false);
   const [color, setColor] = useState(selectedColor);
   const [anchorE1, setAnchorE1] = useState(null);
+
+  useEffect(() => {
+    setColor(selectedColor);
+  }, [selectedColor]);
 
   const handleClick = event => {
     if (!disabled) {

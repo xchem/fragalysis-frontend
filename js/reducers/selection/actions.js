@@ -535,3 +535,10 @@ export const removeFromMolListToEdit = molId => {
     molId: molId
   };
 };
+
+export const setTagToEdit = tag => {
+  return {
+    type: constants.SET_TAG_TO_EDIT,
+    tagToEdit: tag
+  };
+};
