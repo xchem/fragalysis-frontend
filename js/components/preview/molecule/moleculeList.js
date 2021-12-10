@@ -705,7 +705,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       color={'inherit'}
       disabled={!joinedMoleculeListsCopy.length}
       onClick={event => {
-        if (isTagEditorOpen === false && moleculesToEditIds && moleculesToEditIds.length > 0) {
+        if (isTagEditorOpen === false) {
           setTagEditorAnchorEl(event.currentTarget);
           dispatch(setIsTagGlobalEdit(true));
           dispatch(setTagEditorOpen(true));
