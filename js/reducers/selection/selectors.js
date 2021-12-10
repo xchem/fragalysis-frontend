@@ -15,14 +15,9 @@ export const getMoleculeOfCurrentVector = createSelector(
     if (selectedVectorSmile !== null && vectorList && moleculeList) {
       const foundedVector = vectorList.find(vector => vector.name.includes(selectedVectorSmile));
       if (foundedVector) {
-        for (const moleculeProperty in moleculeList) {
-          if (moleculeList.hasOwnProperty(moleculeProperty)) {
-            let molecules = moleculeList[moleculeProperty];
-            let molecule = molecules.find(m => m.id === foundedVector.moleculeId);
-            if (molecule) {
-              return molecule;
-            }
-          }
+        let molecule = moleculeList.find(m => m.id === foundedVector.moleculeId);
+        if (molecule) {
+          return molecule;
         }
         return undefined;
       }
