@@ -3,14 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
 import TagView from '../tagView';
 import {
-  getMoleculeTagForTag,
-  getAllTagsForMol,
   getDefaultTagDiscoursePostText
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
-  displayInListForTag,
-  hideInListForTag,
   updateTagProp,
   selectTag,
   unselectTag,
@@ -29,7 +25,7 @@ import { Edit } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
 import { createTagPost, isDiscourseAvailable } from '../../../../utils/discourse';
-import { setTagToEdit } from '../../../../reducers/selection/actions';
+import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   contColButton: {
@@ -88,25 +84,55 @@ const useStyles = makeStyles(theme => ({
 /**
  * TagDetailRow represents a row of TagDetails panel summary
  */
-const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, tagList }) => {
+const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [allMoleculesOfTag, setAllMoleculesOfTag] = useState([]);
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
-  const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
-  // const moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
+  const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
 
-  const handleSelectHits = tag => {
-    // TODO add all tag molecules to edit
-    if (isTagDislayedInList(tag)) {
-      dispatch(hideInListForTag(tag));
+  useEffect(() => {
+    if (allMolList.length) {
+      setAllMoleculesOfTag(allMolList.filter(mol => {
+        const tags = mol.tags_set.filter(id => id === tag.id);
+        return tags && tags.length ? true : false;
+      }));
+    }
+  }, [allMolList, tag]);
+
+  const handleSelectHits = () => {
+    if (hasSelectedMolecule(tag)) {
+      // deselect all
+      allMoleculesOfTag.forEach(mol => {
+        if (moleculesToEditIds.includes(mol.id)) {
+          dispatch(removeFromMolListToEdit(mol.id));
+        }
+      });
       dispatch(unselectTag(tag));
     } else {
-      dispatch(displayInListForTag(tag));
+      // select all
+      allMoleculesOfTag.forEach(mol => {
+        if (!moleculesToEditIds.includes(mol.id)) {
+          dispatch(appendToMolListToEdit(mol.id));
+        }
+      });
       dispatch(selectTag(tag));
     }
   };
+
+  const hasSelectedMolecule = () => {
+    let result = false;
+    for (let i = 0; i < moleculesToEdit.length; i++) {
+      const mol = moleculesToEdit[i];
+      if (mol.tags_set.some(id => id === tag.id)) {
+        result = true;
+        break;
+      }
+    }
+    return result;
+  }
 
   const handleTagClick = (selected, tag) => {
     if (selected) {
@@ -114,10 +140,6 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, tagList }
     } else {
       dispatch(addSelectedTag(tag));
     }
-  };
-
-  const isTagDislayedInList = tag => {
-    return displayAllInList.includes(tag.id);
   };
 
   const handleEditTag = (tag) => {
@@ -158,13 +180,13 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, tagList }
             <Button
               variant="outlined"
               className={classNames(classes.contColButton, {
-                [classes.contColButtonSelected]: isTagDislayedInList(tag),
+                [classes.contColButtonSelected]: hasSelectedMolecule(),
                 [classes.contColButtonHalfSelected]: false
               })}
-              onClick={() => handleSelectHits(tag)}
+              onClick={() => handleSelectHits()}
               disabled={!DJANGO_CONTEXT.pk}
             >
-              {isTagDislayedInList(tag) ? "Unselect hits" : "Select hits"}
+              {hasSelectedMolecule() ? "Unselect hits" : "Select hits"}
             </Button>
           </Grid>
         </Tooltip>

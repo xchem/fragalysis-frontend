@@ -328,7 +328,7 @@ const TagDetails = memo(({ handleHeightChange }) => {
         <Grid item container className={classes.tagListWrapper} direction="row" xs={12}>
           {/*<div className={classes.content}>*/}
             {tagList && tagList.map((tag, idx) => {
-              return (<TagDetailRow tag={tag} moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} tagList={tagList} key={tag.id} />);
+              return (<TagDetailRow tag={tag} moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} key={tag.id} />);
             })}
           {/*</div>*/}
         </Grid>

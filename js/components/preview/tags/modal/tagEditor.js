@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState } from 'react';
+import React, { forwardRef, memo } from 'react';
 import {
   Grid,
   Popper,
@@ -7,29 +7,20 @@ import {
   makeStyles
 } from '@material-ui/core';
 import { Panel } from '../../../common';
-import { ColorPicker } from '../../../common/Components/ColorPicker';
-import { Close, Search } from '@material-ui/icons';
+import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateMoleculeInMolLists, updateMoleculeTag, appendMoleculeTag } from '../../../../reducers/api/actions';
+import { updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
 import {
-  displayInListForTag,
-  hideInListForTag,
-  updateTagProp,
-  getMoleculeForId,
-  selectTag,
-  unselectTag
+  getMoleculeForId
 } from '../redux/dispatchActions';
-import { appendTagList, setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
-import { createNewTag, updateExistingTag } from '../api/tagsApi';
+import { setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
+import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
   compareTagsAsc,
-  DEFAULT_TAG_COLOR,
   augumentTagObjectWithId,
   createMoleculeTagObject,
-  getMoleculeTagForTag,
-  getAllTagsForMol,
-  getDefaultTagDiscoursePostText
+  getMoleculeTagForTag
 } from '../utils/tagUtils';
 import TagCategory from '../tagCategory';
 
@@ -119,10 +110,7 @@ export const TagEditor = memo(
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
     const dispatch = useDispatch();
-    const [searchString, setSearchString] = useState(null);
-    let tagList = useSelector(state => state.selectionReducers.tagList);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
-    const displayAllInList = useSelector(state => state.selectionReducers.listAllList);
     const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
     let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
@@ -132,29 +120,14 @@ export const TagEditor = memo(
     }
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
 
-    tagList = tagList.sort(compareTagsAsc);
     moleculeTags = moleculeTags.sort(compareTagsAsc);
 
     const handleCloseModal = () => {
-      setSearchString(null);
       if (open) {
         dispatch(setOpenDialog(false));
         dispatch(setMoleculeForTagEdit(null));
         dispatch(setIsTagGlobalEdit(false));
       }
-    };
-
-    const isTagSelected = tag => {
-      let result = false;
-      for (let i = 0; i < moleculesToEdit.length; i++) {
-        const m = moleculesToEdit[i];
-        const tagsForMol = getAllTagsForMol(m, tagList);
-        if (tagsForMol && tagsForMol.some(t => t.id === tag.id)) {
-          result = true;
-          break;
-        }
-      }
-      return result;
     };
 
     const handleTagClick = (selected, tag) => {
@@ -210,20 +183,6 @@ export const TagEditor = memo(
           updateExistingTag(molTagObject, tag.id);
         });
       }
-    };
-
-    const handleDisplayAllInList = tag => {
-      if (isTagDislayedInList(tag)) {
-        dispatch(hideInListForTag(tag));
-        dispatch(unselectTag(tag));
-      } else {
-        dispatch(displayInListForTag(tag));
-        dispatch(selectTag(tag));
-      }
-    };
-
-    const isTagDislayedInList = tag => {
-      return displayAllInList.includes(tag.id);
     };
 
     return (
