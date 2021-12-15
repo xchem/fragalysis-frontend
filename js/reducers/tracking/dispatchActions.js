@@ -78,7 +78,9 @@ import {
   setFilterProperties,
   setFilterSettings,
   updateFilterShowedScoreProperties,
-  setFilterShowedScoreProperties
+  setFilterShowedScoreProperties,
+  setDragDropState,
+  resetDragDropState
 } from '../../components/datasets/redux/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
@@ -426,6 +428,14 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.CONTOUR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.COLOR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.WARNING_ICON, currentActions);
+
+    // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
+    const action = orderedActionList.find(action =>
+      [actionType.DRAG_DROP_FINISHED, actionType.DATASET_FILTER].includes(action.type)
+    );
+    if (action) {
+      currentActions.push({ ...action, type: actionType.DRAG_DROP_FINISHED });
+    }
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -1457,12 +1467,18 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
     }
   }
 
+  const dragDropFinishedAction = moleculesAction.find(action => action.type === actionType.DRAG_DROP_FINISHED);
+  if (dragDropFinishedAction) {
+    const { datasetID, newDragDropState } = dragDropFinishedAction;
+    dispatch(setDragDropState(datasetID, newDragDropState));
+  }
+
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
   if (filterAction) {
     let datasetID = filterAction.dataset_id;
     let newFilterProperties = filterAction.newProperties;
     let newFilterSettings = filterAction.newSettings;
-    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key));
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key, null));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
   }
@@ -1916,6 +1932,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.DATASET_FILTER_SCORE:
         dispatch(handleFilterScoreAction(action, false));
         break;
+      case actionType.DRAG_DROP_FINISHED:
+        dispatch(handleDragDropFinished(action, false));
+        break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
         break;
@@ -2148,6 +2167,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.DATASET_FILTER_SCORE:
         dispatch(handleFilterScoreAction(action, true));
+        break;
+      case actionType.DRAG_DROP_FINISHED:
+        dispatch(handleDragDropFinished(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
@@ -2499,12 +2521,23 @@ const handleTabAction = (action, isSelected) => (dispatch, getState) => {
 
 const handleFilterAction = (action, isSelected) => (dispatch, getState) => {
   if (action) {
-    let datasetID = action.dataset_id;
-    let newFilterProperties = isSelected === true ? action.newProperties : action.oldProperties;
-    let newFilterSettings = isSelected === true ? action.newSettings : action.oldSettings;
-    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, action.key));
+    const {
+      datasetID,
+      key,
+      newProperties,
+      oldProperties,
+      newSettings,
+      oldSettings,
+      oldDragDropState,
+      newDragDropState
+    } = action;
+    const newFilterProperties = isSelected ? newProperties : oldProperties;
+    const newFilterSettings = isSelected ? newSettings : oldSettings;
+    const newFilterDragDropState = isSelected ? newDragDropState : oldDragDropState;
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key, newFilterDragDropState));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
+    dispatch(setDragDropState(datasetID, newFilterDragDropState));
   }
 };
 
@@ -2514,6 +2547,13 @@ const handleFilterScoreAction = (action, isSelected) => (dispatch, getState) => 
     let isChecked = isSelected === true ? action.isChecked : !action.isChecked;
     let scoreName = action.object_name;
     dispatch(selectScoreProperty({ isChecked, datasetID, scoreName }));
+  }
+};
+
+const handleDragDropFinished = (action, isSelected) => dispatch => {
+  if (action) {
+    const { oldDragDropState, newDragDropState, datasetID } = action;
+    dispatch(setDragDropState(datasetID, isSelected ? newDragDropState : oldDragDropState));
   }
 };
 

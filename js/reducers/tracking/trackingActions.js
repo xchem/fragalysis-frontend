@@ -1052,16 +1052,18 @@ export const findTrackAction = (action, state) => {
       }
     } else if (action.type === customDatasetConstants.SET_DATASET_FILTER) {
       if (action.payload) {
-        const filterProperties = state.datasetsReducers.filterPropertiesDatasetMap;
-        const filterSettings = state.datasetsReducers.filterDatasetMap;
+        const {
+          filterPropertiesDatasetMap: filterProperties,
+          filterDatasetMap: filterSettings,
+          dragDropMap
+        } = state.datasetsReducers;
+        const { datasetID, key, properties, settings, dragDropState } = action.payload;
 
-        let filterPropertiesOfDataset = filterProperties[action.payload.datasetID];
-        let filterSettingsOfDataset = filterSettings[action.payload.datasetID];
-        let newProperties = action.payload.properties;
+        const filterPropertiesOfDataset = filterProperties[datasetID];
+        const filterSettingsOfDataset = filterSettings[datasetID];
 
-        let objectType = actionObjectType.COMPOUND;
-        let key = action.payload.key;
-        let descriptionProperties = getFilterKeyChange(filterPropertiesOfDataset[key], newProperties[key]);
+        const objectType = actionObjectType.COMPOUND;
+        const descriptionProperties = getFilterKeyChange(filterPropertiesOfDataset[key], properties[key]);
 
         trackAction = {
           type: actionType.DATASET_FILTER,
@@ -1071,16 +1073,37 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           oldProperties: filterPropertiesOfDataset,
           oldSettings: filterSettingsOfDataset,
-          newProperties: newProperties,
-          newSettings: action.payload.settings,
-          dataset_id: action.payload.datasetID,
+          newProperties: properties,
+          newSettings: settings,
+          datasetID: datasetID,
           key: key,
+          oldDragDropState: dragDropMap[datasetID],
+          newDragDropState: dragDropState,
           text:
             key === 'clear'
-              ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${action.payload.datasetID}`
-              : `Filter parameter: ${key} ${actionDescription.CHANGED} ${descriptionProperties} of dataset: ${action.payload.datasetID}`
+              ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${datasetID}`
+              : `Filter parameter: ${key} ${actionDescription.CHANGED} ${descriptionProperties} of dataset: ${datasetID}`
         };
       }
+    } else if (action.type === customDatasetConstants.DRAG_DROP_FINISHED) {
+      const { datasetID, molecule, index } = action.payload;
+      const {
+        dragDropMap,
+        dragDropStatus: { startingDragDropState, startingIndex }
+      } = state.datasetsReducers;
+
+      trackAction = {
+        type: actionType.DRAG_DROP_FINISHED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: actionObjectType.COMPOUND,
+        oldDragDropState: startingDragDropState,
+        newDragDropState: dragDropMap[datasetID],
+        datasetID,
+        text: `Position for molecule ${molecule.name} from dataset ${datasetID} changed from ${startingIndex +
+          1} to ${index + 1}`
+      };
     } else if (action.type === customDatasetConstants.SET_FILTER_SHOWED_SCORE_PROPERTIES) {
       if (action.payload) {
         let objectType = actionObjectType.COMPOUND;

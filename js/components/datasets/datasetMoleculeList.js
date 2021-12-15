@@ -37,7 +37,9 @@ import {
   removeDatasetSurface,
   autoHideDatasetDialogsOnScroll,
   moveMoleculeInspirationsSettings,
-  removeSelectedDatasetMolecules
+  removeSelectedDatasetMolecules,
+  removeAllSelectedDatasetMolecules,
+  dragDropMoleculeInProgress
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -50,6 +52,10 @@ import { AlertModal } from '../common/Modal/AlertModal';
 import { hideAllSelectedMolecules } from '../preview/molecule/redux/dispatchActions';
 import { getMoleculeList } from '../preview/molecule/redux/selectors';
 import { setSelectedAllByType, setDeselectedAllByType } from './redux/actions';
+
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { sortMoleculesByDragDropState } from './helpers';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -213,6 +219,7 @@ export const DatasetMoleculeList = memo(
     const searchString = useSelector(state => state.datasetsReducers.searchString);
 
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+    const dragDropMap = useSelector(state => state.datasetsReducers.dragDropMap);
     const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
     const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap);
@@ -230,6 +237,7 @@ export const DatasetMoleculeList = memo(
 
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
+    const dragDropState = dragDropMap[datasetID];
 
     const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
     const inspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
@@ -239,11 +247,20 @@ export const DatasetMoleculeList = memo(
     // TODO Reset Infinity scroll
 
     if (isActiveFilter) {
-      joinedMoleculeLists = filteredDatasetMolecules;
+      if (dragDropState) {
+        joinedMoleculeLists = sortMoleculesByDragDropState(filteredDatasetMolecules, dragDropState);
+      } else {
+        joinedMoleculeLists = filteredDatasetMolecules;
+      }
     } else {
-      // default sort is by site
-      joinedMoleculeLists.sort((a, b) => a.site - b.site);
+      if (dragDropState) {
+        joinedMoleculeLists = sortMoleculesByDragDropState(joinedMoleculeLists, dragDropState);
+      } else {
+        // default sort is by site
+        joinedMoleculeLists.sort((a, b) => a.site - b.site);
+      }
     }
+
     if (searchString !== null) {
       joinedMoleculeLists = joinedMoleculeLists.filter(molecule =>
         molecule.name.toLowerCase().includes(searchString.toLowerCase())
@@ -306,7 +323,7 @@ export const DatasetMoleculeList = memo(
       dispatch(hideAllSelectedMolecules(stage, [...molecules], false, skipTracking));
     };
 
-    const removeOSelectedTypes = (skipMolecules = {}, skipTracking = false) => {
+    const removeOfSelectedTypes = (skipMolecules = {}, skipTracking = false) => {
       dispatch(removeSelectedDatasetMolecules(stage, skipTracking, skipMolecules));
     };
 
@@ -459,6 +476,10 @@ export const DatasetMoleculeList = memo(
     const scrollBarRef = useRef();
 
     const [isOpenAlert, setIsOpenAlert] = useState(false);
+
+    const moveMolecule = (dragIndex, hoverIndex) => {
+      dispatch(dragDropMoleculeInProgress(datasetID, joinedMoleculeLists, dragIndex, hoverIndex));
+    };
 
     return (
       <ComputeSize
@@ -655,29 +676,33 @@ export const DatasetMoleculeList = memo(
                     }
                     useWindow={false}
                   >
-                    {datasetID &&
-                      currentMolecules.map((data, index, array) => (
-                        <DatasetMoleculeView
-                          key={index}
-                          index={index}
-                          imageHeight={imgHeight}
-                          imageWidth={imgWidth}
-                          data={data}
-                          datasetID={datasetID}
-                          setRef={setSelectedMoleculeRef}
-                          showCrossReferenceModal
-                          previousItemData={index > 0 && array[index - 1]}
-                          nextItemData={index < array?.length && array[index + 1]}
-                          removeSelectedTypes={removeOSelectedTypes}
-                          removeSelectedTypesOfInspirations={removeSelectedTypesOfInspirations}
-                          moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
-                          L={ligandList.includes(data.id)}
-                          P={proteinList.includes(data.id)}
-                          C={complexList.includes(data.id)}
-                          S={surfaceList.includes(data.id)}
-                          V={false}
-                        />
-                      ))}
+                    {datasetID && (
+                      <DndProvider backend={HTML5Backend}>
+                        {currentMolecules.map((data, index, array) => (
+                          <DatasetMoleculeView
+                            key={data.id}
+                            index={index}
+                            imageHeight={imgHeight}
+                            imageWidth={imgWidth}
+                            data={data}
+                            datasetID={datasetID}
+                            setRef={setSelectedMoleculeRef}
+                            showCrossReferenceModal
+                            previousItemData={index > 0 && array[index - 1]}
+                            nextItemData={index < array?.length && array[index + 1]}
+                            removeSelectedTypes={removeOfSelectedTypes}
+                            removeSelectedTypesOfInspirations={removeSelectedTypesOfInspirations}
+                            moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
+                            L={ligandList.includes(data.id)}
+                            P={proteinList.includes(data.id)}
+                            C={complexList.includes(data.id)}
+                            S={surfaceList.includes(data.id)}
+                            V={false}
+                            moveMolecule={moveMolecule}
+                          />
+                        ))}
+                      </DndProvider>
+                    )}
                   </InfiniteScroll>
                 </Grid>
                 <Grid item>

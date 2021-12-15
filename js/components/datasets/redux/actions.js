@@ -52,9 +52,9 @@ export const setFilterProperties = (datasetID, properties) => ({
   payload: { datasetID, properties }
 });
 
-export const setDatasetFilter = (datasetID, properties, settings, key) => ({
+export const setDatasetFilter = (datasetID, properties, settings, key, dragDropState) => ({
   type: constants.SET_DATASET_FILTER,
-  payload: { datasetID, properties, settings, key }
+  payload: { datasetID, properties, settings, key, dragDropState }
 });
 
 export const setFilterDialogOpen = filterDialogOpen => ({
@@ -411,4 +411,19 @@ export const setArrowUpDown = (datasetID, item, newItem, arrowType, data) => ({
     arrowType: arrowType,
     data
   }
+});
+
+export const setDragDropState = (datasetID, dragDropState) => ({
+  type: constants.SET_DRAG_DROP_STATE,
+  payload: { datasetID, dragDropState }
+});
+
+export const dragDropStarted = (datasetID, startIndex) => ({
+  type: constants.DRAG_DROP_STARTED,
+  payload: { datasetID, startIndex }
+});
+
+export const dragDropFinished = (datasetID, molecule, index) => ({
+  type: constants.DRAG_DROP_FINISHED,
+  payload: { datasetID, molecule, index }
 });

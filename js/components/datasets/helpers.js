@@ -6,3 +6,12 @@ export const changeButtonClassname = (givenList = [], moleculeList = []) => {
   }
   return false;
 };
+
+export const sortMoleculesByDragDropState = (moleculeList, dragDropState) => {
+  const sortedMoleculeList = [];
+  moleculeList.forEach(molecule => {
+    const sortedIndex = dragDropState[molecule.name];
+    sortedMoleculeList[sortedIndex] = molecule;
+  });
+  return sortedMoleculeList;
+};

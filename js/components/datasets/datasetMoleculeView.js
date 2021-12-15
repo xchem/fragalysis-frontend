@@ -49,12 +49,15 @@ import {
   showHideLigand
 } from '../preview/compounds/redux/dispatchActions';
 import { colourList } from '../preview/molecule/utils/color';
+import { useDrag, useDrop } from 'react-dnd';
+import { useDragDropMoleculeView } from './useDragDropMoleculeView';
 
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: 54
+    height: 54,
+    cursor: 'move'
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2
@@ -256,13 +259,18 @@ export const DatasetMoleculeView = memo(
     C,
     S,
     V,
-    fromSelectedCompounds = false
+    fromSelectedCompounds = false,
+    moveMolecule
   }) => {
+    const ref = useRef(null);
+
+    const { handlerId, isDragging } = useDragDropMoleculeView(ref, datasetID, data, index, moveMolecule);
+    const opacity = isDragging ? 0 : 1;
+
     const selectedAll = useRef(false);
     const currentID = (data && data.id) || (data && data.smiles) || undefined;
     const isFromVectorSelector = isCompoundFromVectorSelector(data);
     const classes = useStyles();
-    const ref = useRef(null);
     const dispatch = useDispatch();
     const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
     const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
@@ -550,7 +558,16 @@ export const DatasetMoleculeView = memo(
 
     return (
       <>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
+        <Grid
+          container
+          justify="space-between"
+          direction="row"
+          className={classes.container}
+          wrap="nowrap"
+          ref={ref}
+          data-handler-id={handlerId}
+          style={{ opacity }}
+        >
           {/*Site number*/}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
