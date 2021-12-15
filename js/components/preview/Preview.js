@@ -62,7 +62,8 @@ const useStyles = makeStyles(theme => ({
     flex: '9999 1 0'
   },
   column: {
-    flex: `1 0 ${columnWidth}px`
+    flex: `1 0 ${columnWidth}px`,
+    width: columnWidth
   },
   columnHidden: {
     display: 'none'
@@ -164,23 +165,19 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
      - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0}px - ${theme.spacing(8)}px)`;
 
   /* Custom dataset list height */
-  const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(hideProjects ? 1 : 2)}px - ${
-    hideProjects ? 0 : molGroupsHeight
-  }px - ${filterItemsHeightDataset > 0 ? filterItemsHeightDataset + theme.spacing(1) / 2 : 0}px - ${theme.spacing(
-    8
-  )}px - ${TABS_HEADER_HEIGHT}px)`;
+  const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(1)}px - ${
+    filterItemsHeightDataset > 0 ? filterItemsHeightDataset + theme.spacing(1) / 2 : 0
+  }px - ${theme.spacing(8)}px - ${TABS_HEADER_HEIGHT}px)`;
 
-  const [viewControlsHeight, setViewControlsHeight] = useState(0);
+  const [controlsHeight, setControlsHeight] = useState(0);
 
-  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${viewControlsHeight}px )`;
+  const screenHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${controlsHeight}px)`;
 
   const [summaryViewHeight, setSummaryViewHeight] = useState(0);
 
-  const [projectHistoryHeight, setProjectHistoryHeight] = useState(0);
-
   const compoundHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
-    hideProjects ? 10 : 11
-  )}px - ${summaryViewHeight}px  - ${projectHistoryHeight}px - ${TABS_HEADER_HEIGHT}px )`;
+    10
+  )}px - ${summaryViewHeight}px - ${TABS_HEADER_HEIGHT}px )`;
   const [showHistory, setShowHistory] = useState(false);
 
   const getTabValue = () => {
@@ -247,8 +244,8 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
             <Grid item ref={nglViewerControlsRef}>
               <ComputeSize
                 componentRef={nglViewerControlsRef.current}
-                height={viewControlsHeight}
-                setHeight={setViewControlsHeight}
+                height={controlsHeight}
+                setHeight={setControlsHeight}
               >
                 <ViewerControls
                   leftColumnOpen={leftColumnOpen}
@@ -256,6 +253,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                   rightColumnOpen={rightColumnOpen}
                   setRightColumnOpen={setRightColumnOpen}
                 />
+                {!hideProjects && <ProjectHistory showFullHistory={() => setShowHistory(!showHistory)} />}
               </ComputeSize>
             </Grid>
           </Grid>
@@ -336,20 +334,12 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                     setFilterItemsHeight={setFilterItemsHeightDataset}
                     filterItemsHeight={filterItemsHeightDataset}
                     hideProjects={hideProjects}
-                    isActive={index === selectedDatasetIndex}
+                    isActive={rightColumnOpen && index === selectedDatasetIndex}
                   />
                 </Grid>
               </TabPanel>
             );
           })}
-          {!hideProjects && (
-            <Grid item>
-              <ProjectHistory
-                setHeight={setProjectHistoryHeight}
-                showFullHistory={() => setShowHistory(!showHistory)}
-              />
-            </Grid>
-          )}
         </Grid>
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
