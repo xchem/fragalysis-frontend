@@ -31,7 +31,8 @@ import {
   updateMoleculeTag,
   setAllMolLists,
   setMoleculeTags,
-  setDownloadTags
+  setDownloadTags,
+  setNoTagsReceived
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -209,34 +210,37 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
   return getAllData(targetId).then(data => {
     let tags_info = [];
     let downloadTags = [];
-    data.tags_info.forEach(tag => {
-      let newObject = {};
-      Object.keys(tag.data[0]).forEach(prop => {
-        newObject[`${prop}`] = tag.data[0][`${prop}`];
-      });
-      let coords = {};
-      if (tag.coords && tag.coords.length > 1) {
-        Object.keys(tag.coords[0]).forEach(prop => {
-          coords[`${prop}`] = tag.coords[0][`${prop}`];
+    if (data.tags_info && data.tags_info.length > 0) {
+      dispatch(setNoTagsReceived(false));
+      data.tags_info.forEach(tag => {
+        let newObject = {};
+        Object.keys(tag.data[0]).forEach(prop => {
+          newObject[`${prop}`] = tag.data[0][`${prop}`];
         });
-      }
-      newObject['coords'] = coords;
+        let coords = {};
+        if (tag.coords && tag.coords.length > 1) {
+          Object.keys(tag.coords[0]).forEach(prop => {
+            coords[`${prop}`] = tag.coords[0][`${prop}`];
+          });
+        }
+        newObject['coords'] = coords;
 
-      if (!newObject.additional_info) {
-        tags_info.push(newObject);
-      } else if (newObject.additional_info.requestObject && newObject.additional_info.downloadName) {
-        if (DJANGO_CONTEXT.pk) {
-          if (newObject.user_id === DJANGO_CONTEXT.pk) {
-            downloadTags.push(newObject);
-          }
-        } else {
-          const diffInDays = diffBetweenDatesInDays(new Date(newObject.create_date), new Date());
-          if (diffInDays <= 5) {
-            downloadTags.push(newObject);
+        if (!newObject.additional_info) {
+          tags_info.push(newObject);
+        } else if (newObject.additional_info.requestObject && newObject.additional_info.downloadName) {
+          if (DJANGO_CONTEXT.pk) {
+            if (newObject.user_id === DJANGO_CONTEXT.pk) {
+              downloadTags.push(newObject);
+            }
+          } else {
+            const diffInDays = diffBetweenDatesInDays(new Date(newObject.create_date), new Date());
+            if (diffInDays <= 5) {
+              downloadTags.push(newObject);
+            }
           }
         }
-      }
-    });
+      });
+    }
 
     let allMolecules = [];
     data.molecules.forEach(mol => {
