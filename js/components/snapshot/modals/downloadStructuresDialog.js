@@ -152,7 +152,9 @@ export const DownloadStructureDialog = memo(({}) => {
       const requestObject = getRequestObject(structuresToDownload, isAllStructures);
       const tagData = { requestObject: requestObject, structuresSelection: structuresSelection };
       dispatch(setDontShowShareSnapshot(true));
-      dispatch(saveAndShareSnapshot(nglViewList, false))
+      const tagName = generateTagName();
+      const auxData = { downloadTag: tagName };
+      dispatch(saveAndShareSnapshot(nglViewList, false, auxData))
         .then(() => {
           const state = getState();
           const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
@@ -171,7 +173,7 @@ export const DownloadStructureDialog = memo(({}) => {
           setFileSize(getFileSizeString(fileSizeInBytes));
         })
         .then(resp => {
-          return createDownloadTag(tagData);
+          return createDownloadTag(tagData, tagName);
         })
         .then(molTag => {
           dispatch(appendToDownloadTags(molTag));
@@ -196,8 +198,7 @@ export const DownloadStructureDialog = memo(({}) => {
     return `${base_url}/viewer/react/download/tag/${tagName}`;
   };
 
-  const createDownloadTag = tagData => {
-    const tagName = generateTagName();
+  const createDownloadTag = (tagData, tagName) => {
     const tagObject = createMoleculeTagObject(
       tagName,
       targetId,
