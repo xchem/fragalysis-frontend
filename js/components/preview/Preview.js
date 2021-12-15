@@ -42,54 +42,32 @@ import {
 } from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
 import { withLoadingMolecules } from './tags/withLoadingMolecules';
+import classNames from 'classnames';
 
-const hitNavigatorWidth = 504;
+const columnWidth = 504;
 
 /* 48px is tabs header height */
 const TABS_HEADER_HEIGHT = 48;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    minHeight: 'inherit'
-  },
-  inheritWidth: {
-    width: 'inherit'
-  },
-  nglViewWidth: {
-    // padding: 0,
-    width: 'inherit'
-  },
-  hitSelectorWidth: {
-    width: '100%'
-  },
-  hitColumn: {
-    minWidth: hitNavigatorWidth,
-    [theme.breakpoints.up('md')]: {
-      width: hitNavigatorWidth
-    },
-    [theme.breakpoints.only('sm')]: {
-      width: '100%'
-    }
+    minHeight: 'inherit',
+    display: 'flex',
+    gap: theme.spacing(),
+    flexWrap: 'wrap'
   },
   nglColumn: {
-    [theme.breakpoints.up('lg')]: {
-      width: `calc(100vw - ${2 * hitNavigatorWidth}px - ${theme.spacing(2)}px)`
-    },
-    [theme.breakpoints.only('md')]: {
-      width: `calc(100vw - ${hitNavigatorWidth}px - ${theme.spacing(4)}px)`
-    }
+    // Since the LHS and RHS columns require flex-grow to be 1 in case they are wrapped, this is needed to make NGL take
+    // all of the space in case they are not wrapped
+    flex: '9999 1 0'
   },
-  rightSideColumn: {
-    minWidth: hitNavigatorWidth,
-    [theme.breakpoints.up('lg')]: {
-      width: hitNavigatorWidth
-    }
+  column: {
+    flex: `1 0 ${columnWidth}px`
   },
-  tabHeader: {
-    maxWidth: hitNavigatorWidth - theme.spacing(1)
+  columnHidden: {
+    display: 'none'
   },
   tabButtonGroup: {
-    maxWidth: hitNavigatorWidth - theme.spacing(2),
     height: 48
   }
 }));
@@ -180,9 +158,10 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const [filterItemsHeightDataset, setFilterItemsHeightDataset] = useState(0);
 
   /* Hit navigator list height */
-  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${tagDetailsHeight}px - ${molGroupsHeight}px
-     - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
-  }px - ${theme.spacing(8)}px)`;
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(
+    2
+  )}px - ${tagDetailsHeight}px - ${molGroupsHeight}px
+     - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0}px - ${theme.spacing(8)}px)`;
 
   /* Custom dataset list height */
   const customMoleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(hideProjects ? 1 : 2)}px - ${
@@ -234,16 +213,20 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const anchorRefDatasetDropdown = useRef(null);
   const [openDatasetDropdown, setOpenDatasetDropdown] = useState(false);
 
+  const [rightColumnOpen, setRightColumnOpen] = useState(false);
+  const [leftColumnOpen, setLeftColumnOpen] = useState(true);
+
   return (
     <>
-      <Grid container justify="space-between" className={classes.root} spacing={1}>
-        <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
-          {/* Tag details pane */}
-          <Grid item className={classes.hitSelectorWidth}>
-            <TagDetails handleHeightChange={setTagDetailsHeight} />
-          </Grid>
+      <div className={classes.root}>
+        <Grid
+          container
+          className={classNames(classes.column, !leftColumnOpen && classes.columnHidden)}
+          direction="column"
+          spacing={1}
+        >
           {/* Hit cluster selector */}
-          <Grid item className={classes.hitSelectorWidth}>
+          <Grid item>
             <TagSelector handleHeightChange={setMolGroupsHeight} />
           </Grid>
           {/* Hit navigator */}
@@ -256,103 +239,109 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
             />
           </Grid>
         </Grid>
-        <Grid item className={classes.nglColumn}>
+        <div className={classes.nglColumn}>
           <Grid container direction="column">
-            <Grid item className={classes.nglViewWidth}>
+            <Grid item>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
-            <Grid item ref={nglViewerControlsRef} className={classes.inheritWidth}>
+            <Grid item ref={nglViewerControlsRef}>
               <ComputeSize
                 componentRef={nglViewerControlsRef.current}
                 height={viewControlsHeight}
                 setHeight={setViewControlsHeight}
               >
-                <ViewerControls />
+                <ViewerControls
+                  leftColumnOpen={leftColumnOpen}
+                  setLeftColumnOpen={setLeftColumnOpen}
+                  rightColumnOpen={rightColumnOpen}
+                  setRightColumnOpen={setRightColumnOpen}
+                />
               </ComputeSize>
             </Grid>
           </Grid>
-        </Grid>
-        <Grid item container direction="column" spacing={1} className={classes.rightSideColumn}>
-          <Grid item className={classes.tabHeader}>
-            <ButtonGroup
-              color="primary"
-              variant="contained"
-              aria-label="outlined primary button group"
-              className={classes.tabButtonGroup}
+        </div>
+        <Grid
+          className={classNames(classes.column, !rightColumnOpen && classes.columnHidden)}
+          container
+          direction="column"
+        >
+          <ButtonGroup
+            color="primary"
+            variant="contained"
+            aria-label="outlined primary button group"
+            className={classes.tabButtonGroup}
+          >
+            <Button
+              size="small"
+              variant={getTabValue() === 0 ? 'contained' : 'text'}
+              onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
             >
-              <Button
-                size="small"
-                variant={getTabValue() === 0 ? 'contained' : 'text'}
-                onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
-              >
-                Vector selector
-              </Button>
-              <Button
-                size="small"
-                variant={getTabValue() === 1 ? 'contained' : 'text'}
-                onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
-              >
-                Selected compounds
-              </Button>
-              <Button
-                size="small"
-                variant={getTabValue() >= 2 ? 'contained' : 'text'}
-                onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
-              >
-                {currentDataset?.title}
-              </Button>
-              <Button
-                variant="text"
-                size="small"
-                onClick={() => {
-                  setOpenDatasetDropdown(prevOpen => !prevOpen);
-                }}
-                ref={anchorRefDatasetDropdown}
-                className={classes.dropDown}
-              >
-                <ArrowDropDownIcon />
-              </Button>
-              <ButtonGroup />
-            </ButtonGroup>
-            <DatasetSelectorMenuButton
-              anchorRef={anchorRefDatasetDropdown}
-              open={openDatasetDropdown}
-              setOpen={setOpenDatasetDropdown}
-              customDatasets={customDatasets}
-              selectedDatasetIndex={selectedDatasetIndex}
-              setSelectedDatasetIndex={setSelectedDatasetIndex}
-            />
-            <TabPanel value={getTabValue()} index={0}>
-              {/* Vector selector */}
-              <Grid container direction="column" spacing={1}>
-                <Grid item>
-                  <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
-                </Grid>
-                <Grid item>
-                  <CompoundList height={compoundHeight} />
-                </Grid>
+              Vector selector
+            </Button>
+            <Button
+              size="small"
+              variant={getTabValue() === 1 ? 'contained' : 'text'}
+              onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
+            >
+              Selected compounds
+            </Button>
+            <Button
+              size="small"
+              variant={getTabValue() >= 2 ? 'contained' : 'text'}
+              onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
+            >
+              {currentDataset?.title}
+            </Button>
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {
+                setOpenDatasetDropdown(prevOpen => !prevOpen);
+              }}
+              ref={anchorRefDatasetDropdown}
+              className={classes.dropDown}
+            >
+              <ArrowDropDownIcon />
+            </Button>
+          </ButtonGroup>
+          <DatasetSelectorMenuButton
+            anchorRef={anchorRefDatasetDropdown}
+            open={openDatasetDropdown}
+            setOpen={setOpenDatasetDropdown}
+            customDatasets={customDatasets}
+            selectedDatasetIndex={selectedDatasetIndex}
+            setSelectedDatasetIndex={setSelectedDatasetIndex}
+          />
+          <TabPanel value={getTabValue()} index={0}>
+            {/* Vector selector */}
+            <Grid container direction="column" spacing={1}>
+              <Grid item>
+                <SummaryView setSummaryViewHeight={setSummaryViewHeight} summaryViewHeight={summaryViewHeight} />
               </Grid>
-            </TabPanel>
-            <TabPanel value={getTabValue()} index={1}>
-              <SelectedCompoundList height={customMoleculeListHeight} />
-            </TabPanel>
-            {customDatasets.map((dataset, index) => {
-              return (
-                <TabPanel key={index + 2} value={getTabValue()} index={index + 2}>
-                  <Grid item>
-                    <CustomDatasetList
-                      dataset={dataset}
-                      height={customMoleculeListHeight}
-                      setFilterItemsHeight={setFilterItemsHeightDataset}
-                      filterItemsHeight={filterItemsHeightDataset}
-                      hideProjects={hideProjects}
-                      isActive={index === selectedDatasetIndex}
-                    />
-                  </Grid>
-                </TabPanel>
-              );
-            })}
-          </Grid>
+              <Grid item>
+                <CompoundList height={compoundHeight} />
+              </Grid>
+            </Grid>
+          </TabPanel>
+          <TabPanel value={getTabValue()} index={1}>
+            <SelectedCompoundList height={customMoleculeListHeight} />
+          </TabPanel>
+          {customDatasets.map((dataset, index) => {
+            return (
+              <TabPanel key={index + 2} value={getTabValue()} index={index + 2}>
+                <Grid item>
+                  <CustomDatasetList
+                    dataset={dataset}
+                    height={customMoleculeListHeight}
+                    setFilterItemsHeight={setFilterItemsHeightDataset}
+                    filterItemsHeight={filterItemsHeightDataset}
+                    hideProjects={hideProjects}
+                    isActive={index === selectedDatasetIndex}
+                  />
+                </Grid>
+              </TabPanel>
+            );
+          })}
           {!hideProjects && (
             <Grid item>
               <ProjectHistory
@@ -365,7 +354,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         {/*<Grid item xs={12} sm={6} md={4} >
           <HotspotList />
         </Grid>*/}
-      </Grid>
+      </div>
       <NewSnapshotModal />
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />

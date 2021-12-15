@@ -49,5 +49,19 @@ export const ComputeSize = ({
     };
   }, [componentRef, resize]);
 
+  useEffect(() => {
+    if (componentRef) {
+      const resizeObserver = new ResizeObserver(() => {
+        resize();
+      });
+
+      resizeObserver.observe(componentRef);
+
+      return () => {
+        resizeObserver.unobserve(componentRef);
+      };
+    }
+  }, [componentRef, resize]);
+
   return children;
 };
