@@ -112,11 +112,7 @@ export const Panel = memo(
                 className={classes.headerGrid}
               >
                 {title && (
-                  <Grid
-                    item
-                    xs={hasExpansion || headerActions ? (headerActions && headerActions.length > 1 ? 4 : 6) : 12}
-                    className={classes.headerTitle}
-                  >
+                  <Grid item className={classes.headerTitle}>
                     {withTooltip ? (
                       <Tooltip title={title}>
                         <Typography variant="h6" color="inherit" noWrap>
@@ -131,24 +127,20 @@ export const Panel = memo(
                   </Grid>
                 )}
                 {(headerActions || hasExpansion) && (
-                  <Grid
-                    item
-                    container
-                    direction="row"
-                    justify="flex-end"
-                    xs={title ? (headerActions && headerActions.length > 1 ? 8 : 6) : 12}
-                  >
-                    {headerActions &&
-                      headerActions.map((action, index) => (
-                        <Grid item key={index}>
-                          {action}
-                        </Grid>
-                      ))}
-                    {hasExpansion && (
-                      <IconButton onClick={handleTitleButtonClick} color="inherit">
-                        {expanded ? <ExpandLess /> : <ExpandMore />}
-                      </IconButton>
-                    )}
+                  <Grid item>
+                    <Grid container direction="row" justify="flex-end">
+                      {headerActions &&
+                        headerActions.map((action, index) => (
+                          <Grid item key={index}>
+                            {action}
+                          </Grid>
+                        ))}
+                      {hasExpansion && (
+                        <IconButton onClick={handleTitleButtonClick} color="inherit">
+                          {expanded ? <ExpandLess /> : <ExpandMore />}
+                        </IconButton>
+                      )}
+                    </Grid>
                   </Grid>
                 )}
               </Grid>

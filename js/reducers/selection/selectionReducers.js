@@ -45,7 +45,10 @@ export const INITIAL_STATE = {
   // }
   currentVector: null, // selected vector smile (ID) of compoundsOfVectors
   displayedMoleculesInHitNav: [],
-  moleculesToEdit: []
+  moleculesToEdit: [],
+
+  // tags
+  tagToEdit: null
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -484,6 +487,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.REMOVE_FROM_MOL_LIST_TO_EDIT:
       let reducedMolListToEdit = state.moleculesToEdit.filter(mid => mid !== action.molId);
       return { ...state, moleculesToEdit: [...reducedMolListToEdit] };
+
+    case constants.SET_TAG_TO_EDIT: {
+      return Object.assign({}, state, {
+        tagToEdit: action.tagToEdit
+      });
+    }
 
     // Cases like: @@redux/INIT
     default:

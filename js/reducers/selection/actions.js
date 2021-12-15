@@ -471,6 +471,14 @@ export const appendTagList = function(item, skipTracking = false) {
   };
 };
 
+export const removeFromTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setTagEditorOpen = isOpen => {
   return {
     type: constants.SET_TAG_EDITOR_OPEN,
@@ -533,5 +541,12 @@ export const removeFromMolListToEdit = molId => {
   return {
     type: constants.REMOVE_FROM_MOL_LIST_TO_EDIT,
     molId: molId
+  };
+};
+
+export const setTagToEdit = tag => {
+  return {
+    type: constants.SET_TAG_TO_EDIT,
+    tagToEdit: tag
   };
 };

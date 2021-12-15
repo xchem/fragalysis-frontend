@@ -12,7 +12,7 @@ export const INITIAL_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
-  all_mol_lists: {},
+  all_mol_lists: [],
   allMolecules: [],
   moleculeTags: [],
   duck_yank_data: {},

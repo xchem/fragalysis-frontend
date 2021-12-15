@@ -7,7 +7,7 @@ import { TagEditModal } from './modal/tagEditModal';
 
 const useStyles = makeStyles(theme => ({
   tagItem: {
-    paddingBottom: 6
+    paddingBottom: 0
   },
   chip: {
     // maxWidth: '100%',

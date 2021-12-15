@@ -9,6 +9,7 @@ import HitNavigator from './molecule/hitNavigator';
 import { CustomDatasetList } from '../datasets/customDatasetList';
 import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import TagSelector from './tags/tagSelector';
+import TagDetails from './tags/details/tagDetails';
 import { SummaryView } from './summary/summaryView';
 import { CompoundList } from './compounds/compoundList';
 import { ViewerControls } from './viewerControls';
@@ -173,13 +174,14 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
     return allMolsMap;
   }, [all_mol_lists]);
 
+  const [tagDetailsHeight, setTagDetailsHeight] = useState(0);
   const [molGroupsHeight, setMolGroupsHeight] = useState(0);
   const [filterItemsHeight, setFilterItemsHeight] = useState(0);
   const [filterItemsHeightDataset, setFilterItemsHeightDataset] = useState(0);
 
   /* Hit navigator list height */
-  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${molGroupsHeight}px - ${
-    filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
+  const moleculeListHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)}px - ${tagDetailsHeight}px - ${molGroupsHeight}px
+     - ${filterItemsHeight > 0 ? filterItemsHeight + theme.spacing(1) / 2 : 0
   }px - ${theme.spacing(8)}px)`;
 
   /* Custom dataset list height */
@@ -236,6 +238,10 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
     <>
       <Grid container justify="space-between" className={classes.root} spacing={1}>
         <Grid item container direction="column" spacing={1} className={classes.hitColumn}>
+          {/* Tag details pane */}
+          <Grid item className={classes.hitSelectorWidth}>
+            <TagDetails handleHeightChange={setTagDetailsHeight} />
+          </Grid>
           {/* Hit cluster selector */}
           <Grid item className={classes.hitSelectorWidth}>
             <TagSelector handleHeightChange={setMolGroupsHeight} />

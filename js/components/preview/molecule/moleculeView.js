@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, IconButton, Checkbox } from '@material-ui/core';
+import { Grid, Button, makeStyles, Typography, Tooltip, IconButton, Checkbox, Paper } from '@material-ui/core';
 import { MyLocation, ArrowDownward, ArrowUpward, Warning, Label, Edit } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
@@ -50,6 +50,7 @@ import { MOL_TYPE } from './redux/constants';
 import { DensityMapsModal } from './modals/densityMapsModal';
 import { getRandomColor } from './utils/color';
 import { getAllTagsForMol } from '../tags/utils/tagUtils';
+import TagView from '../tags/tagView';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -210,6 +211,9 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       color: theme.palette.primary.dark
     }
+  },
+  tooltip: {
+    backgroundColor: theme.palette.white
   }
 }));
 
@@ -228,7 +232,7 @@ const MoleculeView = memo(
     previousItemData,
     nextItemData,
     setRef,
-    removeOfAllSelectedTypes,
+    removeSelectedTypes,
     L,
     P,
     C,
@@ -330,25 +334,25 @@ const MoleculeView = memo(
 
     const getDataForTagsTooltip = () => {
       const assignedTags = getAllTagsForMol(data, tagList);
-      const dataForTooltip = [];
+      return assignedTags;
+      /*const dataForTooltip = [];
       assignedTags &&
         assignedTags.forEach(tag => {
           dataForTooltip.push(tag.tag);
         });
 
-      return dataForTooltip;
+      return dataForTooltip;*/
     };
 
     const generateTooltip = () => {
       const data = getDataForTagsTooltip();
       return (
-        <React.Fragment>
-          <Typography color="inherit">{'Edit tags'}</Typography>
-          <hr />
-          {data.map(t => (
-            <Typography color="inherit">{t}</Typography>
+        <Paper className={classes.tooltip}>
+          {data.map((t, idx) => (
+            /*<Typography color="inherit">{t}</Typography>*/
+            <TagView key={t.id} tag={t} selected={true} ></TagView>
           ))}
-        </React.Fragment>
+        </Paper>
       );
     };
 
@@ -615,7 +619,7 @@ const MoleculeView = memo(
       });
     };
 
-    const handleClickOnDownArrow = () => {
+    const handleClickOnDownArrow = async () => {
       const refNext = ref.current.nextSibling;
       scrollToElement(refNext);
 
@@ -631,12 +635,13 @@ const MoleculeView = memo(
         objectsInView: objectsInView,
         colourToggle: colourToggle
       };
-      removeOfAllSelectedTypes(true);
-      dispatch(moveSelectedMolSettings(stage, data, nextItemData, dataValue, true));
+      // Needs to be awaited since adding elements to NGL viewer is done asynchronously
+      await dispatch(moveSelectedMolSettings(stage, data, nextItemData, dataValue, true));
       dispatch(setArrowUpDown(data, nextItemData, ARROW_TYPE.DOWN, dataValue));
+      removeSelectedTypes([nextItemData], true);
     };
 
-    const handleClickOnUpArrow = () => {
+    const handleClickOnUpArrow = async () => {
       const refPrevious = ref.current.previousSibling;
       scrollToElement(refPrevious);
 
@@ -652,9 +657,10 @@ const MoleculeView = memo(
         objectsInView: objectsInView,
         colourToggle: colourToggle
       };
-      removeOfAllSelectedTypes(true);
-      dispatch(moveSelectedMolSettings(stage, data, previousItemData, dataValue, true));
+      // Needs to be awaited since adding elements to NGL viewer is done asynchronously
+      await dispatch(moveSelectedMolSettings(stage, data, previousItemData, dataValue, true));
       dispatch(setArrowUpDown(data, previousItemData, ARROW_TYPE.UP, dataValue));
+      removeSelectedTypes([previousItemData], true);
     };
 
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
@@ -666,7 +672,7 @@ const MoleculeView = memo(
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
               <Checkbox
-                checked={isMolSelectedForEdit}
+                checked={isMolSelectedForEdit || molIdForTagEditor === data.id}
                 className={classes.checkbox}
                 size="small"
                 color="primary"
@@ -940,6 +946,8 @@ const MoleculeView = memo(
                     // setTagAddModalOpen(!tagAddModalOpen);
                     if (molIdForTagEditor === data.id) {
                       dispatch(setTagEditorOpen(!isTagEditorOpen));
+                      dispatch(setMoleculeForTagEdit(null));
+                      dispatch(setTagEditorOpen(false));
                     } else {
                       dispatch(setMoleculeForTagEdit(data.id));
                       dispatch(setTagEditorOpen(true));
@@ -950,7 +958,12 @@ const MoleculeView = memo(
                   }}
                 >
                   <Tooltip title={generateTooltip()}>
-                    <Label />
+                    <Checkbox
+                      checked={molIdForTagEditor === data.id}
+                      className={classes.checkbox}
+                      size="small"
+                      color="primary"
+                    />
                   </Tooltip>
                 </IconButton>
               </Grid>
