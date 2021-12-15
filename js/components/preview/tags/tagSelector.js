@@ -1,5 +1,5 @@
 import React, { memo, useRef, useEffect, useCallback, useState } from 'react';
-import { Grid, makeStyles, Switch, FormControlLabel } from '@material-ui/core';
+import { Grid, makeStyles, Switch, FormControlLabel, Tooltip } from '@material-ui/core';
 import { Delete, DoneAll } from '@material-ui/icons';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
@@ -30,6 +30,9 @@ const useStyles = makeStyles(theme => ({
   },
   selectorItem: {
     height: '100%'
+  },
+  tagModeSwitch: {
+    width: 132 // Should be adjusted if a label for the switch changes
   }
 }));
 
@@ -136,22 +139,31 @@ const TagSelector = memo(({ handleHeightChange }) => {
       hasHeader
       hasExpansion
       defaultExpanded
-      title="Tag selector"
+      title="Hit List Filter"
       headerActions={[
-        <FormControlLabel
-          control={<TagModeSwitch checked={tagMode} onChange={filteringModeSwitched} name="tag-filtering-mode" />}
-          label={tagMode ? 'Exclusive' : 'Inclusive'}
-        />,
+        <Tooltip
+          title={
+            tagMode
+              ? 'Any compound labelled with any of the active tags will be selected'
+              : 'Only the compounds labelled with all the active tags will be selected'
+          }
+        >
+          <FormControlLabel
+            className={classes.tagModeSwitch}
+            control={<TagModeSwitch checked={tagMode} onChange={filteringModeSwitched} name="tag-filtering-mode" />}
+            label={tagMode ? 'Intersection' : 'Union'}
+          />
+        </Tooltip>,
         <Button
           onClick={() => handleSelectionButton()}
           disabled={false}
           color="inherit"
           variant="text"
           size="small"
-          startIcon={selectAll ? <DoneAll /> : <Delete />}
+          startIcon={<DoneAll />}
           data-id="tagSelectionButton"
         >
-          {selectAll ? 'Select all tags' : 'Clear selection'}
+          {selectAll ? 'Select all tags' : 'Unselect'}
         </Button>
       ]}
       onExpandChange={expand => {

@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TagCategory = memo(({ headerPadding = 0 }) => {
+const TagCategory = memo(({ headerPadding = 0, tagClickCallback }) => {
   const classes = useStyles();
 
   const categoryList = useSelector(state => state.selectionReducers.categoryList);
@@ -44,10 +44,10 @@ const TagCategory = memo(({ headerPadding = 0 }) => {
       </Grid>
 
       <Grid className={classes.categoryScrollable}>
-        <TagCategoryView tags={siteTags} />
-        <TagCategoryView tags={seriesTags} />
-        <TagCategoryView tags={forumTags} />
-        <TagCategoryView tags={otherTags} />
+        <TagCategoryView tags={siteTags} clickCallback={tagClickCallback} />
+        <TagCategoryView tags={seriesTags} clickCallback={tagClickCallback} />
+        <TagCategoryView tags={forumTags} clickCallback={tagClickCallback} />
+        <TagCategoryView tags={otherTags} clickCallback={tagClickCallback} />
       </Grid>
     </>
   );

@@ -35,7 +35,7 @@ import {
   removeQuality,
   removeVector,
   moveSelectedMolSettings,
-  removeAllSelectedMolTypes,
+  removeSelectedMolTypes,
   hideAllSelectedMolecules,
   addDensity,
   addDensityCustomView,
@@ -61,7 +61,7 @@ import {
   removeDatasetSurface,
   loadDataSets,
   loadDatasetCompoundsWithScores,
-  removeAllSelectedDatasetMolecules,
+  removeSelectedDatasetMolecules,
   moveSelectedMoleculeSettings,
   moveSelectedInspirations,
   moveMoleculeInspirationsSettings,
@@ -2768,7 +2768,7 @@ const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStag
     let isInspiration = newItem && newItem.isInspiration;
     let data = action.data;
 
-    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, true, isInspiration));
+    dispatch(removeSelectedMolTypes(majorViewStage, molecules, true, isInspiration));
     dispatch(moveSelectedMolSettings(majorViewStage, item, newItem, data, true));
     dispatch(setArrowUpDown(item, newItem, action.arrowType, data));
   }
@@ -2795,7 +2795,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
     const qualityListMolecule = data.qualityList;
 
     dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
-    dispatch(removeAllSelectedDatasetMolecules(majorViewStage, true));
+    dispatch(removeSelectedDatasetMolecules(majorViewStage, true));
 
     const newDatasetID = (newItem.hasOwnProperty('datasetID') && newItem.datasetID) || datasetID;
     const moleculeTitlePrev = newItem && newItem.name;
