@@ -285,6 +285,7 @@ export const findTrackAction = (action, state) => {
         render_event: action.item.render_event,
         render_sigmaa: action.item.render_sigmaa,
         render_diff: action.item.render_diff,
+        render_quality: action.item.render_quality,
         text: `${actionDescription.DENSITY} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
           objectName,
           target_on_name

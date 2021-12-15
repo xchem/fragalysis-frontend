@@ -1603,16 +1603,18 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
               if (i && i.length > 0) {
                 const proteinData = i[0];
                 data.proteinData = proteinData;
-                data.proteinData.render_event = action.render_event ? action.render_event : false;
-                data.proteinData.render_diff = action.render_diff ? action.render_diff : false;
-                data.proteinData.render_sigmaa = action.render_sigmaa ? action.render_sigmaa : false;
+                data.proteinData.render_event = !!action.render_event;
+                data.proteinData.render_diff = !!action.render_diff;
+                data.proteinData.render_sigmaa = !!action.render_sigmaa;
+                data.proteinData.render_quality = !!action.render_quality;
               }
             });
             await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
           } else {
-            data.proteinData.render_event = action.render_event ? action.render_event : false;
-            data.proteinData.render_diff = action.render_diff ? action.render_diff : false;
-            data.proteinData.render_sigmaa = action.render_sigmaa ? action.render_sigmaa : false;
+            data.proteinData.render_event = !!action.render_event;
+            data.proteinData.render_diff = !!action.render_diff;
+            data.proteinData.render_sigmaa = !!action.render_sigmaa;
+            data.proteinData.render_quality = !!action.render_quality;
             await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
           }
         } else {

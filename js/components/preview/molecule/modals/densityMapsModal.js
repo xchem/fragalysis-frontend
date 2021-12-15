@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useLayoutEffect, useState } from 'react';
 import Modal from '../../../common/Modal';
 import { useDispatch } from 'react-redux';
 import { Grid, makeStyles, Checkbox, Typography, FormControlLabel } from '@material-ui/core';
@@ -18,30 +18,39 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDensity }) => {
+export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDensity, isQualityOn }) => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const [valueSigmaa, setValueSigmaa] = useState(false);
   const [valueDiff, setValueDiff] = useState(false);
   const [valueEvent, setValueEvent] = useState(false);
+  const [valueAtomQuality, setValueAtomQuality] = useState(isQualityOn);
   const proteinData = data.proteinData;
 
+  // In case quality gets turned on from elsewhere
+  useLayoutEffect(() => {
+    setValueAtomQuality(isQualityOn);
+  }, [isQualityOn]);
+
   const toggleRenderSigmaaMap = () => {
-    let render = (proteinData.render_sigmaa && proteinData.render_sigmaa) || false;
-    proteinData.render_sigmaa = !render;
+    proteinData.render_sigmaa = !proteinData.render_sigmaa;
     setValueSigmaa(!valueSigmaa);
   };
 
   const toggleRenderDiffMap = () => {
-    let render = (proteinData.render_diff && proteinData.render_diff) || false;
-    proteinData.render_diff = !render;
+    proteinData.render_diff = !proteinData.render_diff;
     setValueDiff(!valueDiff);
   };
 
   const toggleRenderEventMap = () => {
-    let render = (proteinData.render_event && proteinData.render_event) || false;
-    proteinData.render_event = !render;
+    proteinData.render_event = !proteinData.render_event;
     setValueEvent(!valueEvent);
+  };
+
+  const toggleRenderAtomQuality = () => {
+    const nextValue = !valueAtomQuality;
+    proteinData.render_quality = nextValue;
+    setValueAtomQuality(nextValue);
   };
 
   const handleCloseModal = () => {
@@ -117,6 +126,23 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
                 className={classes.checkbox}
               />
             )}
+          </Grid>
+          <Grid item>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={valueAtomQuality}
+                  name="diff"
+                  color="primary"
+                  onChange={() => {
+                    toggleRenderAtomQuality();
+                  }}
+                />
+              }
+              label="Render atom quality"
+              labelPlacement="end"
+              className={classes.checkbox}
+            />
           </Grid>
         </Grid>
         <Grid container justify="flex-end" direction="row">
