@@ -217,11 +217,16 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
     <>
       <div className={classes.root}>
         <Grid
+          item
           container
-          className={classNames(classes.column, !leftColumnOpen && classes.columnHidden)}
           direction="column"
           spacing={1}
+          className={classNames(classes.column, !leftColumnOpen && classes.columnHidden)}
         >
+          {/* Tag details pane */}
+          <Grid item className={classes.hitSelectorWidth}>
+            <TagDetails handleHeightChange={setTagDetailsHeight} />
+          </Grid>
           {/* Hit cluster selector */}
           <Grid item>
             <TagSelector handleHeightChange={setMolGroupsHeight} />
